@@ -25,8 +25,8 @@ export function messagesToJson(messages: Message[]): Json {
     id: msg.id,
     role: msg.role,
     content: msg.content,
-    components: msg.components,
+    components: msg.components as any, // Cast to any for JSON compatibility
     suggestions: msg.suggestions,
     timestamp: msg.timestamp.toISOString()
-  }))
+  })) as Json
 }
