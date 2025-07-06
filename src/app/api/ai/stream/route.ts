@@ -11,44 +11,43 @@ export async function POST(request: NextRequest) {
     const context = buildDemoContext()
     const prompt = buildPrompt(message, context)
     
-    // Create a TransformStream for streaming response
-    const encoder = new TextEncoder()
-    const stream = new TransformStream()
-    const writer = stream.writable.getWriter()
-    
-    // Start streaming in the background
-    (async () => {
-      try {
-        const streamResponse = aiService.stream(prompt, {
-          systemPrompt: BLIPEE_SYSTEM_PROMPT,
-          temperature: 0.7,
-          maxTokens: 1000
-        })
+    // Create a ReadableStream for the response
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder()
         
-        for await (const token of streamResponse) {
-          if (token.content) {
-            await writer.write(
-              encoder.encode(`data: ${JSON.stringify({ content: token.content })}\n\n`)
-            )
-          }
+        try {
+          const streamResponse = aiService.stream(prompt, {
+            systemPrompt: BLIPEE_SYSTEM_PROMPT,
+            temperature: 0.7,
+            maxTokens: 1000
+          })
           
-          if (token.isComplete) {
-            await writer.write(
-              encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
-            )
+          for await (const token of streamResponse) {
+            if (token.content) {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ content: token.content })}\n\n`)
+              )
+            }
+            
+            if (token.isComplete) {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
+              )
+            }
           }
+        } catch (error) {
+          console.error('Streaming error:', error)
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ error: 'Stream failed' })}\n\n`)
+          )
+        } finally {
+          controller.close()
         }
-      } catch (error) {
-        console.error('Streaming error:', error)
-        await writer.write(
-          encoder.encode(`data: ${JSON.stringify({ error: 'Stream failed' })}\n\n`)
-        )
-      } finally {
-        await writer.close()
       }
-    })()
+    })
     
-    return new Response(stream.readable, {
+    return new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
