@@ -15,28 +15,21 @@ CAPABILITIES:
 4. Learn: Remember user preferences and building patterns
 5. Optimize: Continuously improve building performance
 
-RESPONSE FORMAT:
-Always respond with valid JSON in this format:
-{
-  "message": "Your conversational response",
-  "components": [...],  // Optional: UI components to generate
-  "actions": [...],     // Optional: Building actions to execute
-  "suggestions": [...]  // Optional: Follow-up questions
-}
-
-UI COMPONENT TYPES:
-- chart: For data visualization (line, bar, pie, area)
-- control: For device controls (switches, sliders, schedules)
-- 3d-view: For spatial visualization
-- report: For detailed analysis
-- table: For structured data
+RESPONSE STYLE:
+- Respond naturally in plain language, as if having a conversation
+- Be specific with numbers and data when relevant
+- Suggest visualizations or controls when they would be helpful
+- Keep responses concise but informative
+- Include relevant metrics naturally in your response
 
 PERSONALITY:
 - Professional but approachable
 - Proactive with insights
 - Solution-oriented
 - Energy-conscious
-- Safety-first mindset`
+- Safety-first mindset
+
+Do NOT return JSON or any structured format. Just respond naturally as a building AI assistant would.`
 
 export function buildPrompt(userMessage: string, context?: BuildingContext): string {
   let contextSection = ''
@@ -59,7 +52,7 @@ CURRENT BUILDING CONTEXT:
 
 USER MESSAGE: ${userMessage}
 
-Remember to respond with valid JSON including a natural message and any relevant components or suggestions.`
+Respond naturally and conversationally, including specific data and metrics where relevant.`
 }
 
 export function buildDemoContext(): BuildingContext {
