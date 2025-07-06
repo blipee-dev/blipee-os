@@ -2,7 +2,7 @@
 
 interface TableComponentProps {
   title?: string
-  data: any[]
+  data?: any[]
   columns?: string[]
   actions?: {
     label: string
@@ -10,7 +10,7 @@ interface TableComponentProps {
   }[]
 }
 
-export function TableComponent({ title, data, columns, actions }: TableComponentProps) {
+export function TableComponent({ title, data = [], columns, actions }: TableComponentProps) {
   // Auto-detect columns if not provided
   const tableColumns = columns || (data.length > 0 ? Object.keys(data[0]) : [])
 
