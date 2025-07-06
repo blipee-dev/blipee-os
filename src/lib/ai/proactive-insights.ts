@@ -163,74 +163,40 @@ export class ProactiveInsightEngine {
    * Craft intelligent welcome message based on insights
    */
   private async craftIntelligentWelcome(insights: ProactiveInsight[], context: any): Promise<string> {
-    const metrics = context.realTimeMetrics
     const buildingName = context.building.name
-    const currentTime = new Date().toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    })
-    
-    // Priority-based message crafting
     const criticalInsights = insights.filter(i => i.priority === 'critical')
-    const highInsights = insights.filter(i => i.priority === 'high')
-    const opportunityInsights = insights.filter(i => i.type === 'opportunity')
-    const achievementInsights = insights.filter(i => i.type === 'achievement')
+    const plannedActivities = context.plannedActivities || []
     
     // Natural, personable greeting with user's first name
-    const userName = context.userProfile?.firstName || 'there' // Default if no name
+    const userName = context.userProfile?.firstName || 'there'
     
-    let welcomeMessage = `Good ${this.getTimeOfDayGreeting()}, ${userName}! \n\n`
-    welcomeMessage += `I've been keeping an eye on ${buildingName} and noticed a few things you might want to know about:\n\n`
+    let welcomeMessage = `Good ${this.getTimeOfDayGreeting()}, ${userName}! 👋\n\n`
+    welcomeMessage += `I've been monitoring ${buildingName} and everything's running smoothly.`
     
-    // Current status - natural and conversational
-    welcomeMessage += `📊 **Right now (${currentTime})**\n`
-    welcomeMessage += `• Using ${metrics.energy.currentUsage.toLocaleString()}W of power (${metrics.energy.trend === 'increasing' ? 'going up' : metrics.energy.trend === 'decreasing' ? 'coming down' : 'steady'})\n`
-    welcomeMessage += `• Running at ${metrics.energy.efficiency}% efficiency\n`
-    welcomeMessage += `• ${metrics.occupancy.current} people here out of ${metrics.occupancy.capacity}\n\n`
-    
-    // Critical alerts - natural but urgent
+    // Only show critical alerts in welcome message
     if (criticalInsights.length > 0) {
-      welcomeMessage += `🚨 **Heads up - this needs attention:**\n`
+      welcomeMessage += ` However, there's something urgent that needs your attention:\n\n`
+      welcomeMessage += `🚨 **Urgent:**\n`
       criticalInsights.forEach(insight => {
         welcomeMessage += `• ${insight.message}\n`
       })
-      welcomeMessage += `\n`
     }
     
-    // High priority items - conversational
-    if (highInsights.length > 0) {
-      welcomeMessage += `⚠️ **I noticed:**\n`
-      highInsights.forEach(insight => {
-        welcomeMessage += `• ${insight.message}\n`
-      })
-      welcomeMessage += `\n`
+    // Show today's planned activities if any
+    if (plannedActivities.length > 0) {
+      const todayActivities = plannedActivities.filter((activity: any) => 
+        new Date(activity.date).toDateString() === new Date().toDateString()
+      )
+      
+      if (todayActivities.length > 0) {
+        welcomeMessage += `\n\n📅 **Today's schedule:**\n`
+        todayActivities.slice(0, 2).forEach((activity: any) => {
+          welcomeMessage += `• ${activity.time}: ${activity.description}\n`
+        })
+      }
     }
     
-    // Opportunities - helpful but casual
-    if (opportunityInsights.length > 0) {
-      welcomeMessage += `💡 **Quick wins:**\n`
-      opportunityInsights.slice(0, 2).forEach(insight => {
-        welcomeMessage += `• ${insight.message}\n`
-      })
-      welcomeMessage += `\n`
-    }
-    
-    // Achievements - natural celebration
-    if (achievementInsights.length > 0) {
-      welcomeMessage += `🎉 **Good news:**\n`
-      achievementInsights.forEach(insight => {
-        welcomeMessage += `• ${insight.message}\n`
-      })
-      welcomeMessage += `\n`
-    }
-    
-    // Natural closing - friendly and helpful
-    if (insights.filter(i => i.actionable).length > 0) {
-      welcomeMessage += `What would you like to tackle first, ${userName}?`
-    } else {
-      welcomeMessage += `Everything's looking good! What can I help you with today?`
-    }
+    welcomeMessage += `\n\nWhat can I help you with today?`
     
     return welcomeMessage
   }
@@ -332,19 +298,22 @@ export class ProactiveInsightEngine {
   private async generateWelcomeSuggestions(insights: ProactiveInsight[]): Promise<string[]> {
     const suggestions: string[] = []
     
-    // Add suggestions based on insights
-    insights.forEach(insight => {
+    // Always include building report as first option
+    suggestions.push('Show me today\'s building report')
+    
+    // Add urgent actions from critical insights
+    const criticalInsights = insights.filter(i => i.priority === 'critical')
+    criticalInsights.forEach(insight => {
       if (insight.suggestedActions) {
-        suggestions.push(...insight.suggestedActions.slice(0, 1)) // Take first action
+        suggestions.push(insight.suggestedActions[0])
       }
     })
     
     // Add general intelligent suggestions
     suggestions.push(
-      'What predictions do you have for today?',
-      'How can I reduce energy costs this week?',
-      'Show me any equipment that needs attention',
-      'What optimization opportunities are available?'
+      'What\'s happening in the building today?',
+      'Any energy optimization opportunities?',
+      'Show me equipment status'
     )
     
     // Return unique suggestions, limited to 4
