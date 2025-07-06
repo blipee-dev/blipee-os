@@ -1,4 +1,5 @@
 import { BuildingContext } from './types'
+import { Message } from '@/types/conversation'
 
 interface EnrichedContext {
   building: BuildingContext
