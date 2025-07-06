@@ -57,3 +57,12 @@ textarea {
 .delay-200 {
   animation-delay: 200ms;
 }
+
+/* Custom slider styles */
+.slider::-webkit-slider-thumb {
+  @apply appearance-none w-4 h-4 bg-primary rounded-full cursor-pointer;
+}
+
+.slider::-moz-range-thumb {
+  @apply w-4 h-4 bg-primary rounded-full cursor-pointer border-0;
+}
