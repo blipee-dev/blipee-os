@@ -13,6 +13,7 @@ export function NavRail() {
     if (savedTheme === 'light') {
       setIsDarkMode(false)
       document.documentElement.classList.add('light-mode')
+      document.body.classList.add('light-mode')
     }
   }, [])
 
@@ -22,9 +23,11 @@ export function NavRail() {
     
     if (newTheme) {
       document.documentElement.classList.remove('light-mode')
+      document.body.classList.remove('light-mode')
       localStorage.setItem('theme', 'dark')
     } else {
       document.documentElement.classList.add('light-mode')
+      document.body.classList.add('light-mode')
       localStorage.setItem('theme', 'light')
     }
   }
