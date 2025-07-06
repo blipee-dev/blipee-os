@@ -115,7 +115,7 @@ export function ConversationInterface() {
                   Blipee OS
                 </h1>
                 <p className="text-sm text-white/50 font-light">
-                  Your building's conversational AI
+                  Your building&apos;s conversational AI
                 </p>
               </div>
               
