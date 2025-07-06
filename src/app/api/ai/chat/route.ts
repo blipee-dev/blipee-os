@@ -95,13 +95,13 @@ export async function POST(request: NextRequest) {
       // Build comprehensive response with all AI intelligence
       const response: ChatResponse = {
         message: intelligentResponse.message,
-        components: intelligentResponse.components,
+        components: intelligentResponse.components as ChatResponse['components'],
         actions: intelligentResponse.actionPlan.steps.map(step => ({
           type: step.action,
           description: step.description,
           data: step.parameters
         })),
-        suggestions: this.generateIntelligentSuggestions(intelligentResponse),
+        suggestions: generateIntelligentSuggestions(intelligentResponse),
         metadata: {
           tokensUsed: 1500, // Estimated for advanced processing
           responseTime: Date.now() - startTime,
