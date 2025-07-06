@@ -11,9 +11,11 @@ import { OnboardingExperience } from '@/components/onboarding/OnboardingExperien
 import { AmbientBackground } from '@/components/effects/AmbientBackground'
 import { NavRail } from '@/components/navigation/NavRail'
 import { Message, UIComponent } from '@/types/conversation'
+import { conversationService } from '@/lib/conversations/service'
 
 export function ConversationInterface() {
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [conversationId, setConversationId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>(() => [
     {
       id: '1',
@@ -34,6 +36,27 @@ export function ConversationInterface() {
     scrollToBottom()
   }, [messages])
 
+  // Initialize or load conversation on mount
+  useEffect(() => {
+    const initConversation = async () => {
+      const id = await conversationService.getOrCreateDemoConversation()
+      if (id) {
+        setConversationId(id)
+        
+        // Load existing messages if any
+        const conversation = await conversationService.getConversation(id)
+        if (conversation && conversation.messages && Array.isArray(conversation.messages)) {
+          const existingMessages = conversation.messages as Message[]
+          if (existingMessages.length > 0) {
+            setMessages(existingMessages)
+          }
+        }
+      }
+    }
+    
+    initConversation()
+  }, [])
+
   const handleSend = async (message: string) => {
     if (!message.trim() || isLoading) return
 
@@ -47,6 +70,11 @@ export function ConversationInterface() {
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
+
+    // Save user message to Supabase
+    if (conversationId) {
+      await conversationService.addMessages(conversationId, [userMessage])
+    }
 
     try {
       // TODO: Replace with actual API call
@@ -74,6 +102,11 @@ export function ConversationInterface() {
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, assistantMessage])
+      
+      // Save assistant message to Supabase
+      if (conversationId) {
+        await conversationService.addMessages(conversationId, [assistantMessage])
+      }
     } catch (error) {
       console.error('Error:', error)
       // Add error message
