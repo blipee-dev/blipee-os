@@ -83,16 +83,21 @@ export async function POST(request: NextRequest) {
         systemPrompt: BLIPEE_SYSTEM_PROMPT,
         temperature: 0.7,
         maxTokens: 1000,
-        jsonMode: true
+        jsonMode: false  // We want natural language, not JSON
       })
       
-      const parsed = parseAIResponse(aiResponse.content)
+      // The AI should return natural language text
+      const responseText = aiResponse.content || "I understand your request."
+      
+      // Use the response formatter to create appropriate components
+      const { AIResponseFormatter } = await import('@/lib/ai/response-formatter')
+      const formatted = AIResponseFormatter.formatNaturalResponse(message)
       
       const response: ChatResponse = {
-        message: parsed.message || "I processed your request.",
-        components: parsed.components,
-        actions: parsed.actions,
-        suggestions: parsed.suggestions,
+        message: responseText,  // Use the natural language response from AI
+        components: formatted.components,  // Add relevant components based on the query
+        actions: formatted.actions,
+        suggestions: formatted.suggestions,
         metadata: {
           tokensUsed: aiResponse.usage?.totalTokens || 0,
           responseTime: Date.now() - startTime,
