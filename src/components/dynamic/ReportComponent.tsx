@@ -3,7 +3,7 @@
 import { Download, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
 interface ReportComponentProps {
-  title: string
+  title?: string
   period?: string
   metrics?: Record<string, any>
   sections?: {
@@ -14,7 +14,7 @@ interface ReportComponentProps {
   downloadable?: boolean
 }
 
-export function ReportComponent({ title, period, metrics, sections, downloadable = true }: ReportComponentProps) {
+export function ReportComponent({ title = 'Report', period, metrics, sections, downloadable = true }: ReportComponentProps) {
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up':
