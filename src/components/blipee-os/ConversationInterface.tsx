@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { MessageBubble } from './MessageBubble'
 import { InputArea } from './InputArea'
 import { SuggestedQueries } from './SuggestedQueries'
+import { MessageSuggestions } from './MessageSuggestions'
 import { DynamicUIRenderer } from './DynamicUIRenderer'
 import { OnboardingExperience } from '@/components/onboarding/OnboardingExperience'
 import { AmbientBackground } from '@/components/effects/AmbientBackground'
@@ -69,6 +70,7 @@ export function ConversationInterface() {
         role: 'assistant',
         content: data.message || "I&apos;m processing your request...",
         components: data.components,
+        suggestions: data.suggestions,
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, assistantMessage])
@@ -143,6 +145,14 @@ export function ConversationInterface() {
             {message.components && (
               <div className="mt-4">
                 <DynamicUIRenderer components={message.components} />
+              </div>
+            )}
+            {message.role === 'assistant' && message.suggestions && message.suggestions.length > 0 && (
+              <div className="mt-2 ml-14">
+                <MessageSuggestions 
+                  suggestions={message.suggestions} 
+                  onSelect={handleSend}
+                />
               </div>
             )}
           </div>
