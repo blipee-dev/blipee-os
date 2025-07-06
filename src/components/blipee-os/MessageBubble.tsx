@@ -41,12 +41,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             )}
           </div>
         </div>
-        {/* Animated ring */}
-        <div className={`
-          absolute inset-0 rounded-full animate-ping
-          ${isUser ? 'bg-purple-500/20' : 'bg-blue-500/20'}
-          light-mode:opacity-50
-        `} />
+        {/* Removed animated ring to prevent constant blinking */}
       </div>
       
       <div className={`flex-1 max-w-[80%] ${isUser ? 'text-right' : ''}`}>
