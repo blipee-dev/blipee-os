@@ -8,6 +8,7 @@ import { SuggestedQueries } from './SuggestedQueries'
 import { DynamicUIRenderer } from './DynamicUIRenderer'
 import { OnboardingExperience } from '@/components/onboarding/OnboardingExperience'
 import { AmbientBackground } from '@/components/effects/AmbientBackground'
+import { NavRail } from '@/components/navigation/NavRail'
 import { Message, UIComponent } from '@/types/conversation'
 
 export function ConversationInterface() {
@@ -96,11 +97,12 @@ export function ConversationInterface() {
   return (
     <>
       <AmbientBackground />
+      <NavRail />
       {showOnboarding && (
         <OnboardingExperience onComplete={() => setShowOnboarding(false)} />
       )}
       
-      <div className="flex flex-col h-screen relative">
+      <div className="flex flex-col h-screen relative ml-20">
         {/* Premium Header with Glass Effect */}
         <div className="relative border-b border-white/[0.05] backdrop-blur-xl bg-white/[0.02]">
           {/* Gradient accent line */}
