@@ -177,57 +177,59 @@ export class ProactiveInsightEngine {
     const opportunityInsights = insights.filter(i => i.type === 'opportunity')
     const achievementInsights = insights.filter(i => i.type === 'achievement')
     
-    // Butler-style polite greeting
-    let welcomeMessage = `Good ${this.getTimeOfDayGreeting()}! Welcome back to ${buildingName}. \n\n`
-    welcomeMessage += `I'm Blipee, your dedicated building AI assistant, and it's my pleasure to serve you today. I've just completed a comprehensive analysis of your building's performance, and I'm delighted to share what I've discovered:\n\n`
+    // Natural, personable greeting with user's first name
+    const userName = context.userProfile?.firstName || 'there' // Default if no name
     
-    // Always include current status with butler formality
-    welcomeMessage += `📊 **Current Building Status (${currentTime})**\n`
-    welcomeMessage += `• Energy consumption: ${metrics.energy.currentUsage.toLocaleString()}W (currently ${metrics.energy.trend})\n`
-    welcomeMessage += `• Operating efficiency: ${metrics.energy.efficiency}%\n`
-    welcomeMessage += `• Current occupancy: ${metrics.occupancy.current} of ${metrics.occupancy.capacity} people\n\n`
+    let welcomeMessage = `Good ${this.getTimeOfDayGreeting()}, ${userName}! \n\n`
+    welcomeMessage += `I've been keeping an eye on ${buildingName} and noticed a few things you might want to know about:\n\n`
     
-    // Critical alerts with butler politeness
+    // Current status - natural and conversational
+    welcomeMessage += `📊 **Right now (${currentTime})**\n`
+    welcomeMessage += `• Using ${metrics.energy.currentUsage.toLocaleString()}W of power (${metrics.energy.trend === 'increasing' ? 'going up' : metrics.energy.trend === 'decreasing' ? 'coming down' : 'steady'})\n`
+    welcomeMessage += `• Running at ${metrics.energy.efficiency}% efficiency\n`
+    welcomeMessage += `• ${metrics.occupancy.current} people here out of ${metrics.occupancy.capacity}\n\n`
+    
+    // Critical alerts - natural but urgent
     if (criticalInsights.length > 0) {
-      welcomeMessage += `🚨 **Matters Requiring Your Immediate Attention:**\n`
+      welcomeMessage += `🚨 **Heads up - this needs attention:**\n`
       criticalInsights.forEach(insight => {
-        welcomeMessage += `• I must bring to your attention: ${insight.message}\n`
+        welcomeMessage += `• ${insight.message}\n`
       })
       welcomeMessage += `\n`
     }
     
-    // High priority items with courtesy
+    // High priority items - conversational
     if (highInsights.length > 0) {
-      welcomeMessage += `⚠️ **Important Observations:**\n`
+      welcomeMessage += `⚠️ **I noticed:**\n`
       highInsights.forEach(insight => {
-        welcomeMessage += `• I've noticed that ${insight.message.toLowerCase()}\n`
+        welcomeMessage += `• ${insight.message}\n`
       })
       welcomeMessage += `\n`
     }
     
-    // Opportunities with helpful suggestions
+    // Opportunities - helpful but casual
     if (opportunityInsights.length > 0) {
-      welcomeMessage += `💡 **Opportunities for Enhancement:**\n`
+      welcomeMessage += `💡 **Quick wins:**\n`
       opportunityInsights.slice(0, 2).forEach(insight => {
-        welcomeMessage += `• May I suggest: ${insight.message.toLowerCase()}\n`
+        welcomeMessage += `• ${insight.message}\n`
       })
       welcomeMessage += `\n`
     }
     
-    // Achievements with congratulatory tone
+    // Achievements - natural celebration
     if (achievementInsights.length > 0) {
-      welcomeMessage += `🎉 **Excellent Performance:**\n`
+      welcomeMessage += `🎉 **Good news:**\n`
       achievementInsights.forEach(insight => {
-        welcomeMessage += `• I'm pleased to report: ${insight.message.toLowerCase()}\n`
+        welcomeMessage += `• ${insight.message}\n`
       })
       welcomeMessage += `\n`
     }
     
-    // Butler-style closing with gracious offer of service
+    // Natural closing - friendly and helpful
     if (insights.filter(i => i.actionable).length > 0) {
-      welcomeMessage += `I'm at your service and ready to assist with optimizing your building's performance. Please let me know how I may be of assistance today - whether you'd like to address any of these items or explore other aspects of your building's operations.`
+      welcomeMessage += `What would you like to tackle first, ${userName}?`
     } else {
-      welcomeMessage += `I'm pleased to report that your building is performing excellently! I remain at your disposal for any questions, insights, or optimizations you may require. How may I assist you today?`
+      welcomeMessage += `Everything's looking good! What can I help you with today?`
     }
     
     return welcomeMessage
