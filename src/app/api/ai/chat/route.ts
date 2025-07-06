@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ChatRequest, ChatResponse } from '@/types/conversation'
+import { aiService } from '@/lib/ai/service'
+import { BLIPEE_SYSTEM_PROMPT, buildPrompt, buildDemoContext } from '@/lib/ai/prompt-builder'
+import { parseAIResponse } from '@/lib/ai/response-parser'
 
-// Demo responses for different queries
+// Demo responses for fallback when AI is not available
 const demoResponses: Record<string, Partial<ChatResponse>> = {
   'energy': {
     message: "Your building is currently using 4,520 kW of energy. This is 15% below your average for this time of day. HVAC systems are consuming 47% of total energy, lighting 28%, and equipment 25%.",
@@ -69,13 +72,46 @@ export async function POST(request: NextRequest) {
     const body: ChatRequest = await request.json()
     const { message } = body
     
-    // Simple keyword matching for demo
+    const startTime = Date.now()
+    
+    // Try to use real AI first
+    try {
+      const context = buildDemoContext()
+      const prompt = buildPrompt(message, context)
+      
+      const aiResponse = await aiService.complete(prompt, {
+        systemPrompt: BLIPEE_SYSTEM_PROMPT,
+        temperature: 0.7,
+        maxTokens: 1000,
+        jsonMode: true
+      })
+      
+      const parsed = parseAIResponse(aiResponse.content)
+      
+      const response: ChatResponse = {
+        message: parsed.message || "I processed your request.",
+        components: parsed.components,
+        actions: parsed.actions,
+        suggestions: parsed.suggestions,
+        metadata: {
+          tokensUsed: aiResponse.usage?.totalTokens || 0,
+          responseTime: Date.now() - startTime,
+          model: aiResponse.model
+        }
+      }
+      
+      return NextResponse.json(response)
+    } catch (aiError) {
+      console.log('AI service failed, falling back to demo responses:', aiError)
+    }
+    
+    // Fallback to demo responses if AI fails
     const lowerMessage = message.toLowerCase()
     let response: Partial<ChatResponse> = {
       message: "I understand you&apos;re asking about your building. Let me help you with that.",
       metadata: {
         tokensUsed: 150,
-        responseTime: 523,
+        responseTime: Date.now() - startTime,
         model: 'demo'
       }
     }
@@ -98,9 +134,6 @@ export async function POST(request: NextRequest) {
         "Find energy savings"
       ]
     }
-    
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 500))
     
     return NextResponse.json(response)
   } catch (error) {
