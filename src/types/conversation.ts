@@ -8,7 +8,7 @@ export interface Message {
 }
 
 export interface UIComponent {
-  type: 'chart' | 'control' | '3d-view' | 'report' | 'table' | 'energy-dashboard' | 'optimization-dashboard' | 'action-panel' | 'insights-panel' | 'efficiency-controls' | 'impact-projection'
+  type: 'chart' | 'control' | '3d-view' | 'report' | 'table' | 'energy-dashboard' | 'optimization-dashboard' | 'action-panel' | 'insights-panel' | 'efficiency-controls' | 'impact-projection' | 'building-dashboard' | 'dashboard'
   props: Record<string, any>
   layout?: {
     width?: string
