@@ -344,7 +344,7 @@ export class ProactiveInsightEngine {
     )
     
     // Return unique suggestions, limited to 4
-    return [...new Set(suggestions)].slice(0, 4)
+    return Array.from(new Set(suggestions)).slice(0, 4)
   }
 
   /**
