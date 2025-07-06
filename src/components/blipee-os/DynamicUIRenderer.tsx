@@ -34,6 +34,11 @@ const IntelligentDashboard = dynamic(() => import('@/components/ai/IntelligentDa
   loading: () => <div className="h-96 bg-surface rounded-lg animate-pulse" />
 })
 
+const DashboardComponent = dynamic(() => import('@/components/dynamic/DashboardComponent').then(mod => mod.DashboardComponent), {
+  ssr: false,
+  loading: () => <div className="h-96 bg-surface rounded-lg animate-pulse" />
+})
+
 interface DynamicUIRendererProps {
   components: UIComponent[]
 }
@@ -66,6 +71,10 @@ export function DynamicUIRenderer({ components }: DynamicUIRendererProps) {
             onOptimize={() => console.log('🚀 AI Optimization triggered!')}
           />
         )
+      
+      case 'building-dashboard':
+      case 'dashboard':
+        return <DashboardComponent key={key} {...component.props} />
       
       case 'optimization-dashboard':
         return (
