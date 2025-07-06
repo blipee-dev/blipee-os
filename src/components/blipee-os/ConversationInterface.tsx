@@ -13,18 +13,13 @@ import { NavRail } from '@/components/navigation/NavRail'
 import { Message, UIComponent } from '@/types/conversation'
 import { conversationService } from '@/lib/conversations/service'
 import { jsonToMessages } from '@/lib/conversations/utils'
+import { proactiveInsightEngine } from '@/lib/ai/proactive-insights'
 
 export function ConversationInterface() {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
-  const [messages, setMessages] = useState<Message[]>(() => [
-    {
-      id: '1',
-      role: 'assistant',
-      content: `Hello! I'm Blipee, your building's AI assistant. I can help you monitor energy usage, control devices, generate reports, and optimize your building's performance. What would you like to know?`,
-      timestamp: new Date(),
-    }
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isInitializing, setIsInitializing] = useState(true)
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -37,9 +32,11 @@ export function ConversationInterface() {
     scrollToBottom()
   }, [messages])
 
-  // Initialize or load conversation on mount
+  // Initialize conversation with proactive AI insights
   useEffect(() => {
     const initConversation = async () => {
+      setIsInitializing(true)
+      
       const id = await conversationService.getOrCreateDemoConversation()
       if (id) {
         setConversationId(id)
@@ -50,9 +47,31 @@ export function ConversationInterface() {
           const existingMessages = jsonToMessages(conversation.messages)
           if (existingMessages.length > 0) {
             setMessages(existingMessages)
+            setIsInitializing(false)
+            return
           }
         }
+        
+        // No existing messages - generate proactive welcome
+        console.log('🧠 Generating proactive AI insights...')
+        const welcomeInsights = await proactiveInsightEngine.generateWelcomeInsights()
+        
+        const welcomeMessage: Message = {
+          id: '1',
+          role: 'assistant',
+          content: welcomeInsights.message,
+          components: welcomeInsights.components,
+          suggestions: welcomeInsights.suggestions,
+          timestamp: new Date(),
+        }
+        
+        setMessages([welcomeMessage])
+        
+        // Save the intelligent welcome message
+        await conversationService.addMessages(id, [welcomeMessage])
       }
+      
+      setIsInitializing(false)
     }
     
     initConversation()
@@ -191,14 +210,16 @@ export function ConversationInterface() {
             )}
           </div>
         ))}
-        {isLoading && (
+        {(isLoading || isInitializing) && (
           <div className="flex items-center gap-3 px-4">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-purple-400 opacity-75 animate-[pulse_1.4s_ease-in-out_infinite]" />
               <div className="w-2 h-2 rounded-full bg-purple-400 opacity-75 animate-[pulse_1.4s_ease-in-out_0.2s_infinite]" />
               <div className="w-2 h-2 rounded-full bg-purple-400 opacity-75 animate-[pulse_1.4s_ease-in-out_0.4s_infinite]" />
             </div>
-            <span className="text-xs text-white/40 font-light">Blipee is thinking...</span>
+            <span className="text-xs text-white/40 font-light">
+              {isInitializing ? 'Blipee is analyzing your building...' : 'Blipee is thinking...'}
+            </span>
           </div>
         )}
         <div ref={messagesEndRef} />
