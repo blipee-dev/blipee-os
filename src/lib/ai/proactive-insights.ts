@@ -54,7 +54,7 @@ export class ProactiveInsightEngine {
       insights.push({
         type: 'alert',
         priority: 'high',
-        message: `Energy efficiency is at ${energyEfficiency}% - below optimal range`,
+        message: `energy efficiency is currently at ${energyEfficiency}%, which is below the optimal range`,
         actionable: true,
         suggestedActions: ['Run energy optimization', 'Check HVAC settings']
       })
@@ -62,7 +62,7 @@ export class ProactiveInsightEngine {
       insights.push({
         type: 'achievement',
         priority: 'medium',
-        message: `Excellent energy efficiency at ${energyEfficiency}%!`,
+        message: `your building is achieving excellent energy efficiency at ${energyEfficiency}%`,
         actionable: false
       })
     }
@@ -76,7 +76,7 @@ export class ProactiveInsightEngine {
       insights.push({
         type: 'alert',
         priority: increase > 20 ? 'high' : 'medium',
-        message: `Energy usage is ${increase}% above baseline - investigating cause`,
+        message: `energy usage is currently ${increase}% above baseline, and I'm investigating the cause`,
         actionable: true,
         suggestedActions: ['Show detailed breakdown', 'Check equipment status']
       })
@@ -177,55 +177,57 @@ export class ProactiveInsightEngine {
     const opportunityInsights = insights.filter(i => i.type === 'opportunity')
     const achievementInsights = insights.filter(i => i.type === 'achievement')
     
-    let welcomeMessage = `Good ${this.getTimeOfDayGreeting()}! I've just analyzed ${buildingName} and here's what I found:\n\n`
+    // Butler-style polite greeting
+    let welcomeMessage = `Good ${this.getTimeOfDayGreeting()}! Welcome back to ${buildingName}. \n\n`
+    welcomeMessage += `I'm Blipee, your dedicated building AI assistant, and it's my pleasure to serve you today. I've just completed a comprehensive analysis of your building's performance, and I'm delighted to share what I've discovered:\n\n`
     
-    // Always include current status
-    welcomeMessage += `📊 **Current Status (${currentTime})**\n`
-    welcomeMessage += `• Energy: ${metrics.energy.currentUsage.toLocaleString()}W (${metrics.energy.trend})\n`
-    welcomeMessage += `• Efficiency: ${metrics.energy.efficiency}%\n`
-    welcomeMessage += `• Occupancy: ${metrics.occupancy.current}/${metrics.occupancy.capacity} people\n\n`
+    // Always include current status with butler formality
+    welcomeMessage += `📊 **Current Building Status (${currentTime})**\n`
+    welcomeMessage += `• Energy consumption: ${metrics.energy.currentUsage.toLocaleString()}W (currently ${metrics.energy.trend})\n`
+    welcomeMessage += `• Operating efficiency: ${metrics.energy.efficiency}%\n`
+    welcomeMessage += `• Current occupancy: ${metrics.occupancy.current} of ${metrics.occupancy.capacity} people\n\n`
     
-    // Critical alerts first
+    // Critical alerts with butler politeness
     if (criticalInsights.length > 0) {
-      welcomeMessage += `🚨 **Critical Attention Needed:**\n`
+      welcomeMessage += `🚨 **Matters Requiring Your Immediate Attention:**\n`
       criticalInsights.forEach(insight => {
-        welcomeMessage += `• ${insight.message}\n`
+        welcomeMessage += `• I must bring to your attention: ${insight.message}\n`
       })
       welcomeMessage += `\n`
     }
     
-    // High priority items
+    // High priority items with courtesy
     if (highInsights.length > 0) {
-      welcomeMessage += `⚠️ **Important Findings:**\n`
+      welcomeMessage += `⚠️ **Important Observations:**\n`
       highInsights.forEach(insight => {
-        welcomeMessage += `• ${insight.message}\n`
+        welcomeMessage += `• I've noticed that ${insight.message.toLowerCase()}\n`
       })
       welcomeMessage += `\n`
     }
     
-    // Opportunities
+    // Opportunities with helpful suggestions
     if (opportunityInsights.length > 0) {
-      welcomeMessage += `💡 **Optimization Opportunities:**\n`
+      welcomeMessage += `💡 **Opportunities for Enhancement:**\n`
       opportunityInsights.slice(0, 2).forEach(insight => {
-        welcomeMessage += `• ${insight.message}\n`
+        welcomeMessage += `• May I suggest: ${insight.message.toLowerCase()}\n`
       })
       welcomeMessage += `\n`
     }
     
-    // Achievements
+    // Achievements with congratulatory tone
     if (achievementInsights.length > 0) {
-      welcomeMessage += `🎉 **Great News:**\n`
+      welcomeMessage += `🎉 **Excellent Performance:**\n`
       achievementInsights.forEach(insight => {
-        welcomeMessage += `• ${insight.message}\n`
+        welcomeMessage += `• I'm pleased to report: ${insight.message.toLowerCase()}\n`
       })
       welcomeMessage += `\n`
     }
     
-    // Closing with proactive offer
+    // Butler-style closing with gracious offer of service
     if (insights.filter(i => i.actionable).length > 0) {
-      welcomeMessage += `I'm ready to help optimize your building's performance. What would you like to focus on first?`
+      welcomeMessage += `I'm at your service and ready to assist with optimizing your building's performance. Please let me know how I may be of assistance today - whether you'd like to address any of these items or explore other aspects of your building's operations.`
     } else {
-      welcomeMessage += `Your building is performing well! I'm here to help with any questions or optimizations.`
+      welcomeMessage += `I'm pleased to report that your building is performing excellently! I remain at your disposal for any questions, insights, or optimizations you may require. How may I assist you today?`
     }
     
     return welcomeMessage
