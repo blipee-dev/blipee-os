@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, KeyboardEvent, useRef, useEffect } from 'react'
-import { Send, Mic, Sparkles } from 'lucide-react'
+import { Send, Sparkles } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { VoiceInput } from '@/components/voice/VoiceInput'
 
 interface InputAreaProps {
   value: string
@@ -19,7 +20,6 @@ export function InputArea({
   disabled,
   placeholder = "Type your message..."
 }: InputAreaProps) {
-  const [isListening, setIsListening] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -36,9 +36,12 @@ export function InputArea({
     }
   }
 
-  const handleVoiceInput = () => {
-    setIsListening(!isListening)
-    console.log('Voice input not yet implemented')
+  const handleVoiceTranscript = (transcript: string) => {
+    onChange(transcript)
+    // Auto-send after voice input
+    if (transcript.trim()) {
+      setTimeout(() => onSend(transcript), 100)
+    }
   }
 
   // Auto-resize textarea
@@ -56,41 +59,8 @@ export function InputArea({
       
       <div className="p-4">
         <div className="flex items-end gap-3 max-w-4xl mx-auto">
-          {/* Voice input button with glass effect */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleVoiceInput}
-            className={`
-              relative p-3 rounded-xl transition-all duration-300
-              backdrop-blur-xl bg-white/[0.02] light-mode:bg-gray-50/50
-              border border-white/[0.05] light-mode:border-gray-200
-              shadow-[0_8px_32px_rgba(0,0,0,0.12)] light-mode:shadow-[0_4px_16px_rgba(0,0,0,0.06)]
-              hover:shadow-[0_8px_40px_rgba(0,0,0,0.2)] light-mode:hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)]
-              hover:border-white/[0.1] light-mode:hover:border-gray-300
-              group overflow-hidden
-              ${isListening 
-                ? 'bg-gradient-to-br from-red-500/20 to-orange-500/20 border-red-500/30 light-mode:from-red-500/10 light-mode:to-orange-500/10 light-mode:border-red-400/30' 
-                : 'hover:bg-white/[0.04] light-mode:hover:bg-gray-100/70'
-              }
-            `}
-            title="Voice input"
-          >
-            {/* Pulse animation when listening */}
-            <AnimatePresence>
-              {isListening && (
-                <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 2, opacity: 0 }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                  className="absolute inset-0 bg-red-500/30 rounded-full"
-                />
-              )}
-            </AnimatePresence>
-            <Mic className={`w-5 h-5 relative z-10 transition-colors duration-300 ${
-              isListening ? 'text-red-400 light-mode:text-red-500' : 'text-white/60 group-hover:text-white/80 light-mode:text-gray-600 light-mode:group-hover:text-gray-800'
-            }`} />
-          </motion.button>
+          {/* Voice input button */}
+          <VoiceInput onTranscript={handleVoiceTranscript} disabled={disabled} />
           
           {/* Input area with premium glass design */}
           <div className={`
