@@ -10,6 +10,7 @@ interface EnrichedContext {
   conversationMemory: ConversationMemory
   predictiveInsights: PredictiveInsight[]
   deviceCapabilities: DeviceCapability[]
+  plannedActivities: PlannedActivity[]
 }
 
 interface RealTimeMetrics {
@@ -69,6 +70,7 @@ interface EnvironmentalFactors {
 }
 
 interface UserProfile {
+  firstName?: string
   expertise: 'beginner' | 'intermediate' | 'expert'
   role: 'facility_manager' | 'energy_manager' | 'executive' | 'tenant'
   preferences: {
@@ -135,6 +137,7 @@ export class AIContextEngine {
   constructor() {
     this.initializeContext()
     this.userProfile = {
+      firstName: 'Alex',
       expertise: 'intermediate',
       role: 'facility_manager',
       preferences: {
@@ -165,7 +168,8 @@ export class AIContextEngine {
       userProfile,
       conversationMemory,
       predictiveInsights,
-      deviceCapabilities
+      deviceCapabilities,
+      plannedActivities
     ] = await Promise.all([
       this.getRealTimeMetrics(),
       this.analyzeHistoricalPatterns(),
@@ -173,7 +177,8 @@ export class AIContextEngine {
       this.getUserProfile(userId),
       this.getConversationMemory(userId),
       this.generatePredictiveInsights(),
-      this.getDeviceCapabilities()
+      this.getDeviceCapabilities(),
+      this.getPlannedActivities()
     ])
 
     return {
@@ -184,7 +189,8 @@ export class AIContextEngine {
       userProfile,
       conversationMemory,
       predictiveInsights,
-      deviceCapabilities
+      deviceCapabilities,
+      plannedActivities
     }
   }
 
@@ -486,6 +492,7 @@ Remember: You are not just answering questions - you are actively managing this 
 
   private async getUserProfile(userId?: string): Promise<UserProfile> {
     return {
+      firstName: 'Alex',
       expertise: 'intermediate',
       role: 'facility_manager',
       preferences: {
@@ -523,6 +530,56 @@ Remember: You are not just answering questions - you are actively managing this 
       {
         name: 'Energy Meters',
         capabilities: ['real_time_monitoring', 'demand_forecasting', 'load_profiling']
+      }
+    ]
+  }
+
+  private async getPlannedActivities(): Promise<PlannedActivity[]> {
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const nextWeek = new Date(today)
+    nextWeek.setDate(nextWeek.getDate() + 7)
+
+    return [
+      {
+        id: '1',
+        title: 'Quarterly HVAC Maintenance',
+        description: 'Scheduled maintenance for Chiller #1 and air handling units',
+        date: today.toISOString().split('T')[0],
+        time: '10:00 AM',
+        type: 'maintenance',
+        impact: 'medium',
+        notifications: ['Temperature may fluctuate in Zone A during maintenance']
+      },
+      {
+        id: '2',
+        title: 'Energy Audit Meeting',
+        description: 'Review Q3 energy performance with facilities team',
+        date: today.toISOString().split('T')[0],
+        time: '2:00 PM',
+        type: 'meeting',
+        impact: 'none'
+      },
+      {
+        id: '3',
+        title: 'New Equipment Delivery',
+        description: 'Smart sensors for conference rooms arriving',
+        date: tomorrow.toISOString().split('T')[0],
+        time: '9:00 AM',
+        type: 'delivery',
+        impact: 'low',
+        notifications: ['Brief installation work in conference rooms B & C']
+      },
+      {
+        id: '4',
+        title: 'Fire Safety Inspection',
+        description: 'Annual fire safety system inspection',
+        date: nextWeek.toISOString().split('T')[0],
+        time: '8:00 AM',
+        type: 'inspection',
+        impact: 'medium',
+        notifications: ['Fire alarm testing - expect brief alarms']
       }
     ]
   }
@@ -627,4 +684,15 @@ interface AnimationSpec {
   element: string
   animation: string
   duration: number
+}
+
+interface PlannedActivity {
+  id: string
+  title: string
+  description: string
+  date: string
+  time: string
+  type: 'maintenance' | 'meeting' | 'inspection' | 'event' | 'delivery'
+  impact: 'none' | 'low' | 'medium' | 'high'
+  notifications?: string[]
 }
