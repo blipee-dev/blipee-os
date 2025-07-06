@@ -239,7 +239,7 @@ ${context.historicalPatterns.slice(0, 3)
 USER PROFILE:
 Role: ${context.userProfile.role}
 Expertise: ${context.userProfile.expertise}
-Communication Style: ${context.userProfile.communicationStyle}
+Communication Style: ${context.userProfile.preferences.communicationStyle}
 Current Goals: ${context.userProfile.goals.join(', ')}
 
 CONVERSATION MEMORY:
