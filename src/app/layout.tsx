@@ -16,7 +16,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} bg-black overflow-hidden`}>
+        <div className="fixed inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10" />
+        <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
+        <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent" />
+        <div className="relative z-10">
+          {children}
+        </div>
+      </body>
     </html>
   )
 }
