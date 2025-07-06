@@ -102,7 +102,7 @@ export function ConversationInterface() {
         <OnboardingExperience onComplete={() => setShowOnboarding(false)} />
       )}
       
-      <div className="flex flex-col h-screen relative ml-20">
+      <div className="flex flex-col h-screen relative ml-20 overflow-hidden">
         {/* Premium Header with Glass Effect */}
         <div className="relative border-b border-white/[0.05] backdrop-blur-xl bg-white/[0.02]">
           {/* Gradient accent line */}
@@ -121,7 +121,7 @@ export function ConversationInterface() {
               
               {/* Status indicator */}
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/[0.02] border border-white/[0.05]">
-                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                <div className="w-2 h-2 rounded-full bg-green-400" />
                 <span className="text-xs text-white/60">Connected</span>
               </div>
             </div>
@@ -149,10 +149,10 @@ export function ConversationInterface() {
         ))}
         {isLoading && (
           <div className="flex items-center gap-3 px-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-blue-400 animate-pulse" />
-              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-blue-400 animate-pulse animation-delay-200" />
-              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-blue-400 animate-pulse animation-delay-400" />
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-purple-400 opacity-75 animate-[pulse_1.4s_ease-in-out_infinite]" />
+              <div className="w-2 h-2 rounded-full bg-purple-400 opacity-75 animate-[pulse_1.4s_ease-in-out_0.2s_infinite]" />
+              <div className="w-2 h-2 rounded-full bg-purple-400 opacity-75 animate-[pulse_1.4s_ease-in-out_0.4s_infinite]" />
             </div>
             <span className="text-xs text-white/40 font-light">Blipee is thinking...</span>
           </div>

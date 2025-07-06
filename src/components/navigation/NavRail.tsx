@@ -214,7 +214,7 @@ export function NavRail() {
           );
           transform: translateY(-50%);
           opacity: 0.5;
-          animation: railGlow 3s ease-in-out infinite;
+          animation: railGlow 6s ease-in-out infinite;
         }
 
         @keyframes railGlow {
