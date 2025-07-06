@@ -6,8 +6,10 @@ import { premiumTheme } from '@/lib/design/theme'
 
 export function NavRail() {
   const [isDarkMode, setIsDarkMode] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     // Check for saved theme preference
     const savedTheme = localStorage.getItem('theme')
     if (savedTheme === 'light') {
@@ -54,12 +56,16 @@ export function NavRail() {
         <button
           className="theme-toggle"
           onClick={toggleTheme}
-          aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+          aria-label={mounted ? `Switch to ${isDarkMode ? 'light' : 'dark'} mode` : 'Toggle theme'}
         >
-          {isDarkMode ? (
-            <Sun className="w-6 h-6" />
+          {mounted ? (
+            isDarkMode ? (
+              <Sun className="w-6 h-6" />
+            ) : (
+              <Moon className="w-6 h-6" />
+            )
           ) : (
-            <Moon className="w-6 h-6" />
+            <Sun className="w-6 h-6" />
           )}
         </button>
       </div>

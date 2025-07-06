@@ -13,7 +13,7 @@ import { Message, UIComponent } from '@/types/conversation'
 
 export function ConversationInterface() {
   const [showOnboarding, setShowOnboarding] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([
+  const [messages, setMessages] = useState<Message[]>(() => [
     {
       id: '1',
       role: 'assistant',

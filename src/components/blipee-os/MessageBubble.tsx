@@ -1,6 +1,7 @@
 import { Message } from '@/types/conversation'
 import { Building2, User, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 
 interface MessageBubbleProps {
   message: Message
@@ -8,6 +9,11 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user'
+  const [timeString, setTimeString] = useState('')
+  
+  useEffect(() => {
+    setTimeString(message.timestamp.toLocaleTimeString())
+  }, [message.timestamp])
   
   return (
     <motion.div 
@@ -89,14 +95,16 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         </div>
         
         {/* Timestamp with subtle animation */}
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-xs text-white/40 light-mode:text-gray-500 mt-2 font-light"
-        >
-          {message.timestamp.toLocaleTimeString()}
-        </motion.p>
+        {timeString && (
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-xs text-white/40 light-mode:text-gray-500 mt-2 font-light"
+          >
+            {timeString}
+          </motion.p>
+        )}
       </div>
     </motion.div>
   )
