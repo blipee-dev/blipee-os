@@ -15,12 +15,12 @@ import {
 } from 'lucide-react'
 
 interface IntelligentDashboardProps {
-  title: string
-  currentUsage: number
-  trend: string
-  efficiency: number
-  breakdown: Array<{ name: string; value: number; color: string }>
-  predictions: {
+  title?: string
+  currentUsage?: number
+  trend?: string
+  efficiency?: number
+  breakdown?: Array<{ name: string; value: number; color: string }>
+  predictions?: {
     nextHour: number
     peakToday: number
     endOfMonth: number
@@ -29,12 +29,20 @@ interface IntelligentDashboardProps {
 }
 
 export function IntelligentDashboard({
-  title,
-  currentUsage,
-  trend,
-  efficiency,
-  breakdown,
-  predictions,
+  title = 'Real-Time Energy Performance',
+  currentUsage = 4520,
+  trend = 'stable',
+  efficiency = 87,
+  breakdown = [
+    { name: 'HVAC', value: 2124, color: '#0EA5E9' },
+    { name: 'Lighting', value: 1266, color: '#8B5CF6' },
+    { name: 'Equipment', value: 1130, color: '#10B981' }
+  ],
+  predictions = {
+    nextHour: 4730,
+    peakToday: 5200,
+    endOfMonth: 3250000
+  },
   onOptimize
 }: IntelligentDashboardProps) {
   const totalUsage = breakdown.reduce((sum, item) => sum + item.value, 0)
