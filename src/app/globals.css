@@ -271,6 +271,45 @@ textarea {
   box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5), 0 0 30px rgba(139, 92, 246, 0.3);
 }
 
+/* Light mode styles */
+.light-mode {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.light-mode .glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.light-mode .glass-card-elevated {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 0 32px rgba(139, 92, 246, 0.1);
+}
+
+.light-mode .gradient-text {
+  background: linear-gradient(135deg, #6750A4 0%, #0080FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.light-mode .gradient-button {
+  box-shadow: 0 4px 12px rgba(103, 80, 164, 0.2);
+}
+
+.light-mode .premium-input {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.05);
+  color: #1a1a1a;
+}
+
+.light-mode .premium-input:focus {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(103, 80, 164, 0.5);
+  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.1);
+}
+
 /* Premium glass morphism blur layers */
 .glass-blur-xs {
   backdrop-filter: blur(8px);
