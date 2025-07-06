@@ -1,15 +1,17 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { MessageBubble } from './MessageBubble'
 import { InputArea } from './InputArea'
 import { SuggestedQueries } from './SuggestedQueries'
 import { DynamicUIRenderer } from './DynamicUIRenderer'
 import { OnboardingExperience } from '@/components/onboarding/OnboardingExperience'
+import { AmbientBackground } from '@/components/effects/AmbientBackground'
 import { Message, UIComponent } from '@/types/conversation'
 
 export function ConversationInterface() {
-  const [showOnboarding, setShowOnboarding] = useState(true)
+  const [showOnboarding, setShowOnboarding] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -93,23 +95,46 @@ export function ConversationInterface() {
 
   return (
     <>
+      <AmbientBackground />
       {showOnboarding && (
         <OnboardingExperience onComplete={() => setShowOnboarding(false)} />
       )}
       
-      <div className="flex flex-col h-screen bg-background">
-        {/* Header */}
-        <div className="glass-card glass-card-default border-b border-gray-800 p-4" style={{
-          borderRadius: 0,
-          background: 'rgba(255, 255, 255, 0.02)',
-          backdropFilter: 'blur(20px)',
-        }}>
-          <h1 className="text-xl font-semibold text-white">Blipee OS</h1>
-          <p className="text-sm text-gray-400">Your building&apos;s conversational AI</p>
+      <div className="flex flex-col h-screen relative">
+        {/* Premium Header with Glass Effect */}
+        <div className="relative border-b border-white/[0.05] backdrop-blur-xl bg-white/[0.02]">
+          {/* Gradient accent line */}
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+          
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-semibold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+                  Blipee OS
+                </h1>
+                <p className="text-sm text-white/50 font-light">
+                  Your building's conversational AI
+                </p>
+              </div>
+              
+              {/* Status indicator */}
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/[0.02] border border-white/[0.05]">
+                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                <span className="text-xs text-white/60">Connected</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Messages Container with subtle glass effect */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 relative">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
+          style={{
+            backgroundImage: `radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                            radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 50%)`,
+          }}
+        />
         {messages.map((message) => (
           <div key={message.id}>
             <MessageBubble message={message} />
@@ -121,10 +146,13 @@ export function ConversationInterface() {
           </div>
         ))}
         {isLoading && (
-          <div className="flex items-center space-x-2 text-text-secondary">
-            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-            <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-100" />
-            <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-200" />
+          <div className="flex items-center gap-3 px-4">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-blue-400 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-blue-400 animate-pulse animation-delay-200" />
+              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-blue-400 animate-pulse animation-delay-400" />
+            </div>
+            <span className="text-xs text-white/40 font-light">Blipee is thinking...</span>
           </div>
         )}
         <div ref={messagesEndRef} />
