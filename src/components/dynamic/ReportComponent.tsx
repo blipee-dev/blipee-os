@@ -36,9 +36,16 @@ export function ReportComponent({ title, period, metrics, sections, downloadable
   }
 
   return (
-    <div className="bg-surface rounded-lg border border-surface">
+    <div className="glass-card glass-card-elevated" style={{
+      background: 'rgba(255, 255, 255, 0.02)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255, 255, 255, 0.05)',
+      borderRadius: '1rem',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2), 0 0 32px rgba(139, 92, 246, 0.25)',
+    }}>
       {/* Header */}
-      <div className="p-6 border-b border-surface">
+      <div className="p-6 border-b border-gray-800">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-xl font-semibold text-white">{title}</h3>
@@ -47,7 +54,11 @@ export function ReportComponent({ title, period, metrics, sections, downloadable
             )}
           </div>
           {downloadable && (
-            <button className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark rounded-lg transition-colors">
+            <button className="gradient-button flex items-center gap-2 px-4 py-2 rounded-lg transition-all" style={{
+              background: 'linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)',
+              color: 'white',
+              fontWeight: 600,
+            }}>
               <Download className="w-4 h-4" />
               <span>Download PDF</span>
             </button>
@@ -57,9 +68,14 @@ export function ReportComponent({ title, period, metrics, sections, downloadable
 
       {/* Key Metrics */}
       {metrics && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 border-b border-surface">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 border-b border-gray-800">
           {Object.entries(metrics).map(([key, value]) => (
-            <div key={key} className="bg-surface-light rounded-lg p-4">
+            <div key={key} className="glass-card" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              borderRadius: '0.75rem',
+              padding: '1rem',
+            }}>
               <div className="text-sm text-text-secondary mb-1">
                 {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </div>

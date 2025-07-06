@@ -42,20 +42,28 @@ export function TableComponent({ title, data, columns, actions }: TableComponent
   }
 
   return (
-    <div className="bg-surface rounded-lg border border-surface overflow-hidden">
+    <div className="glass-card glass-card-default" style={{
+      background: 'rgba(255, 255, 255, 0.02)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255, 255, 255, 0.05)',
+      borderRadius: '1rem',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
+      overflow: 'hidden',
+    }}>
       {title && (
-        <div className="p-4 border-b border-surface">
+        <div className="p-6 border-b border-gray-800">
           <h3 className="text-lg font-medium text-white">{title}</h3>
         </div>
       )}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-surface">
+            <tr className="border-b border-gray-800">
               {tableColumns.map((col) => (
                 <th
                   key={col}
-                  className="px-4 py-3 text-left text-sm font-medium text-text-secondary uppercase tracking-wider"
+                  className="px-6 py-4 text-left text-sm font-medium text-gray-400 uppercase tracking-wider"
                 >
                   {col.replace(/_/g, ' ')}
                 </th>
@@ -67,11 +75,11 @@ export function TableComponent({ title, data, columns, actions }: TableComponent
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-surface">
+          <tbody className="divide-y divide-gray-800">
             {data.map((row, index) => (
-              <tr key={index} className="hover:bg-surface-light transition-colors">
+              <tr key={index} className="hover:bg-white/5 transition-colors">
                 {tableColumns.map((col) => (
-                  <td key={col} className="px-4 py-3 text-sm">
+                  <td key={col} className="px-6 py-4 text-sm">
                     <span className={
                       col.toLowerCase().includes('status') || col.toLowerCase().includes('state')
                         ? getStatusColor(row[col])

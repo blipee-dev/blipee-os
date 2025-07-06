@@ -20,14 +20,14 @@ import {
 
 interface ChartComponentProps {
   title?: string
-  chartType: 'line' | 'bar' | 'pie' | 'area' | 'doughnut'
-  data: any
+  chartType?: 'line' | 'bar' | 'pie' | 'area' | 'doughnut'
+  data?: any
   options?: any
 }
 
 const COLORS = ['#0EA5E9', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#EC4899']
 
-export function ChartComponent({ title, chartType, data }: ChartComponentProps) {
+export function ChartComponent({ title, chartType = 'line', data = [] }: ChartComponentProps) {
   // Format data for recharts
   const chartData = Array.isArray(data) ? data : data.data || []
   
@@ -112,7 +112,15 @@ export function ChartComponent({ title, chartType, data }: ChartComponentProps) 
   }
 
   return (
-    <div className="bg-surface rounded-lg border border-surface p-4">
+    <div className="glass-card glass-card-default" style={{
+      background: 'rgba(255, 255, 255, 0.02)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255, 255, 255, 0.05)',
+      borderRadius: '1rem',
+      padding: '1.5rem',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
+    }}>
       {title && (
         <h3 className="text-lg font-medium text-white mb-4">{title}</h3>
       )}
