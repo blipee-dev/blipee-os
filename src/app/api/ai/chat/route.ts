@@ -3,6 +3,7 @@ import { ChatRequest, ChatResponse } from '@/types/conversation'
 import { aiService } from '@/lib/ai/service'
 import { BLIPEE_SYSTEM_PROMPT, buildPrompt, buildDemoContext } from '@/lib/ai/prompt-builder'
 import { parseAIResponse } from '@/lib/ai/response-parser'
+import { intelligentActionPlanner } from '@/lib/ai/action-planner'
 
 // Demo responses for fallback when AI is not available
 const demoResponses: Record<string, Partial<ChatResponse>> = {
@@ -74,34 +75,40 @@ export async function POST(request: NextRequest) {
     
     const startTime = Date.now()
     
-    // Try to use real AI first
+    // Try to use supercharged AI intelligence first
     try {
-      const context = buildDemoContext()
-      const prompt = buildPrompt(message, context)
+      console.log('🚀 Processing with full AI intelligence...')
       
-      const aiResponse = await aiService.complete(prompt, {
-        systemPrompt: BLIPEE_SYSTEM_PROMPT,
-        temperature: 0.7,
-        maxTokens: 1000,
-        jsonMode: false  // We want natural language, not JSON
+      // Use the intelligent action planner for maximum AI potential
+      const intelligentResponse = await intelligentActionPlanner.processIntelligentRequest(
+        message,
+        'demo-user' // In production, this would be the actual user ID
+      )
+      
+      console.log('🧠 AI Analysis Complete:', {
+        intent: intelligentResponse.actionPlan.intent,
+        confidence: intelligentResponse.actionPlan.confidence,
+        components: intelligentResponse.components.length,
+        predictions: intelligentResponse.predictions.length
       })
       
-      // The AI should return natural language text
-      const responseText = aiResponse.content || "I understand your request."
-      
-      // Use the response formatter to create appropriate components
-      const { AIResponseFormatter } = await import('@/lib/ai/response-formatter')
-      const formatted = AIResponseFormatter.formatNaturalResponse(message)
-      
+      // Build comprehensive response with all AI intelligence
       const response: ChatResponse = {
-        message: responseText,  // Use the natural language response from AI
-        components: formatted.components,  // Add relevant components based on the query
-        actions: formatted.actions,
-        suggestions: formatted.suggestions,
+        message: intelligentResponse.message,
+        components: intelligentResponse.components,
+        actions: intelligentResponse.actionPlan.steps.map(step => ({
+          type: step.action,
+          description: step.description,
+          data: step.parameters
+        })),
+        suggestions: this.generateIntelligentSuggestions(intelligentResponse),
         metadata: {
-          tokensUsed: aiResponse.usage?.totalTokens || 0,
+          tokensUsed: 1500, // Estimated for advanced processing
           responseTime: Date.now() - startTime,
-          model: aiResponse.model
+          model: 'blipee-intelligence-v1',
+          confidence: intelligentResponse.actionPlan.confidence,
+          predictions: intelligentResponse.predictions.length,
+          automations: intelligentResponse.automations.length
         }
       }
       
@@ -148,4 +155,41 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+// Helper function to generate intelligent suggestions
+function generateIntelligentSuggestions(intelligentResponse: any): string[] {
+  const suggestions: string[] = []
+  
+  // Suggest related actions based on the action plan
+  if (intelligentResponse.actionPlan.intent.includes('energy')) {
+    suggestions.push(
+      'Show me the detailed energy breakdown',
+      'What would happen if I implement all optimizations?',
+      'Create an energy reduction plan for next month'
+    )
+  }
+  
+  // Add predictions as suggestions
+  intelligentResponse.predictions.forEach((prediction: any) => {
+    if (prediction.recommended_action) {
+      suggestions.push(prediction.recommended_action)
+    }
+  })
+  
+  // Add automation suggestions
+  intelligentResponse.automations.forEach((automation: any) => {
+    suggestions.push(`Tell me more about ${automation.name}`)
+  })
+  
+  // Default intelligent suggestions
+  if (suggestions.length === 0) {
+    suggestions.push(
+      'What can you predict about my building?',
+      'Show me optimization opportunities',
+      'How can I reduce costs this month?'
+    )
+  }
+  
+  return suggestions.slice(0, 4) // Limit to 4 suggestions
 }
