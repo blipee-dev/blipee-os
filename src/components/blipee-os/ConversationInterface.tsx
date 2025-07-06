@@ -12,6 +12,7 @@ import { AmbientBackground } from '@/components/effects/AmbientBackground'
 import { NavRail } from '@/components/navigation/NavRail'
 import { Message, UIComponent } from '@/types/conversation'
 import { conversationService } from '@/lib/conversations/service'
+import { jsonToMessages } from '@/lib/conversations/utils'
 
 export function ConversationInterface() {
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -45,8 +46,8 @@ export function ConversationInterface() {
         
         // Load existing messages if any
         const conversation = await conversationService.getConversation(id)
-        if (conversation && conversation.messages && Array.isArray(conversation.messages)) {
-          const existingMessages = conversation.messages as Message[]
+        if (conversation && conversation.messages) {
+          const existingMessages = jsonToMessages(conversation.messages)
           if (existingMessages.length > 0) {
             setMessages(existingMessages)
           }

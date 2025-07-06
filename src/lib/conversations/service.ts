@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { Message } from '@/types/conversation'
 import type { Database } from '@/types/supabase'
+import { messagesToJson } from './utils'
 
 export type ConversationRow = Database['public']['Tables']['conversations']['Row']
 export type ConversationInsert = Database['public']['Tables']['conversations']['Insert']
@@ -83,8 +84,15 @@ export class ConversationService {
     const conversation = await this.getConversation(conversationId)
     if (!conversation) return false
 
-    const existingMessages = (conversation.messages as Message[]) || []
-    const updatedMessages = [...existingMessages, ...messages]
+    // Parse existing messages safely
+    const existingMessages = Array.isArray(conversation.messages) 
+      ? (conversation.messages as any[])
+      : []
+    
+    // Convert new messages to JSON format
+    const newMessagesJson = messagesToJson(messages)
+    
+    const updatedMessages = [...existingMessages, ...(newMessagesJson as any[])]
 
     const { error } = await this.supabase
       .from('conversations')
