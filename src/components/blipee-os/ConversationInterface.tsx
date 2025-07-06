@@ -12,7 +12,7 @@ export function ConversationInterface() {
     {
       id: '1',
       role: 'assistant',
-      content: "Hello! I'm Blipee, your building's AI assistant. I can help you monitor energy usage, control devices, generate reports, and optimize your building's performance. What would you like to know?",
+      content: "Hello! I&apos;m Blipee, your building&apos;s AI assistant. I can help you monitor energy usage, control devices, generate reports, and optimize your building&apos;s performance. What would you like to know?",
       timestamp: new Date(),
     }
   ])
@@ -62,7 +62,7 @@ export function ConversationInterface() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.message || "I'm processing your request...",
+        content: data.message || "I&apos;m processing your request...",
         components: data.components,
         timestamp: new Date(),
       }
@@ -73,7 +73,7 @@ export function ConversationInterface() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "I'm currently in demo mode. In the full version, I'll be able to connect to your building systems and provide real-time insights!",
+        content: "I&apos;m currently in demo mode. In the full version, I&apos;ll be able to connect to your building systems and provide real-time insights!",
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, errorMessage])
@@ -94,7 +94,7 @@ export function ConversationInterface() {
       {/* Header */}
       <div className="border-b border-surface p-4">
         <h1 className="text-xl font-semibold text-white">Blipee OS</h1>
-        <p className="text-sm text-text-secondary">Your building's conversational AI</p>
+        <p className="text-sm text-text-secondary">Your building&apos;s conversational AI</p>
       </div>
 
       {/* Messages */}
