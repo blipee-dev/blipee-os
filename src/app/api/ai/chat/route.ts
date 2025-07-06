@@ -7,6 +7,61 @@ import { intelligentActionPlanner } from '@/lib/ai/action-planner'
 
 // Demo responses for fallback when AI is not available
 const demoResponses: Record<string, Partial<ChatResponse>> = {
+  'building-report': {
+    message: "Here's your comprehensive building report for today. Everything is running smoothly with 87% energy efficiency and optimal comfort levels maintained across all zones.",
+    components: [{
+      type: 'building-dashboard',
+      props: {
+        title: 'Today\'s Building Report',
+        realTimeMetrics: {
+          energy: {
+            currentUsage: 4520,
+            trend: 'stable' as const,
+            efficiency: 87,
+            cost: 342.50
+          },
+          comfort: {
+            temperature: 22.5,
+            humidity: 45,
+            airQuality: 92
+          },
+          occupancy: {
+            current: 127,
+            capacity: 200,
+            zones: [
+              { name: 'Floor 1', occupancy: 45 },
+              { name: 'Floor 2', occupancy: 38 },
+              { name: 'Floor 3', occupancy: 32 },
+              { name: 'Conference', occupancy: 12 }
+            ]
+          },
+          alerts: [
+            {
+              type: 'warning' as const,
+              message: 'Chiller #2 efficiency below optimal',
+              priority: 'medium' as const
+            },
+            {
+              type: 'info' as const,
+              message: 'Maintenance scheduled for 10:00 AM',
+              priority: 'low' as const
+            }
+          ]
+        },
+        predictions: {
+          nextHour: 4680,
+          peakToday: 5200,
+          monthlySavings: 2840
+        }
+      }
+    }],
+    suggestions: [
+      "Show me energy optimization opportunities",
+      "What equipment needs attention?",
+      "How can I improve efficiency?",
+      "Show me cost breakdown"
+    ]
+  },
   'energy': {
     message: "Your building is currently using 4,520 kW of energy. This is 15% below your average for this time of day. HVAC systems are consuming 47% of total energy, lighting 28%, and equipment 25%.",
     components: [{
@@ -129,7 +184,9 @@ export async function POST(request: NextRequest) {
     }
     
     // Match keywords to provide relevant demo responses
-    if (lowerMessage.includes('energy') || lowerMessage.includes('usage') || lowerMessage.includes('consumption')) {
+    if (lowerMessage.includes('building report') || lowerMessage.includes('today\'s report') || lowerMessage.includes('dashboard')) {
+      response = { ...response, ...demoResponses['building-report'] }
+    } else if (lowerMessage.includes('energy') || lowerMessage.includes('usage') || lowerMessage.includes('consumption')) {
       response = { ...response, ...demoResponses.energy }
     } else if (lowerMessage.includes('temperature') || lowerMessage.includes('temp') || lowerMessage.includes('climate')) {
       response = { ...response, ...demoResponses.temperature }
