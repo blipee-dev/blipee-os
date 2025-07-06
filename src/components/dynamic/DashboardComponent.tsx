@@ -249,7 +249,7 @@ export function DashboardComponent({
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-orange-400">{defaultPredictions.peakToday.toLocaleString()}W</div>
-                  <div className="text-sm text-white/60">Today's Peak</div>
+                  <div className="text-sm text-white/60">Today&apos;s Peak</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-400">${defaultPredictions.monthlySavings.toLocaleString()}</div>
@@ -305,7 +305,7 @@ export function DashboardComponent({
                   <span className="text-white font-mono">$0.18/kWh</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/70">Today's Usage</span>
+                  <span className="text-white/70">Today&apos;s Usage</span>
                   <span className="text-white font-mono">{Math.round(metrics.energy.currentUsage * 24 / 1000)}kWh</span>
                 </div>
                 <div className="border-t border-white/10 pt-2">
