@@ -4,14 +4,14 @@ import { useState } from 'react'
 import { Power, Thermometer, Lightbulb, Fan } from 'lucide-react'
 
 interface ControlComponentProps {
-  title: string
-  type: 'switch' | 'slider' | 'schedule' | 'preset'
+  title?: string
+  type?: 'switch' | 'slider' | 'schedule' | 'preset'
   value?: any
   options?: any
   onChange?: (value: any) => void
 }
 
-export function ControlComponent({ title, type, value: initialValue, options = {}, onChange }: ControlComponentProps) {
+export function ControlComponent({ title = 'Control', type = 'switch', value: initialValue, options = {}, onChange }: ControlComponentProps) {
   const [value, setValue] = useState(initialValue)
 
   const handleChange = (newValue: any) => {
@@ -30,15 +30,23 @@ export function ControlComponent({ title, type, value: initialValue, options = {
   }
 
   return (
-    <div className="p-4 bg-surface rounded-lg border border-surface">
+    <div className="glass-card glass-card-default" style={{
+      background: 'rgba(255, 255, 255, 0.02)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255, 255, 255, 0.05)',
+      borderRadius: '1rem',
+      padding: '1.5rem',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
+    }}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {getIcon()}
           <h3 className="text-lg font-medium text-white">{title}</h3>
         </div>
         {options.status && (
-          <span className={`text-sm px-2 py-1 rounded ${
-            options.status === 'online' ? 'bg-green-900/20 text-green-400' : 'bg-red-900/20 text-red-400'
+          <span className={`text-sm px-2 py-1 rounded-full ${
+            options.status === 'online' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
           }`}>
             {options.status}
           </span>
@@ -48,8 +56,8 @@ export function ControlComponent({ title, type, value: initialValue, options = {
       {type === 'switch' && (
         <button
           onClick={() => handleChange(!value)}
-          className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-            value ? 'bg-primary' : 'bg-surface-light'
+          className={`relative inline-flex h-8 w-14 items-center rounded-full transition-all ${
+            value ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'bg-gray-700'
           }`}
         >
           <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${

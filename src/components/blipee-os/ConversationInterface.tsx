@@ -5,9 +5,11 @@ import { MessageBubble } from './MessageBubble'
 import { InputArea } from './InputArea'
 import { SuggestedQueries } from './SuggestedQueries'
 import { DynamicUIRenderer } from './DynamicUIRenderer'
+import { OnboardingExperience } from '@/components/onboarding/OnboardingExperience'
 import { Message, UIComponent } from '@/types/conversation'
 
 export function ConversationInterface() {
+  const [showOnboarding, setShowOnboarding] = useState(true)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -90,12 +92,21 @@ export function ConversationInterface() {
   ]
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
-      <div className="border-b border-surface p-4">
-        <h1 className="text-xl font-semibold text-white">Blipee OS</h1>
-        <p className="text-sm text-text-secondary">Your building&apos;s conversational AI</p>
-      </div>
+    <>
+      {showOnboarding && (
+        <OnboardingExperience onComplete={() => setShowOnboarding(false)} />
+      )}
+      
+      <div className="flex flex-col h-screen bg-background">
+        {/* Header */}
+        <div className="glass-card glass-card-default border-b border-gray-800 p-4" style={{
+          borderRadius: 0,
+          background: 'rgba(255, 255, 255, 0.02)',
+          backdropFilter: 'blur(20px)',
+        }}>
+          <h1 className="text-xl font-semibold text-white">Blipee OS</h1>
+          <p className="text-sm text-gray-400">Your building&apos;s conversational AI</p>
+        </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -137,6 +148,7 @@ export function ConversationInterface() {
         disabled={isLoading}
         placeholder={isLoading ? "Blipee is thinking..." : "Ask me anything about your building..."}
       />
-    </div>
+      </div>
+    </>
   )
 }
