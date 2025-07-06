@@ -8,12 +8,18 @@ export interface Message {
 }
 
 export interface UIComponent {
-  type: 'chart' | 'control' | '3d-view' | 'report' | 'table'
+  type: 'chart' | 'control' | '3d-view' | 'report' | 'table' | 'energy-dashboard' | 'optimization-dashboard' | 'action-panel' | 'insights-panel' | 'efficiency-controls' | 'impact-projection'
   props: Record<string, any>
   layout?: {
     width?: string
     height?: string
     position?: 'inline' | 'modal' | 'sidebar'
+  }
+  interactivity?: {
+    clickable?: boolean
+    controls?: any[]
+    realtime_updates?: boolean
+    animations?: any[]
   }
 }
 
@@ -37,6 +43,9 @@ export interface ChatResponse {
     tokensUsed: number
     responseTime: number
     model: string
+    confidence?: number
+    predictions?: number
+    automations?: number
   }
 }
 
