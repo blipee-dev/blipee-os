@@ -125,9 +125,11 @@ export function ChartComponent({ title, chartType = 'line', data = [] }: ChartCo
         <h3 className="text-lg font-medium text-white mb-4">{title}</h3>
       )}
       <div className="w-full h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          {renderChart()}
-        </ResponsiveContainer>
+        {chartType && (
+          <ResponsiveContainer width="100%" height="100%">
+            {renderChart() || <div />}
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   )
