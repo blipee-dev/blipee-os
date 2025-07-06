@@ -14,7 +14,7 @@ export function ConversationInterface() {
     {
       id: '1',
       role: 'assistant',
-      content: "Hello! I&apos;m Blipee, your building&apos;s AI assistant. I can help you monitor energy usage, control devices, generate reports, and optimize your building&apos;s performance. What would you like to know?",
+      content: `Hello! I'm Blipee, your building's AI assistant. I can help you monitor energy usage, control devices, generate reports, and optimize your building's performance. What would you like to know?`,
       timestamp: new Date(),
     }
   ])
@@ -75,7 +75,7 @@ export function ConversationInterface() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "I&apos;m currently in demo mode. In the full version, I&apos;ll be able to connect to your building systems and provide real-time insights!",
+        content: `I'm currently in demo mode. In the full version, I'll be able to connect to your building systems and provide real-time insights!`,
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, errorMessage])

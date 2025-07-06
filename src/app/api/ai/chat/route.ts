@@ -22,7 +22,7 @@ const demoResponses: Record<string, Partial<ChatResponse>> = {
     }],
     suggestions: [
       "Show me energy trends for the past week",
-      "What&apos;s causing the HVAC usage?",
+      "What's causing the HVAC usage?",
       "How can I reduce energy consumption?"
     ]
   },
@@ -42,7 +42,7 @@ const demoResponses: Record<string, Partial<ChatResponse>> = {
     }]
   },
   'report': {
-    message: "I&apos;ll generate your sustainability report for last month. The report shows a 12% reduction in energy consumption compared to the previous month, with total emissions of 45.2 tonnes CO₂. You&apos;re on track to meet your quarterly sustainability targets.",
+    message: `I'll generate your sustainability report for last month. The report shows a 12% reduction in energy consumption compared to the previous month, with total emissions of 45.2 tonnes CO₂. You're on track to meet your quarterly sustainability targets.`,
     components: [{
       type: 'report',
       props: {
@@ -58,7 +58,7 @@ const demoResponses: Record<string, Partial<ChatResponse>> = {
     }]
   },
   'savings': {
-    message: "I&apos;ve identified several energy saving opportunities. The biggest impact would come from optimizing your HVAC scheduling - you could save approximately $1,200/month by implementing occupancy-based controls. Additionally, upgrading to LED lighting in the parking garage could save another $400/month.",
+    message: `I've identified several energy saving opportunities. The biggest impact would come from optimizing your HVAC scheduling - you could save approximately $1,200/month by implementing occupancy-based controls. Additionally, upgrading to LED lighting in the parking garage could save another $400/month.`,
     suggestions: [
       "Show me the HVAC optimization plan",
       "Calculate ROI for LED upgrade",
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     // Fallback to demo responses if AI fails
     const lowerMessage = message.toLowerCase()
     let response: Partial<ChatResponse> = {
-      message: "I understand you&apos;re asking about your building. Let me help you with that.",
+      message: `I understand you're asking about your building. Let me help you with that.`,
       metadata: {
         tokensUsed: 150,
         responseTime: Date.now() - startTime,
@@ -126,10 +126,10 @@ export async function POST(request: NextRequest) {
     } else if (lowerMessage.includes('save') || lowerMessage.includes('saving') || lowerMessage.includes('optimize')) {
       response = { ...response, ...demoResponses.savings }
     } else {
-      response.message = `I understand you&apos;re asking about "${message}". In the full version, I&apos;ll be able to help with:\n\n• Real-time energy monitoring\n• Device control\n• Predictive maintenance\n• Sustainability reporting\n• Cost optimization\n\nFor now, try asking about energy usage, temperature, reports, or savings opportunities!`
+      response.message = `I understand you're asking about "${message}". In the full version, I'll be able to help with:\n\n• Real-time energy monitoring\n• Device control\n• Predictive maintenance\n• Sustainability reporting\n• Cost optimization\n\nFor now, try asking about energy usage, temperature, reports, or savings opportunities!`
       response.suggestions = [
         "Show me current energy usage",
-        "What&apos;s the temperature?",
+        "What's the temperature?",
         "Generate sustainability report",
         "Find energy savings"
       ]
