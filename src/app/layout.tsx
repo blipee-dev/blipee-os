@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { AuthProvider } from '@/contexts/AuthContext'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -17,12 +18,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-black overflow-hidden transition-colors duration-300`}>
-        <div className="fixed inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10 transition-all duration-300" />
-        <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
-        <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent" />
-        <div className="relative z-10 h-full">
-          {children}
-        </div>
+        <AuthProvider>
+          <div className="fixed inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10 transition-all duration-300" />
+          <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
+          <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent" />
+          <div className="relative z-10 h-full">
+            {children}
+          </div>
+        </AuthProvider>
       </body>
     </html>
   )
