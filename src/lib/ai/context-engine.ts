@@ -134,6 +134,24 @@ export class AIContextEngine {
 
   constructor() {
     this.initializeContext()
+    this.userProfile = {
+      expertise: 'intermediate',
+      role: 'facility_manager',
+      preferences: {
+        communicationStyle: 'business',
+        visualizationPreference: 'mixed',
+        notificationFrequency: 'daily'
+      },
+      goals: ['Reduce energy costs by 20%', 'Improve tenant comfort'],
+      previousInteractions: []
+    }
+    this.conversationHistory = {
+      currentSession: [],
+      recentTopics: [],
+      unresolved: [],
+      actionItems: [],
+      learnings: []
+    }
   }
 
   /**
