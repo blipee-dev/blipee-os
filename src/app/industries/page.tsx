@@ -378,87 +378,8 @@ export default function IndustriesPage() {
         </div>
       </section>
 
-      {/* Major Market Industries */}
-      <section className="py-20 px-4 bg-white dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                All Major Market Industries
-              </span>
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              From tech giants to traditional manufacturing, we serve every major industry sector
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[
-              { name: "Information Technology (IT)", icon: "💻" },
-              { name: "Energy", icon: "⚡" },
-              { name: "Healthcare & Pharmaceuticals", icon: "🏥" },
-              { name: "Financial Services", icon: "💰" },
-              { name: "Food & Beverage", icon: "🍽️" },
-              { name: "Automotive", icon: "🚗" },
-              { name: "Construction & Infrastructure", icon: "🏗️" },
-              { name: "Transport & Logistics", icon: "🚚" },
-              { name: "Entertainment & Media", icon: "🎬" },
-              { name: "Fashion & Retail", icon: "🛍️" },
-              { name: "Real Estate", icon: "🏢" },
-              { name: "Chemical Industry", icon: "⚗️" },
-              { name: "Agriculture & Food Production", icon: "🌾" },
-              { name: "Mining & Metals", icon: "⛏️" },
-              { name: "Telecommunications", icon: "📡" },
-              { name: "Aerospace & Defense", icon: "✈️" },
-              { name: "Education", icon: "🎓" },
-              { name: "Hospitality & Tourism", icon: "🏨" },
-              { name: "Manufacturing", icon: "🏭" },
-              { name: "Oil & Gas", icon: "🛢️" },
-              { name: "Utilities", icon: "💡" },
-            ].map((industry, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-xl p-4 shadow-sm hover:shadow-md transition-all border border-purple-100 dark:border-purple-900/20"
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{industry.icon}</span>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {industry.name}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mt-12"
-          >
-            <div className="inline-flex items-center px-6 py-3 bg-purple-100 dark:bg-purple-900/20 rounded-full">
-              <CheckCircle className="w-5 h-5 text-purple-600 mr-2" />
-              <span className="text-purple-700 dark:text-purple-300 font-medium">
-                Plus hundreds more specialized sectors and sub-industries
-              </span>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Industry Categories */}
-      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
+      <section className="py-20 px-4 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
