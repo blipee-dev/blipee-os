@@ -96,9 +96,9 @@ export class AuthService {
   /**
    * Sign in with OAuth provider
    */
-  async signInWithProvider(provider: 'google' | 'microsoft'): Promise<void> {
+  async signInWithProvider(provider: 'google' | 'azure'): Promise<void> {
     const { error } = await this.supabase.auth.signInWithOAuth({
-      provider,
+      provider: provider as any, // Type assertion for now
       options: {
         redirectTo: `${window.location.origin}/auth/callback`
       }
