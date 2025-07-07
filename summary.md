@@ -111,36 +111,28 @@ const [conversation, setConversation] = useState([]);
 UI Components Ask Blipee Could Generate
 
 1. Data Visualizations
-
-
-    - Real-time charts
-    - Energy flow diagrams
-    - Device status matrices
-    - Predictive analytics graphs
+   - Real-time charts
+   - Energy flow diagrams
+   - Device status matrices
+   - Predictive analytics graphs
 
 2. Controls
-
-
-    - Device control panels
-    - Automation builders
-    - Scene creators
-    - Settings forms
+   - Device control panels
+   - Automation builders
+   - Scene creators
+   - Settings forms
 
 3. Reports
-
-
-    - ESG reports
-    - Energy summaries
-    - Cost analyses
-    - Compliance documents
+   - ESG reports
+   - Energy summaries
+   - Cost analyses
+   - Compliance documents
 
 4. Interactive Elements
-
-
-    - 3D building models
-    - Floor plans with device locations
-    - Timeline sliders
-    - What-if scenario builders
+   - 3D building models
+   - Floor plans with device locations
+   - Timeline sliders
+   - What-if scenario builders
 
 Advanced Capabilities
 
