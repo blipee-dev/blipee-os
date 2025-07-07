@@ -1,56 +1,40 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow'
-import { useAuth } from '@/lib/auth/context'
-import { Loader2 } from 'lucide-react'
+import { ConversationalOnboarding } from '@/components/onboarding/ConversationalOnboarding'
+import { useEffect, useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default function OnboardingPage() {
-  const { session, loading: authLoading } = useAuth()
-  const [starting, setStarting] = useState(true)
   const router = useRouter()
+  const [userId, setUserId] = useState<string>('')
 
   useEffect(() => {
-    if (!authLoading && !session) {
-      router.push('/signin')
-    } else if (session?.user.onboarding_completed) {
-      router.push('/dashboard')
-    } else if (session) {
-      setStarting(false)
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/signin')
+        return
+      }
+      setUserId(user.id)
     }
-  }, [session, authLoading, router])
+    checkUser()
+  }, [router])
 
-  async function handleComplete() {
-    // Refresh session to get updated onboarding status
-    window.location.href = '/dashboard'
+  const handleComplete = async (config: any) => {
+    // Save onboarding configuration
+    console.log('Onboarding complete:', config)
+    
+    // Navigate to dashboard
+    router.push('/dashboard')
   }
 
-  if (authLoading || starting) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Preparing your setup...</p>
-        </div>
-      </div>
-    )
-  }
+  if (!userId) return null
 
-  if (!session) {
-    return null
-  }
-
-  // Get user's role from the session
-  const userRole = session.permissions.find(p => p.resource === '*')?.action === '*' 
-    ? 'subscription_owner' 
-    : 'site_manager' // Default role if not determined
-
-  return (
-    <OnboardingFlow
-      userId={session.user.id}
-      role={userRole as any}
-      onComplete={handleComplete}
-    />
-  )
+  return <ConversationalOnboarding onComplete={handleComplete} userId={userId} />
 }

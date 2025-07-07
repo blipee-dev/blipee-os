@@ -1,23 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { authService } from '@/lib/auth/service'
-import { z } from 'zod'
-import { UserRole } from '@/types/auth'
+import { NextRequest, NextResponse } from "next/server";
+import { authService } from "@/lib/auth/service";
+import { z } from "zod";
+import { UserRole } from "@/types/auth";
 
 const signUpSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   fullName: z.string().min(2),
   companyName: z.string().optional(),
-  role: z.string().optional()
-})
+  role: z.string().optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    
+    const body = await request.json();
+
     // Validate input
-    const validated = signUpSchema.parse(body)
-    
+    const validated = signUpSchema.parse(body);
+
     // Sign up user
     const result = await authService.signUp(
       validated.email,
@@ -25,34 +25,34 @@ export async function POST(request: NextRequest) {
       {
         full_name: validated.fullName,
         company_name: validated.companyName,
-        role: validated.role as UserRole
-      }
-    )
-    
+        role: validated.role as UserRole,
+      },
+    );
+
     return NextResponse.json({
       success: true,
-      data: result
-    })
+      data: result,
+    });
   } catch (error: any) {
-    console.error('Signup error:', error)
-    
+    console.error("Signup error:", error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Validation error',
-          details: error.errors
+          error: "Validation error",
+          details: error.errors,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
-    
+
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to sign up'
+        error: error.message || "Failed to sign up",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

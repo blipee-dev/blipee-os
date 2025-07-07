@@ -5,6 +5,13 @@ export interface Message {
   components?: UIComponent[]
   suggestions?: string[]
   timestamp: Date
+  attachments?: Array<{
+    id: string
+    name: string
+    type: string
+    size: number
+    url?: string
+  }>
 }
 
 export interface UIComponent {

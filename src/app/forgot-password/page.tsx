@@ -1,40 +1,46 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { AuthLayout } from '@/components/auth/AuthLayout'
-import { Mail, Loader2, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react'
+import React, { useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+import {
+  Mail,
+  Loader2,
+  AlertCircle,
+  CheckCircle,
+  ArrowLeft,
+} from "lucide-react";
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send reset email')
+        throw new Error(data.error || "Failed to send reset email");
       }
 
-      setSuccess(true)
+      setSuccess(true);
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -48,30 +54,30 @@ export default function ForgotPasswordPage() {
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: 'spring', duration: 0.5 }}
+            transition={{ type: "spring", duration: 0.5 }}
             className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4"
           >
             <CheckCircle className="w-8 h-8 text-green-600" />
           </motion.div>
-          
+
           <p className="text-gray-600 mb-6">
-            We&apos;ve sent a password reset link to <strong>{email}</strong>. 
+            We&apos;ve sent a password reset link to <strong>{email}</strong>.
             Please check your email and follow the instructions.
           </p>
-          
+
           <p className="text-sm text-gray-500 mb-6">
-            Didn&apos;t receive the email? Check your spam folder or{' '}
+            Didn&apos;t receive the email? Check your spam folder or{" "}
             <button
               onClick={() => {
-                setSuccess(false)
-                setError('')
+                setSuccess(false);
+                setError("");
               }}
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
               try again
             </button>
           </p>
-          
+
           <Link
             href="/signin"
             className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium"
@@ -81,7 +87,7 @@ export default function ForgotPasswordPage() {
           </Link>
         </div>
       </AuthLayout>
-    )
+    );
   }
 
   return (
@@ -98,7 +104,10 @@ export default function ForgotPasswordPage() {
         )}
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Email address
           </label>
           <div className="relative">
@@ -133,7 +142,7 @@ export default function ForgotPasswordPage() {
               Sending...
             </>
           ) : (
-            'Send reset instructions'
+            "Send reset instructions"
           )}
         </button>
 
@@ -148,5 +157,5 @@ export default function ForgotPasswordPage() {
         </div>
       </form>
     </AuthLayout>
-  )
+  );
 }
