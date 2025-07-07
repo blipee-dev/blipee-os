@@ -15,7 +15,24 @@ import { conversationService } from '@/lib/conversations/service'
 import { jsonToMessages } from '@/lib/conversations/utils'
 import { proactiveInsightEngine } from '@/lib/ai/proactive-insights'
 
-export function ConversationInterface() {
+interface BuildingContext {
+  id: string
+  name: string
+  organizationId: string
+  metadata?: {
+    size_sqft?: number
+    floors?: number
+    occupancy_types?: string[]
+    age_category?: string
+    systems_baseline?: any
+  }
+}
+
+interface ConversationInterfaceProps {
+  buildingContext?: BuildingContext
+}
+
+export function ConversationInterface({ buildingContext }: ConversationInterfaceProps = {}) {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -97,14 +114,20 @@ export function ConversationInterface() {
     }
 
     try {
-      // TODO: Replace with actual API call
+      // Include building context if available
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message,
-          conversationId: 'demo',
-          buildingId: 'demo-building'
+          conversationId: conversationId || 'demo',
+          buildingId: buildingContext?.id || 'demo-building',
+          buildingContext: buildingContext || null,
+          context: {
+            buildingName: buildingContext?.name,
+            organizationId: buildingContext?.organizationId,
+            metadata: buildingContext?.metadata
+          }
         })
       })
 
@@ -167,10 +190,10 @@ export function ConversationInterface() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-xl font-semibold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-                  Blipee OS
+                  {buildingContext ? buildingContext.name : 'Blipee OS'}
                 </h1>
                 <p className="text-sm text-white/50 font-light">
-                  Your building&apos;s conversational AI
+                  {buildingContext ? `AI Assistant for ${buildingContext.name}` : 'Your building&apos;s conversational AI'}
                 </p>
               </div>
               
