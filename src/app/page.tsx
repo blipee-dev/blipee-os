@@ -577,25 +577,25 @@ export default function LandingPage() {
 
             <div className="hidden md:flex items-center space-x-8">
               <Link
-                href="#features"
+                href="/features"
                 className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               >
                 Features
               </Link>
               <Link
-                href="#industries"
+                href="/industries"
                 className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               >
                 Industries
               </Link>
               <Link
-                href="#ai"
+                href="/ai-technology"
                 className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               >
                 AI Technology
               </Link>
               <Link
-                href="#about"
+                href="/about"
                 className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               >
                 About

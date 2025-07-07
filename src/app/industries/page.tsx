@@ -6,14 +6,6 @@ import { motion } from "framer-motion";
 import {
   Building2,
   Factory,
-  ShoppingCart,
-  Plane,
-  Truck,
-  TreePine,
-  Zap,
-  Home,
-  ArrowRight,
-  TrendingDown,
   Globe,
   Target,
   CheckCircle,
@@ -21,6 +13,15 @@ import {
   Users,
   Award,
   BarChart3,
+  Home,
+  ArrowRight,
+  TrendingDown,
+  Shield,
+  Zap,
+  TreePine,
+  Heart,
+  GraduationCap,
+  Banknote,
 } from "lucide-react";
 
 // Animated background component
@@ -34,23 +35,17 @@ function AnimatedBackground() {
   );
 }
 
-// Industry card component
-function IndustryCard({
-  icon: Icon,
+// GRI Standard component
+function GRIStandard({
+  standard,
   title,
   description,
-  useCases,
-  results,
-  gradient,
-  stats,
+  coverage,
 }: {
-  icon: any;
+  standard: string;
   title: string;
   description: string;
-  useCases: string[];
-  results: string[];
-  gradient: string;
-  stats: { value: string; label: string }[];
+  coverage: string[];
 }) {
   return (
     <motion.div
@@ -58,227 +53,189 @@ function IndustryCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-white/20 hover:shadow-2xl transition-all"
+      className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20"
     >
-      <div className="flex items-center mb-6">
-        <div
-          className={`w-14 h-14 bg-gradient-to-r ${gradient} rounded-xl flex items-center justify-center mr-4`}
-        >
-          <Icon className="w-8 h-8 text-white" />
+      <div className="flex items-center mb-4">
+        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-4">
+          <Shield className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {title}
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+            {standard}
           </h3>
-          <p className="text-gray-600 dark:text-gray-300">{description}</p>
+          <p className="text-purple-600 font-medium">{title}</p>
         </div>
       </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {stats.map((stat, index) => (
-          <div key={index} className="text-center">
-            <div className="text-2xl font-bold text-purple-600">
-              {stat.value}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {stat.label}
-            </div>
+      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+        {description}
+      </p>
+      <div className="space-y-1">
+        {coverage.map((item, index) => (
+          <div key={index} className="flex items-start">
+            <CheckCircle className="w-4 h-4 text-purple-500 mr-2 mt-0.5 flex-shrink-0" />
+            <span className="text-xs text-gray-600 dark:text-gray-300">
+              {item}
+            </span>
           </div>
         ))}
-      </div>
-
-      {/* Use Cases */}
-      <div className="mb-6">
-        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-          Common Use Cases:
-        </h4>
-        <div className="space-y-2">
-          {useCases.map((useCase, index) => (
-            <div key={index} className="flex items-start">
-              <CheckCircle className="w-4 h-4 text-purple-500 mr-2 mt-0.5 flex-shrink-0" />
-              <span className="text-sm text-gray-600 dark:text-gray-300">
-                {useCase}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Results */}
-      <div>
-        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-          Typical Results:
-        </h4>
-        <div className="space-y-2">
-          {results.map((result, index) => (
-            <div key={index} className="flex items-start">
-              <TrendingDown className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-              <span className="text-sm text-gray-600 dark:text-gray-300">
-                {result}
-              </span>
-            </div>
-          ))}
-        </div>
       </div>
     </motion.div>
   );
 }
 
 export default function IndustriesPage() {
-  const industries = [
-    {
-      icon: Building2,
-      title: "Real Estate & Construction",
-      description:
-        "Smart buildings, green construction, portfolio optimization",
-      gradient: "from-blue-500 to-cyan-500",
-      stats: [
-        { value: "45%", label: "Energy Savings" },
-        { value: "60%", label: "Faster Reporting" },
-        { value: "30%", label: "Cost Reduction" },
-      ],
-      useCases: [
-        "Building energy optimization",
-        "Tenant engagement programs",
-        "LEED/BREEAM certification",
-        "Portfolio-wide emissions tracking",
-        "Smart building automation",
-        "ESG reporting for investors",
-      ],
-      results: [
-        "40-60% reduction in energy consumption",
-        "25% improvement in tenant satisfaction",
-        "90% faster compliance reporting",
-        "15-30% increase in property values",
-      ],
-    },
+  const industryCategories = [
     {
       icon: Factory,
-      title: "Manufacturing",
-      description:
-        "Supply chain optimization, production efficiency, waste reduction",
+      title: "Manufacturing & Production",
+      description: "Any company that produces goods or products",
+      examples: [
+        "Automotive & aerospace",
+        "Electronics & technology",
+        "Food & beverage production",
+        "Chemicals & pharmaceuticals",
+        "Textiles & consumer goods",
+        "Heavy machinery & equipment",
+      ],
+      gradient: "from-blue-500 to-indigo-500",
+    },
+    {
+      icon: Building2,
+      title: "Built Environment",
+      description: "Organizations managing buildings and infrastructure",
+      examples: [
+        "Commercial real estate",
+        "Residential properties", 
+        "Educational institutions",
+        "Healthcare facilities",
+        "Hospitality & tourism",
+        "Airports & transportation hubs",
+      ],
       gradient: "from-purple-500 to-pink-500",
-      stats: [
-        { value: "35%", label: "Waste Reduction" },
-        { value: "50%", label: "Faster Analysis" },
-        { value: "25%", label: "Cost Savings" },
-      ],
-      useCases: [
-        "Production line optimization",
-        "Supply chain emissions tracking",
-        "Waste stream analysis",
-        "Energy consumption monitoring",
-        "Product lifecycle assessment",
-        "Regulatory compliance automation",
-      ],
-      results: [
-        "30-50% reduction in manufacturing emissions",
-        "20% improvement in resource efficiency",
-        "40% faster supply chain visibility",
-        "95% compliance automation success",
-      ],
-    },
-    {
-      icon: ShoppingCart,
-      title: "Retail & E-commerce",
-      description: "Store operations, supply chain, customer engagement",
-      gradient: "from-pink-500 to-violet-500",
-      stats: [
-        { value: "40%", label: "Store Efficiency" },
-        { value: "65%", label: "Customer Engagement" },
-        { value: "20%", label: "Operational Savings" },
-      ],
-      useCases: [
-        "Store energy management",
-        "Sustainable packaging optimization",
-        "Customer sustainability programs",
-        "Inventory carbon footprinting",
-        "Last-mile delivery optimization",
-        "Supplier sustainability scoring",
-      ],
-      results: [
-        "35% reduction in store energy costs",
-        "60% improvement in packaging efficiency",
-        "80% increase in customer sustainability engagement",
-        "25% optimization in delivery routes",
-      ],
-    },
-    {
-      icon: Plane,
-      title: "Transportation & Logistics",
-      description: "Fleet optimization, route planning, fuel efficiency",
-      gradient: "from-indigo-500 to-blue-500",
-      stats: [
-        { value: "30%", label: "Fuel Savings" },
-        { value: "55%", label: "Route Optimization" },
-        { value: "40%", label: "Emission Reduction" },
-      ],
-      useCases: [
-        "Fleet fuel efficiency tracking",
-        "Route optimization algorithms",
-        "Modal shift analysis",
-        "Cargo load optimization",
-        "Alternative fuel planning",
-        "Maintenance emission reduction",
-      ],
-      results: [
-        "25-40% reduction in fuel consumption",
-        "50% improvement in route efficiency",
-        "35% decrease in maintenance emissions",
-        "90% real-time fleet visibility",
-      ],
     },
     {
       icon: Zap,
       title: "Energy & Utilities",
-      description:
-        "Grid optimization, renewable integration, demand management",
+      description: "Power generation, distribution, and utility services",
+      examples: [
+        "Electric utilities",
+        "Oil & gas companies",
+        "Renewable energy developers",
+        "Water & wastewater treatment",
+        "District energy systems",
+        "Energy storage & distribution",
+      ],
       gradient: "from-yellow-500 to-orange-500",
-      stats: [
-        { value: "50%", label: "Grid Efficiency" },
-        { value: "70%", label: "Renewable Integration" },
-        { value: "35%", label: "Demand Optimization" },
+    },
+    {
+      icon: Globe,
+      title: "Services & Digital",
+      description: "Service-based organizations across all sectors",
+      examples: [
+        "Financial services & banking",
+        "Professional services",
+        "Technology & software",
+        "Telecommunications",
+        "Media & entertainment",
+        "Consulting & advisory",
       ],
-      useCases: [
-        "Smart grid optimization",
-        "Renewable energy forecasting",
-        "Demand response programs",
-        "Energy storage management",
-        "Grid stability analysis",
-        "Customer engagement platforms",
-      ],
-      results: [
-        "45% improvement in grid efficiency",
-        "60% better renewable integration",
-        "30% reduction in peak demand",
-        "85% customer satisfaction improvement",
-      ],
+      gradient: "from-emerald-500 to-teal-500",
     },
     {
       icon: TreePine,
-      title: "Agriculture & Food",
-      description:
-        "Sustainable farming, food waste reduction, supply chain transparency",
+      title: "Natural Resources",
+      description: "Organizations working with natural resources",
+      examples: [
+        "Agriculture & farming",
+        "Forestry & paper",
+        "Mining & extractives",
+        "Fisheries & aquaculture",
+        "Waste management & recycling",
+        "Environmental services",
+      ],
       gradient: "from-green-500 to-emerald-500",
-      stats: [
-        { value: "35%", label: "Yield Improvement" },
-        { value: "45%", label: "Water Savings" },
-        { value: "30%", label: "Waste Reduction" },
+    },
+    {
+      icon: Users,
+      title: "Public & Social Sector",
+      description: "Government and public service organizations",
+      examples: [
+        "Government agencies",
+        "Non-profit organizations",
+        "Healthcare systems",
+        "Educational institutions",
+        "Social enterprises",
+        "International organizations",
       ],
-      useCases: [
-        "Precision agriculture optimization",
-        "Food waste tracking and reduction",
-        "Sustainable sourcing verification",
-        "Carbon farming programs",
-        "Supply chain traceability",
-        "Regenerative agriculture planning",
+      gradient: "from-indigo-500 to-purple-500",
+    },
+  ];
+
+  const griStandards = [
+    {
+      standard: "GRI 11",
+      title: "Oil and Gas Sector",
+      description: "Comprehensive sustainability reporting for oil and gas operations",
+      coverage: [
+        "Greenhouse gas emissions management",
+        "Biodiversity and ecosystem protection",
+        "Asset integrity and process safety",
+        "Rights of indigenous peoples",
       ],
-      results: [
-        "30% increase in crop yields",
-        "40% reduction in water usage",
-        "50% decrease in food waste",
-        "25% improvement in soil health",
+    },
+    {
+      standard: "GRI 12", 
+      title: "Coal Sector",
+      description: "Sustainability standards for coal mining and processing",
+      coverage: [
+        "Particulate matter emissions",
+        "Biodiversity impact assessment",
+        "Land and resource rights",
+        "Closure and rehabilitation planning",
+      ],
+    },
+    {
+      standard: "GRI 13",
+      title: "Agriculture & Food",
+      description: "Food production and agricultural sustainability reporting",
+      coverage: [
+        "Food loss and waste management",
+        "Sustainable sourcing practices",
+        "Animal welfare standards",
+        "Water and soil conservation",
+      ],
+    },
+    {
+      standard: "GRI 14",
+      title: "Mining Sector",
+      description: "Mining operations and extractive industry standards", 
+      coverage: [
+        "Waste and tailings management",
+        "Mine closure and rehabilitation",
+        "Artisanal and small-scale mining",
+        "Economic contribution reporting",
+      ],
+    },
+    {
+      standard: "GRI 15",
+      title: "Chemicals Sector",
+      description: "Chemical industry sustainability and safety reporting",
+      coverage: [
+        "Chemical safety and product stewardship",
+        "Process safety management",
+        "Emissions and waste reduction",
+        "Supply chain transparency",
+      ],
+    },
+    {
+      standard: "GRI 16",
+      title: "Construction & Real Estate",
+      description: "Built environment sustainability standards",
+      coverage: [
+        "Sustainable building practices",
+        "Land use and planning",
+        "Construction waste management",
+        "Energy efficiency in buildings",
       ],
     },
   ];
@@ -354,39 +311,74 @@ export default function IndustriesPage() {
             <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full mb-8">
               <Globe className="w-4 h-4 text-pink-400 mr-2" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Transforming Every Industry
+                Every Industry. Every Organization. Every Goal.
               </span>
             </div>
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
               <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Industries We Serve
+                Universal Sustainability
               </span>
               <br />
               <span className="text-gray-900 dark:text-white">
-                With Passion & Purpose
+                For Every Industry
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              From manufacturing to agriculture, we&apos;re revolutionizing
-              sustainability across every industry with AI-powered solutions
-              that deliver real impact.
+            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
+              blipee OS works with any organization, in any industry, of any size. 
+              From startups to Fortune 500s, from manufacturing to services, 
+              we make sustainability simple and achievable for everyone.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Industries Grid */}
-      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-8">
-            {industries.map((industry, index) => (
-              <IndustryCard key={index} {...industry} />
-            ))}
-          </div>
+      {/* Universal Message */}
+      <section className="py-16 px-4 bg-gray-50 dark:bg-gray-800">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                Your Industry Is Covered
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+              Sustainability challenges are universal. Whether you&apos;re tracking 
+              emissions, managing energy, reducing waste, or reporting ESG metrics, 
+              blipee OS adapts to your specific industry requirements and regulations.
+            </p>
+            <div className="grid md:grid-cols-3 gap-6 text-left">
+              <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <Target className="w-8 h-8 text-purple-600 mb-4" />
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Any Sector</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  From heavy industry to digital services, our AI understands your unique sustainability challenges.
+                </p>
+              </div>
+              <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <Shield className="w-8 h-8 text-purple-600 mb-4" />
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Any Standard</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  GRI, SASB, TCFD, EU Taxonomy - we support all major sustainability frameworks and regulations.
+                </p>
+              </div>
+              <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <Users className="w-8 h-8 text-purple-600 mb-4" />
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Any Size</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  From small businesses to multinational corporations, our platform scales with your needs.
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Global Impact Section */}
+      {/* Industry Categories */}
       <section className="py-20 px-4 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -398,22 +390,131 @@ export default function IndustriesPage() {
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Global Impact
+                Industry Categories We Serve
               </span>
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Organizations worldwide are achieving their sustainability goals
-              faster with our industry-specific solutions
+              These are just examples. If your industry isn&apos;t listed, 
+              we still work with you. Our AI adapts to any sustainability challenge.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid lg:grid-cols-2 gap-8">
+            {industryCategories.map((category, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-white/20"
+              >
+                <div className="flex items-center mb-6">
+                  <div
+                    className={`w-14 h-14 bg-gradient-to-r ${category.gradient} rounded-xl flex items-center justify-center mr-4`}
+                  >
+                    <category.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {category.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {category.description}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {category.examples.map((example, exampleIndex) => (
+                    <div key={exampleIndex} className="flex items-center">
+                      <CheckCircle className="w-4 h-4 text-purple-500 mr-2 flex-shrink-0" />
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
+                        {example}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* GRI Standards Section */}
+      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                GRI Sector Standards
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Full compliance with Global Reporting Initiative sector-specific standards. 
+              Our AI knows the exact requirements for your industry.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {griStandards.map((standard, index) => (
+              <GRIStandard key={index} {...standard} />
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mt-12"
+          >
+            <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8">
+              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+                Beyond GRI Standards
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                We also support SASB, TCFD, EU Taxonomy, SEC Climate Rules, 
+                IFRS S1/S2, and emerging regulations worldwide. 
+                If there&apos;s a sustainability standard, we&apos;ve got you covered.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Global Impact */}
+      <section className="py-20 px-4 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                Proven Across Industries
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">
+              Organizations in every sector are achieving their sustainability goals
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-4 gap-8">
             {[
               {
                 icon: Users,
                 value: "10,000+",
                 label: "Organizations",
-                description: "Across 50+ countries",
+                description: "Across every industry",
               },
               {
                 icon: TrendingDown,
@@ -423,9 +524,9 @@ export default function IndustriesPage() {
               },
               {
                 icon: Award,
-                value: "99.2%",
-                label: "Customer Success",
-                description: "Meet their targets",
+                value: "150+",
+                label: "Countries",
+                description: "Global coverage",
               },
               {
                 icon: BarChart3,
@@ -470,11 +571,11 @@ export default function IndustriesPage() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Ready to Transform Your Industry?
+              Ready for Any Industry Challenge?
             </h2>
             <p className="text-xl text-white/90 mb-8">
-              Join industry leaders who are already achieving remarkable
-              sustainability results with blipee OS
+              Don&apos;t see your exact industry? No problem. 
+              blipee OS adapts to any sustainability challenge, anywhere.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/signup">
@@ -492,7 +593,7 @@ export default function IndustriesPage() {
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-white/20 backdrop-blur-sm border-2 border-white text-white rounded-full font-semibold text-lg shadow-lg hover:bg-white/30 transition-all"
               >
-                Schedule Demo
+                Discuss Your Industry
               </motion.button>
             </div>
           </motion.div>
