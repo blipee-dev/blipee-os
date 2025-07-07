@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { onboardingService } from '@/lib/onboarding/service'
 import type { OnboardingFlow, OnboardingStep } from '@/types/onboarding'
@@ -31,9 +31,20 @@ export function OnboardingFlow({ userId, role, onComplete }: OnboardingFlowProps
   const [loading, setLoading] = useState(true)
   const [timeRemaining, setTimeRemaining] = useState(0)
 
+  const loadFlow = useCallback(async () => {
+    try {
+      const flowData = await onboardingService.startOnboarding(userId, role)
+      setFlow(flowData)
+      setLoading(false)
+    } catch (error) {
+      console.error('Failed to load onboarding flow:', error)
+      setLoading(false)
+    }
+  }, [userId, role])
+
   useEffect(() => {
     loadFlow()
-  }, [userId, role])
+  }, [loadFlow])
 
   useEffect(() => {
     if (flow) {
@@ -43,17 +54,6 @@ export function OnboardingFlow({ userId, role, onComplete }: OnboardingFlowProps
       setTimeRemaining(remaining)
     }
   }, [flow, currentStepIndex])
-
-  async function loadFlow() {
-    try {
-      const flowData = await onboardingService.startOnboarding(userId, role)
-      setFlow(flowData)
-      setLoading(false)
-    } catch (error) {
-      console.error('Failed to load onboarding flow:', error)
-      setLoading(false)
-    }
-  }
 
   async function handleStepComplete(data: any) {
     if (!flow) return
