@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Building2, ChevronDown, Check, Plus, MapPin } from 'lucide-react'
 import { useAuth } from '@/lib/auth/context'
@@ -22,13 +22,7 @@ export function BuildingSelector({
   const [loading, setLoading] = useState(true)
   const { session } = useAuth()
 
-  useEffect(() => {
-    if (session?.current_organization) {
-      loadBuildings()
-    }
-  }, [session?.current_organization])
-
-  async function loadBuildings() {
+  const loadBuildings = useCallback(async () => {
     try {
       const response = await fetch(`/api/organizations/${session?.current_organization.id}/buildings`)
       if (response.ok) {
@@ -45,7 +39,13 @@ export function BuildingSelector({
     } finally {
       setLoading(false)
     }
-  }
+  }, [session?.current_organization, currentBuilding, onBuildingChange])
+
+  useEffect(() => {
+    if (session?.current_organization) {
+      loadBuildings()
+    }
+  }, [session?.current_organization, loadBuildings])
 
   function handleBuildingSelect(building: Building) {
     onBuildingChange(building)
