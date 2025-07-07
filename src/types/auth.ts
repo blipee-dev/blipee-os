@@ -49,18 +49,24 @@ export interface Building {
   organization_id: string
   name: string
   slug: string
+  address?: string
   address_line1?: string
   address_line2?: string
   city?: string
   state_province?: string
   postal_code?: string
-  country: string
+  country?: string
   latitude?: number
   longitude?: number
-  timezone: string
-  metadata: BuildingMetadata
-  systems_config: SystemsConfig
-  baseline_data: BaselineData
+  timezone?: string
+  size_sqft?: number
+  floors?: number
+  age_category?: string
+  occupancy_types?: string[]
+  status?: 'active' | 'pending_setup' | 'inactive'
+  metadata?: any
+  systems_config?: SystemsConfig
+  baseline_data?: BaselineData
   created_at: string
   updated_at: string
 }
