@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Leaf, Sun, Moon } from "lucide-react";
+import { Home, Sun, Moon } from "lucide-react";
 import { premiumTheme } from "@/lib/design/theme";
 
 export function NavRail() {
@@ -44,7 +44,7 @@ export function NavRail() {
           tabIndex={0}
           aria-label="Blipee OS Home"
         >
-          <Leaf className="w-8 h-8 text-white" />
+          <Home className="w-8 h-8 text-white" />
         </div>
       </div>
 
