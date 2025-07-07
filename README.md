@@ -10,7 +10,7 @@
 
 ## 🚀 Vision
 
-Blipee OS transforms how humans interact with buildings. Instead of navigating through complex dashboards and forms, users simply have a conversation with their building. 
+Blipee OS transforms how humans interact with buildings. Instead of navigating through complex dashboards and forms, users simply have a conversation with their building.
 
 **Traditional Way:** Navigate → Click → Search → Configure → Submit → Wait  
 **Blipee OS Way:** "Reduce my energy costs by 30%" → Done.
@@ -20,6 +20,7 @@ Blipee OS transforms how humans interact with buildings. Instead of navigating t
 🎉 **Production Ready** - Full-featured building management platform with multi-tenant architecture
 
 ### Latest Updates (January 2025)
+
 - ✅ **Multi-tenant Architecture** - Complete authentication and authorization system
 - ✅ **Premium Landing Page** - Beautiful marketing site with animations
 - ✅ **Enhanced Auth Pages** - Polished sign-in/sign-up with OAuth support
@@ -30,6 +31,7 @@ Blipee OS transforms how humans interact with buildings. Instead of navigating t
 - ✅ **Production Deployment** - Live on Vercel with CI/CD
 
 ### Core Features
+
 - ✅ Natural language building interaction
 - ✅ Proactive AI insights and welcomes
 - ✅ Dynamic dashboard generation
@@ -42,6 +44,7 @@ Blipee OS transforms how humans interact with buildings. Instead of navigating t
 ## 🎯 Quick Start
 
 ### Prerequisites
+
 - Node.js 20+ (required)
 - Supabase account (free tier works)
 - OpenAI API key (for AI features)
@@ -61,7 +64,9 @@ cp .env.example .env.local
 ```
 
 ### Environment Setup
+
 Create `.env.local` with:
+
 ```env
 # Supabase (required)
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -77,6 +82,7 @@ DEEPSEEK_API_KEY=your_deepseek_key
 ```
 
 ### Database Setup
+
 ```bash
 # Push database schema to Supabase
 npx supabase db push
@@ -89,6 +95,7 @@ npm run db:seed
 ```
 
 ### Development
+
 ```bash
 # Start development server
 npm run dev
@@ -101,6 +108,7 @@ npm run dev
 ## 📚 Documentation
 
 ### Core Docs
+
 - **[CLAUDE.md](./CLAUDE.md)** - AI Assistant configuration and development guide
 - **[Multi-tenant Architecture](./docs/architecture/MULTI_TENANT_ARCHITECTURE.md)** - Complete auth & permissions system
 - [Vision & Philosophy](./docs/vision/VISION.md)
@@ -108,6 +116,7 @@ npm run dev
 - [Database Schema](./docs/database/SCHEMA.md)
 
 ### Development Guides
+
 - [Getting Started](./docs/guides/GETTING_STARTED.md)
 - [Authentication Flow](./docs/guides/AUTHENTICATION.md)
 - [API Documentation](./docs/api/OVERVIEW.md)
@@ -117,6 +126,7 @@ npm run dev
 ## 🏗️ Architecture & Features
 
 ### 🔐 Multi-tenant System
+
 - **8 User Roles**: From Subscription Owner to Guest with hierarchical permissions
 - **Row Level Security**: PostgreSQL RLS ensures data isolation
 - **Organization Hierarchy**: Support for multiple buildings per organization
@@ -124,6 +134,7 @@ npm run dev
 - **OAuth Integration**: Google and Microsoft authentication support
 
 ### 🗣️ Conversational AI
+
 - **Natural Language**: Talk to your building like a butler
 - **Multi-provider AI**: DeepSeek, OpenAI, Anthropic with intelligent fallbacks
 - **Context Awareness**: Remembers conversations and user preferences
@@ -131,6 +142,7 @@ npm run dev
 - **Voice Input**: Hands-free building control
 
 ### 📊 Dynamic UI Generation
+
 - **Smart Dashboards**: AI generates building reports on demand
 - **Live Visualizations**: Energy, temperature, occupancy charts
 - **Tabbed Interface**: Organized building data presentation
@@ -138,6 +150,7 @@ npm run dev
 - **Responsive Design**: Perfect on desktop, tablet, and mobile
 
 ### 🧠 Building Intelligence
+
 - **Predictive Analytics**: Forecast energy usage and maintenance needs
 - **Pattern Recognition**: Learn from building behavior over time
 - **Anomaly Detection**: Proactive alerts for unusual patterns
@@ -145,6 +158,7 @@ npm run dev
 - **ESG Reporting**: Automated sustainability compliance reports
 
 ### 🎨 Premium Design System
+
 - **Glass Morphism**: Beautiful translucent UI elements
 - **Animated Backgrounds**: Dynamic blob animations
 - **Dark/Light Mode**: Automatic theme switching
@@ -154,6 +168,7 @@ npm run dev
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Framework:** Next.js 14 (App Router)
 - **Language:** TypeScript 5.0
 - **Styling:** Tailwind CSS 3.4 + Glass Morphism
@@ -162,6 +177,7 @@ npm run dev
 - **Forms:** React Hook Form + Zod
 
 ### Backend
+
 - **API:** Next.js API Routes
 - **Database:** Supabase (PostgreSQL)
 - **Auth:** Supabase Auth + OAuth
@@ -169,12 +185,14 @@ npm run dev
 - **File Storage:** Supabase Storage
 
 ### AI & Intelligence
+
 - **Primary:** DeepSeek R1
 - **Fallbacks:** OpenAI GPT-4, Anthropic Claude
 - **Voice:** Web Speech API
 - **Embeddings:** OpenAI Ada-002
 
 ### Infrastructure
+
 - **Hosting:** Vercel
 - **CDN:** Vercel Edge Network
 - **CI/CD:** GitHub Actions
@@ -191,6 +209,7 @@ npm run dev
 ## 🚦 Project Roadmap
 
 ### ✅ Phase 1-2: MVP Development (COMPLETE)
+
 - Natural language building interaction
 - Dynamic dashboard generation
 - AI-powered insights
@@ -198,6 +217,7 @@ npm run dev
 - Basic building monitoring
 
 ### ✅ Phase 3: Enterprise Features (COMPLETE)
+
 - Multi-tenant architecture with RLS
 - 8-tier role hierarchy
 - OAuth authentication (Google/Microsoft)
@@ -206,6 +226,7 @@ npm run dev
 - Premium UI with glass morphism
 
 ### 🚧 Phase 4: Production Enhancement (IN PROGRESS)
+
 - Performance optimization
 - Advanced analytics dashboard
 - Mobile app development
@@ -213,6 +234,7 @@ npm run dev
 - Integration marketplace
 
 ### 🔮 Phase 5: AI Advancement (PLANNED)
+
 - Computer vision for security
 - Advanced predictive models
 - Autonomous building operations
@@ -228,6 +250,7 @@ npm run dev
 #### Manual Deployment Steps:
 
 1. **Fork/Clone Repository**
+
    ```bash
    git clone https://github.com/blipee-dev/blipee-os.git
    cd blipee-os

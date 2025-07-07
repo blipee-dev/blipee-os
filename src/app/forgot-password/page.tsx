@@ -55,9 +55,9 @@ export default function ForgotPasswordPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4"
+            className="mx-auto w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4"
           >
-            <CheckCircle className="w-8 h-8 text-green-600" />
+            <CheckCircle className="w-8 h-8 text-purple-600" />
           </motion.div>
 
           <p className="text-gray-600 mb-6">
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
                 setSuccess(false);
                 setError("");
               }}
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="text-purple-600 hover:text-purple-700 font-medium"
             >
               try again
             </button>
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
 
           <Link
             href="/signin"
-            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="inline-flex items-center text-sm text-purple-600 hover:text-purple-700 font-medium"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to sign in
@@ -122,7 +122,7 @@ export default function ForgotPasswordPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               placeholder="you@example.com"
             />
           </div>
@@ -134,7 +134,7 @@ export default function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={loading || !email}
-          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
             <>
@@ -149,7 +149,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center">
           <Link
             href="/signin"
-            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium inline-flex items-center"
+            className="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium inline-flex items-center"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to sign in

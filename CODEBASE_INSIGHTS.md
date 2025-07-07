@@ -3,6 +3,7 @@
 ## 🎯 Quick Understanding
 
 **What is Blipee OS?**
+
 - A conversational AI building management system - think "ChatGPT for Buildings"
 - Users interact with buildings through natural language instead of traditional dashboards
 - The AI acts as a "silent butler" providing proactive insights and managing building operations
@@ -10,6 +11,7 @@
 ## 🏗️ Architecture Overview
 
 ### Technology Stack
+
 - **Frontend**: Next.js 14 (App Router) + TypeScript + Tailwind CSS
 - **Backend**: Supabase (PostgreSQL + Realtime + Auth)
 - **AI**: Multi-provider system (DeepSeek, OpenAI, Anthropic) with fallbacks
@@ -68,29 +70,34 @@ src/
 ## 🔑 Key Files to Understand
 
 ### Core Configuration
+
 - `/CLAUDE.md` - AI assistant personality and behavior guide
 - `/package.json` - Dependencies and scripts
 - `/.env.example` - Required environment variables
 - `/src/app/globals.css` - Global styles with theme variables
 
 ### AI System
+
 - `/src/lib/ai/service.ts` - Main AI service with provider fallback
 - `/src/lib/ai/context-engine.ts` - Builds rich context for AI
 - `/src/lib/ai/proactive-insights.ts` - Welcome messages and insights
 - `/src/app/api/ai/chat/route.ts` - Main chat endpoint with demo fallbacks
 
 ### Conversation Interface
+
 - `/src/components/blipee-os/ConversationInterface.tsx` - Main chat UI
 - `/src/components/blipee-os/DynamicUIRenderer.tsx` - Renders AI components
 - `/src/types/conversation.ts` - Message and component types
 
 ### Database
+
 - `/supabase/migrations/` - Schema evolution
 - Key tables: organizations, buildings, users, conversations, messages
 
 ## 🚀 Development Workflow
 
 ### Commands
+
 ```bash
 npm run dev          # Start development server
 npm run build        # Production build
@@ -120,6 +127,7 @@ npm run test:apis    # Test external API connections
 ## 🎨 Design System
 
 ### Glass Morphism Theme
+
 ```css
 /* Core glass effect */
 backdrop-blur-xl bg-white/[0.03] border border-white/[0.05]
@@ -132,6 +140,7 @@ dark:bg-black/[0.02] dark:border-white/[0.03]
 ```
 
 ### Component Patterns
+
 - All premium components in `/src/components/premium/`
 - Consistent animation with Framer Motion
 - Responsive design with Tailwind breakpoints
@@ -173,11 +182,13 @@ dark:bg-black/[0.02] dark:border-white/[0.03]
 ## 🐛 Common Issues & Solutions
 
 ### Build Errors
+
 - **Unescaped entities**: Use `&apos;` for apostrophes, `&quot;` for quotes
 - **TypeScript errors**: Check all imports have proper types
 - **Missing env vars**: Copy `.env.example` to `.env.local`
 
 ### Runtime Issues
+
 - **AI not responding**: Check API keys and rate limits
 - **Database connection**: Verify Supabase URL and keys
 - **UI not updating**: Check React state and Supabase subscriptions
@@ -185,6 +196,7 @@ dark:bg-black/[0.02] dark:border-white/[0.03]
 ## 📈 Current Status
 
 ### Completed ✅
+
 - Full conversational AI interface
 - Dynamic UI generation
 - Multi-tenant architecture
@@ -193,6 +205,7 @@ dark:bg-black/[0.02] dark:border-white/[0.03]
 - Production deployment
 
 ### In Progress 🚧
+
 - Advanced building integrations
 - Performance optimization
 - Beta user testing
@@ -209,18 +222,21 @@ dark:bg-black/[0.02] dark:border-white/[0.03]
 ## 🚦 Quick Start for New Development
 
 1. Clone and install:
+
    ```bash
    git clone <repo>
    npm install
    ```
 
 2. Set up environment:
+
    ```bash
    cp .env.example .env.local
    # Add your Supabase and AI keys
    ```
 
 3. Run development:
+
    ```bash
    npm run dev
    ```

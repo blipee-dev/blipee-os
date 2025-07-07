@@ -29,10 +29,10 @@ import {
 function AnimatedBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-      <div className="absolute top-40 left-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      <div className="absolute bottom-40 right-40 w-80 h-80 bg-violet-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-6000"></div>
+      <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+      <div className="absolute top-40 left-40 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+      <div className="absolute bottom-40 right-40 w-80 h-80 bg-violet-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-6000"></div>
     </div>
   );
 }
@@ -67,8 +67,10 @@ function HeroSection() {
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto">
-            Where AI meets sustainability with a touch of magic ✨ The revolution isn&apos;t coming—it&apos;s here, 
-            and it speaks your language. Welcome to the future where saving the planet feels like chatting with your smartest friend.
+            Where AI meets sustainability with a touch of magic ✨ The
+            revolution isn&apos;t coming—it&apos;s here, and it speaks your
+            language. Welcome to the future where saving the planet feels like
+            chatting with your smartest friend.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -636,7 +638,9 @@ export default function LandingPage() {
                 <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                   <Home className="w-6 h-6 text-white" />
                 </div>
-                <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">Blipee OS</span>
+                <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  Blipee OS
+                </span>
               </div>
               <p className="text-gray-400">
                 The world&apos;s first conversational sustainability AI

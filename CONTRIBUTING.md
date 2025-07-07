@@ -24,24 +24,28 @@ See the README.md for detailed setup instructions. Key points:
 ## Code Standards
 
 ### TypeScript
+
 - Strict mode enabled
 - No `any` types without justification
 - Use proper interfaces for all data structures
 - Document complex functions with JSDoc
 
 ### React/Next.js
+
 - Functional components only
 - Use hooks for state management
 - Follow Next.js 14 App Router patterns
 - Keep components focused and reusable
 
 ### Styling
+
 - Tailwind CSS for all styling
 - Follow the glass morphism design system
 - Use CSS variables for theme values
 - Ensure dark/light mode compatibility
 
 ### AI Integration
+
 - Follow the patterns in `/src/lib/ai/`
 - Use proper error handling and fallbacks
 - Document AI prompts and expected responses
@@ -71,6 +75,7 @@ Follow conventional commits:
 ## What We're Looking For
 
 ### High Priority
+
 - Performance optimizations
 - Additional AI provider integrations
 - Enhanced building system integrations
@@ -78,6 +83,7 @@ Follow conventional commits:
 - Accessibility enhancements
 
 ### Feature Ideas
+
 - Advanced analytics visualizations
 - More dynamic UI components
 - Additional language support
