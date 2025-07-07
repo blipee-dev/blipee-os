@@ -3,13 +3,13 @@ import { getOnboardingFlow } from './flows'
 import { parsers } from './parsers'
 import { authService } from '@/lib/auth/service'
 import { organizationService } from '@/lib/organizations/service'
+import { UserRole } from '@/types/auth'
 import type {
   OnboardingFlow,
   OnboardingStep,
   OnboardingProgress,
   CompletionAction
 } from '@/types/onboarding'
-import type { UserRole } from '@/types/auth'
 
 export class OnboardingService {
   private supabase = createClient()

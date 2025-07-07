@@ -1,12 +1,12 @@
 import { createClient } from '@/lib/supabase/client'
+import { UserRole } from '@/types/auth'
 import type { 
   AuthResponse, 
   Session, 
   SignUpMetadata,
   UserProfile,
   Organization,
-  Permission,
-  UserRole
+  Permission
 } from '@/types/auth'
 
 export class AuthService {

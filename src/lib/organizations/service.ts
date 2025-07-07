@@ -180,6 +180,10 @@ export class OrganizationService {
       }
 
       // Create invitation
+      if (!userProfile) {
+        throw new Error('Failed to create or find user profile')
+      }
+
       const { data, error } = await this.supabase
         .from('organization_members')
         .insert({
