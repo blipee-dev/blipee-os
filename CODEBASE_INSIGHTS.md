@@ -1,8 +1,8 @@
-# Blipee OS - Codebase Insights for Future Claude Instances
+# blipee OS - Codebase Insights for Future Claude Instances
 
 ## 🎯 Quick Understanding
 
-**What is Blipee OS?**
+**What is blipee OS?**
 
 - A conversational AI building management system - think "ChatGPT for Buildings"
 - Users interact with buildings through natural language instead of traditional dashboards

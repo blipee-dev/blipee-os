@@ -35,7 +35,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
                 <Home className="w-6 h-6 text-white" />
               </div>
               <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Blipee OS
+                blipee OS
               </span>
             </Link>
 

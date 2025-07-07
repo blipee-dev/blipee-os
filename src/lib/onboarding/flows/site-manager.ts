@@ -13,7 +13,7 @@ export const siteManagerFlow: OnboardingFlow = {
       required: true,
       content: {
         template:
-          "Hi {{user_name}}! {{inviter_name}} invited you to manage {{building_name}}. I'm Blipee, your AI assistant.",
+          "Hi {{user_name}}! {{inviter_name}} invited you to manage {{building_name}}. I'm blipee, your AI assistant.",
         subtitle: "Let's get your building set up in just 5 minutes",
         context: ["inviter_name", "building_name", "organization_name"],
       },

@@ -1,5 +1,5 @@
 /**
- * BLIPEE RECOMMENDATION ENGINE
+ * blipee RECOMMENDATION ENGINE
  * AI that knows exactly what to do and when to do it
  */
 

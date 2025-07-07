@@ -1,10 +1,10 @@
-# Blipee OS: The World's First Sustainability-First AI Platform
+# blipee OS: The World's First Sustainability-First AI Platform
 
 ## 🌍 Vision
 
 We're building the future of sustainability management - where every organization can achieve their environmental goals through natural conversation with AI. No dashboards, no complex forms, just intelligent dialogue that drives real impact.
 
-## 🚀 What Makes Blipee OS Revolutionary
+## 🚀 What Makes blipee OS Revolutionary
 
 ### 1. **100% Conversational Interface**
 
@@ -16,12 +16,12 @@ We're building the future of sustainability management - where every organizatio
 
 ```
 Traditional Platforms: Data → Dashboards → Manual Analysis → Delayed Action
-Blipee OS: Conversation → AI Analysis → Predictive Insights → Autonomous Action
+blipee OS: Conversation → AI Analysis → Predictive Insights → Autonomous Action
 ```
 
 ### 3. **Universal Application**
 
-While we excel at building management, Blipee OS works for:
+While we excel at building management, blipee OS works for:
 
 - Manufacturing facilities tracking production emissions
 - Fleet managers optimizing transportation impact
@@ -49,7 +49,7 @@ While we excel at building management, Blipee OS works for:
 
 ### For Buildings
 
-"Hey Blipee, reduce our energy costs by 30% this quarter"
+"Hey blipee, reduce our energy costs by 30% this quarter"
 
 - AI analyzes consumption patterns
 - Identifies optimization opportunities
@@ -100,7 +100,7 @@ Upload any document and watch the magic:
 - Travel receipts → Transportation emissions
 - Certificates → Compliance verification
 
-## 🎯 Why Organizations Choose Blipee OS
+## 🎯 Why Organizations Choose blipee OS
 
 ### 1. **Time to Value: 7 Minutes**
 
@@ -141,7 +141,7 @@ Our conversational onboarding gets you running in minutes, not months:
 - Team collaboration
 - Audit trails
 
-## 🌟 The Blipee Difference
+## 🌟 The blipee Difference
 
 ### Traditional Sustainability Platforms
 
@@ -151,7 +151,7 @@ Our conversational onboarding gets you running in minutes, not months:
 ❌ Separate tools for different scopes  
 ❌ Static benchmarks and targets
 
-### Blipee OS
+### blipee OS
 
 ✅ Natural conversation anyone can use  
 ✅ Automatic data ingestion from everywhere  
@@ -217,10 +217,10 @@ Imagine a world where:
 - Carbon neutrality is accessible to all organizations
 - Environmental data drives real-time optimizations
 
-**That's the world Blipee OS is creating.**
+**That's the world blipee OS is creating.**
 
 ---
 
 _"The future of sustainability isn't more reports. It's intelligent action through conversation."_
 
-**Start your sustainability transformation today with Blipee OS.**
+**Start your sustainability transformation today with blipee OS.**

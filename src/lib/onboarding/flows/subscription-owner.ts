@@ -12,7 +12,7 @@ export const subscriptionOwnerFlow: OnboardingFlow = {
       timeEstimate: 5,
       required: true,
       content: {
-        title: "Welcome to Blipee OS!",
+        title: "Welcome to blipee OS!",
         subtitle: "Let's get your buildings connected in under 7 minutes",
         animation: "building_intelligence",
       },

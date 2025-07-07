@@ -1,4 +1,4 @@
-# Blipee OS - The ChatGPT for Buildings
+# blipee OS - The ChatGPT for Buildings
 
 > Revolutionizing building management through conversational AI. No dashboards. No menus. Just conversation.
 
@@ -10,10 +10,10 @@
 
 ## 🚀 Vision
 
-Blipee OS transforms how humans interact with buildings. Instead of navigating through complex dashboards and forms, users simply have a conversation with their building.
+blipee OS transforms how humans interact with buildings. Instead of navigating through complex dashboards and forms, users simply have a conversation with their building.
 
 **Traditional Way:** Navigate → Click → Search → Configure → Submit → Wait  
-**Blipee OS Way:** "Reduce my energy costs by 30%" → Done.
+**blipee OS Way:** "Reduce my energy costs by 30%" → Done.
 
 ## ✨ Current Status
 

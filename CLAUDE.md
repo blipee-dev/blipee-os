@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Blipee OS is a conversational AI platform that transforms how humans interact with buildings and sustainability data. Originally a building management system, it has evolved into a comprehensive sustainability-first platform where building management is just one module. The AI acts as an intelligent assistant providing natural, proactive insights through conversation rather than traditional dashboards.
+blipee OS is a conversational AI platform that transforms how humans interact with buildings and sustainability data. Originally a building management system, it has evolved into a comprehensive sustainability-first platform where building management is just one module. The AI acts as an intelligent assistant providing natural, proactive insights through conversation rather than traditional dashboards.
 
 ## Core Capabilities
 

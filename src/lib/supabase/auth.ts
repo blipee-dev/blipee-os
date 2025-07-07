@@ -1,4 +1,4 @@
-// Supabase Auth Utilities for Blipee OS
+// Supabase Auth Utilities for blipee OS
 
 import { createClient } from "@supabase/supabase-js";
 

@@ -42,7 +42,7 @@ export function NavRail() {
           className="nav-logo"
           role="button"
           tabIndex={0}
-          aria-label="Blipee OS Home"
+          aria-label="blipee OS Home"
         >
           <Home className="w-8 h-8 text-white" />
         </div>

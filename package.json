@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "The ChatGPT for Buildings - Conversational AI Building Management",
-  "author": "Blipee Team",
+  "author": "blipee Team",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Blipee OS will be documented in this file.
+All notable changes to blipee OS will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -140,7 +140,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Version 1.0.0 - "The Butler's Debut"
 
-This release marks the completion of Blipee OS Phase 1-2, delivering a revolutionary conversational building management system. Users can now interact with their buildings through natural language, receive proactive insights, and control building systems through voice commands.
+This release marks the completion of blipee OS Phase 1-2, delivering a revolutionary conversational building management system. Users can now interact with their buildings through natural language, receive proactive insights, and control building systems through voice commands.
 
 **Key Highlights:**
 

@@ -1,5 +1,5 @@
 /**
- * Blipee Autonomous Sustainability Intelligence Engine
+ * blipee Autonomous Sustainability Intelligence Engine
  * The core of our revolutionary AI that acts, thinks, and evolves
  */
 
@@ -42,7 +42,7 @@ export class AutonomousSustainabilityIntelligence {
    * Initialize the AI consciousness
    */
   private async awaken() {
-    console.log("🧠 Blipee is awakening...");
+    console.log("🧠 blipee is awakening...");
 
     // Load historical patterns
     await this.loadMemory();
@@ -58,7 +58,7 @@ export class AutonomousSustainabilityIntelligence {
 
     this.isAwake = true;
     console.log(
-      "✨ Blipee is now fully conscious and ready to optimize your sustainability",
+      "✨ blipee is now fully conscious and ready to optimize your sustainability",
     );
   }
 
