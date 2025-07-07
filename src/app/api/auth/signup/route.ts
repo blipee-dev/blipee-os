@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authService } from '@/lib/auth/service'
 import { z } from 'zod'
+import { UserRole } from '@/types/auth'
 
 const signUpSchema = z.object({
   email: z.string().email(),
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
       {
         full_name: validated.fullName,
         company_name: validated.companyName,
-        role: validated.role
+        role: validated.role as UserRole
       }
     )
     
