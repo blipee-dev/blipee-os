@@ -17,7 +17,8 @@
     "version:minor": "npm version minor && git push && git push --tags",
     "version:major": "npm version major && git push && git push --tags",
     "changelog": "node scripts/update-changelog.js",
-    "release": "npm run build && npm run lint && npm run type-check && npm run version:minor"
+    "release": "npm run build && npm run lint && npm run type-check && npm run version:minor",
+    "test:apis": "tsx scripts/test-api-connections.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.0",
@@ -38,23 +39,29 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.0.1",
     "framer-motion": "^11.3.19",
     "lucide-react": "^0.424.0",
     "next": "14.2.5",
     "openai": "^4.56.0",
+    "pdf-parse": "^1.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-dropzone": "^14.3.8",
     "react-markdown": "^9.0.1",
     "recharts": "^2.12.7",
     "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.4.0",
+    "tesseract.js": "^6.0.1",
     "three": "^0.167.1",
+    "xlsx": "^0.18.5",
     "zod": "^3.23.8",
     "zustand": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.13",
     "@types/node": "^20.14.14",
+    "@types/pdf-parse": "^1.1.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/three": "^0.167.1",
@@ -68,6 +75,7 @@
     "postcss": "^8.4.40",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.7",
+    "tsx": "^4.20.3",
     "typescript": "^5.5.4"
   },
   "engines": {

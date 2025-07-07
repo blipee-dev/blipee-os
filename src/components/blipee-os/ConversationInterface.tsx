@@ -7,7 +7,7 @@ import { InputArea } from './InputArea'
 import { SuggestedQueries } from './SuggestedQueries'
 import { MessageSuggestions } from './MessageSuggestions'
 import { DynamicUIRenderer } from './DynamicUIRenderer'
-import { OnboardingExperience } from '@/components/onboarding/OnboardingExperience'
+import { ConversationalOnboarding } from '@/components/onboarding/ConversationalOnboarding'
 import { AmbientBackground } from '@/components/effects/AmbientBackground'
 import { NavRail } from '@/components/navigation/NavRail'
 import { Message, UIComponent } from '@/types/conversation'
@@ -34,6 +34,7 @@ interface ConversationInterfaceProps {
 
 export function ConversationInterface({ buildingContext }: ConversationInterfaceProps = {}) {
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [userId] = useState('demo-user') // TODO: Get from auth context
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [isInitializing, setIsInitializing] = useState(true)
@@ -94,8 +95,8 @@ export function ConversationInterface({ buildingContext }: ConversationInterface
     initConversation()
   }, [])
 
-  const handleSend = async (message: string) => {
-    if (!message.trim() || isLoading) return
+  const handleSend = async (message: string, files?: any[]) => {
+    if ((!message.trim() && !files?.length) || isLoading) return
 
     // Add user message
     const userMessage: Message = {
@@ -103,6 +104,12 @@ export function ConversationInterface({ buildingContext }: ConversationInterface
       role: 'user',
       content: message,
       timestamp: new Date(),
+      attachments: files?.map(f => ({
+        id: f.id,
+        name: f.name,
+        type: f.type,
+        size: f.size
+      }))
     }
     setMessages(prev => [...prev, userMessage])
     setInput('')
@@ -114,6 +121,30 @@ export function ConversationInterface({ buildingContext }: ConversationInterface
     }
 
     try {
+      // If there are files, upload them first
+      let uploadedFiles = []
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const formData = new FormData()
+          formData.append('file', file.file)
+          formData.append('conversationId', conversationId || 'demo')
+          
+          const uploadResponse = await fetch('/api/files/upload', {
+            method: 'POST',
+            body: formData
+          })
+          
+          if (uploadResponse.ok) {
+            const uploadResult = await uploadResponse.json()
+            uploadedFiles.push({
+              ...uploadResult,
+              originalName: file.name,
+              type: file.type
+            })
+          }
+        }
+      }
+
       // Include building context if available
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
@@ -123,6 +154,7 @@ export function ConversationInterface({ buildingContext }: ConversationInterface
           conversationId: conversationId || 'demo',
           buildingId: buildingContext?.id || 'demo-building',
           buildingContext: buildingContext || null,
+          attachments: uploadedFiles,
           context: {
             buildingName: buildingContext?.name,
             organizationId: buildingContext?.organizationId,
@@ -177,7 +209,10 @@ export function ConversationInterface({ buildingContext }: ConversationInterface
       <AmbientBackground />
       <NavRail />
       {showOnboarding && (
-        <OnboardingExperience onComplete={() => setShowOnboarding(false)} />
+        <ConversationalOnboarding 
+          userId={userId}
+          onComplete={() => setShowOnboarding(false)} 
+        />
       )}
       
       <div className="flex flex-col h-screen relative ml-20 overflow-hidden">
