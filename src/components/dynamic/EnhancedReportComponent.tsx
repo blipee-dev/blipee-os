@@ -159,7 +159,7 @@ With continued focus and innovation, we're confident in achieving our ambitious 
   const handleShare = async () => {
     setIsSharing(true);
     // Simulate sharing action
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsSharing(false);
   };
 
@@ -172,7 +172,7 @@ With continued focus and innovation, we're confident in achieving our ambitious 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: index * 0.1 }}
-        className={`relative ${section.highlight ? 'ring-2 ring-purple-500/30' : ''}`}
+        className={`relative ${section.highlight ? "ring-2 ring-purple-500/30" : ""}`}
       >
         {section.highlight && (
           <div className="absolute -top-3 -right-3 z-10">
@@ -190,27 +190,44 @@ With continued focus and innovation, we're confident in achieving our ambitious 
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-xl bg-gradient-to-br ${
-                  section.highlight 
-                    ? 'from-purple-500/20 to-pink-500/20' 
-                    : 'from-purple-500/10 to-pink-500/10'
-                }`}>
+                <div
+                  className={`p-3 rounded-xl bg-gradient-to-br ${
+                    section.highlight
+                      ? "from-purple-500/20 to-pink-500/20"
+                      : "from-purple-500/10 to-pink-500/10"
+                  }`}
+                >
                   <Icon className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-white">{section.title}</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    {section.title}
+                  </h3>
                   {section.metrics && (
                     <div className="flex gap-4 mt-1">
                       {section.metrics.map((metric: any, i: number) => (
-                        <div key={i} className="flex items-center gap-1 text-xs">
+                        <div
+                          key={i}
+                          className="flex items-center gap-1 text-xs"
+                        >
                           <span className="text-white/40">{metric.label}:</span>
-                          <span className={`font-semibold ${
-                            metric.trend === 'down' ? 'text-green-400' : 'text-purple-400'
-                          }`}>{metric.value}</span>
+                          <span
+                            className={`font-semibold ${
+                              metric.trend === "down"
+                                ? "text-green-400"
+                                : "text-purple-400"
+                            }`}
+                          >
+                            {metric.value}
+                          </span>
                           {metric.trend && (
-                            <TrendingDown className={`w-3 h-3 ${
-                              metric.trend === 'down' ? 'text-green-400' : 'text-purple-400'
-                            }`} />
+                            <TrendingDown
+                              className={`w-3 h-3 ${
+                                metric.trend === "down"
+                                  ? "text-green-400"
+                                  : "text-purple-400"
+                              }`}
+                            />
                           )}
                         </div>
                       ))}
@@ -218,7 +235,7 @@ With continued focus and innovation, we're confident in achieving our ambitious 
                   )}
                 </div>
               </div>
-              
+
               <motion.div
                 animate={{ rotate: isExpanded ? 90 : 0 }}
                 transition={{ duration: 0.2 }}
@@ -238,15 +255,21 @@ With continued focus and innovation, we're confident in achieving our ambitious 
                 className="border-t border-white/[0.05]"
               >
                 <div className="p-6">
-                  <div 
+                  <div
                     className="prose prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ 
+                    dangerouslySetInnerHTML={{
                       __html: section.content
-                        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-purple-400">$1</strong>')
-                        .replace(/\n/g, '<br />')
+                        .replace(
+                          /\*\*(.*?)\*\*/g,
+                          '<strong class="text-purple-400">$1</strong>',
+                        )
+                        .replace(/\n/g, "<br />")
                         .replace(/•/g, '<span class="text-purple-400">•</span>')
                         .replace(/🏆/g, '<span class="text-2xl">🏆</span>')
-                        .replace(/✅/g, '<span class="text-green-400">✅</span>')
+                        .replace(
+                          /✅/g,
+                          '<span class="text-green-400">✅</span>',
+                        ),
                     }}
                   />
                 </div>
@@ -273,7 +296,7 @@ With continued focus and innovation, we're confident in achieving our ambitious 
               {title}
             </h2>
             <p className="text-white/60">{subtitle}</p>
-            
+
             {/* Metadata */}
             <div className="flex items-center gap-6 mt-4 text-sm">
               <div className="flex items-center gap-2 text-white/40">
@@ -282,13 +305,19 @@ With continued focus and innovation, we're confident in achieving our ambitious 
               </div>
               <div className="flex items-center gap-2 text-white/40">
                 <FileText className="w-4 h-4" />
-                <span>Generated {metadata.generated?.toLocaleDateString()}</span>
+                <span>
+                  Generated {metadata.generated?.toLocaleDateString()}
+                </span>
               </div>
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                metadata.status === 'final' ? 'bg-green-500/20 text-green-400' :
-                metadata.status === 'draft' ? 'bg-yellow-500/20 text-yellow-400' :
-                'bg-gray-500/20 text-gray-400'
-              }`}>
+              <div
+                className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  metadata.status === "final"
+                    ? "bg-green-500/20 text-green-400"
+                    : metadata.status === "draft"
+                      ? "bg-yellow-500/20 text-yellow-400"
+                      : "bg-gray-500/20 text-gray-400"
+                }`}
+              >
                 {metadata.status?.toUpperCase()}
               </div>
             </div>
@@ -297,7 +326,9 @@ With continued focus and innovation, we're confident in achieving our ambitious 
           {/* Actions */}
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setViewMode(viewMode === 'preview' ? 'full' : 'preview')}
+              onClick={() =>
+                setViewMode(viewMode === "preview" ? "full" : "preview")
+              }
               className="p-2 hover:bg-white/5 rounded-lg transition-colors group"
             >
               <Eye className="w-5 h-5 text-white/60 group-hover:text-white" />
@@ -317,7 +348,11 @@ With continued focus and innovation, we're confident in achieving our ambitious 
                 <>
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                   >
                     <Send className="w-4 h-4" />
                   </motion.div>
@@ -351,7 +386,8 @@ With continued focus and innovation, we're confident in achieving our ambitious 
         <div className="backdrop-blur-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-white/[0.05] rounded-2xl p-6">
           <Sparkles className="w-8 h-8 text-purple-400 mx-auto mb-3" />
           <p className="text-white/60 text-sm">
-            This report was generated by blipee AI using real-time data analysis and predictive modeling.
+            This report was generated by blipee AI using real-time data analysis
+            and predictive modeling.
             <br />
             For questions or deeper insights, just ask me anything!
           </p>

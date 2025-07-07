@@ -1,0 +1,312 @@
+{
+  "company": "Unilever",
+  "year": 2021,
+  "report_type": "GRI Index",
+  
+  "emissions": {
+    "scope1": {
+      "value": 489000,
+      "unit": "tonnes CO2e",
+      "gri_indicator": "305-1",
+      "trend": -15.2,
+      "notes": "Direct emissions from manufacturing and offices"
+    },
+    "scope2_market_based": {
+      "value": 201000,
+      "unit": "tonnes CO2e",
+      "gri_indicator": "305-2",
+      "trend": -48.5,
+      "notes": "100% renewable electricity in manufacturing"
+    },
+    "scope2_location_based": {
+      "value": 834000,
+      "unit": "tonnes CO2e",
+      "gri_indicator": "305-2"
+    },
+    "scope3": {
+      "value": 60000000,
+      "unit": "tonnes CO2e",
+      "gri_indicator": "305-3",
+      "breakdown": {
+        "raw_materials": 42000000,
+        "consumer_use": 15000000,
+        "distribution": 3000000,
+        "other": 0
+      },
+      "categories_included": [1, 3, 4, 9, 11, 12]
+    },
+    "intensity": {
+      "value": 108,
+      "unit": "g CO2e per consumer use",
+      "gri_indicator": "305-4",
+      "baseline_2010": 168,
+      "reduction": -36
+    }
+  },
+  
+  "energy": {
+    "total_consumption": {
+      "value": 5.76,
+      "unit": "million GJ",
+      "gri_indicator": "302-1",
+      "breakdown": {
+        "electricity": 3.45,
+        "thermal": 2.31
+      }
+    },
+    "renewable_electricity": {
+      "value": 100,
+      "unit": "%",
+      "sites_covered": "All manufacturing sites",
+      "achievement_date": "2020"
+    },
+    "energy_intensity": {
+      "value": 1.02,
+      "unit": "GJ per tonne of production",
+      "gri_indicator": "302-3",
+      "baseline_2008": 1.48,
+      "reduction": -31
+    }
+  },
+  
+  "water": {
+    "total_withdrawal": {
+      "value": 32.2,
+      "unit": "million m³",
+      "gri_indicator": "303-3",
+      "by_source": {
+        "surface_water": 18.5,
+        "groundwater": 8.7,
+        "municipal": 5.0
+      }
+    },
+    "water_consumption": {
+      "value": 24.8,
+      "unit": "million m³",
+      "gri_indicator": "303-5"
+    },
+    "water_abstraction_reduction": {
+      "value": -31,
+      "unit": "% per tonne vs 2010",
+      "manufacturing_sites": true
+    },
+    "water_stress_areas": {
+      "withdrawal_percentage": 42,
+      "sites_count": 87
+    }
+  },
+  
+  "waste": {
+    "total_waste": {
+      "value": 99600,
+      "unit": "tonnes",
+      "gri_indicator": "306-3"
+    },
+    "hazardous_waste": {
+      "value": 10300,
+      "unit": "tonnes",
+      "gri_indicator": "306-3",
+      "disposal_method": "Specialized treatment"
+    },
+    "non_hazardous_waste": {
+      "value": 89300,
+      "unit": "tonnes",
+      "gri_indicator": "306-3"
+    },
+    "waste_diverted": {
+      "value": 97800,
+      "unit": "tonnes",
+      "gri_indicator": "306-4",
+      "methods": {
+        "recycling": 65400,
+        "recovery": 32400
+      }
+    },
+    "waste_to_disposal": {
+      "value": 1800,
+      "unit": "tonnes",
+      "gri_indicator": "306-5",
+      "trend": -18
+    },
+    "zero_waste_to_landfill": {
+      "sites": 600,
+      "percentage": 100,
+      "achievement": "All factories"
+    }
+  },
+  
+  "social_metrics": {
+    "employees": {
+      "total": 149000,
+      "gri_indicator": "2-7",
+      "by_region": {
+        "asia_pacific": 65000,
+        "americas": 35000,
+        "europe": 30000,
+        "africa": 19000
+      }
+    },
+    "diversity": {
+      "women_in_workforce": {
+        "value": 46,
+        "unit": "%"
+      },
+      "women_in_management": {
+        "value": 51,
+        "unit": "%",
+        "gri_indicator": "405-1"
+      },
+      "women_on_board": {
+        "value": 45,
+        "unit": "%"
+      }
+    },
+    "safety": {
+      "trifr": {
+        "value": 0.69,
+        "unit": "per million hours worked",
+        "gri_indicator": "403-9",
+        "trend": -19,
+        "target": 0.5
+      },
+      "fatalities": {
+        "employees": 0,
+        "contractors": 0
+      },
+      "ltifr": {
+        "value": 0.29,
+        "unit": "per million hours"
+      }
+    },
+    "training": {
+      "average_hours": {
+        "value": 15.7,
+        "unit": "hours per employee per year",
+        "gri_indicator": "404-1"
+      },
+      "wellbeing_programs": {
+        "employees_reached": 88000,
+        "countries": 70
+      }
+    }
+  },
+  
+  "sustainable_sourcing": {
+    "agricultural_raw_materials": {
+      "sustainably_sourced": 67,
+      "unit": "%",
+      "verified_by": "Third party"
+    },
+    "key_commodities": {
+      "palm_oil": {
+        "certified": 100,
+        "unit": "%",
+        "standard": "RSPO"
+      },
+      "paper_board": {
+        "certified": 98,
+        "unit": "%",
+        "standard": "FSC/PEFC"
+      },
+      "tea": {
+        "certified": 97,
+        "unit": "%",
+        "standard": "Rainforest Alliance"
+      },
+      "cocoa": {
+        "certified": 87,
+        "unit": "%",
+        "standard": "Rainforest Alliance"
+      },
+      "soy": {
+        "certified": 91,
+        "unit": "%",
+        "standard": "RTRS/ProTerra"
+      }
+    }
+  },
+  
+  "circular_economy": {
+    "plastic_footprint": {
+      "total_plastic_packaging": 700000,
+      "unit": "tonnes",
+      "virgin_plastic_reduction": {
+        "value": -18,
+        "unit": "% vs 2017",
+        "absolute": true
+      }
+    },
+    "recyclable_packaging": {
+      "value": 53,
+      "unit": "%",
+      "target_2025": 100
+    },
+    "recycled_content": {
+      "value": 16,
+      "unit": "%",
+      "target_2025": 25
+    },
+    "reusable_refillable": {
+      "value": 3.4,
+      "unit": "% of portfolio"
+    }
+  },
+  
+  "climate_targets": {
+    "net_zero": {
+      "target_year": 2039,
+      "scope": "All value chain emissions",
+      "validation": "SBTi approved"
+    },
+    "interim_targets": {
+      "halve_emissions": {
+        "target_year": 2030,
+        "baseline": 2010,
+        "scope": "Per consumer use"
+      },
+      "operations_net_zero": {
+        "target_year": 2030,
+        "scope": "Scope 1 & 2"
+      }
+    },
+    "nature_positive": {
+      "target_year": 2030,
+      "commitments": [
+        "Deforestation-free supply chain",
+        "Regenerative agriculture 1.5M hectares",
+        "Water stewardship in 100 locations"
+      ]
+    }
+  },
+  
+  "reporting_standards": {
+    "gri_standards_used": [
+      "GRI 1: Foundation 2021",
+      "GRI 2: General Disclosures 2021",
+      "GRI 3: Material Topics 2021"
+    ],
+    "topic_specific_standards": [
+      "GRI 301: Materials",
+      "GRI 302: Energy",
+      "GRI 303: Water and Effluents",
+      "GRI 305: Emissions",
+      "GRI 306: Waste",
+      "GRI 403: Occupational Health and Safety",
+      "GRI 404: Training and Education",
+      "GRI 405: Diversity and Equal Opportunity"
+    ],
+    "external_assurance": {
+      "provider": "PwC",
+      "level": "Limited assurance",
+      "scope": "Selected indicators"
+    }
+  },
+  
+  "data_notes": {
+    "reporting_period": "January 1 - December 31, 2021",
+    "organizational_boundary": "Operational control",
+    "data_coverage": "All Unilever operations globally",
+    "exclusions": "Joint ventures where Unilever does not have operational control",
+    "restatements": "2020 Scope 3 emissions restated due to methodology improvements"
+  }
+}

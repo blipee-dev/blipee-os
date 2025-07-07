@@ -141,8 +141,12 @@ export function ConversationInterface({
             const uploadResult = await uploadResponse.json();
             uploadedFiles.push({
               ...uploadResult,
+              name: file.name,
               originalName: file.name,
               type: file.type,
+              fileType: file.type,
+              publicUrl: uploadResult.publicUrl,
+              extractedData: uploadResult.extractedData,
             });
           }
         }

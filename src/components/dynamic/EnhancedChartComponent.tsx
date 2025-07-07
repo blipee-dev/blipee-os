@@ -260,13 +260,29 @@ export function EnhancedChartComponent({
         return (
           <ScatterChart>
             <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-            <XAxis type="number" dataKey="x" name="Energy Use" stroke={axisColor} />
-            <YAxis type="number" dataKey="y" name="Emissions" stroke={axisColor} />
+            <XAxis
+              type="number"
+              dataKey="x"
+              name="Energy Use"
+              stroke={axisColor}
+            />
+            <YAxis
+              type="number"
+              dataKey="y"
+              name="Emissions"
+              stroke={axisColor}
+            />
             <ZAxis type="number" dataKey="z" range={[60, 400]} name="Size" />
-            <Tooltip cursor={{ strokeDasharray: "3 3" }} content={customTooltip} />
+            <Tooltip
+              cursor={{ strokeDasharray: "3 3" }}
+              content={customTooltip}
+            />
             <Scatter name="Buildings" data={chartData} fill={colors[0]}>
               {chartData.map((entry: any, index: number) => (
-                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={colors[index % colors.length]}
+                />
               ))}
             </Scatter>
           </ScatterChart>
@@ -300,7 +316,10 @@ export function EnhancedChartComponent({
             <Tooltip content={customTooltip} />
             <Bar dataKey="value" radius={[8, 8, 0, 0]}>
               {chartData.map((entry: any, index: number) => (
-                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={colors[index % colors.length]}
+                />
               ))}
             </Bar>
           </BarChart>

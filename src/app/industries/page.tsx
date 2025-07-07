@@ -105,7 +105,7 @@ export default function IndustriesPage() {
       description: "Organizations managing buildings and infrastructure",
       examples: [
         "Commercial real estate",
-        "Residential properties", 
+        "Residential properties",
         "Educational institutions",
         "Healthcare facilities",
         "Hospitality & tourism",
@@ -175,7 +175,8 @@ export default function IndustriesPage() {
     {
       standard: "GRI 11",
       title: "Oil and Gas Sector",
-      description: "Comprehensive sustainability reporting for oil and gas operations",
+      description:
+        "Comprehensive sustainability reporting for oil and gas operations",
       coverage: [
         "Greenhouse gas emissions management",
         "Biodiversity and ecosystem protection",
@@ -184,7 +185,7 @@ export default function IndustriesPage() {
       ],
     },
     {
-      standard: "GRI 12", 
+      standard: "GRI 12",
       title: "Coal Sector",
       description: "Sustainability standards for coal mining and processing",
       coverage: [
@@ -208,7 +209,7 @@ export default function IndustriesPage() {
     {
       standard: "GRI 14",
       title: "Mining Sector",
-      description: "Mining operations and extractive industry standards", 
+      description: "Mining operations and extractive industry standards",
       coverage: [
         "Waste and tailings management",
         "Mine closure and rehabilitation",
@@ -324,9 +325,10 @@ export default function IndustriesPage() {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
-              blipee OS works with any organization, in any industry, of any size. 
-              From startups to Fortune 500s, from manufacturing to services, 
-              we make sustainability simple and achievable for everyone.
+              blipee OS works with any organization, in any industry, of any
+              size. From startups to Fortune 500s, from manufacturing to
+              services, we make sustainability simple and achievable for
+              everyone.
             </p>
           </motion.div>
         </div>
@@ -347,30 +349,40 @@ export default function IndustriesPage() {
               </span>
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Sustainability challenges are universal. Whether you&apos;re tracking 
-              emissions, managing energy, reducing waste, or reporting ESG metrics, 
-              blipee OS adapts to your specific industry requirements and regulations.
+              Sustainability challenges are universal. Whether you&apos;re
+              tracking emissions, managing energy, reducing waste, or reporting
+              ESG metrics, blipee OS adapts to your specific industry
+              requirements and regulations.
             </p>
             <div className="grid md:grid-cols-3 gap-6 text-left">
               <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
                 <Target className="w-8 h-8 text-purple-600 mb-4" />
-                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Any Sector</h3>
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
+                  Any Sector
+                </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                  From heavy industry to digital services, our AI understands your unique sustainability challenges.
+                  From heavy industry to digital services, our AI understands
+                  your unique sustainability challenges.
                 </p>
               </div>
               <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
                 <Shield className="w-8 h-8 text-purple-600 mb-4" />
-                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Any Standard</h3>
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
+                  Any Standard
+                </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                  GRI, SASB, TCFD, EU Taxonomy - we support all major sustainability frameworks and regulations.
+                  GRI, SASB, TCFD, EU Taxonomy - we support all major
+                  sustainability frameworks and regulations.
                 </p>
               </div>
               <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
                 <Users className="w-8 h-8 text-purple-600 mb-4" />
-                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Any Size</h3>
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
+                  Any Size
+                </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                  From small businesses to multinational corporations, our platform scales with your needs.
+                  From small businesses to multinational corporations, our
+                  platform scales with your needs.
                 </p>
               </div>
             </div>
@@ -394,8 +406,9 @@ export default function IndustriesPage() {
               </span>
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              These are just examples. If your industry isn&apos;t listed, 
-              we still work with you. Our AI adapts to any sustainability challenge.
+              These are just examples. If your industry isn&apos;t listed, we
+              still work with you. Our AI adapts to any sustainability
+              challenge.
             </p>
           </motion.div>
 
@@ -456,8 +469,8 @@ export default function IndustriesPage() {
               </span>
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Full compliance with Global Reporting Initiative sector-specific standards. 
-              Our AI knows the exact requirements for your industry.
+              Full compliance with Global Reporting Initiative sector-specific
+              standards. Our AI knows the exact requirements for your industry.
             </p>
           </motion.div>
 
@@ -479,9 +492,9 @@ export default function IndustriesPage() {
                 Beyond GRI Standards
               </h3>
               <p className="text-gray-600 dark:text-gray-300">
-                We also support SASB, TCFD, EU Taxonomy, SEC Climate Rules, 
-                IFRS S1/S2, and emerging regulations worldwide. 
-                If there&apos;s a sustainability standard, we&apos;ve got you covered.
+                We also support SASB, TCFD, EU Taxonomy, SEC Climate Rules, IFRS
+                S1/S2, and emerging regulations worldwide. If there&apos;s a
+                sustainability standard, we&apos;ve got you covered.
               </p>
             </div>
           </motion.div>
@@ -504,7 +517,8 @@ export default function IndustriesPage() {
               </span>
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300">
-              Organizations in every sector are achieving their sustainability goals
+              Organizations in every sector are achieving their sustainability
+              goals
             </p>
           </motion.div>
 
@@ -574,8 +588,8 @@ export default function IndustriesPage() {
               Ready for Any Industry Challenge?
             </h2>
             <p className="text-xl text-white/90 mb-8">
-              Don&apos;t see your exact industry? No problem. 
-              blipee OS adapts to any sustainability challenge, anywhere.
+              Don&apos;t see your exact industry? No problem. blipee OS adapts
+              to any sustainability challenge, anywhere.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/signup">
