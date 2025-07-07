@@ -119,15 +119,15 @@ ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id
 ADD COLUMN IF NOT EXISTS building_id UUID REFERENCES public.buildings(id) ON DELETE CASCADE;
 
 -- Create indexes for performance
-CREATE INDEX idx_buildings_org ON public.buildings(organization_id);
-CREATE INDEX idx_org_members_org ON public.organization_members(organization_id);
-CREATE INDEX idx_org_members_user ON public.organization_members(user_id);
-CREATE INDEX idx_building_assignments_building ON public.building_assignments(building_id);
-CREATE INDEX idx_building_assignments_user ON public.building_assignments(user_id);
-CREATE INDEX idx_ai_context_org ON public.ai_context(organization_id);
-CREATE INDEX idx_ai_context_building ON public.ai_context(building_id);
-CREATE INDEX idx_conversations_org ON public.conversations(organization_id);
-CREATE INDEX idx_conversations_building ON public.conversations(building_id);
+CREATE INDEX IF NOT EXISTS idx_buildings_org ON public.buildings(organization_id);
+CREATE INDEX IF NOT EXISTS idx_org_members_org ON public.organization_members(organization_id);
+CREATE INDEX IF NOT EXISTS idx_org_members_user ON public.organization_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_building_assignments_building ON public.building_assignments(building_id);
+CREATE INDEX IF NOT EXISTS idx_building_assignments_user ON public.building_assignments(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_context_org ON public.ai_context(organization_id);
+CREATE INDEX IF NOT EXISTS idx_ai_context_building ON public.ai_context(building_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_org ON public.conversations(organization_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_building ON public.conversations(building_id);
 
 -- Enable Row Level Security
 ALTER TABLE public.organizations ENABLE ROW LEVEL SECURITY;
