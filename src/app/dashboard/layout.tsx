@@ -4,17 +4,14 @@ import React, { useState } from 'react'
 import { useRequireAuth } from '@/lib/auth/context'
 import { OrganizationSwitcher } from '@/components/OrganizationSwitcher'
 import { BuildingSelector } from '@/components/BuildingSelector'
+import { BuildingProvider, useBuilding } from '@/contexts/BuildingContext'
 import { Loader2, LogOut, Settings, User } from 'lucide-react'
 import Link from 'next/link'
 import type { Building } from '@/types/auth'
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+function DashboardContent({ children }: { children: React.ReactNode }) {
   const { session, loading } = useRequireAuth()
-  const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null)
+  const { building: currentBuilding, setBuilding: setCurrentBuilding } = useBuilding()
 
   if (loading) {
     return (
@@ -100,24 +97,20 @@ export default function DashboardLayout({
 
       {/* Main Content */}
       <main className="flex-1">
-        {/* Pass building context to children */}
-        <BuildingContext.Provider value={{ building: currentBuilding, setBuilding: setCurrentBuilding }}>
-          {children}
-        </BuildingContext.Provider>
+        {children}
       </main>
     </div>
   )
 }
 
-// Building context for child components
-const BuildingContext = React.createContext<{
-  building: Building | null
-  setBuilding: (building: Building) => void
-}>({
-  building: null,
-  setBuilding: () => {}
-})
-
-export function useBuilding() {
-  return React.useContext(BuildingContext)
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <BuildingProvider>
+      <DashboardContent>{children}</DashboardContent>
+    </BuildingProvider>
+  )
 }

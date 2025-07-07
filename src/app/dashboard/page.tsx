@@ -1,8 +1,8 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ConversationInterface } from '@/components/blipee-os/ConversationInterface'
-import { useBuilding } from './layout'
+import { useBuilding } from '@/contexts/BuildingContext'
 import { useAuth } from '@/lib/auth/context'
 import { Building2, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
