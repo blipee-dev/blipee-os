@@ -3,8 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ['quovvwrwyfkzhgqdeham.supabase.co'],
+    domains: ["quovvwrwyfkzhgqdeham.supabase.co"],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

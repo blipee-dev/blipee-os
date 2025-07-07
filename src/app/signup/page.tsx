@@ -202,7 +202,7 @@ export default function SignUpPage() {
               value={formData.password}
               onChange={(e) => handleChange("password", e.target.value)}
               required
-              className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               placeholder="••••••••"
             />
             <button
@@ -229,7 +229,7 @@ export default function SignUpPage() {
                 <div
                   key={index}
                   className={`flex items-center text-sm ${
-                    req.met ? "text-green-600" : "text-gray-400"
+                    req.met ? "text-purple-600" : "text-gray-400"
                   }`}
                 >
                   {req.met ? (
@@ -250,7 +250,7 @@ export default function SignUpPage() {
             id="terms"
             type="checkbox"
             required
-            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded mt-0.5"
+            className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded mt-0.5"
           />
           <label
             htmlFor="terms"
@@ -259,14 +259,14 @@ export default function SignUpPage() {
             I agree to the{" "}
             <Link
               href="/terms"
-              className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+              className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
             >
               Terms of Service
             </Link>{" "}
             and{" "}
             <Link
               href="/privacy"
-              className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+              className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
             >
               Privacy Policy
             </Link>
@@ -277,7 +277,7 @@ export default function SignUpPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-[1.02] active:scale-[0.98] font-medium shadow-lg"
+          className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-[1.02] active:scale-[0.98] font-medium shadow-lg"
         >
           {loading ? (
             <>
@@ -366,7 +366,7 @@ export default function SignUpPage() {
               key={index}
               className="flex items-center text-sm text-gray-600 dark:text-gray-400"
             >
-              <Check className="w-4 h-4 text-green-500 mr-2" />
+              <Check className="w-4 h-4 text-purple-500 mr-2" />
               {benefit}
             </div>
           ))}
@@ -379,7 +379,7 @@ export default function SignUpPage() {
           Already have an account?{" "}
           <Link
             href="/signin"
-            className="font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+            className="font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
           >
             Sign in
           </Link>

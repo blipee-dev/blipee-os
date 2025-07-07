@@ -5,6 +5,7 @@
 Blipee OS is a revolutionary sustainability-first AI platform that transforms how organizations track, manage, and optimize their environmental impact. While it maintains strong building management capabilities, the platform is designed to be industry-agnostic, supporting any sustainability use case.
 
 ### Core Philosophy
+
 - **Sustainability First**: Environmental impact tracking and optimization is the core
 - **100% Conversational**: No dashboards, no forms - just natural conversation
 - **AI-Driven Intelligence**: Predictive, proactive, and autonomous capabilities
@@ -13,6 +14,7 @@ Blipee OS is a revolutionary sustainability-first AI platform that transforms ho
 ## System Architecture
 
 ### 1. Frontend Architecture
+
 ```
 src/
 ├── app/                          # Next.js 14 App Router
@@ -48,6 +50,7 @@ The platform uses a sophisticated multi-brain architecture:
 ```
 
 #### AI Capabilities
+
 1. **Analysis**: Real-time emissions tracking, energy analysis, compliance checking
 2. **Prediction**: Forecast emissions, predict equipment failures, anticipate regulations
 3. **Recommendation**: Suggest optimizations, identify savings, propose strategies
@@ -57,6 +60,7 @@ The platform uses a sophisticated multi-brain architecture:
 ### 3. Data Architecture
 
 #### Database Schema (Supabase/PostgreSQL)
+
 ```sql
 -- Multi-tenant structure
 organizations -> buildings -> users
@@ -72,6 +76,7 @@ conversations -> messages -> ui_components
 ```
 
 #### External Data Sources
+
 - **Weather Data**: OpenWeatherMap for environmental conditions
 - **Carbon Data**: Electricity Maps, Climatiq for emission factors
 - **Regulatory**: Compliance databases and standards APIs
@@ -80,6 +85,7 @@ conversations -> messages -> ui_components
 ### 4. Security & Access Control
 
 #### Role Hierarchy
+
 1. **Account Owner**: Full access, billing, team management
 2. **Sustainability Manager**: All sustainability features, reporting
 3. **Facility Manager**: Building operations, limited reporting
@@ -87,6 +93,7 @@ conversations -> messages -> ui_components
 5. **Viewer**: Basic read-only access
 
 #### Security Features
+
 - Row Level Security (RLS) in PostgreSQL
 - OAuth 2.0 authentication (Google, Microsoft)
 - API key management for external services
@@ -95,6 +102,7 @@ conversations -> messages -> ui_components
 ## Key Technical Features
 
 ### 1. Document Intelligence
+
 ```typescript
 // Automatic emission extraction from documents
 - Invoices: Extract vendor, items, calculate Scope 3 emissions
@@ -105,12 +113,14 @@ conversations -> messages -> ui_components
 ```
 
 ### 2. Real-time Streaming
+
 - WebSocket connections via Supabase Realtime
 - Server-sent events for AI responses
 - Live building data updates
 - Instant team collaboration
 
 ### 3. Multi-LLM Orchestration
+
 ```typescript
 // Provider priority and fallback
 1. DeepSeek R1 (primary - fast & affordable)
@@ -125,6 +135,7 @@ conversations -> messages -> ui_components
 ```
 
 ### 4. Emission Calculations
+
 ```typescript
 // Comprehensive emission tracking
 Scope 1: Direct emissions (fuel, refrigerants)
@@ -140,6 +151,7 @@ Scope 3: Value chain (travel, procurement, waste)
 ## API Architecture
 
 ### Core Endpoints
+
 ```typescript
 POST /api/ai/chat          // Main conversation endpoint
 POST /api/ai/stream        // Streaming responses
@@ -149,6 +161,7 @@ POST /api/auth/*           // Authentication flows
 ```
 
 ### AI Request Flow
+
 1. User message → Context enrichment
 2. Multi-brain processing → Response generation
 3. Dynamic UI component creation
@@ -158,18 +171,21 @@ POST /api/auth/*           // Authentication flows
 ## Performance Optimizations
 
 ### 1. Caching Strategy
+
 - AI response caching for common queries
 - External API response caching (15 min)
 - Static asset optimization
 - Edge caching via Vercel
 
 ### 2. Database Optimization
+
 - Indexed queries for fast retrieval
 - Materialized views for analytics
 - Connection pooling
 - Query optimization
 
 ### 3. AI Optimization
+
 - Prompt engineering for efficiency
 - Context window management
 - Parallel provider requests
@@ -178,24 +194,28 @@ POST /api/auth/*           // Authentication flows
 ## Development Best Practices
 
 ### 1. Code Organization
+
 - Feature-based modules in `/lib`
 - Shared types in `/types`
 - Reusable components in `/components`
 - API routes follow RESTful patterns
 
 ### 2. State Management
+
 - React Context for global state
 - Supabase subscriptions for real-time
 - Local state for UI interactions
 - Server state with React Query patterns
 
 ### 3. Error Handling
+
 - Graceful AI provider fallbacks
 - User-friendly error messages
 - Comprehensive logging
 - Automatic retry logic
 
 ### 4. Testing Strategy
+
 - Unit tests for utilities
 - Integration tests for APIs
 - E2E tests for critical flows
@@ -204,6 +224,7 @@ POST /api/auth/*           // Authentication flows
 ## Deployment Architecture
 
 ### Production Stack
+
 - **Hosting**: Vercel (automatic scaling)
 - **Database**: Supabase (PostgreSQL)
 - **CDN**: Vercel Edge Network
@@ -211,6 +232,7 @@ POST /api/auth/*           // Authentication flows
 - **Error Tracking**: Sentry (optional)
 
 ### CI/CD Pipeline
+
 1. GitHub push → Vercel preview
 2. Automated tests → Build verification
 3. Production deployment → Edge distribution
@@ -219,6 +241,7 @@ POST /api/auth/*           // Authentication flows
 ## Future Architecture Considerations
 
 ### Planned Enhancements
+
 1. **GraphQL API**: For complex data queries
 2. **Microservices**: Separate AI processing
 3. **Event-Driven**: Apache Kafka for data streaming
@@ -226,6 +249,7 @@ POST /api/auth/*           // Authentication flows
 5. **Mobile Apps**: React Native implementation
 
 ### Scalability Plan
+
 - Horizontal scaling for AI processing
 - Database sharding for large datasets
 - CDN expansion for global reach
@@ -234,12 +258,14 @@ POST /api/auth/*           // Authentication flows
 ## Integration Capabilities
 
 ### Current Integrations
+
 - Building Management Systems (BACnet, Modbus)
 - IoT Sensors (MQTT, LoRaWAN)
 - ERP Systems (SAP, Oracle)
 - Accounting Software (QuickBooks, Xero)
 
 ### API-First Design
+
 - RESTful APIs for all features
 - Webhook support for events
 - OAuth for secure integrations

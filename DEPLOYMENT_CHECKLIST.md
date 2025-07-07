@@ -3,6 +3,7 @@
 ## 🚀 Pre-Deployment
 
 ### Supabase Setup ✅
+
 - [ ] Create Supabase project at [supabase.com](https://supabase.com)
 - [ ] Run schema from `/supabase/schema.sql`
 - [ ] Copy API keys to `.env.local`
@@ -12,6 +13,7 @@
 - [ ] Test connection with demo data
 
 ### Vercel Setup ✅
+
 - [ ] Create Vercel account at [vercel.com](https://vercel.com)
 - [ ] Connect GitHub repository
 - [ ] Configure environment variables:
@@ -22,6 +24,7 @@
   - [ ] `NEXT_PUBLIC_APP_URL`
 
 ### Code Preparation
+
 - [ ] Initialize Next.js project
 - [ ] Install all dependencies
 - [ ] Build locally without errors
@@ -31,6 +34,7 @@
 ## 🔧 Configuration Files
 
 ### Required Files ✅
+
 - [x] `/vercel.json` - Vercel configuration
 - [x] `/supabase/schema.sql` - Database schema
 - [x] `/.env.example` - Environment template
@@ -38,6 +42,7 @@
 - [x] `/package.json` - Dependencies
 
 ### Documentation ✅
+
 - [x] `/README.md` - Project overview
 - [x] `/docs/vision/VISION.md` - Product vision
 - [x] `/docs/guides/SUPABASE_SETUP.md` - Supabase guide
@@ -47,6 +52,7 @@
 ## 🚦 Deployment Steps
 
 ### 1. Supabase First
+
 ```bash
 # 1. Create project on supabase.com
 # 2. Run SQL schema
@@ -54,6 +60,7 @@
 ```
 
 ### 2. Local Testing
+
 ```bash
 # Test environment
 npm install
@@ -62,6 +69,7 @@ npm run dev
 ```
 
 ### 3. Deploy to Vercel
+
 ```bash
 # Option A: CLI
 vercel
@@ -71,6 +79,7 @@ vercel
 ```
 
 ### 4. Post-Deployment
+
 - [ ] Verify all API endpoints work
 - [ ] Test authentication flow
 - [ ] Check real-time updates
@@ -80,6 +89,7 @@ vercel
 ## 🔍 Verification
 
 ### Functionality
+
 - [ ] Chat interface loads
 - [ ] Can send messages
 - [ ] AI responds correctly
@@ -87,12 +97,14 @@ vercel
 - [ ] Real-time updates work
 
 ### Performance
+
 - [ ] Page loads < 3 seconds
 - [ ] API responses < 2 seconds
 - [ ] No console errors
 - [ ] Mobile responsive
 
 ### Security
+
 - [ ] Environment variables secure
 - [ ] API keys not exposed
 - [ ] CORS configured
@@ -103,16 +115,19 @@ vercel
 ### Common Issues
 
 **Supabase Connection Failed**
+
 - Check API keys in environment variables
 - Verify Supabase project is active
 - Check allowed domains in Supabase
 
 **Vercel Build Failed**
+
 - Check build logs for errors
 - Verify all dependencies installed
 - Ensure TypeScript has no errors
 
 **AI Not Responding**
+
 - Verify AI API keys are set
 - Check API rate limits
 - Monitor token usage
@@ -120,12 +135,14 @@ vercel
 ## 📊 Monitoring
 
 ### Set Up Monitoring
+
 - [ ] Enable Vercel Analytics
 - [ ] Set up error tracking
 - [ ] Configure uptime monitoring
 - [ ] Create usage dashboards
 
 ### Key Metrics
+
 - Response times
 - Error rates
 - User sessions
@@ -135,6 +152,7 @@ vercel
 ## 🎯 Launch Checklist
 
 ### Soft Launch (Beta)
+
 - [ ] Deploy to production
 - [ ] Invite 10 beta users
 - [ ] Gather feedback
@@ -142,6 +160,7 @@ vercel
 - [ ] Optimize performance
 
 ### Public Launch
+
 - [ ] Marketing site ready
 - [ ] Documentation complete
 - [ ] Support system ready
@@ -158,11 +177,13 @@ vercel
 ## ✅ Ready to Deploy?
 
 Run the setup script:
+
 ```bash
 ./scripts/setup.sh
 ```
 
 Or follow manual steps in:
+
 - [Supabase Setup Guide](./docs/guides/SUPABASE_SETUP.md)
 - [Vercel Setup Guide](./docs/guides/VERCEL_SETUP.md)
 
