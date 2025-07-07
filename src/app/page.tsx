@@ -321,7 +321,7 @@ function DemoSection() {
                 <div className="space-y-3">
                   <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      "What's the energy consumption trend for Building A this month?"
+                      &quot;What&apos;s the energy consumption trend for Building A this month?&quot;
                     </p>
                   </div>
                   <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg p-3 ml-auto max-w-[80%]">
@@ -408,7 +408,7 @@ function TestimonialsSection() {
                 ))}
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-6 italic">
-                "{testimonial.quote}"
+                &quot;{testimonial.quote}&quot;
               </p>
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">

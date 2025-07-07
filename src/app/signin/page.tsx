@@ -229,21 +229,21 @@ export default function SignInPage() {
             >
               Try Demo Account
             </button>
-          </form>
+      </form>
 
-          {/* Divider */}
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
-              </div>
-            </div>
+      {/* Divider */}
+      <div className="mt-6">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+          </div>
+        </div>
 
-            {/* Social Sign In */}
-            <div className="mt-6 grid grid-cols-2 gap-3">
+        {/* Social Sign In */}
+        <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => handleSocialLogin('google')}
@@ -285,19 +285,18 @@ export default function SignInPage() {
                 </svg>
                 <span className="ml-2">Microsoft</span>
               </button>
-            </div>
-          </div>
-
-        {/* Sign Up Link */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-700">
-              Start your free trial
-            </Link>
-          </p>
         </div>
-      </form>
+      </div>
+
+      {/* Sign Up Link */}
+      <div className="mt-6 text-center">
+        <p className="text-sm text-gray-600">
+          Don&apos;t have an account?{' '}
+          <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-700">
+            Start your free trial
+          </Link>
+        </p>
+      </div>
     </AuthLayout>
   )
 }
