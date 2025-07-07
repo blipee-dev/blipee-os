@@ -4,8 +4,9 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Building2, Mail, Lock, Eye, EyeOff, User, Briefcase, Loader2, AlertCircle, Check } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, User, Briefcase, Loader2, AlertCircle, Check } from 'lucide-react'
 import { useAuth } from '@/lib/auth/context'
+import { AuthLayout } from '@/components/auth/AuthLayout'
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -82,32 +83,27 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
-        {/* Logo and Title */}
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, type: 'spring' }}
-            className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-4"
-          >
-            <Building2 className="w-10 h-10 text-white" />
-          </motion.div>
-          <h1 className="text-3xl font-bold text-gray-900">Start your free trial</h1>
-          <p className="text-gray-600 mt-2">30 days free • No credit card required</p>
-        </div>
+    <AuthLayout
+      title="Start your free trial"
+      subtitle="30 days free • No credit card required"
+    >
+      {/* Error Message */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+        >
+          <div className="flex items-start">
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2 flex-shrink-0" />
+            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          </div>
+        </motion.div>
+      )}
 
-        {/* Sign Up Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Full Name */}
-            <div>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Full Name */}
+        <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
                 Full name
               </label>
@@ -246,45 +242,37 @@ export default function SignUpPage() {
               </label>
             </div>
 
-            {/* Error Message */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center p-4 bg-red-50 rounded-lg"
-              >
-                <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-                <p className="text-sm text-red-600">{error}</p>
-              </motion.div>
-            )}
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                'Start free trial'
-              )}
-            </button>
-          </form>
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-[1.02] active:scale-[0.98] font-medium shadow-lg"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+              Creating account...
+            </>
+          ) : (
+            'Start free trial'
+          )}
+        </button>
+      </form>
 
-          {/* Divider */}
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
-              </div>
-            </div>
+      {/* Divider */}
+      <div className="mt-6">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+          </div>
+        </div>
 
-            {/* Social Sign Up */}
-            <div className="mt-6 grid grid-cols-2 gap-3">
+        {/* Social Sign Up */}
+        <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => handleSocialSignUp('google')}
@@ -348,17 +336,15 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          {/* Sign In Link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link href="/signin" className="font-medium text-blue-600 hover:text-blue-700">
-                Sign in
-              </Link>
-            </p>
-          </div>
+        {/* Sign In Link */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Already have an account?{' '}
+            <Link href="/signin" className="font-medium text-blue-600 hover:text-blue-700">
+              Sign in
+            </Link>
+          </p>
         </div>
-      </motion.div>
-    </div>
+    </AuthLayout>
   )
 }
