@@ -25,9 +25,7 @@ const scopeBreakdownData = [
   { name: "Facilities", scope1: 80, scope2: 250, scope3: 150 },
 ];
 
-const targetProgressData = [
-  { name: "Progress", value: 68, fill: "#a855f7" },
-];
+const targetProgressData = [{ name: "Progress", value: 68, fill: "#a855f7" }];
 
 const buildingEfficiencyData = [
   { x: 100, y: 45, z: 200, name: "Building A" },
@@ -192,13 +190,25 @@ export function VisualizationShowcase() {
           <TableComponent
             title="Facility Performance Metrics"
             subtitle="Real-time sustainability data across all locations"
-            headers={["Facility", "Energy (kWh)", "Emissions (kg)", "Efficiency", "Status"]}
+            headers={[
+              "Facility",
+              "Energy (kWh)",
+              "Emissions (kg)",
+              "Efficiency",
+              "Status",
+            ]}
             rows={[
               ["Headquarters", "45,230", "12,450", "92%", "🟢 Optimal"],
               ["Manufacturing A", "125,640", "45,230", "78%", "🟡 Good"],
               ["Warehouse B", "32,100", "8,900", "85%", "🟢 Optimal"],
               ["Office Complex", "28,450", "7,230", "71%", "🟡 Good"],
-              ["Distribution Center", "67,890", "23,450", "65%", "🔴 Needs Attention"],
+              [
+                "Distribution Center",
+                "67,890",
+                "23,450",
+                "65%",
+                "🔴 Needs Attention",
+              ],
             ]}
             showTrends={true}
             highlightColumn={3}

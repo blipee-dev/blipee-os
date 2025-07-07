@@ -13,6 +13,10 @@ import { predictiveIntelligence } from "@/lib/ai/predictive-intelligence";
 import { recommendationEngine } from "@/lib/ai/recommendation-engine";
 import { visualIntelligence } from "@/lib/ai/visual-intelligence";
 import { reportIntelligence } from "@/lib/ai/report-intelligence";
+import {
+  handleDocumentInChat,
+  handleBatchDocuments,
+} from "@/lib/ai/document-handler";
 
 // Demo responses for fallback when AI is not available
 const demoResponses: Record<string, Partial<ChatResponse>> = {
@@ -146,7 +150,7 @@ const demoResponses: Record<string, Partial<ChatResponse>> = {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { message, attachments } = body;
+    const { message, attachments, organizationId, buildingId } = body;
 
     const startTime = Date.now();
 
@@ -154,15 +158,66 @@ export async function POST(request: NextRequest) {
     try {
       console.log("🌍 Processing with Blipee Sustainability Intelligence...");
 
-      // Process attachments if any
+      // Process attachments if any - EXTRACT DATA FROM SUSTAINABILITY REPORTS!
       let fileContext = "";
+      let documentResponses: string[] = [];
+
       if (attachments && attachments.length > 0) {
-        fileContext = "\n\nAttached files:\n";
-        for (const file of attachments) {
-          fileContext += `- ${file.originalName} (${file.type})\n`;
-          if (file.extractedData) {
-            fileContext += `  Extracted data: ${JSON.stringify(file.extractedData).substring(0, 200)}...\n`;
+        console.log(
+          `📄 Processing ${attachments.length} uploaded document(s)...`,
+        );
+
+        // For each uploaded file, process it with our AI document handler
+        for (const attachment of attachments) {
+          try {
+            let file: File;
+
+            // Handle different attachment formats
+            if (attachment.publicUrl) {
+              // File was uploaded to Supabase storage
+              const response = await fetch(attachment.publicUrl);
+              const blob = await response.blob();
+              file = new File([blob], attachment.fileName || attachment.name, {
+                type: attachment.fileType || attachment.type,
+              });
+            } else if (attachment.extractedData) {
+              // File was already processed, just use the extracted data
+              const extractedDataResponse =
+                `I've already processed your ${attachment.fileName} and extracted the sustainability data. ` +
+                `The data has been stored in your database.`;
+              documentResponses.push(extractedDataResponse);
+              continue;
+            } else {
+              // Skip if we can't process
+              console.warn(
+                `Skipping attachment ${attachment.name}: no publicUrl or extractedData`,
+              );
+              continue;
+            }
+
+            // Process the document and extract sustainability data
+            const docResponse = await handleDocumentInChat(
+              file,
+              organizationId || "demo-org",
+              body.userId || "demo-user",
+              "openai", // Use OpenAI for document extraction as requested
+            );
+
+            documentResponses.push(docResponse);
+          } catch (error) {
+            console.error(
+              `Error processing attachment ${attachment.name || "unknown"}:`,
+              error,
+            );
+            documentResponses.push(
+              `I encountered an error processing ${attachment.name || "your file"}. Please try uploading it again.`,
+            );
           }
+        }
+
+        // Add document processing results to context
+        if (documentResponses.length > 0) {
+          fileContext = "\n\n" + documentResponses.join("\n\n");
         }
       }
 
@@ -209,16 +264,32 @@ export async function POST(request: NextRequest) {
       }
 
       // Build comprehensive response
+      let finalMessage = aiResponse.response;
+
+      // If we processed documents, prepend the document responses
+      if (documentResponses.length > 0) {
+        finalMessage =
+          documentResponses.join("\n\n") + "\n\n" + aiResponse.response;
+      }
+
       const response: ChatResponse = {
-        message: aiResponse.response,
+        message: finalMessage,
         components: aiResponse.visualizations as ChatResponse["components"],
         actions: aiResponse.actions,
-        suggestions: [
-          "Show me emission trends",
-          "What can I do to reduce emissions?",
-          "Generate sustainability report",
-          "Compare us to industry benchmarks",
-        ],
+        suggestions:
+          documentResponses.length > 0
+            ? [
+                "Compare this report with previous years",
+                "Show me the emissions breakdown",
+                "What are our biggest improvement areas?",
+                "Generate a CSRD-compliant summary",
+              ]
+            : [
+                "Show me emission trends",
+                "What can I do to reduce emissions?",
+                "Generate sustainability report",
+                "Compare us to industry benchmarks",
+              ],
         metadata: {
           tokensUsed: 2000,
           responseTime: Date.now() - startTime,

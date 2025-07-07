@@ -45,7 +45,9 @@ interface Enhanced3DViewProps {
   viewMode?: "energy" | "comfort" | "occupancy" | "emissions";
   showRealTime?: boolean;
   interactive?: boolean;
-  setViewMode?: (mode: "energy" | "comfort" | "occupancy" | "emissions") => void;
+  setViewMode?: (
+    mode: "energy" | "comfort" | "occupancy" | "emissions",
+  ) => void;
 }
 
 export function Enhanced3DView({
@@ -71,7 +73,7 @@ export function Enhanced3DView({
   const [timeOfDay, setTimeOfDay] = useState(new Date().getHours());
   const [isPlaying, setIsPlaying] = useState(true);
   const [viewMode, setViewMode] = useState(propViewMode);
-  
+
   const handleSetViewMode = propSetViewMode || setViewMode;
 
   // Default building data
@@ -216,21 +218,30 @@ export function Enhanced3DView({
                 top: `${Math.random() * 50 + 10}%`,
                 left: `${Math.random() * 50 + 10}%`,
                 background: getZoneColor(zone),
-                border: selectedZone === zone.id ? "2px solid white" : "1px solid rgba(255,255,255,0.2)",
+                border:
+                  selectedZone === zone.id
+                    ? "2px solid white"
+                    : "1px solid rgba(255,255,255,0.2)",
                 boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
               }}
             >
               {/* Zone content */}
               <div className="p-2 h-full flex flex-col justify-between">
                 <div>
-                  <h4 className="text-xs font-semibold text-white">{zone.name}</h4>
+                  <h4 className="text-xs font-semibold text-white">
+                    {zone.name}
+                  </h4>
                   {zone.status !== "optimal" && (
-                    <AlertTriangle className={`w-3 h-3 mt-1 ${
-                      zone.status === "critical" ? "text-red-400" : "text-yellow-400"
-                    }`} />
+                    <AlertTriangle
+                      className={`w-3 h-3 mt-1 ${
+                        zone.status === "critical"
+                          ? "text-red-400"
+                          : "text-yellow-400"
+                      }`}
+                    />
                   )}
                 </div>
-                
+
                 {showRealTime && (
                   <div className="flex items-center gap-2">
                     <Activity className="w-3 h-3 text-white/60" />
@@ -289,7 +300,7 @@ export function Enhanced3DView({
               </h3>
               <p className="text-sm text-white/50 mt-1">{subtitle}</p>
             </div>
-            
+
             <div className="flex items-center gap-4">
               {/* Time display */}
               <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg">
@@ -298,7 +309,7 @@ export function Enhanced3DView({
                   {timeOfDay.toString().padStart(2, "0")}:00
                 </span>
               </div>
-              
+
               {/* View controls */}
               <div className="flex items-center gap-2">
                 <button
@@ -317,7 +328,9 @@ export function Enhanced3DView({
                   onClick={() => setIsRotating(!isRotating)}
                   className="p-2 hover:bg-white/5 rounded-lg transition-colors"
                 >
-                  <RotateCw className={`w-4 h-4 text-white/60 ${isRotating ? "animate-spin" : ""}`} />
+                  <RotateCw
+                    className={`w-4 h-4 text-white/60 ${isRotating ? "animate-spin" : ""}`}
+                  />
                 </button>
                 <button className="p-2 hover:bg-white/5 rounded-lg transition-colors">
                   <Maximize2 className="w-4 h-4 text-white/60" />
@@ -366,14 +379,20 @@ export function Enhanced3DView({
             {Object.entries(showLayers).map(([layer, enabled]) => (
               <button
                 key={layer}
-                onClick={() => setShowLayers({ ...showLayers, [layer]: !enabled })}
+                onClick={() =>
+                  setShowLayers({ ...showLayers, [layer]: !enabled })
+                }
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   enabled
                     ? "bg-white/10 text-white"
                     : "bg-white/5 text-white/40"
                 }`}
               >
-                {enabled ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                {enabled ? (
+                  <Eye className="w-3 h-3" />
+                ) : (
+                  <EyeOff className="w-3 h-3" />
+                )}
                 {layer.charAt(0).toUpperCase() + layer.slice(1)}
               </button>
             ))}
@@ -409,13 +428,17 @@ export function Enhanced3DView({
                 className="absolute top-4 right-4 w-64 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-4"
               >
                 {(() => {
-                  const zone = building.zones.find((z) => z.id === selectedZone);
+                  const zone = building.zones.find(
+                    (z) => z.id === selectedZone,
+                  );
                   if (!zone) return null;
-                  
+
                   return (
                     <>
                       <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-semibold text-white">{zone.name}</h4>
+                        <h4 className="font-semibold text-white">
+                          {zone.name}
+                        </h4>
                         <button
                           onClick={() => setSelectedZone(null)}
                           className="text-white/60 hover:text-white"
@@ -423,34 +446,46 @@ export function Enhanced3DView({
                           ×
                         </button>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-white/60">Temperature</span>
-                          <span className="text-white">{zone.metrics.temperature}°C</span>
+                          <span className="text-white">
+                            {zone.metrics.temperature}°C
+                          </span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-white/60">Occupancy</span>
-                          <span className="text-white">{zone.metrics.occupancy} people</span>
+                          <span className="text-white">
+                            {zone.metrics.occupancy} people
+                          </span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-white/60">Energy Use</span>
-                          <span className="text-white">{zone.metrics.energy}W</span>
+                          <span className="text-white">
+                            {zone.metrics.energy}W
+                          </span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-white/60">CO₂ Level</span>
-                          <span className="text-white">{zone.metrics.co2} ppm</span>
+                          <span className="text-white">
+                            {zone.metrics.co2} ppm
+                          </span>
                         </div>
                       </div>
-                      
+
                       <div className="mt-3 pt-3 border-t border-white/10">
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-white/60">Status</span>
-                          <span className={`text-xs font-medium ${
-                            zone.status === "optimal" ? "text-green-400" :
-                            zone.status === "warning" ? "text-yellow-400" :
-                            "text-red-400"
-                          }`}>
+                          <span
+                            className={`text-xs font-medium ${
+                              zone.status === "optimal"
+                                ? "text-green-400"
+                                : zone.status === "warning"
+                                  ? "text-yellow-400"
+                                  : "text-red-400"
+                            }`}
+                          >
                             {zone.status.toUpperCase()}
                           </span>
                         </div>
@@ -471,25 +506,38 @@ export function Enhanced3DView({
           <div className="flex items-center justify-around">
             <div className="text-center">
               <div className="text-2xl font-bold text-white">
-                {building.zones.reduce((sum, z) => sum + (z.metrics.energy || 0), 0).toLocaleString()}W
+                {building.zones
+                  .reduce((sum, z) => sum + (z.metrics.energy || 0), 0)
+                  .toLocaleString()}
+                W
               </div>
               <div className="text-xs text-white/60">Total Energy</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-400">
-                {building.zones.filter((z) => z.status === "optimal").length}/{building.zones.length}
+                {building.zones.filter((z) => z.status === "optimal").length}/
+                {building.zones.length}
               </div>
               <div className="text-xs text-white/60">Optimal Zones</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-400">
-                {building.zones.reduce((sum, z) => sum + (z.metrics.occupancy || 0), 0)}
+                {building.zones.reduce(
+                  (sum, z) => sum + (z.metrics.occupancy || 0),
+                  0,
+                )}
               </div>
               <div className="text-xs text-white/60">Total Occupancy</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-400">
-                {(building.zones.reduce((sum, z) => sum + (z.metrics.temperature || 0), 0) / building.zones.length).toFixed(1)}°C
+                {(
+                  building.zones.reduce(
+                    (sum, z) => sum + (z.metrics.temperature || 0),
+                    0,
+                  ) / building.zones.length
+                ).toFixed(1)}
+                °C
               </div>
               <div className="text-xs text-white/60">Avg Temperature</div>
             </div>
