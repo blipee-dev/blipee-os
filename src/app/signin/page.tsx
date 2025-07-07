@@ -33,10 +33,30 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      // Demo credentials
-      await signIn('demo@blipee.com', 'demo123456')
+      // Create a demo account on the fly
+      const demoEmail = `demo-${Date.now()}@blipee.com`
+      const demoPassword = 'DemoPass123!'
+      
+      // First try to sign up
+      try {
+        await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: demoEmail,
+            password: demoPassword,
+            fullName: 'Demo User',
+            companyName: 'Demo Company'
+          })
+        })
+      } catch (e) {
+        // Ignore signup errors
+      }
+      
+      // Then sign in
+      await signIn(demoEmail, demoPassword)
     } catch (err: any) {
-      setError('Demo sign in failed')
+      setError('Demo sign in failed. Please try manual signup.')
       setLoading(false)
     }
   }
