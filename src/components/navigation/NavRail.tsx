@@ -1,50 +1,50 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Building2, Sun, Moon } from 'lucide-react'
-import { premiumTheme } from '@/lib/design/theme'
+import { useState, useEffect } from "react";
+import { Leaf, Sun, Moon } from "lucide-react";
+import { premiumTheme } from "@/lib/design/theme";
 
 export function NavRail() {
-  const [isDarkMode, setIsDarkMode] = useState(true)
-  const [mounted, setMounted] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
+    setMounted(true);
     // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme === 'light') {
-      setIsDarkMode(false)
-      document.documentElement.classList.add('light-mode')
-      document.body.classList.add('light-mode')
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light") {
+      setIsDarkMode(false);
+      document.documentElement.classList.add("light-mode");
+      document.body.classList.add("light-mode");
     }
-  }, [])
+  }, []);
 
   const toggleTheme = () => {
-    const newTheme = !isDarkMode
-    setIsDarkMode(newTheme)
-    
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+
     if (newTheme) {
-      document.documentElement.classList.remove('light-mode')
-      document.body.classList.remove('light-mode')
-      localStorage.setItem('theme', 'dark')
+      document.documentElement.classList.remove("light-mode");
+      document.body.classList.remove("light-mode");
+      localStorage.setItem("theme", "dark");
     } else {
-      document.documentElement.classList.add('light-mode')
-      document.body.classList.add('light-mode')
-      localStorage.setItem('theme', 'light')
+      document.documentElement.classList.add("light-mode");
+      document.body.classList.add("light-mode");
+      localStorage.setItem("theme", "light");
     }
-  }
+  };
 
   return (
     <nav className="nav-rail" aria-label="Main navigation">
       {/* Logo */}
       <div className="nav-logo-container">
-        <div 
+        <div
           className="nav-logo"
           role="button"
           tabIndex={0}
           aria-label="Blipee OS Home"
         >
-          <Building2 className="w-8 h-8 text-white" />
+          <Leaf className="w-8 h-8 text-white" />
         </div>
       </div>
 
@@ -56,7 +56,11 @@ export function NavRail() {
         <button
           className="theme-toggle"
           onClick={toggleTheme}
-          aria-label={mounted ? `Switch to ${isDarkMode ? 'light' : 'dark'} mode` : 'Toggle theme'}
+          aria-label={
+            mounted
+              ? `Switch to ${isDarkMode ? "light" : "dark"} mode`
+              : "Toggle theme"
+          }
         >
           {mounted ? (
             isDarkMode ? (
@@ -100,7 +104,7 @@ export function NavRail() {
         .nav-logo {
           width: 56px;
           height: 56px;
-          background: linear-gradient(135deg, #8B5CF6 0%, #0EA5E9 100%);
+          background: linear-gradient(135deg, #8b5cf6 0%, #0ea5e9 100%);
           border-radius: 16px;
           display: flex;
           align-items: center;
@@ -113,7 +117,7 @@ export function NavRail() {
         }
 
         .nav-logo::before {
-          content: '';
+          content: "";
           position: absolute;
           top: 0;
           left: 0;
@@ -168,7 +172,7 @@ export function NavRail() {
         }
 
         .theme-toggle::before {
-          content: '';
+          content: "";
           position: absolute;
           top: 50%;
           left: 50%;
@@ -180,7 +184,9 @@ export function NavRail() {
             transparent 70%
           );
           transform: translate(-50%, -50%);
-          transition: width 0.3s ease, height 0.3s ease;
+          transition:
+            width 0.3s ease,
+            height 0.3s ease;
         }
 
         .theme-toggle:hover {
@@ -200,7 +206,7 @@ export function NavRail() {
 
         /* Glow effect on dark mode */
         .nav-rail::after {
-          content: '';
+          content: "";
           position: absolute;
           top: 50%;
           left: 0;
@@ -218,7 +224,8 @@ export function NavRail() {
         }
 
         @keyframes railGlow {
-          0%, 100% {
+          0%,
+          100% {
             opacity: 0.3;
           }
           50% {
@@ -252,5 +259,5 @@ export function NavRail() {
         }
       `}</style>
     </nav>
-  )
+  );
 }

@@ -1,163 +1,178 @@
-import { createClient } from '@/lib/supabase/client'
-import { UserRole } from '@/types/auth'
-import type { 
-  AuthResponse, 
-  Session, 
+import { createClient } from "@/lib/supabase/client";
+import { UserRole } from "@/types/auth";
+import type {
+  AuthResponse,
+  Session,
   SignUpMetadata,
   UserProfile,
   Organization,
-  Permission
-} from '@/types/auth'
+  Permission,
+} from "@/types/auth";
 
 export class AuthService {
-  private supabase = createClient()
+  private supabase = createClient();
 
   /**
    * Sign up a new user and create their organization
    */
-  async signUp(email: string, password: string, metadata: SignUpMetadata): Promise<AuthResponse> {
+  async signUp(
+    email: string,
+    password: string,
+    metadata: SignUpMetadata,
+  ): Promise<AuthResponse> {
     // Create auth user
-    const { data: authData, error: authError } = await this.supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: metadata.full_name,
-          role: metadata.role || 'subscription_owner'
-        }
-      }
-    })
+    const { data: authData, error: authError } =
+      await this.supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: metadata.full_name,
+            role: metadata.role || "subscription_owner",
+          },
+        },
+      });
 
-    if (authError) throw authError
-    if (!authData.user) throw new Error('User creation failed')
+    if (authError) throw authError;
+    if (!authData.user) throw new Error("User creation failed");
 
     // Create user profile
     const { data: profile, error: profileError } = await this.supabase
-      .from('user_profiles')
+      .from("user_profiles")
       .insert({
         id: authData.user.id,
         email,
         full_name: metadata.full_name,
         preferences: {},
-        ai_personality_settings: this.getDefaultAISettings(metadata.role)
+        ai_personality_settings: this.getDefaultAISettings(metadata.role),
       })
       .select()
-      .single()
+      .single();
 
-    if (profileError) throw profileError
+    if (profileError) throw profileError;
 
     // Create organization if company name provided
     if (metadata.company_name) {
-      const orgSlug = this.generateSlug(metadata.company_name)
-      
-      const { data: orgId, error: orgError } = await this.supabase
-        .rpc('create_organization_with_owner', {
+      const orgSlug = this.generateSlug(metadata.company_name);
+
+      const { data: orgId, error: orgError } = await this.supabase.rpc(
+        "create_organization_with_owner",
+        {
           org_name: metadata.company_name,
           org_slug: orgSlug,
-          owner_id: authData.user.id
-        })
+          owner_id: authData.user.id,
+        },
+      );
 
-      if (orgError) throw orgError
+      if (orgError) throw orgError;
     }
 
     // Get session
-    const session = await this.getSession()
-    
+    const session = await this.getSession();
+
     return {
       user: profile,
       session: session!,
-      access_token: authData.session?.access_token || '',
-      refresh_token: authData.session?.refresh_token || ''
-    }
+      access_token: authData.session?.access_token || "",
+      refresh_token: authData.session?.refresh_token || "",
+    };
   }
 
   /**
    * Sign in an existing user
    */
   async signIn(email: string, password: string): Promise<AuthResponse> {
-    const { data: authData, error: authError } = await this.supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+    const { data: authData, error: authError } =
+      await this.supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (authError) throw authError
-    if (!authData.user) throw new Error('Authentication failed')
+    if (authError) throw authError;
+    if (!authData.user) throw new Error("Authentication failed");
 
-    const session = await this.getSession()
-    
+    const session = await this.getSession();
+
     return {
       user: session!.user,
       session: session!,
-      access_token: authData.session?.access_token || '',
-      refresh_token: authData.session?.refresh_token || ''
-    }
+      access_token: authData.session?.access_token || "",
+      refresh_token: authData.session?.refresh_token || "",
+    };
   }
 
   /**
    * Sign in with OAuth provider
    */
-  async signInWithProvider(provider: 'google' | 'azure'): Promise<void> {
+  async signInWithProvider(provider: "google" | "azure"): Promise<void> {
     const { error } = await this.supabase.auth.signInWithOAuth({
       provider: provider as any, // Type assertion for now
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
-      }
-    })
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
 
-    if (error) throw error
+    if (error) throw error;
   }
 
   /**
    * Get current session with full context
    */
   async getSession(): Promise<Session | null> {
-    const { data: { user } } = await this.supabase.auth.getUser()
-    
-    if (!user) return null
+    const {
+      data: { user },
+    } = await this.supabase.auth.getUser();
+
+    if (!user) return null;
 
     // Get user profile
     const { data: profile } = await this.supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
+      .from("user_profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
 
     // Get user's organizations
     const { data: memberships } = await this.supabase
-      .from('organization_members')
-      .select(`
+      .from("organization_members")
+      .select(
+        `
         *,
         organization:organizations(*)
-      `)
-      .eq('user_id', user.id)
-      .eq('invitation_status', 'accepted')
+      `,
+      )
+      .eq("user_id", user.id)
+      .eq("invitation_status", "accepted");
 
     if (!memberships || memberships.length === 0) {
-      return null
+      return null;
     }
 
     // Get current organization (first one for now)
-    const currentMembership = memberships[0]
-    const currentOrg = currentMembership.organization as Organization
+    const currentMembership = memberships[0];
+    const currentOrg = currentMembership.organization as Organization;
 
     // Get user's permissions
-    const permissions = this.buildPermissions(currentMembership.role, currentMembership.permissions)
+    const permissions = this.buildPermissions(
+      currentMembership.role,
+      currentMembership.permissions,
+    );
 
     return {
       user: profile,
-      organizations: memberships.map(m => m.organization as Organization),
+      organizations: memberships.map((m) => m.organization as Organization),
       current_organization: currentOrg,
       permissions,
-      expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString() // 8 hours
-    }
+      expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours
+    };
   }
 
   /**
    * Sign out current user
    */
   async signOut(): Promise<void> {
-    const { error } = await this.supabase.auth.signOut()
-    if (error) throw error
+    const { error } = await this.supabase.auth.signOut();
+    if (error) throw error;
   }
 
   /**
@@ -165,10 +180,10 @@ export class AuthService {
    */
   async resetPassword(email: string): Promise<void> {
     const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset-password`
-    })
-    
-    if (error) throw error
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+
+    if (error) throw error;
   }
 
   /**
@@ -176,10 +191,10 @@ export class AuthService {
    */
   async updatePassword(newPassword: string): Promise<void> {
     const { error } = await this.supabase.auth.updateUser({
-      password: newPassword
-    })
-    
-    if (error) throw error
+      password: newPassword,
+    });
+
+    if (error) throw error;
   }
 
   /**
@@ -189,23 +204,27 @@ export class AuthService {
     session: Session,
     resource: string,
     action: string,
-    scope?: Record<string, string>
+    scope?: Record<string, string>,
   ): boolean {
-    return session.permissions.some(permission => 
-      permission.resource === resource &&
-      permission.action === action &&
-      (!scope || this.matchesScope(permission.scope, scope))
-    )
+    return session.permissions.some(
+      (permission) =>
+        permission.resource === resource &&
+        permission.action === action &&
+        (!scope || this.matchesScope(permission.scope, scope)),
+    );
   }
 
   /**
    * Build permissions based on role
    */
-  private buildPermissions(role: string, customPermissions: any = {}): Permission[] {
-    const basePermissions = this.getRolePermissions(role as UserRole)
-    const custom = customPermissions?.permissions || []
-    
-    return [...basePermissions, ...custom]
+  private buildPermissions(
+    role: string,
+    customPermissions: any = {},
+  ): Permission[] {
+    const basePermissions = this.getRolePermissions(role as UserRole);
+    const custom = customPermissions?.permissions || [];
+
+    return [...basePermissions, ...custom];
   }
 
   /**
@@ -213,66 +232,62 @@ export class AuthService {
    */
   private getRolePermissions(role: UserRole): Permission[] {
     const permissionMap: Record<UserRole, Permission[]> = {
-      [UserRole.SUBSCRIPTION_OWNER]: [
-        { resource: '*', action: '*' }
-      ],
+      [UserRole.SUBSCRIPTION_OWNER]: [{ resource: "*", action: "*" }],
       [UserRole.ORGANIZATION_ADMIN]: [
-        { resource: 'organization', action: 'view' },
-        { resource: 'organization', action: 'edit' },
-        { resource: 'buildings', action: '*' },
-        { resource: 'users', action: '*' },
-        { resource: 'reports', action: '*' }
+        { resource: "organization", action: "view" },
+        { resource: "organization", action: "edit" },
+        { resource: "buildings", action: "*" },
+        { resource: "users", action: "*" },
+        { resource: "reports", action: "*" },
       ],
       [UserRole.SITE_MANAGER]: [
-        { resource: 'buildings', action: 'view' },
-        { resource: 'buildings', action: 'edit' },
-        { resource: 'systems', action: '*' },
-        { resource: 'users', action: 'invite' },
-        { resource: 'reports', action: '*' }
+        { resource: "buildings", action: "view" },
+        { resource: "buildings", action: "edit" },
+        { resource: "systems", action: "*" },
+        { resource: "users", action: "invite" },
+        { resource: "reports", action: "*" },
       ],
       [UserRole.FACILITY_MANAGER]: [
-        { resource: 'buildings', action: 'view' },
-        { resource: 'systems', action: 'view' },
-        { resource: 'systems', action: 'control' },
-        { resource: 'maintenance', action: '*' },
-        { resource: 'reports', action: 'view' }
+        { resource: "buildings", action: "view" },
+        { resource: "systems", action: "view" },
+        { resource: "systems", action: "control" },
+        { resource: "maintenance", action: "*" },
+        { resource: "reports", action: "view" },
       ],
       [UserRole.TECHNICIAN]: [
-        { resource: 'buildings', action: 'view' },
-        { resource: 'systems', action: 'view' },
-        { resource: 'systems', action: 'control' },
-        { resource: 'maintenance', action: '*' }
+        { resource: "buildings", action: "view" },
+        { resource: "systems", action: "view" },
+        { resource: "systems", action: "control" },
+        { resource: "maintenance", action: "*" },
       ],
       [UserRole.GROUP_MANAGER]: [
-        { resource: 'buildings', action: 'view' },
-        { resource: 'systems', action: 'control' },
-        { resource: 'reports', action: 'view' }
+        { resource: "buildings", action: "view" },
+        { resource: "systems", action: "control" },
+        { resource: "reports", action: "view" },
       ],
       [UserRole.TENANT]: [
-        { resource: 'buildings', action: 'view' },
-        { resource: 'systems', action: 'view' },
-        { resource: 'maintenance', action: 'create' }
+        { resource: "buildings", action: "view" },
+        { resource: "systems", action: "view" },
+        { resource: "maintenance", action: "create" },
       ],
-      [UserRole.GUEST]: [
-        { resource: 'buildings', action: 'view' }
-      ]
-    }
+      [UserRole.GUEST]: [{ resource: "buildings", action: "view" }],
+    };
 
-    return permissionMap[role] || []
+    return permissionMap[role] || [];
   }
 
   /**
    * Check if permission scope matches
    */
   private matchesScope(
-    permissionScope: any, 
-    requiredScope: Record<string, string>
+    permissionScope: any,
+    requiredScope: Record<string, string>,
   ): boolean {
-    if (!permissionScope) return true
-    
-    return Object.entries(requiredScope).every(([key, value]) => 
-      permissionScope[key] === value
-    )
+    if (!permissionScope) return true;
+
+    return Object.entries(requiredScope).every(
+      ([key, value]) => permissionScope[key] === value,
+    );
   }
 
   /**
@@ -281,26 +296,29 @@ export class AuthService {
   private getDefaultAISettings(role?: string) {
     const roleSettings: Record<string, any> = {
       subscription_owner: {
-        tone: 'professional',
-        detail_level: 'executive',
-        proactivity: 'medium',
-        expertise_level: 'intermediate'
+        tone: "professional",
+        detail_level: "executive",
+        proactivity: "medium",
+        expertise_level: "intermediate",
       },
       site_manager: {
-        tone: 'friendly',
-        detail_level: 'detailed',
-        proactivity: 'high',
-        expertise_level: 'intermediate'
+        tone: "friendly",
+        detail_level: "detailed",
+        proactivity: "high",
+        expertise_level: "intermediate",
       },
       technician: {
-        tone: 'casual',
-        detail_level: 'technical',
-        proactivity: 'high',
-        expertise_level: 'expert'
-      }
-    }
+        tone: "casual",
+        detail_level: "technical",
+        proactivity: "high",
+        expertise_level: "expert",
+      },
+    };
 
-    return roleSettings[role || 'subscription_owner'] || roleSettings.subscription_owner
+    return (
+      roleSettings[role || "subscription_owner"] ||
+      roleSettings.subscription_owner
+    );
   }
 
   /**
@@ -309,10 +327,10 @@ export class AuthService {
   private generateSlug(name: string): string {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
 }
 
 // Export singleton instance
-export const authService = new AuthService()
+export const authService = new AuthService();

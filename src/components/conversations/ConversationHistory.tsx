@@ -1,48 +1,54 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { MessageSquare, Plus, Clock, ChevronRight } from 'lucide-react'
-import { conversationService, type ConversationRow } from '@/lib/conversations/service'
-import { formatDistanceToNow } from 'date-fns'
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageSquare, Plus, Clock, ChevronRight } from "lucide-react";
+import {
+  conversationService,
+  type ConversationRow,
+} from "@/lib/conversations/service";
+import { formatDistanceToNow } from "date-fns";
 
 interface ConversationHistoryProps {
-  currentConversationId: string | null
-  onSelectConversation: (id: string) => void
-  onNewConversation: () => void
+  currentConversationId: string | null;
+  onSelectConversation: (id: string) => void;
+  onNewConversation: () => void;
 }
 
-export function ConversationHistory({ 
-  currentConversationId, 
+export function ConversationHistory({
+  currentConversationId,
   onSelectConversation,
-  onNewConversation 
+  onNewConversation,
 }: ConversationHistoryProps) {
-  const [conversations, setConversations] = useState<ConversationRow[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [conversations, setConversations] = useState<ConversationRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadConversations()
-  }, [])
+    loadConversations();
+  }, []);
 
   const loadConversations = async () => {
-    setIsLoading(true)
-    const data = await conversationService.getUserConversations()
-    setConversations(data)
-    setIsLoading(false)
-  }
+    setIsLoading(true);
+    const data = await conversationService.getUserConversations();
+    setConversations(data);
+    setIsLoading(false);
+  };
 
   const getConversationTitle = (conversation: ConversationRow) => {
-    const messages = conversation.messages as any[]
-    if (!messages || messages.length === 0) return 'New conversation'
-    
+    const messages = conversation.messages as any[];
+    if (!messages || messages.length === 0) return "New conversation";
+
     // Find first user message
-    const firstUserMessage = messages.find(m => m.role === 'user')
+    const firstUserMessage = messages.find((m) => m.role === "user");
     if (firstUserMessage) {
-      return firstUserMessage.content.substring(0, 30) + (firstUserMessage.content.length > 30 ? '...' : '')
+      return (
+        firstUserMessage.content.substring(0, 30) +
+        (firstUserMessage.content.length > 30 ? "..." : "")
+      );
     }
-    
-    return 'New conversation'
-  }
+
+    return "New conversation";
+  };
 
   return (
     <div className="w-80 h-full bg-black/20 backdrop-blur-xl border-r border-white/[0.05] flex flex-col">
@@ -88,9 +94,10 @@ export function ConversationHistory({
                   w-full px-3 py-3 rounded-lg text-left
                   transition-all duration-200
                   group relative overflow-hidden
-                  ${currentConversationId === conversation.id
-                    ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-white/[0.1]'
-                    : 'hover:bg-white/[0.02] hover:border hover:border-white/[0.05]'
+                  ${
+                    currentConversationId === conversation.id
+                      ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-white/[0.1]"
+                      : "hover:bg-white/[0.02] hover:border hover:border-white/[0.05]"
                   }
                 `}
               >
@@ -108,15 +115,20 @@ export function ConversationHistory({
                     <div className="flex items-center gap-2 mt-1">
                       <Clock className="w-3 h-3 text-white/30" />
                       <p className="text-xs text-white/40">
-                        {formatDistanceToNow(new Date(conversation.updated_at), { addSuffix: true })}
+                        {formatDistanceToNow(
+                          new Date(conversation.updated_at),
+                          { addSuffix: true },
+                        )}
                       </p>
                     </div>
                   </div>
-                  <ChevronRight className={`
+                  <ChevronRight
+                    className={`
                     w-4 h-4 text-white/30 
                     transform transition-all duration-200
-                    ${currentConversationId === conversation.id ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'}
-                  `} />
+                    ${currentConversationId === conversation.id ? "translate-x-0 opacity-100" : "-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100"}
+                  `}
+                  />
                 </div>
               </motion.button>
             ))}
@@ -131,5 +143,5 @@ export function ConversationHistory({
         </p>
       </div>
     </div>
-  )
+  );
 }

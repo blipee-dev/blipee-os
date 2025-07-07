@@ -1,14 +1,17 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { motion } from "framer-motion";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 interface MessageSuggestionsProps {
-  suggestions: string[]
-  onSelect: (suggestion: string) => void
+  suggestions: string[];
+  onSelect: (suggestion: string) => void;
 }
 
-export function MessageSuggestions({ suggestions, onSelect }: MessageSuggestionsProps) {
+export function MessageSuggestions({
+  suggestions,
+  onSelect,
+}: MessageSuggestionsProps) {
   return (
     <div className="mt-3 space-y-2">
       <div className="flex items-center gap-2 text-xs text-white/40 light-mode:text-gray-500">
@@ -46,22 +49,26 @@ export function MessageSuggestions({ suggestions, onSelect }: MessageSuggestions
             `}
           >
             {/* Gradient overlay on hover */}
-            <div className={`
+            <div
+              className={`
               absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100
               bg-gradient-to-r from-purple-500/5 to-blue-500/5
               light-mode:from-purple-500/3 light-mode:to-blue-500/3
               transition-opacity duration-300
-            `} />
-            
+            `}
+            />
+
             <span className="relative z-10 flex items-center gap-2">
               {suggestion}
-              <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 
+              <ArrowRight
+                className="w-3 h-3 opacity-0 group-hover:opacity-100 
                                    transform translate-x-0 group-hover:translate-x-1
-                                   transition-all duration-300" />
+                                   transition-all duration-300"
+              />
             </span>
           </motion.button>
         ))}
       </div>
     </div>
-  )
+  );
 }

@@ -1,52 +1,52 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { 
-  Zap, 
-  TrendingUp, 
-  AlertTriangle, 
-  Target, 
+import { motion } from "framer-motion";
+import {
+  Zap,
+  TrendingUp,
+  AlertTriangle,
+  Target,
   Brain,
   Activity,
   Gauge,
   Lightbulb,
   Shield,
-  Clock
-} from 'lucide-react'
+  Clock,
+} from "lucide-react";
 
 interface IntelligentDashboardProps {
-  title?: string
-  currentUsage?: number
-  trend?: string
-  efficiency?: number
-  breakdown?: Array<{ name: string; value: number; color: string }>
+  title?: string;
+  currentUsage?: number;
+  trend?: string;
+  efficiency?: number;
+  breakdown?: Array<{ name: string; value: number; color: string }>;
   predictions?: {
-    nextHour: number
-    peakToday: number
-    endOfMonth: number
-  }
-  onOptimize: () => void
+    nextHour: number;
+    peakToday: number;
+    endOfMonth: number;
+  };
+  onOptimize: () => void;
 }
 
 export function IntelligentDashboard({
-  title = 'Real-Time Energy Performance',
+  title = "Real-Time Energy Performance",
   currentUsage = 4520,
-  trend = 'stable',
+  trend = "stable",
   efficiency = 87,
   breakdown = [
-    { name: 'HVAC', value: 2124, color: '#0EA5E9' },
-    { name: 'Lighting', value: 1266, color: '#8B5CF6' },
-    { name: 'Equipment', value: 1130, color: '#10B981' }
+    { name: "HVAC", value: 2124, color: "#0EA5E9" },
+    { name: "Lighting", value: 1266, color: "#8B5CF6" },
+    { name: "Equipment", value: 1130, color: "#10B981" },
   ],
   predictions = {
     nextHour: 4730,
     peakToday: 5200,
-    endOfMonth: 3250000
+    endOfMonth: 3250000,
   },
-  onOptimize
+  onOptimize,
 }: IntelligentDashboardProps) {
-  const totalUsage = breakdown.reduce((sum, item) => sum + item.value, 0)
-  
+  const totalUsage = breakdown.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -61,8 +61,10 @@ export function IntelligentDashboard({
       <div className="p-6 border-b border-white/[0.05] light-mode:border-gray-200/30">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20
-                          border border-blue-500/30 light-mode:border-blue-400/30">
+            <div
+              className="p-2 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20
+                          border border-blue-500/30 light-mode:border-blue-400/30"
+            >
               <Brain className="w-5 h-5 text-blue-400 light-mode:text-blue-600" />
             </div>
             <div>
@@ -74,10 +76,12 @@ export function IntelligentDashboard({
               </p>
             </div>
           </div>
-          
+
           {/* Real-time indicator */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full
-                         bg-green-500/20 border border-green-500/30">
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full
+                         bg-green-500/20 border border-green-500/30"
+          >
             <Activity className="w-3 h-3 text-green-400 animate-pulse" />
             <span className="text-xs font-medium text-green-400">Live</span>
           </div>
@@ -86,7 +90,6 @@ export function IntelligentDashboard({
 
       {/* Main Metrics Grid */}
       <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        
         {/* Current Usage with Trend */}
         <motion.div
           whileHover={{ scale: 1.02 }}
@@ -95,25 +98,30 @@ export function IntelligentDashboard({
         >
           <div className="flex items-center justify-between mb-3">
             <Zap className="w-8 h-8 text-blue-400 light-mode:text-blue-600" />
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
-              ${trend === 'increasing' 
-                ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
-                : trend === 'decreasing'
-                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
-              }`}>
-              <TrendingUp className={`w-3 h-3 ${trend === 'decreasing' ? 'rotate-180' : ''}`} />
+            <div
+              className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
+              ${
+                trend === "increasing"
+                  ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                  : trend === "decreasing"
+                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                    : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+              }`}
+            >
+              <TrendingUp
+                className={`w-3 h-3 ${trend === "decreasing" ? "rotate-180" : ""}`}
+              />
               {trend}
             </div>
           </div>
-          
+
           <div className="text-2xl font-bold text-white/90 light-mode:text-gray-800 mb-1">
             {currentUsage.toLocaleString()}W
           </div>
           <div className="text-sm text-white/60 light-mode:text-gray-600">
             Current Usage
           </div>
-          
+
           {/* Spark line visualization */}
           <div className="mt-3 h-8 flex items-end space-x-1">
             {Array.from({ length: 12 }, (_, i) => (
@@ -121,7 +129,7 @@ export function IntelligentDashboard({
                 key={i}
                 className="flex-1 bg-blue-400/30 rounded-sm"
                 style={{
-                  height: `${20 + Math.random() * 20}px`
+                  height: `${20 + Math.random() * 20}px`,
                 }}
               />
             ))}
@@ -136,20 +144,22 @@ export function IntelligentDashboard({
         >
           <div className="flex items-center justify-between mb-3">
             <Gauge className="w-8 h-8 text-green-400 light-mode:text-green-600" />
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
-                           bg-green-500/20 text-green-400 border border-green-500/30">
+            <div
+              className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
+                           bg-green-500/20 text-green-400 border border-green-500/30"
+            >
               <Target className="w-3 h-3" />
               Optimal
             </div>
           </div>
-          
+
           <div className="text-2xl font-bold text-white/90 light-mode:text-gray-800 mb-1">
             {efficiency}%
           </div>
           <div className="text-sm text-white/60 light-mode:text-gray-600">
             Efficiency Score
           </div>
-          
+
           {/* Circular progress */}
           <div className="mt-3 relative w-12 h-12">
             <svg className="w-12 h-12 transform -rotate-90">
@@ -175,7 +185,9 @@ export function IntelligentDashboard({
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-xs font-medium text-green-400">{efficiency}%</span>
+              <span className="text-xs font-medium text-green-400">
+                {efficiency}%
+              </span>
             </div>
           </div>
         </motion.div>
@@ -188,28 +200,38 @@ export function IntelligentDashboard({
         >
           <div className="flex items-center justify-between mb-3">
             <Brain className="w-8 h-8 text-purple-400 light-mode:text-purple-600" />
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
-                           bg-purple-500/20 text-purple-400 border border-purple-500/30">
+            <div
+              className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
+                           bg-purple-500/20 text-purple-400 border border-purple-500/30"
+            >
               <Clock className="w-3 h-3" />
               Next Hour
             </div>
           </div>
-          
+
           <div className="text-2xl font-bold text-white/90 light-mode:text-gray-800 mb-1">
             {predictions.nextHour.toLocaleString()}W
           </div>
           <div className="text-sm text-white/60 light-mode:text-gray-600">
             AI Prediction
           </div>
-          
+
           <div className="mt-3 space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-white/50 light-mode:text-gray-500">Peak Today</span>
-              <span className="text-white/80 light-mode:text-gray-700">{predictions.peakToday.toLocaleString()}W</span>
+              <span className="text-white/50 light-mode:text-gray-500">
+                Peak Today
+              </span>
+              <span className="text-white/80 light-mode:text-gray-700">
+                {predictions.peakToday.toLocaleString()}W
+              </span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-white/50 light-mode:text-gray-500">Month End</span>
-              <span className="text-white/80 light-mode:text-gray-700">{(predictions.endOfMonth / 1000).toFixed(1)}kWh</span>
+              <span className="text-white/50 light-mode:text-gray-500">
+                Month End
+              </span>
+              <span className="text-white/80 light-mode:text-gray-700">
+                {(predictions.endOfMonth / 1000).toFixed(1)}kWh
+              </span>
             </div>
           </div>
         </motion.div>
@@ -220,10 +242,10 @@ export function IntelligentDashboard({
         <h4 className="text-sm font-medium text-white/80 light-mode:text-gray-700 mb-3">
           Intelligent Breakdown
         </h4>
-        
+
         <div className="space-y-3">
           {breakdown.map((item, index) => {
-            const percentage = (item.value / totalUsage) * 100
+            const percentage = (item.value / totalUsage) * 100;
             return (
               <motion.div
                 key={item.name}
@@ -240,7 +262,7 @@ export function IntelligentDashboard({
                     {item.value.toLocaleString()}W ({percentage.toFixed(1)}%)
                   </span>
                 </div>
-                
+
                 <div className="relative h-2 bg-white/[0.05] light-mode:bg-gray-200/50 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
@@ -251,7 +273,7 @@ export function IntelligentDashboard({
                   />
                 </div>
               </motion.div>
-            )
+            );
           })}
         </div>
       </div>
@@ -274,8 +296,10 @@ export function IntelligentDashboard({
           <span className="text-sm font-medium text-white/90 light-mode:text-gray-800">
             AI Optimize Now
           </span>
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full
-                         bg-green-500/20 text-green-400 text-xs">
+          <div
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full
+                         bg-green-500/20 text-green-400 text-xs"
+          >
             <Shield className="w-3 h-3" />
             Safe
           </div>
@@ -287,16 +311,16 @@ export function IntelligentDashboard({
         <motion.div
           animate={{
             scale: [1, 1.1, 1],
-            opacity: [0.5, 1, 0.5]
+            opacity: [0.5, 1, 0.5],
           }}
           transition={{
             duration: 2,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
           className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 shadow-lg"
         />
       </div>
     </motion.div>
-  )
+  );
 }

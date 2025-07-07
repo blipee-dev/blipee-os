@@ -1,57 +1,57 @@
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from "@/lib/supabase/client";
 import type {
   Organization,
   Building,
   OrganizationMember,
   BuildingAssignment,
   UserRole,
-  InvitationStatus
-} from '@/types/auth'
+  InvitationStatus,
+} from "@/types/auth";
 
 export class OrganizationService {
-  private supabase = createClient()
+  private supabase = createClient();
 
   /**
    * Get organization by ID
    */
   async getOrganization(id: string): Promise<Organization | null> {
     const { data, error } = await this.supabase
-      .from('organizations')
-      .select('*')
-      .eq('id', id)
-      .single()
+      .from("organizations")
+      .select("*")
+      .eq("id", id)
+      .single();
 
     if (error) {
-      console.error('Error fetching organization:', error)
-      return null
+      console.error("Error fetching organization:", error);
+      return null;
     }
 
-    return data
+    return data;
   }
 
   /**
    * Update organization settings
    */
   async updateOrganization(
-    id: string, 
-    updates: Partial<Organization>
+    id: string,
+    updates: Partial<Organization>,
   ): Promise<Organization | null> {
     const { data, error } = await this.supabase
-      .from('organizations')
+      .from("organizations")
       .update({
         ...updates,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .eq('id', id)
+      .eq("id", id)
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error('Error updating organization:', error)
-      return null
+      console.error("Error updating organization:", error);
+      return null;
     }
 
-    return data
+    return data;
   }
 
   /**
@@ -59,17 +59,17 @@ export class OrganizationService {
    */
   async getOrganizationBuildings(organizationId: string): Promise<Building[]> {
     const { data, error } = await this.supabase
-      .from('buildings')
-      .select('*')
-      .eq('organization_id', organizationId)
-      .order('name')
+      .from("buildings")
+      .select("*")
+      .eq("organization_id", organizationId)
+      .order("name");
 
     if (error) {
-      console.error('Error fetching buildings:', error)
-      return []
+      console.error("Error fetching buildings:", error);
+      return [];
     }
 
-    return data || []
+    return data || [];
   }
 
   /**
@@ -77,26 +77,26 @@ export class OrganizationService {
    */
   async createBuilding(
     organizationId: string,
-    buildingData: Partial<Building>
+    buildingData: Partial<Building>,
   ): Promise<Building | null> {
-    const slug = this.generateSlug(buildingData.name || '')
+    const slug = this.generateSlug(buildingData.name || "");
 
     const { data, error } = await this.supabase
-      .from('buildings')
+      .from("buildings")
       .insert({
         organization_id: organizationId,
         slug,
-        ...buildingData
+        ...buildingData,
       })
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error('Error creating building:', error)
-      return null
+      console.error("Error creating building:", error);
+      return null;
     }
 
-    return data
+    return data;
   }
 
   /**
@@ -104,47 +104,49 @@ export class OrganizationService {
    */
   async updateBuilding(
     id: string,
-    updates: Partial<Building>
+    updates: Partial<Building>,
   ): Promise<Building | null> {
     const { data, error } = await this.supabase
-      .from('buildings')
+      .from("buildings")
       .update({
         ...updates,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .eq('id', id)
+      .eq("id", id)
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error('Error updating building:', error)
-      return null
+      console.error("Error updating building:", error);
+      return null;
     }
 
-    return data
+    return data;
   }
 
   /**
    * Get organization members
    */
   async getOrganizationMembers(
-    organizationId: string
+    organizationId: string,
   ): Promise<OrganizationMember[]> {
     const { data, error } = await this.supabase
-      .from('organization_members')
-      .select(`
+      .from("organization_members")
+      .select(
+        `
         *,
         user:user_profiles(*)
-      `)
-      .eq('organization_id', organizationId)
-      .order('created_at')
+      `,
+      )
+      .eq("organization_id", organizationId)
+      .order("created_at");
 
     if (error) {
-      console.error('Error fetching members:', error)
-      return []
+      console.error("Error fetching members:", error);
+      return [];
     }
 
-    return data || []
+    return data || [];
   }
 
   /**
@@ -154,94 +156,91 @@ export class OrganizationService {
     organizationId: string,
     email: string,
     role: UserRole,
-    invitedBy: string
+    invitedBy: string,
   ): Promise<OrganizationMember | null> {
     try {
       // First check if user exists
       let { data: userProfile } = await this.supabase
-        .from('user_profiles')
-        .select('id')
-        .eq('email', email)
-        .single()
+        .from("user_profiles")
+        .select("id")
+        .eq("email", email)
+        .single();
 
       // If user doesn't exist, create a placeholder profile
       if (!userProfile) {
         const { data: newProfile, error: profileError } = await this.supabase
-          .from('user_profiles')
+          .from("user_profiles")
           .insert({
             email,
-            onboarding_completed: false
+            onboarding_completed: false,
           })
           .select()
-          .single()
+          .single();
 
-        if (profileError) throw profileError
-        userProfile = newProfile
+        if (profileError) throw profileError;
+        userProfile = newProfile;
       }
 
       // Create invitation
       if (!userProfile) {
-        throw new Error('Failed to create or find user profile')
+        throw new Error("Failed to create or find user profile");
       }
 
       const { data, error } = await this.supabase
-        .from('organization_members')
+        .from("organization_members")
         .insert({
           organization_id: organizationId,
           user_id: userProfile.id,
           role,
-          invitation_status: 'pending' as InvitationStatus,
+          invitation_status: "pending" as InvitationStatus,
           invited_by: invitedBy,
-          invited_at: new Date().toISOString()
+          invited_at: new Date().toISOString(),
         })
         .select()
-        .single()
+        .single();
 
-      if (error) throw error
+      if (error) throw error;
 
       // TODO: Send invitation email
 
-      return data
+      return data;
     } catch (error) {
-      console.error('Error inviting user:', error)
-      return null
+      console.error("Error inviting user:", error);
+      return null;
     }
   }
 
   /**
    * Remove user from organization
    */
-  async removeUser(
-    organizationId: string,
-    userId: string
-  ): Promise<boolean> {
+  async removeUser(organizationId: string, userId: string): Promise<boolean> {
     const { error } = await this.supabase
-      .from('organization_members')
+      .from("organization_members")
       .delete()
-      .eq('organization_id', organizationId)
-      .eq('user_id', userId)
+      .eq("organization_id", organizationId)
+      .eq("user_id", userId);
 
     if (error) {
-      console.error('Error removing user:', error)
-      return false
+      console.error("Error removing user:", error);
+      return false;
     }
 
     // Also remove building assignments
     const { data: buildings } = await this.supabase
-      .from('buildings')
-      .select('id')
-      .eq('organization_id', organizationId)
+      .from("buildings")
+      .select("id")
+      .eq("organization_id", organizationId);
 
     if (buildings) {
-      const buildingIds = buildings.map(b => b.id)
+      const buildingIds = buildings.map((b) => b.id);
       await this.supabase
-        .from('building_assignments')
+        .from("building_assignments")
         .delete()
-        .eq('user_id', userId)
-        .in('building_id', buildingIds)
+        .eq("user_id", userId)
+        .in("building_id", buildingIds);
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -250,25 +249,25 @@ export class OrganizationService {
   async updateUserRole(
     organizationId: string,
     userId: string,
-    newRole: UserRole
+    newRole: UserRole,
   ): Promise<OrganizationMember | null> {
     const { data, error } = await this.supabase
-      .from('organization_members')
+      .from("organization_members")
       .update({
         role: newRole,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .eq('organization_id', organizationId)
-      .eq('user_id', userId)
+      .eq("organization_id", organizationId)
+      .eq("user_id", userId)
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error('Error updating user role:', error)
-      return null
+      console.error("Error updating user role:", error);
+      return null;
     }
 
-    return data
+    return data;
   }
 
   /**
@@ -276,47 +275,49 @@ export class OrganizationService {
    */
   async acceptInvitation(
     organizationId: string,
-    userId: string
+    userId: string,
   ): Promise<boolean> {
     const { error } = await this.supabase
-      .from('organization_members')
+      .from("organization_members")
       .update({
-        invitation_status: 'accepted' as InvitationStatus,
+        invitation_status: "accepted" as InvitationStatus,
         joined_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .eq('organization_id', organizationId)
-      .eq('user_id', userId)
-      .eq('invitation_status', 'pending')
+      .eq("organization_id", organizationId)
+      .eq("user_id", userId)
+      .eq("invitation_status", "pending");
 
     if (error) {
-      console.error('Error accepting invitation:', error)
-      return false
+      console.error("Error accepting invitation:", error);
+      return false;
     }
 
-    return true
+    return true;
   }
 
   /**
    * Get building assignments for a user
    */
   async getUserBuildingAssignments(
-    userId: string
+    userId: string,
   ): Promise<BuildingAssignment[]> {
     const { data, error } = await this.supabase
-      .from('building_assignments')
-      .select(`
+      .from("building_assignments")
+      .select(
+        `
         *,
         building:buildings(*)
-      `)
-      .eq('user_id', userId)
+      `,
+      )
+      .eq("user_id", userId);
 
     if (error) {
-      console.error('Error fetching assignments:', error)
-      return []
+      console.error("Error fetching assignments:", error);
+      return [];
     }
 
-    return data || []
+    return data || [];
   }
 
   /**
@@ -327,26 +328,26 @@ export class OrganizationService {
     userId: string,
     role: UserRole,
     createdBy: string,
-    areas?: string[]
+    areas?: string[],
   ): Promise<BuildingAssignment | null> {
     const { data, error } = await this.supabase
-      .from('building_assignments')
+      .from("building_assignments")
       .insert({
         building_id: buildingId,
         user_id: userId,
         role,
         areas: areas || [],
-        created_by: createdBy
+        created_by: createdBy,
       })
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error('Error assigning user to building:', error)
-      return null
+      console.error("Error assigning user to building:", error);
+      return null;
     }
 
-    return data
+    return data;
   }
 
   /**
@@ -354,24 +355,24 @@ export class OrganizationService {
    */
   async updateBuildingAssignment(
     id: string,
-    updates: Partial<BuildingAssignment>
+    updates: Partial<BuildingAssignment>,
   ): Promise<BuildingAssignment | null> {
     const { data, error } = await this.supabase
-      .from('building_assignments')
+      .from("building_assignments")
       .update({
         ...updates,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .eq('id', id)
+      .eq("id", id)
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error('Error updating assignment:', error)
-      return null
+      console.error("Error updating assignment:", error);
+      return null;
     }
 
-    return data
+    return data;
   }
 
   /**
@@ -379,20 +380,20 @@ export class OrganizationService {
    */
   async removeUserFromBuilding(
     buildingId: string,
-    userId: string
+    userId: string,
   ): Promise<boolean> {
     const { error } = await this.supabase
-      .from('building_assignments')
+      .from("building_assignments")
       .delete()
-      .eq('building_id', buildingId)
-      .eq('user_id', userId)
+      .eq("building_id", buildingId)
+      .eq("user_id", userId);
 
     if (error) {
-      console.error('Error removing assignment:', error)
-      return false
+      console.error("Error removing assignment:", error);
+      return false;
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -401,10 +402,10 @@ export class OrganizationService {
   private generateSlug(name: string): string {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
 }
 
 // Export singleton instance
-export const organizationService = new OrganizationService()
+export const organizationService = new OrganizationService();

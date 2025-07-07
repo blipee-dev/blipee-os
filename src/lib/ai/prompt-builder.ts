@@ -1,5 +1,10 @@
-import { BuildingContext } from './types'
-import { EnhancedBuildingContext, buildEnhancedContext, formatEmissions, getEmissionContext } from './building-sustainability-context'
+import { BuildingContext } from "./types";
+import {
+  EnhancedBuildingContext,
+  buildEnhancedContext,
+  formatEmissions,
+  getEmissionContext,
+} from "./building-sustainability-context";
 
 export const BLIPEE_SYSTEM_PROMPT = `You are Blipee, an advanced AI assistant that manages buildings through natural conversation. You embody the building's intelligence and can see, understand, and control everything within it.
 
@@ -41,11 +46,14 @@ SUSTAINABILITY INTEGRATION:
 - You celebrate both operational AND sustainability achievements
 - You make carbon reduction feel achievable and rewarding
 
-Do NOT return JSON or any structured format. Just respond naturally as a building AI assistant would.`
+Do NOT return JSON or any structured format. Just respond naturally as a building AI assistant would.`;
 
-export function buildPrompt(userMessage: string, context?: BuildingContext): string {
-  let contextSection = ''
-  
+export function buildPrompt(
+  userMessage: string,
+  context?: BuildingContext,
+): string {
+  let contextSection = "";
+
   if (context) {
     contextSection = `
 
@@ -57,35 +65,35 @@ CURRENT BUILDING CONTEXT:
 - Occupancy: ${context.currentState.occupancy} people
 - Devices: ${context.devices.online} online, ${context.devices.offline} offline, ${context.devices.alerts} alerts
 - Building Type: ${context.metadata.type}
-- Size: ${context.metadata.size} sq ft`
+- Size: ${context.metadata.size} sq ft`;
   }
 
   return `${contextSection}
 
 USER MESSAGE: ${userMessage}
 
-Respond naturally and conversationally, including specific data and metrics where relevant.`
+Respond naturally and conversationally, including specific data and metrics where relevant.`;
 }
 
 export function buildDemoContext(): BuildingContext {
   return {
-    id: 'demo-building',
-    name: 'Demo Office Tower',
+    id: "demo-building",
+    name: "Demo Office Tower",
     currentState: {
       energyUsage: 4520,
       temperature: 22.5,
       humidity: 45,
-      occupancy: 127
+      occupancy: 127,
     },
     devices: {
       online: 47,
       offline: 2,
-      alerts: 1
+      alerts: 1,
     },
     metadata: {
       size: 50000,
-      type: 'office',
-      location: 'San Francisco, CA'
-    }
-  }
+      type: "office",
+      location: "San Francisco, CA",
+    },
+  };
 }
