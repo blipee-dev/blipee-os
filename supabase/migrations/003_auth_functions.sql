@@ -1,4 +1,7 @@
 -- Function to create organization with owner
+-- Drop the old version first (from migration 002)
+DROP FUNCTION IF EXISTS create_organization_with_owner(TEXT, TEXT, UUID);
+
 CREATE OR REPLACE FUNCTION create_organization_with_owner(
   org_name TEXT,
   org_slug TEXT,
