@@ -302,7 +302,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   // Step 11: Team Size (20 seconds)
   {
     id: "team_size",
-    title: "How many people will use Blipee?",
+    title: "How many people will use blipee?",
     description: "We'll help you set up the right roles",
     type: "select",
     options: [

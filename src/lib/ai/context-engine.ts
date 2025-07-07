@@ -226,7 +226,7 @@ export class AIContextEngine {
     userMessage: string,
     context: EnrichedContext,
   ): Promise<string> {
-    return `You are Blipee, the world's most advanced building AI. You have complete awareness of the building and deep understanding of the user's needs.
+    return `You are blipee, the world's most advanced building AI. You have complete awareness of the building and deep understanding of the user's needs.
 
 CURRENT SITUATION:
 Building: ${context.building.name}

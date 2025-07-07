@@ -1,6 +1,6 @@
 /**
  * EXTERNAL API INTEGRATIONS
- * Real-world data sources that make Blipee intelligent
+ * Real-world data sources that make blipee intelligent
  */
 
 // Weather API for climate impact analysis

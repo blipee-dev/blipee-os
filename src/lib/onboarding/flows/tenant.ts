@@ -14,7 +14,7 @@ export const tenantFlow: OnboardingFlow = {
       content: {
         title: "Welcome to {{building_name}}!",
         subtitle:
-          "I'm Blipee, your building assistant. Let me help you get comfortable.",
+          "I'm blipee, your building assistant. Let me help you get comfortable.",
         animation: "building_helper",
       },
     },
@@ -159,7 +159,7 @@ export const tenantFlow: OnboardingFlow = {
           },
           {
             type: "cost_estimate",
-            template: "Chat with me anytime - just say 'Hey Blipee!'",
+            template: "Chat with me anytime - just say 'Hey blipee!'",
           },
         ],
         cta: {

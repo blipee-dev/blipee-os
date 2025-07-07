@@ -431,7 +431,7 @@ function TestimonialsSection() {
   const testimonials = [
     {
       quote:
-        "Blipee OS helped us achieve our 2030 net-zero target 5 years early. The AI insights are game-changing.",
+        "blipee OS helped us achieve our 2030 net-zero target 5 years early. The AI insights are game-changing.",
       author: "Sarah Chen",
       role: "Chief Sustainability Officer, TechCorp",
       rating: 5,
@@ -571,7 +571,7 @@ export default function LandingPage() {
                 <Home className="w-6 h-6 text-white" />
               </div>
               <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Blipee OS
+                blipee OS
               </span>
             </Link>
 
@@ -639,7 +639,7 @@ export default function LandingPage() {
                   <Home className="w-6 h-6 text-white" />
                 </div>
                 <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  Blipee OS
+                  blipee OS
                 </span>
               </div>
               <p className="text-gray-400">
@@ -728,7 +728,7 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Blipee OS. All rights reserved.</p>
+            <p>&copy; 2025 blipee OS. All rights reserved.</p>
           </div>
         </div>
       </footer>

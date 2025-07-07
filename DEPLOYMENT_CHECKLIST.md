@@ -1,4 +1,4 @@
-# Blipee OS Deployment Checklist
+# blipee OS Deployment Checklist
 
 ## 🚀 Pre-Deployment
 

@@ -1,6 +1,6 @@
 /**
  * UNIFIED DATA INGESTION PIPELINE
- * Bringing all data sources together for Blipee's intelligence
+ * Bringing all data sources together for blipee's intelligence
  */
 
 import {

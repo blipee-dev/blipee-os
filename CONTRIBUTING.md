@@ -1,6 +1,6 @@
-# Contributing to Blipee OS
+# Contributing to blipee OS
 
-Thank you for your interest in contributing to Blipee OS! We're building the future of building management through conversational AI, and we'd love your help.
+Thank you for your interest in contributing to blipee OS! We're building the future of building management through conversational AI, and we'd love your help.
 
 ## Getting Started
 

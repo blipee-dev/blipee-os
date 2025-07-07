@@ -1,8 +1,8 @@
-# Blipee OS Technical Guide
+# blipee OS Technical Guide
 
 ## Architecture Overview
 
-Blipee OS is a revolutionary sustainability-first AI platform that transforms how organizations track, manage, and optimize their environmental impact. While it maintains strong building management capabilities, the platform is designed to be industry-agnostic, supporting any sustainability use case.
+blipee OS is a revolutionary sustainability-first AI platform that transforms how organizations track, manage, and optimize their environmental impact. While it maintains strong building management capabilities, the platform is designed to be industry-agnostic, supporting any sustainability use case.
 
 ### Core Philosophy
 
@@ -271,4 +271,4 @@ POST /api/auth/*           // Authentication flows
 - OAuth for secure integrations
 - Rate limiting and quotas
 
-This architecture enables Blipee OS to be the most advanced sustainability platform, providing magical experiences through conversation while maintaining enterprise-grade reliability and security.
+This architecture enables blipee OS to be the most advanced sustainability platform, providing magical experiences through conversation while maintaining enterprise-grade reliability and security.
