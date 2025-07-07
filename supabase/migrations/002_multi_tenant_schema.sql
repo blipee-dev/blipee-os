@@ -139,6 +139,7 @@ ALTER TABLE public.ai_context ENABLE ROW LEVEL SECURITY;
 -- RLS Policies
 
 -- Organizations: Users can only see organizations they belong to
+DROP POLICY IF EXISTS "Users can view their organizations" ON public.organizations;
 CREATE POLICY "Users can view their organizations" ON public.organizations
     FOR SELECT USING (
         id IN (
@@ -150,6 +151,7 @@ CREATE POLICY "Users can view their organizations" ON public.organizations
     );
 
 -- Buildings: Users can only see buildings in their organizations
+DROP POLICY IF EXISTS "Users can view organization buildings" ON public.buildings;
 CREATE POLICY "Users can view organization buildings" ON public.buildings
     FOR SELECT USING (
         organization_id IN (
@@ -161,6 +163,7 @@ CREATE POLICY "Users can view organization buildings" ON public.buildings
     );
 
 -- Organization members: Users can see members in their organizations
+DROP POLICY IF EXISTS "Users can view organization members" ON public.organization_members;
 CREATE POLICY "Users can view organization members" ON public.organization_members
     FOR SELECT USING (
         organization_id IN (
@@ -172,6 +175,7 @@ CREATE POLICY "Users can view organization members" ON public.organization_membe
     );
 
 -- Building assignments: Users can see assignments for buildings they have access to
+DROP POLICY IF EXISTS "Users can view building assignments" ON public.building_assignments;
 CREATE POLICY "Users can view building assignments" ON public.building_assignments
     FOR SELECT USING (
         building_id IN (
@@ -184,6 +188,7 @@ CREATE POLICY "Users can view building assignments" ON public.building_assignmen
     );
 
 -- AI Context: Users can only see context for their organizations
+DROP POLICY IF EXISTS "Users can view AI context" ON public.ai_context;
 CREATE POLICY "Users can view AI context" ON public.ai_context
     FOR SELECT USING (
         organization_id IN (
