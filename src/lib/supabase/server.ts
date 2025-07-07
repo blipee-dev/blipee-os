@@ -1,10 +1,10 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { Database } from '@/types/supabase'
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import type { Database } from "@/types/supabase";
 
 // Create a Supabase client for server-side usage
 export async function createServerSupabaseClient() {
-  const cookieStore = cookies()
+  const cookieStore = cookies();
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,31 +12,31 @@ export async function createServerSupabaseClient() {
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value
+          return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
           try {
-            cookieStore.set({ name, value, ...options })
+            cookieStore.set({ name, value, ...options });
           } catch (error) {
             // Handle cookie errors in server components
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
-            cookieStore.set({ name, value: '', ...options })
+            cookieStore.set({ name, value: "", ...options });
           } catch (error) {
             // Handle cookie errors in server components
           }
         },
       },
-    }
-  )
+    },
+  );
 }
 
 // Create admin client for server-side operations that bypass RLS
 export function createAdminClient() {
   if (!process.env.SUPABASE_SERVICE_KEY) {
-    throw new Error('SUPABASE_SERVICE_KEY is not set')
+    throw new Error("SUPABASE_SERVICE_KEY is not set");
   }
 
   return createServerClient<Database>(
@@ -44,10 +44,12 @@ export function createAdminClient() {
     process.env.SUPABASE_SERVICE_KEY!,
     {
       cookies: {
-        get() { return null },
+        get() {
+          return null;
+        },
         set() {},
         remove() {},
       },
-    }
-  )
+    },
+  );
 }

@@ -1,36 +1,40 @@
-'use client'
+"use client";
 
-import React from 'react'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { 
-  Building2, 
-  Sparkles, 
-  Brain, 
-  TrendingUp, 
-  Zap, 
-  Users, 
-  Shield, 
+import React from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  Leaf,
+  Sparkles,
+  Brain,
+  TrendingDown,
+  Zap,
+  Building2,
+  Shield,
   ChartBar,
-  Clock,
+  Globe,
   CheckCircle,
   ArrowRight,
   Play,
   Star,
-  Globe,
-  Cpu
-} from 'lucide-react'
+  Target,
+  FileText,
+  Users,
+  Gauge,
+  TreePine,
+  Factory,
+} from "lucide-react";
 
 // Animated background component
 function AnimatedBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-      <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+      <div className="absolute top-40 left-40 w-80 h-80 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       <div className="absolute bottom-40 right-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-6000"></div>
     </div>
-  )
+  );
 }
 
 // Hero section component
@@ -38,7 +42,7 @@ function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 py-20">
       <AnimatedBackground />
-      
+
       <div className="relative max-w-7xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -46,48 +50,51 @@ function HeroSection() {
           transition={{ duration: 0.6 }}
         >
           <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full mb-8">
-            <Sparkles className="w-4 h-4 text-yellow-400 mr-2" />
+            <Sparkles className="w-4 h-4 text-green-400 mr-2" />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              AI-Powered Building Intelligence
+              World&apos;s First Conversational Sustainability AI
             </span>
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              The ChatGPT
+            <span className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              Sustainability Intelligence
             </span>
             <br />
-            <span className="text-gray-900 dark:text-white">for Buildings</span>
+            <span className="text-gray-900 dark:text-white">
+              Through Conversation
+            </span>
           </h1>
-          
+
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto">
-            Transform your building management with conversational AI. 
-            Ask questions, get insights, and optimize operations—all through natural language.
+            Transform your environmental impact with AI that understands,
+            predicts, and acts. Track Scope 1, 2, and 3 emissions. Achieve
+            net-zero faster. All through natural conversation.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/signup">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl transition-all flex items-center justify-center"
+                className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl transition-all flex items-center justify-center"
               >
-                Start Free Trial
+                Start 7-Minute Setup
                 <ArrowRight className="ml-2 w-5 h-5" />
               </motion.button>
             </Link>
-            
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
             >
               <Play className="mr-2 w-5 h-5" />
-              Watch Demo
+              See AI in Action
             </motion.button>
           </div>
         </motion.div>
-        
+
         {/* Floating elements */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -98,16 +105,20 @@ function HeroSection() {
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 shadow-xl border border-white/20">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-white" />
+                <TrendingDown className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Energy Saved</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">32%</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  CO₂ Reduced
+                </p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  847 tons
+                </p>
               </div>
             </div>
           </div>
         </motion.div>
-        
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -116,19 +127,23 @@ function HeroSection() {
         >
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 shadow-xl border border-white/20">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
                 <Brain className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">AI Insights</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">1,247</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  AI Predictions
+                </p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  99.2% Accurate
+                </p>
               </div>
             </div>
           </div>
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
 
 // Features section
@@ -136,41 +151,47 @@ function FeaturesSection() {
   const features = [
     {
       icon: Brain,
-      title: "Conversational AI",
-      description: "Just ask questions in natural language and get instant answers about your building",
-      gradient: "from-blue-500 to-cyan-500"
+      title: "100% Conversational",
+      description:
+        "No dashboards, no complex forms. Just ask your AI anything about sustainability",
+      gradient: "from-green-500 to-emerald-500",
     },
     {
-      icon: Zap,
-      title: "Real-time Monitoring",
-      description: "Track energy usage, occupancy, and system performance in real-time",
-      gradient: "from-purple-500 to-pink-500"
+      icon: Gauge,
+      title: "Scope 1, 2, 3 Tracking",
+      description:
+        "Complete emissions tracking across your entire value chain, automatically",
+      gradient: "from-teal-500 to-cyan-500",
     },
     {
-      icon: Shield,
-      title: "Predictive Maintenance",
-      description: "AI predicts equipment failures before they happen, saving costs",
-      gradient: "from-green-500 to-emerald-500"
+      icon: Target,
+      title: "Science-Based Targets",
+      description:
+        "AI sets and tracks SBTi-aligned targets, ensuring you meet climate goals",
+      gradient: "from-blue-500 to-indigo-500",
     },
     {
-      icon: ChartBar,
-      title: "Advanced Analytics",
-      description: "Deep insights into building performance with beautiful visualizations",
-      gradient: "from-orange-500 to-red-500"
+      icon: FileText,
+      title: "Document Intelligence",
+      description:
+        "Upload any invoice, bill, or report. AI extracts emissions instantly",
+      gradient: "from-purple-500 to-pink-500",
     },
     {
-      icon: Users,
-      title: "Multi-tenant Ready",
-      description: "Manage multiple buildings and teams with granular permissions",
-      gradient: "from-indigo-500 to-purple-500"
+      icon: Building2,
+      title: "Building Excellence",
+      description:
+        "World-class building management capabilities integrated seamlessly",
+      gradient: "from-orange-500 to-red-500",
     },
     {
       icon: Globe,
-      title: "ESG Reporting",
-      description: "Automated sustainability reporting for compliance and certification",
-      gradient: "from-teal-500 to-blue-500"
-    }
-  ]
+      title: "Compliance Automation",
+      description:
+        "Stay ahead of regulations with AI that monitors and ensures compliance",
+      gradient: "from-indigo-500 to-purple-500",
+    },
+  ];
 
   return (
     <section className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
@@ -183,15 +204,16 @@ function FeaturesSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Powerful Features
+            <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              Revolutionary Capabilities
             </span>
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Everything you need to transform your building operations
+            The most advanced sustainability platform, powered by AI that
+            predicts, advises, and acts
           </p>
         </motion.div>
-        
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <motion.div
@@ -202,7 +224,9 @@ function FeaturesSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
               <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-white/20 hover:shadow-2xl transition-all group">
-                <div className={`w-14 h-14 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                <div
+                  className={`w-14 h-14 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}
+                >
                   <feature.icon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
@@ -217,21 +241,122 @@ function FeaturesSection() {
         </div>
       </div>
     </section>
-  )
+  );
+}
+
+// Use cases section
+function UseCasesSection() {
+  const useCases = [
+    {
+      icon: Building2,
+      title: "For Buildings",
+      query: "Reduce our building emissions by 40% this year",
+      response:
+        "I've analyzed your energy patterns and identified 7 optimization opportunities that will reduce emissions by 42% while saving $127,000 annually...",
+      gradient: "from-blue-500 to-cyan-500",
+    },
+    {
+      icon: Factory,
+      title: "For Manufacturing",
+      query: "What's our carbon footprint per product unit?",
+      response:
+        "Each unit produces 12.7 kg CO₂e. Main hotspots: raw materials (45%), energy (30%), transport (25%). I recommend switching to Supplier B to reduce by 23%...",
+      gradient: "from-purple-500 to-pink-500",
+    },
+    {
+      icon: TreePine,
+      title: "For Any Industry",
+      query: "Help us achieve net-zero by 2030",
+      response:
+        "Based on your current trajectory, here's your personalized roadmap: 1) Renewable energy transition by Q2 2025, 2) Supply chain optimization saving 2,847 tons CO₂...",
+      gradient: "from-green-500 to-emerald-500",
+    },
+  ];
+
+  return (
+    <section className="py-20 px-4 bg-white dark:bg-gray-800">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            Works for{" "}
+            <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              Every Industry
+            </span>
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            See how organizations achieve their sustainability goals through
+            conversation
+          </p>
+        </motion.div>
+
+        <div className="space-y-8">
+          {useCases.map((useCase, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-8 shadow-lg"
+            >
+              <div className="flex items-start gap-6">
+                <div
+                  className={`w-12 h-12 bg-gradient-to-r ${useCase.gradient} rounded-xl flex items-center justify-center flex-shrink-0`}
+                >
+                  <useCase.icon className="w-7 h-7 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+                    {useCase.title}
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                        You ask:
+                      </p>
+                      <p className="text-gray-700 dark:text-gray-300">
+                        &quot;{useCase.query}&quot;
+                      </p>
+                    </div>
+                    <div
+                      className={`bg-gradient-to-r ${useCase.gradient} bg-opacity-10 rounded-lg p-4 border border-gray-200 dark:border-gray-700`}
+                    >
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                        AI responds:
+                      </p>
+                      <p className="text-gray-700 dark:text-gray-300">
+                        {useCase.response}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 // Stats section
 function StatsSection() {
   const stats = [
-    { value: "32%", label: "Average Energy Savings", suffix: "" },
-    { value: "1.2M", label: "Buildings Optimized", suffix: "+" },
-    { value: "98", label: "Customer Satisfaction", suffix: "%" },
-    { value: "24/7", label: "AI Monitoring", suffix: "" }
-  ]
+    { value: "90%", label: "Reduction in Manual Work", suffix: "" },
+    { value: "7", label: "Minutes to Full Setup", suffix: "min" },
+    { value: "99.2", label: "AI Accuracy Rate", suffix: "%" },
+    { value: "847", label: "Tons CO₂ Saved Daily", suffix: "t" },
+  ];
 
   return (
     <section className="py-20 px-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-emerald-600"></div>
       <div className="relative max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((stat, index) => (
@@ -253,13 +378,28 @@ function StatsSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
-// Demo section
-function DemoSection() {
+// AI capabilities section
+function AICapabilitiesSection() {
+  const capabilities = [
+    "Emission tracking and forecasting",
+    "Predictive analytics for equipment",
+    "Compliance monitoring and alerts",
+    "Supply chain optimization",
+    "Science-based target setting",
+    "Automated sustainability reporting",
+    "Real-time energy optimization",
+    "Carbon credit management",
+    "Stakeholder communication",
+    "Risk assessment and mitigation",
+    "Investment ROI calculations",
+    "Benchmark against peers",
+  ];
+
   return (
-    <section className="py-20 px-4 bg-white dark:bg-gray-800">
+    <section className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
@@ -269,39 +409,29 @@ function DemoSection() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              See Blipee OS in{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Action
+              12 AI Brains Working{" "}
+              <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                For You 24/7
               </span>
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Watch how facility managers save hours every week by simply talking to their buildings.
+              Our multi-brain AI architecture ensures every aspect of
+              sustainability is covered, from real-time monitoring to predictive
+              analytics and autonomous actions.
             </p>
-            
-            <div className="space-y-4">
-              {[
-                "Ask about energy consumption trends",
-                "Get maintenance recommendations",
-                "Monitor real-time occupancy",
-                "Generate compliance reports instantly"
-              ].map((item, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
-                  <span className="text-lg text-gray-700 dark:text-gray-300">{item}</span>
+
+            <div className="grid grid-cols-2 gap-3">
+              {capabilities.map((capability, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {capability}
+                  </span>
                 </div>
               ))}
             </div>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="mt-8 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl transition-all flex items-center"
-            >
-              Request Live Demo
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </motion.button>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -309,71 +439,65 @@ function DemoSection() {
             transition={{ duration: 0.6 }}
             className="relative"
           >
-            <div className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-2xl p-8 shadow-2xl">
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xl">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <Brain className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="font-semibold text-gray-900 dark:text-white">Blipee AI</span>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      &quot;What&apos;s the energy consumption trend for Building A this month?&quot;
-                    </p>
-                  </div>
-                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg p-3 ml-auto max-w-[80%]">
-                    <p className="text-sm text-white">
-                      Building A consumed 15% less energy compared to last month, 
-                      saving approximately $2,847. Peak usage occurs between 2-4 PM.
-                    </p>
-                  </div>
-                </div>
+            <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 rounded-2xl p-8 shadow-2xl">
+              <div className="grid grid-cols-3 gap-4">
+                {[...Array(12)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    animate={{
+                      scale: [1, 1.1, 1],
+                      opacity: [0.7, 1, 0.7],
+                    }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 3,
+                      delay: i * 0.2,
+                    }}
+                    className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg"
+                  >
+                    <Brain className="w-8 h-8 text-green-500 mx-auto" />
+                  </motion.div>
+                ))}
               </div>
+              <p className="text-center mt-6 text-gray-600 dark:text-gray-300 font-semibold">
+                Multi-Brain AI Architecture
+              </p>
             </div>
-            
-            {/* Floating badge */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 3 }}
-              className="absolute -top-4 -right-4 bg-green-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg"
-            >
-              Live Demo
-            </motion.div>
           </motion.div>
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 // Testimonials section
 function TestimonialsSection() {
   const testimonials = [
     {
-      quote: "Blipee OS transformed how we manage our 50+ buildings. The AI insights alone saved us $100K in the first quarter.",
+      quote:
+        "Blipee OS helped us achieve our 2030 net-zero target 5 years early. The AI insights are game-changing.",
       author: "Sarah Chen",
-      role: "VP of Operations, TechCorp",
-      rating: 5
+      role: "Chief Sustainability Officer, TechCorp",
+      rating: 5,
     },
     {
-      quote: "Finally, a building management system that speaks human. Our team adopted it instantly.",
+      quote:
+        "Finally, a platform that makes sustainability management as easy as having a conversation. ROI in 3 months.",
       author: "Marcus Johnson",
-      role: "Facility Director, Global Retail Inc",
-      rating: 5
+      role: "VP Operations, Global Manufacturing",
+      rating: 5,
     },
     {
-      quote: "The predictive maintenance feature prevented 3 major HVAC failures. ROI was immediate.",
+      quote:
+        "The document parsing alone saves us 40 hours per week. It found $2M in emission reduction opportunities.",
       author: "Emily Rodriguez",
-      role: "Property Manager, Urban Spaces",
-      rating: 5
-    }
-  ]
+      role: "Sustainability Director, Retail Giant",
+      rating: 5,
+    },
+  ];
 
   return (
-    <section className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
+    <section className="py-20 px-4 bg-white dark:bg-gray-800">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -383,15 +507,15 @@ function TestimonialsSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Loved by Teams
+            <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              Trusted by Leaders
             </span>
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300">
-            Join thousands of happy customers worldwide
+            Join organizations achieving their sustainability goals faster
           </p>
         </motion.div>
-        
+
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
             <motion.div
@@ -400,11 +524,14 @@ function TestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl"
+              className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-8 shadow-xl"
             >
               <div className="flex mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                  <Star
+                    key={i}
+                    className="w-5 h-5 text-yellow-400 fill-current"
+                  />
                 ))}
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-6 italic">
@@ -423,14 +550,14 @@ function TestimonialsSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 // CTA section
 function CTASection() {
   return (
     <section className="py-20 px-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600"></div>
       <div className="relative max-w-4xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -439,13 +566,13 @@ function CTASection() {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Transform Your Buildings?
+            Start Your Sustainability Transformation
           </h2>
           <p className="text-xl text-white/90 mb-8">
-            Join the AI revolution in building management. 
-            Start your free 30-day trial today.
+            Join the AI revolution in sustainability management. Set up in 7
+            minutes. See results immediately.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/signup">
               <motion.button
@@ -457,23 +584,23 @@ function CTASection() {
                 <ArrowRight className="ml-2 w-5 h-5" />
               </motion.button>
             </Link>
-            
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-4 bg-white/20 backdrop-blur-sm border-2 border-white text-white rounded-full font-semibold text-lg shadow-lg hover:bg-white/30 transition-all"
             >
-              Talk to Sales
+              Schedule Demo
             </motion.button>
           </div>
-          
+
           <p className="mt-8 text-white/70">
             No credit card required • 30-day free trial • Cancel anytime
           </p>
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
 
 export default function LandingPage() {
@@ -484,27 +611,39 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center">
-              <Building2 className="w-8 h-8 text-blue-600" />
+              <Leaf className="w-8 h-8 text-green-600" />
               <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
                 Blipee OS
               </span>
             </Link>
-            
+
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="#features" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+              <Link
+                href="#features"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              >
                 Features
               </Link>
-              <Link href="#demo" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                Demo
+              <Link
+                href="#industries"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              >
+                Industries
               </Link>
-              <Link href="#pricing" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                Pricing
+              <Link
+                href="#ai"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              >
+                AI Technology
               </Link>
-              <Link href="#about" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+              <Link
+                href="#about"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              >
                 About
               </Link>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <Link href="/signin">
                 <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium">
@@ -512,7 +651,7 @@ export default function LandingPage() {
                 </button>
               </Link>
               <Link href="/signup">
-                <button className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all">
+                <button className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all">
                   Get Started
                 </button>
               </Link>
@@ -520,67 +659,117 @@ export default function LandingPage() {
           </div>
         </div>
       </nav>
-      
+
       {/* Main content */}
       <main>
         <HeroSection />
         <FeaturesSection />
+        <UseCasesSection />
         <StatsSection />
-        <DemoSection />
+        <AICapabilitiesSection />
         <TestimonialsSection />
         <CTASection />
       </main>
-      
+
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center mb-4">
-                <Building2 className="w-8 h-8 text-blue-400" />
+                <Leaf className="w-8 h-8 text-green-400" />
                 <span className="ml-2 text-xl font-bold">Blipee OS</span>
               </div>
               <p className="text-gray-400">
-                The ChatGPT for Buildings. Transform your building management with AI.
+                The world&apos;s first conversational sustainability AI
+                platform.
               </p>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white">Features</Link></li>
-                <li><Link href="#" className="hover:text-white">Pricing</Link></li>
-                <li><Link href="#" className="hover:text-white">Demo</Link></li>
-                <li><Link href="#" className="hover:text-white">API</Link></li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Industries
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    API
+                  </Link>
+                </li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white">About</Link></li>
-                <li><Link href="#" className="hover:text-white">Blog</Link></li>
-                <li><Link href="#" className="hover:text-white">Careers</Link></li>
-                <li><Link href="#" className="hover:text-white">Contact</Link></li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Careers
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Contact
+                  </Link>
+                </li>
               </ul>
             </div>
-            
+
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
+              <h4 className="font-semibold mb-4">Resources</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white">Privacy</Link></li>
-                <li><Link href="#" className="hover:text-white">Terms</Link></li>
-                <li><Link href="#" className="hover:text-white">Security</Link></li>
-                <li><Link href="#" className="hover:text-white">Compliance</Link></li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Documentation
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Support
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Partners
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Compliance
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Blipee OS. All rights reserved.</p>
+            <p>&copy; 2025 Blipee OS. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }

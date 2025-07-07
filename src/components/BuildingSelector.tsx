@@ -1,55 +1,57 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Building2, ChevronDown, Check, Plus, MapPin } from 'lucide-react'
-import { useAuth } from '@/lib/auth/context'
-import type { Building } from '@/types/auth'
+import React, { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Building2, ChevronDown, Check, Plus, MapPin } from "lucide-react";
+import { useAuth } from "@/lib/auth/context";
+import type { Building } from "@/types/auth";
 
 interface BuildingSelectorProps {
-  currentBuilding?: Building | null
-  onBuildingChange: (building: Building) => void
-  compact?: boolean
+  currentBuilding?: Building | null;
+  onBuildingChange: (building: Building) => void;
+  compact?: boolean;
 }
 
-export function BuildingSelector({ 
-  currentBuilding, 
+export function BuildingSelector({
+  currentBuilding,
   onBuildingChange,
-  compact = false 
+  compact = false,
 }: BuildingSelectorProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [buildings, setBuildings] = useState<Building[]>([])
-  const [loading, setLoading] = useState(true)
-  const { session } = useAuth()
+  const [isOpen, setIsOpen] = useState(false);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { session } = useAuth();
 
   const loadBuildings = useCallback(async () => {
     try {
-      const response = await fetch(`/api/organizations/${session?.current_organization.id}/buildings`)
+      const response = await fetch(
+        `/api/organizations/${session?.current_organization.id}/buildings`,
+      );
       if (response.ok) {
-        const data = await response.json()
-        setBuildings(data.data)
-        
+        const data = await response.json();
+        setBuildings(data.data);
+
         // If no current building, select the first one
         if (!currentBuilding && data.data.length > 0) {
-          onBuildingChange(data.data[0])
+          onBuildingChange(data.data[0]);
         }
       }
     } catch (error) {
-      console.error('Failed to load buildings:', error)
+      console.error("Failed to load buildings:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [session?.current_organization, currentBuilding, onBuildingChange])
+  }, [session?.current_organization, currentBuilding, onBuildingChange]);
 
   useEffect(() => {
     if (session?.current_organization) {
-      loadBuildings()
+      loadBuildings();
     }
-  }, [session?.current_organization, loadBuildings])
+  }, [session?.current_organization, loadBuildings]);
 
   function handleBuildingSelect(building: Building) {
-    onBuildingChange(building)
-    setIsOpen(false)
+    onBuildingChange(building);
+    setIsOpen(false);
   }
 
   if (loading) {
@@ -57,7 +59,7 @@ export function BuildingSelector({
       <div className="animate-pulse">
         <div className="h-10 bg-gray-200 rounded-lg w-48"></div>
       </div>
-    )
+    );
   }
 
   if (buildings.length === 0) {
@@ -66,7 +68,7 @@ export function BuildingSelector({
         <Plus className="w-4 h-4 mr-2" />
         Add Building
       </button>
-    )
+    );
   }
 
   if (compact) {
@@ -78,9 +80,11 @@ export function BuildingSelector({
         >
           <Building2 className="w-4 h-4 mr-2 text-gray-500" />
           <span className="truncate max-w-[150px]">
-            {currentBuilding?.name || 'Select Building'}
+            {currentBuilding?.name || "Select Building"}
           </span>
-          <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown
+            className={`w-4 h-4 ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          />
         </button>
 
         <AnimatePresence>
@@ -101,9 +105,13 @@ export function BuildingSelector({
                     <div className="flex items-center">
                       <Building2 className="w-4 h-4 mr-3 text-gray-400" />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{building.name}</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {building.name}
+                        </p>
                         {building.city && (
-                          <p className="text-xs text-gray-500">{building.city}</p>
+                          <p className="text-xs text-gray-500">
+                            {building.city}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -117,7 +125,7 @@ export function BuildingSelector({
           )}
         </AnimatePresence>
       </div>
-    )
+    );
   }
 
   // Full size version
@@ -139,7 +147,9 @@ export function BuildingSelector({
             <Building2 className="w-6 h-6 text-blue-600" />
           </div>
           <div className="flex-1">
-            <h4 className="font-medium text-gray-900">{currentBuilding.name}</h4>
+            <h4 className="font-medium text-gray-900">
+              {currentBuilding.name}
+            </h4>
             {currentBuilding.address && (
               <p className="text-sm text-gray-500 flex items-center mt-1">
                 <MapPin className="w-3 h-3 mr-1" />
@@ -159,11 +169,13 @@ export function BuildingSelector({
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="mt-4 pt-4 border-t border-gray-200"
           >
-            <h4 className="text-sm font-medium text-gray-700 mb-3">All Buildings</h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-3">
+              All Buildings
+            </h4>
             <div className="space-y-2">
               {buildings.map((building) => (
                 <button
@@ -171,13 +183,15 @@ export function BuildingSelector({
                   onClick={() => handleBuildingSelect(building)}
                   className={`w-full p-3 rounded-lg border text-left transition-all ${
                     currentBuilding?.id === building.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900">{building.name}</p>
+                      <p className="font-medium text-gray-900">
+                        {building.name}
+                      </p>
                       <p className="text-sm text-gray-500">{building.city}</p>
                     </div>
                     {currentBuilding?.id === building.id && (
@@ -191,5 +205,5 @@ export function BuildingSelector({
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }

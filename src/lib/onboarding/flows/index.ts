@@ -1,16 +1,16 @@
-export { subscriptionOwnerFlow } from './subscription-owner'
-export { siteManagerFlow } from './site-manager'
-export { technicianFlow } from './technician'
-export { groupManagerFlow } from './group-manager'
-export { tenantFlow } from './tenant'
+export { subscriptionOwnerFlow } from "./subscription-owner";
+export { siteManagerFlow } from "./site-manager";
+export { technicianFlow } from "./technician";
+export { groupManagerFlow } from "./group-manager";
+export { tenantFlow } from "./tenant";
 
-import { OnboardingFlow } from '@/types/onboarding'
-import { UserRole } from '@/types/auth'
-import { subscriptionOwnerFlow } from './subscription-owner'
-import { siteManagerFlow } from './site-manager'
-import { technicianFlow } from './technician'
-import { groupManagerFlow } from './group-manager'
-import { tenantFlow } from './tenant'
+import { OnboardingFlow } from "@/types/onboarding";
+import { UserRole } from "@/types/auth";
+import { subscriptionOwnerFlow } from "./subscription-owner";
+import { siteManagerFlow } from "./site-manager";
+import { technicianFlow } from "./technician";
+import { groupManagerFlow } from "./group-manager";
+import { tenantFlow } from "./tenant";
 
 export const onboardingFlows: Record<UserRole, OnboardingFlow> = {
   [UserRole.SUBSCRIPTION_OWNER]: subscriptionOwnerFlow,
@@ -20,9 +20,9 @@ export const onboardingFlows: Record<UserRole, OnboardingFlow> = {
   [UserRole.TECHNICIAN]: technicianFlow,
   [UserRole.GROUP_MANAGER]: groupManagerFlow,
   [UserRole.TENANT]: tenantFlow,
-  [UserRole.GUEST]: tenantFlow // Simplified version of tenant flow
-}
+  [UserRole.GUEST]: tenantFlow, // Simplified version of tenant flow
+};
 
 export function getOnboardingFlow(role: UserRole): OnboardingFlow {
-  return onboardingFlows[role] || tenantFlow
+  return onboardingFlows[role] || tenantFlow;
 }

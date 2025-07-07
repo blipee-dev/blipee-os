@@ -1,91 +1,90 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { ConversationInterface } from "@/components/blipee-os/ConversationInterface";
-import { useBuilding } from "@/contexts/BuildingContext";
 import { useAuth } from "@/lib/auth/context";
-import { Building2, AlertCircle } from "lucide-react";
-import Link from "next/link";
+import { Leaf, TrendingDown, Target, FileText } from "lucide-react";
 
 export default function DashboardPage() {
-  const { building } = useBuilding();
   const { session } = useAuth();
 
-  // If no building selected, show selection prompt
-  if (!building) {
-    return (
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-8 h-8 text-gray-400" />
-          </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-            Select a Building
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Choose a building from the selector above to start managing it with
-            Blipee AI.
-          </p>
+  // For now, we'll use a simplified context that focuses on sustainability
+  // In the future, this can be enhanced with actual organization/building data
+  const sustainabilityContext = {
+    id: session?.current_organization?.id || "demo",
+    name: session?.current_organization?.name || "Your Organization",
+    organizationId: session?.current_organization?.id || "demo",
+    metadata: {
+      size_sqft: 50000,
+      floors: 5,
+      occupancy_types: ["office", "mixed"],
+      age_category: "modern",
+      systems_baseline: { type: "sustainable" },
+    },
+  };
 
-          {/* Show if user has permission to add buildings */}
-          {session?.permissions.some(
-            (p) => p.resource === "buildings" && p.action === "create",
-          ) && (
-            <Link
-              href="/buildings/new"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Add New Building
-            </Link>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // If building is pending setup
-  if (building.status === "pending_setup") {
-    return (
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-yellow-600" />
-          </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-            Building Setup Required
-          </h2>
-          <p className="text-gray-600 mb-6">
-            {building.name} needs to be configured before you can start managing
-            it.
-          </p>
-          <Link
-            href={`/buildings/${building.id}/setup`}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Complete Setup
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // Pass building context to conversation interface
   return (
-    <div className="h-full">
-      <ConversationInterface
-        buildingContext={{
-          id: building.id,
-          name: building.name,
-          organizationId: session?.current_organization.id || "",
-          metadata: {
-            size_sqft: building.size_sqft,
-            floors: building.floors,
-            occupancy_types: building.occupancy_types,
-            age_category: building.age_category,
-            systems_baseline: building.metadata?.systems_baseline,
-          },
-        }}
-      />
+    <div className="h-full relative">
+      {/* Quick stats banner */}
+      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-green-200 dark:border-green-800">
+        <div className="px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center">
+                  <TrendingDown className="w-5 h-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Monthly Reduction
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    -12.3%
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-800 rounded-lg flex items-center justify-center">
+                  <Target className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Target Progress
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    67%
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-teal-100 dark:bg-teal-800 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Reports Ready
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    3 new
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <Leaf className="w-4 h-4 text-green-500" />
+              <span>Sustainability First Platform</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main conversation interface with padding for stats banner */}
+      <div className="h-full pt-16">
+        <ConversationInterface buildingContext={sustainabilityContext} />
+      </div>
     </div>
   );
 }

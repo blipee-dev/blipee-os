@@ -1,102 +1,102 @@
-'use client'
+"use client";
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from "react";
 
 export function AmbientBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-    let animationId: number
-    const particles: Particle[] = []
-    const particleCount = 50
+    let animationId: number;
+    const particles: Particle[] = [];
+    const particleCount = 50;
 
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     class Particle {
-      x: number
-      y: number
-      size: number
-      speedX: number
-      speedY: number
-      opacity: number
-      color: string
+      x: number;
+      y: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      opacity: number;
+      color: string;
 
       constructor(canvasWidth: number, canvasHeight: number) {
-        this.x = Math.random() * canvasWidth
-        this.y = Math.random() * canvasHeight
-        this.size = Math.random() * 2 + 0.5
-        this.speedX = (Math.random() - 0.5) * 0.5
-        this.speedY = (Math.random() - 0.5) * 0.5
-        this.opacity = Math.random() * 0.5 + 0.2
-        this.color = Math.random() > 0.5 ? '#8B5CF6' : '#0EA5E9'
+        this.x = Math.random() * canvasWidth;
+        this.y = Math.random() * canvasHeight;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.opacity = Math.random() * 0.5 + 0.2;
+        this.color = Math.random() > 0.5 ? "#8B5CF6" : "#0EA5E9";
       }
 
       update(canvasWidth: number, canvasHeight: number) {
-        this.x += this.speedX
-        this.y += this.speedY
+        this.x += this.speedX;
+        this.y += this.speedY;
 
-        if (this.x > canvasWidth) this.x = 0
-        if (this.x < 0) this.x = canvasWidth
-        if (this.y > canvasHeight) this.y = 0
-        if (this.y < 0) this.y = canvasHeight
+        if (this.x > canvasWidth) this.x = 0;
+        if (this.x < 0) this.x = canvasWidth;
+        if (this.y > canvasHeight) this.y = 0;
+        if (this.y < 0) this.y = canvasHeight;
       }
 
       draw() {
-        if (!ctx) return
-        ctx.save()
-        ctx.globalAlpha = this.opacity
-        ctx.fillStyle = this.color
-        ctx.beginPath()
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
-        ctx.fill()
-        
+        if (!ctx) return;
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+
         // Add glow effect
-        ctx.shadowBlur = 10
-        ctx.shadowColor = this.color
-        ctx.fill()
-        ctx.restore()
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+        ctx.restore();
       }
     }
 
     // Initialize particles
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle(canvas.width, canvas.height))
+      particles.push(new Particle(canvas.width, canvas.height));
     }
 
     // Animation loop
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      
-      particles.forEach(particle => {
-        particle.update(canvas.width, canvas.height)
-        particle.draw()
-      })
-      
-      animationId = requestAnimationFrame(animate)
-    }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    animate()
+      particles.forEach((particle) => {
+        particle.update(canvas.width, canvas.height);
+        particle.draw();
+      });
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animate();
 
     // Handle resize
     const handleResize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
 
-    window.addEventListener('resize', handleResize)
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      cancelAnimationFrame(animationId)
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
+      cancelAnimationFrame(animationId);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <canvas
@@ -104,5 +104,5 @@ export function AmbientBackground() {
       className="fixed inset-0 pointer-events-none z-0"
       style={{ opacity: 0.3 }}
     />
-  )
+  );
 }
