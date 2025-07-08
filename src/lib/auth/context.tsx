@@ -26,7 +26,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    loadSession();
+    // Only load session on client side
+    if (typeof window !== 'undefined') {
+      loadSession();
+    }
   }, []);
 
   async function loadSession() {
@@ -171,6 +174,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
+    // During SSR or when not wrapped in AuthProvider, return a default value
+    if (typeof window === 'undefined') {
+      return {
+        session: null,
+        user: null,
+        organization: null,
+        loading: true,
+        error: null,
+        signIn: async () => {},
+        signUp: async () => {},
+        signOut: async () => {},
+        switchOrganization: async () => {},
+        refreshSession: async () => {},
+      } as AuthContextType;
+    }
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;

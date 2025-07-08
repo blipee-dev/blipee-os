@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { UserRole } from "@/types/auth";
+import { ensureUserProfile, repairUserData } from "./auth-fix";
 import type {
   AuthResponse,
   Session,
@@ -21,7 +22,106 @@ export class AuthService {
   }
 
   /**
-   * Sign up a new user and create their organization
+   * Sign up a new user with proper transaction handling
+   */
+  async signUpWithTransaction(
+    email: string,
+    password: string,
+    metadata: SignUpMetadata,
+  ): Promise<AuthResponse> {
+    const supabase = await this.getSupabase();
+    let userId: string | null = null;
+
+    try {
+      // Step 1: Create auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: metadata.full_name,
+            role: metadata.role || "subscription_owner",
+          },
+        },
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("User creation failed");
+      
+      userId = authData.user.id;
+
+      // Step 2: Ensure user profile exists (handles trigger failures)
+      await ensureUserProfile(userId, email, {
+        full_name: metadata.full_name,
+        role: metadata.role,
+      });
+
+      // Step 3: Create organization if company name provided
+      if (metadata.company_name) {
+        const orgSlug = this.generateSlug(metadata.company_name);
+
+        const { error: orgError } = await supabase.rpc(
+          "create_organization_with_owner",
+          {
+            org_name: metadata.company_name,
+            org_slug: orgSlug,
+            owner_id: userId,
+          },
+        );
+
+        if (orgError) {
+          // If org creation fails, we should still have a valid user
+          console.error("Organization creation failed:", orgError);
+          // Don't throw - user can create org later
+        }
+      }
+
+      // Step 4: Get user profile
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (!profile) {
+        throw new Error("Failed to retrieve user profile");
+      }
+
+      // Step 5: Get session
+      const session = await this.getSession();
+
+      return {
+        user: profile,
+        session: session || {
+          user: profile,
+          organizations: [],
+          current_organization: null,
+          permissions: [],
+          expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+        },
+        access_token: authData.session?.access_token || "",
+        refresh_token: authData.session?.refresh_token || "",
+      };
+    } catch (error) {
+      // Cleanup on failure
+      if (userId) {
+        try {
+          // Note: This requires service role key
+          const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
+          if (deleteError) {
+            console.error("Failed to cleanup user after error:", deleteError);
+          }
+        } catch (cleanupError) {
+          console.error("Cleanup failed:", cleanupError);
+        }
+      }
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Sign up a new user and create their organization (legacy method - will update to use transaction)
    */
   async signUp(
     email: string,

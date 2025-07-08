@@ -39,7 +39,14 @@
       "Bash(curl:*)",
       "Bash(echo \"Dashboard URL: https://$CODESPACE_NAME-3000.app.github.dev/dashboard\")",
       "Bash(pkill:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(gh auth:*)",
+      "Bash(unset GITHUB_TOKEN)",
+      "Bash(claude-code install-github-app)",
+      "Bash(claude install-github-app)",
+      "Bash(/install-github-app)",
+      "Bash(npm ls:*)",
+      "Bash(touch:*)"
     ],
     "deny": []
   }

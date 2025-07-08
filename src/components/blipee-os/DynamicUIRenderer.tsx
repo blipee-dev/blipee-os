@@ -141,7 +141,14 @@ export function DynamicUIRenderer({ components }: DynamicUIRendererProps) {
         return <DashboardComponent key={key} {...component.props} />;
 
       case "setup-checklist":
-        return <SetupChecklist key={key} {...component.props} />;
+        return <SetupChecklist 
+          key={key} 
+          title={component.props.title || "Setup Progress"}
+          steps={component.props.steps || []}
+          completedCount={component.props.completedCount || 0}
+          totalCount={component.props.totalCount || component.props.steps?.length || 0}
+          {...component.props} 
+        />;
 
       case "quick-start-upload":
         return <QuickStartUpload key={key} {...component.props} />;

@@ -24,8 +24,9 @@ export function BuildingSelector({
 
   const loadBuildings = useCallback(async () => {
     try {
+      if (!session?.current_organization) return;
       const response = await fetch(
-        `/api/organizations/${session?.current_organization.id}/buildings`,
+        `/api/organizations/${session.current_organization.id}/buildings`,
       );
       if (response.ok) {
         const data = await response.json();
