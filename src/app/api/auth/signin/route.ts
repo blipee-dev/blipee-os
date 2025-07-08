@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authService } from "@/lib/auth/service";
+import { sessionAuth } from "@/lib/auth/session-auth";
+import { sessionManager } from "@/lib/session/manager";
 import { z } from "zod";
 
 export const dynamic = 'force-dynamic';
@@ -16,10 +18,11 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validated = signInSchema.parse(body);
 
-    // Sign in user
-    const result = await authService.signIn(
+    // Sign in user with session creation
+    const result = await sessionAuth.signIn(
       validated.email,
       validated.password,
+      request
     );
 
     // Check if MFA is required
@@ -34,10 +37,22 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
+    // Create response with session cookie
+    const response = NextResponse.json({
       success: true,
-      data: result,
+      data: {
+        user: result.user,
+        session: result.session,
+      },
     });
+
+    // Set session cookie
+    if (result.sessionId) {
+      const cookieHeader = sessionManager['sessionService'].generateCookieHeader(result.sessionId);
+      response.headers.set('Set-Cookie', cookieHeader);
+    }
+
+    return response;
   } catch (error: any) {
     console.error("Signin error:", error);
 
