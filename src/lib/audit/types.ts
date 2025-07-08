@@ -73,6 +73,12 @@ export enum AuditEventType {
   SYSTEM_CONFIG_CHANGED = 'system.config.changed',
   SYSTEM_BACKUP_CREATED = 'system.backup.created',
   SYSTEM_BACKUP_RESTORED = 'system.backup.restored',
+  
+  // Compliance Events
+  POLICY_CREATED = 'policy.created',
+  POLICY_UPDATED = 'policy.updated',
+  REPORT_GENERATED = 'report.generated',
+  DATA_ACCESS = 'data.access',
 }
 
 export enum AuditEventSeverity {
