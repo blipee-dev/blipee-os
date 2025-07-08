@@ -11,6 +11,7 @@ import { SecurityDashboard } from '@/components/security/SecurityDashboard';
 import { AuditDashboard } from '@/components/audit/AuditDashboard';
 import { RecoverySettings } from '@/components/auth/recovery/RecoverySettings';
 import { RecoveryDashboard } from '@/components/auth/recovery/RecoveryDashboard';
+import WebAuthnDashboard from '@/components/auth/webauthn/WebAuthnDashboard';
 
 export default function SecuritySettingsPage() {
   const [showMFASetup, setShowMFASetup] = useState(false);
@@ -217,6 +218,28 @@ export default function SecuritySettingsPage() {
               Recovery Statistics
             </h2>
             <RecoveryDashboard organizationId={user?.id} />
+          </div>
+        </GlassCard>
+      </motion.div>
+
+      {/* WebAuthn/FIDO2 Management */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+      >
+        <GlassCard>
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Key className="h-5 w-5 text-blue-500" />
+                WebAuthn / FIDO2 Security Keys
+              </h2>
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
+                Manage hardware security keys and biometric authentication
+              </p>
+            </div>
+            <WebAuthnDashboard />
           </div>
         </GlassCard>
       </motion.div>
