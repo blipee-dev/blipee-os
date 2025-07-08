@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validated = signUpSchema.parse(body);
 
-    // Sign up user
-    const result = await authService.signUp(
+    // Sign up user with transaction support
+    const result = await authService.signUpWithTransaction(
       validated.email,
       validated.password,
       {

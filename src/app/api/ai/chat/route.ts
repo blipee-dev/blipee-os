@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChatRequest, ChatResponse } from "@/types/conversation";
 import { aiService } from "@/lib/ai/service";
+import { withAuth } from "@/middleware/auth-new";
 import {
   BLIPEE_SYSTEM_PROMPT,
   buildPrompt,
@@ -147,7 +148,7 @@ const demoResponses: Record<string, Partial<ChatResponse>> = {
   },
 };
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest, userId: string) => {
   try {
     const body = await request.json();
     const { message, attachments, organizationId, buildingId } = body;
@@ -199,7 +200,7 @@ export async function POST(request: NextRequest) {
             const docResponse = await handleDocumentInChat(
               file,
               organizationId || "demo-org",
-              body.userId || "demo-user",
+              userId,
               "openai", // Use OpenAI for document extraction as requested
             );
 
@@ -365,7 +366,7 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-}
+});
 
 // Helper function to generate intelligent suggestions
 function generateIntelligentSuggestions(intelligentResponse: any): string[] {

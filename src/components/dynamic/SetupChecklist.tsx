@@ -138,7 +138,7 @@ export function SetupChecklist({
       <div className="mt-6 p-4 bg-blue-500/[0.1] border border-blue-500/[0.2] rounded-lg">
         <p className="text-sm text-blue-400">
           💡 <span className="font-medium">Pro tip:</span> You can complete these steps in any order. 
-          I'll help you through each one!
+          I&apos;ll help you through each one!
         </p>
       </div>
     </motion.div>

@@ -28,7 +28,9 @@ export interface UIComponent {
     | "efficiency-controls"
     | "impact-projection"
     | "building-dashboard"
-    | "dashboard";
+    | "dashboard"
+    | "setup-checklist"
+    | "quick-start-upload";
   props: Record<string, any>;
   layout?: {
     width?: string;
