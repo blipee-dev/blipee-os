@@ -15,6 +15,7 @@ import {
   Bell,
   Code,
   BarChart3,
+  Zap,
 } from 'lucide-react';
 
 const navigationItems = [
@@ -42,6 +43,11 @@ const navigationItems = [
     title: 'SSO Configuration',
     href: '/settings/sso',
     icon: Code,
+  },
+  {
+    title: 'Webhooks',
+    href: '/settings/webhooks',
+    icon: Zap,
   },
   {
     title: 'Organization',
