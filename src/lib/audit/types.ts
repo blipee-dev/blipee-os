@@ -7,6 +7,17 @@ export enum AuditEventType {
   AUTH_MFA_DISABLED = 'auth.mfa.disabled',
   AUTH_MFA_VERIFIED = 'auth.mfa.verified',
   AUTH_MFA_FAILED = 'auth.mfa.failed',
+  
+  // WebAuthn Events
+  MFA_WEBAUTHN_REGISTRATION_STARTED = 'mfa.webauthn.registration.started',
+  MFA_WEBAUTHN_REGISTERED = 'mfa.webauthn.registered',
+  MFA_WEBAUTHN_REGISTRATION_FAILED = 'mfa.webauthn.registration.failed',
+  MFA_WEBAUTHN_AUTHENTICATION_STARTED = 'mfa.webauthn.authentication.started',
+  MFA_WEBAUTHN_VERIFIED = 'mfa.webauthn.verified',
+  MFA_WEBAUTHN_VERIFICATION_FAILED = 'mfa.webauthn.verification.failed',
+  MFA_WEBAUTHN_CREDENTIAL_DELETED = 'mfa.webauthn.credential.deleted',
+  MFA_WEBAUTHN_CREDENTIAL_DISABLED = 'mfa.webauthn.credential.disabled',
+  MFA_WEBAUTHN_COUNTER_ANOMALY = 'mfa.webauthn.counter.anomaly',
   AUTH_PASSWORD_CHANGED = 'auth.password.changed',
   AUTH_PASSWORD_RESET = 'auth.password.reset',
   AUTH_SESSION_CREATED = 'auth.session.created',
