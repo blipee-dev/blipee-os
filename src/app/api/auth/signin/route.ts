@@ -3,6 +3,7 @@ import { authService } from "@/lib/auth/service";
 import { sessionAuth } from "@/lib/auth/session-auth";
 import { sessionManager } from "@/lib/session/manager";
 import { withAuthSecurity } from "@/lib/security/api/wrapper";
+import { auditLogger } from "@/lib/audit/logger";
 import { z } from "zod";
 
 export const dynamic = 'force-dynamic';
@@ -25,6 +26,16 @@ async function signInHandler(request: NextRequest) {
       validated.password,
       request
     );
+
+    // Log successful authentication
+    if (result.user) {
+      await auditLogger.logAuthSuccess(
+        request,
+        result.user.id,
+        validated.email,
+        result.requiresMFA ? 'password' : 'password'
+      );
+    }
 
     // Check if MFA is required
     if (result.requiresMFA) {
@@ -56,6 +67,17 @@ async function signInHandler(request: NextRequest) {
     return response;
   } catch (error: any) {
     console.error("Signin error:", error);
+
+    // Log authentication failure
+    const body = await request.clone().json().catch(() => ({}));
+    if (body.email) {
+      await auditLogger.logAuthFailure(
+        request,
+        body.email,
+        error.message || "Authentication failed",
+        error.code
+      );
+    }
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(

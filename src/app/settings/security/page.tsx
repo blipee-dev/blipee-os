@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { GradientButton } from '@/components/premium/GradientButton';
-import { Shield, Smartphone, Key, AlertCircle, Monitor, Calendar, MapPin, X } from 'lucide-react';
+import { Shield, Smartphone, Key, AlertCircle, Monitor, Calendar, MapPin, X, FileText } from 'lucide-react';
 import { MFASetup } from '@/components/auth/mfa/MFASetup';
 import { useAuth } from '@/lib/auth/context';
 import { motion } from 'framer-motion';
 import { SecurityDashboard } from '@/components/security/SecurityDashboard';
+import { AuditDashboard } from '@/components/audit/AuditDashboard';
 
 export default function SecuritySettingsPage() {
   const [showMFASetup, setShowMFASetup] = useState(false);
@@ -293,29 +294,44 @@ export default function SecuritySettingsPage() {
       </motion.div>
 
       {/* Security Dashboard - Only show for admins */}
-      {(
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <GlassCard>
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <Shield className="h-5 w-5 text-purple-500" />
-                Security Overview
-              </h2>
-              <SecurityDashboard />
-            </div>
-          </GlassCard>
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <GlassCard>
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <Shield className="h-5 w-5 text-purple-500" />
+              Security Overview
+            </h2>
+            <SecurityDashboard />
+          </div>
+        </GlassCard>
+      </motion.div>
+
+      {/* Audit Dashboard */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <GlassCard>
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <FileText className="h-5 w-5 text-blue-500" />
+              Audit Trail
+            </h2>
+            <AuditDashboard organizationId={user?.id} />
+          </div>
+        </GlassCard>
+      </motion.div>
 
       {/* Security Recommendations */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.6 }}
       >
         <GlassCard>
           <div className="space-y-4">
