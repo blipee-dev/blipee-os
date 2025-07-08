@@ -10,7 +10,7 @@ interface AuthContextType {
   organization: Organization | null;
   loading: boolean;
   error: string | null;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void | { requiresMFA: boolean; challengeId: string }>;
   signUp: (email: string, password: string, metadata: any) => Promise<void>;
   signOut: () => Promise<void>;
   switchOrganization: (organizationId: string) => Promise<void>;
@@ -61,6 +61,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         throw new Error(data.error || "Sign in failed");
+      }
+
+      // Check if MFA is required
+      if (data.data.requiresMFA) {
+        console.log("MFA required, challengeId:", data.data.challengeId);
+        // Return the MFA requirement info so the sign-in page can handle it
+        return { requiresMFA: true, challengeId: data.data.challengeId };
       }
 
       setSession(data.data.session);
@@ -182,7 +189,7 @@ export function useAuth() {
         organization: null,
         loading: true,
         error: null,
-        signIn: async () => {},
+        signIn: async () => undefined,
         signUp: async () => {},
         signOut: async () => {},
         switchOrganization: async () => {},

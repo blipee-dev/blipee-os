@@ -199,7 +199,7 @@ export class AuthService {
   /**
    * Sign in an existing user
    */
-  async signIn(email: string, password: string): Promise<AuthResponse> {
+  async signIn(email: string, password: string): Promise<AuthResponse & { requiresMFA?: boolean; challengeId?: string }> {
     const supabase = await this.getSupabase();
     
     const { data: authData, error: authError } =
@@ -210,6 +210,39 @@ export class AuthService {
 
     if (authError) throw authError;
     if (!authData.user) throw new Error("Authentication failed");
+
+    // Check if user has MFA enabled
+    const { data: mfaConfig } = await supabase
+      .from("user_mfa_config")
+      .select("*")
+      .eq("user_id", authData.user.id)
+      .eq("enabled", true)
+      .single();
+
+    // If MFA is enabled, create a challenge and require verification
+    if (mfaConfig) {
+      const { MFAService } = await import('@/lib/auth/mfa/service');
+      const mfaService = new MFAService();
+      const challenge = await mfaService.createChallenge(authData.user.id);
+
+      // Return partial auth response with MFA requirement
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("id", authData.user.id)
+        .single();
+
+      if (!profile) throw new Error("User profile not found");
+
+      return {
+        user: profile,
+        session: null as any, // Session will be created after MFA verification
+        access_token: "",
+        refresh_token: "",
+        requiresMFA: true,
+        challengeId: challenge.challengeId,
+      };
+    }
 
     // Get user profile directly if session is null
     const session = await this.getSession();
