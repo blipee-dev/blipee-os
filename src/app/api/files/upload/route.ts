@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { DocumentParser } from "@/lib/data/document-parser";
 import { withAuth } from "@/middleware/auth-new";
+import { withErrorHandler } from "@/lib/api/error-handler";
+import { rateLimit, RateLimitConfigs } from "@/lib/api/rate-limit";
 import { z } from "zod";
 import path from "path";
 import crypto from "crypto";
@@ -26,9 +28,13 @@ const uploadSchema = z.object({
   organizationId: z.string().uuid().optional(),
 });
 
-export const POST = withAuth(async (req: NextRequest, userId: string) => {
-  try {
-    const formData = await req.formData();
+const limiter = rateLimit(RateLimitConfigs.files.upload);
+
+export const POST = withAuth(withErrorHandler(async (req: NextRequest, userId: string) => {
+  // Check rate limit
+  await limiter.check(req, RateLimitConfigs.files.upload.limit, userId);
+
+  const formData = await req.formData();
     const file = formData.get("file") as File;
     const conversationId = formData.get("conversationId") as string;
     const organizationId = formData.get("organizationId") as string;
@@ -168,22 +174,7 @@ export const POST = withAuth(async (req: NextRequest, userId: string) => {
         dataPoints: extractedData.dataPoints || 0,
       } : null,
     });
-  } catch (error) {
-    console.error("Upload error:", error);
-    
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid request data", details: error.errors },
-        { status: 400 }
-      );
-    }
-    
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-});
+}));
 
 /**
  * Validate file content by checking magic bytes
@@ -213,9 +204,8 @@ function validateFileContent(buffer: Buffer, mimeType: string): boolean {
 /**
  * GET endpoint to retrieve file metadata (not the file itself)
  */
-export const GET = withAuth(async (req: NextRequest, userId: string) => {
-  try {
-    const fileId = req.nextUrl.searchParams.get('id');
+export const GET = withAuth(withErrorHandler(async (req: NextRequest, userId: string) => {
+  const fileId = req.nextUrl.searchParams.get('id');
     
     if (!fileId || !z.string().uuid().safeParse(fileId).success) {
       return NextResponse.json(
@@ -242,11 +232,4 @@ export const GET = withAuth(async (req: NextRequest, userId: string) => {
     }
 
     return NextResponse.json({ file });
-  } catch (error) {
-    console.error("Get file error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-});
+}));
