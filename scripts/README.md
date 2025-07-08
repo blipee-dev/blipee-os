@@ -1,54 +1,30 @@
-# Blipee OS Scripts
+# Scripts Directory
 
-This directory contains utility scripts for managing Blipee OS.
+## Active Scripts
 
-## Available Scripts
+### 🚀 Setup & Migration
+- `setup.sh` - Initial project setup
+- `migrate-to-v2.sh` - Migrate database to Fortune 10 schema
 
-### create-demo-user.ts
-Creates a test user account with a confirmed email and sets up a demo organization.
+## Usage
 
-**Usage:**
+### Initial Setup
 ```bash
-# Make sure you have your environment variables set up
-cp .env.example .env.local
-# Add your SUPABASE_SERVICE_KEY to .env.local
-
-# Run the script
-npx tsx scripts/create-demo-user.ts
+./scripts/setup.sh
 ```
 
-**What it creates:**
-- User account: `demo@blipee.com` / `demo123456`
-- Organization: "Demo Organization"
-- Building: "Demo Building" in San Francisco
-
-**Features:**
-- Automatically confirms the email address
-- Handles existing users gracefully (updates password)
-- Creates organization with professional tier
-- Sets up a demo building with metadata
-
-### create-demo-data.ts
-Creates a more comprehensive demo dataset including multiple buildings, team members, and work orders.
-
-**Usage:**
+### Database Migration
 ```bash
-npx tsx scripts/create-demo-data.ts
+# Migrate to Fortune 10 schema (will DROP all data!)
+./scripts/migrate-to-v2.sh
 ```
 
-### Other Scripts
-- `populate-sustainability-data.ts` - Populates sustainability metrics
-- `extract-report-data.ts` - Extracts data from sustainability reports
-- `setup.sh` - Initial setup script for the project
+## Archived Scripts
 
-## Environment Variables
+Old scripts have been moved to `archive/old_scripts/`:
+- `auth_fixes/` - Old authentication fixes
+- `demo_data/` - Demo data creation scripts
+- `migration_tests/` - Migration testing scripts
+- `analysis/` - Database analysis scripts
 
-All scripts require the following environment variables:
-- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
-- `SUPABASE_SERVICE_KEY` - Service role key (admin access)
-
-## Notes
-
-- The service role key has admin privileges - keep it secure
-- These scripts are meant for development and testing
-- Always backup your data before running scripts in production
+These are kept for reference but are no longer needed with the Fortune 10 schema.

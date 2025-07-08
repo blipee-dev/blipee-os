@@ -46,7 +46,17 @@
       "Bash(claude install-github-app)",
       "Bash(/install-github-app)",
       "Bash(npm ls:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(export SUPABASE_DB_PASSWORD=\"postgresblipeeos\")",
+      "Bash(SUPABASE_DB_PASSWORD=postgresblipeeos node scripts/check-migration-status.js)",
+      "Bash(SUPABASE_DB_PASSWORD=postgresblipeeos node scripts/test-migration-safe.js)",
+      "Bash(SUPABASE_DB_PASSWORD=postgresblipeeos npx supabase db push --include \"023_incremental_improvements.sql\")",
+      "Bash(SUPABASE_DB_PASSWORD=postgresblipeeos npx supabase db push --password postgresblipeeos)",
+      "Bash(SUPABASE_DB_PASSWORD=postgresblipeeos npx supabase migration list --password postgresblipeeos)",
+      "Bash(SUPABASE_DB_PASSWORD=postgresblipeeos npx supabase db push --password postgresblipeeos --dry-run)",
+      "Bash(cat:*)",
+      "WebFetch(domain:supabase.com)",
+      "Bash(tree:*)"
     ],
     "deny": []
   }

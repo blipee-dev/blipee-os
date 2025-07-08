@@ -36,6 +36,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# archives and backups
+**/archive/
+backup/
+*.backup
+*.bak
+
 # IDE
 .vscode/*
 !.vscode/extensions.json
