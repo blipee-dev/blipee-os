@@ -40,9 +40,9 @@ export async function requireAuth(
     
     // Check if roles are required
     if (requiredRoles && requiredRoles.length > 0) {
-      // Get user roles
+      // Get user roles from organization_members
       const { data: userRoles, error } = await supabaseAdmin
-        .from('user_roles')
+        .from('organization_members')
         .select('role')
         .eq('user_id', session.userId);
       
@@ -67,7 +67,7 @@ export async function requireAuth(
     
     // Get user details
     const { data: user, error: userError } = await supabaseAdmin
-      .from('profiles')
+      .from('user_profiles')
       .select('*')
       .eq('id', session.userId)
       .single();

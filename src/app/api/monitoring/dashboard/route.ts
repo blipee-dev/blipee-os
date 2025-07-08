@@ -6,7 +6,7 @@ import { requireAuth } from '@/lib/auth/middleware';
 export const GET = createMonitoredHandler(async (request: NextRequest) => {
   try {
     // Check authentication
-    const authResult = await requireAuth(request, ['account_owner', 'sustainability_manager', 'facility_manager']);
+    const authResult = await requireAuth(request, ['account_owner', 'sustainability_lead', 'facility_manager']);
     if (!authResult.authenticated) {
       return NextResponse.json(
         { error: 'Unauthorized' },
