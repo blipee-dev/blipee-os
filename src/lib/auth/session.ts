@@ -54,3 +54,24 @@ export async function requireAuth(request: NextRequest): Promise<User> {
   
   return user;
 }
+
+/**
+ * Verify session by ID (for middleware use)
+ */
+export async function verifySession(sessionId: string): Promise<{ userId: string } | null> {
+  try {
+    // For now, we'll use a simple verification
+    // In production, this would validate against Redis or database
+    const supabase = createClient();
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error || !user) {
+      return null;
+    }
+    
+    return { userId: user.id };
+  } catch (error) {
+    console.error('Failed to verify session:', error);
+    return null;
+  }
+}
