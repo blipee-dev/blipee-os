@@ -44,6 +44,11 @@ export default function SignInPage() {
         localStorage.removeItem("rememberMe");
         localStorage.removeItem("lastEmail");
       }
+      
+      // Manual redirect as fallback
+      setTimeout(() => {
+        window.location.href = "/onboarding";
+      }, 100);
     } catch (err: any) {
       setError(err.message || "Failed to sign in");
       setLoading(false);

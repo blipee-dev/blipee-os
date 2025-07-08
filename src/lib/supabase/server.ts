@@ -4,7 +4,7 @@ import type { Database } from "@/types/supabase";
 
 // Create a Supabase client for server-side usage
 export async function createServerSupabaseClient() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

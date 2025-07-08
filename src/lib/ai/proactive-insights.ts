@@ -24,6 +24,14 @@ export class ProactiveInsightEngine {
       "demo-user",
     );
 
+    // Check if this is a new user/organization with no data
+    const isNewUser = await this.isNewUserWithoutData(context);
+
+    if (isNewUser) {
+      // Return welcome message for new users without mock data
+      return this.generateNewUserWelcome(context);
+    }
+
     // Analyze current building state
     const insights = await this.analyzeBuildingState(context);
 
@@ -43,6 +51,104 @@ export class ProactiveInsightEngine {
       message: welcomeMessage,
       components,
       suggestions,
+    };
+  }
+
+  /**
+   * Check if this is a new user without any data
+   */
+  private async isNewUserWithoutData(context: any): Promise<boolean> {
+    // Check if user has no buildings, no data, just completed onboarding
+    const hasBuildings = context.buildings && context.buildings.length > 0;
+    const hasEmissionData = context.realTimeMetrics?.emissions?.total > 0;
+    const hasHistoricalData = context.historicalData && context.historicalData.length > 0;
+    
+    return !hasBuildings || (!hasEmissionData && !hasHistoricalData);
+  }
+
+  /**
+   * Generate welcome message for new users without mock data
+   */
+  private generateNewUserWelcome(context: any): {
+    message: string;
+    components: any[];
+    suggestions: string[];
+  } {
+    const userName = context.user?.full_name?.split(' ')[0] || 'there';
+    
+    const message = `Welcome to blipee, ${userName}! 🌱
+
+I'm your AI sustainability assistant, and I'm excited to help you build a more sustainable future. I noticed you're just getting started, so let me guide you through the setup process.
+
+**Great news!** If you already have your data in spreadsheets or previous sustainability reports, you can simply drag and drop them into this chat, and I'll extract all the relevant information automatically. I can handle:
+• Excel/CSV files with energy consumption data
+• PDF sustainability reports
+• Utility bills (electricity, gas, water)
+• Carbon footprint calculations
+• ESG reports
+
+Just drop your files here, or let's set things up step by step:`;
+
+    const components = [
+      {
+        type: "quick-start-upload",
+        props: {
+          onFileUpload: (files: FileList) => {
+            console.log("Files uploaded:", files);
+          }
+        }
+      },
+      {
+        type: "setup-checklist",
+        props: {
+          title: "Or Set Up Step by Step",
+          steps: [
+            {
+              id: "add-building",
+              title: "Add Your First Building",
+              description: "Tell me about your building or facility",
+              status: "pending",
+              action: "Add building details"
+            },
+            {
+              id: "connect-meters",
+              title: "Connect Energy Meters",
+              description: "Link your utility accounts or smart meters",
+              status: "pending",
+              action: "Connect utilities"
+            },
+            {
+              id: "upload-bills",
+              title: "Upload Recent Bills",
+              description: "Share your electricity, gas, or water bills",
+              status: "pending",
+              action: "Upload documents"
+            },
+            {
+              id: "set-baseline",
+              title: "Establish Baseline",
+              description: "Set your emissions baseline and targets",
+              status: "pending",
+              action: "Set targets"
+            }
+          ],
+          completedCount: 0,
+          totalCount: 4
+        }
+      }
+    ];
+
+    const suggestions = [
+      "I have my data in a spreadsheet",
+      "Upload my sustainability reports",
+      "Import data from Excel",
+      "What formats do you accept?"
+    ];
+
+    return {
+      message,
+      components,
+      suggestions
     };
   }
 

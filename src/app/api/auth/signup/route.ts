@@ -14,6 +14,7 @@ const signUpSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log("Signup request body:", body);
 
     // Validate input
     const validated = signUpSchema.parse(body);
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("Signup error:", error);
+    console.error("Error stack:", error.stack);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
