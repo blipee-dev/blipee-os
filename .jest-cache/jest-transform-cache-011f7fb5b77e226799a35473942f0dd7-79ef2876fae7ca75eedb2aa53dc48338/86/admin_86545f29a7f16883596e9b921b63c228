@@ -1,0 +1,33 @@
+e586dbf78bb32e63e8b68d0c78c9779a
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "supabaseAdmin", {
+    enumerable: true,
+    get: function() {
+        return supabaseAdmin;
+    }
+});
+const _supabasejs = require("@supabase/supabase-js");
+// Only throw errors in production or when actually using the client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseAdmin = (()=>{
+    if (!supabaseUrl || !serviceRoleKey) {
+        // Return a proxy that throws an error when any method is accessed
+        return new Proxy({}, {
+            get () {
+                throw new Error("Supabase admin client not configured. Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+            }
+        });
+    }
+    return (0, _supabasejs.createClient)(supabaseUrl, serviceRoleKey, {
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false
+        }
+    });
+})();
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi93b3Jrc3BhY2VzL2JsaXBlZS1vcy9zcmMvbGliL3N1cGFiYXNlL2FkbWluLnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IGNyZWF0ZUNsaWVudCB9IGZyb20gJ0BzdXBhYmFzZS9zdXBhYmFzZS1qcyc7XG5cbi8vIE9ubHkgdGhyb3cgZXJyb3JzIGluIHByb2R1Y3Rpb24gb3Igd2hlbiBhY3R1YWxseSB1c2luZyB0aGUgY2xpZW50XG5jb25zdCBzdXBhYmFzZVVybCA9IHByb2Nlc3MuZW52Lk5FWFRfUFVCTElDX1NVUEFCQVNFX1VSTDtcbmNvbnN0IHNlcnZpY2VSb2xlS2V5ID0gcHJvY2Vzcy5lbnYuU1VQQUJBU0VfU0VSVklDRV9ST0xFX0tFWTtcblxuLy8gQ3JlYXRlIGEgU3VwYWJhc2UgY2xpZW50IHdpdGggdGhlIHNlcnZpY2Ugcm9sZSBrZXkgZm9yIGFkbWluIG9wZXJhdGlvbnNcbmV4cG9ydCBjb25zdCBzdXBhYmFzZUFkbWluID0gKCgpID0+IHtcbiAgaWYgKCFzdXBhYmFzZVVybCB8fCAhc2VydmljZVJvbGVLZXkpIHtcbiAgICAvLyBSZXR1cm4gYSBwcm94eSB0aGF0IHRocm93cyBhbiBlcnJvciB3aGVuIGFueSBtZXRob2QgaXMgYWNjZXNzZWRcbiAgICByZXR1cm4gbmV3IFByb3h5KHt9IGFzIGFueSwge1xuICAgICAgZ2V0KCkge1xuICAgICAgICB0aHJvdyBuZXcgRXJyb3IoJ1N1cGFiYXNlIGFkbWluIGNsaWVudCBub3QgY29uZmlndXJlZC4gTWlzc2luZyBORVhUX1BVQkxJQ19TVVBBQkFTRV9VUkwgb3IgU1VQQUJBU0VfU0VSVklDRV9ST0xFX0tFWScpO1xuICAgICAgfVxuICAgIH0pO1xuICB9XG5cbiAgcmV0dXJuIGNyZWF0ZUNsaWVudChcbiAgICBzdXBhYmFzZVVybCxcbiAgICBzZXJ2aWNlUm9sZUtleSxcbiAgICB7XG4gICAgICBhdXRoOiB7XG4gICAgICAgIGF1dG9SZWZyZXNoVG9rZW46IGZhbHNlLFxuICAgICAgICBwZXJzaXN0U2Vzc2lvbjogZmFsc2VcbiAgICAgIH1cbiAgICB9XG4gICk7XG59KSgpOyJdLCJuYW1lcyI6WyJzdXBhYmFzZUFkbWluIiwic3VwYWJhc2VVcmwiLCJwcm9jZXNzIiwiZW52IiwiTkVYVF9QVUJMSUNfU1VQQUJBU0VfVVJMIiwic2VydmljZVJvbGVLZXkiLCJTVVBBQkFTRV9TRVJWSUNFX1JPTEVfS0VZIiwiUHJveHkiLCJnZXQiLCJFcnJvciIsImNyZWF0ZUNsaWVudCIsImF1dGgiLCJhdXRvUmVmcmVzaFRva2VuIiwicGVyc2lzdFNlc3Npb24iXSwibWFwcGluZ3MiOiI7Ozs7K0JBT2FBOzs7ZUFBQUE7Ozs0QkFQZ0I7QUFFN0Isb0VBQW9FO0FBQ3BFLE1BQU1DLGNBQWNDLFFBQVFDLEdBQUcsQ0FBQ0Msd0JBQXdCO0FBQ3hELE1BQU1DLGlCQUFpQkgsUUFBUUMsR0FBRyxDQUFDRyx5QkFBeUI7QUFHckQsTUFBTU4sZ0JBQWdCLEFBQUMsQ0FBQTtJQUM1QixJQUFJLENBQUNDLGVBQWUsQ0FBQ0ksZ0JBQWdCO1FBQ25DLGtFQUFrRTtRQUNsRSxPQUFPLElBQUlFLE1BQU0sQ0FBQyxHQUFVO1lBQzFCQztnQkFDRSxNQUFNLElBQUlDLE1BQU07WUFDbEI7UUFDRjtJQUNGO0lBRUEsT0FBT0MsSUFBQUEsd0JBQVksRUFDakJULGFBQ0FJLGdCQUNBO1FBQ0VNLE1BQU07WUFDSkMsa0JBQWtCO1lBQ2xCQyxnQkFBZ0I7UUFDbEI7SUFDRjtBQUVKLENBQUEifQ==
