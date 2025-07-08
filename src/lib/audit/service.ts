@@ -657,11 +657,14 @@ export class AuditService {
 }
 
 // Singleton instance
-let auditService: AuditService | null = null;
+let auditServiceInstance: AuditService | null = null;
 
 export function getAuditService(config?: Partial<AuditServiceConfig>): AuditService {
-  if (!auditService) {
-    auditService = new AuditService(config);
+  if (!auditServiceInstance) {
+    auditServiceInstance = new AuditService(config);
   }
-  return auditService;
+  return auditServiceInstance;
 }
+
+// Default export for convenience
+export const auditService = getAuditService();

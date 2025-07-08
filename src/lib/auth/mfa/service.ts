@@ -6,6 +6,8 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import crypto from 'crypto';
 import { EncryptionFactory } from '@/lib/security/encryption/factory';
 import type { EncryptionService } from '@/lib/security/encryption/service';
+import { smsMFAService } from './sms';
+import { emailMFAService } from './email';
 
 export class MFAService {
   private totp: TOTPService;
@@ -28,7 +30,7 @@ export class MFAService {
   /**
    * Enable MFA for a user
    */
-  async enableMFA(userId: string, method: 'totp'): Promise<MFASetup> {
+  async enableMFA(userId: string, method: 'totp' | 'sms' | 'email'): Promise<MFASetup> {
     // Get user email
     const { data: profile } = await supabaseAdmin
       .from('user_profiles')
@@ -55,6 +57,20 @@ export class MFAService {
 
         return fullSetup;
 
+      case 'sms':
+        return {
+          method: 'sms',
+          requiresPhoneNumber: true,
+          message: 'SMS MFA requires phone number verification',
+        };
+
+      case 'email':
+        return {
+          method: 'email',
+          requiresEmailAddress: true,
+          message: 'Email MFA requires email address verification',
+        };
+
       default:
         throw new Error(`Unsupported MFA method: ${method}`);
     }
@@ -63,7 +79,7 @@ export class MFAService {
   /**
    * Confirm MFA setup
    */
-  async confirmMFASetup(userId: string, method: 'totp', code: string): Promise<boolean> {
+  async confirmMFASetup(userId: string, method: 'totp' | 'sms' | 'email', code: string): Promise<boolean> {
     // Get pending setup
     const pendingSetup = await this.getPendingMFASetup(userId);
     
@@ -217,8 +233,8 @@ export class MFAService {
       .eq('user_id', userId)
       .eq('enabled', true);
 
-    const methods = configs?.map((c: any) => c.method as 'totp') || [];
-    const primaryMethod = configs?.find((c: any) => c.is_primary)?.method as 'totp' | undefined;
+    const methods = configs?.map((c: any) => c.method as 'totp' | 'sms' | 'email') || [];
+    const primaryMethod = configs?.find((c: any) => c.is_primary)?.method as 'totp' | 'sms' | 'email' | undefined;
 
     // Get backup codes count
     const { count: backupCodesRemaining } = await supabaseAdmin
@@ -472,6 +488,106 @@ export class MFAService {
     }
   }
 
+  /**
+   * Send SMS verification code
+   */
+  async sendSMSCode(
+    userId: string,
+    phoneNumber: string,
+    purpose: 'mfa' | 'recovery' = 'mfa'
+  ): Promise<{ success: boolean; codeId: string; message: string }> {
+    return await smsMFAService.sendVerificationCode(userId, phoneNumber, purpose);
+  }
+
+  /**
+   * Verify SMS code
+   */
+  async verifySMSCode(
+    codeId: string,
+    code: string,
+    userId?: string
+  ): Promise<{ success: boolean; message: string; phoneNumber?: string }> {
+    return await smsMFAService.verifyCode(codeId, code, userId);
+  }
+
+  /**
+   * Add phone number for SMS MFA
+   */
+  async addPhoneNumber(
+    userId: string,
+    phoneNumber: string
+  ): Promise<{ success: boolean; message: string; verificationId?: string }> {
+    return await smsMFAService.addUserPhoneNumber(userId, phoneNumber);
+  }
+
+  /**
+   * Verify and save phone number
+   */
+  async verifyAndSavePhoneNumber(
+    userId: string,
+    verificationId: string,
+    code: string
+  ): Promise<{ success: boolean; message: string }> {
+    return await smsMFAService.verifyAndSavePhoneNumber(userId, verificationId, code);
+  }
+
+  /**
+   * Send email verification code
+   */
+  async sendEmailCode(
+    userId: string,
+    email: string,
+    purpose: 'mfa' | 'recovery' = 'mfa'
+  ): Promise<{ success: boolean; codeId: string; message: string }> {
+    return await emailMFAService.sendVerificationCode(userId, email, purpose);
+  }
+
+  /**
+   * Verify email code
+   */
+  async verifyEmailCode(
+    codeId: string,
+    code: string,
+    userId?: string
+  ): Promise<{ success: boolean; message: string; email?: string }> {
+    return await emailMFAService.verifyCode(codeId, code, userId);
+  }
+
+  /**
+   * Add email for email MFA
+   */
+  async addEmail(
+    userId: string,
+    email: string
+  ): Promise<{ success: boolean; message: string; verificationId?: string }> {
+    return await emailMFAService.addUserEmail(userId, email);
+  }
+
+  /**
+   * Verify and save email
+   */
+  async verifyAndSaveEmail(
+    userId: string,
+    verificationId: string,
+    code: string
+  ): Promise<{ success: boolean; message: string }> {
+    return await emailMFAService.verifyAndSaveEmail(userId, verificationId, code);
+  }
+
+  /**
+   * Get user phone numbers
+   */
+  async getUserPhoneNumbers(userId: string): Promise<string[]> {
+    return await smsMFAService.getUserPhoneNumbers(userId);
+  }
+
+  /**
+   * Get user emails
+   */
+  async getUserEmails(userId: string): Promise<string[]> {
+    return await emailMFAService.getUserEmails(userId);
+  }
+
   // Migration helper for old encryption format
   private async migrateEncryptedSecret(encryptedSecret: string, userId: string): Promise<string> {
     // Decrypt with old method
@@ -506,3 +622,6 @@ export class MFAService {
     }
   }
 }
+
+// Default export for convenience
+export const mfaService = new MFAService();

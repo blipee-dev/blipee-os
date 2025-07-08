@@ -39,6 +39,12 @@ export const DEFAULT_LIMITS: Record<string, RateLimitRule> = {
   'auth:reset': { points: 3, duration: 60 * 60, blockDuration: 60 * 60 }, // 3 per hour, 1hr block
   'auth:mfa': { points: 10, duration: 60 * 5, blockDuration: 60 * 30 }, // 10 per 5 min, 30min block
   
+  // MFA specific limits
+  'mfa_verify': { points: 5, duration: 60 * 10, blockDuration: 60 * 30 }, // 5 verification attempts per 10 min, 30min block
+  'mfa_sms_send': { points: 3, duration: 60 * 15, blockDuration: 60 * 60 }, // 3 SMS per 15 min, 1hr block
+  'mfa_email_send': { points: 5, duration: 60 * 15, blockDuration: 60 * 60 }, // 5 emails per 15 min, 1hr block
+  'user_modification': { points: 10, duration: 60 * 60, blockDuration: 60 * 60 }, // 10 user changes per hour, 1hr block
+  
   // API endpoints
   'api:general': { points: 100, duration: 60, execEvenly: true }, // 100 per minute
   'api:ai': { points: 20, duration: 60, execEvenly: true }, // 20 AI requests per minute
@@ -426,11 +432,14 @@ export class RateLimitService {
 }
 
 // Singleton instance
-let rateLimitService: RateLimitService | null = null;
+let rateLimitServiceInstance: RateLimitService | null = null;
 
 export function getRateLimitService(config?: Partial<RateLimitConfig>): RateLimitService {
-  if (!rateLimitService) {
-    rateLimitService = new RateLimitService(config);
+  if (!rateLimitServiceInstance) {
+    rateLimitServiceInstance = new RateLimitService(config);
   }
-  return rateLimitService;
+  return rateLimitServiceInstance;
 }
+
+// Default export for convenience
+export const rateLimitService = getRateLimitService();

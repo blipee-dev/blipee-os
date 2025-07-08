@@ -137,3 +137,26 @@ export class EncryptionFactory {
 export async function getEncryptionService(): Promise<EncryptionService> {
   return EncryptionFactory.create();
 }
+
+// Create default instance that will be initialized on first use
+let defaultInstance: EncryptionService | null = null;
+
+export const encryptionService = {
+  async encrypt(plaintext: string, context?: Record<string, string>) {
+    if (!defaultInstance) {
+      defaultInstance = await getEncryptionService();
+    }
+    return defaultInstance.encrypt(plaintext, context);
+  },
+  async decrypt(encrypted: {
+    ciphertext: string;
+    encryptedDataKey: string;
+    algorithm: string;
+    context?: Record<string, string>;
+  }) {
+    if (!defaultInstance) {
+      defaultInstance = await getEncryptionService();
+    }
+    return defaultInstance.decrypt(encrypted);
+  }
+};

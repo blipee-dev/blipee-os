@@ -7,6 +7,9 @@ export interface MFASetup {
   secret?: string;
   qrCode?: string;
   backupCodes?: string[];
+  requiresPhoneNumber?: boolean;
+  requiresEmailAddress?: boolean;
+  message?: string;
 }
 
 export interface MFAVerification {

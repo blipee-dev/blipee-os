@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Shield, Key, Phone, HelpCircle, Users, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { RecoveryStats, RecoveryMethod, RecoveryStatus } from '@/lib/auth/recovery/types';
@@ -13,11 +13,7 @@ export function RecoveryDashboard({ organizationId }: RecoveryDashboardProps) {
   const [stats, setStats] = useState<RecoveryStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchRecoveryStats();
-  }, [organizationId]);
-
-  const fetchRecoveryStats = async () => {
+  const fetchRecoveryStats = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -35,7 +31,11 @@ export function RecoveryDashboard({ organizationId }: RecoveryDashboardProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [organizationId]);
+
+  useEffect(() => {
+    fetchRecoveryStats();
+  }, [fetchRecoveryStats]);
 
   const getMethodIcon = (method: RecoveryMethod) => {
     switch (method) {
