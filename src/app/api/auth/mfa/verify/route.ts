@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MFAService } from '@/lib/auth/mfa/service';
+import { sessionAuth } from '@/lib/auth/session-auth';
+import { sessionManager } from '@/lib/session/manager';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
@@ -34,23 +36,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create session token (simplified - use proper session management)
-    const sessionToken = crypto.randomUUID();
-    
-    // Set secure cookie
-    const cookieStore = await cookies();
-    cookieStore.set('mfa-session', sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: rememberDevice ? 30 * 24 * 60 * 60 : 60 * 60, // 30 days or 1 hour
-      path: '/',
+    // Create authenticated session
+    const { session, sessionId } = await sessionAuth.completeMFAVerification(
+      result.userId,
+      challengeId,
+      request
+    );
+
+    // Create response
+    const response = NextResponse.json({
+      success: true,
+      message: 'MFA verification successful',
+      data: {
+        user: session.user,
+        session: session,
+      }
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'MFA verification successful'
-    });
+    // Set session cookie
+    const cookieHeader = sessionManager['sessionService'].generateCookieHeader(sessionId);
+    response.headers.set('Set-Cookie', cookieHeader);
+
+    return response;
   } catch (error) {
     console.error('MFA verify error:', error);
     

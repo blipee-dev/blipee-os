@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { GradientButton } from '@/components/premium/GradientButton';
-import { Shield, Smartphone, Key, AlertCircle } from 'lucide-react';
+import { Shield, Smartphone, Key, AlertCircle, Monitor, Calendar, MapPin, X } from 'lucide-react';
 import { MFASetup } from '@/components/auth/mfa/MFASetup';
 import { useAuth } from '@/lib/auth/context';
 import { motion } from 'framer-motion';
@@ -12,10 +12,63 @@ export default function SecuritySettingsPage() {
   const [showMFASetup, setShowMFASetup] = useState(false);
   const [mfaEnabled, setMfaEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(true);
   const { user } = useAuth();
 
-  // Check MFA status on load
-  // TODO: Implement API call to check MFA status
+  // Check MFA status and load sessions on mount
+  useEffect(() => {
+    loadSessions();
+    // TODO: Check MFA status
+  }, []);
+
+  const loadSessions = async () => {
+    try {
+      const response = await fetch('/api/auth/sessions');
+      if (response.ok) {
+        const data = await response.json();
+        setSessions(data.data.sessions);
+      }
+    } catch (error) {
+      console.error('Failed to load sessions:', error);
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
+
+  const terminateSession = async (sessionId: string) => {
+    if (!confirm('Are you sure you want to terminate this session?')) return;
+    
+    try {
+      const response = await fetch(`/api/auth/sessions?sessionId=${sessionId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        console.log('Session terminated');
+        loadSessions();
+      }
+    } catch (error) {
+      console.error('Failed to terminate session:', error);
+    }
+  };
+
+  const terminateAllSessions = async () => {
+    if (!confirm('This will sign you out from all other devices. Continue?')) return;
+    
+    try {
+      const response = await fetch('/api/auth/sessions?all=true', {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        console.log('All sessions terminated');
+        loadSessions();
+      }
+    } catch (error) {
+      console.error('Failed to terminate sessions:', error);
+    }
+  };
 
   const handleMFAToggle = async (enabled: boolean) => {
     if (enabled) {
@@ -162,11 +215,87 @@ export default function SecuritySettingsPage() {
         </GlassCard>
       </motion.div>
 
-      {/* Security Recommendations */}
+      {/* Active Sessions */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
+      >
+        <GlassCard>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Monitor className="h-5 w-5 text-blue-500" />
+                Active Sessions
+              </h2>
+              {sessions.length > 1 && (
+                <button
+                  onClick={terminateAllSessions}
+                  className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                >
+                  Sign out all other sessions
+                </button>
+              )}
+            </div>
+            
+            {loadingSessions ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+              </div>
+            ) : sessions.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400">No active sessions found</p>
+            ) : (
+              <div className="space-y-3">
+                {sessions.map((session) => (
+                  <div
+                    key={session.sessionId}
+                    className="flex items-start justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Monitor className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {session.device}
+                          {session.current && (
+                            <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                              (This device)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {session.ipAddress}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Last active: {new Date(session.lastActive).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                    {!session.current && (
+                      <button
+                        onClick={() => terminateSession(session.sessionId)}
+                        className="ml-4 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400"
+                        title="Terminate session"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </GlassCard>
+      </motion.div>
+
+      {/* Security Recommendations */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
       >
         <GlassCard>
           <div className="space-y-4">

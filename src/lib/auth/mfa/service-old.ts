@@ -1,4 +1,4 @@
-// MFA Service V2 - Enterprise-grade multi-factor authentication with proper encryption
+// MFA Service - Main service for managing multi-factor authentication
 import { createClient } from '@supabase/supabase-js';
 import { TOTPService } from './totp';
 import { MFASetup, MFAStatus, MFAVerification, MFAChallenge, MFADevice } from './types';
@@ -9,20 +9,9 @@ import type { EncryptionService } from '@/lib/security/encryption/service';
 
 export class MFAService {
   private totp: TOTPService;
-  private encryptionService: EncryptionService | null = null;
   
   constructor() {
     this.totp = new TOTPService();
-  }
-
-  /**
-   * Get or initialize encryption service
-   */
-  private async getEncryption(): Promise<EncryptionService> {
-    if (!this.encryptionService) {
-      this.encryptionService = await EncryptionFactory.create();
-    }
-    return this.encryptionService;
   }
 
   /**
@@ -32,66 +21,84 @@ export class MFAService {
     // Get user email
     const { data: profile } = await supabaseAdmin
       .from('user_profiles')
-      .select('email, full_name')
+      .select('email')
       .eq('id', userId)
       .single();
 
     if (!profile) {
-      throw new Error('User profile not found');
+      throw new Error('User not found');
     }
 
+    // Generate setup based on method
+    let setup: MFASetup;
+    
     switch (method) {
       case 'totp':
-        const secret = this.totp.generateSecret();
-        const qrCode = await this.totp.generateQRCode(
-          profile.email,
-          secret,
-          process.env.MFA_ISSUER_NAME || 'Blipee OS'
-        );
-        const backupCodes = this.totp.generateBackupCodes();
-
-        const setup: MFASetup = {
-          method: 'totp',
-          secret,
-          qrCode,
-          backupCodes,
-        };
-
-        // Store pending setup with encryption
+        setup = await this.totp.generateSecret(profile.email);
+        
+        // Store encrypted secret temporarily
         await this.storePendingMFASetup(userId, setup);
-
-        return setup;
-
+        break;
+        
       default:
         throw new Error(`Unsupported MFA method: ${method}`);
     }
+
+    // Generate backup codes
+    const backupCodes = this.totp.generateBackupCodes(10);
+    setup.backupCodes = this.totp.formatBackupCodes(backupCodes);
+
+    return setup;
   }
 
   /**
-   * Confirm MFA setup
+   * Confirm MFA setup with verification code
    */
-  async confirmMFASetup(userId: string, method: 'totp', code: string): Promise<boolean> {
+  async confirmMFASetup(userId: string, verification: MFAVerification): Promise<boolean> {
     // Get pending setup
-    const pendingSetup = await this.getPendingMFASetup(userId);
-    
-    if (!pendingSetup || pendingSetup.method !== method) {
+    const setup = await this.getPendingMFASetup(userId);
+    if (!setup) {
       throw new Error('No pending MFA setup found');
     }
 
     // Verify the code
-    const isValid = this.totp.verify(code, pendingSetup.secret!);
+    const isValid = await this.verifyMFACode(verification.code, setup.secret!);
     
     if (!isValid) {
-      return false;
+      throw new Error('Invalid verification code');
     }
 
-    // Store the confirmed setup
-    await this.storeMFAConfig(userId, pendingSetup);
+    // Store MFA configuration
+    await this.storeMFAConfig(userId, setup);
     
     // Clear pending setup
     await this.clearPendingMFASetup(userId);
 
+    // Update user profile
+    await supabaseAdmin
+      .from('user_profiles')
+      .update({ 
+        two_factor_enabled: true,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId);
+
     return true;
+  }
+
+  /**
+   * Verify MFA code
+   */
+  async verifyMFACode(code: string, secret: string): Promise<boolean> {
+    // Check if it's a TOTP code
+    if (code.length === 6 && /^\d+$/.test(code)) {
+      return this.totp.verifyToken(code, secret);
+    }
+    
+    // Check if it's a backup code
+    // TODO: Implement backup code verification
+    
+    return false;
   }
 
   /**
@@ -155,7 +162,6 @@ export class MFAService {
       .select('*')
       .eq('user_id', challenge.user_id)
       .eq('method', verification.method)
-      .eq('enabled', true)
       .single();
 
     if (!mfaConfig) {
@@ -165,8 +171,7 @@ export class MFAService {
     // Verify code
     const isValid = await this.verifyMFACode(
       verification.code, 
-      mfaConfig.secret,
-      challenge.user_id
+      mfaConfig.secret
     );
 
     if (isValid) {
@@ -178,11 +183,6 @@ export class MFAService {
         .from('user_mfa_config')
         .update({ last_used_at: new Date().toISOString() })
         .eq('id', mfaConfig.id);
-
-      // Handle device trust if requested
-      if (verification.rememberDevice) {
-        await this.trustDevice(challenge.user_id, verification.deviceInfo);
-      }
 
       return { success: true, userId: challenge.user_id };
     }
@@ -221,8 +221,7 @@ export class MFAService {
     const { data: configs } = await supabaseAdmin
       .from('user_mfa_config')
       .select('method, is_primary')
-      .eq('user_id', userId)
-      .eq('enabled', true);
+      .eq('user_id', userId);
 
     const methods = configs?.map((c: any) => c.method as 'totp') || [];
     const primaryMethod = configs?.find((c: any) => c.is_primary)?.method as 'totp' | undefined;
@@ -262,10 +261,10 @@ export class MFAService {
    * Disable MFA
    */
   async disableMFA(userId: string): Promise<void> {
-    // Disable all MFA configs
+    // Delete all MFA configs
     await supabaseAdmin
       .from('user_mfa_config')
-      .update({ enabled: false })
+      .delete()
       .eq('user_id', userId);
 
     // Delete backup codes
@@ -280,78 +279,24 @@ export class MFAService {
       .delete()
       .eq('user_id', userId);
 
-    // Update user profile
+    // Update profile
     await supabaseAdmin
       .from('user_profiles')
-      .update({ two_factor_enabled: false })
+      .update({ 
+        two_factor_enabled: false,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', userId);
-
-    // Clean up any pending challenges
-    await supabaseAdmin
-      .from('mfa_challenges')
-      .delete()
-      .eq('user_id', userId);
-  }
-
-  /**
-   * Trust a device
-   */
-  private async trustDevice(userId: string, deviceInfo?: any): Promise<void> {
-    const deviceId = crypto.randomUUID();
-    const deviceName = deviceInfo?.userAgent || 'Unknown Device';
-    
-    await supabaseAdmin
-      .from('user_devices')
-      .insert({
-        id: deviceId,
-        user_id: userId,
-        name: deviceName,
-        type: deviceInfo?.type || 'web',
-        is_trusted: true,
-        last_used_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-      });
-  }
-
-  /**
-   * Verify backup code
-   */
-  async verifyBackupCode(userId: string, code: string): Promise<boolean> {
-    const codeHash = this.hashBackupCode(code);
-    
-    // Check if code exists and hasn't been used
-    const { data: backupCode } = await supabaseAdmin
-      .from('user_backup_codes')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('code_hash', codeHash)
-      .is('used_at', null)
-      .single();
-
-    if (!backupCode) {
-      return false;
-    }
-
-    // Mark code as used
-    await supabaseAdmin
-      .from('user_backup_codes')
-      .update({ used_at: new Date().toISOString() })
-      .eq('id', backupCode.id);
-
-    return true;
   }
 
   // Private helper methods
   private async storePendingMFASetup(userId: string, setup: MFASetup): Promise<void> {
-    const encryption = await this.getEncryption();
-    const encryptedData = await encryption.encrypt(setup.secret!, { userId, purpose: 'mfa-setup' });
-    
     await supabaseAdmin
       .from('pending_mfa_setups')
       .upsert({
         user_id: userId,
         method: setup.method,
-        secret: JSON.stringify(encryptedData),
+        secret: this.encryptSecret(setup.secret!),
         created_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 min
       });
@@ -366,13 +311,9 @@ export class MFAService {
 
     if (!data) return null;
 
-    const encryption = await this.getEncryption();
-    const encryptedData = JSON.parse(data.secret);
-    const secret = await encryption.decrypt(encryptedData);
-
     return {
       method: data.method,
-      secret,
+      secret: this.decryptSecret(data.secret),
     };
   }
 
@@ -384,18 +325,14 @@ export class MFAService {
   }
 
   private async storeMFAConfig(userId: string, setup: MFASetup): Promise<void> {
-    const encryption = await this.getEncryption();
-    const encryptedSecret = await encryption.encrypt(setup.secret!, { userId, purpose: 'mfa-secret' });
-    
     // Store main config
     await supabaseAdmin
       .from('user_mfa_config')
       .insert({
         user_id: userId,
         method: setup.method,
-        secret: JSON.stringify(encryptedSecret),
+        secret: this.encryptSecret(setup.secret!),
         is_primary: true,
-        enabled: true,
         created_at: new Date().toISOString(),
       });
 
@@ -411,12 +348,6 @@ export class MFAService {
         .from('user_backup_codes')
         .insert(backupCodes);
     }
-
-    // Update user profile
-    await supabaseAdmin
-      .from('user_profiles')
-      .update({ two_factor_enabled: true })
-      .eq('id', userId);
   }
 
   private async deleteChallenge(challengeId: string): Promise<void> {
@@ -426,28 +357,20 @@ export class MFAService {
       .eq('id', challengeId);
   }
 
-  private async verifyMFACode(code: string, encryptedSecret: string, userId: string): Promise<boolean> {
-    const encryption = await this.getEncryption();
-    
-    // Handle both old and new encryption formats
-    let secret: string;
-    try {
-      const encryptedData = JSON.parse(encryptedSecret);
-      secret = await encryption.decrypt(encryptedData);
-    } catch (e) {
-      // Might be old format, migrate it
-      const migrated = await this.migrateEncryptedSecret(encryptedSecret, userId);
-      const encryptedData = JSON.parse(migrated);
-      secret = await encryption.decrypt(encryptedData);
-      
-      // Update the stored secret
-      await supabaseAdmin
-        .from('user_mfa_config')
-        .update({ secret: migrated })
-        .eq('user_id', userId);
-    }
-    
-    return this.totp.verify(code, secret);
+  // Encryption helpers (simplified - use proper KMS in production)
+  private encryptSecret(secret: string): string {
+    // In production, use AWS KMS or similar
+    const cipher = crypto.createCipher('aes-256-cbc', process.env.MFA_ENCRYPTION_KEY || 'default-key');
+    let encrypted = cipher.update(secret, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return encrypted;
+  }
+
+  private decryptSecret(encrypted: string): string {
+    const decipher = crypto.createDecipher('aes-256-cbc', process.env.MFA_ENCRYPTION_KEY || 'default-key');
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
   }
 
   private hashBackupCode(code: string): string {
@@ -465,40 +388,6 @@ export class MFAService {
 
     if (error) {
       console.error('Failed to cleanup challenges:', error);
-    }
-  }
-
-  // Migration helper for old encryption format
-  private async migrateEncryptedSecret(encryptedSecret: string, userId: string): Promise<string> {
-    // Decrypt with old method
-    const key = process.env.MFA_ENCRYPTION_KEY || 'default-encryption-key-change-me';
-    const keyBuffer = crypto.scryptSync(key, 'salt', 32);
-    
-    if (encryptedSecret.includes(':')) {
-      // Format with IV
-      const [ivHex, encrypted] = encryptedSecret.split(':');
-      const iv = Buffer.from(ivHex, 'hex');
-      
-      const decipher = crypto.createDecipheriv('aes-256-cbc', keyBuffer, iv);
-      let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-      decrypted += decipher.final('utf8');
-      
-      // Re-encrypt with new method
-      const encryption = await this.getEncryption();
-      const newEncrypted = await encryption.encrypt(decrypted, { userId, purpose: 'mfa-secret' });
-      
-      return JSON.stringify(newEncrypted);
-    } else {
-      // Old format without IV
-      const decipher = crypto.createDecipher('aes-256-cbc', process.env.MFA_ENCRYPTION_KEY || 'default-key');
-      let decrypted = decipher.update(encryptedSecret, 'hex', 'utf8');
-      decrypted += decipher.final('utf8');
-      
-      // Re-encrypt with new method
-      const encryption = await this.getEncryption();
-      const newEncrypted = await encryption.encrypt(decrypted, { userId, purpose: 'mfa-secret' });
-      
-      return JSON.stringify(newEncrypted);
     }
   }
 }
