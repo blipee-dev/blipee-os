@@ -130,3 +130,10 @@ export class EncryptionFactory {
     }
   }
 }
+
+/**
+ * Convenience function to get encryption service instance
+ */
+export async function getEncryptionService(): Promise<EncryptionService> {
+  return EncryptionFactory.create();
+}

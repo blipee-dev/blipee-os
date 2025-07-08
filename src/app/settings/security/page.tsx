@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { GradientButton } from '@/components/premium/GradientButton';
-import { Shield, Smartphone, Key, AlertCircle, Monitor, Calendar, MapPin, X, FileText } from 'lucide-react';
+import { Shield, Smartphone, Key, AlertCircle, Monitor, Calendar, MapPin, X, FileText, RefreshCw } from 'lucide-react';
 import { MFASetup } from '@/components/auth/mfa/MFASetup';
 import { useAuth } from '@/lib/auth/context';
 import { motion } from 'framer-motion';
 import { SecurityDashboard } from '@/components/security/SecurityDashboard';
 import { AuditDashboard } from '@/components/audit/AuditDashboard';
+import { RecoverySettings } from '@/components/auth/recovery/RecoverySettings';
+import { RecoveryDashboard } from '@/components/auth/recovery/RecoveryDashboard';
 
 export default function SecuritySettingsPage() {
   const [showMFASetup, setShowMFASetup] = useState(false);
@@ -185,11 +187,45 @@ export default function SecuritySettingsPage() {
         </GlassCard>
       </motion.div>
 
-      {/* Additional Security Options */}
+      {/* Account Recovery */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
+      >
+        <GlassCard>
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <RefreshCw className="h-5 w-5 text-green-500" />
+              Account Recovery
+            </h2>
+            <RecoverySettings />
+          </div>
+        </GlassCard>
+      </motion.div>
+
+      {/* Recovery Dashboard - Admin only */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <GlassCard>
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <Shield className="h-5 w-5 text-orange-500" />
+              Recovery Statistics
+            </h2>
+            <RecoveryDashboard organizationId={user?.id} />
+          </div>
+        </GlassCard>
+      </motion.div>
+
+      {/* Additional Security Options */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
       >
         <GlassCard>
           <div className="space-y-6">
@@ -221,7 +257,7 @@ export default function SecuritySettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.5 }}
       >
         <GlassCard>
           <div className="space-y-4">
@@ -297,7 +333,7 @@ export default function SecuritySettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.6 }}
       >
         <GlassCard>
           <div className="space-y-4">
@@ -314,7 +350,7 @@ export default function SecuritySettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.7 }}
       >
         <GlassCard>
           <div className="space-y-4">
@@ -331,7 +367,7 @@ export default function SecuritySettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.8 }}
       >
         <GlassCard>
           <div className="space-y-4">
