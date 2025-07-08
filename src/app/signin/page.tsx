@@ -4,10 +4,11 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, Building2 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { MFAVerification } from "@/components/auth/mfa/MFAVerification";
+import { useSSOAuth } from "@/hooks/useSSOAuth";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -18,8 +19,10 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [mfaRequired, setMfaRequired] = useState(false);
   const [challengeId, setChallengeId] = useState("");
+  const [checkingSSO, setCheckingSSO] = useState(false);
   const router = useRouter();
   const { signIn } = useAuth();
+  const { initiateSSO, checkSSO } = useSSOAuth();
 
   // Load remembered email on mount
   useEffect(() => {
@@ -30,6 +33,23 @@ export default function SignInPage() {
       setRememberMe(true);
     }
   }, []);
+
+  // Check for SSO when email changes
+  const handleEmailChange = async (value: string) => {
+    setEmail(value);
+    
+    // Check if SSO is required for this email domain
+    if (value.includes('@') && value.split('@')[1]) {
+      setCheckingSSO(true);
+      const ssoRequired = await checkSSO(value);
+      setCheckingSSO(false);
+      
+      if (ssoRequired) {
+        // Automatically redirect to SSO
+        initiateSSO({ domain: value.split('@')[1] });
+      }
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -185,9 +205,10 @@ export default function SignInPage() {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => handleEmailChange(e.target.value)}
               required
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              disabled={checkingSSO}
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-50"
               placeholder="you@company.com"
             />
           </div>
@@ -227,6 +248,22 @@ export default function SignInPage() {
             </button>
           </div>
         </div>
+
+        {/* SSO Indicator */}
+        {checkingSSO && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+          >
+            <div className="flex items-center">
+              <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400 mr-2" />
+              <p className="text-sm text-blue-600 dark:text-blue-400">
+                Checking for SSO configuration...
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Remember Me & Forgot Password */}
         <div className="flex items-center justify-between">
@@ -291,6 +328,25 @@ export default function SignInPage() {
               Or continue with
             </span>
           </div>
+        </div>
+
+        {/* SSO Button */}
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={() => {
+              if (email && email.includes('@')) {
+                initiateSSO({ domain: email.split('@')[1] });
+              } else {
+                setError('Please enter your email address first');
+              }
+            }}
+            disabled={loading || checkingSSO}
+            className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+          >
+            <Building2 className="w-5 h-5 mr-2" />
+            Sign in with Enterprise SSO
+          </button>
         </div>
 
         {/* Social Sign In */}
