@@ -94,6 +94,13 @@ CREATE POLICY "Account owners can manage alert rules" ON alert_rules
             WHERE user_id = auth.uid()
             AND role = 'account_owner'
         )
+    )
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM organization_members
+            WHERE user_id = auth.uid()
+            AND role = 'account_owner'
+        )
     );
 
 -- Account owners and managers can view alerts
@@ -118,6 +125,13 @@ CREATE POLICY "Account owners can manage alerts" ON alerts
             WHERE user_id = auth.uid()
             AND role = 'account_owner'
         )
+    )
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM organization_members
+            WHERE user_id = auth.uid()
+            AND role = 'account_owner'
+        )
     );
 
 -- Security events are viewable by account owners and managers
@@ -136,13 +150,20 @@ CREATE POLICY "Authorized users can view security events" ON security_events
 CREATE POLICY "System can insert security events" ON security_events
     FOR INSERT
     TO service_role
-    USING (true);
+    WITH CHECK (true);
 
 -- Only account owners can manage notification configs
 CREATE POLICY "Account owners can manage notification configs" ON notification_configs
     FOR ALL
     TO authenticated
     USING (
+        EXISTS (
+            SELECT 1 FROM organization_members
+            WHERE user_id = auth.uid()
+            AND role = 'account_owner'
+        )
+    )
+    WITH CHECK (
         EXISTS (
             SELECT 1 FROM organization_members
             WHERE user_id = auth.uid()
