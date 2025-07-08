@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { UserRole } from "@/types/auth";
-import { ensureUserProfile, repairUserData } from "./auth-fix";
+// Removed auth-fix import - trigger now handles profile creation properly
 import type {
   AuthResponse,
   Session,
@@ -50,11 +50,9 @@ export class AuthService {
       
       userId = authData.user.id;
 
-      // Step 2: Ensure user profile exists (handles trigger failures)
-      await ensureUserProfile(userId, email, {
-        full_name: metadata.full_name,
-        role: metadata.role,
-      });
+      // Step 2: Wait a moment for trigger to create profile
+      // The database trigger will handle profile creation
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Step 3: Create organization if company name provided
       if (metadata.company_name) {
@@ -146,20 +144,30 @@ export class AuthService {
     if (authError) throw authError;
     if (!authData.user) throw new Error("User creation failed");
 
-    // Create user profile
+    // Wait for trigger to create profile, then get it
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     const { data: profile, error: profileError } = await supabase
       .from("user_profiles")
-      .insert({
-        id: authData.user.id,
-        email,
-        full_name: metadata.full_name,
-        preferences: {},
-        ai_personality_settings: this.getDefaultAISettings(metadata.role),
-      })
-      .select()
+      .select("*")
+      .eq("id", authData.user.id)
       .single();
 
-    if (profileError) throw profileError;
+    if (profileError || !profile) {
+      throw new Error("User profile was not created. Please check database trigger.");
+    }
+    
+    // Update AI settings based on role
+    const { error: updateError } = await supabase
+      .from("user_profiles")
+      .update({
+        ai_personality_settings: this.getDefaultAISettings(metadata.role),
+      })
+      .eq("id", authData.user.id);
+      
+    if (updateError) {
+      console.warn("Failed to update AI settings:", updateError);
+    }
 
     // Create organization if company name provided
     if (metadata.company_name) {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authService } from "@/lib/auth/service";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 const signInSchema = z.object({
   email: z.string().email(),
   password: z.string(),

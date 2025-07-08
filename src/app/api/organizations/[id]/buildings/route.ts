@@ -3,6 +3,8 @@ import { organizationService } from "@/lib/organizations/service";
 import { authService } from "@/lib/auth/service";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 const createBuildingSchema = z.object({
   name: z.string().min(1),
   address: z.string().optional(),

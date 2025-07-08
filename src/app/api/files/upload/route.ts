@@ -8,6 +8,8 @@ import { z } from "zod";
 import path from "path";
 import crypto from "crypto";
 
+export const dynamic = 'force-dynamic';
+
 // Allowed file types and extensions
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
