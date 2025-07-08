@@ -29,8 +29,73 @@ const publicRoutes = [
   '/ai-technology',
 ];
 
+// Simple DDoS protection for Edge Runtime
+class EdgeDDoSProtection {
+  private connections = new Map<string, { count: number; resetTime: number }>();
+  private readonly maxRequests = 100;
+  private readonly windowMs = 60000; // 1 minute
+
+  check(ip: string): { blocked: boolean; remaining: number } {
+    const now = Date.now();
+    const connection = this.connections.get(ip);
+
+    if (!connection || connection.resetTime < now) {
+      this.connections.set(ip, {
+        count: 1,
+        resetTime: now + this.windowMs
+      });
+      return { blocked: false, remaining: this.maxRequests - 1 };
+    }
+
+    connection.count++;
+    
+    if (connection.count > this.maxRequests) {
+      return { blocked: true, remaining: 0 };
+    }
+
+    return { blocked: false, remaining: this.maxRequests - connection.count };
+  }
+
+  cleanup() {
+    const now = Date.now();
+    const entries = Array.from(this.connections.entries());
+    for (const [ip, conn] of entries) {
+      if (conn.resetTime < now) {
+        this.connections.delete(ip);
+      }
+    }
+  }
+}
+
+// Global instance for Edge Runtime
+const ddosProtection = new EdgeDDoSProtection();
+
+// Cleanup every 5 minutes
+if (typeof setInterval !== 'undefined') {
+  setInterval(() => ddosProtection.cleanup(), 5 * 60 * 1000);
+}
+
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+             request.headers.get('x-real-ip') || 
+             '127.0.0.1';
+
+  // Apply DDoS protection
+  const ddosCheck = ddosProtection.check(ip);
+  if (ddosCheck.blocked) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { 
+        status: 429,
+        headers: {
+          'Retry-After': '60',
+          'X-RateLimit-Limit': '100',
+          'X-RateLimit-Remaining': '0',
+        }
+      }
+    );
+  }
 
   // Check if route is public
   const isPublicRoute = publicRoutes.some(route => path === route || path.startsWith(route + '/'));
@@ -62,8 +127,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Session exists, continue
-  return NextResponse.next();
+  // Session exists, continue with rate limit headers
+  const response = NextResponse.next();
+  response.headers.set('X-RateLimit-Limit', '100');
+  response.headers.set('X-RateLimit-Remaining', ddosCheck.remaining.toString());
+  
+  return response;
 }
 
 export const config = {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authService } from "@/lib/auth/service";
 import { sessionAuth } from "@/lib/auth/session-auth";
 import { sessionManager } from "@/lib/session/manager";
+import { withAuthSecurity } from "@/lib/security/api/wrapper";
 import { z } from "zod";
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,7 @@ const signInSchema = z.object({
   password: z.string(),
 });
 
-export async function POST(request: NextRequest) {
+async function signInHandler(request: NextRequest) {
   try {
     const body = await request.json();
 
@@ -76,3 +77,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// Export wrapped handler with rate limiting
+export const POST = withAuthSecurity(signInHandler, 'signin');

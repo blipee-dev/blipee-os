@@ -7,6 +7,7 @@ import { Shield, Smartphone, Key, AlertCircle, Monitor, Calendar, MapPin, X } fr
 import { MFASetup } from '@/components/auth/mfa/MFASetup';
 import { useAuth } from '@/lib/auth/context';
 import { motion } from 'framer-motion';
+import { SecurityDashboard } from '@/components/security/SecurityDashboard';
 
 export default function SecuritySettingsPage() {
   const [showMFASetup, setShowMFASetup] = useState(false);
@@ -291,11 +292,30 @@ export default function SecuritySettingsPage() {
         </GlassCard>
       </motion.div>
 
+      {/* Security Dashboard - Only show for admins */}
+      {(
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <GlassCard>
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Shield className="h-5 w-5 text-purple-500" />
+                Security Overview
+              </h2>
+              <SecurityDashboard />
+            </div>
+          </GlassCard>
+        </motion.div>
+      )}
+
       {/* Security Recommendations */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.5 }}
       >
         <GlassCard>
           <div className="space-y-4">
