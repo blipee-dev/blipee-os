@@ -70,7 +70,7 @@ export class LocalProvider implements EncryptionProvider {
         );
       }
     } catch (error) {
-      throw new Error(`Failed to initialize key store: ${error.message}`);
+      throw new Error(`Failed to initialize key store: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -241,7 +241,8 @@ export class LocalProvider implements EncryptionProvider {
 
   private async getActiveKey(): Promise<{ key: Buffer; metadata: KeyMetadata }> {
     // Find active key
-    for (const [, keyData] of this.keyCache) {
+    const entries = Array.from(this.keyCache.entries());
+    for (const [, keyData] of entries) {
       if (keyData.metadata.status === 'active') {
         return keyData;
       }
@@ -266,7 +267,8 @@ export class LocalProvider implements EncryptionProvider {
     
     const rotationThreshold = Date.now() - (this.config.rotationIntervalDays * 24 * 60 * 60 * 1000);
     
-    for (const [keyId, keyData] of this.keyCache) {
+    const entries = Array.from(this.keyCache.entries());
+    for (const [keyId, keyData] of entries) {
       if (keyData.metadata.status === 'active') {
         const created = new Date(keyData.metadata.created).getTime();
         if (created < rotationThreshold) {
@@ -283,7 +285,8 @@ export class LocalProvider implements EncryptionProvider {
   async exportKeys(password: string): Promise<string> {
     const keys: any[] = [];
     
-    for (const [, keyData] of this.keyCache) {
+    const entries = Array.from(this.keyCache.entries());
+    for (const [, keyData] of entries) {
       keys.push({
         key: keyData.key.toString('base64'),
         metadata: keyData.metadata

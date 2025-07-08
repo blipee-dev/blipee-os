@@ -1,5 +1,6 @@
 import crypto from 'crypto';
-import { Redis } from 'ioredis';
+// Dynamic import to avoid Edge Runtime issues
+type RedisInstance = any;
 
 export interface SessionData {
   userId: string;
@@ -38,7 +39,7 @@ export interface SessionConfig {
  * Enterprise-grade session management with Redis
  */
 export class SessionService {
-  private redis: Redis | null = null;
+  private redis: RedisInstance | null = null;
   private config: Required<SessionConfig>;
   private readonly DEFAULT_TTL = 8 * 60 * 60; // 8 hours
 
@@ -68,7 +69,11 @@ export class SessionService {
 
   private async initializeRedis() {
     try {
-      if (this.config.redis) {
+      if (this.config.redis && typeof window === 'undefined') {
+        // Only load Redis on server side
+        const ioredis = await import('ioredis');
+        const Redis = ioredis.default || ioredis.Redis;
+        
         this.redis = new Redis({
           host: this.config.redis.host,
           port: this.config.redis.port,

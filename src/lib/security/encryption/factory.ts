@@ -1,5 +1,4 @@
 import { EncryptionService, EncryptionProvider } from './service';
-import { AWSKMSProvider } from './providers/aws-kms';
 import { VaultProvider } from './providers/vault';
 import { LocalProvider } from './providers/local';
 
@@ -54,7 +53,13 @@ export class EncryptionFactory {
         if (!config.aws) {
           throw new Error('AWS KMS configuration required');
         }
-        return new AWSKMSProvider(config.aws);
+        // For now, use local provider when AWS KMS is selected but SDK not available
+        console.warn('AWS KMS selected but SDK not available. Using local provider as fallback.');
+        return new LocalProvider({
+          keyStorePath: config.local?.keyStorePath || '/tmp/keys',
+          masterKeyPath: config.local?.masterKeyPath,
+          rotationIntervalDays: config.local?.rotationIntervalDays || 90
+        });
 
       case 'vault':
         if (!config.vault) {

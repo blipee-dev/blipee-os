@@ -62,7 +62,7 @@ export class EncryptionService {
         context
       };
     } catch (error) {
-      throw new Error(`Encryption failed: ${error.message}`);
+      throw new Error(`Encryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -102,7 +102,7 @@ export class EncryptionService {
 
       return decrypted.toString('utf8');
     } catch (error) {
-      throw new Error(`Decryption failed: ${error.message}`);
+      throw new Error(`Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -153,7 +153,8 @@ export class EncryptionService {
    */
   private cleanupCache(): void {
     const now = Date.now();
-    for (const [key, value] of this.cache.entries()) {
+    const entries = Array.from(this.cache.entries());
+    for (const [key, value] of entries) {
       if (value.expiry <= now) {
         value.key.fill(0); // Clear key from memory
         this.cache.delete(key);
@@ -184,7 +185,8 @@ export class EncryptionService {
    * Clear all cached keys
    */
   clearCache(): void {
-    for (const [, value] of this.cache.entries()) {
+    const entries = Array.from(this.cache.entries());
+    for (const [, value] of entries) {
       value.key.fill(0);
     }
     this.cache.clear();
