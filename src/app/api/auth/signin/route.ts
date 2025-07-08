@@ -22,6 +22,18 @@ export async function POST(request: NextRequest) {
       validated.password,
     );
 
+    // Check if MFA is required
+    if (result.requiresMFA) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          requiresMFA: true,
+          challengeId: result.challengeId,
+          user: result.user,
+        },
+      });
+    }
+
     return NextResponse.json({
       success: true,
       data: result,

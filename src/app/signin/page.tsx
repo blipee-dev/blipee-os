@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { AuthLayout } from "@/components/auth/AuthLayout";
+import { MFAVerification } from "@/components/auth/mfa/MFAVerification";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -15,6 +16,8 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [challengeId, setChallengeId] = useState("");
   const router = useRouter();
   const { signIn } = useAuth();
 
@@ -34,7 +37,15 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      await signIn(email, password);
+      const result = await signIn(email, password);
+
+      // Check if MFA is required
+      if (result && result.requiresMFA) {
+        setMfaRequired(true);
+        setChallengeId(result.challengeId);
+        setLoading(false);
+        return;
+      }
 
       // Store remember me preference
       if (rememberMe) {
@@ -111,6 +122,31 @@ export default function SignInPage() {
       setError("Demo sign in failed. Please try manual signup.");
       setLoading(false);
     }
+  }
+
+  async function handleMFASuccess() {
+    // Redirect to the appropriate page after successful MFA
+    window.location.href = "/dashboard";
+  }
+
+  // Show MFA verification if required
+  if (mfaRequired && challengeId) {
+    return (
+      <AuthLayout
+        title="Two-Factor Authentication"
+        subtitle="Enter your verification code to continue"
+      >
+        <MFAVerification
+          challengeId={challengeId}
+          onSuccess={handleMFASuccess}
+          onCancel={() => {
+            setMfaRequired(false);
+            setChallengeId("");
+            setPassword("");
+          }}
+        />
+      </AuthLayout>
+    );
   }
 
   return (

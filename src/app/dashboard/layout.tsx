@@ -112,6 +112,12 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                       >
                         Profile Settings
                       </Link>
+                      <Link
+                        href="/settings/security"
+                        className="block px-4 py-2 text-sm text-white/80 light-mode:text-gray-700 hover:bg-white/[0.1] light-mode:hover:bg-gray-100"
+                      >
+                        Security Settings
+                      </Link>
                       <button
                         onClick={handleSignOut}
                         className="w-full text-left px-4 py-2 text-sm text-white/80 light-mode:text-gray-700 hover:bg-white/[0.1] light-mode:hover:bg-gray-100 flex items-center"
