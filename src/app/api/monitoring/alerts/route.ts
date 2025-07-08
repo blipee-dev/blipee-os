@@ -7,7 +7,7 @@ import { AlertRule } from '@/lib/monitoring/types';
 export const GET = createMonitoredHandler(async (request: NextRequest) => {
   try {
     // Check authentication
-    const authResult = await requireAuth(request, ['account_owner', 'sustainability_manager']);
+    const authResult = await requireAuth(request, ['account_owner', 'sustainability_lead']);
     if (!authResult.authenticated) {
       return NextResponse.json(
         { error: 'Unauthorized' },

@@ -90,7 +90,7 @@ CREATE POLICY "Account owners can manage alert rules" ON alert_rules
     TO authenticated
     USING (
         EXISTS (
-            SELECT 1 FROM user_roles
+            SELECT 1 FROM organization_members
             WHERE user_id = auth.uid()
             AND role = 'account_owner'
         )
@@ -102,9 +102,9 @@ CREATE POLICY "Authorized users can view alerts" ON alerts
     TO authenticated
     USING (
         EXISTS (
-            SELECT 1 FROM user_roles
+            SELECT 1 FROM organization_members
             WHERE user_id = auth.uid()
-            AND role IN ('account_owner', 'sustainability_manager')
+            AND role IN ('account_owner', 'sustainability_lead')
         )
     );
 
@@ -114,7 +114,7 @@ CREATE POLICY "Account owners can manage alerts" ON alerts
     TO authenticated
     USING (
         EXISTS (
-            SELECT 1 FROM user_roles
+            SELECT 1 FROM organization_members
             WHERE user_id = auth.uid()
             AND role = 'account_owner'
         )
@@ -126,9 +126,9 @@ CREATE POLICY "Authorized users can view security events" ON security_events
     TO authenticated
     USING (
         EXISTS (
-            SELECT 1 FROM user_roles
+            SELECT 1 FROM organization_members
             WHERE user_id = auth.uid()
-            AND role IN ('account_owner', 'sustainability_manager')
+            AND role IN ('account_owner', 'sustainability_lead')
         )
     );
 
@@ -144,7 +144,7 @@ CREATE POLICY "Account owners can manage notification configs" ON notification_c
     TO authenticated
     USING (
         EXISTS (
-            SELECT 1 FROM user_roles
+            SELECT 1 FROM organization_members
             WHERE user_id = auth.uid()
             AND role = 'account_owner'
         )
