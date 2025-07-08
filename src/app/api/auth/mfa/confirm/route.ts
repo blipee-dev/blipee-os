@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const mfaService = new MFAService();
     
     // Confirm MFA setup
-    const confirmed = await mfaService.confirmMFASetup(user.id, verification);
+    const confirmed = await mfaService.confirmMFASetup(user.id, verification.method, verification.code);
 
     if (!confirmed) {
       return NextResponse.json(

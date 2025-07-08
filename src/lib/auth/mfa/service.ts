@@ -42,25 +42,18 @@ export class MFAService {
 
     switch (method) {
       case 'totp':
-        const secret = this.totp.generateSecret();
-        const qrCode = await this.totp.generateQRCode(
-          profile.email,
-          secret,
-          process.env.MFA_ISSUER_NAME || 'Blipee OS'
-        );
-        const backupCodes = this.totp.generateBackupCodes();
-
-        const setup: MFASetup = {
-          method: 'totp',
-          secret,
-          qrCode,
+        const setup = await this.totp.generateSecret(profile.email);
+        const backupCodes = this.generateBackupCodes();
+        
+        const fullSetup: MFASetup = {
+          ...setup,
           backupCodes,
         };
 
         // Store pending setup with encryption
-        await this.storePendingMFASetup(userId, setup);
+        await this.storePendingMFASetup(userId, fullSetup);
 
-        return setup;
+        return fullSetup;
 
       default:
         throw new Error(`Unsupported MFA method: ${method}`);
@@ -79,7 +72,7 @@ export class MFAService {
     }
 
     // Verify the code
-    const isValid = this.totp.verify(code, pendingSetup.secret!);
+    const isValid = this.totp.verifyToken(code, pendingSetup.secret!);
     
     if (!isValid) {
       return false;
@@ -181,7 +174,7 @@ export class MFAService {
 
       // Handle device trust if requested
       if (verification.rememberDevice) {
-        await this.trustDevice(challenge.user_id, verification.deviceInfo);
+        await this.trustDevice(challenge.user_id, verification.rememberDevice);
       }
 
       return { success: true, userId: challenge.user_id };
@@ -296,9 +289,11 @@ export class MFAService {
   /**
    * Trust a device
    */
-  private async trustDevice(userId: string, deviceInfo?: any): Promise<void> {
+  private async trustDevice(userId: string, rememberDevice: boolean): Promise<void> {
+    if (!rememberDevice) return;
+    
     const deviceId = crypto.randomUUID();
-    const deviceName = deviceInfo?.userAgent || 'Unknown Device';
+    const deviceName = 'Web Browser'; // Could be enhanced with user agent parsing
     
     await supabaseAdmin
       .from('user_devices')
@@ -306,7 +301,7 @@ export class MFAService {
         id: deviceId,
         user_id: userId,
         name: deviceName,
-        type: deviceInfo?.type || 'web',
+        type: 'web',
         is_trusted: true,
         last_used_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
@@ -447,11 +442,20 @@ export class MFAService {
         .eq('user_id', userId);
     }
     
-    return this.totp.verify(code, secret);
+    return this.totp.verifyToken(code, secret);
   }
 
   private hashBackupCode(code: string): string {
     return crypto.createHash('sha256').update(code).digest('hex');
+  }
+
+  private generateBackupCodes(count: number = 10): string[] {
+    const codes: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const code = crypto.randomBytes(4).toString('hex').toUpperCase();
+      codes.push(`${code.slice(0, 4)}-${code.slice(4)}`);
+    }
+    return codes;
   }
 
   /**

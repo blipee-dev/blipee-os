@@ -54,7 +54,7 @@ export class VaultProvider implements EncryptionProvider {
       const data = await response.json();
       return data.data.ciphertext;
     } catch (error) {
-      throw new Error(`Vault encryption error: ${error.message}`);
+      throw new Error(`Vault encryption error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -81,7 +81,7 @@ export class VaultProvider implements EncryptionProvider {
       const plaintext = Buffer.from(data.data.plaintext, 'base64').toString('utf8');
       return plaintext;
     } catch (error) {
-      throw new Error(`Vault decryption error: ${error.message}`);
+      throw new Error(`Vault decryption error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -122,7 +122,7 @@ export class VaultProvider implements EncryptionProvider {
       
       return `${keyName}-v${latestVersion}`;
     } catch (error) {
-      throw new Error(`Vault key rotation error: ${error.message}`);
+      throw new Error(`Vault key rotation error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -146,7 +146,7 @@ export class VaultProvider implements EncryptionProvider {
       const data = await response.json();
       return data.data.ciphertext;
     } catch (error) {
-      throw new Error(`Vault rewrap error: ${error.message}`);
+      throw new Error(`Vault rewrap error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -171,7 +171,7 @@ export class VaultProvider implements EncryptionProvider {
         throw new Error(`Vault auto-rotation configuration failed: ${response.statusText}`);
       }
     } catch (error) {
-      throw new Error(`Vault auto-rotation error: ${error.message}`);
+      throw new Error(`Vault auto-rotation error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }

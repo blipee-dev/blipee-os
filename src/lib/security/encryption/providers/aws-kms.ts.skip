@@ -23,8 +23,8 @@ export class AWSKMSProvider implements EncryptionProvider {
   private async initializeClient() {
     // Dynamic import to avoid requiring AWS SDK if not used
     try {
-      const { KMSClient, GenerateDataKeyCommand, DecryptCommand, EncryptCommand } = 
-        await import('@aws-sdk/client-kms');
+      // @ts-ignore - AWS SDK may not be installed
+      const { KMSClient } = await import('@aws-sdk/client-kms');
       
       this.kmsClient = new KMSClient({
         region: this.config.region,
@@ -53,7 +53,7 @@ export class AWSKMSProvider implements EncryptionProvider {
       const response = await this.kmsClient.encrypt(command);
       return Buffer.from(response.CiphertextBlob).toString('base64');
     } catch (error) {
-      throw new Error(`KMS encryption failed: ${error.message}`);
+      throw new Error(`KMS encryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -69,7 +69,7 @@ export class AWSKMSProvider implements EncryptionProvider {
       const response = await this.kmsClient.decrypt(command);
       return Buffer.from(response.Plaintext).toString('utf8');
     } catch (error) {
-      throw new Error(`KMS decryption failed: ${error.message}`);
+      throw new Error(`KMS decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -88,7 +88,7 @@ export class AWSKMSProvider implements EncryptionProvider {
         ciphertext: Buffer.from(response.CiphertextBlob).toString('base64')
       };
     } catch (error) {
-      throw new Error(`KMS data key generation failed: ${error.message}`);
+      throw new Error(`KMS data key generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
