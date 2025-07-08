@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { ChatRequest, ChatResponse } from "@/types/conversation";
 import { aiService } from "@/lib/ai/service";
 import { withAuth } from "@/middleware/auth-new";
+import { withErrorHandler } from "@/lib/api/error-handler";
+import { rateLimit, RateLimitConfigs } from "@/lib/api/rate-limit";
 import {
   BLIPEE_SYSTEM_PROMPT,
   buildPrompt,
@@ -148,10 +150,14 @@ const demoResponses: Record<string, Partial<ChatResponse>> = {
   },
 };
 
-export const POST = withAuth(async (request: NextRequest, userId: string) => {
-  try {
-    const body = await request.json();
-    const { message, attachments, organizationId, buildingId } = body;
+const limiter = rateLimit(RateLimitConfigs.ai.chat);
+
+export const POST = withAuth(withErrorHandler(async (request: NextRequest, userId: string) => {
+  // Check rate limit
+  await limiter.check(request, RateLimitConfigs.ai.chat.limit, userId);
+
+  const body = await request.json();
+  const { message, attachments, organizationId, buildingId } = body;
 
     const startTime = Date.now();
 
@@ -359,14 +365,7 @@ export const POST = withAuth(async (request: NextRequest, userId: string) => {
     }
 
     return NextResponse.json(response);
-  } catch (error) {
-    console.error("Chat API error:", error);
-    return NextResponse.json(
-      { error: "Failed to process request" },
-      { status: 500 },
-    );
-  }
-});
+}));
 
 // Helper function to generate intelligent suggestions
 function generateIntelligentSuggestions(intelligentResponse: any): string[] {

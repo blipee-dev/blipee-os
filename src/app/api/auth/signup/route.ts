@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authService } from "@/lib/auth/service";
 import { z } from "zod";
 import { UserRole } from "@/types/auth";
+import { withErrorHandler } from "@/lib/api/error-handler";
+import { rateLimit, RateLimitConfigs } from "@/lib/api/rate-limit";
 
 const signUpSchema = z.object({
   email: z.string().email(),
@@ -11,50 +13,31 @@ const signUpSchema = z.object({
   role: z.string().optional(),
 });
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    console.log("Signup request body:", body);
+const limiter = rateLimit(RateLimitConfigs.auth.signup);
 
-    // Validate input
-    const validated = signUpSchema.parse(body);
+export const POST = withErrorHandler(async (request: NextRequest) => {
+  // Check rate limit
+  await limiter.check(request);
 
-    // Sign up user with transaction support
-    const result = await authService.signUpWithTransaction(
-      validated.email,
-      validated.password,
-      {
-        full_name: validated.fullName,
-        company_name: validated.companyName,
-        role: validated.role as UserRole,
-      },
-    );
+  const body = await request.json();
+  console.log("Signup request body:", body);
 
-    return NextResponse.json({
-      success: true,
-      data: result,
-    });
-  } catch (error: any) {
-    console.error("Signup error:", error);
-    console.error("Error stack:", error.stack);
+  // Validate input
+  const validated = signUpSchema.parse(body);
 
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Validation error",
-          details: error.errors,
-        },
-        { status: 400 },
-      );
-    }
+  // Sign up user with transaction support
+  const result = await authService.signUpWithTransaction(
+    validated.email,
+    validated.password,
+    {
+      full_name: validated.fullName,
+      company_name: validated.companyName,
+      role: validated.role as UserRole,
+    },
+  );
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message || "Failed to sign up",
-      },
-      { status: 500 },
-    );
-  }
-}
+  return NextResponse.json({
+    success: true,
+    data: result,
+  });
+});

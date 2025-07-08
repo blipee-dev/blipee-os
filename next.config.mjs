@@ -76,7 +76,7 @@ const nextConfig = {
   },
   eslint: {
     // Don't fail build on ESLint errors (we've already fixed them)
-    ignoreBuildErrors: false,
+    ignoreDuringBuilds: false,
   },
   
   // Experimental features to improve build
