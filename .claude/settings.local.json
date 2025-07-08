@@ -56,7 +56,8 @@
       "Bash(SUPABASE_DB_PASSWORD=postgresblipeeos npx supabase db push --password postgresblipeeos --dry-run)",
       "Bash(cat:*)",
       "WebFetch(domain:supabase.com)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-audit-calls.sh:*)"
     ],
     "deny": []
   }
