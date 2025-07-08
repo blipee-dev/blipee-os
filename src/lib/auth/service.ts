@@ -1,16 +1,24 @@
 import { createClient } from "@/lib/supabase/client";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { UserRole } from "@/types/auth";
 import type {
   AuthResponse,
   Session,
   SignUpMetadata,
-  UserProfile,
   Organization,
   Permission,
 } from "@/types/auth";
 
 export class AuthService {
-  private supabase = createClient();
+  private async getSupabase() {
+    if (typeof window === 'undefined') {
+      // Server-side
+      return await createServerSupabaseClient();
+    } else {
+      // Client-side
+      return createClient();
+    }
+  }
 
   /**
    * Sign up a new user and create their organization
@@ -20,9 +28,11 @@ export class AuthService {
     password: string,
     metadata: SignUpMetadata,
   ): Promise<AuthResponse> {
+    const supabase = await this.getSupabase();
+    
     // Create auth user
     const { data: authData, error: authError } =
-      await this.supabase.auth.signUp({
+      await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -37,7 +47,7 @@ export class AuthService {
     if (!authData.user) throw new Error("User creation failed");
 
     // Create user profile
-    const { data: profile, error: profileError } = await this.supabase
+    const { data: profile, error: profileError } = await supabase
       .from("user_profiles")
       .insert({
         id: authData.user.id,
@@ -55,7 +65,7 @@ export class AuthService {
     if (metadata.company_name) {
       const orgSlug = this.generateSlug(metadata.company_name);
 
-      const { data: orgId, error: orgError } = await this.supabase.rpc(
+      const { error: orgError } = await supabase.rpc(
         "create_organization_with_owner",
         {
           org_name: metadata.company_name,
@@ -82,8 +92,10 @@ export class AuthService {
    * Sign in an existing user
    */
   async signIn(email: string, password: string): Promise<AuthResponse> {
+    const supabase = await this.getSupabase();
+    
     const { data: authData, error: authError } =
-      await this.supabase.auth.signInWithPassword({
+      await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -91,11 +103,36 @@ export class AuthService {
     if (authError) throw authError;
     if (!authData.user) throw new Error("Authentication failed");
 
+    // Get user profile directly if session is null
     const session = await this.getSession();
+    
+    if (!session) {
+      // If no session (no organizations), return minimal auth response
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("id", authData.user.id)
+        .single();
+
+      if (!profile) throw new Error("User profile not found");
+
+      return {
+        user: profile,
+        session: {
+          user: profile,
+          organizations: [],
+          current_organization: null,
+          permissions: [],
+          expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+        },
+        access_token: authData.session?.access_token || "",
+        refresh_token: authData.session?.refresh_token || "",
+      };
+    }
 
     return {
-      user: session!.user,
-      session: session!,
+      user: session.user,
+      session: session,
       access_token: authData.session?.access_token || "",
       refresh_token: authData.session?.refresh_token || "",
     };
@@ -105,7 +142,9 @@ export class AuthService {
    * Sign in with OAuth provider
    */
   async signInWithProvider(provider: "google" | "azure"): Promise<void> {
-    const { error } = await this.supabase.auth.signInWithOAuth({
+    const supabase = await this.getSupabase();
+    
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: provider as any, // Type assertion for now
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
@@ -119,21 +158,23 @@ export class AuthService {
    * Get current session with full context
    */
   async getSession(): Promise<Session | null> {
+    const supabase = await this.getSupabase();
+    
     const {
       data: { user },
-    } = await this.supabase.auth.getUser();
+    } = await supabase.auth.getUser();
 
     if (!user) return null;
 
     // Get user profile
-    const { data: profile } = await this.supabase
+    const { data: profile } = await supabase
       .from("user_profiles")
       .select("*")
       .eq("id", user.id)
       .single();
 
     // Get user's organizations
-    const { data: memberships } = await this.supabase
+    const { data: memberships } = await supabase
       .from("organization_members")
       .select(
         `
@@ -144,8 +185,15 @@ export class AuthService {
       .eq("user_id", user.id)
       .eq("invitation_status", "accepted");
 
+    // Return session even if no organizations
     if (!memberships || memberships.length === 0) {
-      return null;
+      return {
+        user: profile,
+        organizations: [],
+        current_organization: null,
+        permissions: [],
+        expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+      };
     }
 
     // Get current organization (first one for now)
@@ -171,7 +219,9 @@ export class AuthService {
    * Sign out current user
    */
   async signOut(): Promise<void> {
-    const { error } = await this.supabase.auth.signOut();
+    const supabase = await this.getSupabase();
+    
+    const { error } = await supabase.auth.signOut();
     if (error) throw error;
   }
 
@@ -179,7 +229,9 @@ export class AuthService {
    * Send password reset email
    */
   async resetPassword(email: string): Promise<void> {
-    const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+    const supabase = await this.getSupabase();
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     });
 
@@ -190,7 +242,9 @@ export class AuthService {
    * Update user password
    */
   async updatePassword(newPassword: string): Promise<void> {
-    const { error } = await this.supabase.auth.updateUser({
+    const supabase = await this.getSupabase();
+    
+    const { error } = await supabase.auth.updateUser({
       password: newPassword,
     });
 

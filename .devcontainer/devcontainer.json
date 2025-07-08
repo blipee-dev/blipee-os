@@ -1,0 +1,45 @@
+{
+  "name": "Blipee OS Development",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally
+  "forwardPorts": [3000],
+  
+  // Use 'postCreateCommand' to run commands after the container is created
+  "postCreateCommand": "npm install",
+  
+  // Use 'postStartCommand' to run commands after the container starts
+  "postStartCommand": "npm run dev",
+
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  // Environment variables
+  "remoteEnv": {
+    "NODE_ENV": "development"
+  },
+
+  // Port attributes
+  "portsAttributes": {
+    "3000": {
+      "label": "Blipee OS",
+      "onAutoForward": "openBrowserOnce"
+    }
+  }
+}

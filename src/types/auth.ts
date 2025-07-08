@@ -194,7 +194,7 @@ export interface Permission {
 export interface Session {
   user: UserProfile;
   organizations: Organization[];
-  current_organization: Organization;
+  current_organization: Organization | null;
   current_building?: Building;
   permissions: Permission[];
   expires_at: string;

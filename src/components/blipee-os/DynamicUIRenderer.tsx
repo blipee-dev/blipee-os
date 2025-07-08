@@ -81,6 +81,28 @@ const DashboardComponent = dynamic(
   },
 );
 
+const SetupChecklist = dynamic(
+  () =>
+    import("@/components/dynamic/SetupChecklist").then(
+      (mod) => mod.SetupChecklist,
+    ),
+  {
+    ssr: false,
+    loading: () => <div className="h-64 bg-surface rounded-lg animate-pulse" />,
+  },
+);
+
+const QuickStartUpload = dynamic(
+  () =>
+    import("@/components/dynamic/QuickStartUpload").then(
+      (mod) => mod.QuickStartUpload,
+    ),
+  {
+    ssr: false,
+    loading: () => <div className="h-96 bg-surface rounded-lg animate-pulse" />,
+  },
+);
+
 interface DynamicUIRendererProps {
   components: UIComponent[];
 }
@@ -117,6 +139,12 @@ export function DynamicUIRenderer({ components }: DynamicUIRendererProps) {
       case "building-dashboard":
       case "dashboard":
         return <DashboardComponent key={key} {...component.props} />;
+
+      case "setup-checklist":
+        return <SetupChecklist key={key} {...component.props} />;
+
+      case "quick-start-upload":
+        return <QuickStartUpload key={key} {...component.props} />;
 
       case "optimization-dashboard":
         return (

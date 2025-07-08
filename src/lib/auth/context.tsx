@@ -61,11 +61,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setSession(data.data.session);
+      console.log("Sign in successful, session:", data.data.session);
+      console.log("Onboarding completed:", data.data.session?.user?.onboarding_completed);
 
       // Redirect based on onboarding status
-      if (!data.data.user.onboarding_completed) {
+      if (!data.data.session?.user?.onboarding_completed) {
+        console.log("Redirecting to /onboarding");
         router.push("/onboarding");
       } else {
+        console.log("Redirecting to /dashboard");
         router.push("/dashboard");
       }
     } catch (err: any) {
