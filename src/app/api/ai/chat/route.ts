@@ -21,6 +21,8 @@ import {
   handleBatchDocuments,
 } from "@/lib/ai/document-handler";
 
+export const dynamic = 'force-dynamic';
+
 // Demo responses for fallback when AI is not available
 const demoResponses: Record<string, Partial<ChatResponse>> = {
   "building-report": {
