@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Simple metrics collection for Edge Runtime
+const recordMetric = (name: string, value: number, labels?: Record<string, string>) => {
+  // In Edge Runtime, we'll just log the metrics
+  // The actual metrics collection will happen in the API routes
+  console.log(`[METRIC] ${name}:`, value, labels);
+};
+
 // Routes that require authentication
 const protectedRoutes = [
   '/dashboard',
@@ -76,7 +83,9 @@ if (typeof setInterval !== 'undefined') {
 }
 
 export async function middleware(request: NextRequest) {
+  const startTime = Date.now();
   const path = request.nextUrl.pathname;
+  const method = request.method;
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
              request.headers.get('x-real-ip') || 
              '127.0.0.1';
@@ -84,6 +93,10 @@ export async function middleware(request: NextRequest) {
   // Apply DDoS protection
   const ddosCheck = ddosProtection.check(ip);
   if (ddosCheck.blocked) {
+    // Record rate limit exceeded
+    recordMetric('http_requests_total', 1, { method, path, status: '429' });
+    recordMetric('rate_limit_exceeded_total', 1, { method, path, ip });
+    
     return NextResponse.json(
       { error: 'Too many requests' },
       { 
@@ -97,41 +110,62 @@ export async function middleware(request: NextRequest) {
     );
   }
 
+  let response: NextResponse;
+  let statusCode = 200;
+
   // Check if route is public
   const isPublicRoute = publicRoutes.some(route => path === route || path.startsWith(route + '/'));
   if (isPublicRoute) {
-    return NextResponse.next();
-  }
-
-  // Check if route requires authentication
-  const requiresAuth = protectedRoutes.some(route => path.startsWith(route));
-  if (!requiresAuth) {
-    return NextResponse.next();
-  }
-
-  // Simple cookie check for Edge runtime
-  const sessionCookie = request.cookies.get('blipee-session');
-  
-  if (!sessionCookie) {
-    // For API routes, return 401
-    if (path.startsWith('/api/')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    response = NextResponse.next();
+  } else {
+    // Check if route requires authentication
+    const requiresAuth = protectedRoutes.some(route => path.startsWith(route));
+    if (!requiresAuth) {
+      response = NextResponse.next();
+    } else {
+      // Simple cookie check for Edge runtime
+      const sessionCookie = request.cookies.get('blipee-session');
+      
+      if (!sessionCookie) {
+        statusCode = 401;
+        
+        // For API routes, return 401
+        if (path.startsWith('/api/')) {
+          response = NextResponse.json(
+            { error: 'Unauthorized' },
+            { status: 401 }
+          );
+        } else {
+          // For web routes, redirect to signin
+          const url = new URL('/signin', request.url);
+          url.searchParams.set('redirect', path);
+          response = NextResponse.redirect(url);
+          statusCode = 302;
+        }
+      } else {
+        // Session exists, continue with rate limit headers
+        response = NextResponse.next();
+        response.headers.set('X-RateLimit-Limit', '100');
+        response.headers.set('X-RateLimit-Remaining', ddosCheck.remaining.toString());
+      }
     }
-
-    // For web routes, redirect to signin
-    const url = new URL('/signin', request.url);
-    url.searchParams.set('redirect', path);
-    return NextResponse.redirect(url);
   }
 
-  // Session exists, continue with rate limit headers
-  const response = NextResponse.next();
-  response.headers.set('X-RateLimit-Limit', '100');
-  response.headers.set('X-RateLimit-Remaining', ddosCheck.remaining.toString());
-  
+  // Record metrics for this request
+  const duration = Date.now() - startTime;
+  recordMetric('http_requests_total', 1, { method, path, status: statusCode.toString() });
+  recordMetric('http_request_duration_ms', duration, { method, path });
+
+  // Record authentication events
+  if (path.startsWith('/api/auth/')) {
+    const authEvent = path.split('/').pop() || 'unknown';
+    recordMetric('auth_events_total', 1, { 
+      event: authEvent, 
+      method: 'session', 
+      success: (statusCode < 400).toString() 
+    });
+  }
+
   return response;
 }
 

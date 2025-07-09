@@ -1,0 +1,231 @@
+global:
+  # Global configuration
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@blipee.com'
+  smtp_auth_username: ''
+  smtp_auth_password: ''
+  smtp_require_tls: true
+  
+  # Slack webhook URL (replace with actual webhook)
+  slack_api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+  
+  # PagerDuty integration key
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+
+# Templates for notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route tree for organizing alerts
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+  
+  routes:
+    # Critical alerts go to PagerDuty and Slack immediately
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 0s
+      repeat_interval: 5m
+      
+    # Security alerts go to security team
+    - match:
+        category: security
+      receiver: 'security-alerts'
+      group_wait: 30s
+      repeat_interval: 15m
+      
+    # Database alerts go to database team
+    - match:
+        service: database
+      receiver: 'database-alerts'
+      group_wait: 30s
+      repeat_interval: 30m
+      
+    # Infrastructure alerts go to devops team
+    - match:
+        service: infrastructure
+      receiver: 'infrastructure-alerts'
+      group_wait: 1m
+      repeat_interval: 1h
+      
+    # AI/LLM service alerts
+    - match:
+        service: ai-llm
+      receiver: 'ai-service-alerts'
+      group_wait: 1m
+      repeat_interval: 30m
+
+# Inhibition rules to reduce alert noise
+inhibit_rules:
+  # If application is down, don't alert on other app-related issues
+  - source_match:
+      alertname: ApplicationDown
+    target_match:
+      service: blipee-app
+    equal: ['instance']
+    
+  # If there's a critical error, don't alert on warning-level errors
+  - source_match:
+      severity: critical
+    target_match:
+      severity: warning
+    equal: ['alertname', 'service']
+
+# Notification receivers
+receivers:
+  # Default webhook receiver
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://host.docker.internal:3000/api/monitoring/alerts/webhook'
+        send_resolved: true
+        http_config:
+          basic_auth:
+            username: 'alertmanager'
+            password: 'webhook-secret'
+        title: 'Blipee Alert: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}: {{ .Annotations.description }}{{ end }}'
+
+  # Critical alerts - multiple channels
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'oncall@blipee.com'
+        subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Severity: {{ .Labels.severity }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+        headers:
+          X-Priority: '1'
+    
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/CRITICAL/WEBHOOK'
+        channel: '#alerts-critical'
+        username: 'AlertManager'
+        icon_emoji: ':rotating_light:'
+        title: '🚨 CRITICAL ALERT: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Service:* {{ .Labels.service }}
+          *Summary:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Time:* {{ .StartsAt.Format "2006-01-02 15:04:05 MST" }}
+          {{ end }}
+        color: 'danger'
+        send_resolved: true
+    
+    pagerduty_configs:
+      - routing_key: 'YOUR_PAGERDUTY_INTEGRATION_KEY'
+        description: '{{ .GroupLabels.alertname }}: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        severity: 'critical'
+        details:
+          service: '{{ .GroupLabels.service }}'
+          alerts: '{{ len .Alerts }}'
+
+  # Security alerts
+  - name: 'security-alerts'
+    email_configs:
+      - to: 'security@blipee.com'
+        subject: '🔒 SECURITY ALERT: {{ .GroupLabels.alertname }}'
+        body: |
+          Security Alert Detected
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Severity: {{ .Labels.severity }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          
+          Please investigate immediately.
+          {{ end }}
+    
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SECURITY/WEBHOOK'
+        channel: '#security-alerts'
+        username: 'SecurityBot'
+        icon_emoji: ':lock:'
+        title: '🔒 Security Alert: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Type:* {{ .Labels.category }}
+          *Service:* {{ .Labels.service }}
+          *Summary:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+        color: 'warning'
+
+  # Database alerts
+  - name: 'database-alerts'
+    email_configs:
+      - to: 'dba@blipee.com'
+        subject: '🗃️ DATABASE ALERT: {{ .GroupLabels.alertname }}'
+        body: |
+          Database Alert
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+    
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/DATABASE/WEBHOOK'
+        channel: '#database-alerts'
+        username: 'DBBot'
+        icon_emoji: ':floppy_disk:'
+        title: '🗃️ Database Alert: {{ .GroupLabels.alertname }}'
+
+  # Infrastructure alerts
+  - name: 'infrastructure-alerts'
+    email_configs:
+      - to: 'devops@blipee.com'
+        subject: '⚙️ INFRASTRUCTURE ALERT: {{ .GroupLabels.alertname }}'
+        body: |
+          Infrastructure Alert
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Instance: {{ .Labels.instance }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+    
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/DEVOPS/WEBHOOK'
+        channel: '#infrastructure'
+        username: 'InfraBot'
+        icon_emoji: ':gear:'
+        title: '⚙️ Infrastructure Alert: {{ .GroupLabels.alertname }}'
+
+  # AI service alerts
+  - name: 'ai-service-alerts'
+    email_configs:
+      - to: 'ai-team@blipee.com'
+        subject: '🤖 AI SERVICE ALERT: {{ .GroupLabels.alertname }}'
+        body: |
+          AI Service Alert
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+    
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/AI/WEBHOOK'
+        channel: '#ai-alerts'
+        username: 'AIBot'
+        icon_emoji: ':robot_face:'
+        title: '🤖 AI Service Alert: {{ .GroupLabels.alertname }}'

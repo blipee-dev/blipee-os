@@ -1,0 +1,216 @@
+groups:
+  - name: blipee.rules
+    rules:
+      # Application Health Alerts
+      - alert: ApplicationDown
+        expr: up{job="blipee-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: blipee-app
+        annotations:
+          summary: "Blipee application is down"
+          description: "The Blipee application has been down for more than 1 minute."
+
+      - alert: HealthCheckFailing
+        expr: up{job="blipee-health"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          service: blipee-app
+        annotations:
+          summary: "Health check endpoint is failing"
+          description: "The health check endpoint has been failing for more than 2 minutes."
+
+      # Performance Alerts
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_ms_bucket[5m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: blipee-app
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}ms, which is above 1000ms threshold."
+
+      - alert: CriticalResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_ms_bucket[5m])) > 5000
+        for: 2m
+        labels:
+          severity: critical
+          service: blipee-app
+        annotations:
+          summary: "Critical response time detected"
+          description: "95th percentile response time is {{ $value }}ms, which is above 5000ms threshold."
+
+      # Error Rate Alerts
+      - alert: HighErrorRate
+        expr: rate(http_errors_total[5m]) / rate(http_requests_total[5m]) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: blipee-app
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }}, which is above 5% threshold."
+
+      - alert: CriticalErrorRate
+        expr: rate(http_errors_total[5m]) / rate(http_requests_total[5m]) * 100 > 20
+        for: 2m
+        labels:
+          severity: critical
+          service: blipee-app
+        annotations:
+          summary: "Critical error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }}, which is above 20% threshold."
+
+      # Memory Alerts
+      - alert: HighMemoryUsage
+        expr: (nodejs_memory_heap_used_bytes / nodejs_memory_heap_total_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: blipee-app
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value | humanizePercentage }}, which is above 85% threshold."
+
+      - alert: CriticalMemoryUsage
+        expr: (nodejs_memory_heap_used_bytes / nodejs_memory_heap_total_bytes) * 100 > 95
+        for: 1m
+        labels:
+          severity: critical
+          service: blipee-app
+        annotations:
+          summary: "Critical memory usage detected"
+          description: "Memory usage is {{ $value | humanizePercentage }}, which is above 95% threshold."
+
+      # Security Alerts
+      - alert: HighFailedLoginAttempts
+        expr: rate(failed_logins_total[5m]) * 300 > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: blipee-app
+          category: security
+        annotations:
+          summary: "High number of failed login attempts"
+          description: "{{ $value }} failed login attempts per 5 minutes, which is above 10 threshold."
+
+      - alert: RateLimitViolations
+        expr: rate(rate_limit_exceeded_total[5m]) * 300 > 50
+        for: 5m
+        labels:
+          severity: warning
+          service: blipee-app
+          category: security
+        annotations:
+          summary: "High number of rate limit violations"
+          description: "{{ $value }} rate limit violations per 5 minutes, which is above 50 threshold."
+
+      - alert: SuspiciousActivity
+        expr: rate(http_errors_total{status=~"401|403"}[5m]) * 300 > 20
+        for: 3m
+        labels:
+          severity: warning
+          service: blipee-app
+          category: security
+        annotations:
+          summary: "Suspicious authentication activity detected"
+          description: "{{ $value }} unauthorized/forbidden requests per 5 minutes, which is above 20 threshold."
+
+      # Database Alerts
+      - alert: DatabaseConnectionError
+        expr: rate(database_queries_total{status="error"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Database connection errors detected"
+          description: "Database queries are failing at a rate of {{ $value }} errors per second."
+
+      - alert: SlowDatabaseQueries
+        expr: histogram_quantile(0.95, rate(database_query_duration_ms_bucket[5m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile database query time is {{ $value }}ms, which is above 1000ms threshold."
+
+      # AI/LLM Service Alerts
+      - alert: AIServiceErrors
+        expr: rate(ai_requests_total{status="error"}[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          service: ai-llm
+        annotations:
+          summary: "AI service errors detected"
+          description: "AI requests are failing at a rate of {{ $value }} errors per second."
+
+      - alert: AIServiceSlowResponse
+        expr: histogram_quantile(0.95, rate(ai_request_duration_ms_bucket[5m])) > 30000
+        for: 5m
+        labels:
+          severity: warning
+          service: ai-llm
+        annotations:
+          summary: "Slow AI service responses"
+          description: "95th percentile AI request time is {{ $value }}ms, which is above 30000ms threshold."
+
+  - name: infrastructure.rules
+    rules:
+      # System Resource Alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: infrastructure
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage on {{ $labels.instance }} is {{ $value | humanizePercentage }}."
+
+      - alert: HighDiskUsage
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+          service: infrastructure
+        annotations:
+          summary: "Low disk space"
+          description: "Disk usage on {{ $labels.instance }} is above 90%."
+
+      - alert: ContainerDown
+        expr: absent(up{job="cadvisor"})
+        for: 1m
+        labels:
+          severity: warning
+          service: infrastructure
+        annotations:
+          summary: "Container monitoring is down"
+          description: "cAdvisor container monitoring service is not responding."
+
+      # Redis Alerts (if Redis is monitored)
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: redis
+        annotations:
+          summary: "Redis is down"
+          description: "Redis instance is not responding."
+
+      - alert: RedisHighMemoryUsage
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }}."
