@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { ConversationInterface } from "@/components/blipee-os/ConversationInterface";
+import React, { Suspense } from "react";
+import { LazyConversationInterface } from "@/components/lazy";
 import { useAuth } from "@/lib/auth/context";
 import { Leaf, TrendingDown, Target, FileText } from "lucide-react";
 
@@ -88,7 +88,13 @@ export default function DashboardPage() {
 
       {/* Main conversation interface with padding for stats banner */}
       <div className={`h-full ${!isNewUser ? 'pt-16' : ''}`}>
-        <ConversationInterface buildingContext={sustainabilityContext} />
+        <Suspense fallback={
+          <div className="flex items-center justify-center h-full">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+          </div>
+        }>
+          <LazyConversationInterface buildingContext={sustainabilityContext} />
+        </Suspense>
       </div>
     </div>
   );
