@@ -1,0 +1,28 @@
+name = "blipee-os-cdn"
+type = "webpack"
+account_id = "YOUR_ACCOUNT_ID"
+workers_dev = true
+route = "cdn.blipee.com/*"
+zone_id = "YOUR_ZONE_ID"
+
+[env.production]
+name = "blipee-os-cdn-prod"
+route = "cdn.blipee.com/*"
+
+[build]
+command = "npm run build"
+[build.upload]
+format = "service-worker"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "YOUR_KV_NAMESPACE_ID"
+
+[site]
+bucket = "./public"
+entry-point = "workers-site"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+CACHE_TTL = "86400"
+STALE_WHILE_REVALIDATE = "604800"

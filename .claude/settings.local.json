@@ -57,7 +57,18 @@
       "Bash(cat:*)",
       "WebFetch(domain:supabase.com)",
       "Bash(tree:*)",
-      "Bash(/workspaces/blipee-os/scripts/fix-audit-calls.sh:*)"
+      "Bash(/workspaces/blipee-os/scripts/fix-audit-calls.sh:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker:*)",
+      "Bash(sudo sh:*)",
+      "Bash(sudo systemctl start:*)",
+      "Bash(sudo systemctl:*)",
+      "Bash(sudo service:*)",
+      "Bash(sudo usermod:*)",
+      "Bash(sudo docker compose:*)",
+      "Bash(sudo docker:*)",
+      "Bash(./check_deleted_at.sh:*)"
     ],
     "deny": []
   }

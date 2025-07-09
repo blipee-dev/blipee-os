@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { monitoringService } from '@/lib/monitoring';
+import { getDataCache } from '@/lib/cache/data-cache';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'json';
     const timeRange = searchParams.get('range') || '1h';
+
+    // Initialize cache
+    const dataCache = await getDataCache();
+    
+    // Try to get cached metrics
+    const cacheKey = `monitoring:${format}:${timeRange}`;
+    const cached = await dataCache.getOrganizationData('system', cacheKey);
+    
+    if (cached && format === 'json') {
+      return NextResponse.json(cached);
+    }
 
     // Get monitoring dashboard data
     const dashboard = await monitoringService.getDashboard();
@@ -58,8 +70,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Return JSON format with comprehensive metrics
-    return NextResponse.json({
+    // Prepare response data
+    const responseData = {
       timestamp: new Date().toISOString(),
       timeRange,
       system: systemMetrics,
@@ -69,7 +81,13 @@ export async function GET(request: NextRequest) {
         alerts: '/api/monitoring/alerts',
         prometheus: '/api/monitoring/metrics?format=prometheus',
       },
-    });
+    };
+    
+    // Cache the response (5 minutes TTL for metrics)
+    await dataCache.setOrganizationData('system', cacheKey, responseData, 300);
+    
+    // Return JSON format with comprehensive metrics
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error('Error fetching metrics:', error);
     return NextResponse.json(

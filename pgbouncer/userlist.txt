@@ -1,0 +1,9 @@
+# PgBouncer userlist file
+# Format: "username" "password"
+# Passwords should be MD5 hashed: md5(password + username)
+# Example: for user "postgres" with password "mysecret"
+# echo -n "mysecretpostgres" | md5sum = a84e87f9c7f3b8c5d6e9f0a1b2c3d4e5
+
+"postgres" "md5a84e87f9c7f3b8c5d6e9f0a1b2c3d4e5"
+"readonly" "md5b94f78g8d8g4c9d6e7f0b2c3d5e6f7g8"
+"monitoring" "md5c05g89h9e9h5d0e7f8g1c3d4e6f8g9h9"

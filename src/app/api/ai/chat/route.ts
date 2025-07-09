@@ -20,6 +20,9 @@ import {
   handleDocumentInChat,
   handleBatchDocuments,
 } from "@/lib/ai/document-handler";
+import { getAICache } from "@/lib/cache/ai-cache";
+import { getDataCache } from "@/lib/cache/data-cache";
+import { aiCacheManager } from "@/lib/ai/cache-strategies";
 
 export const dynamic = 'force-dynamic';
 
@@ -161,11 +164,35 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
   const body = await request.json();
   const { message, attachments, organizationId, buildingId } = body;
 
-    const startTime = Date.now();
+  const startTime = Date.now();
 
-    // Try to use REVOLUTIONARY SUSTAINABILITY AI
-    try {
-      console.log("🌍 Processing with Blipee Sustainability Intelligence...");
+  // Initialize caching services
+  const aiCache = await getAICache();
+  const dataCache = await getDataCache();
+  await aiCacheManager.initialize();
+
+  // Check cache for similar queries (skip if attachments present)
+  if (!attachments || attachments.length === 0) {
+    const cacheContext = { organizationId, buildingId, userId };
+    
+    // Try advanced caching with semantic similarity
+    const cachedResponse = await aiCacheManager.get(message, cacheContext);
+    
+    if (cachedResponse) {
+      console.log(`🚀 Returning cached AI response (${cachedResponse.cacheType})`);
+      const endTime = Date.now();
+      return NextResponse.json({
+        ...cachedResponse,
+        processingTime: endTime - startTime,
+        cached: true,
+        cacheMetrics: aiCacheManager.getMetrics(),
+      });
+    }
+  }
+
+  // Try to use REVOLUTIONARY SUSTAINABILITY AI
+  try {
+    console.log("🌍 Processing with Blipee Sustainability Intelligence...");
 
       // Process attachments if any - EXTRACT DATA FROM SUSTAINABILITY REPORTS!
       let fileContext = "";
@@ -307,6 +334,16 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
         },
       };
 
+      // Cache the response using advanced strategies
+      if (!attachments || attachments.length === 0) {
+        const cacheContext = { organizationId, buildingId, userId };
+        await aiCacheManager.set(message, cacheContext, {
+          message: response.message,
+          suggestions: response.suggestions,
+          components: response.components,
+        });
+      }
+
       return NextResponse.json(response);
     } catch (aiError) {
       console.log(
@@ -364,6 +401,17 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
         "Generate sustainability report",
         "Find energy savings",
       ];
+    }
+
+    // Cache the fallback response using basic strategy
+    if (!attachments || attachments.length === 0) {
+      const cacheContext = { organizationId, buildingId, userId };
+      // Use basic cache for fallback responses
+      await aiCache.cacheResponse(message, cacheContext, {
+        message: response.message || '',
+        suggestions: response.suggestions,
+        components: response.components,
+      }, 300); // 5 minutes for fallback responses
     }
 
     return NextResponse.json(response);
