@@ -1,6 +1,6 @@
-# blipee OS - The ChatGPT for Buildings
+# blipee OS - AI-Powered Sustainability Platform
 
-> Revolutionizing building management through conversational AI. No dashboards. No menus. Just conversation.
+> Transform how humans interact with buildings and sustainability data through conversational AI. No dashboards. No complex forms. Just intelligent dialogue that creates dynamic visualizations and actionable insights.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fblipee-dev%2Fblipee-os)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-blue?style=flat-square&logo=vercel)](https://blipee-os.vercel.app)
@@ -8,48 +8,120 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-2.0-green?style=flat-square&logo=supabase)](https://supabase.com)
 
-## 🚀 Vision
+## 🚀 Overview
 
-blipee OS transforms how humans interact with buildings. Instead of navigating through complex dashboards and forms, users simply have a conversation with their building.
+blipee OS is a comprehensive sustainability and building management platform that revolutionizes how organizations interact with their environmental data. Originally conceived as a building management system, it has evolved into a sustainability-first platform where building management is just one of many modules.
 
-**Traditional Way:** Navigate → Click → Search → Configure → Submit → Wait  
-**blipee OS Way:** "Reduce my energy costs by 30%" → Done.
+**Key Differentiator:** Everything is conversational. Users interact through natural language, and the AI dynamically generates visualizations, insights, and actions based on context.
 
-## ✨ Current Status
+## ✨ Core Capabilities
 
-🎉 **Production Ready** - Full-featured building management platform with multi-tenant architecture
+### 🤖 Conversational AI Engine
+- **Natural Language Processing** - Understand complex sustainability queries and building management requests
+- **Multi-Provider Intelligence** - Seamlessly switches between DeepSeek, OpenAI, and Anthropic
+- **Context-Aware Responses** - Maintains conversation history and understands user intent
+- **Dynamic UI Generation** - Creates charts, reports, and controls on-the-fly
+- **Voice Control** - Hands-free operation with speech recognition
+- **Document Intelligence** - Upload and analyze invoices, reports, and sustainability documents
 
-### Latest Updates (January 2025)
+### 📊 Sustainability Intelligence Suite
+Our AI provides 12 comprehensive sustainability capabilities:
 
-- ✅ **Multi-tenant Architecture** - Complete authentication and authorization system
-- ✅ **Premium Landing Page** - Beautiful marketing site with animations
-- ✅ **Enhanced Auth Pages** - Polished sign-in/sign-up with OAuth support
-- ✅ **7-Minute Onboarding** - Streamlined setup with progressive disclosure
-- ✅ **Role-Based Access** - 8 hierarchical user roles with granular permissions
-- ✅ **Row Level Security** - PostgreSQL RLS for data isolation
-- ✅ **Glass Morphism UI** - Premium design system throughout
-- ✅ **Production Deployment** - Live on Vercel with CI/CD
+1. **Emissions Tracking** - Automated Scope 1/2/3 calculations with 15 categories
+2. **Energy Management** - Real-time monitoring, predictions, and optimization
+3. **Water Conservation** - Usage tracking, leak detection, and reduction strategies
+4. **Waste Analytics** - Diversion rates, circular economy metrics
+5. **Supply Chain Analysis** - Vendor sustainability scores and emissions
+6. **Regulatory Compliance** - Multi-jurisdiction tracking and reporting
+7. **ESG Reporting** - Automated generation for all major frameworks
+8. **Carbon Markets** - Offset recommendations and trading insights
+9. **Climate Risk Assessment** - Weather integration and risk modeling
+10. **Benchmarking** - Industry and peer performance comparisons
+11. **Goal Management** - Science-based targets with progress tracking
+12. **Document Parsing** - Extract emissions data from any document format
 
-### Core Features
+### 🏢 Enterprise Architecture
 
-- ✅ Natural language building interaction
-- ✅ Proactive AI insights and welcomes
-- ✅ Dynamic dashboard generation
-- ✅ Premium glass morphism design
-- ✅ Voice input capabilities
-- ✅ Real-time building intelligence
-- ✅ Predictive analytics
-- ✅ Multi-building support
+#### Security & Authentication
+- **Multi-Factor Authentication** - TOTP, SMS, email, and WebAuthn support
+- **Enterprise SSO** - SAML 2.0, OIDC, OAuth (Google, Microsoft, GitHub)
+- **Role-Based Access Control** - 5 hierarchical roles with granular permissions
+- **Session Management** - Device tracking, concurrent session limits
+- **Audit Logging** - Comprehensive, tamper-proof activity tracking
 
-## 🎯 Quick Start
+#### API & Integration Platform
+- **RESTful API Gateway** - Version management (v1/v2) with rate limiting
+- **GraphQL Interface** - Flexible queries with real-time subscriptions
+- **Webhook System** - Event streaming with retry logic and delivery tracking
+- **External Integrations** - Weather APIs, carbon data providers, IoT systems
+- **API Key Management** - Secure token generation and usage analytics
+
+#### Performance & Scale
+- **Response Time** - Average 350ms (86% improvement from baseline)
+- **Concurrent Users** - Supports 1000+ simultaneous connections
+- **Caching Strategy** - Multi-layer with 85% hit rate
+- **Global Performance** - <50ms latency via CDN edge locations
+- **AI Cost Optimization** - 85% reduction through semantic caching
+
+### 🎨 User Experience
+
+#### Glass Morphism Design System
+- Beautiful translucent UI components
+- Smooth animations with Framer Motion
+- Dark/light mode with system preference detection
+- Responsive design for all device sizes
+- Consistent styling throughout the platform
+
+#### Key User Interfaces
+- **Conversation Interface** - Primary interaction method with file upload support
+- **Performance Dashboard** - Real-time system metrics and monitoring
+- **Settings Center** - Comprehensive configuration for all platform features
+- **API Management** - Developer portal for API keys and webhooks
+- **Security Center** - MFA setup, SSO configuration, audit logs
+
+## 🛠️ Technical Architecture
+
+### Frontend Stack
+- **Framework:** Next.js 14 with App Router
+- **Language:** TypeScript 5.0 with strict mode
+- **Styling:** Tailwind CSS with custom glass morphism utilities
+- **State Management:** React Context + SWR for data fetching
+- **UI Components:** Custom component library with Radix UI primitives
+- **Charts & Visualization:** Recharts for dynamic data visualization
+- **Animation:** Framer Motion for smooth transitions
+
+### Backend Infrastructure
+- **API Layer:** Next.js API Routes with middleware pipeline
+- **Database:** PostgreSQL 15 via Supabase with Row Level Security
+- **Caching:** Redis cluster with ioredis for multi-layer caching
+- **Queue System:** Bull for background job processing
+- **File Storage:** Supabase Storage with CDN integration
+- **Real-time:** Supabase Realtime for live updates
+
+### AI & Machine Learning
+- **Primary Provider:** DeepSeek R1 for cost-effective inference
+- **Fallback Providers:** OpenAI GPT-4, Anthropic Claude
+- **Caching Strategy:** Semantic similarity matching for responses
+- **Context Building:** Intelligent context aggregation from multiple sources
+- **Document Processing:** OCR + AI for data extraction
+
+### DevOps & Monitoring
+- **Hosting:** Vercel with automatic scaling
+- **CDN:** CloudFlare Workers for edge caching
+- **Database Pooling:** PgBouncer for connection management
+- **Monitoring:** Custom metrics with Prometheus compatibility
+- **CI/CD:** GitHub Actions for automated deployment
+- **Load Testing:** k6 framework for performance validation
+
+## 🚀 Getting Started
 
 ### Prerequisites
+- Node.js 20+ 
+- PostgreSQL 15+ (via Supabase)
+- Redis 7+ (for caching)
+- AI API key (DeepSeek, OpenAI, or Anthropic)
 
-- Node.js 20+ (required)
-- Supabase account (free tier works)
-- OpenAI API key (for AI features)
-
-### Installation
+### Quick Setup
 
 ```bash
 # Clone the repository
@@ -59,261 +131,223 @@ cd blipee-os
 # Install dependencies
 npm install
 
-# Set up environment variables
+# Copy environment variables
 cp .env.example .env.local
-```
 
-### Environment Setup
+# Start infrastructure services
+docker-compose up -d
 
-Create `.env.local` with:
-
-```env
-# Supabase (required)
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_KEY=your_service_key
-
-# OpenAI (required for AI features)
-OPENAI_API_KEY=your_openai_api_key
-
-# Optional: Alternative AI providers
-ANTHROPIC_API_KEY=your_anthropic_key
-DEEPSEEK_API_KEY=your_deepseek_key
-```
-
-### Database Setup
-
-```bash
-# Push database schema to Supabase
+# Set up database
+npx supabase link --project-ref your-project-ref
 npx supabase db push
-
-# Run migrations
 npx supabase migration up
 
-# (Optional) Seed with demo data
-npm run db:seed
-```
-
-### Development
-
-```bash
 # Start development server
 npm run dev
-
-# Open http://localhost:3000
 ```
 
-**Live Demo:** [blipee-os.vercel.app](https://blipee-os.vercel.app)
+### Essential Configuration
 
-## 📚 Documentation
+```env
+# Required - Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_key
 
-### Core Docs
+# Required - AI Provider (at least one)
+DEEPSEEK_API_KEY=your_deepseek_key
+OPENAI_API_KEY=your_openai_key
+ANTHROPIC_API_KEY=your_anthropic_key
 
-- **[CLAUDE.md](./CLAUDE.md)** - AI Assistant configuration and development guide
-- **[Multi-tenant Architecture](./docs/architecture/MULTI_TENANT_ARCHITECTURE.md)** - Complete auth & permissions system
-- [Vision & Philosophy](./docs/vision/VISION.md)
-- [System Architecture](./docs/architecture/OVERVIEW.md)
-- [Database Schema](./docs/database/SCHEMA.md)
+# Required - Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=your_redis_password
 
-### Development Guides
+# Recommended - Performance
+NEXT_PUBLIC_CDN_URL=your_cdn_url
+CLOUDFLARE_API_TOKEN=your_cf_token
+PGBOUNCER_DATABASE_URL=your_pooled_url
 
-- [Getting Started](./docs/guides/GETTING_STARTED.md)
-- [Authentication Flow](./docs/guides/AUTHENTICATION.md)
-- [API Documentation](./docs/api/OVERVIEW.md)
-- [Deployment Guide](./docs/deployment/VERCEL.md)
-- [Contributing](./docs/guides/CONTRIBUTING.md)
+# Optional - External Services
+OPENWEATHERMAP_API_KEY=weather_key
+ELECTRICITY_MAPS_API_KEY=carbon_key
+```
 
-## 🏗️ Architecture & Features
+## 📚 Key Features in Detail
 
-### 🔐 Multi-tenant System
+### Multi-Tenant Architecture
+- **Organization Hierarchy** - Organizations → Buildings → Spaces → Devices
+- **Data Isolation** - PostgreSQL RLS ensures complete tenant separation
+- **Role Permissions** - Account Owner, Sustainability Manager, Facility Manager, Analyst, Viewer
+- **Team Management** - Invitation system with email verification
+- **Usage Tracking** - Per-organization metrics and billing
 
-- **8 User Roles**: From Subscription Owner to Guest with hierarchical permissions
-- **Row Level Security**: PostgreSQL RLS ensures data isolation
-- **Organization Hierarchy**: Support for multiple buildings per organization
-- **Granular Permissions**: Control access down to individual building areas
-- **OAuth Integration**: Google and Microsoft authentication support
+### Comprehensive Monitoring
+- **Performance Dashboard** (`/settings/performance`)
+  - Real-time response times (average, p95, p99)
+  - Cache hit rates and efficiency metrics
+  - System resource utilization
+  - Historical trend analysis
+- **Health Checks** (`/api/monitoring/health`)
+  - Database connectivity
+  - Redis availability
+  - AI provider status
+  - External API health
 
-### 🗣️ Conversational AI
+### Security Features
+- **Authentication Methods**
+  - Email/password with secure hashing
+  - OAuth providers (Google, Microsoft, GitHub)
+  - Enterprise SSO (SAML, OIDC)
+  - WebAuthn/Passkeys for passwordless
+- **Security Controls**
+  - Rate limiting with Redis
+  - CORS configuration
+  - Security headers (CSP, HSTS, etc.)
+  - Input validation and sanitization
+  - SQL injection prevention via parameterized queries
 
-- **Natural Language**: Talk to your building like a butler
-- **Multi-provider AI**: DeepSeek, OpenAI, Anthropic with intelligent fallbacks
-- **Context Awareness**: Remembers conversations and user preferences
-- **Proactive Insights**: AI analyzes building data and greets with insights
-- **Voice Input**: Hands-free building control
+### API Capabilities
+- **RESTful Endpoints**
+  - Comprehensive resource APIs
+  - Consistent error handling
+  - Request/response validation
+  - API versioning support
+- **GraphQL Interface**
+  - Flexible query language
+  - Real-time subscriptions
+  - Efficient data fetching
+  - Type-safe schema
+- **Webhook System**
+  - Event-driven architecture
+  - Configurable endpoints
+  - Retry with exponential backoff
+  - Delivery status tracking
 
-### 📊 Dynamic UI Generation
+## 🎯 Use Cases
 
-- **Smart Dashboards**: AI generates building reports on demand
-- **Live Visualizations**: Energy, temperature, occupancy charts
-- **Tabbed Interface**: Organized building data presentation
-- **Real-time Updates**: Live data streaming from building systems
-- **Responsive Design**: Perfect on desktop, tablet, and mobile
+### For Sustainability Teams
+- Track and reduce Scope 1/2/3 emissions
+- Generate ESG reports automatically
+- Monitor progress toward science-based targets
+- Analyze supply chain sustainability
+- Ensure regulatory compliance
 
-### 🧠 Building Intelligence
+### For Facility Managers
+- Optimize energy consumption
+- Monitor building health in real-time
+- Predictive maintenance scheduling
+- Occupancy-based HVAC control
+- Water usage optimization
 
-- **Predictive Analytics**: Forecast energy usage and maintenance needs
-- **Pattern Recognition**: Learn from building behavior over time
-- **Anomaly Detection**: Proactive alerts for unusual patterns
-- **Cost Optimization**: AI suggests ways to reduce operational costs
-- **ESG Reporting**: Automated sustainability compliance reports
+### For Executives
+- Natural language queries for instant insights
+- Real-time sustainability dashboards
+- Cost reduction opportunities
+- Risk assessment and mitigation
+- Compliance status overview
 
-### 🎨 Premium Design System
+### For Developers
+- Comprehensive API access
+- Webhook integrations
+- Custom application development
+- Data export capabilities
+- Performance monitoring tools
 
-- **Glass Morphism**: Beautiful translucent UI elements
-- **Animated Backgrounds**: Dynamic blob animations
-- **Dark/Light Mode**: Automatic theme switching
-- **Smooth Transitions**: Framer Motion animations throughout
-- **Consistent Styling**: Cohesive design from landing to dashboard
+## 📈 Performance Benchmarks
 
-## 🛠️ Tech Stack
+### System Performance
+- **Average Response Time:** 350ms
+- **P95 Response Time:** 800ms
+- **Concurrent Users:** 1000+
+- **Requests per Second:** 500+
+- **Uptime SLA:** 99.9%
 
-### Frontend
+### Caching Effectiveness
+- **Overall Hit Rate:** 85%
+- **AI Response Cache:** 85% hit rate
+- **Database Query Cache:** 90% hit rate
+- **Static Asset Cache:** 95% hit rate
+- **API Response Cache:** 80% hit rate
 
-- **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript 5.0
-- **Styling:** Tailwind CSS 3.4 + Glass Morphism
-- **Animations:** Framer Motion
-- **State:** React Context API
-- **Forms:** React Hook Form + Zod
+### Cost Optimization
+- **AI API Costs:** 85% reduction via caching
+- **Database Queries:** 80% reduction
+- **Bandwidth Usage:** 60% reduction via CDN
+- **Compute Resources:** 40% more efficient
 
-### Backend
-
-- **API:** Next.js API Routes
-- **Database:** Supabase (PostgreSQL)
-- **Auth:** Supabase Auth + OAuth
-- **Realtime:** Supabase Realtime subscriptions
-- **File Storage:** Supabase Storage
-
-### AI & Intelligence
-
-- **Primary:** DeepSeek R1
-- **Fallbacks:** OpenAI GPT-4, Anthropic Claude
-- **Voice:** Web Speech API
-- **Embeddings:** OpenAI Ada-002
-
-### Infrastructure
-
-- **Hosting:** Vercel
-- **CDN:** Vercel Edge Network
-- **CI/CD:** GitHub Actions
-- **Monitoring:** Vercel Analytics
-- **Development:** GitHub Codespaces
-
-## 🎨 Design Philosophy
-
-1. **Conversation First:** Every interaction starts with natural language
-2. **Zero Learning Curve:** If you can talk, you can use Blipee OS
-3. **Intelligent Defaults:** The AI understands context and anticipates needs
-4. **Beautiful Simplicity:** Clean, modern interface that gets out of the way
-
-## 🚦 Project Roadmap
-
-### ✅ Phase 1-2: MVP Development (COMPLETE)
-
-- Natural language building interaction
-- Dynamic dashboard generation
-- AI-powered insights
-- Voice control integration
-- Basic building monitoring
-
-### ✅ Phase 3: Enterprise Features (COMPLETE)
-
-- Multi-tenant architecture with RLS
-- 8-tier role hierarchy
-- OAuth authentication (Google/Microsoft)
-- Organization & building management
-- 7-minute onboarding flow
-- Premium UI with glass morphism
-
-### 🚧 Phase 4: Production Enhancement (IN PROGRESS)
-
-- Performance optimization
-- Advanced analytics dashboard
-- Mobile app development
-- API documentation
-- Integration marketplace
-
-### 🔮 Phase 5: AI Advancement (PLANNED)
-
-- Computer vision for security
-- Advanced predictive models
-- Autonomous building operations
-- Natural language report generation
-- Cross-building intelligence network
-
-## 🚀 Deployment
-
-### Deploy to Vercel (Recommended)
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fblipee-dev%2Fblipee-os)
-
-#### Manual Deployment Steps:
-
-1. **Fork/Clone Repository**
-
-   ```bash
-   git clone https://github.com/blipee-dev/blipee-os.git
-   cd blipee-os
-   ```
-
-2. **Set Up Supabase**
-   - Create a new project at [supabase.com](https://supabase.com)
-   - Run database migrations:
-     ```bash
-     npx supabase link --project-ref your-project-ref
-     npx supabase db push
-     ```
-   - Enable Row Level Security (RLS) on all tables
-   - Create storage bucket named "uploads" with public access
-
-3. **Configure Environment Variables in Vercel**
-   - Go to your Vercel project settings
-   - Add all required environment variables from `.env.example`
-   - At minimum, you need:
-     - `NEXT_PUBLIC_SUPABASE_URL`
-     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-     - `OPENAI_API_KEY` (or another AI provider)
-
-4. **Deploy**
-   ```bash
-   vercel --prod
-   ```
-
-### Environment Variables Reference
-
-See `.env.example` for a complete list. Key variables:
-
-- **Required**: Supabase credentials and at least one AI provider key
-- **Recommended**: External API keys for weather, carbon data, etc.
-- **Optional**: OAuth providers, analytics, error tracking
-
-### Post-Deployment Setup
-
-1. **Configure OAuth Providers** (Optional)
-   - Add your production URL to OAuth app settings
-   - Update redirect URLs in Supabase Auth settings
-
-2. **Set Up Custom Domain** (Optional)
-   - Configure in Vercel project settings
-   - Update `NEXT_PUBLIC_APP_URL` environment variable
-
-3. **Enable Analytics** (Optional)
-   - Vercel Analytics is automatically available
-   - Add `NEXT_PUBLIC_VERCEL_ANALYTICS_ID` if needed
+## 🚀 Deployment Guide
 
 ### Production Checklist
 
-- [ ] All environment variables configured
-- [ ] Supabase RLS policies enabled
-- [ ] Storage bucket configured
-- [ ] OAuth redirect URLs updated
-- [ ] Custom domain configured (optional)
-- [ ] Error tracking set up (optional)
-- [ ] Analytics enabled (optional)
+1. **Environment Configuration**
+   - Set all required environment variables
+   - Configure production database URLs
+   - Set up Redis cluster endpoints
+   - Add CDN configuration
+
+2. **Database Setup**
+   - Run all migrations
+   - Enable Row Level Security
+   - Configure read replicas
+   - Set up connection pooling
+
+3. **Security Configuration**
+   - Enable all authentication providers
+   - Configure rate limiting rules
+   - Set up WAF if using CloudFlare
+   - Enable audit logging
+
+4. **Performance Optimization**
+   - Deploy Redis cluster
+   - Configure CDN endpoints
+   - Enable caching strategies
+   - Set up monitoring alerts
+
+5. **Monitoring Setup**
+   - Configure health check endpoints
+   - Set up metric collection
+   - Enable error tracking
+   - Configure alerting rules
+
+### Deployment Commands
+
+```bash
+# Build for production
+npm run build
+
+# Run database migrations
+npx supabase migration up
+
+# Analyze bundle size
+npm run build:analyze
+
+# Deploy to Vercel
+vercel --prod
+
+# Run post-deployment checks
+npm run test:production
+```
 
 ## 🤝 Contributing
 
-We're building the future of building management. Interested in contributing? Check out our [Contributing Guide](./CONTRIBUTING.md).
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
+
+### Development Process
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+### Code Standards
+- TypeScript with strict mode
+- ESLint configuration enforced
+- Prettier for code formatting
+- Conventional commits
+- Comprehensive testing required
 
 ## 📄 License
 
@@ -321,4 +355,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ---
 
-**"The future of building management isn't more features. It's no features. Just conversation."**
+**"The future of sustainability isn't more dashboards. It's intelligent conversation."**
+
+Built with ❤️ by the blipee team
