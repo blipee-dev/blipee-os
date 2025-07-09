@@ -291,6 +291,80 @@ export class MonitoringService extends EventEmitter {
   }
 
   /**
+   * Get all alerts with optional filters
+   */
+  async getAlerts(filters?: {
+    severity?: AlertSeverity;
+    limit?: number;
+    resolved?: boolean;
+  }): Promise<Alert[]> {
+    let alerts = Array.from(this.alerts.values());
+    
+    // Apply filters
+    if (filters?.severity) {
+      alerts = alerts.filter(a => a.severity === filters.severity);
+    }
+    
+    if (filters?.resolved !== undefined) {
+      alerts = alerts.filter(a => a.resolved === filters.resolved);
+    }
+    
+    // Sort by timestamp (newest first)
+    alerts.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    
+    // Apply limit
+    if (filters?.limit) {
+      alerts = alerts.slice(0, filters.limit);
+    }
+    
+    return alerts;
+  }
+
+  /**
+   * Get all alert rules
+   */
+  async getAlertRules(): Promise<AlertRule[]> {
+    return Array.from(this.alertRules.values());
+  }
+
+  /**
+   * Manually trigger an alert
+   */
+  async triggerAlert(alert: {
+    id: string;
+    name: string;
+    severity: AlertSeverity;
+    message: string;
+    details?: any;
+    timestamp: Date;
+  }): Promise<Alert> {
+    const alertObj: Alert = {
+      ...alert,
+      resolved: false,
+    };
+    
+    this.alerts.set(alert.id, alertObj);
+    
+    // Store in database
+    await supabaseAdmin
+      .from('alerts')
+      .insert({
+        id: alertObj.id,
+        name: alertObj.name,
+        severity: alertObj.severity,
+        message: alertObj.message,
+        details: alertObj.details,
+        timestamp: alertObj.timestamp,
+        resolved: alertObj.resolved,
+      });
+    
+    // Emit alert event
+    this.emit('alert', alertObj);
+    
+    return alertObj;
+  }
+
+  /**
    * Configure notifications
    */
   async setNotificationConfig(config: NotificationConfig): Promise<void> {
