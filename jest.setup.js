@@ -1,159 +1,79 @@
-// Jest setup file for security tests
-import { jest } from '@jest/globals';
+// Learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom';
 
 // Mock environment variables
-process.env.NODE_ENV = 'test';
 process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
-process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
-process.env.ENCRYPTION_PROVIDER = 'local';
-process.env.KEY_STORE_PATH = './.test-keys';
+process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-key';
 
-// Mock Web APIs that aren't available in Node.js
-global.crypto = {
-  randomUUID: () => 'test-uuid-' + Math.random().toString(36).substr(2, 9),
-  randomBytes: (size) => Buffer.alloc(size, 0),
-  getRandomValues: (array) => {
-    for (let i = 0; i < array.length; i++) {
-      array[i] = Math.floor(Math.random() * 256);
-    }
-    return array;
+// Mock Next.js router
+jest.mock('next/navigation', () => ({
+  useRouter() {
+    return {
+      push: jest.fn(),
+      replace: jest.fn(),
+      prefetch: jest.fn(),
+      back: jest.fn(),
+      pathname: '/',
+      query: {},
+      asPath: '/',
+    };
   },
-};
-
-// Mock fetch for API calls
-global.fetch = jest.fn();
-
-// Mock performance API
-global.performance = {
-  now: jest.fn(() => Date.now()),
-  mark: jest.fn(),
-  measure: jest.fn(),
-  getEntriesByName: jest.fn(() => []),
-  getEntriesByType: jest.fn(() => []),
-  clearMarks: jest.fn(),
-  clearMeasures: jest.fn(),
-};
-
-// Mock WebAuthn APIs
-global.navigator = {
-  ...global.navigator,
-  credentials: {
-    create: jest.fn(),
-    get: jest.fn(),
-  },
-};
-
-// Mock console methods to reduce noise in tests
-const originalConsoleError = console.error;
-const originalConsoleWarn = console.warn;
-
-console.error = jest.fn((...args) => {
-  // Only show errors that aren't expected test errors
-  if (!args[0]?.includes?.('expected test error')) {
-    originalConsoleError(...args);
-  }
-});
-
-console.warn = jest.fn((...args) => {
-  // Only show warnings that aren't expected test warnings
-  if (!args[0]?.includes?.('expected test warning')) {
-    originalConsoleWarn(...args);
-  }
-});
-
-// Mock Buffer for base64 operations
-if (typeof Buffer === 'undefined') {
-  global.Buffer = require('buffer').Buffer;
-}
-
-// Mock TextEncoder/TextDecoder for WebAuthn
-if (typeof TextEncoder === 'undefined') {
-  global.TextEncoder = require('util').TextEncoder;
-}
-
-if (typeof TextDecoder === 'undefined') {
-  global.TextDecoder = require('util').TextDecoder;
-}
-
-// Mock btoa/atob for base64 operations
-if (typeof btoa === 'undefined') {
-  global.btoa = (str) => Buffer.from(str, 'binary').toString('base64');
-}
-
-if (typeof atob === 'undefined') {
-  global.atob = (str) => Buffer.from(str, 'base64').toString('binary');
-}
-
-// Cleanup after each test
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-// Global test timeout
-jest.setTimeout(10000);
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // Optionally exit the process
-  // process.exit(1);
-});
-
-// Mock Redis for testing
-jest.mock('ioredis', () => {
-  return {
-    default: jest.fn(() => ({
+  useSearchParams() {
+    return {
       get: jest.fn(),
-      set: jest.fn(),
-      del: jest.fn(),
-      incr: jest.fn(),
-      expire: jest.fn(),
-      ttl: jest.fn(),
-      pipeline: jest.fn(() => ({
-        get: jest.fn(),
-        set: jest.fn(),
-        incr: jest.fn(),
-        expire: jest.fn(),
-        exec: jest.fn(() => Promise.resolve([])),
-      })),
-      disconnect: jest.fn(),
-    })),
+    };
+  },
+  usePathname() {
+    return '/';
+  },
+}));
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+};
+
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+};
+
+// Suppress console errors in tests
+const originalError = console.error;
+beforeAll(() => {
+  console.error = (...args) => {
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('Warning: ReactDOM.render')
+    ) {
+      return;
+    }
+    originalError.call(console, ...args);
   };
 });
 
-// Mock bcrypt for password hashing
-jest.mock('bcryptjs', () => ({
-  hash: jest.fn((password, rounds) => Promise.resolve(`hashed_${password}_${rounds}`)),
-  compare: jest.fn((password, hash) => Promise.resolve(hash.includes(password))),
-  genSalt: jest.fn((rounds) => Promise.resolve(`salt_${rounds}`)),
-}));
-
-// Mock speakeasy for TOTP
-jest.mock('speakeasy', () => ({
-  generateSecret: jest.fn(() => ({
-    ascii: 'test-secret',
-    base32: 'TESTSECRET123456',
-    hex: 'test-hex',
-  })),
-  totp: jest.fn(() => '123456'),
-  time: jest.fn(() => ({ T: 123456 })),
-}));
-
-// Mock qrcode for QR code generation
-jest.mock('qrcode', () => ({
-  toDataURL: jest.fn((data) => Promise.resolve(`data:image/png;base64,${Buffer.from(data).toString('base64')}`)),
-}));
-
-// Mock file system operations
-jest.mock('fs', () => ({
-  ...jest.requireActual('fs'),
-  existsSync: jest.fn(() => true),
-  mkdirSync: jest.fn(),
-  writeFileSync: jest.fn(),
-  readFileSync: jest.fn(() => Buffer.from('mock-file-content')),
-  rmSync: jest.fn(),
-  readdirSync: jest.fn(() => ['key1.pem', 'key2.pem']),
-}));
-
-export default undefined;
+afterAll(() => {
+  console.error = originalError;
+});
