@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user has permissions
-    if (!['account_owner', 'admin', 'sustainability_manager'].includes(member.role)) {
+    if (!['account_owner', 'admin'].includes(member.role)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
         { status: 403 }
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user has permissions
-    if (!['account_owner', 'admin', 'sustainability_manager'].includes(member.role)) {
+    if (!['account_owner', 'admin'].includes(member.role)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
         { status: 403 }

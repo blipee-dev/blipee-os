@@ -32,13 +32,7 @@ CREATE TABLE IF NOT EXISTS api_keys (
     created_by UUID NOT NULL REFERENCES auth.users(id),
     revoked_at TIMESTAMPTZ,
     revoked_by UUID REFERENCES auth.users(id),
-    revoked_reason TEXT,
-    
-    -- Indexes
-    INDEX idx_api_keys_org (organization_id),
-    INDEX idx_api_keys_prefix (key_prefix),
-    INDEX idx_api_keys_status (status) WHERE status = 'active',
-    INDEX idx_api_keys_expires (expires_at) WHERE expires_at IS NOT NULL
+    revoked_reason TEXT
 );
 
 -- API Usage table (for analytics and rate limiting)
@@ -65,12 +59,7 @@ CREATE TABLE IF NOT EXISTS api_usage (
     rate_limit_reset TIMESTAMPTZ,
     
     -- Timestamp
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
-    -- Indexes for analytics
-    INDEX idx_api_usage_key_time (api_key_id, created_at DESC),
-    INDEX idx_api_usage_endpoint (endpoint, created_at DESC),
-    INDEX idx_api_usage_status (status_code, created_at DESC)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- API Usage Aggregates table (hourly rollups for performance)
@@ -100,10 +89,7 @@ CREATE TABLE IF NOT EXISTS api_usage_hourly (
     status_codes JSONB, -- {200: count, 404: count, etc}
     
     -- Unique constraint
-    CONSTRAINT unique_api_usage_hourly UNIQUE (api_key_id, hour),
-    
-    -- Indexes
-    INDEX idx_api_usage_hourly_key_hour (api_key_id, hour DESC)
+    CONSTRAINT unique_api_usage_hourly UNIQUE (api_key_id, hour)
 );
 
 -- API Quotas table (for usage limits)
@@ -140,37 +126,30 @@ CREATE TABLE IF NOT EXISTS webhook_endpoints (
     api_version TEXT NOT NULL DEFAULT 'v1',
     
     -- Security
-    signing_secret TEXT NOT NULL, -- For webhook signature verification
+    secret_key TEXT NOT NULL, -- For webhook signature verification
     headers JSONB, -- Custom headers to include
     
     -- Status
     enabled BOOLEAN NOT NULL DEFAULT true,
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'failing', 'disabled')),
     
-    -- Retry configuration
-    max_retries INTEGER NOT NULL DEFAULT 3,
-    retry_delay_seconds INTEGER NOT NULL DEFAULT 60,
-    
     -- Health tracking
     last_success_at TIMESTAMPTZ,
     last_failure_at TIMESTAMPTZ,
-    consecutive_failures INTEGER NOT NULL DEFAULT 0,
+    last_delivery_at TIMESTAMPTZ,
+    failure_count INTEGER NOT NULL DEFAULT 0,
     
     -- Metadata
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    created_by UUID NOT NULL REFERENCES auth.users(id),
-    
-    -- Indexes
-    INDEX idx_webhook_endpoints_org (organization_id),
-    INDEX idx_webhook_endpoints_events (events) USING GIN,
-    INDEX idx_webhook_endpoints_status (status) WHERE enabled = true
+    created_by UUID NOT NULL REFERENCES auth.users(id)
 );
 
 -- Webhook Deliveries table (event delivery log)
 CREATE TABLE IF NOT EXISTS webhook_deliveries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     webhook_endpoint_id UUID NOT NULL REFERENCES webhook_endpoints(id) ON DELETE CASCADE,
+    organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
     
     -- Event information
     event_type TEXT NOT NULL,
@@ -194,12 +173,31 @@ CREATE TABLE IF NOT EXISTS webhook_deliveries (
     scheduled_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     delivered_at TIMESTAMPTZ,
     next_retry_at TIMESTAMPTZ,
-    
-    -- Indexes
-    INDEX idx_webhook_deliveries_endpoint (webhook_endpoint_id, created_at DESC),
-    INDEX idx_webhook_deliveries_status (status, scheduled_at) WHERE status = 'pending',
-    INDEX idx_webhook_deliveries_event (event_id)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Create indexes for all tables
+CREATE INDEX IF NOT EXISTS idx_api_keys_org ON api_keys(organization_id);
+CREATE INDEX IF NOT EXISTS idx_api_keys_prefix ON api_keys(key_prefix);
+CREATE INDEX IF NOT EXISTS idx_api_keys_status ON api_keys(status) WHERE status = 'active';
+CREATE INDEX IF NOT EXISTS idx_api_keys_expires ON api_keys(expires_at) WHERE expires_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash);
+
+CREATE INDEX IF NOT EXISTS idx_api_usage_key_time ON api_usage(api_key_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_api_usage_endpoint ON api_usage(endpoint, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_api_usage_status ON api_usage(status_code, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_api_usage_created_at ON api_usage(created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_api_usage_hourly_key_hour ON api_usage_hourly(api_key_id, hour DESC);
+
+CREATE INDEX IF NOT EXISTS idx_webhook_endpoints_org ON webhook_endpoints(organization_id);
+CREATE INDEX IF NOT EXISTS idx_webhook_endpoints_events ON webhook_endpoints USING GIN(events);
+CREATE INDEX IF NOT EXISTS idx_webhook_endpoints_status ON webhook_endpoints(status) WHERE enabled = true;
+
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_endpoint ON webhook_deliveries(webhook_endpoint_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_status ON webhook_deliveries(status, scheduled_at) WHERE status = 'pending';
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_event ON webhook_deliveries(event_id);
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_org ON webhook_deliveries(organization_id, created_at DESC);
 
 -- Create updated_at trigger for api_keys
 CREATE TRIGGER update_api_keys_updated_at
@@ -295,6 +293,21 @@ CREATE POLICY "Organization admins can manage webhooks"
         EXISTS (
             SELECT 1 FROM organization_members om
             WHERE om.organization_id = webhook_endpoints.organization_id
+            AND om.user_id = auth.uid()
+            AND om.role IN ('account_owner', 'admin')
+            AND om.invitation_status = 'accepted'
+        )
+    );
+
+-- RLS for webhook_deliveries
+ALTER TABLE webhook_deliveries ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Organization admins can view webhook deliveries"
+    ON webhook_deliveries FOR SELECT
+    USING (
+        EXISTS (
+            SELECT 1 FROM organization_members om
+            WHERE om.organization_id = webhook_deliveries.organization_id
             AND om.user_id = auth.uid()
             AND om.role IN ('account_owner', 'admin')
             AND om.invitation_status = 'accepted'
@@ -455,10 +468,6 @@ BEGIN
         status_codes = EXCLUDED.status_codes;
 END;
 $$ LANGUAGE plpgsql;
-
--- Create indexes for better performance
-CREATE INDEX idx_api_usage_created_at ON api_usage(created_at DESC);
-CREATE INDEX idx_api_keys_key_hash ON api_keys(key_hash);
 
 -- Insert audit event types for API management
 INSERT INTO audit_event_types (name, description, category, severity) VALUES

@@ -16,6 +16,7 @@ import {
   Code,
   BarChart3,
   Zap,
+  Database,
 } from 'lucide-react';
 
 const navigationItems = [
@@ -48,6 +49,11 @@ const navigationItems = [
     title: 'Webhooks',
     href: '/settings/webhooks',
     icon: Zap,
+  },
+  {
+    title: 'GraphQL Playground',
+    href: '/graphql-playground',
+    icon: Database,
   },
   {
     title: 'Organization',
