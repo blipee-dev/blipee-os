@@ -103,6 +103,17 @@ const QuickStartUpload = dynamic(
   },
 );
 
+const MaterialityMatrix = dynamic(
+  () =>
+    import("@/components/dynamic/MaterialityMatrix").then(
+      (mod) => mod.MaterialityMatrix,
+    ),
+  {
+    ssr: false,
+    loading: () => <div className="h-96 bg-surface rounded-lg animate-pulse" />,
+  },
+);
+
 interface DynamicUIRendererProps {
   components: UIComponent[];
 }
@@ -152,6 +163,9 @@ export function DynamicUIRenderer({ components }: DynamicUIRendererProps) {
 
       case "quick-start-upload":
         return <QuickStartUpload key={key} {...component.props} />;
+
+      case "materiality-matrix":
+        return <MaterialityMatrix key={key} {...component.props} />;
 
       case "optimization-dashboard":
         return (

@@ -20,7 +20,7 @@ export class AnthropicProvider implements AIProvider {
     options?: CompletionOptions,
   ): Promise<CompletionResponse> {
     const message = await this.client.messages.create({
-      model: "claude-3-opus-20240229",
+      model: "claude-3-5-sonnet-20241022",
       messages: [{ role: "user", content: prompt }],
       system: options?.systemPrompt,
       temperature: options?.temperature ?? 0.7,
@@ -49,7 +49,7 @@ export class AnthropicProvider implements AIProvider {
     options?: StreamOptions,
   ): AsyncGenerator<StreamToken, void, unknown> {
     const stream = await this.client.messages.create({
-      model: "claude-3-opus-20240229",
+      model: "claude-3-5-sonnet-20241022",
       messages: [{ role: "user", content: prompt }],
       system: options?.systemPrompt,
       temperature: options?.temperature ?? 0.7,

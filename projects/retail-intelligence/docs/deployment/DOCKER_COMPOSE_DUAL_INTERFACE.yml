@@ -1,0 +1,166 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (shared by all services)
+  postgres:
+    image: postgres:15-alpine
+    container_name: retail_postgres
+    environment:
+      POSTGRES_DB: retail_intelligence
+      POSTGRES_USER: retail_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-retail_pass_123}
+    volumes:
+      - retail_postgres_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U retail_user -d retail_intelligence"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - retail_network
+
+  # Redis Cache (shared by all services)
+  redis:
+    image: redis:7-alpine
+    container_name: retail_redis
+    command: redis-server --appendonly yes
+    volumes:
+      - retail_redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - retail_network
+
+  # Python Data Collector (existing service)
+  data-collector:
+    build:
+      context: ../../retail-reference
+      dockerfile: Dockerfile.collector
+    container_name: retail_data_collector
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://retail_user:${DB_PASSWORD:-retail_pass_123}@postgres:5432/retail_intelligence
+      REDIS_URL: redis://redis:6379
+      VIEWSONIC_USER: ${VIEWSONIC_USER}
+      VIEWSONIC_PASSWORD: ${VIEWSONIC_PASSWORD}
+      SALES_API_USER: ${SALES_API_USER}
+      SALES_API_PASSWORD: ${SALES_API_PASSWORD}
+      TZ: Europe/Lisbon
+    volumes:
+      - ./logs/collector:/app/logs
+    networks:
+      - retail_network
+    restart: unless-stopped
+
+  # Telegram Bot (existing service)
+  telegram-bot:
+    build:
+      context: ../../retail-reference
+      dockerfile: Dockerfile.bot
+    container_name: retail_telegram_bot
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://retail_user:${DB_PASSWORD:-retail_pass_123}@postgres:5432/retail_intelligence
+      REDIS_URL: redis://redis:6379
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      API_BASE_URL: http://api:3001
+      API_KEY: ${TELEGRAM_API_KEY}
+      TZ: Europe/Lisbon
+    volumes:
+      - ./logs/bot:/app/logs
+    networks:
+      - retail_network
+    restart: unless-stopped
+
+  # Web API & Frontend (new Next.js service)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: retail_web_api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://retail_user:${DB_PASSWORD:-retail_pass_123}@postgres:5432/retail_intelligence
+      REDIS_URL: redis://redis:6379
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3001}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./logs/web:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - retail_network
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy (optional, for production)
+  nginx:
+    image: nginx:alpine
+    container_name: retail_nginx
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - retail_network
+    restart: unless-stopped
+
+  # Migration Runner (one-time service)
+  migration:
+    build:
+      context: .
+      dockerfile: Dockerfile.migration
+    container_name: retail_migration
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://retail_user:${DB_PASSWORD:-retail_pass_123}@postgres:5432/retail_intelligence
+      SQLITE_PATH: /data/bot_database.db
+    volumes:
+      - ${SQLITE_DB_PATH:-./bot_database.db}:/data/bot_database.db:ro
+      - ./scripts:/app/scripts
+    networks:
+      - retail_network
+    profiles:
+      - migration
+
+networks:
+  retail_network:
+    driver: bridge
+
+volumes:
+  retail_postgres_data:
+  retail_redis_data:

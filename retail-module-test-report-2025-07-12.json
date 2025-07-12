@@ -1,0 +1,170 @@
+{
+  "timestamp": "2025-07-12T19:50:53.167Z",
+  "results": {
+    "apiEndpoints": [
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/health/route.ts",
+        "exists": true,
+        "methods": [
+          "GET"
+        ],
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/stores/route.ts",
+        "exists": true,
+        "methods": [
+          "GET"
+        ],
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/traffic/realtime/route.ts",
+        "exists": true,
+        "methods": [
+          "GET"
+        ],
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/analytics/route.ts",
+        "exists": true,
+        "methods": [],
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/auth/telegram/route.ts",
+        "exists": true,
+        "methods": [
+          "POST"
+        ],
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/telegram/state/route.ts",
+        "exists": true,
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "success": true
+      }
+    ],
+    "components": [
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/dashboard/RetailDashboard.tsx",
+        "name": "RetailDashboard",
+        "exists": true,
+        "isReactComponent": true,
+        "hasExport": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/ui/StoreSelector.tsx",
+        "name": "StoreSelector",
+        "exists": true,
+        "isReactComponent": false,
+        "hasExport": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/analytics/RealTimeTraffic.tsx",
+        "name": "RealTimeTraffic",
+        "exists": true,
+        "isReactComponent": true,
+        "hasExport": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/analytics/QuickInsights.tsx",
+        "name": "QuickInsights",
+        "exists": true,
+        "isReactComponent": true,
+        "hasExport": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/analytics/AnalyticsOverview.tsx",
+        "name": "AnalyticsOverview",
+        "exists": true,
+        "isReactComponent": true,
+        "hasExport": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/ui/ConversationalInterface.tsx",
+        "name": "ConversationalInterface",
+        "exists": true,
+        "isReactComponent": true,
+        "hasExport": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/retail/page.tsx",
+        "name": "page",
+        "exists": true,
+        "isReactComponent": false,
+        "hasExport": true,
+        "success": true
+      }
+    ],
+    "modules": [
+      {
+        "path": "/workspaces/blipee-os/src/lib/modules/retail-module.ts",
+        "name": "retail-module.ts",
+        "exists": true,
+        "hasModuleDefinition": true,
+        "hasRetailModule": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/lib/modules/registry.ts",
+        "name": "registry.ts",
+        "exists": true,
+        "hasModuleDefinition": true,
+        "hasRetailModule": false,
+        "success": true
+      }
+    ],
+    "authentication": [
+      {
+        "path": "/workspaces/blipee-os/src/lib/hooks/useRetailAuth.ts",
+        "name": "useRetailAuth.ts",
+        "exists": true,
+        "hasAuthLogic": true,
+        "hasPermissions": true,
+        "hasRetailSpecific": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/lib/auth/retail-middleware.ts",
+        "name": "retail-middleware.ts",
+        "exists": true,
+        "hasAuthLogic": true,
+        "hasPermissions": true,
+        "hasRetailSpecific": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/lib/auth/retail-permissions.ts",
+        "name": "retail-permissions.ts",
+        "exists": true,
+        "hasAuthLogic": false,
+        "hasPermissions": true,
+        "hasRetailSpecific": true,
+        "success": true
+      }
+    ],
+    "overall": {
+      "passed": 18,
+      "failed": 0,
+      "total": 18
+    }
+  },
+  "summary": {
+    "totalTests": 18,
+    "passed": 18,
+    "failed": 0,
+    "passRate": "100.0%"
+  }
+}

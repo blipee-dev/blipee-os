@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-blipee OS is a conversational AI platform that transforms how humans interact with buildings and sustainability data. Originally a building management system, it has evolved into a comprehensive sustainability-first platform where building management is just one module. The AI acts as an intelligent assistant providing natural, proactive insights through conversation rather than traditional dashboards.
+blipee OS is the world's first Autonomous Sustainability Intelligence platform that will dominate the ESG market. It transforms traditional dashboard-based ESG management into conversational AI that works 24/7 as your digital sustainability team. The platform is on a 24-week roadmap to become the undisputed leader with a 20-point advantage over competitors.
+
+**Vision**: Not just software, but AI employees that autonomously manage, optimize, and improve sustainability performance across any industry.
 
 ## Core Capabilities
 
@@ -71,15 +73,19 @@ The AI system (`/src/lib/ai/`) follows a multi-provider pattern with intelligent
 
 ## Key Architectural Decisions
 
-1. **Sustainability-First Design**: While maintaining strong building management capabilities, the platform is architected to be sustainability-agnostic, supporting any industry or use case
+1. **Autonomous AI Agents**: Not just conversational UI, but autonomous agents that work 24/7 making decisions and taking actions within approved parameters
 
 2. **No Dashboards Philosophy**: Everything is conversational. The AI generates visualizations dynamically based on context rather than pre-built dashboards
 
-3. **Provider Resilience**: Multiple AI providers with automatic fallback ensures high availability. If DeepSeek fails, it falls back to OpenAI, then Anthropic
+3. **Multi-Brain Orchestration**: Intelligent routing to the best AI model for each task type with automatic fallback for 99.99% uptime
 
-4. **Real-time Architecture**: Supabase subscriptions enable live updates without polling
+4. **ML-Powered Predictions**: Every interaction trains models that predict emissions, compliance risks, and optimization opportunities
 
-5. **File Upload in Chat**: Users can drag and drop documents directly into the conversation for instant analysis
+5. **GRI Sector Standards**: Deep integration with GRI 11-17 standards for industry-specific compliance and reporting
+
+6. **Network Effects**: Each customer's anonymized data improves the platform for all users
+
+7. **Zero Setup**: Full value in 5 minutes through AI that auto-discovers and configures everything
 
 ## AI Personality & Behavior
 
@@ -111,35 +117,54 @@ ELECTRICITY_MAPS_API_KEY
 
 ## Common Development Patterns
 
-### Adding New AI Capabilities
+### Adding New Autonomous Agents
 
-1. Add interface to `sustainability-intelligence.ts`
-2. Implement in relevant engine file
-3. Update context builder if needed
-4. Add to prompt builder
+1. Extend `AutonomousAgent` base class in `/src/lib/ai/autonomous-agents/`
+2. Implement `executeTask()` and `learn()` methods
+3. Add agent capabilities and approval workflows
+4. Register in agent orchestrator
+5. Create test suite with mock scenarios
 
-### Creating Dynamic UI Components
+### Implementing ML Models
 
-1. Add component to `/src/components/dynamic/`
-2. Add type to `UIComponent` interface in `types/conversation.ts`
-3. Register in `DynamicUIRenderer.tsx`
-4. Add demo response in chat route for testing
+1. Add model to `/src/lib/ai/ml-models/`
+2. Implement feature engineering pipeline
+3. Create training and inference endpoints
+4. Add model versioning and A/B testing
+5. Integrate with prediction API
 
-### Integrating External APIs
+### Adding GRI Sector Standards
 
-1. Create service in `/src/lib/data/`
-2. Add to unified ingestion pipeline
-3. Update context engine to include data
-4. Add API key to environment variables
+1. Create sector model in `/src/lib/ai/industry-intelligence/`
+2. Map GRI disclosures and material topics
+3. Implement sector-specific KPIs
+4. Add regulatory mappings
+5. Create peer benchmarking logic
 
-## Current Development Focus
+### Building Network Features
 
-The platform has completed Phase 1-3 (conversational AI, dynamic UI, multi-tenant architecture) and is now in Phase 4 focusing on:
+1. Design privacy-preserving data structures
+2. Implement anonymization layers
+3. Create aggregation algorithms
+4. Build sharing protocols
+5. Add network effect metrics
 
-- Production optimization and performance
-- Advanced data visualizations
-- Real-time streaming architecture
-- Multi-LLM orchestration improvements
+## Current Development Focus - DOMINATION ROADMAP
+
+We are executing a 24-week sprint plan with 4 parallel streams to achieve market dominance:
+
+### Active Development Streams:
+1. **Stream A: Autonomous Agents** - Building AI employees (ESG Chief of Staff, Compliance Guardian, Carbon Hunter, Supply Chain Investigator)
+2. **Stream B: ML Pipeline** - Predictive analytics, anomaly detection, optimization engines
+3. **Stream C: Industry Models** - GRI sector standards integration, industry-specific intelligence
+4. **Stream D: Network Features** - Supply chain network effects, peer benchmarking, collective learning
+
+### Key Milestones:
+- **Weeks 1-8**: Foundation - Agent framework, ML infrastructure, first GRI sectors
+- **Weeks 9-16**: Intelligence - Advanced predictions, regulatory foresight, network effects
+- **Weeks 17-24**: Domination - Full autonomy, global expansion, market leadership
+
+**See `/docs/BLIPEE_DOMINATION_ROADMAP.md` for the complete implementation plan**
 
 ## Design System
 
@@ -148,4 +173,11 @@ The platform has completed Phase 1-3 (conversational AI, dynamic UI, multi-tenan
 - **Animations**: Framer Motion for all transitions
 - **Theme**: Dark mode primary with light mode support
 
-Remember: We're building the future of human-building-sustainability interaction. Every feature should feel magical, intelligent, and effortlessly natural.
+Remember: We're building autonomous AI employees, not just software. Every feature should:
+- Work independently without human intervention
+- Learn and improve from every interaction
+- Create network effects that benefit all users
+- Be 10x better than any competitor
+- Get us closer to the 20-point market lead
+
+**This is not an incremental improvement - this is a paradigm shift in how organizations manage sustainability.**

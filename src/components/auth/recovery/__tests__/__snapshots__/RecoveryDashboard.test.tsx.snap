@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RecoveryDashboard Rendering should match snapshot 1`] = `
+<div>
+  <div
+    class="text-center py-8"
+  >
+    <div
+      class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"
+    />
+    <p
+      class="text-gray-500 dark:text-gray-400 mt-2"
+    >
+      Loading recovery statistics...
+    </p>
+  </div>
+</div>
+`;

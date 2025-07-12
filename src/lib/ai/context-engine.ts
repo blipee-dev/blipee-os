@@ -1,5 +1,6 @@
 import { BuildingContext } from "./types";
 import { Message } from "@/types/conversation";
+import { networkIntelligence, NetworkIntelligenceContext } from "./network-intelligence/ai-integration";
 
 interface EnrichedContext {
   building: BuildingContext;
@@ -11,6 +12,7 @@ interface EnrichedContext {
   predictiveInsights: PredictiveInsight[];
   deviceCapabilities: DeviceCapability[];
   plannedActivities: PlannedActivity[];
+  networkIntelligence?: NetworkIntelligenceContext;
 }
 
 interface RealTimeMetrics {
@@ -163,6 +165,7 @@ export class AIContextEngine {
   async buildEnrichedContext(
     userMessage: string,
     userId?: string,
+    organizationId?: string,
   ): Promise<EnrichedContext> {
     const [
       realTimeMetrics,
@@ -173,6 +176,7 @@ export class AIContextEngine {
       predictiveInsights,
       deviceCapabilities,
       plannedActivities,
+      networkIntelligenceContext,
     ] = await Promise.all([
       this.getRealTimeMetrics(),
       this.analyzeHistoricalPatterns(),
@@ -182,6 +186,7 @@ export class AIContextEngine {
       this.generatePredictiveInsights(),
       this.getDeviceCapabilities(),
       this.getPlannedActivities(),
+      this.getNetworkIntelligence(organizationId, userMessage),
     ]);
 
     return {
@@ -194,6 +199,7 @@ export class AIContextEngine {
       predictiveInsights,
       deviceCapabilities,
       plannedActivities,
+      networkIntelligence: networkIntelligenceContext,
     };
   }
 

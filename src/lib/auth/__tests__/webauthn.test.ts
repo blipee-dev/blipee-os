@@ -61,6 +61,31 @@ const mockCrypto = {
 
 jest.mock('crypto', () => mockCrypto);
 
+
+// Mock Next.js Request/Response
+global.Request = class Request {
+  constructor(url, init = {}) {
+    this.url = url;
+    this.method = init.method || 'GET';
+    this.headers = new Map(Object.entries(init.headers || {}));
+    this.body = init.body;
+  }
+  async json() {
+    return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
+  }
+};
+
+global.Response = class Response {
+  constructor(body, init = {}) {
+    this.body = body;
+    this.status = init.status || 200;
+    this.headers = new Map(Object.entries(init.headers || {}));
+  }
+  async json() {
+    return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
+  }
+};
+
 describe('WebAuthnService', () => {
   let webAuthnService: WebAuthnService;
   let mockRequest: NextRequest;

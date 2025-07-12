@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`View3DComponent Rendering should match snapshot 1`] = `
+<div>
+  <div
+    class="bg-surface rounded-lg border border-surface overflow-hidden"
+  >
+    <div
+      class="relative h-96 bg-gradient-to-br from-surface to-surface-light flex items-center justify-center"
+    >
+      <div
+        class="text-center"
+      >
+        <div
+          class="w-32 h-32 mx-auto mb-4 bg-primary/20 rounded-lg flex items-center justify-center"
+        >
+          <div
+            class="w-24 h-24 bg-primary/30 rounded transform rotate-45 flex items-center justify-center"
+          >
+            <div
+              class="w-16 h-16 bg-primary/40 rounded transform -rotate-45"
+            />
+          </div>
+        </div>
+        <p
+          class="text-text-secondary mb-2"
+        >
+          3D Building View
+        </p>
+        <p
+          class="text-sm text-text-secondary"
+        >
+          Floor 
+          1
+        </p>
+      </div>
+      <div
+        class="absolute top-4 left-4 bg-surface/90 backdrop-blur rounded p-3 text-sm"
+      >
+        <div
+          class="text-text-secondary mb-1"
+        >
+          Energy Usage
+        </div>
+        <div
+          class="text-xl font-semibold text-white"
+        >
+          4,520 kW
+        </div>
+      </div>
+      <div
+        class="absolute bottom-4 right-4 bg-surface/90 backdrop-blur rounded p-3 text-sm"
+      >
+        <div
+          class="text-text-secondary mb-1"
+        >
+          Active Zones
+        </div>
+        <div
+          class="text-xl font-semibold text-white"
+        >
+          12 / 16
+        </div>
+      </div>
+    </div>
+    <div
+      class="p-4 bg-surface-light border-t border-surface"
+    >
+      <div
+        class="flex items-center justify-between text-sm"
+      >
+        <div
+          class="flex items-center gap-4"
+        >
+          <label
+            class="flex items-center gap-2"
+          >
+            <input
+              class="rounded"
+              readonly=""
+              type="checkbox"
+            />
+            <span
+              class="text-text-primary"
+            >
+              Show Heatmap
+            </span>
+          </label>
+          <label
+            class="flex items-center gap-2"
+          >
+            <input
+              class="rounded"
+              type="checkbox"
+            />
+            <span
+              class="text-text-primary"
+            >
+              Show Devices
+            </span>
+          </label>
+        </div>
+        <select
+          class="bg-surface border border-surface rounded px-3 py-1 text-text-primary"
+        >
+          <option>
+            Floor 
+            1
+          </option>
+          <option>
+            All Floors
+          </option>
+          <option>
+            Basement
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+`;

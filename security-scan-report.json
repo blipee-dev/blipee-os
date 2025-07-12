@@ -1,0 +1,685 @@
+{
+  "timestamp": "2025-07-09T11:46:00.591Z",
+  "summary": {
+    "critical": 10,
+    "high": 6,
+    "medium": 14,
+    "low": 64
+  },
+  "issues": [
+    {
+      "severity": "critical",
+      "type": "Exposed Secret",
+      "description": "Potential secret exposed in .env.local: NEXT_PUBLIC_SUPABASE_URL",
+      "file": ".env.local",
+      "line": 4,
+      "recommendation": "Ensure this file is in .gitignore"
+    },
+    {
+      "severity": "critical",
+      "type": "Exposed Secret",
+      "description": "Potential secret exposed in .env.local: NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "file": ".env.local",
+      "line": 5,
+      "recommendation": "Ensure this file is in .gitignore"
+    },
+    {
+      "severity": "critical",
+      "type": "Exposed Secret",
+      "description": "Potential secret exposed in .env.local: SUPABASE_SERVICE_KEY",
+      "file": ".env.local",
+      "line": 6,
+      "recommendation": "Ensure this file is in .gitignore"
+    },
+    {
+      "severity": "critical",
+      "type": "Exposed Secret",
+      "description": "Potential secret exposed in .env.local: OPENAI_API_KEY",
+      "file": ".env.local",
+      "line": 9,
+      "recommendation": "Ensure this file is in .gitignore"
+    },
+    {
+      "severity": "critical",
+      "type": "Exposed Secret",
+      "description": "Potential secret exposed in .env.local: ANTHROPIC_API_KEY",
+      "file": ".env.local",
+      "line": 10,
+      "recommendation": "Ensure this file is in .gitignore"
+    },
+    {
+      "severity": "critical",
+      "type": "Exposed Secret",
+      "description": "Potential secret exposed in .env.local: DEEPSEEK_API_KEY",
+      "file": ".env.local",
+      "line": 11,
+      "recommendation": "Ensure this file is in .gitignore"
+    },
+    {
+      "severity": "critical",
+      "type": "Exposed Secret",
+      "description": "Potential secret exposed in .env.local: OPENWEATHER_API_KEY",
+      "file": ".env.local",
+      "line": 33,
+      "recommendation": "Ensure this file is in .gitignore"
+    },
+    {
+      "severity": "critical",
+      "type": "Exposed Secret",
+      "description": "Potential secret exposed in .env.local: CLIMATIQ_API_KEY",
+      "file": ".env.local",
+      "line": 42,
+      "recommendation": "Ensure this file is in .gitignore"
+    },
+    {
+      "severity": "critical",
+      "type": "Exposed Secret",
+      "description": "Potential secret exposed in .env.local: CARBON_INTERFACE_API_KEY",
+      "file": ".env.local",
+      "line": 46,
+      "recommendation": "Ensure this file is in .gitignore"
+    },
+    {
+      "severity": "critical",
+      "type": "Exposed Secret",
+      "description": "Potential secret exposed in .env.local: ELECTRICITY_MAP_API_KEY",
+      "file": ".env.local",
+      "line": 56,
+      "recommendation": "Ensure this file is in .gitignore"
+    },
+    {
+      "severity": "high",
+      "type": "Hardcoded Secret",
+      "description": "Potential hardcoded secret detected",
+      "file": "src/app/signin/page.tsx",
+      "line": 121,
+      "recommendation": "Use environment variables for secrets"
+    },
+    {
+      "severity": "high",
+      "type": "XSS",
+      "description": "Potential XSS vulnerability with dangerouslySetInnerHTML",
+      "file": "src/components/dynamic/EnhancedReportComponent.tsx",
+      "line": 260,
+      "recommendation": "Sanitize HTML content before rendering"
+    },
+    {
+      "severity": "high",
+      "type": "Hardcoded Secret",
+      "description": "Potential hardcoded secret detected",
+      "file": "src/contexts/AuthContext.tsx",
+      "line": 70,
+      "recommendation": "Use environment variables for secrets"
+    },
+    {
+      "severity": "high",
+      "type": "Weak Cryptography",
+      "description": "Use of deprecated crypto.createCipher",
+      "file": "src/lib/auth/mfa/service-old.ts",
+      "line": 363,
+      "recommendation": "Use crypto.createCipheriv with proper IV"
+    },
+    {
+      "severity": "high",
+      "type": "Weak Cryptography",
+      "description": "Use of deprecated crypto.createCipher",
+      "file": "src/lib/auth/sso/service.ts",
+      "line": 33,
+      "recommendation": "Use crypto.createCipheriv with proper IV"
+    },
+    {
+      "severity": "high",
+      "type": "Hardcoded Secret",
+      "description": "Potential hardcoded secret detected",
+      "file": "src/lib/webhooks/webhook-verifier.ts",
+      "line": 314,
+      "recommendation": "Use environment variables for secrets"
+    },
+    {
+      "severity": "medium",
+      "type": "Missing Security Header",
+      "description": "Missing security header: X-Frame-Options",
+      "file": "./src/middleware.ts",
+      "recommendation": "Add X-Frame-Options header in middleware"
+    },
+    {
+      "severity": "medium",
+      "type": "Missing Security Header",
+      "description": "Missing security header: X-Content-Type-Options",
+      "file": "./src/middleware.ts",
+      "recommendation": "Add X-Content-Type-Options header in middleware"
+    },
+    {
+      "severity": "medium",
+      "type": "Missing Security Header",
+      "description": "Missing security header: Strict-Transport-Security",
+      "file": "./src/middleware.ts",
+      "recommendation": "Add Strict-Transport-Security header in middleware"
+    },
+    {
+      "severity": "medium",
+      "type": "Missing Security Header",
+      "description": "Missing security header: Content-Security-Policy",
+      "file": "./src/middleware.ts",
+      "recommendation": "Add Content-Security-Policy header in middleware"
+    },
+    {
+      "severity": "medium",
+      "type": "Missing Security Header",
+      "description": "Missing security header: X-XSS-Protection",
+      "file": "./src/middleware.ts",
+      "recommendation": "Add X-XSS-Protection header in middleware"
+    },
+    {
+      "severity": "medium",
+      "type": "Unprotected API",
+      "description": "API endpoint may lack authentication",
+      "file": "src/app/api/ai/chat-enhanced/route.ts",
+      "recommendation": "Add authentication check to API route"
+    },
+    {
+      "severity": "medium",
+      "type": "Unprotected API",
+      "description": "API endpoint may lack authentication",
+      "file": "src/app/api/ai/stream/route.ts",
+      "recommendation": "Add authentication check to API route"
+    },
+    {
+      "severity": "medium",
+      "type": "Unprotected API",
+      "description": "API endpoint may lack authentication",
+      "file": "src/app/api/auth/sso/check/route.ts",
+      "recommendation": "Add authentication check to API route"
+    },
+    {
+      "severity": "medium",
+      "type": "Unprotected API",
+      "description": "API endpoint may lack authentication",
+      "file": "src/app/api/documents/sustainability-report/route.ts",
+      "recommendation": "Add authentication check to API route"
+    },
+    {
+      "severity": "medium",
+      "type": "Unprotected API",
+      "description": "API endpoint may lack authentication",
+      "file": "src/app/api/graphql/route.ts",
+      "recommendation": "Add authentication check to API route"
+    },
+    {
+      "severity": "medium",
+      "type": "Unprotected API",
+      "description": "API endpoint may lack authentication",
+      "file": "src/app/api/health/route.ts",
+      "recommendation": "Add authentication check to API route"
+    },
+    {
+      "severity": "medium",
+      "type": "Unprotected API",
+      "description": "API endpoint may lack authentication",
+      "file": "src/app/api/import/sustainability-report/route.ts",
+      "recommendation": "Add authentication check to API route"
+    },
+    {
+      "severity": "medium",
+      "type": "Unprotected API",
+      "description": "API endpoint may lack authentication",
+      "file": "src/app/api/monitoring/health/route.ts",
+      "recommendation": "Add authentication check to API route"
+    },
+    {
+      "severity": "medium",
+      "type": "Unprotected API",
+      "description": "API endpoint may lack authentication",
+      "file": "src/app/api/v1/organizations/route.ts",
+      "recommendation": "Add authentication check to API route"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/ai/chat-enhanced/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/ai/stream/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/audit/export/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/audit/logs/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/audit/summary/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/mfa/confirm/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/mfa/disable/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/mfa/setup/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/mfa/verify/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/oauth/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/recovery/initiate/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/recovery/security-questions/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/recovery/stats/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/recovery/verify/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/reset-password/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/session/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/sessions/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/signin/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/signout/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/sso/check/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/sso/configurations/[id]/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/sso/configurations/[id]/test/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/sso/configurations/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/sso/initiate/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/sso/logout/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/sso/oidc/callback/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/sso/saml/callback/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/webauthn/auth/options/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/webauthn/auth/verify/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/webauthn/credentials/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/webauthn/register/options/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/webauthn/register/verify/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/auth/webauthn/stats/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/compliance/consent/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/compliance/data-export/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/compliance/deletion/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/compliance/privacy-settings/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/compliance/report/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/compliance/status/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/documents/sustainability-report/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/gateway/keys/[id]/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/gateway/keys/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/gateway/usage/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/graphql/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/health/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/import/sustainability-report/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/monitoring/alerts/[id]/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/monitoring/alerts/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/monitoring/dashboard/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/monitoring/health/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/monitoring/metrics/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/monitoring/performance/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/onboarding/start/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/onboarding/step/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/organizations/[id]/buildings/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/organizations/[id]/members/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/organizations/[id]/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/v1/organizations/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/webhooks/[id]/deliveries/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/webhooks/[id]/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/webhooks/[id]/test/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/webhooks/deliveries/[id]/retry/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/webhooks/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    },
+    {
+      "severity": "low",
+      "type": "No Rate Limiting",
+      "description": "API endpoint lacks rate limiting",
+      "file": "src/app/api/webhooks/stats/route.ts",
+      "recommendation": "Add rate limiting to prevent abuse"
+    }
+  ]
+}

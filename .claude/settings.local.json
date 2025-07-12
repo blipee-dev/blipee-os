@@ -68,7 +68,23 @@
       "Bash(sudo usermod:*)",
       "Bash(sudo docker compose:*)",
       "Bash(sudo docker:*)",
-      "Bash(./check_deleted_at.sh:*)"
+      "Bash(./check_deleted_at.sh:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(npm run test:*)",
+      "Bash(./run-partial-coverage.sh:*)",
+      "Bash(npm run cypress:run:*)",
+      "Bash(npm run:*)",
+      "Bash(npx cypress run:*)",
+      "Bash(npm test:*)",
+      "Bash(npx jest:*)",
+      "Bash(./scripts/achieve-fortune10-coverage.sh:*)",
+      "Bash(./scripts/run-fortune10-tests.sh:*)",
+      "Bash(scripts/achieve-fortune10-coverage.sh:*)",
+      "Bash(PGPASSWORD=postgresblipeeos psql -h aws-0-eu-west-3.pooler.supabase.com -p 5432 -U postgres.quovvwrwyfkzhgqdeham -d postgres -f scripts/check-rls-policies.sql)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://quovvwrwyfkzhgqdeham.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MjkyMjIsImV4cCI6MjA2NzQwNTIyMn0._w2Ofr8W1Oouka_pNbFbdkzDX9Rge_MoY5JQq3zcz6A node scripts/test-stream-d-network.js)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://quovvwrwyfkzhgqdeham.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MjkyMjIsImV4cCI6MjA2NzQwNTIyMn0._w2Ofr8W1Oouka_pNbFbdkzDX9Rge_MoY5JQq3zcz6A node -e \"\nconst { createClient } = require(''@supabase/supabase-js'');\nconst supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);\n\nasync function checkSchema() {\n  // Check organizations table structure\n  const { data, error } = await supabase.from(''organizations'').select(''*'').limit(1);\n  console.log(''Organizations query result:'', { data, error });\n  \n  // Test simple insert\n  const { data: insertData, error: insertError } = await supabase\n    .from(''organizations'')\n    .insert({ name: ''Test Org'', slug: ''test-org-'' + Date.now() })\n    .select();\n  console.log(''Insert result:'', { data: insertData, error: insertError });\n}\n\ncheckSchema();\n\")",
+      "Bash(git clone:*)",
+      "Bash(./tests/api/test-endpoints.sh:*)"
     ],
     "deny": []
   }
