@@ -31,10 +31,10 @@ describe('RateLimitService', () => {
     rateLimitService = new RateLimitService({
       storage: 'memory',
       rules: {
-        test_rule: {
-          requests: 5,
+        api_request: {
+          requests: 1000,
           windowMs: 60000, // 1 minute
-          burst: 10,
+          burst: 100,
         },
         strict_rule: {
           requests: 1,
@@ -52,7 +52,7 @@ describe('RateLimitService', () => {
   describe('Basic Rate Limiting', () => {
     it('should allow requests within limit', async () => {
       const key = 'test-key';
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       for (let i = 0; i < 5; i++) {
         const result = await rateLimitService.check(key, rule);
@@ -64,7 +64,7 @@ describe('RateLimitService', () => {
 
     it('should deny requests exceeding limit', async () => {
       const key = 'test-key';
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       // Use up all requests
       for (let i = 0; i < 5; i++) {
@@ -102,7 +102,7 @@ describe('RateLimitService', () => {
   describe('Burst Handling', () => {
     it('should allow burst requests', async () => {
       const key = 'test-key';
-      const rule = 'test_rule'; // 5 requests/min, burst 10
+      const rule = 'api_request'; // 1000 requests/min, burst 100
 
       // Should allow up to burst limit
       for (let i = 0; i < 10; i++) {
@@ -117,7 +117,7 @@ describe('RateLimitService', () => {
 
     it('should handle burst refill over time', async () => {
       const key = 'test-key';
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       // Use up burst capacity
       for (let i = 0; i < 10; i++) {
@@ -157,10 +157,10 @@ describe('RateLimitService', () => {
 
     it('should handle rule updates', async () => {
       const key = 'test-key';
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       // Update rule
-      await rateLimitService.updateRule('test_rule', {
+      await rateLimitService.updateRule('api_request', {
         requests: 10,
         windowMs: 60000,
         burst: 20,
@@ -183,7 +183,7 @@ describe('RateLimitService', () => {
 
   describe('Key Isolation', () => {
     it('should isolate different keys', async () => {
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       // Use up limit for key1
       for (let i = 0; i < 5; i++) {
@@ -200,7 +200,7 @@ describe('RateLimitService', () => {
     });
 
     it('should handle key patterns', async () => {
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       // Test with IP-based keys
       await rateLimitService.check('ip:192.168.1.1', rule);
@@ -219,7 +219,7 @@ describe('RateLimitService', () => {
   describe('Statistics and Monitoring', () => {
     it('should track rate limit statistics', async () => {
       const key = 'test-key';
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       // Make some requests
       for (let i = 0; i < 3; i++) {
@@ -233,7 +233,7 @@ describe('RateLimitService', () => {
 
     it('should provide rate limit info', async () => {
       const key = 'test-key';
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       await rateLimitService.check(key, rule);
 
@@ -298,7 +298,7 @@ describe('RateLimitService', () => {
 
     it('should handle concurrent requests', async () => {
       const key = 'test-key';
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       // Make multiple concurrent requests
       const promises = Array.from({ length: 10 }, () =>
@@ -375,7 +375,7 @@ describe('RateLimitService', () => {
   describe('Performance', () => {
     it('should handle high throughput', async () => {
       const key = 'test-key';
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       const startTime = Date.now();
       
@@ -394,7 +394,7 @@ describe('RateLimitService', () => {
     });
 
     it('should efficiently handle memory usage', async () => {
-      const rule = 'test_rule';
+      const rule = 'api_request';
 
       // Create many different keys
       for (let i = 0; i < 1000; i++) {

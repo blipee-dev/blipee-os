@@ -1,0 +1,523 @@
+{
+  "timestamp": "2025-07-12T19:54:28.944Z",
+  "baseUrl": "http://localhost:3000",
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "passRate": "100.0%",
+    "overallStatus": "✅ PASSED",
+    "healthPercentage": "100%"
+  },
+  "healthChecks": {
+    "API Endpoints Accessible": true,
+    "Health Check Passing": true,
+    "Store Listing Works": true,
+    "Real-time Data Available": true,
+    "UI Accessible": true
+  },
+  "results": [
+    {
+      "category": "🏥 Health & Basic Endpoints",
+      "name": "Health Check",
+      "path": "/api/retail/v1/health",
+      "method": "GET",
+      "status": 200,
+      "success": true,
+      "response": {
+        "status": "healthy",
+        "timestamp": "2025-07-12T19:54:28.738Z",
+        "module": "retail-intelligence",
+        "checks": {
+          "api": true,
+          "database": true
+        },
+        "version": "1.0.0"
+      }
+    },
+    {
+      "category": "🏥 Health & Basic Endpoints",
+      "name": "List Stores",
+      "path": "/api/retail/v1/stores",
+      "method": "GET",
+      "status": 200,
+      "success": true,
+      "response": {
+        "success": true,
+        "stores": [
+          {
+            "id": "OML01",
+            "name": "OML01-Omnia GuimarãesShopping",
+            "code": "OML01",
+            "is_active": true,
+            "location": "Guimarães, Portugal"
+          },
+          {
+            "id": "OML02",
+            "name": "OML02-Omnia Fórum Almada",
+            "code": "OML02",
+            "is_active": true,
+            "location": "Almada, Portugal"
+          },
+          {
+            "id": "ONL01",
+            "name": "ONL01-Only UBBO Amadora",
+            "code": "ONL01",
+            "is_active": true,
+            "location": "Amadora, Portugal"
+          }
+        ],
+        "total": 3
+      }
+    },
+    {
+      "category": "📊 Analytics Endpoints",
+      "name": "Real-time Traffic",
+      "path": "/api/retail/v1/traffic/realtime",
+      "method": "GET",
+      "status": 200,
+      "success": true,
+      "response": {
+        "success": true,
+        "data": {
+          "loja": "OML01",
+          "current_occupancy": 86,
+          "last_update": "2025-07-12T19:54:28.796Z",
+          "last_hour": {
+            "entries": 59,
+            "exits": 63
+          },
+          "trend": "decreasing",
+          "regions": {
+            "region1": 46,
+            "region2": 40,
+            "region3": 15,
+            "region4": 5
+          }
+        }
+      }
+    },
+    {
+      "category": "📊 Analytics Endpoints",
+      "name": "Analytics with Date Range",
+      "path": "/api/retail/v1/analytics",
+      "method": "GET",
+      "status": 200,
+      "success": true,
+      "response": {
+        "success": true,
+        "data": {
+          "loja": "OML01",
+          "periodo": {
+            "inicio": "2025-01-01T00:00:00",
+            "fim": "2025-01-31T23:59:59"
+          },
+          "vendas": {
+            "total_com_iva": 53697,
+            "total_sem_iva": 114844,
+            "transacoes": 365,
+            "ticket_medio": 84
+          },
+          "trafego": {
+            "visitantes": 1067,
+            "total_passagens": 3120,
+            "entry_rate": 61
+          },
+          "conversao": {
+            "taxa_conversao": 27,
+            "tempo_medio_permanencia": 24,
+            "unidades_por_transacao": 1
+          },
+          "top_performers": {
+            "vendedores": [
+              {
+                "codigo": "V001",
+                "nome": "Maria Silva",
+                "vendas": 15000
+              },
+              {
+                "codigo": "V002",
+                "nome": "João Santos",
+                "vendas": 12000
+              }
+            ],
+            "produtos": [
+              {
+                "item": "P001",
+                "descricao": "Produto A",
+                "quantidade": 250
+              },
+              {
+                "item": "P002",
+                "descricao": "Produto B",
+                "quantidade": 180
+              }
+            ]
+          },
+          "regioes": {
+            "ocupacao": {
+              "region1": 45,
+              "region2": 30,
+              "region3": 15,
+              "region4": 10
+            },
+            "top_2": [
+              "region1",
+              "region2"
+            ],
+            "bottom_2": [
+              "region3",
+              "region4"
+            ]
+          },
+          "ultima_atualizacao": "2025-07-12T19:54:28.816Z"
+        },
+        "permissions": [
+          "retail:read",
+          "retail:write",
+          "retail:analytics",
+          "retail:store_management"
+        ],
+        "user": "demo@blipee.ai"
+      }
+    },
+    {
+      "category": "🔐 Authentication Endpoints",
+      "name": "Telegram Authentication",
+      "path": "/api/retail/v1/auth/telegram",
+      "method": "POST",
+      "status": 200,
+      "success": true,
+      "response": {
+        "success": true,
+        "user": {
+          "id": "test123",
+          "username": "testuser",
+          "chat_id": "chat123",
+          "role": "user",
+          "stores": [
+            "OML01",
+            "OML02",
+            "ONL01"
+          ]
+        },
+        "session": {
+          "token": "mock-jwt-token",
+          "expires_at": "2025-07-13T19:54:28.844Z"
+        },
+        "message": "User authenticated successfully"
+      }
+    },
+    {
+      "category": "💬 Telegram State Management",
+      "name": "Get Telegram State",
+      "path": "/api/retail/v1/telegram/state",
+      "method": "GET",
+      "status": 200,
+      "success": true,
+      "response": {
+        "success": true,
+        "data": {
+          "chat_id": "chat123",
+          "state": "idle",
+          "context": {},
+          "last_updated": "2025-07-12T19:54:28.887Z"
+        }
+      }
+    },
+    {
+      "category": "💬 Telegram State Management",
+      "name": "Update Telegram State",
+      "path": "/api/retail/v1/telegram/state",
+      "method": "POST",
+      "status": 200,
+      "success": true,
+      "response": {
+        "success": true,
+        "data": {
+          "chat_id": "chat123",
+          "state": "store_selection",
+          "context": {},
+          "last_updated": "2025-07-12T19:54:28.908Z"
+        },
+        "message": "Bot state updated successfully"
+      }
+    },
+    {
+      "category": "🎨 UI Access",
+      "name": "Retail Module Page",
+      "path": "/retail",
+      "method": "GET",
+      "status": 200,
+      "success": true,
+      "response": "<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1752350068929\" data-precedence=\"next_static/css/app/layout.css\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack.js?v=1752350068929\"/><script src=\"/_next/static/chunks/main-app.js?v=1752350068929\" async=\"\"></script><script src=\"/_next/static/chunks/app-pages-internals.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/retail/page.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/layout.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/error.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/not-found.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/global-error.js\" async=\"\"></script><title>Retail Intelligence - blipee OS</title><meta name=\"description\" content=\"AI-powered retail analytics and insights\"/><meta name=\"next-size-adjust\"/><script src=\"/_next/static/chunks/polyfills.js\" noModule=\"\"></script></head><body class=\"__className_e8ce0c bg-black transition-colors duration-300\"><div class=\"fixed inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10 transition-all duration-300\"></div><div class=\"fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent\"></div><div class=\"fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent\"></div><div class=\"relative z-10 min-h-screen\"><div class=\"min-h-screen\"><nav aria-label=\"Main navigation\" class=\"jsx-ae6e32ba96257e00 nav-rail\"><div class=\"jsx-ae6e32ba96257e00 nav-logo-container\"><div role=\"button\" tabindex=\"0\" aria-label=\"blipee OS Home\" class=\"jsx-ae6e32ba96257e00 nav-logo\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-house w-8 h-8 text-white\"><path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"></path><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"></path></svg></div></div><div class=\"jsx-ae6e32ba96257e00 flex-1\"></div><div class=\"jsx-ae6e32ba96257e00 nav-bottom\"><button aria-label=\"Toggle theme\" class=\"jsx-ae6e32ba96257e00 theme-toggle\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-sun w-6 h-6\"><circle cx=\"12\" cy=\"12\" r=\"4\"></circle><path d=\"M12 2v2\"></path><path d=\"M12 20v2\"></path><path d=\"m4.93 4.93 1.41 1.41\"></path><path d=\"m17.66 17.66 1.41 1.41\"></path><path d=\"M2 12h2\"></path><path d=\"M20 12h2\"></path><path d=\"m6.34 17.66-1.41 1.41\"></path><path d=\"m19.07 4.93-1.41 1.41\"></path></svg></button></div></nav><div class=\"ml-20 flex\"><div class=\"w-64 min-h-screen p-4\"><nav class=\"bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-lg \"><div class=\"p-4\"><h3 class=\"text-lg font-semibold text-white mb-4\">Modules</h3><div class=\"space-y-2\"></div><div class=\"mt-4 pt-4 border-t border-white/[0.05]\"><details class=\"text-xs\"><summary class=\"text-gray-500 cursor-pointer\">Debug Info</summary><div class=\"mt-2 text-gray-400\"><div>Current path: <!-- -->/retail</div><div>User permissions: <!-- -->retail:read, retail:analytics, sustainability:read</div></div></details></div></div></nav></div><main class=\"flex-1 min-h-screen p-6\"><div class=\"max-w-7xl mx-auto\"><div class=\"space-y-6\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-3xl font-bold tracking-tight text-white\">Retail Intelligence</h1><p class=\"text-gray-400 mt-2\">AI-powered insights for your retail operations</p></div><div class=\"flex items-center space-x-3\"><div class=\"h-2 w-2 bg-green-500 rounded-full animate-pulse\"></div><span class=\"text-sm text-gray-400\">Module Active</span></div></div><div class=\"flex items-center justify-center h-64\"><div class=\"animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500\"></div></div></div></div></main></div></div></div><script src=\"/_next/static/chunks/webpack.js?v=1752350068929\" async=\"\"></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,\"1:HL[\\\"/_next/static/media/e4af272ccee01ff0-s.p.woff2\\\",\\\"font\\\",{\\\"crossOrigin\\\":\\\"\\\",\\\"type\\\":\\\"font/woff2\\\"}]\\n2:HL[\\\"/_next/static/css/app/layout.css?v=1752350068929\\\",\\\"style\\\"]\\n0:D{\\\"name\\\":\\\"r1\\\",\\\"env\\\":\\\"Server\\\"}\\n\"])</script><script>self.__next_f.push([1,\"3:I[\\\"(app-pages-browser)/./node_modules/next/dist/client/components/app-router.js\\\",[\\\"app-pages-internals\\\",\\\"static/chunks/app-pages-internals.js\\\"],\\\"\\\"]\\n6:I[\\\"(app-pages-browser)/./src/components/layout/ModuleLayout.tsx\\\",[\\\"app/retail/page\\\",\\\"static/chunks/app/retail/page.js\\\"],\\\"ModuleLayout\\\"]\\n7:I[\\\"(app-pages-browser)/./src/components/retail/dashboard/RetailDashboard.tsx\\\",[\\\"app/retail/page\\\",\\\"static/chunks/app/retail/page.js\\\"],\\\"RetailDashboard\\\"]\\n8:I[\\\"(app-pages-browser)/./node_modules/next/dist/client/components/layout-router.js\\\",[\\\"app-pages-internals\\\",\\\"static/chunks/app-pages-internals.js\\\"],\\\"\\\"]\\n9:I[\\\"(app-pages-browser)/./node_modules/next/dist/client/components/render-from-template-context.js\\\",[\\\"app-pages-internals\\\",\\\"static/chunks/app-pages-internals.js\\\"],\\\"\\\"]\\nb:I[\\\"(app-pages-browser)/./src/app/providers.tsx\\\",[\\\"app/layout\\\",\\\"static/chunks/app/layout.js\\\"],\\\"Providers\\\"]\\nc:I[\\\"(app-pages-browser)/./src/app/error.tsx\\\",[\\\"app/error\\\",\\\"static/chunks/app/error.js\\\"],\\\"default\\\"]\\ne:I[\\\"(app-pages-browser)/./node_modules/next/dist/client/link.js\\\",[\\\"app/not-found\\\",\\\"static/chunks/app/not-found.js\\\"],\\\"\\\"]\\n11:I[\\\"(app-pages-browser)/./src/app/global-error.tsx\\\",[\\\"app/global-error\\\",\\\"static/chunks/app/global-error.js\\\"],\\\"default\\\"]\\n4:D{\\\"name\\\":\\\"\\\",\\\"env\\\":\\\"Server\\\"}\\n5:D{\\\"name\\\":\\\"RetailPage\\\",\\\"env\\\":\\\"Server\\\"}\\n5:[\\\"$\\\",\\\"$L6\\\",null,{\\\"userPermissions\\\":[\\\"retail:read\\\",\\\"retail:analytics\\\",\\\"sustainability:read\\\"],\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"space-y-6\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"flex items-center justify-between\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"h1\\\",null,{\\\"className\\\":\\\"text-3xl font-bold tracking-tight text-white\\\",\\\"children\\\":\\\"Retail Intelligence\\\"}],[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"text-gray-400 mt-2\\\",\\\"children\\\":\\\"AI-powered insights for your retail operations\\\"}]]}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"flex items-center space-x-3\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"h-2 w-2 bg-green-500 rounded-full animate-pulse\\\"}],[\\\"$\\\",\\\"span\\\",null,{\\\"className\\\":\\\"text-sm text-gray-400\\\",\\\"children\\\":\\\"Module Active\\\"}]]}]]}],[\\\"$\\\",\\\"$L7\\\",null,{}]]}]}]\\na:D{\\\"name\\\":\"])</script><script>self.__next_f.push([1,\"\\\"RootLayout\\\",\\\"env\\\":\\\"Server\\\"}\\nd:D{\\\"name\\\":\\\"NotFound\\\",\\\"env\\\":\\\"Server\\\"}\\nd:[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"min-h-screen flex items-center justify-center bg-black\\\",\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"text-center space-y-4\\\",\\\"children\\\":[[\\\"$\\\",\\\"h2\\\",null,{\\\"className\\\":\\\"text-4xl font-bold text-white\\\",\\\"children\\\":\\\"404\\\"}],[\\\"$\\\",\\\"h3\\\",null,{\\\"className\\\":\\\"text-xl text-gray-400\\\",\\\"children\\\":\\\"Page not found\\\"}],[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"text-gray-500\\\",\\\"children\\\":\\\"The page you're looking for doesn't exist.\\\"}],[\\\"$\\\",\\\"$Le\\\",null,{\\\"href\\\":\\\"/\\\",\\\"className\\\":\\\"inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors\\\",\\\"children\\\":\\\"Go Home\\\"}]]}]}]\\na:[\\\"$\\\",\\\"html\\\",null,{\\\"lang\\\":\\\"en\\\",\\\"children\\\":[\\\"$\\\",\\\"body\\\",null,{\\\"className\\\":\\\"__className_e8ce0c bg-black transition-colors duration-300\\\",\\\"children\\\":[\\\"$\\\",\\\"$Lb\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"fixed inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10 transition-all duration-300\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"relative z-10 min-h-screen\\\",\\\"children\\\":[\\\"$\\\",\\\"$L8\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"segmentPath\\\":[\\\"children\\\"],\\\"error\\\":\\\"$c\\\",\\\"errorStyles\\\":[],\\\"errorScripts\\\":[],\\\"template\\\":[\\\"$\\\",\\\"$L9\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$d\\\",\\\"notFoundStyles\\\":[],\\\"styles\\\":null}]}]]}]}]}]\\nf:D{\\\"name\\\":\\\"rQ\\\",\\\"env\\\":\\\"Server\\\"}\\nf:null\\n10:D{\\\"name\\\":\\\"\\\",\\\"env\\\":\\\"Server\\\"}\\n12:[]\\n0:[[[\\\"$\\\",\\\"link\\\",\\\"0\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/css/app/layout.css?v=1752350068929\\\",\\\"precedence\\\":\\\"next_static/css/app/layout.css\\\",\\\"crossOrigin\\\":\\\"$undefined\\\"}]],[\\\"$\\\",\\\"$L3\\\",null,{\\\"buildId\\\":\\\"development\\\",\\\"assetPrefix\\\":\\\"\\\",\\\"initialCanonicalUrl\\\":\\\"/retail\\\",\\\"initialTree\\\":[\\\"\\\",{\\\"children\\\":[\\\"retail\\\",{\\\"children\\\":[\\\"__PAGE\"])</script><script>self.__next_f.push([1,\"__\\\",{}]}]},\\\"$undefined\\\",\\\"$undefined\\\",true],\\\"initialSeedData\\\":[\\\"\\\",{\\\"children\\\":[\\\"retail\\\",{\\\"children\\\":[\\\"__PAGE__\\\",{},[[\\\"$L4\\\",\\\"$5\\\"],null],null]},[\\\"$\\\",\\\"$L8\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"segmentPath\\\":[\\\"children\\\",\\\"retail\\\",\\\"children\\\"],\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$L9\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$undefined\\\",\\\"notFoundStyles\\\":\\\"$undefined\\\",\\\"styles\\\":null}],null]},[\\\"$a\\\",null],null],\\\"couldBeIntercepted\\\":false,\\\"initialHead\\\":[\\\"$f\\\",\\\"$L10\\\"],\\\"globalErrorComponent\\\":\\\"$11\\\",\\\"missingSlots\\\":\\\"$W12\\\"}]]\\n\"])</script><script>self.__next_f.push([1,\"10:[[\\\"$\\\",\\\"meta\\\",\\\"0\\\",{\\\"name\\\":\\\"viewport\\\",\\\"content\\\":\\\"width=device-width, initial-scale=1\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"1\\\",{\\\"charSet\\\":\\\"utf-8\\\"}],[\\\"$\\\",\\\"title\\\",\\\"2\\\",{\\\"children\\\":\\\"Retail Intelligence - blipee OS\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"3\\\",{\\\"name\\\":\\\"description\\\",\\\"content\\\":\\\"AI-powered retail analytics and insights\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"4\\\",{\\\"name\\\":\\\"next-size-adjust\\\"}]]\\n4:null\\n\"])</script></body></html>"
+    }
+  ],
+  "categorySummary": {
+    "🏥 Health & Basic Endpoints": {
+      "passed": 2,
+      "failed": 0,
+      "tests": [
+        {
+          "category": "🏥 Health & Basic Endpoints",
+          "name": "Health Check",
+          "path": "/api/retail/v1/health",
+          "method": "GET",
+          "status": 200,
+          "success": true,
+          "response": {
+            "status": "healthy",
+            "timestamp": "2025-07-12T19:54:28.738Z",
+            "module": "retail-intelligence",
+            "checks": {
+              "api": true,
+              "database": true
+            },
+            "version": "1.0.0"
+          }
+        },
+        {
+          "category": "🏥 Health & Basic Endpoints",
+          "name": "List Stores",
+          "path": "/api/retail/v1/stores",
+          "method": "GET",
+          "status": 200,
+          "success": true,
+          "response": {
+            "success": true,
+            "stores": [
+              {
+                "id": "OML01",
+                "name": "OML01-Omnia GuimarãesShopping",
+                "code": "OML01",
+                "is_active": true,
+                "location": "Guimarães, Portugal"
+              },
+              {
+                "id": "OML02",
+                "name": "OML02-Omnia Fórum Almada",
+                "code": "OML02",
+                "is_active": true,
+                "location": "Almada, Portugal"
+              },
+              {
+                "id": "ONL01",
+                "name": "ONL01-Only UBBO Amadora",
+                "code": "ONL01",
+                "is_active": true,
+                "location": "Amadora, Portugal"
+              }
+            ],
+            "total": 3
+          }
+        }
+      ]
+    },
+    "📊 Analytics Endpoints": {
+      "passed": 2,
+      "failed": 0,
+      "tests": [
+        {
+          "category": "📊 Analytics Endpoints",
+          "name": "Real-time Traffic",
+          "path": "/api/retail/v1/traffic/realtime",
+          "method": "GET",
+          "status": 200,
+          "success": true,
+          "response": {
+            "success": true,
+            "data": {
+              "loja": "OML01",
+              "current_occupancy": 86,
+              "last_update": "2025-07-12T19:54:28.796Z",
+              "last_hour": {
+                "entries": 59,
+                "exits": 63
+              },
+              "trend": "decreasing",
+              "regions": {
+                "region1": 46,
+                "region2": 40,
+                "region3": 15,
+                "region4": 5
+              }
+            }
+          }
+        },
+        {
+          "category": "📊 Analytics Endpoints",
+          "name": "Analytics with Date Range",
+          "path": "/api/retail/v1/analytics",
+          "method": "GET",
+          "status": 200,
+          "success": true,
+          "response": {
+            "success": true,
+            "data": {
+              "loja": "OML01",
+              "periodo": {
+                "inicio": "2025-01-01T00:00:00",
+                "fim": "2025-01-31T23:59:59"
+              },
+              "vendas": {
+                "total_com_iva": 53697,
+                "total_sem_iva": 114844,
+                "transacoes": 365,
+                "ticket_medio": 84
+              },
+              "trafego": {
+                "visitantes": 1067,
+                "total_passagens": 3120,
+                "entry_rate": 61
+              },
+              "conversao": {
+                "taxa_conversao": 27,
+                "tempo_medio_permanencia": 24,
+                "unidades_por_transacao": 1
+              },
+              "top_performers": {
+                "vendedores": [
+                  {
+                    "codigo": "V001",
+                    "nome": "Maria Silva",
+                    "vendas": 15000
+                  },
+                  {
+                    "codigo": "V002",
+                    "nome": "João Santos",
+                    "vendas": 12000
+                  }
+                ],
+                "produtos": [
+                  {
+                    "item": "P001",
+                    "descricao": "Produto A",
+                    "quantidade": 250
+                  },
+                  {
+                    "item": "P002",
+                    "descricao": "Produto B",
+                    "quantidade": 180
+                  }
+                ]
+              },
+              "regioes": {
+                "ocupacao": {
+                  "region1": 45,
+                  "region2": 30,
+                  "region3": 15,
+                  "region4": 10
+                },
+                "top_2": [
+                  "region1",
+                  "region2"
+                ],
+                "bottom_2": [
+                  "region3",
+                  "region4"
+                ]
+              },
+              "ultima_atualizacao": "2025-07-12T19:54:28.816Z"
+            },
+            "permissions": [
+              "retail:read",
+              "retail:write",
+              "retail:analytics",
+              "retail:store_management"
+            ],
+            "user": "demo@blipee.ai"
+          }
+        }
+      ]
+    },
+    "🔐 Authentication Endpoints": {
+      "passed": 1,
+      "failed": 0,
+      "tests": [
+        {
+          "category": "🔐 Authentication Endpoints",
+          "name": "Telegram Authentication",
+          "path": "/api/retail/v1/auth/telegram",
+          "method": "POST",
+          "status": 200,
+          "success": true,
+          "response": {
+            "success": true,
+            "user": {
+              "id": "test123",
+              "username": "testuser",
+              "chat_id": "chat123",
+              "role": "user",
+              "stores": [
+                "OML01",
+                "OML02",
+                "ONL01"
+              ]
+            },
+            "session": {
+              "token": "mock-jwt-token",
+              "expires_at": "2025-07-13T19:54:28.844Z"
+            },
+            "message": "User authenticated successfully"
+          }
+        }
+      ]
+    },
+    "💬 Telegram State Management": {
+      "passed": 2,
+      "failed": 0,
+      "tests": [
+        {
+          "category": "💬 Telegram State Management",
+          "name": "Get Telegram State",
+          "path": "/api/retail/v1/telegram/state",
+          "method": "GET",
+          "status": 200,
+          "success": true,
+          "response": {
+            "success": true,
+            "data": {
+              "chat_id": "chat123",
+              "state": "idle",
+              "context": {},
+              "last_updated": "2025-07-12T19:54:28.887Z"
+            }
+          }
+        },
+        {
+          "category": "💬 Telegram State Management",
+          "name": "Update Telegram State",
+          "path": "/api/retail/v1/telegram/state",
+          "method": "POST",
+          "status": 200,
+          "success": true,
+          "response": {
+            "success": true,
+            "data": {
+              "chat_id": "chat123",
+              "state": "store_selection",
+              "context": {},
+              "last_updated": "2025-07-12T19:54:28.908Z"
+            },
+            "message": "Bot state updated successfully"
+          }
+        }
+      ]
+    },
+    "🎨 UI Access": {
+      "passed": 1,
+      "failed": 0,
+      "tests": [
+        {
+          "category": "🎨 UI Access",
+          "name": "Retail Module Page",
+          "path": "/retail",
+          "method": "GET",
+          "status": 200,
+          "success": true,
+          "response": "<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1752350068929\" data-precedence=\"next_static/css/app/layout.css\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack.js?v=1752350068929\"/><script src=\"/_next/static/chunks/main-app.js?v=1752350068929\" async=\"\"></script><script src=\"/_next/static/chunks/app-pages-internals.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/retail/page.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/layout.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/error.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/not-found.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/global-error.js\" async=\"\"></script><title>Retail Intelligence - blipee OS</title><meta name=\"description\" content=\"AI-powered retail analytics and insights\"/><meta name=\"next-size-adjust\"/><script src=\"/_next/static/chunks/polyfills.js\" noModule=\"\"></script></head><body class=\"__className_e8ce0c bg-black transition-colors duration-300\"><div class=\"fixed inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10 transition-all duration-300\"></div><div class=\"fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent\"></div><div class=\"fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent\"></div><div class=\"relative z-10 min-h-screen\"><div class=\"min-h-screen\"><nav aria-label=\"Main navigation\" class=\"jsx-ae6e32ba96257e00 nav-rail\"><div class=\"jsx-ae6e32ba96257e00 nav-logo-container\"><div role=\"button\" tabindex=\"0\" aria-label=\"blipee OS Home\" class=\"jsx-ae6e32ba96257e00 nav-logo\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-house w-8 h-8 text-white\"><path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"></path><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"></path></svg></div></div><div class=\"jsx-ae6e32ba96257e00 flex-1\"></div><div class=\"jsx-ae6e32ba96257e00 nav-bottom\"><button aria-label=\"Toggle theme\" class=\"jsx-ae6e32ba96257e00 theme-toggle\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-sun w-6 h-6\"><circle cx=\"12\" cy=\"12\" r=\"4\"></circle><path d=\"M12 2v2\"></path><path d=\"M12 20v2\"></path><path d=\"m4.93 4.93 1.41 1.41\"></path><path d=\"m17.66 17.66 1.41 1.41\"></path><path d=\"M2 12h2\"></path><path d=\"M20 12h2\"></path><path d=\"m6.34 17.66-1.41 1.41\"></path><path d=\"m19.07 4.93-1.41 1.41\"></path></svg></button></div></nav><div class=\"ml-20 flex\"><div class=\"w-64 min-h-screen p-4\"><nav class=\"bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-lg \"><div class=\"p-4\"><h3 class=\"text-lg font-semibold text-white mb-4\">Modules</h3><div class=\"space-y-2\"></div><div class=\"mt-4 pt-4 border-t border-white/[0.05]\"><details class=\"text-xs\"><summary class=\"text-gray-500 cursor-pointer\">Debug Info</summary><div class=\"mt-2 text-gray-400\"><div>Current path: <!-- -->/retail</div><div>User permissions: <!-- -->retail:read, retail:analytics, sustainability:read</div></div></details></div></div></nav></div><main class=\"flex-1 min-h-screen p-6\"><div class=\"max-w-7xl mx-auto\"><div class=\"space-y-6\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-3xl font-bold tracking-tight text-white\">Retail Intelligence</h1><p class=\"text-gray-400 mt-2\">AI-powered insights for your retail operations</p></div><div class=\"flex items-center space-x-3\"><div class=\"h-2 w-2 bg-green-500 rounded-full animate-pulse\"></div><span class=\"text-sm text-gray-400\">Module Active</span></div></div><div class=\"flex items-center justify-center h-64\"><div class=\"animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500\"></div></div></div></div></main></div></div></div><script src=\"/_next/static/chunks/webpack.js?v=1752350068929\" async=\"\"></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,\"1:HL[\\\"/_next/static/media/e4af272ccee01ff0-s.p.woff2\\\",\\\"font\\\",{\\\"crossOrigin\\\":\\\"\\\",\\\"type\\\":\\\"font/woff2\\\"}]\\n2:HL[\\\"/_next/static/css/app/layout.css?v=1752350068929\\\",\\\"style\\\"]\\n0:D{\\\"name\\\":\\\"r1\\\",\\\"env\\\":\\\"Server\\\"}\\n\"])</script><script>self.__next_f.push([1,\"3:I[\\\"(app-pages-browser)/./node_modules/next/dist/client/components/app-router.js\\\",[\\\"app-pages-internals\\\",\\\"static/chunks/app-pages-internals.js\\\"],\\\"\\\"]\\n6:I[\\\"(app-pages-browser)/./src/components/layout/ModuleLayout.tsx\\\",[\\\"app/retail/page\\\",\\\"static/chunks/app/retail/page.js\\\"],\\\"ModuleLayout\\\"]\\n7:I[\\\"(app-pages-browser)/./src/components/retail/dashboard/RetailDashboard.tsx\\\",[\\\"app/retail/page\\\",\\\"static/chunks/app/retail/page.js\\\"],\\\"RetailDashboard\\\"]\\n8:I[\\\"(app-pages-browser)/./node_modules/next/dist/client/components/layout-router.js\\\",[\\\"app-pages-internals\\\",\\\"static/chunks/app-pages-internals.js\\\"],\\\"\\\"]\\n9:I[\\\"(app-pages-browser)/./node_modules/next/dist/client/components/render-from-template-context.js\\\",[\\\"app-pages-internals\\\",\\\"static/chunks/app-pages-internals.js\\\"],\\\"\\\"]\\nb:I[\\\"(app-pages-browser)/./src/app/providers.tsx\\\",[\\\"app/layout\\\",\\\"static/chunks/app/layout.js\\\"],\\\"Providers\\\"]\\nc:I[\\\"(app-pages-browser)/./src/app/error.tsx\\\",[\\\"app/error\\\",\\\"static/chunks/app/error.js\\\"],\\\"default\\\"]\\ne:I[\\\"(app-pages-browser)/./node_modules/next/dist/client/link.js\\\",[\\\"app/not-found\\\",\\\"static/chunks/app/not-found.js\\\"],\\\"\\\"]\\n11:I[\\\"(app-pages-browser)/./src/app/global-error.tsx\\\",[\\\"app/global-error\\\",\\\"static/chunks/app/global-error.js\\\"],\\\"default\\\"]\\n4:D{\\\"name\\\":\\\"\\\",\\\"env\\\":\\\"Server\\\"}\\n5:D{\\\"name\\\":\\\"RetailPage\\\",\\\"env\\\":\\\"Server\\\"}\\n5:[\\\"$\\\",\\\"$L6\\\",null,{\\\"userPermissions\\\":[\\\"retail:read\\\",\\\"retail:analytics\\\",\\\"sustainability:read\\\"],\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"space-y-6\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"flex items-center justify-between\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"h1\\\",null,{\\\"className\\\":\\\"text-3xl font-bold tracking-tight text-white\\\",\\\"children\\\":\\\"Retail Intelligence\\\"}],[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"text-gray-400 mt-2\\\",\\\"children\\\":\\\"AI-powered insights for your retail operations\\\"}]]}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"flex items-center space-x-3\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"h-2 w-2 bg-green-500 rounded-full animate-pulse\\\"}],[\\\"$\\\",\\\"span\\\",null,{\\\"className\\\":\\\"text-sm text-gray-400\\\",\\\"children\\\":\\\"Module Active\\\"}]]}]]}],[\\\"$\\\",\\\"$L7\\\",null,{}]]}]}]\\na:D{\\\"name\\\":\"])</script><script>self.__next_f.push([1,\"\\\"RootLayout\\\",\\\"env\\\":\\\"Server\\\"}\\nd:D{\\\"name\\\":\\\"NotFound\\\",\\\"env\\\":\\\"Server\\\"}\\nd:[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"min-h-screen flex items-center justify-center bg-black\\\",\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"text-center space-y-4\\\",\\\"children\\\":[[\\\"$\\\",\\\"h2\\\",null,{\\\"className\\\":\\\"text-4xl font-bold text-white\\\",\\\"children\\\":\\\"404\\\"}],[\\\"$\\\",\\\"h3\\\",null,{\\\"className\\\":\\\"text-xl text-gray-400\\\",\\\"children\\\":\\\"Page not found\\\"}],[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"text-gray-500\\\",\\\"children\\\":\\\"The page you're looking for doesn't exist.\\\"}],[\\\"$\\\",\\\"$Le\\\",null,{\\\"href\\\":\\\"/\\\",\\\"className\\\":\\\"inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors\\\",\\\"children\\\":\\\"Go Home\\\"}]]}]}]\\na:[\\\"$\\\",\\\"html\\\",null,{\\\"lang\\\":\\\"en\\\",\\\"children\\\":[\\\"$\\\",\\\"body\\\",null,{\\\"className\\\":\\\"__className_e8ce0c bg-black transition-colors duration-300\\\",\\\"children\\\":[\\\"$\\\",\\\"$Lb\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"fixed inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10 transition-all duration-300\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"relative z-10 min-h-screen\\\",\\\"children\\\":[\\\"$\\\",\\\"$L8\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"segmentPath\\\":[\\\"children\\\"],\\\"error\\\":\\\"$c\\\",\\\"errorStyles\\\":[],\\\"errorScripts\\\":[],\\\"template\\\":[\\\"$\\\",\\\"$L9\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$d\\\",\\\"notFoundStyles\\\":[],\\\"styles\\\":null}]}]]}]}]}]\\nf:D{\\\"name\\\":\\\"rQ\\\",\\\"env\\\":\\\"Server\\\"}\\nf:null\\n10:D{\\\"name\\\":\\\"\\\",\\\"env\\\":\\\"Server\\\"}\\n12:[]\\n0:[[[\\\"$\\\",\\\"link\\\",\\\"0\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/css/app/layout.css?v=1752350068929\\\",\\\"precedence\\\":\\\"next_static/css/app/layout.css\\\",\\\"crossOrigin\\\":\\\"$undefined\\\"}]],[\\\"$\\\",\\\"$L3\\\",null,{\\\"buildId\\\":\\\"development\\\",\\\"assetPrefix\\\":\\\"\\\",\\\"initialCanonicalUrl\\\":\\\"/retail\\\",\\\"initialTree\\\":[\\\"\\\",{\\\"children\\\":[\\\"retail\\\",{\\\"children\\\":[\\\"__PAGE\"])</script><script>self.__next_f.push([1,\"__\\\",{}]}]},\\\"$undefined\\\",\\\"$undefined\\\",true],\\\"initialSeedData\\\":[\\\"\\\",{\\\"children\\\":[\\\"retail\\\",{\\\"children\\\":[\\\"__PAGE__\\\",{},[[\\\"$L4\\\",\\\"$5\\\"],null],null]},[\\\"$\\\",\\\"$L8\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"segmentPath\\\":[\\\"children\\\",\\\"retail\\\",\\\"children\\\"],\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$L9\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$undefined\\\",\\\"notFoundStyles\\\":\\\"$undefined\\\",\\\"styles\\\":null}],null]},[\\\"$a\\\",null],null],\\\"couldBeIntercepted\\\":false,\\\"initialHead\\\":[\\\"$f\\\",\\\"$L10\\\"],\\\"globalErrorComponent\\\":\\\"$11\\\",\\\"missingSlots\\\":\\\"$W12\\\"}]]\\n\"])</script><script>self.__next_f.push([1,\"10:[[\\\"$\\\",\\\"meta\\\",\\\"0\\\",{\\\"name\\\":\\\"viewport\\\",\\\"content\\\":\\\"width=device-width, initial-scale=1\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"1\\\",{\\\"charSet\\\":\\\"utf-8\\\"}],[\\\"$\\\",\\\"title\\\",\\\"2\\\",{\\\"children\\\":\\\"Retail Intelligence - blipee OS\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"3\\\",{\\\"name\\\":\\\"description\\\",\\\"content\\\":\\\"AI-powered retail analytics and insights\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"4\\\",{\\\"name\\\":\\\"next-size-adjust\\\"}]]\\n4:null\\n\"])</script></body></html>"
+        }
+      ]
+    }
+  }
+}

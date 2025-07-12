@@ -15,6 +15,27 @@ export interface CompletionOptions {
   maxTokens?: number;
   systemPrompt?: string;
   jsonMode?: boolean;
+  structuredOutput?: boolean;
+  responseSchema?: ResponseSchema;
+  chainOfThought?: boolean;
+}
+
+export interface ResponseSchema {
+  type: "object";
+  properties: Record<string, SchemaProperty>;
+  required?: string[];
+  additionalProperties?: boolean;
+}
+
+export interface SchemaProperty {
+  type: string;
+  description?: string;
+  enum?: string[];
+  items?: SchemaProperty;
+  properties?: Record<string, SchemaProperty>;
+  minimum?: number;
+  maximum?: number;
+  required?: string[];
 }
 
 export interface StreamOptions extends CompletionOptions {
@@ -34,6 +55,66 @@ export interface CompletionResponse {
 export interface StreamToken {
   content: string;
   isComplete: boolean;
+}
+
+// Structured AI Response Types
+export interface StructuredAIResponse {
+  message: string;
+  reasoning?: string[]; // Chain of thought steps
+  metrics?: SustainabilityMetrics;
+  actions?: RecommendedAction[];
+  visualizations?: VisualizationComponent[];
+  alerts?: Alert[];
+  confidence?: number; // 0-1 confidence score
+}
+
+export interface SustainabilityMetrics {
+  energy_usage?: number; // kW
+  carbon_emissions?: number; // kg CO2
+  cost_impact?: number; // USD
+  efficiency_score?: number; // 0-100
+  scope1_emissions?: number; // kg CO2
+  scope2_emissions?: number; // kg CO2
+  scope3_emissions?: number; // kg CO2
+  renewable_percentage?: number; // 0-100
+}
+
+export interface RecommendedAction {
+  id: string;
+  type: "immediate" | "scheduled" | "planned";
+  description: string;
+  impact: {
+    energy_savings?: number; // kW
+    cost_savings?: number; // USD
+    carbon_reduction?: number; // kg CO2
+    effort_level: "low" | "medium" | "high";
+  };
+  timeline?: string; // "5 minutes", "1 hour", "next week"
+  confidence: number; // 0-1
+  prerequisites?: string[];
+}
+
+export interface VisualizationComponent {
+  type: "chart" | "gauge" | "map" | "timeline" | "comparison";
+  title: string;
+  data: Record<string, any>;
+  layout?: {
+    width?: string;
+    height?: string;
+    position?: "inline" | "sidebar" | "modal";
+  };
+  config?: Record<string, any>;
+}
+
+export interface Alert {
+  id: string;
+  type: "info" | "warning" | "error" | "success";
+  title: string;
+  message: string;
+  severity: "low" | "medium" | "high" | "critical";
+  source?: string; // "hvac", "lighting", "security", etc.
+  action_required?: boolean;
+  suggested_action?: string;
 }
 
 export interface BuildingContext {

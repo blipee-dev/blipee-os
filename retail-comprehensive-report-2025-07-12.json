@@ -1,0 +1,266 @@
+{
+  "timestamp": "2025-07-12T19:53:16.802Z",
+  "results": {
+    "structure": [
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/health/route.ts",
+        "type": "API",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/stores/route.ts",
+        "type": "API",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/traffic/realtime/route.ts",
+        "type": "API",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/analytics/route.ts",
+        "type": "API",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/auth/telegram/route.ts",
+        "type": "API",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/api/retail/v1/telegram/state/route.ts",
+        "type": "API",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/dashboard/RetailDashboard.tsx",
+        "type": "UI",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/ui/StoreSelector.tsx",
+        "type": "UI",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/analytics/RealTimeTraffic.tsx",
+        "type": "UI",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/analytics/QuickInsights.tsx",
+        "type": "UI",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/analytics/AnalyticsOverview.tsx",
+        "type": "UI",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/components/retail/ui/ConversationalInterface.tsx",
+        "type": "UI",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/app/retail/page.tsx",
+        "type": "Page",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/lib/modules/retail-module.ts",
+        "type": "Module",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/lib/hooks/useRetailAuth.ts",
+        "type": "Hook",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/lib/auth/retail-middleware.ts",
+        "type": "Middleware",
+        "exists": true,
+        "success": true
+      },
+      {
+        "path": "/workspaces/blipee-os/src/lib/auth/retail-permissions.ts",
+        "type": "Permissions",
+        "exists": true,
+        "success": true
+      }
+    ],
+    "api": [
+      {
+        "name": "Health Check",
+        "path": "/api/retail/v1/health",
+        "method": "GET",
+        "status": 200,
+        "success": true,
+        "response": {
+          "status": "healthy",
+          "timestamp": "2025-07-12T19:53:13.902Z",
+          "module": "retail-intelligence",
+          "checks": {
+            "api": true,
+            "database": true
+          },
+          "version": "1.0.0"
+        }
+      },
+      {
+        "name": "List Stores",
+        "path": "/api/retail/v1/stores",
+        "method": "GET",
+        "status": 200,
+        "success": true,
+        "response": {
+          "success": true,
+          "stores": [
+            {
+              "id": "OML01",
+              "name": "OML01-Omnia GuimarãesShopping",
+              "code": "OML01",
+              "is_active": true,
+              "location": "Guimarães, Portugal"
+            },
+            {
+              "id": "OML02",
+              "name": "OML02-Omnia Fórum Almada",
+              "code": "OML02",
+              "is_active": true,
+              "location": "Almada, Portugal"
+            },
+            {
+              "id": "ONL01",
+              "name": "ONL01-Only UBBO Amadora",
+              "code": "ONL01",
+              "is_active": true,
+              "location": "Amadora, Portugal"
+            }
+          ],
+          "total": 3
+        }
+      },
+      {
+        "name": "Real-time Traffic (with store)",
+        "path": "/api/retail/v1/traffic/realtime",
+        "method": "GET",
+        "status": 200,
+        "success": true,
+        "response": {
+          "success": true,
+          "data": {
+            "loja": "OML01",
+            "current_occupancy": 153,
+            "last_update": "2025-07-12T19:53:13.957Z",
+            "last_hour": {
+              "entries": 113,
+              "exits": 46
+            },
+            "trend": "increasing",
+            "regions": {
+              "region1": 52,
+              "region2": 26,
+              "region3": 20,
+              "region4": 5
+            }
+          }
+        }
+      },
+      {
+        "name": "Analytics Data (with store)",
+        "path": "/api/retail/v1/analytics",
+        "method": "GET",
+        "status": 400,
+        "success": false,
+        "response": {
+          "error": "Missing required parameters: loja, start_date, end_date"
+        }
+      },
+      {
+        "name": "Telegram Auth",
+        "path": "/api/retail/v1/auth/telegram",
+        "method": "POST",
+        "status": 400,
+        "success": false,
+        "response": {
+          "error": "telegram_user_id and chat_id are required"
+        }
+      },
+      {
+        "name": "Get Telegram State",
+        "path": "/api/retail/v1/telegram/state",
+        "method": "GET",
+        "status": 400,
+        "success": false,
+        "response": {
+          "error": "chat_id parameter is required"
+        }
+      },
+      {
+        "name": "Update Telegram State",
+        "path": "/api/retail/v1/telegram/state",
+        "method": "POST",
+        "status": 400,
+        "success": false,
+        "response": {
+          "error": "chat_id and state are required"
+        }
+      }
+    ],
+    "ui": [
+      {
+        "name": "Retail Module Page",
+        "path": "/retail",
+        "status": 200,
+        "success": true
+      },
+      {
+        "name": "Main App",
+        "path": "/",
+        "status": 200,
+        "success": true
+      }
+    ],
+    "integration": [
+      {
+        "name": "Module Registration",
+        "success": true,
+        "details": "Auto-registration found"
+      },
+      {
+        "name": "Permission Definitions",
+        "success": true,
+        "details": "Retail permissions defined"
+      }
+    ],
+    "summary": {
+      "passed": 24,
+      "failed": 4,
+      "total": 28
+    }
+  },
+  "summary": {
+    "passed": 24,
+    "failed": 4,
+    "total": 28,
+    "passRate": "85.7%",
+    "health": "healthy"
+  }
+}

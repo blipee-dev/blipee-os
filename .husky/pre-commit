@@ -1,0 +1,43 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Pre-commit hook to ensure code quality and test coverage
+
+echo "🚀 Running pre-commit checks..."
+
+# 1. Run lint-staged for formatting and linting
+npx lint-staged
+
+# 2. Run tests for changed files
+echo "🧪 Running tests for changed files..."
+CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | grep -v test | grep -v spec || true)
+
+if [ -n "$CHANGED_FILES" ]; then
+    # Extract unique directories
+    AFFECTED_DIRS=$(echo "$CHANGED_FILES" | xargs -n1 dirname | sort -u)
+    
+    # Run tests for affected directories
+    for dir in $AFFECTED_DIRS; do
+        if [ -d "$dir/__tests__" ] || ls "$dir"/*.test.* 2>/dev/null || ls "$dir"/*.spec.* 2>/dev/null; then
+            echo "Testing $dir..."
+            npm run test -- --findRelatedTests "$dir" --coverage --coverageThreshold='{"global":{"lines":90}}' || {
+                echo "❌ Tests failed or coverage below 90% for $dir"
+                echo "Run 'npm run test:watch' to fix the tests"
+                exit 1
+            }
+        fi
+    done
+    
+    echo "✅ All tests passed!"
+else
+    echo "No testable files changed"
+fi
+
+# 3. Check TypeScript types for changed files
+echo "🔍 Checking TypeScript types..."
+npx tsc --noEmit || {
+    echo "❌ TypeScript type check failed"
+    exit 1
+}
+
+echo "✅ Pre-commit checks passed!"

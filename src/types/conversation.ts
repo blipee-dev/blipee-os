@@ -61,13 +61,16 @@ export interface ChatResponse {
   components?: UIComponent[];
   actions?: Action[];
   suggestions?: string[];
-  metadata: {
-    tokensUsed: number;
-    responseTime: number;
-    model: string;
+  reasoning?: string[]; // Chain-of-thought reasoning steps
+  confidence?: number; // Overall confidence in response
+  metadata?: {
+    tokensUsed?: number;
+    responseTime?: number;
+    model?: string;
     confidence?: number;
     predictions?: number;
     automations?: number;
+    reasoningEnabled?: boolean;
   };
 }
 

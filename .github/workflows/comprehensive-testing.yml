@@ -1,0 +1,469 @@
+name: Comprehensive Testing Suite
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '20.x'
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+jobs:
+  # Unit and Integration Tests
+  test-unit-integration:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: blipee_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run database migrations
+        run: |
+          npx supabase db push --db-url postgresql://postgres:postgres@localhost:5432/blipee_test
+      
+      - name: Run unit tests with coverage
+        run: npm run test:unit -- --coverage --coverageReporters=json
+      
+      - name: Run integration tests
+        run: npm run test:integration
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/coverage-final.json
+          flags: unit,integration
+          name: unit-integration-coverage
+
+  # API Tests
+  test-api:
+    name: API Tests
+    runs-on: ubuntu-latest
+    needs: test-unit-integration
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Start application
+        run: |
+          npm run build
+          npm run start &
+          npx wait-on http://localhost:3000/api/health -t 60000
+      
+      - name: Run API tests
+        run: npm run test:api
+      
+      - name: Generate API test report
+        if: always()
+        run: |
+          npm run test:api:report
+          
+      - name: Upload API test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-test-results
+          path: test-results/api/
+
+  # Security Tests
+  test-security:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run OWASP dependency check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'blipee-os'
+          path: '.'
+          format: 'ALL'
+          args: >
+            --enableRetired
+            --enableExperimental
+            --failOnCVSS 7
+      
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+      
+      - name: Run OWASP ZAP security scan
+        uses: zaproxy/action-full-scan@v0.7.0
+        with:
+          target: 'http://localhost:3000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+      
+      - name: Run security test suite
+        run: npm run test:security
+      
+      - name: Run Semgrep security analysis
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+            p/typescript
+            p/nextjs
+      
+      - name: Upload security scan results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-scan-results
+          path: |
+            dependency-check-report/
+            zap-report/
+            semgrep-results/
+
+  # Performance Tests
+  test-performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: test-unit-integration
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build application
+        run: npm run build
+      
+      - name: Run performance tests
+        run: |
+          # Start app with production settings
+          NODE_ENV=production npm run start &
+          npx wait-on http://localhost:3000 -t 60000
+          
+          # Run performance test suite
+          npm run test:performance
+      
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            http://localhost:3000
+            http://localhost:3000/dashboard
+            http://localhost:3000/chat
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+      
+      - name: Analyze bundle size
+        run: |
+          npm run analyze
+          npx bundlesize
+      
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: |
+            performance-results/
+            .lighthouseci/
+            .next/analyze/
+
+  # E2E Tests
+  test-e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [test-unit-integration, test-api]
+    strategy:
+      matrix:
+        browser: [chrome, firefox, edge]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps ${{ matrix.browser }}
+      
+      - name: Build application
+        run: npm run build
+      
+      - name: Run E2E tests - ${{ matrix.browser }}
+        run: |
+          npm run start &
+          npx wait-on http://localhost:3000 -t 60000
+          npm run test:e2e:${{ matrix.browser }}
+      
+      - name: Upload E2E test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-results-${{ matrix.browser }}
+          path: |
+            cypress/screenshots/
+            cypress/videos/
+            test-results/e2e/
+
+  # Accessibility Tests
+  test-accessibility:
+    name: Accessibility Tests
+    runs-on: ubuntu-latest
+    needs: test-unit-integration
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build and start application
+        run: |
+          npm run build
+          npm run start &
+          npx wait-on http://localhost:3000 -t 60000
+      
+      - name: Run Pa11y accessibility tests
+        run: |
+          npx pa11y-ci --config .pa11yci.json
+      
+      - name: Run Axe accessibility tests
+        run: npm run test:a11y
+      
+      - name: Upload accessibility results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: accessibility-results
+          path: accessibility-results/
+
+  # Compliance Tests
+  test-compliance:
+    name: Compliance Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run GDPR compliance tests
+        run: npm run test:compliance:gdpr
+      
+      - name: Run SOC2 compliance tests
+        run: npm run test:compliance:soc2
+      
+      - name: Audit logging verification
+        run: npm run test:compliance:audit
+      
+      - name: Data retention policy tests
+        run: npm run test:compliance:retention
+      
+      - name: Generate compliance report
+        run: npm run compliance:report
+      
+      - name: Upload compliance results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: compliance-results
+          path: compliance-reports/
+
+  # Visual Regression Tests
+  test-visual:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    needs: test-unit-integration
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build application
+        run: npm run build
+      
+      - name: Run visual regression tests
+        run: |
+          npm run start &
+          npx wait-on http://localhost:3000 -t 60000
+          npm run test:visual
+      
+      - name: Upload visual diff results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: visual-regression-diffs
+          path: .percy/
+
+  # Generate Test Report
+  generate-report:
+    name: Generate Test Report
+    runs-on: ubuntu-latest
+    needs: [
+      test-unit-integration,
+      test-api,
+      test-security,
+      test-performance,
+      test-e2e,
+      test-accessibility,
+      test-compliance,
+      test-visual
+    ]
+    if: always()
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: test-artifacts/
+      
+      - name: Generate consolidated test report
+        run: |
+          npm run test:report:generate -- \
+            --coverage test-artifacts/coverage/ \
+            --api test-artifacts/api-test-results/ \
+            --security test-artifacts/security-scan-results/ \
+            --performance test-artifacts/performance-results/ \
+            --e2e test-artifacts/e2e-results-*/ \
+            --accessibility test-artifacts/accessibility-results/ \
+            --compliance test-artifacts/compliance-results/
+      
+      - name: Comment PR with test results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('test-report.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+      
+      - name: Upload final test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: |
+            test-report.html
+            test-report.md
+            test-summary.json
+
+  # Deploy test results to dashboard
+  deploy-results:
+    name: Deploy Test Results
+    runs-on: ubuntu-latest
+    needs: generate-report
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download test report
+        uses: actions/download-artifact@v3
+        with:
+          name: test-report
+          path: test-report/
+      
+      - name: Deploy to test dashboard
+        run: |
+          # Deploy test results to monitoring dashboard
+          echo "Deploying test results to dashboard..."
+          # This would typically upload to S3, Datadog, etc.

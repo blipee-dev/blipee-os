@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test - Retail Intelligence</title>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .event-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .event-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .event-time { color: #6c757d; }
+        .event-type { font-weight: bold; }
+        .traffic { color: #28a745; }
+        .sales { color: #007bff; }
+        .alert { color: #dc3545; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .metric-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .metric-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Test - Retail Intelligence</h1>
+    
+    <div class="container">
+        <h2>Connection Status</h2>
+        <div id="status" class="status disconnected">Disconnected</div>
+        <div>
+            <input type="text" id="apiKey" placeholder="API Key (optional)" style="width: 300px; padding: 8px; margin-right: 10px;">
+            <button id="connectBtn" onclick="connect()">Connect</button>
+            <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Store Subscription</h2>
+        <div>
+            <select id="storeSelect" style="padding: 8px; margin-right: 10px;">
+                <option value="OML01">OML01 - Omnia GuimarãesShopping</option>
+                <option value="OML02">OML02 - Omnia Fórum Almada</option>
+                <option value="OML03">OML03 - Omnia Norteshopping</option>
+                <option value="ONL01">ONL01 - Only UBBO Amadora</option>
+                <option value="ONL02">ONL02 - Only Gaia</option>
+            </select>
+            <button id="subscribeBtn" onclick="subscribeToStore()" disabled>Subscribe</button>
+            <button id="unsubscribeBtn" onclick="unsubscribeFromStore()" disabled>Unsubscribe</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Real-time Metrics</h2>
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-value" id="occupancy">-</div>
+                <div class="metric-label">Current Occupancy</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="entries">-</div>
+                <div class="metric-label">Entries (Last Hour)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="sales">-</div>
+                <div class="metric-label">Sales Today</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="transactions">-</div>
+                <div class="metric-label">Transactions</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Event Log</h2>
+        <div id="eventLog" class="event-log"></div>
+        <button onclick="clearLog()" style="margin-top: 10px;">Clear Log</button>
+    </div>
+
+    <script>
+        let socket = null;
+        let currentStore = null;
+
+        function updateStatus(connected) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = connected ? 'Connected' : 'Disconnected';
+            statusEl.className = 'status ' + (connected ? 'connected' : 'disconnected');
+            
+            document.getElementById('connectBtn').disabled = connected;
+            document.getElementById('disconnectBtn').disabled = !connected;
+            document.getElementById('subscribeBtn').disabled = !connected;
+        }
+
+        function logEvent(type, data) {
+            const log = document.getElementById('eventLog');
+            const time = new Date().toLocaleTimeString();
+            const eventDiv = document.createElement('div');
+            eventDiv.className = 'event-item';
+            eventDiv.innerHTML = `
+                <span class="event-time">${time}</span> - 
+                <span class="event-type ${type}">${type.toUpperCase()}</span>: 
+                ${JSON.stringify(data, null, 2)}
+            `;
+            log.insertBefore(eventDiv, log.firstChild);
+            
+            // Keep only last 100 events
+            while (log.children.length > 100) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function connect() {
+            const apiKey = document.getElementById('apiKey').value;
+            const auth = apiKey ? { apiKey } : {};
+            
+            socket = io('http://localhost:3001', {
+                path: '/ws',
+                auth,
+                transports: ['websocket']
+            });
+
+            socket.on('connect', () => {
+                updateStatus(true);
+                logEvent('system', { message: 'Connected to WebSocket server' });
+            });
+
+            socket.on('disconnect', (reason) => {
+                updateStatus(false);
+                logEvent('system', { message: 'Disconnected', reason });
+            });
+
+            socket.on('error', (error) => {
+                logEvent('error', error);
+            });
+
+            // Traffic events
+            socket.on('traffic:update', (data) => {
+                logEvent('traffic', data);
+                document.getElementById('occupancy').textContent = data.currentOccupancy;
+                document.getElementById('entries').textContent = data.entriesLastHour;
+            });
+
+            socket.on('traffic:current', (data) => {
+                logEvent('traffic', data);
+                document.getElementById('occupancy').textContent = data.currentOccupancy;
+            });
+
+            // Sales events
+            socket.on('sales:new', (data) => {
+                logEvent('sales', data);
+            });
+
+            socket.on('sales:summary', (data) => {
+                logEvent('sales', data);
+                document.getElementById('sales').textContent = 
+                    '€' + parseFloat(data.total_revenue || 0).toFixed(2);
+                document.getElementById('transactions').textContent = 
+                    data.transaction_count || 0;
+            });
+
+            // Alert events
+            socket.on('alert:new', (data) => {
+                logEvent('alert', data);
+                alert(`New Alert: ${data.title}\n${data.message}`);
+            });
+
+            // Subscription events
+            socket.on('subscribed:store', (data) => {
+                logEvent('system', { message: 'Subscribed to store', ...data });
+                document.getElementById('unsubscribeBtn').disabled = false;
+            });
+
+            socket.on('unsubscribed:store', (data) => {
+                logEvent('system', { message: 'Unsubscribed from store', ...data });
+                document.getElementById('unsubscribeBtn').disabled = true;
+            });
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            updateStatus(false);
+        }
+
+        function subscribeToStore() {
+            const storeId = document.getElementById('storeSelect').value;
+            if (socket && socket.connected) {
+                // Unsubscribe from current store first
+                if (currentStore && currentStore !== storeId) {
+                    socket.emit('unsubscribe:store', currentStore);
+                }
+                
+                socket.emit('subscribe:store', storeId);
+                socket.emit('subscribe:analytics', storeId);
+                socket.emit('subscribe:alerts');
+                currentStore = storeId;
+                
+                logEvent('system', { message: 'Subscribing to store', storeId });
+            }
+        }
+
+        function unsubscribeFromStore() {
+            if (socket && socket.connected && currentStore) {
+                socket.emit('unsubscribe:store', currentStore);
+                currentStore = null;
+                
+                // Reset metrics
+                document.getElementById('occupancy').textContent = '-';
+                document.getElementById('entries').textContent = '-';
+                document.getElementById('sales').textContent = '-';
+                document.getElementById('transactions').textContent = '-';
+            }
+        }
+
+        function clearLog() {
+            document.getElementById('eventLog').innerHTML = '';
+        }
+
+        // Auto-connect on load
+        window.onload = () => {
+            // Check if running locally
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                setTimeout(connect, 1000);
+            }
+        };
+    </script>
+</body>
+</html>

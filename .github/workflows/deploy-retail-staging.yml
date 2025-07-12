@@ -1,0 +1,137 @@
+name: Deploy Retail Module to Staging
+
+on:
+  push:
+    branches:
+      - retail-staging
+      - main
+    paths:
+      - 'src/app/api/retail/**'
+      - 'src/components/retail/**'
+      - 'src/lib/modules/**'
+      - 'src/lib/auth/retail-*'
+      - 'package.json'
+      - 'vercel.json'
+  workflow_dispatch:
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run Retail Module Tests
+        run: npm run test:retail-module
+        env:
+          CI: true
+      
+      - name: Check TypeScript
+        run: npm run type-check
+      
+      - name: Lint code
+        run: npm run lint
+
+  deploy-staging:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Deploy to Staging
+        id: deploy
+        run: |
+          deployment_url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "deployment_url=$deployment_url" >> $GITHUB_OUTPUT
+        env:
+          # Retail Module Specific
+          RETAIL_API_ENABLED: true
+          RETAIL_MODULE_VERSION: 1.0.0
+          VIEWSONIC_API_KEY: ${{ secrets.VIEWSONIC_API_KEY }}
+          VIEWSONIC_API_URL: ${{ secrets.VIEWSONIC_API_URL }}
+          SALES_API_TOKEN: ${{ secrets.SALES_API_TOKEN }}
+          SALES_API_URL: ${{ secrets.SALES_API_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          # Core Blipee-OS
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+          # AI Providers
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      
+      - name: Update Telegram Webhook
+        if: success()
+        run: |
+          curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/setWebhook \
+            -H "Content-Type: application/json" \
+            -d "{\"url\": \"${{ steps.deploy.outputs.deployment_url }}/api/retail/v1/telegram/webhook\"}"
+      
+      - name: Run Post-Deployment Tests
+        if: success()
+        run: |
+          # Wait for deployment to be ready
+          sleep 30
+          
+          # Test health endpoint
+          curl -f "${{ steps.deploy.outputs.deployment_url }}/api/retail/v1/health" || exit 1
+          
+          # Test module loading
+          curl -f "${{ steps.deploy.outputs.deployment_url }}/api/monitoring/health" || exit 1
+      
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 Retail Module deployed to staging!\n\nDeployment URL: ${{ steps.deploy.outputs.deployment_url }}\n\n**Test the deployment:**\n- Web Interface: ${{ steps.deploy.outputs.deployment_url }}/retail\n- API Health: ${{ steps.deploy.outputs.deployment_url }}/api/retail/v1/health\n- Telegram Bot: Send /help to your bot`
+            })
+
+  notify:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send Notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Retail Module Staging Deployment ${{ job.status }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

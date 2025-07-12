@@ -20,7 +20,7 @@ export class OpenAIProvider implements AIProvider {
     options?: CompletionOptions,
   ): Promise<CompletionResponse> {
     const completion = await this.client.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4o",
       messages: [
         ...(options?.systemPrompt
           ? [{ role: "system" as const, content: options.systemPrompt }]
@@ -52,7 +52,7 @@ export class OpenAIProvider implements AIProvider {
     options?: StreamOptions,
   ): AsyncGenerator<StreamToken, void, unknown> {
     const stream = await this.client.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4o",
       messages: [
         ...(options?.systemPrompt
           ? [{ role: "system" as const, content: options.systemPrompt }]

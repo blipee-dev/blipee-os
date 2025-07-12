@@ -1,0 +1,117 @@
+{
+  "timestamp": "2025-07-12T19:51:54.723Z",
+  "baseUrl": "http://localhost:3000",
+  "results": [
+    {
+      "name": "Health Check",
+      "path": "/api/retail/v1/health",
+      "method": "GET",
+      "status": 200,
+      "success": true,
+      "data": {
+        "status": "healthy",
+        "timestamp": "2025-07-12T19:51:52.157Z",
+        "module": "retail-intelligence",
+        "checks": {
+          "api": true,
+          "database": true
+        },
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "Get Stores",
+      "path": "/api/retail/v1/stores",
+      "method": "GET",
+      "status": 200,
+      "success": true,
+      "data": {
+        "success": true,
+        "stores": [
+          {
+            "id": "OML01",
+            "name": "OML01-Omnia GuimarãesShopping",
+            "code": "OML01",
+            "is_active": true,
+            "location": "Guimarães, Portugal"
+          },
+          {
+            "id": "OML02",
+            "name": "OML02-Omnia Fórum Almada",
+            "code": "OML02",
+            "is_active": true,
+            "location": "Almada, Portugal"
+          },
+          {
+            "id": "ONL01",
+            "name": "ONL01-Only UBBO Amadora",
+            "code": "ONL01",
+            "is_active": true,
+            "location": "Amadora, Portugal"
+          }
+        ],
+        "total": 3
+      }
+    },
+    {
+      "name": "Real-time Traffic",
+      "path": "/api/retail/v1/traffic/realtime",
+      "method": "GET",
+      "status": 400,
+      "success": false,
+      "data": {
+        "error": "Store (loja) parameter is required"
+      }
+    },
+    {
+      "name": "Analytics Data",
+      "path": "/api/retail/v1/analytics",
+      "method": "GET",
+      "status": 400,
+      "success": false,
+      "data": {
+        "error": "Missing required parameters: loja, start_date, end_date"
+      }
+    },
+    {
+      "name": "Telegram Auth",
+      "path": "/api/retail/v1/auth/telegram",
+      "method": "POST",
+      "status": 400,
+      "success": false,
+      "data": {
+        "error": "telegram_user_id and chat_id are required"
+      }
+    },
+    {
+      "name": "Telegram State - GET",
+      "path": "/api/retail/v1/telegram/state",
+      "method": "GET",
+      "status": 400,
+      "success": false,
+      "data": {
+        "error": "chat_id parameter is required"
+      }
+    },
+    {
+      "name": "Telegram State - POST",
+      "path": "/api/retail/v1/telegram/state",
+      "method": "POST",
+      "status": 400,
+      "success": false,
+      "data": {
+        "error": "chat_id and state are required"
+      }
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 5,
+    "total": 7
+  },
+  "analysis": {
+    "connectionErrors": 0,
+    "authRequired": 0,
+    "serverErrors": 0
+  }
+}

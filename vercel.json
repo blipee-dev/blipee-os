@@ -12,6 +12,10 @@
     "src/app/api/monitoring/metrics/route.ts": {
       "maxDuration": 30,
       "memory": 512
+    },
+    "src/app/api/retail/v1/*/route.ts": {
+      "maxDuration": 30,
+      "memory": 512
     }
   },
   "headers": [

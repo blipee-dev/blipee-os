@@ -23,6 +23,8 @@ import {
 import { getAICache } from "@/lib/cache/ai-cache";
 import { getDataCache } from "@/lib/cache/data-cache";
 import { aiCacheManager } from "@/lib/ai/cache-strategies";
+import { chainOfThoughtEngine } from "@/lib/ai/chain-of-thought";
+import { esgContextEngine } from "@/lib/ai/esg-context-engine";
 
 export const dynamic = 'force-dynamic';
 
@@ -194,9 +196,56 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
   try {
     console.log("🌍 Processing with Blipee Sustainability Intelligence...");
 
-      // Process attachments if any - EXTRACT DATA FROM SUSTAINABILITY REPORTS!
-      let fileContext = "";
-      let documentResponses: string[] = [];
+    // Check if this is an ESG-related query that needs chain-of-thought reasoning
+    const esgKeywords = ['emission', 'carbon', 'esg', 'sustainability', 'target', 'material', 'scope', 'ghg', 'climate', 'tcfd', 'gri', 'sasb'];
+    const needsReasoning = esgKeywords.some(keyword => message.toLowerCase().includes(keyword));
+
+    if (needsReasoning && organizationId) {
+      console.log("🧠 Using Chain-of-Thought reasoning for ESG query...");
+      
+      // Process with chain-of-thought reasoning
+      const reasonedResponse = await chainOfThoughtEngine.processWithReasoning(
+        message,
+        organizationId,
+        userId
+      );
+
+      // Convert to chat response format
+      const response: ChatResponse = {
+        message: reasonedResponse.conclusion,
+        components: reasonedResponse.visualizations.map(viz => ({
+          type: viz.component.toLowerCase(),
+          props: {
+            ...viz.data,
+            ...viz.config
+          }
+        })),
+        suggestions: reasonedResponse.followUp,
+        reasoning: reasonedResponse.reasoning.map(r => r.thought),
+        confidence: reasonedResponse.confidence,
+        actions: reasonedResponse.actions.map(a => ({
+          action: a.action,
+          priority: a.priority,
+          impact: `${a.impact.expectedChange}% ${a.impact.metric} in ${a.impact.timeframe}`
+        }))
+      };
+
+      // Cache the response
+      const cacheContext = { organizationId, buildingId, userId };
+      await aiCacheManager.set(message, response, cacheContext);
+
+      const endTime = Date.now();
+      return NextResponse.json({
+        ...response,
+        processingTime: endTime - startTime,
+        cached: false,
+        reasoningEnabled: true
+      });
+    }
+
+    // Process attachments if any - EXTRACT DATA FROM SUSTAINABILITY REPORTS!
+    let fileContext = "";
+    let documentResponses: string[] = [];
 
       if (attachments && attachments.length > 0) {
         console.log(
