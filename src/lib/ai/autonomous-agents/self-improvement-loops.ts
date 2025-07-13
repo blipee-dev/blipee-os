@@ -811,12 +811,15 @@ export class SelfImprovementEngine extends AutonomousAgent {
           actions.push({
             type: 'performance_issue_detected',
             description: `${issue.severity} performance issue in ${loop.loop_type} loop`,
-            loopId: loop.loop_id,
-            issueType: issue.type,
-            severity: issue.severity,
-            impact: issue.performance_impact,
-            recommendedActions: issue.recommended_actions,
-            timestamp: new Date().toISOString()
+            impact: {
+              loopId: loop.loop_id,
+              issueType: issue.type,
+              severity: issue.severity,
+              impact: issue.performance_impact,
+              recommendedActions: issue.recommended_actions,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
       }
@@ -831,11 +834,14 @@ export class SelfImprovementEngine extends AutonomousAgent {
             actions.push({
               type: 'improvement_opportunity_identified',
               description: `Bottleneck in ${loop.loop_type} loop: ${bottleneck.description}`,
-              loopId: loop.loop_id,
-              bottleneckType: bottleneck.type,
-              improvementPotential: bottleneck.improvement_potential,
-              optimizationStrategy: bottleneck.optimization_strategy,
-              timestamp: new Date().toISOString()
+              impact: {
+                loopId: loop.loop_id,
+                bottleneckType: bottleneck.type,
+                improvementPotential: bottleneck.improvement_potential,
+                optimizationStrategy: bottleneck.optimization_strategy,
+                timestamp: new Date().toISOString()
+              },
+              reversible: false
             });
           }
         }
@@ -849,10 +855,13 @@ export class SelfImprovementEngine extends AutonomousAgent {
           actions.push({
             type: 'performance_degradation_detected',
             description: `Performance degradation in ${loop.loop_type} loop`,
-            loopId: loop.loop_id,
-            degradationRate: trends.degradation_rate,
-            affectedMetrics: trends.affected_metrics,
-            timestamp: new Date().toISOString()
+            impact: {
+              loopId: loop.loop_id,
+              degradationRate: trends.degradation_rate,
+              affectedMetrics: trends.affected_metrics,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
       }
@@ -866,11 +875,14 @@ export class SelfImprovementEngine extends AutonomousAgent {
             actions.push({
               type: 'learning_anomaly_detected',
               description: `Learning anomaly in ${loop.loop_type} loop`,
-              loopId: loop.loop_id,
-              anomalyType: anomaly.anomaly_type,
-              severity: anomaly.severity,
-              anomalyScore: anomaly.anomaly_score,
-              timestamp: new Date().toISOString()
+              impact: {
+                loopId: loop.loop_id,
+                anomalyType: anomaly.anomaly_type,
+                severity: anomaly.severity,
+                anomalyScore: anomaly.anomaly_score,
+                timestamp: new Date().toISOString()
+              },
+              reversible: false
             });
           }
         }
@@ -885,6 +897,8 @@ export class SelfImprovementEngine extends AutonomousAgent {
     insights.push(`Average learning performance: ${(averagePerformance * 100).toFixed(1)}%`);
 
     return {
+      taskId: task.id,
+      learnings: [],
       success: true,
       actions,
       insights,
@@ -923,11 +937,14 @@ export class SelfImprovementEngine extends AutonomousAgent {
           actions.push({
             type: 'learning_loop_optimized',
             description: `${loop.loop_type} loop optimized: ${(optimizationResult.improvement_achieved * 100).toFixed(1)}% improvement`,
-            loopId: loop.loop_id,
-            optimizationMethods: optimizationResult.methods_applied,
-            improvementAchieved: optimizationResult.improvement_achieved,
-            newPerformance: optimizationResult.new_performance,
-            timestamp: new Date().toISOString()
+            impact: {
+              loopId: loop.loop_id,
+              optimizationMethods: optimizationResult.methods_applied,
+              improvementAchieved: optimizationResult.improvement_achieved,
+              newPerformance: optimizationResult.new_performance,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
 
           // Update meta-learning if enabled
@@ -945,6 +962,8 @@ export class SelfImprovementEngine extends AutonomousAgent {
     insights.push(`Total performance gain: ${(totalImprovementGain * 100).toFixed(1)}%`);
 
     return {
+      taskId: task.id,
+      learnings: [],
       success: true,
       actions,
       insights,
@@ -979,26 +998,32 @@ export class SelfImprovementEngine extends AutonomousAgent {
           proficiencyThreshold
         );
 
-        if (acquisition.proficiency_level > 0 ? "completed" : "in_progress" === 'completed') {
+        if (acquisition.current_proficiency && acquisition.current_proficiency >= proficiencyThreshold) {
           capabilitiesAcquired++;
           actions.push({
             type: 'capability_acquired',
             description: `Acquired new capability: ${acquisition.capability_name}`,
-            capabilityId: acquisition.capability_id,
-            capabilityName: acquisition.capability_name,
-            proficiencyAchieved: acquisition.current_proficiency,
-            acquisitionMethod: acquisition.acquisition_method,
-            timestamp: new Date().toISOString()
+            impact: {
+              capabilityId: acquisition.capability_id,
+              capabilityName: acquisition.capability_name,
+              proficiencyAchieved: acquisition.current_proficiency,
+              acquisitionMethod: acquisition.acquisition_method,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
-        } else if (acquisition.proficiency_level > 0 ? "completed" : "in_progress" === 'in_progress') {
+        } else if (acquisition.current_proficiency && acquisition.current_proficiency > 0) {
           acquisitionsInProgress++;
           actions.push({
             type: 'capability_acquisition_started',
             description: `Started acquiring capability: ${acquisition.capability_name}`,
-            capabilityId: acquisition.capability_id,
-            estimatedCompletion: acquisition.acquisition_progress.time_to_mastery_estimate,
-            currentProgress: acquisition.acquisition_progress.phase_completion,
-            timestamp: new Date().toISOString()
+            impact: {
+              capabilityId: acquisition.capability_id,
+              estimatedCompletion: acquisition.acquisition_progress.time_to_mastery_estimate,
+              currentProgress: acquisition.acquisition_progress.phase_completion,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
       }
@@ -1009,6 +1034,8 @@ export class SelfImprovementEngine extends AutonomousAgent {
     insights.push(`${acquisitionsInProgress} capability acquisitions in progress`);
 
     return {
+      taskId: task.id,
+      learnings: [],
       success: true,
       actions,
       insights,
@@ -1036,10 +1063,13 @@ export class SelfImprovementEngine extends AutonomousAgent {
       actions.push({
         type: 'meta_learning_improved',
         description: `Meta-learning system improved: ${(updateResult.improvement_achieved * 100).toFixed(1)}% better`,
-        improvementAchieved: updateResult.improvement_achieved,
-        updatedObjectives: updateResult.updated_objectives,
-        algorithmUsed: updateResult.algorithm_used,
-        timestamp: new Date().toISOString()
+        impact: {
+          improvementAchieved: updateResult.improvement_achieved,
+          updatedObjectives: updateResult.updated_objectives,
+          algorithmUsed: updateResult.algorithm_used,
+          timestamp: new Date().toISOString()
+        },
+        reversible: false
       });
     }
 
@@ -1052,9 +1082,12 @@ export class SelfImprovementEngine extends AutonomousAgent {
         actions.push({
           type: 'few_shot_performance_improved',
           description: `Few-shot learning performance improved by ${(fewShotResults.performance_improvement * 100).toFixed(1)}%`,
-          performanceImprovement: fewShotResults.performance_improvement,
-          tasksEvaluated: fewShotResults.tasks_evaluated,
-          timestamp: new Date().toISOString()
+          impact: {
+            performanceImprovement: fewShotResults.performance_improvement,
+            tasksEvaluated: fewShotResults.tasks_evaluated,
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
     }
@@ -1109,12 +1142,15 @@ export class SelfImprovementEngine extends AutonomousAgent {
           actions.push({
             type: 'self_modification_approved',
             description: `Self-modification approved: ${modification.description}`,
-            modificationId: modification.id,
-            modificationType: modification.type,
-            expectedBenefit: modification.expected_benefit,
-            riskLevel: safetyAssessment.risk_level,
-            rollbackAvailable: rollbackPrep,
-            timestamp: new Date().toISOString()
+            impact: {
+              modificationId: modification.id,
+              modificationType: modification.type,
+              expectedBenefit: modification.expected_benefit,
+              riskLevel: safetyAssessment.risk_level,
+              rollbackAvailable: rollbackPrep,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
 
           // Apply modification if it meets autonomy level requirements
@@ -1125,10 +1161,13 @@ export class SelfImprovementEngine extends AutonomousAgent {
               actions.push({
                 type: 'self_modification_applied',
                 description: `Self-modification applied successfully`,
-                modificationId: modification.id,
-                actualBenefit: modificationResult.actual_benefit,
-                monitoringStarted: true,
-                timestamp: new Date().toISOString()
+                impact: {
+                  modificationId: modification.id,
+                  actualBenefit: modificationResult.actual_benefit,
+                  monitoringStarted: true,
+                  timestamp: new Date().toISOString()
+                },
+                reversible: false
               });
             }
           }
@@ -1136,10 +1175,13 @@ export class SelfImprovementEngine extends AutonomousAgent {
           actions.push({
             type: 'unsafe_modification_rejected',
             description: `Unsafe modification rejected: ${modification.description}`,
-            modificationId: modification.id,
-            safetyRisks: safetyAssessment.risks,
-            riskLevel: safetyAssessment.risk_level,
-            timestamp: new Date().toISOString()
+            impact: {
+              modificationId: modification.id,
+              safetyRisks: safetyAssessment.risks,
+              riskLevel: safetyAssessment.risk_level,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
       }
@@ -1193,10 +1235,13 @@ export class SelfImprovementEngine extends AutonomousAgent {
       actions.push({
         type: 'knowledge_pruned',
         description: `Knowledge pruned: ${(memoryReduction * 100).toFixed(1)}% memory reduction`,
-        memoryReduction: memoryReduction,
-        performanceRetention: performanceRetention,
-        pruningStrategies: pruningStrategies,
-        timestamp: new Date().toISOString()
+        impact: {
+          memoryReduction: memoryReduction,
+          performanceRetention: performanceRetention,
+          pruningStrategies: pruningStrategies,
+          timestamp: new Date().toISOString()
+        },
+        reversible: false
       });
     }
 
@@ -1204,9 +1249,12 @@ export class SelfImprovementEngine extends AutonomousAgent {
       actions.push({
         type: 'knowledge_consolidated',
         description: `Knowledge consolidated with ${(consolidationResult.consolidation_benefit * 100).toFixed(1)}% benefit`,
-        consolidationBenefit: consolidationResult.consolidation_benefit,
-        methodsUsed: methods,
-        timestamp: new Date().toISOString()
+        impact: {
+          consolidationBenefit: consolidationResult.consolidation_benefit,
+          methodsUsed: methods,
+          timestamp: new Date().toISOString()
+        },
+        reversible: false
       });
     }
 
@@ -1391,9 +1439,6 @@ export class SelfImprovementEngine extends AutonomousAgent {
   private async applyOptimizations(loop: LearningLoop, plan: any): Promise<any> {
     // Apply optimizations to learning loop
     return {
-      taskId: task.id,
-      learnings: [],
-      success: true,
       improvement_achieved: 0.12,
       methods_applied: plan.optimization_methods,
       new_performance: 0.87
@@ -1475,8 +1520,6 @@ export class SelfImprovementEngine extends AutonomousAgent {
   private async applyModification(modification: any): Promise<any> {
     // Apply self-modification
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actual_benefit: 0.08
     };
