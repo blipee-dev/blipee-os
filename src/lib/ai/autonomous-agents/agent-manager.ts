@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { AutonomousAgent, AgentConfig } from './agent-framework';
+import { AutonomousAgent, AgentConfig, AgentCapability } from './agent-framework';
 
 export interface ManagedAgent {
   agent: AutonomousAgent;
@@ -209,10 +209,10 @@ export class AgentManager {
     }
     
     return data.map(config => ({
-      agentId: config.agent_id,
-      capabilities: config.capabilities,
-      maxAutonomyLevel: config.max_autonomy_level,
-      executionInterval: config.execution_interval
+      agentId: config.agent_id as string,
+      capabilities: config.capabilities as AgentCapability[],
+      maxAutonomyLevel: config.max_autonomy_level as number,
+      executionInterval: config.execution_interval as number
     }));
   }
   
@@ -268,7 +268,7 @@ export class AgentManager {
       failedTasks: results?.filter(r => !r.success).length || 0,
       totalErrors: errors?.length || 0,
       averageExecutionTime: results?.length 
-        ? results.reduce((sum, r) => sum + (r.execution_time_ms || 0), 0) / results.length
+        ? results.reduce((sum: number, r: any) => sum + (r.execution_time_ms || 0), 0) / results.length
         : 0,
       insights: results?.flatMap(r => r.insights) || [],
       actions: results?.flatMap(r => r.actions) || []

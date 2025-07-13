@@ -69,7 +69,7 @@ describe('Module Registry', () => {
 
   describe('unregister', () => {
     it('should remove a registered module', () => {
-      const module: Module = {
+      const testModule: Module = {
         id: 'remove-me',
         name: 'Remove Me',
         description: 'Module to remove',
@@ -82,7 +82,7 @@ describe('Module Registry', () => {
         lastUpdated: new Date(),
       };
 
-      moduleRegistry.register({ module });
+      moduleRegistry.register({ module: testModule });
       expect(moduleRegistry.getModule('remove-me')).toBeDefined();
 
       moduleRegistry.unregister('remove-me');
@@ -98,7 +98,7 @@ describe('Module Registry', () => {
 
   describe('permissions', () => {
     it('should check user permissions correctly', () => {
-      const module: Module = {
+      const testModule: Module = {
         id: 'secure-module',
         name: 'Secure Module',
         description: 'Requires permissions',
@@ -111,7 +111,7 @@ describe('Module Registry', () => {
         lastUpdated: new Date(),
       };
 
-      moduleRegistry.register({ module });
+      moduleRegistry.register({ module: testModule });
 
       const contextWithPermissions = {
         user: {},

@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { webhook-service } from './webhook-service';
+import { webhookService } from '../webhook-service';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('webhook-service', () => {
-  let service: webhook-service;
+describe('webhookService', () => {
+  let service: webhookService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new webhook-service();
+    service = new webhookService();
   });
 
   describe('Initialization', () => {

@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { server-init } from './server-init';
+import { serverInit } from '../server-init';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
 describe('server-init', () => {
-  let service: server-init;
+  let service: any;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new server-init();
+    service = serverInit;
   });
 
   describe('Initialization', () => {

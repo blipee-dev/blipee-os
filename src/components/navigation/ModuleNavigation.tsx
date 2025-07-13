@@ -57,7 +57,7 @@ export function ModuleNavigation({ userPermissions = [], className = '' }: Modul
     // Auto-expand current category
     const currentModule = availableModules.find(m => pathname.startsWith(m.path));
     if (currentModule) {
-      setExpandedCategories(prev => new Set([...prev, currentModule.category]));
+      setExpandedCategories(prev => new Set(Array.from(prev).concat(currentModule.category)));
     }
   }, [userPermissions, pathname]);
 

@@ -11,7 +11,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult } from './types';
+import { AgentTask, AgentResult } from './agent-framework';
 import { createClient } from '@supabase/supabase-js';
 
 export interface CostSavingOpportunity {
@@ -368,7 +368,7 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     await this.loadBenchmarkData();
     await this.initializeOptimizationAlgorithms();
 
-    await this.logEvent('cost_saving_finder_initialized', {
+    console.log('cost_saving_finder_initialized', {
       cost_categories_loaded: this.costDatabase.size,
       benchmarks_available: this.benchmarkDatabase.size,
       algorithms_ready: this.optimizationAlgorithms.size,

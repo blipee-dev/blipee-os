@@ -11,7 +11,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult } from './types';
+import { AgentTask, AgentResult } from './agent-framework';
 import { createClient } from '@supabase/supabase-js';
 
 export interface SwarmNetwork {
@@ -406,7 +406,7 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
     await this.emergenceDetector.initialize();
     await this.coordinationEngine.initialize();
 
-    await this.logEvent('swarm_intelligence_initialized', {
+    console.log('swarm_intelligence_initialized', {
       networks_loaded: this.swarmNetworks.size,
       agents_registered: this.agentRegistry.size,
       communication_channels: this.communicationChannels.size,

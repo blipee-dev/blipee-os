@@ -7,7 +7,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult, AgentCapability } from './types';
+import { AgentTask, AgentResult, AgentCapability } from './agent-framework';
 import { createClient } from '@supabase/supabase-js';
 
 export interface ComplianceFramework {
@@ -82,7 +82,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     await this.loadComplianceFrameworks();
     await this.setupValidationRules();
     
-    await this.logEvent('compliance_guardian_initialized', {
+    console.log('compliance_guardian_initialized', {
       frameworks_loaded: this.complianceFrameworks.size,
       validation_rules: this.validationRules.size,
       monitoring_enabled: true

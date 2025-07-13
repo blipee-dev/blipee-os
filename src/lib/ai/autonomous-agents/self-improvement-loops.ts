@@ -11,7 +11,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult } from './types';
+import { AgentTask, AgentResult } from './agent-framework';
 import { createClient } from '@supabase/supabase-js';
 
 export interface LearningLoop {
@@ -618,7 +618,7 @@ export class SelfImprovementEngine extends AutonomousAgent {
     await this.performanceAnalyzer.initialize();
     await this.adaptationController.initialize();
 
-    await this.logEvent('self_improvement_engine_initialized', {
+    console.log('self_improvement_engine_initialized', {
       learning_loops_active: this.learningLoops.size,
       capability_acquisitions: this.capabilityAcquisitions.size,
       meta_learning_enabled: true,

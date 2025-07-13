@@ -10,7 +10,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult } from './types';
+import { AgentTask, AgentResult } from './agent-framework';
 import { createClient } from '@supabase/supabase-js';
 
 export interface OptimizationStrategy {
@@ -504,7 +504,7 @@ export class AutonomousOptimizer {
   }
 
   private convertRiskLevelToScore(riskLevel: string): number {
-    const riskScores = {
+    const riskScores: Record<string, number> = {
       'very_low': 0.1,
       'low': 0.3,
       'medium': 0.5,

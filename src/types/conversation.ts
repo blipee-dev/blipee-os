@@ -30,7 +30,8 @@ export interface UIComponent {
     | "building-dashboard"
     | "dashboard"
     | "setup-checklist"
-    | "quick-start-upload";
+    | "quick-start-upload"
+    | "materiality-matrix";
   props: Record<string, any>;
   layout?: {
     width?: string;

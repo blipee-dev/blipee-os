@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { integration-example } from './integration-example';
+import { integrationExample } from '../integration-example';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('integration-example', () => {
-  let service: integration-example;
+describe('integrationExample', () => {
+  let service: integrationExample;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new integration-example();
+    service = new integrationExample();
   });
 
   describe('Initialization', () => {

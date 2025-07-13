@@ -5,13 +5,15 @@ const motion = {};
 const animations = ['div', 'span', 'button', 'a', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'li', 'section', 'header', 'footer', 'nav', 'main', 'article', 'aside'];
 
 animations.forEach(tag => {
-  motion[tag] = React.forwardRef(({ children, animate, initial, exit, transition, variants, whileHover, whileTap, ...props }, ref) => {
+  const MotionComponent = React.forwardRef(({ children, animate, initial, exit, transition, variants, whileHover, whileTap, ...props }, ref) => {
     return React.createElement(tag, { ...props, ref }, children);
   });
-  motion[tag].displayName = `motion.${tag}`;
+  MotionComponent.displayName = `motion.${tag}`;
+  motion[tag] = MotionComponent;
 });
 
 const AnimatePresence = ({ children }) => children;
+AnimatePresence.displayName = 'AnimatePresence';
 
 const useAnimation = () => ({
   start: jest.fn(),

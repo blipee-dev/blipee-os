@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { subscription-owner } from './subscription-owner';
+import { subscriptionOwner } from '../subscription-owner';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('subscription-owner', () => {
-  let service: subscription-owner;
+describe('subscriptionOwner', () => {
+  let service: subscriptionOwner;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new subscription-owner();
+    service = new subscriptionOwner();
   });
 
   describe('Initialization', () => {

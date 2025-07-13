@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { quick-setup } from './quick-setup';
+import { quickSetup } from '../quick-setup';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('quick-setup', () => {
-  let service: quick-setup;
+describe('quickSetup', () => {
+  let service: quickSetup;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new quick-setup();
+    service = new quickSetup();
   });
 
   describe('Initialization', () => {

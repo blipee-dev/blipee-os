@@ -214,7 +214,7 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
       const response: ChatResponse = {
         message: reasonedResponse.conclusion,
         components: reasonedResponse.visualizations.map(viz => ({
-          type: viz.component.toLowerCase(),
+          type: viz.component.toLowerCase() as any,
           props: {
             ...viz.data,
             ...viz.config
@@ -224,7 +224,9 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
         reasoning: reasonedResponse.reasoning.map(r => r.thought),
         confidence: reasonedResponse.confidence,
         actions: reasonedResponse.actions.map(a => ({
+          type: 'recommendation' as const,
           action: a.action,
+          description: a.action,
           priority: a.priority,
           impact: `${a.impact.expectedChange}% ${a.impact.metric} in ${a.impact.timeframe}`
         }))

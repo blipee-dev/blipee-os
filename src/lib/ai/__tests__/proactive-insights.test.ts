@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { proactive-insights } from './proactive-insights';
+import { proactiveInsights } from '../proactive-insights';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('proactive-insights', () => {
-  let service: proactive-insights;
+describe('proactiveInsights', () => {
+  let service: proactiveInsights;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new proactive-insights();
+    service = new proactiveInsights();
   });
 
   describe('Initialization', () => {

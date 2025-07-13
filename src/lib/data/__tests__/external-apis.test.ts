@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { external-apis } from './external-apis';
+import { externalApis } from '../external-apis';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('external-apis', () => {
-  let service: external-apis;
+describe('externalApis', () => {
+  let service: externalApis;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new external-apis();
+    service = new externalApis();
   });
 
   describe('Initialization', () => {

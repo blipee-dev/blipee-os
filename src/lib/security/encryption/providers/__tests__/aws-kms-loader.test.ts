@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { aws-kms-loader } from './aws-kms-loader';
+import { awsKmsLoader } from '../aws-kms-loader';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('aws-kms-loader', () => {
-  let service: aws-kms-loader;
+describe('awsKmsLoader', () => {
+  let service: awsKmsLoader;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new aws-kms-loader();
+    service = new awsKmsLoader();
   });
 
   describe('Initialization', () => {

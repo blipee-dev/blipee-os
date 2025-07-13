@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { autonomous-engine } from './autonomous-engine';
+import { autonomousEngine } from '../autonomous-engine';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('autonomous-engine', () => {
-  let service: autonomous-engine;
+describe('autonomousEngine', () => {
+  let service: autonomousEngine;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new autonomous-engine();
+    service = new autonomousEngine();
   });
 
   describe('Initialization', () => {

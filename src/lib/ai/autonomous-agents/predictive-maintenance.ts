@@ -10,7 +10,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult } from './types';
+import { AgentTask, AgentResult } from './agent-framework';
 import { createClient } from '@supabase/supabase-js';
 
 export interface Equipment {
@@ -300,7 +300,7 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     await this.initializeIoTIntegration();
     await this.maintenanceScheduler.initialize();
 
-    await this.logEvent('predictive_maintenance_initialized', {
+    console.log('predictive_maintenance_initialized', {
       equipment_count: this.equipmentRegistry.size,
       models_loaded: this.predictiveModels.size,
       iot_sensors_connected: this.iotIntegration?.sensor_networks?.length || 0,

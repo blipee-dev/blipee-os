@@ -1,5 +1,5 @@
 import { ModuleLayout } from '@/components/layout/ModuleLayout';
-import { ConversationInterface } from '@/components/ConversationInterface';
+import { ConversationInterface } from '@/components/blipee-os/ConversationInterface';
 
 export default function DashboardPage() {
   return (

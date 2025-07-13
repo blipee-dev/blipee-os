@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { unified-ingestion } from './unified-ingestion';
+import { unifiedIngestion } from '../unified-ingestion';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('unified-ingestion', () => {
-  let service: unified-ingestion;
+describe('unifiedIngestion', () => {
+  let service: unifiedIngestion;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new unified-ingestion();
+    service = new unifiedIngestion();
   });
 
   describe('Initialization', () => {
