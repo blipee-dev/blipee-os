@@ -130,6 +130,7 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
       type: 'investigate_supply_chain',
       scheduledFor: dailyInvestigation.toISOString(),
       priority: 'high',
+      requiresApproval: false,
       data: {
         scope: 'comprehensive',
         focus_areas: ['new_suppliers', 'high_risk_suppliers', 'emission_hotspots'],
@@ -146,6 +147,7 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
       type: 'map_supplier_emissions',
       scheduledFor: emissionMapping.toISOString(),
       priority: 'medium',
+      requiresApproval: false,
       data: {
         update_type: 'incremental',
         include_tier2: true,
@@ -164,6 +166,7 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
       type: 'assess_supplier_sustainability',
       scheduledFor: supplierAssessment.toISOString(),
       priority: 'medium',
+      requiresApproval: false,
       data: {
         assessment_type: 'scheduled',
         priority_suppliers: 'high_spend_and_risk',
@@ -180,6 +183,7 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
       type: 'identify_supply_chain_risks',
       scheduledFor: riskMonitoring.toISOString(),
       priority: 'high',
+      requiresApproval: false,
       data: {
         monitoring_scope: 'all_tiers',
         risk_types: ['environmental', 'social', 'governance', 'operational'],
@@ -200,6 +204,7 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
       type: 'discover_scope3_sources',
       scheduledFor: scope3Discovery.toISOString(),
       priority: 'medium',
+      requiresApproval: false,
       data: {
         discovery_method: 'comprehensive',
         include_indirect_suppliers: true,
@@ -223,6 +228,7 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
       type: 'optimize_supplier_network',
       scheduledFor: quarterlyOptimization.toISOString(),
       priority: 'medium',
+      requiresApproval: false,
       data: {
         optimization_goals: ['reduce_emissions', 'improve_resilience', 'cost_efficiency'],
         consider_alternatives: true,
@@ -276,12 +282,14 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
       }
       
       return {
+        taskId: task.id,
         success: false,
         error: (error as Error).message,
         executionTimeMs: executionTime,
         actions: [],
         insights: [],
-        nextSteps: ['Review supply chain investigation configuration', 'Check supplier data availability']
+        nextSteps: ['Review supply chain investigation configuration', 'Check supplier data availability'],
+        learnings: []
       };
     }
   }
@@ -305,10 +313,13 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
         actions.push({
           type: 'new_supplier_investigated',
           description: `Investigated new supplier: ${supplier.name}`,
-          supplierId: supplier.id,
-          findings: investigation.key_findings,
-          riskLevel: investigation.risk_level,
-          timestamp: new Date().toISOString()
+          impact: {
+            supplierId: supplier.id,
+            findings: investigation.key_findings,
+            riskLevel: investigation.risk_level,
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
     }
@@ -324,10 +335,13 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
           actions.push({
             type: 'critical_supplier_risk_found',
             description: `Critical risk identified in supplier: ${supplier.name}`,
-            supplierId: supplier.id,
-            risks: investigation.risks,
-            urgentAction: true,
-            timestamp: new Date().toISOString()
+            impact: {
+              supplierId: supplier.id,
+              risks: investigation.risks,
+              urgentAction: true,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
       }
@@ -341,10 +355,12 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
     insights.push(`Identified ${criticalRisks} suppliers with critical risk levels`);
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
       nextSteps: ['Review investigation findings with procurement team'],
+      learnings: [],
       metadata: {
         suppliers_investigated: totalSuppliers,
         critical_risks_found: criticalRisks,
@@ -374,10 +390,12 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
     insights.push(`Total supply chain emissions: ${totalEmissions.toFixed(1)} tCO2e`);
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
       nextSteps: ['Review emission mapping results with procurement team'],
+      learnings: [],
       metadata: {
         suppliers_mapped: emissionMappings.length,
         total_emissions: totalEmissions,
@@ -405,9 +423,12 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
         actions.push({
           type: 'poor_sustainability_performance',
           description: `${supplier.name} scored below sustainability threshold`,
-          supplierId: supplier.id,
-          score: assessment.score,
-          timestamp: new Date().toISOString()
+          impact: {
+            supplierId: supplier.id,
+            score: assessment.score,
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
     }
@@ -420,10 +441,12 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
     insights.push(`${lowPerformers} suppliers below performance threshold`);
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
       nextSteps: ['Address critical sustainability findings immediately'],
+      learnings: [],
       metadata: {
         suppliers_assessed: assessments.length,
         average_score: avgScore,
@@ -449,10 +472,13 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
       actions.push({
         type: 'critical_supply_chain_risk',
         description: `Critical ${risk.type} risk identified`,
-        riskId: risk.id,
-        supplierId: risk.supplier_id,
-        severity: risk.severity,
-        timestamp: new Date().toISOString()
+        impact: {
+          riskId: risk.id,
+          supplierId: risk.supplier_id,
+          severity: risk.severity,
+          timestamp: new Date().toISOString()
+        },
+        reversible: false
       });
     }
 
@@ -460,10 +486,12 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
     insights.push(`${criticalRisks.length} risks require immediate attention`);
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
       nextSteps: ['Review risk mitigation strategies'],
+      learnings: [],
       metadata: {
         total_risks: risks.length,
         critical_risks: criticalRisks.length,
@@ -492,10 +520,12 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
     insights.push(`Total estimated emissions: ${totalDiscoveredEmissions.toFixed(1)} tCO2e`);
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
       nextSteps: ['Prioritize data collection for high-emission discoveries'],
+      learnings: [],
       metadata: {
         sources_discovered: discoveries.length,
         total_estimated_emissions: totalDiscoveredEmissions
@@ -522,10 +552,12 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
     insights.push(`Total emission reduction potential: ${totalReductionPotential.toFixed(1)} tCO2e`);
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
       nextSteps: ['Review optimization opportunities with procurement team'],
+      learnings: [],
       metadata: {
         optimizations_identified: optimizations.length,
         total_reduction_potential: totalReductionPotential
