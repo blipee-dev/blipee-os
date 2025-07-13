@@ -1,3 +1,6 @@
+import { AgentManager } from "./agent-manager";
+import { TaskScheduler } from "./scheduler";
+import { ESGChiefOfStaff } from "./esg-chief-of-staff";
 // Export base framework
 export {
   AutonomousAgent,

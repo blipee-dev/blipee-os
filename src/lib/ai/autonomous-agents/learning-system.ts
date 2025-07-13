@@ -329,7 +329,7 @@ export class AgentLearningSystem {
     organizationId: string,
     patterns: LearningPattern[]
   ): Promise<void> {
-    for (const pattern of patterns) {
+    for (const pattern of Array.from(patterns)) {
       // Check if pattern already exists
       const { data: existing } = await this.supabase
         .from('agent_patterns')
@@ -405,7 +405,7 @@ export class AgentLearningSystem {
     let matches = 0;
     let total = 0;
     
-    for (const key of allKeys) {
+    for (const key of Array.from(allKeys)) {
       total++;
       if (context1[key] === context2[key]) {
         matches++;

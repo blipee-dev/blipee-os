@@ -427,8 +427,6 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
       await this.logError(task.id, error as Error, executionTime);
 
       return {
-        taskId: task.id,
-        learnings: [],
         success: false,
         error: (error as Error).message,
         executionTimeMs: executionTime,
@@ -497,8 +495,6 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     }
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -570,8 +566,6 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     }
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -623,8 +617,6 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     }
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -667,8 +659,6 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     insights.push(`Found ${excesses.length} items with excess inventory`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -717,8 +707,6 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     insights.push(`${modelsImproved} models showed improved performance`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,

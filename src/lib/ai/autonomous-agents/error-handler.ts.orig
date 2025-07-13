@@ -273,7 +273,7 @@ export class AgentErrorHandler {
       .single();
     
     return {
-      id: (data?.id || '') as string,
+      id: data?.id || '',
       agentId: health.agentId,
       organizationId: health.organizationId,
       error,
@@ -305,7 +305,7 @@ export class AgentErrorHandler {
   // Retry task with backoff
   private async retryTask(
     agent: AutonomousAgent,
-    task: AgentTask,
+    task?: AgentTask,
     strategy: RecoveryStrategy
   ): Promise<boolean> {
     if (!task || !strategy.maxRetries) return false;
@@ -454,11 +454,11 @@ export class AgentErrorHandler {
     const errorMessages: Record<string, number> = {};
     let recoveredCount = 0;
     
-    for (const error of errors as any[]) {
+    for (const error of errors) {
       const errorType = error.context?.errorType || 'Unknown';
-      errorsByType[errorType as string] = (errorsByType[errorType as string] || 0) + 1;
+      errorsByType[errorType] = (errorsByType[errorType] || 0) + 1;
       
-      errorMessages[error.error as string] = (errorMessages[error.error as string] || 0) + 1;
+      errorMessages[error.error] = (errorMessages[error.error] || 0) + 1;
       
       if (error.context?.recovered) {
         recoveredCount++;

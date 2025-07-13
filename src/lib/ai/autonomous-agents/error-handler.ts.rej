@@ -1,0 +1,34 @@
+--- src/lib/ai/autonomous-agents/error-handler.ts
++++ src/lib/ai/autonomous-agents/error-handler.ts
+@@ -273,7 +273,7 @@
+   
+   private async storeErrorHistory(error: any, handled: boolean): Promise<void> {
+     const errorRecord = {
+-      error_type: error.name || 'Unknown',
++      error_type: (error?.name || 'Unknown') as string,
+       error_message: error.message || String(error),
+       error_stack: error.stack,
+       handled,
+@@ -306,7 +306,7 @@
+   private async notifyStakeholders(
+     errorType: ErrorType,
+     severity: ErrorSeverity,
+-    context?: any,
++    context: any = {},
+     additionalInfo?: any
+   ): Promise<void> {
+     if (severity !== 'critical' && severity !== 'high') return;
+@@ -455,10 +455,10 @@
+     
+     // Count errors by type
+     const errorTypeCounts: Record<string, number> = {};
+-    for (const error of errors) {
+-      const errorType = error.errorType || 'Unknown';
++    for (const error of errors as any[]) {
++      const errorType = error.error_type || 'Unknown';
+       errorTypeCounts[errorType] = (errorTypeCounts[errorType] || 0) + 1;
+-      if (error.recovered) recoveredCount++;
++      if (error.handled) recoveredCount++;
+     }
+     
+     return {

@@ -287,7 +287,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
     
     if (criticalIssues.length > 0) {
       // Send immediate alerts
-      for (const issue of criticalIssues) {
+      for (const issue of Array.from(criticalIssues)) {
         await this.sendAlert({
           severity: issue.severity,
           title: issue.title,
@@ -393,9 +393,9 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
     const actions: ExecutedAction[] = [];
     
     // Monitor each metric with learned thresholds
-    for (const metric of metrics) {
-      const current = await this.getCurrentMetricValue(metric);
-      const threshold = await this.getDynamicThreshold(metric, current, knowledge);
+    for (const metric of Array.from(metrics)) {
+      const current = await this.getCurrentMetricValue(metric as string);
+      const threshold = await this.getDynamicThreshold(metric as string, current, knowledge);
       
       if (this.isAnomaly(current, threshold)) {
         anomalies.push({
@@ -414,7 +414,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
     }
     
     // Take action on anomalies based on learned patterns
-    for (const anomaly of anomalies) {
+    for (const anomaly of Array.from(anomalies)) {
       if (anomaly.severity === 'critical' && alertOnAnomaly) {
         const response = await this.handleCriticalAnomaly(anomaly, knowledge);
         actions.push({
@@ -526,14 +526,14 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
     const complianceStatus = await this.getComplianceStatus(frameworks);
     
     // Check each framework
-    for (const framework of frameworks) {
-      const status = complianceStatus[framework];
+    for (const framework of Array.from(frameworks)) {
+      const status = complianceStatus[framework as string];
       
       if (!status.compliant) {
         insights.push(`${framework}: ${status.completeness}% complete, ${status.gaps.length} gaps identified`);
         
         if (generateGapAnalysis) {
-          const gapAnalysis = await this.generateGapAnalysis(framework, status);
+          const gapAnalysis = await this.generateGapAnalysis(framework as string, status);
           actions.push({
             type: 'gap_analysis_generated',
             description: `Generated gap analysis for ${framework}`,
@@ -674,7 +674,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
           return daysUntil < 30 && f.status !== 'compliant';
         });
         
-      for (const framework of upcomingDeadlines) {
+      for (const framework of Array.from(upcomingDeadlines)) {
         issues.push({
           title: `${framework.name} Compliance Deadline Approaching`,
           description: `${framework.gaps.length} gaps remaining, deadline: ${new Date(framework.nextDeadline).toLocaleDateString()}`,
@@ -703,7 +703,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
     
     // Based on critical issues
     const issues = this.identifyCriticalIssues(context);
-    for (const issue of issues) {
+    for (const issue of Array.from(issues)) {
       steps.push(...issue.recommendations.slice(0, 2));
     }
     
@@ -878,7 +878,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   private async generateReportContent(type: string, context: any, knowledge: Learning[]): Promise<ReportContent> {
     // Use AI to generate report content
     const prompt = `Generate ${type} report based on ESG data with these key points: ${knowledge.map(k => k.pattern).join(', ')}`;
-    const response = await aiService.sendMessage(prompt, this.organizationId);
+    const response = await aiService.generateResponse(prompt, this.organizationId);
     
     return {
       summary: response.content,
@@ -998,7 +998,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
     // This would fetch real compliance data
     const status: Record<string, any> = {};
     
-    for (const framework of frameworks) {
+    for (const framework of Array.from(frameworks)) {
       status[framework] = {
         compliant: Math.random() > 0.3,
         completeness: Math.floor(Math.random() * 100),

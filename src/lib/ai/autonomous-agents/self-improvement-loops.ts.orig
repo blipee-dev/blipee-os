@@ -758,8 +758,6 @@ export class SelfImprovementEngine extends AutonomousAgent {
       await this.logError(task.id, error as Error, executionTime);
 
       return {
-        taskId: task.id,
-        learnings: [],
         success: false,
         error: (error as Error).message,
         executionTimeMs: executionTime,
@@ -964,7 +962,7 @@ export class SelfImprovementEngine extends AutonomousAgent {
           proficiencyThreshold
         );
 
-        if (acquisition.proficiency_level > 0 ? "completed" : "in_progress" === 'completed') {
+        if (acquisition.status === 'completed') {
           capabilitiesAcquired++;
           actions.push({
             type: 'capability_acquired',
@@ -975,7 +973,7 @@ export class SelfImprovementEngine extends AutonomousAgent {
             acquisitionMethod: acquisition.acquisition_method,
             timestamp: new Date().toISOString()
           });
-        } else if (acquisition.proficiency_level > 0 ? "completed" : "in_progress" === 'in_progress') {
+        } else if (acquisition.status === 'in_progress') {
           acquisitionsInProgress++;
           actions.push({
             type: 'capability_acquisition_started',
@@ -1051,8 +1049,6 @@ export class SelfImprovementEngine extends AutonomousAgent {
     }
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -1137,8 +1133,6 @@ export class SelfImprovementEngine extends AutonomousAgent {
     insights.push(`Safety constraints ${safetyConstraints ? 'enabled' : 'disabled'}`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -1200,8 +1194,6 @@ export class SelfImprovementEngine extends AutonomousAgent {
     insights.push(`Performance retention: ${(performanceRetention * 100).toFixed(1)}%`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -1374,8 +1366,6 @@ export class SelfImprovementEngine extends AutonomousAgent {
   private async applyOptimizations(loop: LearningLoop, plan: any): Promise<any> {
     // Apply optimizations to learning loop
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       improvement_achieved: 0.12,
       methods_applied: plan.optimization_methods,
@@ -1458,8 +1448,6 @@ export class SelfImprovementEngine extends AutonomousAgent {
   private async applyModification(modification: any): Promise<any> {
     // Apply self-modification
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actual_benefit: 0.08
     };
