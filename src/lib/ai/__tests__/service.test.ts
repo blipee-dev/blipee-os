@@ -35,7 +35,7 @@ describe('AIService', () => {
     });
 
     it('should initialize OpenAI provider when API key is available', () => {
-      process.env.OPENAI_API_KEY = 'test-openai-key';
+      process.env['OPENAI_API_KEY'] = 'test-openai-key';
       
       new AIService();
       
@@ -52,7 +52,7 @@ describe('AIService', () => {
 
     it('should initialize multiple providers when multiple API keys are available', () => {
       process.env.DEEPSEEK_API_KEY = 'test-deepseek-key';
-      process.env.OPENAI_API_KEY = 'test-openai-key';
+      process.env['OPENAI_API_KEY'] = 'test-openai-key';
       process.env.ANTHROPIC_API_KEY = 'test-anthropic-key';
       
       new AIService();
@@ -64,7 +64,7 @@ describe('AIService', () => {
 
     it('should warn when no providers are configured', () => {
       delete process.env.DEEPSEEK_API_KEY;
-      delete process.env.OPENAI_API_KEY;
+      delete process.env['OPENAI_API_KEY'];
       delete process.env.ANTHROPIC_API_KEY;
       
       new AIService();
@@ -128,7 +128,7 @@ describe('AIService', () => {
     });
 
     it('should pass options to provider', async () => {
-      process.env.OPENAI_API_KEY = 'test-key';
+      process.env['OPENAI_API_KEY'] = 'test-key';
       const service = new AIService();
       
       const options: CompletionOptions = {
@@ -146,7 +146,7 @@ describe('AIService', () => {
 
     it('should fallback to next provider on failure', async () => {
       process.env.DEEPSEEK_API_KEY = 'test-key';
-      process.env.OPENAI_API_KEY = 'test-key';
+      process.env['OPENAI_API_KEY'] = 'test-key';
       const service = new AIService();
       
       mockDeepSeekProvider.complete.mockRejectedValue(new Error('DeepSeek error'));
@@ -162,7 +162,7 @@ describe('AIService', () => {
 
     it('should try all providers before failing', async () => {
       process.env.DEEPSEEK_API_KEY = 'test-key';
-      process.env.OPENAI_API_KEY = 'test-key';
+      process.env['OPENAI_API_KEY'] = 'test-key';
       process.env.ANTHROPIC_API_KEY = 'test-key';
       const service = new AIService();
       
@@ -179,7 +179,7 @@ describe('AIService', () => {
 
     it('should rotate providers for load balancing', async () => {
       process.env.DEEPSEEK_API_KEY = 'test-key';
-      process.env.OPENAI_API_KEY = 'test-key';
+      process.env['OPENAI_API_KEY'] = 'test-key';
       const service = new AIService();
       
       mockDeepSeekProvider.complete.mockResolvedValue('DeepSeek response');
@@ -252,7 +252,7 @@ describe('AIService', () => {
     });
 
     it('should pass options to provider stream', async () => {
-      process.env.OPENAI_API_KEY = 'test-key';
+      process.env['OPENAI_API_KEY'] = 'test-key';
       const service = new AIService();
       
       const options: StreamOptions = {
@@ -275,7 +275,7 @@ describe('AIService', () => {
 
     it('should fallback to next provider on stream failure', async () => {
       process.env.DEEPSEEK_API_KEY = 'test-key';
-      process.env.OPENAI_API_KEY = 'test-key';
+      process.env['OPENAI_API_KEY'] = 'test-key';
       const service = new AIService();
       
       mockDeepSeekProvider.stream.mockImplementation(() => {
@@ -302,7 +302,7 @@ describe('AIService', () => {
 
     it('should rotate providers for load balancing in streaming', async () => {
       process.env.DEEPSEEK_API_KEY = 'test-key';
-      process.env.OPENAI_API_KEY = 'test-key';
+      process.env['OPENAI_API_KEY'] = 'test-key';
       const service = new AIService();
       
       const mockDeepSeekStream = (async function* () {
@@ -341,7 +341,7 @@ describe('AIService', () => {
 
     it('should return names of configured providers', () => {
       process.env.DEEPSEEK_API_KEY = 'test-key';
-      process.env.OPENAI_API_KEY = 'test-key';
+      process.env['OPENAI_API_KEY'] = 'test-key';
       process.env.ANTHROPIC_API_KEY = 'test-key';
       
       const mockDeepSeek = { name: 'DeepSeek', complete: jest.fn(), stream: jest.fn() };
@@ -361,7 +361,7 @@ describe('AIService', () => {
     });
 
     it('should return partial list when only some providers are configured', () => {
-      process.env.OPENAI_API_KEY = 'test-key';
+      process.env['OPENAI_API_KEY'] = 'test-key';
       
       const mockOpenAI = { name: 'OpenAI', complete: jest.fn(), stream: jest.fn() };
       

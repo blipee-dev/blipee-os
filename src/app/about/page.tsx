@@ -5,21 +5,16 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   Heart,
-  Target,
+
   Globe,
   Users,
   Sparkles,
   Home,
   ArrowRight,
-  TreePine,
+
   Zap,
-  Building2,
-  Award,
-  TrendingUp,
-  MessageSquare,
   Shield,
   CheckCircle,
-  Star,
   Lightbulb,
   Rocket,
 } from "lucide-react";

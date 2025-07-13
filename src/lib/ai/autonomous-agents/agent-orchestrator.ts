@@ -77,7 +77,7 @@ export class AgentOrchestrator {
   private resourceUsage: Map<string, AgentResourceUsage> = new Map();
   private activeWorkflows: Map<string, WorkflowExecution> = new Map();
   private supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 

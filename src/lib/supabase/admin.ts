@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Only throw errors in production or when actually using the client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+const serviceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
 
 // Create a Supabase client with the service role key for admin operations
 export const supabaseAdmin = (() => {

@@ -6,7 +6,7 @@ import {
   Building2, 
   Zap, 
   FileUp, 
-  Target, 
+ 
   Check, 
   ChevronRight 
 } from "lucide-react";

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
-  TreePine, 
+ 
   ShoppingBag, 
   Building, 
   Shield, 
@@ -19,7 +19,7 @@ import { Module } from '@/lib/modules/types';
 // Icon mapping for modules
 const getModuleIcon = (iconName: string) => {
   const icons = {
-    TreePine,
+
     ShoppingBag,
     Building,
     Shield,
@@ -173,7 +173,7 @@ export function ModuleNavigation({ userPermissions = [], className = '' }: Modul
         )}
 
         {/* Debug info in development */}
-        {process.env.NODE_ENV === 'development' && (
+        {process.env['NODE_ENV'] === 'development' && (
           <div className="mt-4 pt-4 border-t border-white/[0.05]">
             <details className="text-xs">
               <summary className="text-gray-500 cursor-pointer">Debug Info</summary>

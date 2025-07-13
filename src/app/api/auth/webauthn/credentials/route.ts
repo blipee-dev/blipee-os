@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { webAuthnService } from '@/lib/auth/webauthn/service';
 import { createClient } from '@/lib/supabase/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -50,7 +50,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(_request.url);
     const credentialId = searchParams.get('id');
 
     if (!credentialId) {
@@ -58,7 +58,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete credential
-    await webAuthnService.deleteCredential(request, credentialId, user.id);
+    await webAuthnService.deleteCredential(_request, credentialId, user.id);
 
     return NextResponse.json({
       success: true,

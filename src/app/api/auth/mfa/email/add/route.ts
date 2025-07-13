@@ -5,10 +5,10 @@ import { auditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Rate limiting
-    const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
+    const clientIp = _request.headers.get('x-forwarded-for') || 'unknown';
     const rateLimitResult = await rateLimitService.check(
       `email_add:${clientIp}`,
       'user_modification'
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current user
-    const user = await getCurrentUser(request);
+    const user = await getCurrentUser(_request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse request body
-    const body = await request.json();
+    const body = await _request.json();
     const { email } = body;
 
     if (!email) {
@@ -115,10 +115,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get current user
-    const user = await getCurrentUser(request);
+    const user = await getCurrentUser(_request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -131,10 +131,15 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      emails: emails.map(email => ({
-        email: email.split('@')[0].slice(0, 2) + '***@' + email.split('@')[1],
-        masked: true,
-      })),
+      emails: emails.map(email => {
+        const parts = email.split('@');
+        const localPart = parts[0] || '';
+        const domainPart = parts[1] || '';
+        return {
+          email: localPart.slice(0, 2) + '***@' + domainPart,
+          masked: true,
+        };
+      }),
     });
 
   } catch (error) {

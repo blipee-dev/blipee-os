@@ -4,7 +4,7 @@ import { sessionManager } from "@/lib/session/manager";
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Create response first
     const response = NextResponse.json({
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Delete Redis session and clear cookie
-    const cookieHeader = request.headers.get('cookie');
+    const cookieHeader = _request.headers.get('cookie');
     const sessionId = sessionManager['sessionService'].parseSessionCookie(cookieHeader);
     
     if (sessionId) {

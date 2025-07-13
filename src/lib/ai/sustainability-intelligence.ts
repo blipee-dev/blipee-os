@@ -507,6 +507,6 @@ export class BlipeeIntelligence {
 
 // Export the revolution
 export const blipeeIntelligence = new BlipeeIntelligence(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env['NEXT_PUBLIC_SUPABASE_URL']!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );

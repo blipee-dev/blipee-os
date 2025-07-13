@@ -10,10 +10,10 @@ import {
   Globe,
   Shield,
   Zap,
-  Target,
+
   FileText,
   Building2,
-  TreePine,
+
   Users,
   Sparkles,
   Home,
@@ -129,7 +129,7 @@ export default function FeaturesPage() {
       ],
     },
     {
-      icon: Target,
+      icon: BarChart3,
       title: "Sustainability Tracking",
       description: "Complete emissions management made simple",
       gradient: "from-indigo-500 to-blue-500",

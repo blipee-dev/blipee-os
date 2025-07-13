@@ -305,7 +305,7 @@ export class SMSMFAService {
       console.error('Twilio SMS error:', error);
       
       // Fallback to mock for development
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env['NODE_ENV'] === 'development') {
         return this.sendMockSMS(phoneNumber, message, '123456');
       }
       
@@ -344,7 +344,7 @@ export class SMSMFAService {
       console.error('AWS SNS error:', error);
       
       // Fallback to mock for development
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env['NODE_ENV'] === 'development') {
         return this.sendMockSMS(phoneNumber, message, '123456');
       }
       

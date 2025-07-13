@@ -66,13 +66,13 @@ function logError(error: unknown, requestId: string, context?: any) {
     error: error instanceof Error ? {
       name: error.name,
       message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      stack: process.env['NODE_ENV'] === 'development' ? error.stack : undefined,
     } : error,
     context,
   };
 
   // In production, send to logging service
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env['NODE_ENV'] === 'production') {
     // TODO: Send to Sentry, LogRocket, etc.
     console.error('Production error:', errorDetails);
   } else {
@@ -175,7 +175,7 @@ export function handleAPIError(
   }
 
   // Generic error response (don't expose internals)
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env['NODE_ENV'] === 'development';
   return NextResponse.json<ErrorResponse>(
     {
       error: {

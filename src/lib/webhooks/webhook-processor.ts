@@ -229,7 +229,7 @@ if (typeof window === 'undefined') {
   const processor = WebhookProcessor.getInstance();
   
   // Start processor in production or if explicitly enabled
-  if (process.env.NODE_ENV === 'production' || process.env.ENABLE_WEBHOOK_PROCESSOR === 'true') {
+  if (process.env['NODE_ENV'] === 'production' || process.env['ENABLE_WEBHOOK_PROCESSOR'] === 'true') {
     processor.start();
     
     // Graceful shutdown

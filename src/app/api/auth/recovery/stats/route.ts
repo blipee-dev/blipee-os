@@ -4,21 +4,21 @@ import { sessionManager } from '@/lib/session/manager';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication and admin permissions
-    const sessionCookie = request.cookies.get('blipee-session');
+    const sessionCookie = _request.cookies.get('blipee-session');
     if (!sessionCookie) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const validation = await sessionManager.validateSession(request, ['recovery:view_stats']);
+    const validation = await sessionManager.validateSession(_request, ['recovery:view_stats']);
     if (!validation.valid) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Get organization ID from query params or session
-    const searchParams = request.nextUrl.searchParams;
+    const searchParams = _request.nextUrl.searchParams;
     const organizationId = searchParams.get('organizationId') || validation.session?.organizationId;
 
     // Get recovery service and stats

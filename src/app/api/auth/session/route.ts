@@ -4,10 +4,10 @@ import { sessionManager } from "@/lib/session/manager";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // First check Redis session
-    const sessionData = await sessionManager.getSession(request);
+    const sessionData = await sessionManager.getSession(_request);
     
     if (!sessionData) {
       return NextResponse.json(
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     if (!session) {
       // Redis session exists but auth session doesn't - clean up
-      const cookieHeader = request.headers.get('cookie');
+      const cookieHeader = _request.headers.get('cookie');
       const sessionId = sessionManager['sessionService'].parseSessionCookie(cookieHeader);
       if (sessionId) {
         await sessionManager.deleteSession(sessionId);

@@ -71,7 +71,7 @@ async function ensureOrganizationNetworkNode(organizationId: string) {
   const { createClient } = await import('@supabase/supabase-js');
   
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
     process.env.SUPABASE_SERVICE_KEY!
   );
 
@@ -133,7 +133,7 @@ export async function getNetworkStatus(organizationId: string) {
   const { createClient } = await import('@supabase/supabase-js');
   
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
     process.env.SUPABASE_SERVICE_KEY!
   );
 
@@ -263,7 +263,7 @@ export async function setupNetworkPrivacy(
   const { createClient } = await import('@supabase/supabase-js');
   
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
     process.env.SUPABASE_SERVICE_KEY!
   );
 
@@ -357,7 +357,7 @@ export async function checkNetworkMigrations() {
   const { createClient } = await import('@supabase/supabase-js');
   
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
     process.env.SUPABASE_SERVICE_KEY!
   );
 

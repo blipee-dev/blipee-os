@@ -17,11 +17,11 @@ import {
   ArrowRight,
   Play,
   Star,
-  Target,
+
   FileText,
   Users,
   Gauge,
-  TreePine,
+
   Factory,
 } from "lucide-react";
 
@@ -220,7 +220,7 @@ function UseCasesSection() {
       gradient: "from-purple-500 to-pink-500",
     },
     {
-      icon: TreePine,
+      icon: Building,
       title: "For Any Industry",
       query: "Help us achieve net-zero by 2030",
       response:

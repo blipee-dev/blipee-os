@@ -5,7 +5,7 @@ import {
   Zap,
   TrendingUp,
   AlertTriangle,
-  Target,
+
   Brain,
   Activity,
   Gauge,

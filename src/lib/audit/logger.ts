@@ -265,7 +265,7 @@ export class AuditLogger {
       errorDetails: error ? {
         code: error.name,
         message: error.message,
-        stackTrace: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+        stackTrace: process.env['NODE_ENV'] === 'development' ? error.stack : undefined,
       } : undefined,
     });
   }
@@ -296,7 +296,7 @@ export class AuditLogger {
       errorDetails: {
         code: error.name,
         message: error.message,
-        stackTrace: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+        stackTrace: process.env['NODE_ENV'] === 'development' ? error.stack : undefined,
       },
     });
   }

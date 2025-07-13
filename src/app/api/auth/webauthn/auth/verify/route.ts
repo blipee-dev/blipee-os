@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { webAuthnService } from '@/lib/auth/webauthn/service';
 import { createClient } from '@/lib/supabase/server';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = createClient();
     
-    const body = await request.json();
+    const body = await _request.json();
     const { authenticationResponse, userEmail } = body;
 
     if (!authenticationResponse || typeof authenticationResponse !== 'object') {
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Verify authentication
     const result = await webAuthnService.verifyAuthentication(
-      request,
+      _request,
       authenticationResponse,
       userId
     );

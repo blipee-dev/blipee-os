@@ -577,7 +577,7 @@ export const productionConfigs: Record<string, ProductionConfig> = {
  * Get configuration for the current environment
  */
 export function getProductionConfig(env?: string): ProductionConfig {
-  const environment = env || process.env.NODE_ENV || 'development';
+  const environment = env || process.env['NODE_ENV'] || 'development';
   const config = productionConfigs[environment];
   
   if (!config) {

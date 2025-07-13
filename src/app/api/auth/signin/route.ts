@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authService } from "@/lib/auth/service";
 import { sessionAuth } from "@/lib/auth/session-auth";
 import { sessionManager } from "@/lib/session/manager";
 import { withAuthSecurity } from "@/lib/security/api/wrapper";

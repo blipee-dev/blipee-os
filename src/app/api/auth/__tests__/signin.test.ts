@@ -324,8 +324,8 @@ describe('POST /api/auth/signin', () => {
     });
 
     it('should enforce HTTPS in production', async () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      const originalEnv = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'production';
 
       const request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
@@ -345,7 +345,7 @@ describe('POST /api/auth/signin', () => {
       const data = await response.json();
       expect(data.error).toContain('HTTPS required');
 
-      process.env.NODE_ENV = originalEnv;
+      process.env['NODE_ENV'] = originalEnv;
     });
   });
 });

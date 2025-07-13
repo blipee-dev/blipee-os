@@ -28,7 +28,7 @@ export class APIKeyService {
    * Generate a new API key
    */
   private generateAPIKey(prefix: string = 'blp'): string {
-    const environment = process.env.NODE_ENV === 'production' ? 'live' : 'test';
+    const environment = process.env['NODE_ENV'] === 'production' ? 'live' : 'test';
     const randomBytes = crypto.randomBytes(32);
     const randomKey = randomBytes.toString('base64')
       .replace(/\+/g, '')

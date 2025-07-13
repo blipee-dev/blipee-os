@@ -3,7 +3,7 @@ import { gdprService } from '@/lib/compliance/service';
 import { requireAuth } from '@/lib/auth/session';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const user = await requireAuth(request);
 
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
+export async function PUT(_request: NextRequest) {
   try {
     const user = await requireAuth(request);
     const body = await request.json();

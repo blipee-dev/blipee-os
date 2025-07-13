@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { WebhookEventType, WebhookPayload } from '@/types/webhooks';
+import { WebhookEventType } from '@/types/webhooks';
 
 export class WebhookVerifier {
   
@@ -121,12 +121,12 @@ export class WebhookVerifier {
       }
 
       // Recommend HTTPS for production
-      if (urlObj.protocol === 'http:' && process.env.NODE_ENV === 'production') {
+      if (urlObj.protocol === 'http:' && process.env['NODE_ENV'] === 'production') {
         errors.push('HTTPS is recommended for production webhooks');
       }
 
       // Check for localhost/private IPs in production
-      if (process.env.NODE_ENV === 'production') {
+      if (process.env['NODE_ENV'] === 'production') {
         const hostname = urlObj.hostname;
         if (
           hostname === 'localhost' ||
@@ -316,7 +316,7 @@ export class WebhookVerifier {
       
       // Mask query parameters that might contain sensitive data
       const sensitiveParams = ['token', 'key', 'secret', 'password', 'auth'];
-      urlObj.searchParams.forEach((value, key) => {
+      urlObj.searchParams.forEach((_, key) => {
         if (sensitiveParams.some(param => key.toLowerCase().includes(param))) {
           urlObj.searchParams.set(key, '[REDACTED]');
         }

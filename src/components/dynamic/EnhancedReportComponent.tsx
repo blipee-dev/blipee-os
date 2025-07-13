@@ -9,7 +9,7 @@ import {
   Printer,
   ChevronRight,
   TrendingDown,
-  Target,
+
   Award,
   Calendar,
   BarChart3,
@@ -86,7 +86,7 @@ Key achievements include completing our solar panel installation project, implem
     },
     {
       title: "Strategic Initiatives",
-      icon: Target,
+      icon: CheckCircle,
       content: `Our strategic sustainability initiatives are driving transformative change:
 
 **1. Renewable Energy Transition**

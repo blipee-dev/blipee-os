@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/client";
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
-    const body = await request.json();
-    const { provider, isSignUp } = body;
+    const body = await _request.json();
+    const { provider } = body;
 
     if (!provider || !["google", "azure"].includes(provider)) {
       return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
     }
 
     const supabase = createClient();
-    const redirectTo = `${request.nextUrl.origin}/auth/callback`;
+    const redirectTo = `${_request.nextUrl.origin}/auth/callback`;
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as "google" | "azure",

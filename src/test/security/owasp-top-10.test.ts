@@ -122,7 +122,7 @@ describe('OWASP Top 10 Security Tests', () => {
 
       const response = await signInHandler(request);
       
-      if (process.env.NODE_ENV === 'production') {
+      if (process.env['NODE_ENV'] === 'production') {
         expect(response.status).toBe(403);
         const data = await response.json();
         expect(data.error).toContain('HTTPS required');
@@ -347,8 +347,8 @@ describe('OWASP Top 10 Security Tests', () => {
     });
 
     it('should not expose detailed error messages in production', async () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      const originalEnv = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'production';
 
       // Cause an error
       const request = createAuthenticatedRequest('http://localhost:3000/api/error-test', {
@@ -364,7 +364,7 @@ describe('OWASP Top 10 Security Tests', () => {
       expect(data.error).not.toContain('at Function');
       expect(data.error).not.toContain('/src/');
 
-      process.env.NODE_ENV = originalEnv;
+      process.env['NODE_ENV'] = originalEnv;
     });
 
     it('should disable unnecessary HTTP methods', async () => {

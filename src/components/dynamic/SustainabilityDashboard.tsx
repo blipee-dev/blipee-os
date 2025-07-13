@@ -6,14 +6,14 @@ import {
   Leaf,
   TrendingDown,
   TrendingUp,
-  Target,
+
   Award,
   AlertTriangle,
   Sparkles,
   Zap,
   Droplets,
   Recycle,
-  TreePine,
+
   Globe,
   Factory,
   ArrowDown,

@@ -10,18 +10,18 @@ import { createClient } from "@supabase/supabase-js";
 let supabase: any;
 
 function getSupabase() {
-  if (!supabase && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  if (!supabase && process.env['NEXT_PUBLIC_SUPABASE_URL']) {
     supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+      process.env['SUPABASE_SERVICE_ROLE_KEY']!,
     );
   }
   return supabase;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
-    const contentType = request.headers.get("content-type") || "";
+    const contentType = _request.headers.get("content-type") || "";
 
     let message: string;
     let conversationId: string;
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     // Handle different content types
     if (contentType.includes("multipart/form-data")) {
       // File upload with message
-      const formData = await request.formData();
+      const formData = await _request.formData();
       message = (formData.get("message") as string) || "";
       conversationId = formData.get("conversationId") as string;
       organizationId = formData.get("organizationId") as string;
@@ -40,14 +40,14 @@ export async function POST(request: NextRequest) {
 
       // Collect all uploaded files
       const entries = Array.from(formData.entries());
-      for (const [key, value] of entries) {
+      for (const [, value] of entries) {
         if (value instanceof File) {
           files.push(value);
         }
       }
     } else {
       // Regular JSON message
-      const body = await request.json();
+      const body = await _request.json();
       message = body.message;
       conversationId = body.conversationId;
       organizationId = body.organizationId;
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     if (files.length > 0) {
       console.log(`📄 Processing ${files.length} uploaded file(s)...`);
 
-      if (files.length === 1) {
+      if (files.length === 1 && files[0]) {
         // Single file - detailed response
         aiResponse = await handleDocumentInChat(
           files[0],
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
 /**
  * Generate smart suggestions based on uploaded documents
  */
-function generateSmartSuggestions(files: File[], extractedData: any): string[] {
+function generateSmartSuggestions(files: File[], _extractedData: any): string[] {
   const suggestions: string[] = [];
 
   if (files.length === 0) {

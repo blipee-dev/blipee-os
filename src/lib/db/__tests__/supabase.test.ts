@@ -62,7 +62,7 @@ describe('Supabase Client', () => {
       const client = getSupabaseClient();
       
       expect(createClient).toHaveBeenCalledWith(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env['NEXT_PUBLIC_SUPABASE_URL'],
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
         expect.objectContaining({
           auth: expect.objectContaining({
@@ -77,8 +77,8 @@ describe('Supabase Client', () => {
       const adminClient = getSupabaseAdmin();
       
       expect(createClient).toHaveBeenCalledWith(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY,
+        process.env['NEXT_PUBLIC_SUPABASE_URL'],
+        process.env['SUPABASE_SERVICE_ROLE_KEY'],
         expect.objectContaining({
           auth: expect.objectContaining({
             persistSession: false,

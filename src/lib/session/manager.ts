@@ -23,7 +23,7 @@ class SessionManager {
       cookieName: 'blipee-session',
       cookieOptions: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env['NODE_ENV'] === 'production',
         sameSite: 'lax',
         domain: process.env.COOKIE_DOMAIN,
         path: '/',
@@ -31,7 +31,7 @@ class SessionManager {
     });
 
     // Schedule periodic cleanup of expired sessions
-    if (process.env.NODE_ENV !== 'test') {
+    if (process.env['NODE_ENV'] !== 'test') {
       setInterval(() => {
         this.sessionService.cleanupExpiredSessions().catch(console.error);
       }, 60 * 60 * 1000); // Every hour

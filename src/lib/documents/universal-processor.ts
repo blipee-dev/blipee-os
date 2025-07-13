@@ -15,15 +15,15 @@ let anthropic: any;
 let deepseek: any;
 
 function initializeClients() {
-  if (!supabase && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  if (!supabase && process.env['NEXT_PUBLIC_SUPABASE_URL']) {
     supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+      process.env['SUPABASE_SERVICE_ROLE_KEY']!,
     );
   }
   
-  if (!openai && process.env.OPENAI_API_KEY) {
-    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  if (!openai && process.env['OPENAI_API_KEY']) {
+    openai = new OpenAI({ apiKey: process.env['OPENAI_API_KEY'] });
   }
   
   if (!anthropic && process.env.ANTHROPIC_API_KEY) {

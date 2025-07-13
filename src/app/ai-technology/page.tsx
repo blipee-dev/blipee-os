@@ -8,22 +8,16 @@ import {
   Cpu,
   Zap,
   Shield,
-  Cloud,
   Eye,
   MessageSquare,
-  Target,
-  BarChart3,
-  Sparkles,
   Home,
   ArrowRight,
   CheckCircle,
   Globe,
-  Lock,
   Gauge,
   TrendingUp,
   Network,
   Database,
-  Layers,
 } from "lucide-react";
 
 // Animated background component
