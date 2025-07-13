@@ -909,7 +909,7 @@ export class CarbonHunterAgent extends AutonomousAgent {
   }
 
   private analyzeAnomalyPatterns(anomalies: EmissionAnomaly[]): string[] {
-    const insights = [];
+    const insights: string[] = [];
     
     if (anomalies.length === 0) return insights;
 
