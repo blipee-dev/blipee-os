@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { group-manager } from './group-manager';
+import { groupManager } from '../group-manager';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('group-manager', () => {
-  let service: group-manager;
+describe('groupManager', () => {
+  let service: groupManager;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new group-manager();
+    service = new groupManager();
   });
 
   describe('Initialization', () => {

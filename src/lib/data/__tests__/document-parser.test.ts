@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { document-parser } from './document-parser';
+import { documentParser } from '../document-parser';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('document-parser', () => {
-  let service: document-parser;
+describe('documentParser', () => {
+  let service: documentParser;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new document-parser();
+    service = new documentParser();
   });
 
   describe('Initialization', () => {

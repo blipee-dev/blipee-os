@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { multi-brain-orchestrator } from './multi-brain-orchestrator';
+import { multiBrainOrchestrator } from '../multi-brain-orchestrator';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('multi-brain-orchestrator', () => {
-  let service: multi-brain-orchestrator;
+describe('multiBrainOrchestrator', () => {
+  let service: multiBrainOrchestrator;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new multi-brain-orchestrator();
+    service = new multiBrainOrchestrator();
   });
 
   describe('Initialization', () => {

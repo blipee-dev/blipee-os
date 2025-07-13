@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { event-publisher } from './event-publisher';
+import { eventPublisher } from '../event-publisher';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('event-publisher', () => {
-  let service: event-publisher;
+describe('eventPublisher', () => {
+  let service: eventPublisher;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new event-publisher();
+    service = new eventPublisher();
   });
 
   describe('Initialization', () => {

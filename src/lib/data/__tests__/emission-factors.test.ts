@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { emission-factors } from './emission-factors';
+import { emissionFactors } from '../emission-factors';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('emission-factors', () => {
-  let service: emission-factors;
+describe('emissionFactors', () => {
+  let service: emissionFactors;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new emission-factors();
+    service = new emissionFactors();
   });
 
   describe('Initialization', () => {

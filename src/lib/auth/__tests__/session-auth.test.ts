@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { session-auth } from './session-auth';
+import { sessionAuth } from '../session-auth';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('session-auth', () => {
-  let service: session-auth;
+describe('sessionAuth', () => {
+  let service: sessionAuth;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new session-auth();
+    service = new sessionAuth();
   });
 
   describe('Initialization', () => {

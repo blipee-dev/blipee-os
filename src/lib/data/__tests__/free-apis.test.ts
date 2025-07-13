@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { free-apis } from './free-apis';
+import { freeApis } from '../free-apis';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('free-apis', () => {
-  let service: free-apis;
+describe('freeApis', () => {
+  let service: freeApis;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new free-apis();
+    service = new freeApis();
   });
 
   describe('Initialization', () => {

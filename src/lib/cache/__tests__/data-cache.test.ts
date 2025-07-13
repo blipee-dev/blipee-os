@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { data-cache } from './data-cache';
+import { dataCache } from '../data-cache';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('data-cache', () => {
-  let service: data-cache;
+describe('dataCache', () => {
+  let service: dataCache;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new data-cache();
+    service = new dataCache();
   });
 
   describe('Initialization', () => {

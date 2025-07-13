@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { building-sustainability-context } from './building-sustainability-context';
+import { buildingSustainabilityContext } from '../building-sustainability-context';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('building-sustainability-context', () => {
-  let service: building-sustainability-context;
+describe('buildingSustainabilityContext', () => {
+  let service: buildingSustainabilityContext;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new building-sustainability-context();
+    service = new buildingSustainabilityContext();
   });
 
   describe('Initialization', () => {

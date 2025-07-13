@@ -10,7 +10,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult } from './types';
+import { AgentTask, AgentResult } from './agent-framework';
 import { createClient } from '@supabase/supabase-js';
 
 export interface CollaborativeWorkflow {

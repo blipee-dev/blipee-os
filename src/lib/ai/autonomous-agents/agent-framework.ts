@@ -15,6 +15,7 @@ export interface AgentTask {
   priority: 'low' | 'medium' | 'high' | 'critical';
   data: any;
   deadline?: Date;
+  scheduledFor?: Date;
   requiresApproval: boolean;
 }
 
@@ -120,9 +121,9 @@ export abstract class AutonomousAgent {
   }
   
   // Abstract methods to implement
-  abstract async executeTask(task: AgentTask): Promise<AgentResult>;
-  abstract async getScheduledTasks(): Promise<AgentTask[]>;
-  abstract async learn(result: AgentResult): Promise<void>;
+  abstract executeTask(task: AgentTask): Promise<AgentResult>;
+  abstract getScheduledTasks(): Promise<AgentTask[]>;
+  abstract learn(result: AgentResult): Promise<void>;
   
   // Permission checking
   protected async canExecuteTask(task: AgentTask): Promise<boolean> {
@@ -159,7 +160,7 @@ export abstract class AutonomousAgent {
     }
     
     // Wait for approval (with timeout)
-    return this.waitForApproval(data.id, 3600000); // 1 hour timeout
+    return this.waitForApproval(data.id as string, 3600000); // 1 hour timeout
   }
   
   private async waitForApproval(approvalId: string, timeout: number): Promise<boolean> {

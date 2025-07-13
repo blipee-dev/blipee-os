@@ -165,7 +165,7 @@ export function DynamicUIRenderer({ components }: DynamicUIRendererProps) {
         return <QuickStartUpload key={key} {...component.props} />;
 
       case "materiality-matrix":
-        return <MaterialityMatrix key={key} {...component.props} />;
+        return <MaterialityMatrix key={key} topics={component.props.topics || []} {...component.props} />;
 
       case "optimization-dashboard":
         return (

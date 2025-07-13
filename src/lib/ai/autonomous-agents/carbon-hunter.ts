@@ -7,7 +7,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult, AgentCapability } from './types';
+import { AgentTask, AgentResult, AgentCapability } from './agent-framework';
 import { createClient } from '@supabase/supabase-js';
 
 export interface CarbonOpportunity {
@@ -66,12 +66,42 @@ export interface CarbonInsight {
 
 export class CarbonHunterAgent extends AutonomousAgent {
   protected capabilities: AgentCapability[] = [
-    'hunt_carbon_opportunities',
-    'detect_emission_anomalies',
-    'analyze_carbon_trends',
-    'optimize_carbon_efficiency',
-    'forecast_emissions',
-    'benchmark_performance'
+    {
+      name: 'hunt_carbon_opportunities',
+      description: 'Identify carbon reduction opportunities',
+      requiredPermissions: ['read:emissions', 'read:facilities'],
+      maxAutonomyLevel: 3
+    },
+    {
+      name: 'detect_emission_anomalies',
+      description: 'Detect unusual emission patterns',
+      requiredPermissions: ['read:emissions'],
+      maxAutonomyLevel: 4
+    },
+    {
+      name: 'analyze_carbon_trends',
+      description: 'Analyze carbon emission trends',
+      requiredPermissions: ['read:emissions', 'read:analytics'],
+      maxAutonomyLevel: 4
+    },
+    {
+      name: 'optimize_carbon_efficiency',
+      description: 'Optimize carbon efficiency processes',
+      requiredPermissions: ['read:emissions', 'write:optimizations'],
+      maxAutonomyLevel: 3
+    },
+    {
+      name: 'forecast_emissions',
+      description: 'Forecast future emissions',
+      requiredPermissions: ['read:emissions', 'read:analytics'],
+      maxAutonomyLevel: 4
+    },
+    {
+      name: 'benchmark_performance',
+      description: 'Benchmark performance against standards',
+      requiredPermissions: ['read:emissions', 'read:benchmarks'],
+      maxAutonomyLevel: 4
+    }
   ];
 
   protected detectionAlgorithms: Map<string, any> = new Map();
@@ -79,18 +109,21 @@ export class CarbonHunterAgent extends AutonomousAgent {
   protected benchmarkData: Map<string, number> = new Map();
 
   constructor(organizationId: string) {
-    super(organizationId, 'carbon-hunter', 'CarbonHunter');
-    this.maxAutonomyLevel = 5; // Highest autonomy for carbon optimization
-    this.executionInterval = 1800000; // Run every 30 minutes for active hunting
+    super(organizationId, {
+      agentId: 'carbon-hunter',
+      capabilities: [],
+      maxAutonomyLevel: 5,
+      executionInterval: 1800000
+    });
   }
 
   async initialize(): Promise<void> {
-    await super.initialize();
     await this.setupDetectionAlgorithms();
     await this.loadOptimizationStrategies();
     await this.loadBenchmarkData();
     
-    await this.logEvent('carbon_hunter_initialized', {
+    // Carbon hunter initialized successfully
+    console.log('Carbon Hunter Agent initialized with:', {
       detection_algorithms: this.detectionAlgorithms.size,
       optimization_strategies: this.optimizationStrategies.length,
       benchmark_datasets: this.benchmarkData.size,
@@ -109,8 +142,9 @@ export class CarbonHunterAgent extends AutonomousAgent {
     tasks.push({
       id: `carbon-hunt-${huntingTask.getTime()}`,
       type: 'hunt_carbon_opportunities',
-      scheduledFor: huntingTask.toISOString(),
+      scheduledFor: huntingTask,
       priority: 'high',
+      requiresApproval: false,
       data: {
         scope: 'comprehensive',
         targets: ['energy', 'waste', 'transportation', 'supply_chain'],
@@ -125,8 +159,9 @@ export class CarbonHunterAgent extends AutonomousAgent {
     tasks.push({
       id: `anomaly-detection-${anomalyCheck.getTime()}`,
       type: 'detect_emission_anomalies',
-      scheduledFor: anomalyCheck.toISOString(),
-      priority: 'critical',
+      scheduledFor: anomalyCheck,
+      priority: 'high',
+      requiresApproval: false,
       data: {
         timeWindow: '1h',
         sensitivity: 'high',
@@ -144,8 +179,9 @@ export class CarbonHunterAgent extends AutonomousAgent {
     tasks.push({
       id: `trend-analysis-${trendAnalysis.getTime()}`,
       type: 'analyze_carbon_trends',
-      scheduledFor: trendAnalysis.toISOString(),
+      scheduledFor: trendAnalysis,
       priority: 'medium',
+      requiresApproval: false,
       data: {
         timeRange: '30d',
         analysisTypes: ['seasonal', 'weekly', 'operational'],
@@ -162,8 +198,9 @@ export class CarbonHunterAgent extends AutonomousAgent {
     tasks.push({
       id: `optimization-review-${optimizationReview.getTime()}`,
       type: 'optimize_carbon_efficiency',
-      scheduledFor: optimizationReview.toISOString(),
+      scheduledFor: optimizationReview,
       priority: 'medium',
+      requiresApproval: false,
       data: {
         reviewType: 'comprehensive',
         includeROI: true,
@@ -182,8 +219,9 @@ export class CarbonHunterAgent extends AutonomousAgent {
     tasks.push({
       id: `monthly-forecast-${monthlyAnalysis.getTime()}`,
       type: 'forecast_emissions',
-      scheduledFor: monthlyAnalysis.toISOString(),
+      scheduledFor: monthlyAnalysis,
       priority: 'medium',
+      requiresApproval: false,
       data: {
         forecastHorizon: '12m',
         scenarios: ['current_trend', 'optimistic', 'conservative'],
@@ -287,20 +325,24 @@ export class CarbonHunterAgent extends AutonomousAgent {
       actions.push({
         type: 'carbon_opportunity_identified',
         description: opportunity.title,
-        opportunityId: opportunity.id,
-        estimatedReduction: opportunity.estimatedReduction,
-        estimatedCost: opportunity.estimatedCost,
-        roi: opportunity.roi,
-        timestamp: new Date().toISOString()
+        impact: {
+          opportunityId: opportunity.id,
+          estimatedReduction: opportunity.estimatedReduction,
+          estimatedCost: opportunity.estimatedCost,
+          roi: opportunity.roi
+        },
+        reversible: true
       });
 
       if (opportunity.priority === 'critical' && opportunity.difficulty === 'low') {
         actions.push({
           type: 'quick_win_identified',
           description: `Quick win opportunity: ${opportunity.title}`,
-          opportunityId: opportunity.id,
-          paybackPeriod: opportunity.paybackPeriod,
-          timestamp: new Date().toISOString()
+          impact: {
+            opportunityId: opportunity.id,
+            paybackPeriod: opportunity.paybackPeriod
+          },
+          reversible: true
         });
       }
     }
@@ -361,11 +403,13 @@ export class CarbonHunterAgent extends AutonomousAgent {
       actions.push({
         type: 'critical_anomaly_detected',
         description: `Critical emission anomaly in ${anomaly.source}`,
-        anomalyId: anomaly.id,
-        severity: anomaly.severity,
-        deviation: anomaly.deviation_percentage,
-        location: anomaly.location,
-        timestamp: new Date().toISOString()
+        impact: {
+          anomalyId: anomaly.id,
+          severity: anomaly.severity,
+          deviation: anomaly.deviation_percentage,
+          location: anomaly.location
+        },
+        reversible: false
       });
 
       // Auto-investigate if autonomy level permits
@@ -373,8 +417,11 @@ export class CarbonHunterAgent extends AutonomousAgent {
         actions.push({
           type: 'auto_investigation_initiated',
           description: `Initiated automatic investigation for ${anomaly.source} anomaly`,
-          anomalyId: anomaly.id,
-          timestamp: new Date().toISOString()
+          impact: {
+            anomalyId: anomaly.id,
+            investigationStarted: true
+          },
+          reversible: true
         });
       }
     }
@@ -439,10 +486,12 @@ export class CarbonHunterAgent extends AutonomousAgent {
         actions.push({
           type: 'trend_opportunity_identified',
           description: insight.title,
-          insightId: insight.id,
-          opportunities: insight.related_opportunities,
-          confidence: insight.confidence,
-          timestamp: new Date().toISOString()
+          impact: {
+            insightId: insight.id,
+            opportunities: insight.related_opportunities,
+            confidence: insight.confidence
+          },
+          reversible: true
         });
       }
     }
@@ -514,11 +563,13 @@ export class CarbonHunterAgent extends AutonomousAgent {
       actions.push({
         type: 'optimization_recommended',
         description: optimization.description,
-        optimizationId: optimization.id,
-        estimatedReduction: optimization.estimated_reduction,
-        estimatedCost: optimization.estimated_cost,
-        roi: optimization.roi || 0,
-        timestamp: new Date().toISOString()
+        impact: {
+          optimizationId: optimization.id,
+          estimatedReduction: optimization.estimated_reduction,
+          estimatedCost: optimization.estimated_cost,
+          roi: optimization.roi || 0
+        },
+        reversible: true
       });
     }
 
@@ -577,9 +628,11 @@ export class CarbonHunterAgent extends AutonomousAgent {
         actions.push({
           type: 'target_risk_identified',
           description: 'Current trajectory will exceed emission targets',
-          gap: forecastVsTarget.gap,
-          risk_level: forecastVsTarget.risk_level,
-          timestamp: new Date().toISOString()
+          impact: {
+            gap: forecastVsTarget.gap,
+            risk_level: forecastVsTarget.risk_level
+          },
+          reversible: false
         });
 
         insights.push(`WARNING: Current trend will exceed targets by ${forecastVsTarget.gap.toFixed(1)} tCO2e`);
@@ -637,19 +690,23 @@ export class CarbonHunterAgent extends AutonomousAgent {
         actions.push({
           type: 'improvement_opportunity_identified',
           description: `Below-average performance in ${metric}`,
-          metric: metric,
-          current_value: result.current_value,
-          benchmark_value: result.benchmark_value,
-          gap: result.gap,
-          timestamp: new Date().toISOString()
+          impact: {
+            metric: metric,
+            current_value: result.current_value,
+            benchmark_value: result.benchmark_value,
+            gap: result.gap
+          },
+          reversible: false
         });
       } else if (result.performance === 'top_quartile') {
         actions.push({
           type: 'best_practice_identified',
           description: `Top quartile performance in ${metric}`,
-          metric: metric,
-          value: result.current_value,
-          timestamp: new Date().toISOString()
+          impact: {
+            metric: metric,
+            value: result.current_value
+          },
+          reversible: false
         });
       }
     }

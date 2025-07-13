@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { conversational-engine } from './conversational-engine';
+import { conversationalEngine } from '../conversational-engine';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('conversational-engine', () => {
-  let service: conversational-engine;
+describe('conversationalEngine', () => {
+  let service: conversationalEngine;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new conversational-engine();
+    service = new conversationalEngine();
   });
 
   describe('Initialization', () => {

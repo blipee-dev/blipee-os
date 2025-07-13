@@ -7,7 +7,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult, AgentCapability } from './types';
+import { AgentTask, AgentResult, AgentCapability } from './agent-framework';
 import { createClient } from '@supabase/supabase-js';
 
 export interface SupplierProfile {
@@ -110,7 +110,7 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
     await this.loadRiskAssessmentRules();
     await this.loadBenchmarkData();
     
-    await this.logEvent('supply_chain_investigator_initialized', {
+    console.log('supply_chain_investigator_initialized', {
       supplier_profiles_loaded: this.supplierProfiles.size,
       emission_categories: this.emissionCategories.size,
       risk_rules: this.riskAssessmentRules.length,

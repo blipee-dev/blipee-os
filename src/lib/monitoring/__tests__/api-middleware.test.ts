@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { api-middleware } from './api-middleware';
+import { apiMiddleware } from '../api-middleware';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('api-middleware', () => {
-  let service: api-middleware;
+describe('apiMiddleware', () => {
+  let service: apiMiddleware;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new api-middleware();
+    service = new apiMiddleware();
   });
 
   describe('Initialization', () => {

@@ -1,0 +1,33 @@
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.test.js
+**/*.test.jsx
+**/__tests__/**
+**/test/**
+
+# Documentation
+docs/**
+*.md
+
+# Scripts
+scripts/**
+
+# Projects folder (reference only)
+projects/**
+
+# Development files
+.env.local
+.env.staging
+.env.development
+.env.test
+
+# Cypress
+cypress/**
+
+# Other
+.git
+.gitignore
+.github
+coverage
+.next/cache

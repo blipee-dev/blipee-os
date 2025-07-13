@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { site-manager } from './site-manager';
+import { siteManager } from '../site-manager';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('site-manager', () => {
-  let service: site-manager;
+describe('siteManager', () => {
+  let service: siteManager;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new site-manager();
+    service = new siteManager();
   });
 
   describe('Initialization', () => {

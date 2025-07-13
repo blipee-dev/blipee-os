@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { session-store } from './session-store';
+import { sessionStore } from '../session-store';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('session-store', () => {
-  let service: session-store;
+describe('sessionStore', () => {
+  let service: sessionStore;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new session-store();
+    service = new sessionStore();
   });
 
   describe('Initialization', () => {

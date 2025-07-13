@@ -77,28 +77,28 @@ class ModuleRegistry implements ModuleAPI {
   }
 
   hasPermission(moduleId: string, context: ModuleContext): boolean {
-    const module = this.getModule(moduleId);
-    if (!module) return false;
+    const moduleItem = this.getModule(moduleId);
+    if (!moduleItem) return false;
 
     // Check if user has all required permissions
-    return module.requiredPermissions.every(permission => 
+    return moduleItem.requiredPermissions.every(permission => 
       context.permissions.includes(permission)
     );
   }
 
   isModuleAvailable(moduleId: string, context: ModuleContext): boolean {
-    const module = this.getModule(moduleId);
-    if (!module) return false;
+    const moduleItem = this.getModule(moduleId);
+    if (!moduleItem) return false;
 
     // Check status
-    if (module.status !== 'active') return false;
+    if (moduleItem.status !== 'active') return false;
 
     // Check permissions
     if (!this.hasPermission(moduleId, context)) return false;
 
     // Check dependencies
-    if (module.dependencies) {
-      return module.dependencies.every(depId => {
+    if (moduleItem.dependencies) {
+      return moduleItem.dependencies.every(depId => {
         const dep = this.getModule(depId);
         return dep && dep.status === 'active';
       });
@@ -142,12 +142,12 @@ class ModuleRegistry implements ModuleAPI {
     const health: Record<string, { status: string; errors?: string[] }> = {};
 
     for (const [id, registration] of this.modules) {
-      const module = registration.module;
+      const moduleItem = registration.module;
       const errors: string[] = [];
 
       // Check dependencies
-      if (module.dependencies) {
-        for (const depId of module.dependencies) {
+      if (moduleItem.dependencies) {
+        for (const depId of moduleItem.dependencies) {
           const dep = this.getModule(depId);
           if (!dep) {
             errors.push(`Missing dependency: ${depId}`);

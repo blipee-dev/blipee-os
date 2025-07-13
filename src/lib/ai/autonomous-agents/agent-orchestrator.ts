@@ -7,7 +7,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult } from './types';
+import { AgentTask, AgentResult } from './agent-framework';
 import { ESGChiefOfStaffAgent } from './esg-chief-of-staff';
 import { ComplianceGuardianAgent } from './compliance-guardian';
 import { CarbonHunterAgent } from './carbon-hunter';
@@ -100,7 +100,9 @@ export class AgentOrchestrator {
 
     // Initialize each agent
     for (const agent of agents) {
-      await agent.initialize();
+      if ('initialize' in agent && typeof agent.initialize === 'function') {
+        await agent.initialize();
+      }
       this.agents.set(agent['agentId'], agent);
       
       // Initialize resource tracking
@@ -203,7 +205,7 @@ export class AgentOrchestrator {
   private async collectScheduledTasks(): Promise<Map<string, AgentTask[]>> {
     const allTasks = new Map<string, AgentTask[]>();
 
-    for (const [agentId, agent] of this.agents) {
+    for (const [agentId, agent] of Array.from(this.agents.entries())) {
       try {
         const tasks = await agent.getScheduledTasks();
         allTasks.set(agentId, tasks);
@@ -221,9 +223,10 @@ export class AgentOrchestrator {
     const tasksByTime = new Map<string, { agentId: string; task: AgentTask }[]>();
 
     // Group tasks by scheduled time
-    for (const [agentId, tasks] of allTasks) {
+    for (const [agentId, tasks] of Array.from(allTasks.entries())) {
       for (const task of tasks) {
-        const timeKey = new Date(task.scheduledFor).toISOString().substring(0, 16); // Group by hour
+        const scheduleTime = task.scheduledFor || task.deadline || new Date();
+        const timeKey = new Date(scheduleTime).toISOString().substring(0, 16); // Group by hour
         
         if (!tasksByTime.has(timeKey)) {
           tasksByTime.set(timeKey, []);
@@ -234,7 +237,7 @@ export class AgentOrchestrator {
     }
 
     // Detect potential conflicts
-    for (const [timeKey, tasksAtTime] of tasksByTime) {
+    for (const [timeKey, tasksAtTime] of Array.from(tasksByTime.entries())) {
       if (tasksAtTime.length > 1) {
         // Check for resource conflicts
         const resourceConflicts = this.checkResourceConflicts(tasksAtTime);
@@ -270,7 +273,7 @@ export class AgentOrchestrator {
     const resolvedTasks = new Map<string, AgentTask[]>();
 
     // Copy original tasks
-    for (const [agentId, tasks] of allTasks) {
+    for (const [agentId, tasks] of Array.from(allTasks.entries())) {
       resolvedTasks.set(agentId, [...tasks]);
     }
 
@@ -288,7 +291,7 @@ export class AgentOrchestrator {
   private optimizeExecution(tasks: Map<string, AgentTask[]>): Map<string, AgentTask[]> {
     const optimizedTasks = new Map<string, AgentTask[]>();
 
-    for (const [agentId, agentTasks] of tasks) {
+    for (const [agentId, agentTasks] of Array.from(tasks.entries())) {
       // Sort tasks by priority and dependencies
       const sortedTasks = agentTasks.sort((a, b) => {
         const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
@@ -345,9 +348,10 @@ export class AgentOrchestrator {
         const task: AgentTask = {
           id: step.step_id,
           type: step.task_type,
-          scheduledFor: new Date().toISOString(),
+          scheduledFor: new Date(),
           priority: 'medium',
-          data: step.task_data
+          data: step.task_data,
+          requiresApproval: false
         };
 
         // Execute with timeout and retry
@@ -420,9 +424,10 @@ export class AgentOrchestrator {
             const taskIndex = agentTasks.findIndex(t => t.id === conflictTask.task.id);
             if (taskIndex !== -1) {
               // Delay by 30 minutes
-              const newTime = new Date(conflictTask.task.scheduledFor);
+              const scheduleTime = conflictTask.task.scheduledFor || conflictTask.task.deadline || new Date();
+              const newTime = new Date(scheduleTime);
               newTime.setMinutes(newTime.getMinutes() + 30);
-              agentTasks[taskIndex].scheduledFor = newTime.toISOString();
+              agentTasks[taskIndex].scheduledFor = newTime;
             }
           }
         }
@@ -508,12 +513,13 @@ export class AgentOrchestrator {
     return tasks.map((task, index) => {
       if (index === 0) return task;
       
-      const previousTime = new Date(tasks[index - 1].scheduledFor);
+      const previousSchedule = tasks[index - 1].scheduledFor || tasks[index - 1].deadline || new Date();
+      const previousTime = new Date(previousSchedule);
       const newTime = new Date(previousTime.getTime() + intervalMinutes * 60000);
       
       return {
         ...task,
-        scheduledFor: newTime.toISOString()
+        scheduledFor: newTime
       };
     });
   }
@@ -785,8 +791,8 @@ export class AgentOrchestrator {
     }
 
     // Return status for all agents
-    const statuses = {};
-    for (const [id] of this.agents) {
+    const statuses: Record<string, any> = {};
+    for (const id of Array.from(this.agents.keys())) {
       statuses[id] = await this.getAgentStatus(id);
     }
     return statuses;
@@ -797,7 +803,7 @@ export class AgentOrchestrator {
       total_agents: this.agents.size,
       active_coordinations: this.activeCoordinations.size,
       active_workflows: this.activeWorkflows.size,
-      resource_usage: Object.fromEntries(this.resourceUsage),
+      resource_usage: Object.fromEntries(Array.from(this.resourceUsage.entries())),
       coordination_rules: this.coordinationRules.length
     };
   }

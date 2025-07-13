@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
-import { cache-strategies } from './cache-strategies';
+import { cacheStrategies } from '../cache-strategies';
 
 // Mock dependencies
 jest.mock('@supabase/supabase-js');
 jest.mock('ioredis');
 
-describe('cache-strategies', () => {
-  let service: cache-strategies;
+describe('cacheStrategies', () => {
+  let service: cacheStrategies;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new cache-strategies();
+    service = new cacheStrategies();
   });
 
   describe('Initialization', () => {
