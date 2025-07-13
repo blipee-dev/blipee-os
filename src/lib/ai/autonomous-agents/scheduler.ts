@@ -362,7 +362,7 @@ export class TaskScheduler {
     }
     
     // Clear any scheduled jobs
-    for (const [key, timeout] of this.scheduledJobs.entries()) {
+    for (const [key, timeout] of Array.from(this.scheduledJobs.entries())) {
       if (key.includes(taskId)) {
         clearTimeout(timeout);
         this.scheduledJobs.delete(key);
@@ -406,7 +406,7 @@ export class TaskScheduler {
       .limit(100);
       
     const averageExecutionTime = results && results.length > 0
-      ? results.reduce((sum, r) => sum + r.execution_time_ms, 0) / results.length
+      ? results.reduce((sum, r) => sum + (r.execution_time_ms as number), 0) / results.length
       : 0;
       
     return {
@@ -420,7 +420,7 @@ export class TaskScheduler {
   // Shutdown scheduler
   shutdown(): void {
     // Clear all scheduled jobs
-    for (const timeout of this.scheduledJobs.values()) {
+    for (const timeout of Array.from(this.scheduledJobs.values())) {
       clearTimeout(timeout);
     }
     this.scheduledJobs.clear();
