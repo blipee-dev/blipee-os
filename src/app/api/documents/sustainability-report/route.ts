@@ -362,7 +362,7 @@ async function generateMonthlyBreakdown(
     // Energy breakdown
     if (annualData.energy) {
       const monthlyEnergy =
-        (annualData.energy.total / 12) * patterns.energy[month - 1];
+        (annualData.energy.total / 12) * (patterns.energy[month - 1] || 1);
 
       monthlyData.push({
         organization_id: organizationId,

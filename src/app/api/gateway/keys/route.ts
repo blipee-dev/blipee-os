@@ -89,7 +89,7 @@ export async function POST(_request: NextRequest) {
     }
 
     // Parse request body
-    const data: APIKeyCreate = await request.json();
+    const data: APIKeyCreate = await _request.json();
     
     // Validate required fields
     if (!data.name) {

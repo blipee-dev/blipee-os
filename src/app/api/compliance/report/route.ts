@@ -25,7 +25,7 @@ export async function GET(_request: NextRequest) {
       );
     }
 
-    const period = {
+    const _period = {
       start: startDate ? new Date(startDate) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), // 90 days ago
       end: endDate ? new Date(endDate) : new Date(),
     };

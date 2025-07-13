@@ -126,7 +126,9 @@
       "Bash(./fix-remaining-issues.sh:*)",
       "Bash(./fix-unused-params.sh:*)",
       "Bash(./fix-final-batch.sh:*)",
-      "Bash(./fix-request-refs.sh:*)"
+      "Bash(./fix-request-refs.sh:*)",
+      "Bash(./fix-ml-models.sh:*)",
+      "Bash(bash:*)"
     ],
     "deny": []
   }

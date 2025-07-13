@@ -135,7 +135,7 @@ export class ModelIntegration {
   }
 
   private initializePerformanceTracking(): void {
-    for (const [name, model] of this.modelRegistry) {
+    for (const [name, model] of Array.from(this.modelRegistry)) {
       this.performanceMetrics.set(name, {
         modelName: name,
         accuracy: 0.85, // Default values
@@ -261,7 +261,7 @@ export class ModelIntegration {
   private async optimizeResources(data: any, options?: any): Promise<OptimizationResult> {
     const task: OptimizationTask = data.task || this.inferOptimizationTask(data);
     
-    const result = await this.optimizationEngine.optimize(task, data);
+    const _result = await this.optimizationEngine.optimize(task, data);
     
     // Enhance with business context
     return {
@@ -364,7 +364,7 @@ export class ModelIntegration {
     for (const [type, typeRequests] of Object.entries(groupedRequests)) {
       if (typeRequests.length === 1) {
         // Single request
-        const result = await this.predict(typeRequests[0]);
+        const _result = await this.predict(typeRequests[0]);
         results.push(result);
       } else {
         // Batch process multiple requests of same type
@@ -444,7 +444,7 @@ export class ModelIntegration {
   private async ensureModelsLoaded(): Promise<void> {
     const loadPromises = [];
     
-    for (const [name, model] of this.modelRegistry) {
+    for (const [_name, model] of Array.from(this.modelRegistry)) {
       if (!model.isLoaded()) {
         loadPromises.push(model.buildModel());
       }

@@ -3,7 +3,7 @@ import { gdprService } from '@/lib/compliance/service';
 import { requireAuth } from '@/lib/auth/session';
 import { ConsentType, ConsentStatus } from '@/lib/compliance/types';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth(request);
 
@@ -22,7 +22,7 @@ export async function GET(_request: NextRequest) {
   }
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth(request);
     const body = await request.json();
