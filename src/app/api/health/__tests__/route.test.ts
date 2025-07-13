@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 
 describe('GET /api/health', () => {
   it('should return health status', async () => {
-    const request = new NextRequest('http://localhost:3000/api/health');
+    const _request = new NextRequest('http://localhost:3000/api/health');
     const response = await GET(request);
     const data = await response.json();
 
@@ -18,7 +18,7 @@ describe('GET /api/health', () => {
   });
 
   it('should include uptime', async () => {
-    const request = new NextRequest('http://localhost:3000/api/health');
+    const _request = new NextRequest('http://localhost:3000/api/health');
     const response = await GET(request);
     const data = await response.json();
 

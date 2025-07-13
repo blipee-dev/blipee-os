@@ -272,7 +272,7 @@ export class SSOService implements ISSOService {
       if (!user) throw new Error("User not authenticated");
       
       // Delete configuration
-      const { error } = await supabase
+      const { error: _error } = await supabase
         .from("sso_configurations")
         .delete()
         .eq("id", id);
@@ -773,7 +773,7 @@ export class SSOService implements ISSOService {
         .single();
       
       // Delete session
-      const { error } = await supabase
+      const { error: _error } = await supabase
         .from("sso_sessions")
         .delete()
         .eq("id", sessionId);
@@ -824,7 +824,7 @@ export class SSOService implements ISSOService {
       if (authError) throw authError;
       if (!authData.user) throw new Error("Failed to create user");
       
-      const userId = authData.user.id;
+      const _userId = authData.user.id;
       
       // Create SSO user mapping
       const { error: mappingError } = await supabase
@@ -973,7 +973,7 @@ export class SSOService implements ISSOService {
     const supabase = await this.getSupabase();
     
     try {
-      const { error } = await supabase
+      const { error: _error } = await supabase
         .from("sso_users")
         .upsert({
           user_id: userId,

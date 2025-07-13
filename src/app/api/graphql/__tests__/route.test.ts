@@ -28,7 +28,7 @@ describe('GraphQL API', () => {
         }
       });
 
-      const request = new NextRequest('http://localhost:3000/api/graphql', {
+      const _request = new NextRequest('http://localhost:3000/api/graphql', {
         method: 'POST',
         body: JSON.stringify({
           query: '{ user(id: "user123") { id name } }'
@@ -52,7 +52,7 @@ describe('GraphQL API', () => {
         }
       });
 
-      const request = new NextRequest('http://localhost:3000/api/graphql', {
+      const _request = new NextRequest('http://localhost:3000/api/graphql', {
         method: 'POST',
         body: JSON.stringify({
           query: '{ invalidField }'
@@ -69,7 +69,7 @@ describe('GraphQL API', () => {
 
   describe('GET /api/graphql', () => {
     it('should serve GraphQL playground', async () => {
-      const request = new NextRequest('http://localhost:3000/api/graphql');
+      const _request = new NextRequest('http://localhost:3000/api/graphql');
       const response = await GET(request);
 
       expect(response.status).toBe(200);

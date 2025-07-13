@@ -46,7 +46,10 @@ export default function SignInPage() {
       
       if (ssoRequired) {
         // Automatically redirect to SSO
-        initiateSSO({ domain: value.split('@')[1] });
+        const domain = value.split('@')[1];
+        if (domain) {
+          initiateSSO({ domain });
+        }
       }
     }
   };
@@ -336,7 +339,12 @@ export default function SignInPage() {
             type="button"
             onClick={() => {
               if (email && email.includes('@')) {
-                initiateSSO({ domain: email.split('@')[1] });
+                const domain = email.split('@')[1];
+                if (domain) {
+                  initiateSSO({ domain });
+                } else {
+                  setError('Invalid email domain');
+                }
               } else {
                 setError('Please enter your email address first');
               }

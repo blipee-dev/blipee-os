@@ -55,7 +55,7 @@ global.Response = class Response {
 describe('API Keys endpoint', () => {
   describe('GET /api/gateway/keys', () => {
     it('should return list of API keys', async () => {
-      const request = new NextRequest('http://localhost:3000/api/gateway/keys');
+      const _request = new NextRequest('http://localhost:3000/api/gateway/keys');
       const response = await GET(request);
       
       expect(response.status).toBe(200);
@@ -75,7 +75,7 @@ describe('API Keys endpoint', () => {
         }
       });
 
-      const request = new NextRequest('http://localhost:3000/api/gateway/keys');
+      const _request = new NextRequest('http://localhost:3000/api/gateway/keys');
       const response = await GET(request);
       
       expect(response.status).toBe(401);
@@ -84,7 +84,7 @@ describe('API Keys endpoint', () => {
 
   describe('POST /api/gateway/keys', () => {
     it('should create new API key', async () => {
-      const request = new NextRequest('http://localhost:3000/api/gateway/keys', {
+      const _request = new NextRequest('http://localhost:3000/api/gateway/keys', {
         method: 'POST',
         body: JSON.stringify({
           name: 'New Key',
@@ -102,7 +102,7 @@ describe('API Keys endpoint', () => {
     });
 
     it('should validate request body', async () => {
-      const request = new NextRequest('http://localhost:3000/api/gateway/keys', {
+      const _request = new NextRequest('http://localhost:3000/api/gateway/keys', {
         method: 'POST',
         body: JSON.stringify({})
       });
@@ -122,7 +122,7 @@ describe('API Keys endpoint', () => {
         }
       });
 
-      const request = new NextRequest('http://localhost:3000/api/gateway/keys', {
+      const _request = new NextRequest('http://localhost:3000/api/gateway/keys', {
         method: 'POST',
         body: JSON.stringify({ name: 'Test' })
       });

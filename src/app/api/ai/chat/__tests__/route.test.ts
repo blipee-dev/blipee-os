@@ -30,7 +30,7 @@ describe('POST /api/ai/chat', () => {
       error: null
     });
 
-    const request = new NextRequest('http://localhost:3000/api/ai/chat', {
+    const _request = new NextRequest('http://localhost:3000/api/ai/chat', {
       method: 'POST',
       body: JSON.stringify({
         messages: [{ role: 'user', content: 'What is the energy usage?' }],
@@ -53,7 +53,7 @@ describe('POST /api/ai/chat', () => {
       error: null
     });
 
-    const request = new NextRequest('http://localhost:3000/api/ai/chat', {
+    const _request = new NextRequest('http://localhost:3000/api/ai/chat', {
       method: 'POST',
       body: JSON.stringify({
         messages: [{ role: 'user', content: 'Analyze this document' }],
@@ -73,7 +73,7 @@ describe('POST /api/ai/chat', () => {
     });
 
     // Simulate rate limit exceeded
-    const request = new NextRequest('http://localhost:3000/api/ai/chat', {
+    const _request = new NextRequest('http://localhost:3000/api/ai/chat', {
       method: 'POST',
       headers: { 'X-Rate-Limit-Exceeded': 'true' },
       body: JSON.stringify({ messages: [] })

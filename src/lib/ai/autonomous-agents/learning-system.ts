@@ -41,7 +41,7 @@ export class AgentLearningSystem {
   constructor() {
     this.supabase = createClient(
       process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env.SUPABASE_SERVICE_KEY!
+      process.env['SUPABASE_SERVICE_KEY']!
     );
   }
   
@@ -299,7 +299,7 @@ export class AgentLearningSystem {
     agentId: string,
     organizationId: string
   ): Promise<LearningPattern[]> {
-    const { data } = await this.supabase
+    const { data: _data } = await this.supabase
       .from('agent_patterns')
       .select('*')
       .eq('agent_id', agentId)

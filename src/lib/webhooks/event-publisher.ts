@@ -384,7 +384,7 @@ export class EventPublisher {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
     
-    const { error } = await supabase
+    const { error: _error } = await supabase
       .from('webhook_deliveries')
       .delete()
       .lt('created_at', cutoffDate.toISOString());

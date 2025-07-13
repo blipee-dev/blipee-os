@@ -78,7 +78,7 @@ export class AgentOrchestrator {
   private activeWorkflows: Map<string, WorkflowExecution> = new Map();
   private supabase = createClient(
     process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!
   );
 
   private coordinationRules: CoordinationRule[] = [];

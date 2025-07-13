@@ -35,7 +35,7 @@ import Link from 'next/link';
 
 export default function WebhookDetailPage() {
   const params = useParams();
-  const webhookId = params.id as string;
+  const webhookId = params['id'] as string;
   
   const [webhook, setWebhook] = useState<WebhookEndpoint | null>(null);
   const [deliveries, setDeliveries] = useState<WebhookDelivery[]>([]);
@@ -302,7 +302,7 @@ export default function WebhookDetailPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Event Types</label>
                 <div className="flex flex-wrap gap-2">
-                  {webhook.events.map((event) => (
+                  {webhook.events.map((event: any) => (
                     <span
                       key={event}
                       className="text-xs px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded text-purple-400"

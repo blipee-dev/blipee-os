@@ -111,7 +111,7 @@ describe('WebAuthnService', () => {
 
   describe('Registration Options Generation', () => {
     it('should generate registration options successfully', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
       const userDisplayName = 'Test User';
 
@@ -143,7 +143,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should exclude existing credentials', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
       const userDisplayName = 'Test User';
 
@@ -178,7 +178,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should respect rate limiting', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
       const userDisplayName = 'Test User';
 
@@ -196,7 +196,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should handle authenticator selection preferences', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
       const userDisplayName = 'Test User';
 
@@ -228,7 +228,7 @@ describe('WebAuthnService', () => {
 
   describe('Registration Verification', () => {
     it('should verify registration successfully', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const credentialName = 'Test Credential';
       const registrationResponse = {
         id: 'new-credential-id',
@@ -285,7 +285,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should reject registration with invalid challenge', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const credentialName = 'Test Credential';
       const registrationResponse = {
         id: 'new-credential-id',
@@ -338,7 +338,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should reject registration with expired challenge', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const credentialName = 'Test Credential';
       const registrationResponse = {
         id: 'new-credential-id',
@@ -394,7 +394,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should reject registration with wrong origin', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const credentialName = 'Test Credential';
       const registrationResponse = {
         id: 'new-credential-id',
@@ -447,7 +447,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should reject duplicate credential registration', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const credentialName = 'Test Credential';
       const registrationResponse = {
         id: 'existing-credential-id',
@@ -518,7 +518,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should enforce maximum credentials per user', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const credentialName = 'Test Credential';
       const registrationResponse = {
         id: 'new-credential-id',
@@ -598,7 +598,7 @@ describe('WebAuthnService', () => {
 
   describe('Authentication Options Generation', () => {
     it('should generate authentication options successfully', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
 
       // Mock user credentials
       mockSupabase.from.mockReturnValue({
@@ -643,7 +643,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should filter inactive credentials', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
 
       // Mock credentials with inactive one
       mockSupabase.from.mockReturnValue({
@@ -682,7 +682,7 @@ describe('WebAuthnService', () => {
 
   describe('Authentication Verification', () => {
     it('should verify authentication successfully', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const authenticationResponse = {
         id: 'test-credential-id',
         rawId: 'dGVzdC1jcmVkZW50aWFsLWlk',
@@ -769,7 +769,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should reject authentication with invalid challenge', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const authenticationResponse = {
         id: 'test-credential-id',
         rawId: 'dGVzdC1jcmVkZW50aWFsLWlk',
@@ -820,7 +820,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should reject authentication with inactive credential', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const authenticationResponse = {
         id: 'test-credential-id',
         rawId: 'dGVzdC1jcmVkZW50aWFsLWlk',
@@ -894,7 +894,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should detect counter rollback attacks', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const authenticationResponse = {
         id: 'test-credential-id',
         rawId: 'dGVzdC1jcmVkZW50aWFsLWlk',
@@ -976,7 +976,7 @@ describe('WebAuthnService', () => {
 
   describe('Credential Management', () => {
     it('should get user credentials successfully', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
 
       mockSupabase.from.mockReturnValue({
         select: jest.fn(() => ({
@@ -1015,7 +1015,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should delete credential successfully', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const credentialId = 'cred-to-delete';
 
       mockSupabase.from.mockReturnValue({
@@ -1036,7 +1036,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should handle credential deletion errors', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const credentialId = 'cred-to-delete';
 
       mockSupabase.from.mockReturnValue({
@@ -1115,7 +1115,7 @@ describe('WebAuthnService', () => {
 
   describe('Security Features', () => {
     it('should enforce credential exclusion lists', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
       const userDisplayName = 'Test User';
 
@@ -1159,7 +1159,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should generate unique challenges', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
       const userDisplayName = 'Test User';
 
@@ -1189,7 +1189,7 @@ describe('WebAuthnService', () => {
     });
 
     it('should audit all WebAuthn operations', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
       const userDisplayName = 'Test User';
 

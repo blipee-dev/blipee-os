@@ -434,8 +434,8 @@ export class CoalGRI12Model extends IndustryModel {
 
     // Environmental score calculation
     const envScores = {
-      ghgIntensity: this.scoreGHGIntensity(data.ghg_intensity_coal),
-      methaneManagement: this.scoreMethaneManagement(data.methane_capture_rate),
+      ghgIntensity: this.scoreGHGIntensity(data['ghg_intensity_coal']),
+      methaneManagement: this.scoreMethaneManagement(data['methane_capture_rate']),
       landRehabilitation: this.scoreLandRehabilitation(data.land_rehabilitated, data.land_disturbed),
       wasteManagement: this.scoreWasteManagement(data.coal_ash_generated),
       waterProtection: this.scoreWaterProtection(data.acid_mine_drainage)
@@ -451,7 +451,7 @@ export class CoalGRI12Model extends IndustryModel {
 
     // Social score calculation
     const socialScores = {
-      safety: this.scoreSafety(data.fatality_rate_coal, data.injury_frequency_rate),
+      safety: this.scoreSafety(data['fatality_rate_coal'], data.injury_frequency_rate),
       healthProtection: this.scoreHealthProtection(data.coal_workers_pneumoconiosis),
       justTransition: this.scoreJustTransition(data.mine_closure_jobs),
       communitySupport: this.scoreCommunitySupport(data.community_investment),
@@ -707,16 +707,16 @@ export class CoalGRI12Model extends IndustryModel {
     }
 
     // Value validation
-    if (data.ghg_intensity_coal !== undefined && data.ghg_intensity_coal < 0) {
+    if (data['ghg_intensity_coal'] !== undefined && data['ghg_intensity_coal'] < 0) {
       errors.push('GHG intensity cannot be negative');
     }
 
-    if (data.methane_capture_rate !== undefined && (data.methane_capture_rate < 0 || data.methane_capture_rate > 100)) {
+    if (data['methane_capture_rate'] !== undefined && (data['methane_capture_rate'] < 0 || data['methane_capture_rate'] > 100)) {
       errors.push('Methane capture rate must be between 0 and 100%');
     }
 
     // Warnings
-    if (data.fatality_rate_coal > 0.15) {
+    if (data['fatality_rate_coal'] > 0.15) {
       warnings.push('Fatality rate is very high - immediate safety review required');
     }
 

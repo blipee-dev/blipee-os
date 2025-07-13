@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const organizationId = formData.get("organizationId") as string;
-    const userId = formData.get("userId") as string;
+    const _userId = formData.get("userId") as string;
     const generateMonthly = formData.get("generateMonthly") === "true";
 
     if (!file || !organizationId || !userId) {

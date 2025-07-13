@@ -54,7 +54,7 @@ async function handleGetAnalytics(request: NextRequest, context: any) {
     const loja = searchParams.get('loja');
     const startDate = searchParams.get('start_date');
     const endDate = searchParams.get('end_date');
-    const metricType = searchParams.get('metric_type') || 'all';
+    const _metricType = searchParams.get('metric_type') || 'all';
 
     if (!loja || !startDate || !endDate) {
       return NextResponse.json(

@@ -257,7 +257,7 @@ describe('A/B Testing Framework', () => {
     it('should consistently assign users to variants', async () => {
       console.log('🧪 Testing consistent user assignment...');
       
-      const userId = 'user_123';
+      const _userId = 'user_123';
       const sessionId = 'session_456';
       
       const request: ABTestRequest = {
@@ -291,7 +291,7 @@ describe('A/B Testing Framework', () => {
       
       // Simulate predictions for 200 different users
       for (let i = 0; i < 200; i++) {
-        const userId = `user_${i}`;
+        const _userId = `user_${i}`;
         const sessionId = `session_${i}`;
         
         const request: ABTestRequest = {
@@ -413,7 +413,7 @@ describe('A/B Testing Framework', () => {
       // Generate test data for both variants
       const predictions = [];
       for (let i = 0; i < 50; i++) {
-        const userId = `perf_user_${i}`;
+        const _userId = `perf_user_${i}`;
         const sessionId = `perf_session_${i}`;
         
         const request: ABTestRequest = {

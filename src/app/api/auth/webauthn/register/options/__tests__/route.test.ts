@@ -37,7 +37,7 @@ describe('POST /api/auth/webauthn/register/options', () => {
     const { generateRegistrationOptions } = require('@simplewebauthn/server');
     generateRegistrationOptions.mockResolvedValue(mockOptions);
 
-    const request = new NextRequest('http://localhost:3000/api/auth/webauthn/register/options', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/webauthn/register/options', {
       method: 'POST'
     });
 
@@ -55,7 +55,7 @@ describe('POST /api/auth/webauthn/register/options', () => {
       error: { message: 'Not authenticated' }
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/webauthn/register/options', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/webauthn/register/options', {
       method: 'POST'
     });
 

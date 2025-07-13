@@ -22,7 +22,7 @@ describe('Complete E2E User Journey', () => {
     });
 
     expect(signupRes.status).toBe(200);
-    const { user } = signupRes.data;
+    const { user: _user } = signupRes.data;
 
     // 2. User verifies email
     const verifyToken = await db.getEmailVerificationToken(user.id);

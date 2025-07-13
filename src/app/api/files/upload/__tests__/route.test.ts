@@ -36,7 +36,7 @@ describe('File Upload API', () => {
       const formData = new FormData();
       formData.append('file', new Blob(['test content']), 'test.pdf');
 
-      const request = new NextRequest('http://localhost:3000/api/files/upload', {
+      const _request = new NextRequest('http://localhost:3000/api/files/upload', {
         method: 'POST',
         body: formData
       });
@@ -57,7 +57,7 @@ describe('File Upload API', () => {
       const formData = new FormData();
       formData.append('file', new Blob(['test']), 'test.exe');
 
-      const request = new NextRequest('http://localhost:3000/api/files/upload', {
+      const _request = new NextRequest('http://localhost:3000/api/files/upload', {
         method: 'POST',
         body: formData
       });
@@ -76,7 +76,7 @@ describe('File Upload API', () => {
       const formData = new FormData();
       formData.append('file', largeFile, 'large.pdf');
 
-      const request = new NextRequest('http://localhost:3000/api/files/upload', {
+      const _request = new NextRequest('http://localhost:3000/api/files/upload', {
         method: 'POST',
         body: formData
       });

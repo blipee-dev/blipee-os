@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 
 describe('Retail Health API', () => {
   it('should return healthy status', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/health');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/health');
     const response = await GET(request);
     const data = await response.json();
 
@@ -16,7 +16,7 @@ describe('Retail Health API', () => {
   });
 
   it('should include timestamp', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/health');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/health');
     const response = await GET(request);
     const data = await response.json();
 

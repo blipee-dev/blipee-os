@@ -105,7 +105,7 @@ export class MonitoringService extends EventEmitter {
     this.alertRules.set(rule.id, rule);
     
     // Store in database
-    const { error } = await supabaseAdmin
+    const { error: _error } = await supabaseAdmin
       .from('alert_rules')
       .upsert({
         id: rule.id,
@@ -146,7 +146,7 @@ export class MonitoringService extends EventEmitter {
   async deleteAlertRule(ruleId: string): Promise<void> {
     this.alertRules.delete(ruleId);
     
-    const { error } = await supabaseAdmin
+    const { error: _error } = await supabaseAdmin
       .from('alert_rules')
       .delete()
       .eq('id', ruleId);
@@ -168,7 +168,7 @@ export class MonitoringService extends EventEmitter {
     }
     
     // Store in database
-    const { error } = await supabaseAdmin
+    const { error: _error } = await supabaseAdmin
       .from('security_events')
       .insert({
         id: event.id,
@@ -371,7 +371,7 @@ export class MonitoringService extends EventEmitter {
     this.notificationConfig = config;
     
     // Store in database
-    const { error } = await supabaseAdmin
+    const { error: _error } = await supabaseAdmin
       .from('notification_configs')
       .upsert({
         id: 'default',

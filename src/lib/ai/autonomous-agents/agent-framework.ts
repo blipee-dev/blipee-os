@@ -85,7 +85,7 @@ export abstract class AutonomousAgent {
     this.executionInterval = config.executionInterval || 3600000; // Default 1 hour
     this.supabase = createClient(
       process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env.SUPABASE_SERVICE_KEY! // Service key for autonomous operations
+      process.env['SUPABASE_SERVICE_KEY']! // Service key for autonomous operations
     );
   }
   

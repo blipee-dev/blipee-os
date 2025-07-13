@@ -51,7 +51,7 @@ describe('Organizations API', () => {
         error: null
       });
 
-      const request = new NextRequest('http://localhost:3000/api/organizations');
+      const _request = new NextRequest('http://localhost:3000/api/organizations');
       const response = await GET(request);
       const data = await response.json();
 
@@ -65,7 +65,7 @@ describe('Organizations API', () => {
         error: { message: 'Not authenticated' }
       });
 
-      const request = new NextRequest('http://localhost:3000/api/organizations');
+      const _request = new NextRequest('http://localhost:3000/api/organizations');
       const response = await GET(request);
 
       expect(response.status).toBe(401);
@@ -90,7 +90,7 @@ describe('Organizations API', () => {
         error: null
       });
 
-      const request = new NextRequest('http://localhost:3000/api/organizations', {
+      const _request = new NextRequest('http://localhost:3000/api/organizations', {
         method: 'POST',
         body: JSON.stringify({
           name: 'New Organization',
@@ -111,7 +111,7 @@ describe('Organizations API', () => {
         error: null
       });
 
-      const request = new NextRequest('http://localhost:3000/api/organizations', {
+      const _request = new NextRequest('http://localhost:3000/api/organizations', {
         method: 'POST',
         body: JSON.stringify({
           // Missing name

@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 
 describe('Retail Telegram Auth API', () => {
   it('should return error when missing required parameters', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/auth');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/auth');
     const response = await GET(request);
     const data = await response.json();
 
@@ -13,7 +13,7 @@ describe('Retail Telegram Auth API', () => {
 
   it('should return success with valid parameters', async () => {
     const url = 'http://localhost:3000/api/retail/v1/telegram/auth?telegram_user_id=123456&chat_id=789';
-    const request = new NextRequest(url);
+    const _request = new NextRequest(url);
     const response = await GET(request);
     const data = await response.json();
 
@@ -25,7 +25,7 @@ describe('Retail Telegram Auth API', () => {
 
   it('should return user data with permissions', async () => {
     const url = 'http://localhost:3000/api/retail/v1/telegram/auth?telegram_user_id=123456&chat_id=789';
-    const request = new NextRequest(url);
+    const _request = new NextRequest(url);
     const response = await GET(request);
     const data = await response.json();
 
@@ -35,7 +35,7 @@ describe('Retail Telegram Auth API', () => {
 
   it('should include stores access', async () => {
     const url = 'http://localhost:3000/api/retail/v1/telegram/auth?telegram_user_id=123456&chat_id=789';
-    const request = new NextRequest(url);
+    const _request = new NextRequest(url);
     const response = await GET(request);
     const data = await response.json();
 
@@ -46,7 +46,7 @@ describe('Retail Telegram Auth API', () => {
 
   it('should include session token', async () => {
     const url = 'http://localhost:3000/api/retail/v1/telegram/auth?telegram_user_id=123456&chat_id=789';
-    const request = new NextRequest(url);
+    const _request = new NextRequest(url);
     const response = await GET(request);
     const data = await response.json();
 
@@ -57,7 +57,7 @@ describe('Retail Telegram Auth API', () => {
 
   it('should handle invalid telegram user ID', async () => {
     const url = 'http://localhost:3000/api/retail/v1/telegram/auth?telegram_user_id=invalid&chat_id=789';
-    const request = new NextRequest(url);
+    const _request = new NextRequest(url);
     const response = await GET(request);
     const data = await response.json();
 

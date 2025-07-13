@@ -21,7 +21,7 @@ export async function withMonitoring(
     const statusCode = response.status;
     
     // Get user ID from session if available
-    const userId = response.headers.get('x-user-id') || undefined;
+    const _userId = response.headers.get('x-user-id') || undefined;
     
     await recordHttpRequest(
       method,

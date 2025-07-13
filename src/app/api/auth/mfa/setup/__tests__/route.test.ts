@@ -38,7 +38,7 @@ describe('POST /api/auth/mfa/setup', () => {
       otpauth_url: 'otpauth://totp/Test:test@example.com?secret=JBSWY3DPEHPK3PXP'
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {
       method: 'POST',
       body: JSON.stringify({ type: 'totp' })
     });
@@ -57,7 +57,7 @@ describe('POST /api/auth/mfa/setup', () => {
       error: null
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {
       method: 'POST',
       body: JSON.stringify({
         type: 'sms',
@@ -78,7 +78,7 @@ describe('POST /api/auth/mfa/setup', () => {
       error: { message: 'Not authenticated' }
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {
       method: 'POST',
       body: JSON.stringify({ type: 'totp' })
     });
@@ -93,7 +93,7 @@ describe('POST /api/auth/mfa/setup', () => {
       error: null
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {
       method: 'POST',
       body: JSON.stringify({ type: 'invalid' })
     });

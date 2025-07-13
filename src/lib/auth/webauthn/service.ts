@@ -507,7 +507,7 @@ export class WebAuthnService {
     credentialId: string,
     userId: string
   ): Promise<void> {
-    const { error } = await this.supabase
+    const { error: _error } = await this.supabase
       .from('webauthn_credentials')
       .delete()
       .eq('id', credentialId)
@@ -583,7 +583,7 @@ export class WebAuthnService {
   ): Promise<void> {
     const expiresAt = new Date(Date.now() + this.config.challengeTTL * 1000);
 
-    const { error } = await this.supabase
+    const { error: _error } = await this.supabase
       .from('webauthn_challenges')
       .insert({
         challenge,
@@ -633,7 +633,7 @@ export class WebAuthnService {
   }
 
   private async storeCredential(credential: Omit<WebAuthnCredential, 'id'>): Promise<void> {
-    const { error } = await this.supabase
+    const { error: _error } = await this.supabase
       .from('webauthn_credentials')
       .insert({
         user_id: credential.userId,
@@ -686,7 +686,7 @@ export class WebAuthnService {
   }
 
   private async updateCredentialCounter(credentialId: string, counter: number): Promise<void> {
-    const { error } = await this.supabase
+    const { error: _error } = await this.supabase
       .from('webauthn_credentials')
       .update({
         counter,

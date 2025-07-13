@@ -65,7 +65,7 @@ export interface CarbonInsight {
 }
 
 export class CarbonHunterAgent extends AutonomousAgent {
-  protected capabilities: AgentCapability[] = [
+  protected override capabilities: AgentCapability[] = [
     {
       name: 'hunt_carbon_opportunities',
       description: 'Identify carbon reduction opportunities',

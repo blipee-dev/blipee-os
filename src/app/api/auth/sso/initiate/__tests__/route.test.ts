@@ -24,7 +24,7 @@ describe('SSO Initiate API', () => {
         requestId: 'req123'
       });
 
-      const request = new NextRequest('http://localhost:3000/api/auth/sso/initiate', {
+      const _request = new NextRequest('http://localhost:3000/api/auth/sso/initiate', {
         method: 'POST',
         body: JSON.stringify({
           provider: 'saml',
@@ -45,7 +45,7 @@ describe('SSO Initiate API', () => {
         state: 'state123'
       });
 
-      const request = new NextRequest('http://localhost:3000/api/auth/sso/initiate', {
+      const _request = new NextRequest('http://localhost:3000/api/auth/sso/initiate', {
         method: 'POST',
         body: JSON.stringify({
           provider: 'oidc',
@@ -65,7 +65,7 @@ describe('SSO Initiate API', () => {
         domains: ['example.com', 'test.com']
       });
 
-      const request = new NextRequest('http://localhost:3000/api/auth/sso/initiate');
+      const _request = new NextRequest('http://localhost:3000/api/auth/sso/initiate');
       const response = await GET(request);
       const data = await response.json();
 

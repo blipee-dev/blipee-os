@@ -38,7 +38,7 @@ describe('middleware API', () => {
 
   describe('GET /api/gateway/middleware.ts', () => {
     it('should return 200 for valid requests', async () => {
-      const request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts');
+      const _request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts');
       const response = await GET(request);
       
       expect(response.status).toBe(200);
@@ -47,7 +47,7 @@ describe('middleware API', () => {
     });
 
     it('should handle query parameters', async () => {
-      const request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts?limit=10&offset=0');
+      const _request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts?limit=10&offset=0');
       const response = await GET(request);
       
       expect(response.status).toBe(200);
@@ -55,7 +55,7 @@ describe('middleware API', () => {
 
     it('should return 401 for unauthorized requests', async () => {
       // Mock unauthorized user
-      const request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts');
+      const _request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts');
       const response = await GET(request);
       
       expect(response.status).toBe(401);
@@ -63,7 +63,7 @@ describe('middleware API', () => {
 
     it('should handle errors gracefully', async () => {
       // Mock error scenario
-      const request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts');
+      const _request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts');
       const response = await GET(request);
       
       expect(response.status).toBe(500);
@@ -73,7 +73,7 @@ describe('middleware API', () => {
   describe('POST /api/gateway/middleware.ts', () => {
     it('should create resource successfully', async () => {
       const body = { /* test data */ };
-      const request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts', {
+      const _request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts', {
         method: 'POST',
         body: JSON.stringify(body),
       });
@@ -84,7 +84,7 @@ describe('middleware API', () => {
 
     it('should validate request body', async () => {
       const invalidBody = { /* invalid data */ };
-      const request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts', {
+      const _request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts', {
         method: 'POST',
         body: JSON.stringify(invalidBody),
       });
@@ -111,7 +111,7 @@ describe('middleware API', () => {
   describe('Performance', () => {
     it('should respond within acceptable time', async () => {
       const start = Date.now();
-      const request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts');
+      const _request = new NextRequest('http://localhost:3000/api/gateway/middleware.ts');
       await GET(request);
       const duration = Date.now() - start;
       

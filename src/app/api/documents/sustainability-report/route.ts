@@ -182,7 +182,7 @@ async function processExtractedData(
     }
 
     if (emissionsToInsert.length > 0) {
-      const { error } = await supabase
+      const { error: _error } = await supabase
         .from("emissions")
         .insert(emissionsToInsert);
 
@@ -270,7 +270,7 @@ async function processExtractedData(
     }
 
     if (metricsToInsert.length > 0) {
-      const { error } = await supabase
+      const { error: _error } = await supabase
         .from("esg_metrics")
         .insert(metricsToInsert);
 

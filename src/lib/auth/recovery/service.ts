@@ -268,7 +268,7 @@ export class AccountRecoveryService {
         JSON.stringify(securityQuestions)
       );
 
-      const { error } = await this.supabase
+      const { error: _error } = await this.supabase
         .from('user_profiles')
         .update({
           metadata: {

@@ -37,7 +37,7 @@ describe('POST /api/auth/signin', () => {
         error: null,
       });
 
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -62,7 +62,7 @@ describe('POST /api/auth/signin', () => {
         error: { message: 'Invalid login credentials' },
       });
 
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -84,7 +84,7 @@ describe('POST /api/auth/signin', () => {
         error: { message: 'MFA required', code: 'mfa_required' },
       });
 
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -103,7 +103,7 @@ describe('POST /api/auth/signin', () => {
 
   describe('Validation Tests', () => {
     it('should validate required fields', async () => {
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -113,7 +113,7 @@ describe('POST /api/auth/signin', () => {
     });
 
     it('should validate email format', async () => {
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -126,7 +126,7 @@ describe('POST /api/auth/signin', () => {
     });
 
     it('should enforce password minimum length', async () => {
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -149,7 +149,7 @@ describe('POST /api/auth/signin', () => {
     });
 
     it('should rate limit sign-in attempts', async () => {
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -216,7 +216,7 @@ describe('POST /api/auth/signin', () => {
         error: { message: 'Invalid login credentials' },
       });
 
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -243,7 +243,7 @@ describe('POST /api/auth/signin', () => {
         error: null,
       });
 
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -293,7 +293,7 @@ describe('POST /api/auth/signin', () => {
         new Error('Network error')
       );
 
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -310,7 +310,7 @@ describe('POST /api/auth/signin', () => {
     });
 
     it('should handle malformed JSON', async () => {
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: '{"email": "test@example.com", "password": }', // Invalid JSON
@@ -327,7 +327,7 @@ describe('POST /api/auth/signin', () => {
       const originalEnv = process.env['NODE_ENV'];
       process.env['NODE_ENV'] = 'production';
 
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

@@ -119,7 +119,7 @@ export function rateLimit(options?: RateLimitOptions) {
  */
 function getClientIdentifier(req: NextRequest): string {
   // Try to get authenticated user ID from headers (set by auth middleware)
-  const userId = req.headers.get('x-user-id');
+  const _userId = req.headers.get('x-user-id');
   if (userId) {
     return `user:${userId}`;
   }

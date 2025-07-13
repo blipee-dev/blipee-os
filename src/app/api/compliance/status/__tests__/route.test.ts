@@ -26,7 +26,7 @@ describe('GET /api/compliance/status', () => {
       overall: 'partial'
     });
 
-    const request = new NextRequest('http://localhost:3000/api/compliance/status');
+    const _request = new NextRequest('http://localhost:3000/api/compliance/status');
     const response = await GET(request);
     const data = await response.json();
 
@@ -42,7 +42,7 @@ describe('GET /api/compliance/status', () => {
       completed: ['data_mapping', 'privacy_policy']
     });
 
-    const request = new NextRequest('http://localhost:3000/api/compliance/status?type=gdpr');
+    const _request = new NextRequest('http://localhost:3000/api/compliance/status?type=gdpr');
     const response = await GET(request);
     const data = await response.json();
 

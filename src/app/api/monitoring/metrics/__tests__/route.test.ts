@@ -25,7 +25,7 @@ describe('Monitoring Metrics API', () => {
         requests: { total: 1234, rate: 12.5 }
       });
 
-      const request = new NextRequest('http://localhost:3000/api/monitoring/metrics');
+      const _request = new NextRequest('http://localhost:3000/api/monitoring/metrics');
       const response = await GET(request);
       const data = await response.json();
 
@@ -39,7 +39,7 @@ describe('Monitoring Metrics API', () => {
         cpu: { usage: 45.2 }
       });
 
-      const request = new NextRequest('http://localhost:3000/api/monitoring/metrics?type=cpu');
+      const _request = new NextRequest('http://localhost:3000/api/monitoring/metrics?type=cpu');
       const response = await GET(request);
       const data = await response.json();
 
@@ -52,7 +52,7 @@ describe('Monitoring Metrics API', () => {
     it('should record custom metrics', async () => {
       mockCollector.recordMetric.mockResolvedValue({ success: true });
 
-      const request = new NextRequest('http://localhost:3000/api/monitoring/metrics', {
+      const _request = new NextRequest('http://localhost:3000/api/monitoring/metrics', {
         method: 'POST',
         body: JSON.stringify({
           name: 'custom.metric',
@@ -71,7 +71,7 @@ describe('Monitoring Metrics API', () => {
     });
 
     it('should validate metric format', async () => {
-      const request = new NextRequest('http://localhost:3000/api/monitoring/metrics', {
+      const _request = new NextRequest('http://localhost:3000/api/monitoring/metrics', {
         method: 'POST',
         body: JSON.stringify({
           name: 'invalid metric name!',

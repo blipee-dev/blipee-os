@@ -132,7 +132,7 @@ export class WebhookService {
   static async deleteEndpoint(id: string, organizationId: string): Promise<void> {
     const supabase = await createServerSupabaseClient();
     
-    const { error } = await supabase
+    const { error: _error } = await supabase
       .from('webhook_endpoints')
       .delete()
       .eq('id', id)

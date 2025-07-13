@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 describe('Retail Telegram State API', () => {
   describe('GET endpoint', () => {
     it('should return error when missing telegram_user_id', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/state');
+      const _request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/state');
       const response = await GET(request);
       const data = await response.json();
 
@@ -14,7 +14,7 @@ describe('Retail Telegram State API', () => {
 
     it('should return user state with valid ID', async () => {
       const url = 'http://localhost:3000/api/retail/v1/telegram/state?telegram_user_id=123456';
-      const request = new NextRequest(url);
+      const _request = new NextRequest(url);
       const response = await GET(request);
       const data = await response.json();
 
@@ -25,7 +25,7 @@ describe('Retail Telegram State API', () => {
 
     it('should return correct state structure', async () => {
       const url = 'http://localhost:3000/api/retail/v1/telegram/state?telegram_user_id=123456';
-      const request = new NextRequest(url);
+      const _request = new NextRequest(url);
       const response = await GET(request);
       const data = await response.json();
 
@@ -38,7 +38,7 @@ describe('Retail Telegram State API', () => {
 
     it('should return default preferences', async () => {
       const url = 'http://localhost:3000/api/retail/v1/telegram/state?telegram_user_id=123456';
-      const request = new NextRequest(url);
+      const _request = new NextRequest(url);
       const response = await GET(request);
       const data = await response.json();
 
@@ -50,7 +50,7 @@ describe('Retail Telegram State API', () => {
 
   describe('POST endpoint', () => {
     it('should update user state', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/state', {
+      const _request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/state', {
         method: 'POST',
         body: JSON.stringify({
           telegram_user_id: '123456',
@@ -79,7 +79,7 @@ describe('Retail Telegram State API', () => {
     });
 
     it('should return error when missing telegram_user_id in POST', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/state', {
+      const _request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/state', {
         method: 'POST',
       });
 
@@ -96,7 +96,7 @@ describe('Retail Telegram State API', () => {
     });
 
     it('should merge preferences on update', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/state', {
+      const _request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/state', {
         method: 'POST',
         body: JSON.stringify({
           telegram_user_id: '123456',
@@ -127,7 +127,7 @@ describe('Retail Telegram State API', () => {
     it('should update last_active timestamp', async () => {
       const before = new Date().toISOString();
       
-      const request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/state', {
+      const _request = new NextRequest('http://localhost:3000/api/retail/v1/telegram/state', {
         method: 'POST',
         body: JSON.stringify({
           telegram_user_id: '123456',
