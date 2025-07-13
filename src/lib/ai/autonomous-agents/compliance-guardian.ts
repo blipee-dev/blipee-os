@@ -792,8 +792,8 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
   private prioritizeIssues(issues: any[]): any[] {
     // Sort by severity and effort
     return issues.sort((a, b) => {
-      const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-      return severityOrder[b.severity] - severityOrder[a.severity];
+      const severityOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+      return (severityOrder[b.severity] || 0) - (severityOrder[a.severity] || 0);
     });
   }
 
