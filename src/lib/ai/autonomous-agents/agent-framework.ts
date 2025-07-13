@@ -143,7 +143,7 @@ export abstract class AutonomousAgent {
   abstract learn(result: AgentResult): Promise<void>;
   
   // Optional methods that agents can override
-  protected async initialize?(): Promise<void>;
+  public async initialize?(): Promise<void>;
   protected async logResult?(taskId: string, result: AgentResult): Promise<void>;
   protected async logError?(taskId: string, error: Error, executionTime: number): Promise<void>;
   protected async storePattern?(patternType: string, patterns: any, confidence: number, metadata: any): Promise<void>;

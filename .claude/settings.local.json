@@ -92,7 +92,13 @@
       "Bash(vercel:*)",
       "Bash(./update-telegram-webhook.sh:*)",
       "Bash(PGPASSWORD=vkS1yz3A8tH3jvnp npx supabase db push --password vkS1yz3A8tH3jvnp)",
-      "Bash(/workspaces/blipee-os/verify-deployment.sh:*)"
+      "Bash(/workspaces/blipee-os/verify-deployment.sh:*)",
+      "Bash(timeout 120 npm run build)",
+      "Bash(awk:*)",
+      "Bash(/workspaces/blipee-os/scripts/generate-array-fixes.sh:*)",
+      "Bash(/tmp/array-fixes/fix-autonomous-agents-errors.sh:*)",
+      "Bash(/tmp/array-fixes/fix-remaining-errors.sh:*)",
+      "Bash(/tmp/array-fixes/final-fixes.sh:*)"
     ],
     "deny": []
   }

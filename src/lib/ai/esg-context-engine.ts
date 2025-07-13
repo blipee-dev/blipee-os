@@ -1,5 +1,5 @@
-import { Message } from "@/types/conversation";
-import { createClient } from "@/lib/supabase/client";
+import { Message } from "../../types/conversation";
+import { createClient } from "../supabase/client";
 
 interface ESGEnrichedContext {
   organization: OrganizationContext;
