@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     // Get current session
-    const sessionData = await sessionManager.getSession(_request);
+    const sessionData = await sessionManager.getSession(request);
     if (!sessionData) {
       return NextResponse.json(
         { error: 'Not authenticated' },
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Get current session
-    const sessionData = await sessionManager.getSession(_request);
+    const sessionData = await sessionManager.getSession(request);
     if (!sessionData) {
       return NextResponse.json(
         { error: 'Not authenticated' },

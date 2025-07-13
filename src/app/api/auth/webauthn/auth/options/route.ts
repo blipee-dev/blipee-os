@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Generate authentication options
     const options = await webAuthnService.generateAuthenticationOptions(
-      _request,
+      request,
       userId,
       {
         allowCredentials,

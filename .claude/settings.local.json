@@ -128,7 +128,8 @@
       "Bash(./fix-final-batch.sh:*)",
       "Bash(./fix-request-refs.sh:*)",
       "Bash(./fix-ml-models.sh:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(./fix-optional-props.sh:*)"
     ],
     "deny": []
   }

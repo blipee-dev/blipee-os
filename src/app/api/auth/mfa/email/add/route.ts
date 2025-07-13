@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current user
-    const user = await getCurrentUser(_request);
+    const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Get current user
-    const user = await getCurrentUser(_request);
+    const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },

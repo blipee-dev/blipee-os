@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   // Some IdPs may use GET for the callback
   return NextResponse.json(
     { error: "Method not allowed. Please use POST." },

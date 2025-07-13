@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { webAuthnService } from '@/lib/auth/webauthn/service';
 import { createClient } from '@/lib/supabase/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -58,7 +58,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete credential
-    await webAuthnService.deleteCredential(_request, credentialId, user.id);
+    await webAuthnService.deleteCredential(request, credentialId, user.id);
 
     return NextResponse.json({
       success: true,

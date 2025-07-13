@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       recoveryRequest.adminUserId = validated.adminUserId;
     }
     
-    const result = await recoveryService.initiateRecovery(_request, recoveryRequest);
+    const result = await recoveryService.initiateRecovery(request, recoveryRequest);
     
     return NextResponse.json({
       success: result.success,

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // Generate registration options
     const options = await webAuthnService.generateRegistrationOptions(
-      _request,
+      request,
       user.id,
       user.email || '',
       displayName,

@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Verify authentication
     const result = await webAuthnService.verifyAuthentication(
-      _request,
+      request,
       authenticationResponse,
       userId
     );
