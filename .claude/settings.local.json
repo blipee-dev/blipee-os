@@ -98,7 +98,23 @@
       "Bash(/workspaces/blipee-os/scripts/generate-array-fixes.sh:*)",
       "Bash(/tmp/array-fixes/fix-autonomous-agents-errors.sh:*)",
       "Bash(/tmp/array-fixes/fix-remaining-errors.sh:*)",
-      "Bash(/tmp/array-fixes/final-fixes.sh:*)"
+      "Bash(/tmp/array-fixes/final-fixes.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-process-env.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-optional-types.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-unused-vars.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-undefined-objects.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-optional-chaining.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-syntax-errors.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-exclamation-marks.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-remaining-syntax.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-array-syntax.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-final-syntax.sh:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(/workspaces/blipee-os/scripts/fix-webhook-syntax.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-validation-schemas.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-remaining-auth-syntax.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-global-syntax.sh:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }
