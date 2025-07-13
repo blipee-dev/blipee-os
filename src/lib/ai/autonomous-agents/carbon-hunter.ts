@@ -386,7 +386,7 @@ export class CarbonHunterAgent extends AutonomousAgent {
 
     // Run anomaly detection algorithms
     for (const [source, data] of Object.entries(emissionData)) {
-      const sourceAnomalies = await this.runAnomalyDetection(source, data, sensitivity);
+      const sourceAnomalies = await this.runAnomalyDetection(source, data as any[], sensitivity);
       anomalies.push(...sourceAnomalies);
     }
 
@@ -913,10 +913,10 @@ export class CarbonHunterAgent extends AutonomousAgent {
     
     if (anomalies.length === 0) return insights;
 
-    const byType = anomalies.reduce((acc, a) => {
+    const byType: Record<string, number> = anomalies.reduce((acc, a) => {
       acc[a.anomaly_type] = (acc[a.anomaly_type] || 0) + 1;
       return acc;
-    }, {});
+    }, {} as Record<string, number>);
 
     const mostCommonType = Object.entries(byType).sort(([,a], [,b]) => b - a)[0];
     insights.push(`Most common anomaly type: ${mostCommonType[0]} (${mostCommonType[1]} occurrences)`);
