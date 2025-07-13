@@ -1124,7 +1124,7 @@ export class SelfImprovementEngine extends AutonomousAgent {
     let modificationsApproved = 0;
 
     // Assess potential self-modifications
-    for (const modificationType of Array.from(modificationTypes)) {
+    for (const modificationType of Array.from(modificationTypes) as string[]) {
       const modifications = await this.identifyPotentialModifications(modificationType);
       modificationsProposed += modifications.length;
 
@@ -1456,7 +1456,7 @@ export class SelfImprovementEngine extends AutonomousAgent {
       capability_id: `cap-${Date.now()}`,
       capability_name: gap.capability_name,
       description: gap.description,
-      acquisition_method: methods[0],
+      acquisition_method: methods[0] as "composition" | "transfer" | "learning" | "imitation" | "evolution",
       learning_trajectory: {
         trajectory_id: 'traj-1',
         learning_phases: [],

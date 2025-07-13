@@ -83,15 +83,6 @@ export interface SupplierFinding {
 }
 
 export class SupplyChainInvestigatorAgent extends AutonomousAgent {
-  protected capabilities: AgentCapability[] = [
-    'investigate_supply_chain',
-    'map_supplier_emissions',
-    'assess_supplier_sustainability',
-    'identify_supply_chain_risks',
-    'discover_scope3_sources',
-    'optimize_supplier_network'
-  ];
-
   protected supplierProfiles: Map<string, SupplierProfile> = new Map();
   protected emissionCategories: Map<string, any> = new Map();
   protected riskAssessmentRules: any[] = [];
