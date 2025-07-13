@@ -104,7 +104,7 @@ export class AgentPermissionSystem {
     }
     
     // Convert capabilities to permissions
-    const permissions = this.capabilitiesToPermissions(config.capabilities);
+    const permissions = this.capabilitiesToPermissions(config.capabilities as AgentCapability[]);
     
     const matrix: PermissionMatrix = {
       agentId,

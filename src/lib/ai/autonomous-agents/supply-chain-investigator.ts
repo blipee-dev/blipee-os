@@ -104,7 +104,9 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
   }
 
   async initialize(): Promise<void> {
-    await super.initialize();
+    if (super.initialize) {
+      await super.initialize();
+    }
     await this.loadSupplierProfiles();
     await this.setupEmissionCategories();
     await this.loadRiskAssessmentRules();
@@ -268,12 +270,16 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
 
       result.executionTimeMs = Date.now() - startTime;
       
-      await this.logResult(task.id, result);
+      if (this.logResult) {
+        await this.logResult(task.id, result);
+      }
       return result;
 
     } catch (error) {
       const executionTime = Date.now() - startTime;
-      await this.logError(task.id, error as Error, executionTime);
+      if (this.logError) {
+        await this.logError(task.id, error as Error, executionTime);
+      }
       
       return {
         success: false,
@@ -540,10 +546,12 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
       risks_identified_rate: result.metadata?.total_risks || 0
     };
 
-    await this.storePattern('supply_chain_investigation', patterns, 0.9, {
-      timestamp: new Date().toISOString(),
-      task_type: 'supply_chain_investigator_task'
-    });
+    if (this.storePattern) {
+      await this.storePattern('supply_chain_investigation', patterns, 0.9, {
+        timestamp: new Date().toISOString(),
+        task_type: 'supply_chain_investigator_task'
+      });
+    }
 
   }
 

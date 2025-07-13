@@ -305,7 +305,7 @@ export class AgentErrorHandler {
   // Retry task with backoff
   private async retryTask(
     agent: AutonomousAgent,
-    task: AgentTask,
+    task: AgentTask | undefined,
     strategy: RecoveryStrategy
   ): Promise<boolean> {
     if (!task || !strategy.maxRetries) return false;

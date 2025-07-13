@@ -310,16 +310,16 @@ export class AgentLearningSystem {
       
     if (!data) return [];
     
-    return data.map(p => ({
-      id: p.id,
-      pattern: p.pattern,
+    return data.map((p: any) => ({
+      id: p.id as string,
+      pattern: p.pattern as string,
       context: p.context,
       outcomes: p.outcomes,
-      confidence: p.confidence,
-      applicableTo: p.applicable_to,
+      confidence: p.confidence as number,
+      applicableTo: p.applicable_to as string[],
       createdAt: new Date(p.created_at),
       lastUsed: new Date(p.last_used),
-      useCount: p.use_count
+      useCount: p.use_count as number
     }));
   }
   
@@ -342,8 +342,8 @@ export class AgentLearningSystem {
       if (existing) {
         // Update existing pattern
         const newConfidence = this.calculateNewConfidence(
-          existing.confidence,
-          existing.use_count,
+          existing.confidence as number,
+          existing.use_count as number,
           pattern.outcomes[0].success
         );
         
@@ -351,11 +351,11 @@ export class AgentLearningSystem {
           .from('agent_patterns')
           .update({
             confidence: newConfidence,
-            use_count: existing.use_count + 1,
+            use_count: (existing.use_count as number) + 1,
             last_used: new Date().toISOString(),
-            outcomes: [...existing.outcomes, pattern.outcomes[0]]
+            outcomes: [...(existing.outcomes as any[]), pattern.outcomes[0]]
           })
-          .eq('id', existing.id);
+          .eq('id', existing.id as string);
       } else {
         // Create new pattern
         await this.supabase
@@ -462,7 +462,7 @@ export class AgentLearningSystem {
     const firstContext = outcomes[0].context;
     for (const key of Object.keys(firstContext)) {
       const values = outcomes.map(o => o.context[key]);
-      const uniqueValues = [...new Set(values)];
+      const uniqueValues = Array.from(new Set(values));
       
       if (uniqueValues.length === 1) {
         factors[key] = uniqueValues[0];

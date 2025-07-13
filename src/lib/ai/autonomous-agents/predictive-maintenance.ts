@@ -294,7 +294,9 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
   }
 
   async initialize(): Promise<void> {
-    await super.initialize();
+    if (super.initialize) {
+      await super.initialize();
+    }
     await this.loadEquipmentRegistry();
     await this.loadPredictiveModels();
     await this.initializeIoTIntegration();
@@ -419,12 +421,16 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
       }
 
       result.executionTimeMs = Date.now() - startTime;
-      await this.logResult(task.id, result);
+      if (this.logResult) {
+        await this.logResult(task.id, result);
+      }
       return result;
 
     } catch (error) {
       const executionTime = Date.now() - startTime;
-      await this.logError(task.id, error as Error, executionTime);
+      if (this.logError) {
+        await this.logError(task.id, error as Error, executionTime);
+      }
 
       return {
         taskId: task.id,
@@ -738,10 +744,12 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
       equipment_monitored: result.metadata?.equipment_monitored || 0
     };
 
-    await this.storePattern('predictive_maintenance', patterns, 0.92, {
-      timestamp: new Date().toISOString(),
-      task_type: 'predictive_maintenance_task'
-    });
+    if (this.storePattern) {
+      await this.storePattern('predictive_maintenance', patterns, 0.92, {
+        timestamp: new Date().toISOString(),
+        task_type: 'predictive_maintenance_task'
+      });
+    }
 
   }
 
