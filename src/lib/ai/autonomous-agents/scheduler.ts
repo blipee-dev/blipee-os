@@ -45,7 +45,7 @@ export class TaskScheduler {
     if (!tasks || tasks.length === 0) return;
     
     // Schedule each task
-    for (const task of Array.from(tasks)) {
+    for (const task of Array.from(tasks) as any[]) {
       await this.scheduleTask({
         id: task.id,
         agentId: task.agent_id,
@@ -286,15 +286,15 @@ export class TaskScheduler {
     }
     
     const scheduledTask: ScheduledTask = {
-      id: data.id,
-      agentId: data.agent_id,
-      organizationId: data.organization_id,
-      taskType: data.task_type,
-      schedulePattern: data.schedule_pattern,
-      priority: data.priority,
+      id: data.id as string,
+      agentId: data.agent_id as string,
+      organizationId: data.organization_id as string,
+      taskType: data.task_type as string,
+      schedulePattern: data.schedule_pattern as string,
+      priority: data.priority as 'low' | 'medium' | 'high' | 'critical',
       data: data.data,
-      requiresApproval: data.requires_approval,
-      enabled: data.enabled
+      requiresApproval: data.requires_approval as boolean,
+      enabled: data.enabled as boolean
     };
     
     // Schedule the task
@@ -334,17 +334,17 @@ export class TaskScheduler {
         
       if (data) {
         await this.scheduleTask({
-          id: data.id,
-          agentId: data.agent_id,
-          organizationId: data.organization_id,
-          taskType: data.task_type,
-          schedulePattern: data.schedule_pattern,
-          priority: data.priority,
+          id: data.id as string,
+          agentId: data.agent_id as string,
+          organizationId: data.organization_id as string,
+          taskType: data.task_type as string,
+          schedulePattern: data.schedule_pattern as string,
+          priority: data.priority as 'low' | 'medium' | 'high' | 'critical',
           data: data.data,
-          requiresApproval: data.requires_approval,
-          enabled: data.enabled,
-          lastRun: data.last_run ? new Date(data.last_run) : undefined,
-          nextRun: data.next_run ? new Date(data.next_run) : undefined
+          requiresApproval: data.requires_approval as boolean,
+          enabled: data.enabled as boolean,
+          lastRun: data.last_run ? new Date(data.last_run as string) : undefined,
+          nextRun: data.next_run ? new Date(data.next_run as string) : undefined
         });
       }
     }

@@ -477,10 +477,13 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
         actions.push({
           type: 'equipment_health_degraded',
           description: `Equipment ${equipment.name} health score: ${healthCheck.health_score}%`,
-          equipmentId: equipment.id,
-          healthScore: healthCheck.health_score,
-          issues: healthCheck.issues,
-          timestamp: new Date().toISOString()
+          impact: {
+            equipmentId: equipment.id,
+            healthScore: healthCheck.health_score,
+            issues: healthCheck.issues,
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
 
@@ -494,10 +497,13 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
             actions.push({
               type: 'critical_anomaly_detected',
               description: `${anomaly.type} anomaly in ${equipment.name}`,
-              equipmentId: equipment.id,
-              anomalyId: anomaly.anomaly_id,
-              severity: anomaly.severity,
-              timestamp: new Date().toISOString()
+              impact: {
+                equipmentId: equipment.id,
+                anomalyId: anomaly.anomaly_id,
+                severity: anomaly.severity,
+                timestamp: new Date().toISOString()
+              },
+              reversible: false
             });
           }
         }
@@ -548,11 +554,14 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
           actions.push({
             type: 'imminent_failure_predicted',
             description: `Failure predicted for ${equipment.name} in ${prediction.time_to_failure_days} days`,
-            equipmentId: equipment.id,
-            predictionId: prediction.prediction_id,
-            timeToFailure: prediction.time_to_failure_days,
-            confidence: prediction.confidence_score,
-            timestamp: new Date().toISOString()
+            impact: {
+              equipmentId: equipment.id,
+              predictionId: prediction.prediction_id,
+              timeToFailure: prediction.time_to_failure_days,
+              confidence: prediction.confidence_score,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
 
@@ -563,9 +572,12 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
             actions.push({
               type: 'high_value_prevention_opportunity',
               description: `Preventive maintenance could save $${costAnalysis.cost_savings_from_prevention.toLocaleString()}`,
-              equipmentId: equipment.id,
-              costSavings: costAnalysis.cost_savings_from_prevention,
-              timestamp: new Date().toISOString()
+              impact: {
+                equipmentId: equipment.id,
+                costSavings: costAnalysis.cost_savings_from_prevention,
+                timestamp: new Date().toISOString()
+              },
+              reversible: false
             });
           }
         }
@@ -630,9 +642,12 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
       actions.push({
         type: 'schedule_optimization_completed',
         description: `Maintenance schedule optimized with $${costSavings.toLocaleString()} savings`,
-        costSavings,
-        efficiencyGain,
-        timestamp: new Date().toISOString()
+        impact: {
+          costSavings,
+          efficiencyGain,
+          timestamp: new Date().toISOString()
+        },
+        reversible: false
       });
     }
 
@@ -665,14 +680,17 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     const excesses = inventoryAnalysis.excess_inventory;
     const reorderRecommendations = inventoryAnalysis.reorder_recommendations;
 
-    for (const shortage of Array.from(shortages)) {
+    for (const shortage of Array.from(shortages) as any[]) {
       actions.push({
         type: 'inventory_shortage_predicted',
         description: `Low inventory for ${shortage.part_name}`,
-        partId: shortage.part_id,
-        currentStock: shortage.current_stock,
-        recommendedOrder: shortage.recommended_order_quantity,
-        timestamp: new Date().toISOString()
+        impact: {
+          partId: shortage.part_id,
+          currentStock: shortage.current_stock,
+          recommendedOrder: shortage.recommended_order_quantity,
+          timestamp: new Date().toISOString()
+        },
+        reversible: false
       });
     }
 
@@ -718,10 +736,13 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
           actions.push({
             type: 'model_performance_improved',
             description: `Model ${model.model_id} accuracy improved from ${(model.accuracy_score * 100).toFixed(1)}% to ${(retrainingResult.new_accuracy * 100).toFixed(1)}%`,
-            modelId: model.model_id,
-            oldAccuracy: model.accuracy_score,
-            newAccuracy: retrainingResult.new_accuracy,
-            timestamp: new Date().toISOString()
+            impact: {
+              modelId: model.model_id,
+              oldAccuracy: model.accuracy_score,
+              newAccuracy: retrainingResult.new_accuracy,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
       }
