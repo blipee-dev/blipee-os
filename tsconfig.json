@@ -24,5 +24,16 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "scripts/**/*", "projects/**/*"]
+  "exclude": [
+    "node_modules",
+    "scripts/**/*",
+    "projects/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/__tests__/**/*",
+    "src/test/**/*",
+    "cypress/**/*"
+  ]
 }
