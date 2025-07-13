@@ -7,7 +7,7 @@
  */
 
 import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult, AgentCapability } from './agent-framework';
+import { AgentTask, AgentResult, AgentCapability, ExecutedAction } from './agent-framework';
 import { createClient } from '@supabase/supabase-js';
 
 export interface ComplianceFramework {
@@ -104,7 +104,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
   constructor(organizationId: string) {
     super(organizationId, {
       agentId: 'compliance-guardian',
-      capabilities: [],
+      capabilities: [] as AgentCapability[],
       maxAutonomyLevel: 4, // High autonomy for compliance monitoring
       executionInterval: 3600000 // Run every hour for compliance checks
     });
@@ -242,10 +242,10 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
       return {
         taskId: task.id,
         success: false,
-        actions: [],
+        actions: [] as ExecutedAction[],
         insights: [`Error: ${(error as Error).message}`],
         nextSteps: ['Review compliance monitoring configuration', 'Check data availability'],
-        learnings: []
+        learnings: [] as any[]
       };
     }
   }
@@ -253,8 +253,8 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
   private async monitorCompliance(task: AgentTask): Promise<AgentResult> {
     const frameworks = task.data.frameworks || Array.from(this.complianceFrameworks.keys());
     const alerts: ComplianceAlert[] = [];
-    const actions = [];
-    const insights = [];
+    const actions: ExecutedAction[] = [];
+    const insights: string[] = [];
 
     // Check each framework for compliance status
     for (const frameworkId of frameworks) {
@@ -327,9 +327,9 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
 
   private async validateData(task: AgentTask): Promise<AgentResult> {
     const frameworks = task.data.frameworks || ['GRI', 'TCFD'];
-    const validationResults = [];
-    const actions = [];
-    const insights = [];
+    const validationResults: any[] = [];
+    const actions: ExecutedAction[] = [];
+    const insights: string[] = [];
 
     for (const frameworkId of frameworks) {
       const framework = this.complianceFrameworks.get(frameworkId);
@@ -388,8 +388,8 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     const urgentDeadlines = upcomingDeadlines.filter(d => d.daysUntilDue <= urgentThreshold);
     const overdueDeadlines = upcomingDeadlines.filter(d => d.daysUntilDue < 0);
 
-    const actions = [];
-    const insights = [];
+    const actions: ExecutedAction[] = [];
+    const insights: string[] = [];
 
     // Handle overdue deadlines
     if (overdueDeadlines.length > 0) {
@@ -497,9 +497,9 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     // Simulate framework update detection
     // In real implementation, this would check official sources
     const sources = task.data.checkSources || ['GRI', 'TCFD', 'SASB'];
-    const updates = [];
-    const actions = [];
-    const insights = [];
+    const updates: any[] = [];
+    const actions: ExecutedAction[] = [];
+    const insights: string[] = [];
 
     // Mock framework updates
     const mockUpdates = [
@@ -568,7 +568,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
         description: issue.actionRequired,
         priority: issue.severity,
         estimatedEffort: issue.estimatedEffort,
-        dependencies: [],
+        dependencies: [] as string[],
         assignee: 'Sustainability Team'
       };
 
@@ -628,16 +628,16 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
         id: 'GRI',
         name: 'Global Reporting Initiative',
         version: '2023',
-        requirements: [],
-        reportingDeadlines: [],
+        requirements: [] as ComplianceRequirement[],
+        reportingDeadlines: [] as ReportingDeadline[],
         lastUpdated: new Date().toISOString()
       },
       {
         id: 'TCFD',
         name: 'Task Force on Climate-related Financial Disclosures',
         version: '2023',
-        requirements: [],
-        reportingDeadlines: [],
+        requirements: [] as ComplianceRequirement[],
+        reportingDeadlines: [] as ReportingDeadline[],
         lastUpdated: new Date().toISOString()
       }
     ];
@@ -667,14 +667,14 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
 
   private async checkDataCompleteness(framework: ComplianceFramework): Promise<string[]> {
     // Mock implementation - in real version, check actual data
-    return Math.random() > 0.7 ? ['scope3_emissions', 'water_consumption'] : [];
+    return Math.random() > 0.7 ? ['scope3_emissions', 'water_consumption'] : [] as string[];
   }
 
   private async runValidationChecks(framework: ComplianceFramework): Promise<any[]> {
     // Mock validation errors
     return Math.random() > 0.8 ? [
       { field: 'scope1_emissions', error: 'Value must be positive' }
-    ] : [];
+    ] : [] as any[];
   }
 
   private calculateComplianceScore(frameworkCount: number, alertCount: number): number {
