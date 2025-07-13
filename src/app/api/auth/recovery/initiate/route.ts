@@ -19,9 +19,9 @@ const initiateRecoverySchema = z.object({
   adminUserId: z.string().uuid().optional(),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await _request.json();
     
     // Validate input
     const validated = initiateRecoverySchema.parse(body);
@@ -29,14 +29,23 @@ export async function POST(request: NextRequest) {
     // Get recovery service
     const recoveryService = getRecoveryService();
     
-    // Initiate recovery
-    const result = await recoveryService.initiateRecovery(request, {
+    // Initiate recovery - only include properties that have values
+    const recoveryRequest: any = {
       email: validated.email,
       method: validated.method,
-      securityAnswers: validated.securityAnswers,
-      backupCode: validated.backupCode,
-      adminUserId: validated.adminUserId,
-    });
+    };
+    
+    if (validated.securityAnswers) {
+      recoveryRequest.securityAnswers = validated.securityAnswers;
+    }
+    if (validated.backupCode) {
+      recoveryRequest.backupCode = validated.backupCode;
+    }
+    if (validated.adminUserId) {
+      recoveryRequest.adminUserId = validated.adminUserId;
+    }
+    
+    const result = await recoveryService.initiateRecovery(_request, recoveryRequest);
     
     return NextResponse.json({
       success: result.success,

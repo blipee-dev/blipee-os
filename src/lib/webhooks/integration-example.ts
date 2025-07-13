@@ -301,7 +301,7 @@ async function addTeamMember(data: any) {
   return { id: 'user-1', ...data, created_at: new Date().toISOString() };
 }
 
-async function performSystemMaintenance(data: any) {
+async function performSystemMaintenance() {
   // Implementation would go here
   return Promise.resolve();
 }
@@ -317,7 +317,7 @@ export function createWebhookEndpointExample() {
 // Example webhook endpoint that receives events from blipee OS
 import { WebhookVerifier } from '@/lib/webhooks/webhook-verifier';
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   const payload = await request.text();
   const signature = request.headers.get('X-Blipee-Signature');
   const eventType = request.headers.get('X-Blipee-Event');
@@ -385,7 +385,7 @@ export function integrateWebhooksInAPIRoute() {
 import { eventPublisher } from '@/lib/webhooks/event-publisher';
 import { WebhookEventType } from '@/types/webhooks';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const data = await request.json();
   
   // Create building logic...

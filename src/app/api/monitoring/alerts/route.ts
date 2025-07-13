@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { monitoringService } from '@/lib/monitoring';
 import { AlertSeverity, AlertChannel } from '@/lib/monitoring/types';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(_request.url);
     const severity = searchParams.get('severity') as AlertSeverity | null;
     const severityFilter = severity || undefined;
     const limit = parseInt(searchParams.get('limit') || '50');
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = await _request.json();
     const { type, rule, alert } = body;
 
     switch (type) {

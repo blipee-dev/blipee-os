@@ -1,11 +1,11 @@
 import { createClient } from 'graphql-ws';
 
 // GraphQL endpoint URL
-const GRAPHQL_ENDPOINT = process.env.NODE_ENV === 'production' 
+const GRAPHQL_ENDPOINT = process.env['NODE_ENV'] === 'production' 
   ? 'https://your-domain.com/api/graphql'
   : 'http://localhost:3000/api/graphql';
 
-const WS_ENDPOINT = process.env.NODE_ENV === 'production'
+const WS_ENDPOINT = process.env['NODE_ENV'] === 'production'
   ? 'wss://your-domain.com/api/graphql'
   : 'ws://localhost:3000/api/graphql';
 

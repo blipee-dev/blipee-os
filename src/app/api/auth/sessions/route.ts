@@ -7,10 +7,10 @@ export const dynamic = 'force-dynamic';
 /**
  * GET /api/auth/sessions - Get all active sessions for current user
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get current session
-    const sessionData = await sessionManager.getSession(request);
+    const sessionData = await sessionManager.getSession(_request);
     if (!sessionData) {
       return NextResponse.json(
         { error: 'Not authenticated' },
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const sessions = await sessionAuth.getUserSessions(sessionData.userId);
     
     // Mark current session
-    const cookieHeader = request.headers.get('cookie');
+    const cookieHeader = _request.headers.get('cookie');
     const currentSessionId = sessionManager['sessionService'].parseSessionCookie(cookieHeader);
     
     const sessionsWithCurrent = sessions.map(session => ({
@@ -52,10 +52,10 @@ export async function GET(request: NextRequest) {
 /**
  * DELETE /api/auth/sessions - Terminate a specific session or all sessions
  */
-export async function DELETE(request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     // Get current session
-    const sessionData = await sessionManager.getSession(request);
+    const sessionData = await sessionManager.getSession(_request);
     if (!sessionData) {
       return NextResponse.json(
         { error: 'Not authenticated' },
@@ -63,13 +63,13 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(_request.url);
     const sessionId = searchParams.get('sessionId');
     const all = searchParams.get('all') === 'true';
 
     if (all) {
       // Terminate all sessions except current
-      const cookieHeader = request.headers.get('cookie');
+      const cookieHeader = _request.headers.get('cookie');
       const currentSessionId = sessionManager['sessionService'].parseSessionCookie(cookieHeader);
       
       const sessions = await sessionManager.getUserSessions(sessionData.userId);

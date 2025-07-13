@@ -85,7 +85,7 @@ class BenchmarkTestModel extends BaseModel {
 
   async evaluate(data: any): Promise<any> {
     return {
-      accuracy: this.accuracyTarget,
+      accuracy: this.accuracy,
       precision: this.accuracyTarget * 0.95,
       recall: this.accuracyTarget * 0.9,
       f1Score: this.accuracyTarget * 0.92,
@@ -95,7 +95,7 @@ class BenchmarkTestModel extends BaseModel {
 
   isTrained(): boolean { return true; }
   setParameters(params: any): void {}
-  getParameters(): any { return { latencyTarget: this.latencyTarget, accuracyTarget: this.accuracyTarget }; }
+  getParameters(): any { return { latencyTarget: this.latency, accuracyTarget: this.accuracyTarget }; }
   getConfig(): any { return { name: 'benchmark_test_model' }; }
   getModelName(): string { return 'benchmark_test_model'; }
 }

@@ -15,7 +15,7 @@ const schema = makeExecutableSchema({
 // Create Apollo Server instance
 const server = new ApolloServer({
   schema,
-  introspection: process.env.NODE_ENV !== 'production',
+  introspection: process.env['NODE_ENV'] !== 'production',
   plugins: [
     // Add plugins for logging, caching, etc.
     {

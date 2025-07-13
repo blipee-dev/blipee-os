@@ -4,21 +4,21 @@ import { sessionManager } from '@/lib/session/manager';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication and permissions
-    const sessionCookie = request.cookies.get('blipee-session');
+    const sessionCookie = _request.cookies.get('blipee-session');
     if (!sessionCookie) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const validation = await sessionManager.validateSession(request, ['audit:read']);
+    const validation = await sessionManager.validateSession(_request, ['audit:read']);
     if (!validation.valid) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Parse query parameters
-    const searchParams = request.nextUrl.searchParams;
+    const searchParams = _request.nextUrl.searchParams;
     const timeRange = {
       start: searchParams.get('startDate') 
         ? new Date(searchParams.get('startDate')!) 

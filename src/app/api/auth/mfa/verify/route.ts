@@ -3,8 +3,6 @@ import { MFAService } from '@/lib/auth/mfa/service';
 import { sessionAuth } from '@/lib/auth/session-auth';
 import { sessionManager } from '@/lib/session/manager';
 import { z } from 'zod';
-import { cookies } from 'next/headers';
-import crypto from 'crypto';
 
 const verifySchema = z.object({
   challengeId: z.string().uuid(),
@@ -13,10 +11,10 @@ const verifySchema = z.object({
   rememberDevice: z.boolean().optional(),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Validate request
-    const body = await request.json();
+    const body = await _request.json();
     const { challengeId, method, code, rememberDevice } = verifySchema.parse(body);
 
     // Initialize MFA service
@@ -26,7 +24,7 @@ export async function POST(request: NextRequest) {
     const result = await mfaService.verifyChallenge(challengeId, {
       method,
       code,
-      rememberDevice,
+      rememberDevice: rememberDevice ?? false,
     });
 
     if (!result.success || !result.userId) {
@@ -40,7 +38,7 @@ export async function POST(request: NextRequest) {
     const { session, sessionId } = await sessionAuth.completeMFAVerification(
       result.userId,
       challengeId,
-      request
+      _request
     );
 
     // Create response

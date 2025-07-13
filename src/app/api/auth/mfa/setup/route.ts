@@ -7,7 +7,7 @@ const setupSchema = z.object({
   method: z.enum(['totp']),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createClient();
     
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate request
-    const body = await request.json();
+    const body = await _request.json();
     const { method } = setupSchema.parse(body);
 
     // Initialize MFA service

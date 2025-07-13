@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { subDays, startOfDay, endOfDay, format, startOfHour, subHours } from 'date-fns';
+import { subDays,  format, startOfHour, subHours } from 'date-fns';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     

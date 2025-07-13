@@ -199,7 +199,7 @@ export function requireBuildingAccess(buildingId?: string) {
  */
 async function checkBuildingAccess(
   session: Session,
-  buildingId: string,
+  _buildingId: string,
 ): Promise<boolean> {
   // Organization admins and subscription owners have access to all buildings
   if (session.permissions.some((p) => p.resource === "*" && p.action === "*")) {

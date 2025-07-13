@@ -12,8 +12,8 @@ export class AIService {
     if (process.env.DEEPSEEK_API_KEY) {
       this.providers.push(new DeepSeekProvider(process.env.DEEPSEEK_API_KEY));
     }
-    if (process.env.OPENAI_API_KEY) {
-      this.providers.push(new OpenAIProvider(process.env.OPENAI_API_KEY));
+    if (process.env['OPENAI_API_KEY']) {
+      this.providers.push(new OpenAIProvider(process.env['OPENAI_API_KEY']));
     }
     if (process.env.ANTHROPIC_API_KEY) {
       this.providers.push(new AnthropicProvider(process.env.ANTHROPIC_API_KEY));

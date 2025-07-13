@@ -8,7 +8,6 @@ import {
   WebhookDelivery,
   DEFAULT_WEBHOOK_RETRY_CONFIG
 } from '@/types/webhooks';
-import { Database } from '@/types/database';
 import crypto from 'crypto';
 
 export class WebhookService {

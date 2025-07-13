@@ -23,9 +23,9 @@ const verifyRecoverySchema = z.object({
   }).optional(),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await _request.json();
     
     // Validate input
     const validated = verifyRecoverySchema.parse(body);
@@ -34,24 +34,29 @@ export async function POST(request: NextRequest) {
     const recoveryService = getRecoveryService();
     
     // Verify recovery
-    const result = await recoveryService.verifyRecovery(request, {
+    const verifyRequest: any = {
       token: validated.token,
       method: validated.method,
       newPassword: validated.newPassword,
-      verificationData: validated.verificationData,
-    });
+    };
+    
+    if (validated.verificationData) {
+      verifyRequest.verificationData = validated.verificationData;
+    }
+    
+    const result = await recoveryService.verifyRecovery(_request, verifyRequest);
     
     // Log recovery attempt
     if (result.success && result.userId) {
       await auditLogger.logAuthSuccess(
-        request,
+        _request,
         result.userId,
         '', // Email would need to be fetched
         'password'
       );
     } else {
       await auditLogger.logAuthFailure(
-        request,
+        _request,
         '',
         result.message,
         'RECOVERY_VERIFICATION_FAILED'

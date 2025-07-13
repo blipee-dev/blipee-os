@@ -114,7 +114,19 @@
       "Bash(/workspaces/blipee-os/scripts/fix-validation-schemas.sh:*)",
       "Bash(/workspaces/blipee-os/scripts/fix-remaining-auth-syntax.sh:*)",
       "Bash(/workspaces/blipee-os/scripts/fix-global-syntax.sh:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-unused-imports.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-index-signatures.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-optional-properties.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-destructuring-syntax.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-manual-syntax.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/fix-common-errors.sh:*)",
+      "Bash(/workspaces/blipee-os/scripts/final-fix.sh:*)",
+      "Bash(./fix-final-errors.sh:*)",
+      "Bash(./fix-remaining-issues.sh:*)",
+      "Bash(./fix-unused-params.sh:*)",
+      "Bash(./fix-final-batch.sh:*)",
+      "Bash(./fix-request-refs.sh:*)"
     ],
     "deny": []
   }

@@ -35,9 +35,9 @@ describe('Environment Utilities', () => {
     return value.toLowerCase() === 'true';
   };
   
-  const isProduction = () => process.env.NODE_ENV === 'production';
-  const isDevelopment = () => process.env.NODE_ENV === 'development';
-  const isTest = () => process.env.NODE_ENV === 'test';
+  const isProduction = () => process.env['NODE_ENV'] === 'production';
+  const isDevelopment = () => process.env['NODE_ENV'] === 'development';
+  const isTest = () => process.env['NODE_ENV'] === 'test';
   
   describe('getEnv', () => {
     it('should get environment variable', () => {

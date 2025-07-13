@@ -23,7 +23,7 @@ export class ConversationService {
       // Check if Supabase environment variables are set
       if (
         typeof window !== "undefined" &&
-        (!process.env.NEXT_PUBLIC_SUPABASE_URL ||
+        (!process.env['NEXT_PUBLIC_SUPABASE_URL'] ||
           !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
       ) {
         console.log(

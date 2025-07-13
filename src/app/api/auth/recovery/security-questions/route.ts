@@ -13,20 +13,20 @@ const securityQuestionsSchema = z.object({
   })).min(3).max(5),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Check authentication
-    const sessionCookie = request.cookies.get('blipee-session');
+    const sessionCookie = _request.cookies.get('blipee-session');
     if (!sessionCookie) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const validation = await sessionManager.validateSession(request);
+    const validation = await sessionManager.validateSession(_request);
     if (!validation.valid || !validation.session) {
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await _request.json();
     
     // Validate input
     const validated = securityQuestionsSchema.parse(body);
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     
     // Log security questions setup
     await auditLogger.logUserAction(
-      request,
+      _request,
       'updated',
       validation.session.userId,
       [{ field: 'security_questions', oldValue: null, newValue: 'configured' }]
@@ -76,15 +76,15 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
-    const sessionCookie = request.cookies.get('blipee-session');
+    const sessionCookie = _request.cookies.get('blipee-session');
     if (!sessionCookie) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const validation = await sessionManager.validateSession(request);
+    const validation = await sessionManager.validateSession(_request);
     if (!validation.valid || !validation.session) {
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
-    const recoveryOptions = data[0] || {
+    const recoveryOptions = (Array.isArray(data) && data[0]) || {
       email_enabled: true,
       sms_enabled: false,
       security_questions_enabled: false,

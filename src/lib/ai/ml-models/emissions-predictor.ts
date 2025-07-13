@@ -440,7 +440,7 @@ export class EmissionsPredictionModel extends TimeSeriesModel {
     const updates: any = {};
     
     if (factors.weatherData) {
-      updates.temperature = factors.weatherData.temperature;
+      updates.temperature = factors.weatherData["temperature"];
     }
     
     if (factors.economicIndicators) {

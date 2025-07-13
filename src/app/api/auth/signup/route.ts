@@ -31,7 +31,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     validated.password,
     {
       full_name: validated.fullName,
-      company_name: validated.companyName,
+      ...(validated.companyName && { company_name: validated.companyName }),
       role: validated.role as UserRole,
     },
   );

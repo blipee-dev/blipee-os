@@ -211,7 +211,7 @@ export class EventPublisher {
       timestamp: new Date().toISOString(),
       api_version: '1.0',
       organization_id: organizationId,
-      actor,
+      actor: actor ?? { type: 'system' as const, id: 'webhook-system' },
       data: {
         organization,
         member,
@@ -237,7 +237,7 @@ export class EventPublisher {
       timestamp: new Date().toISOString(),
       api_version: '1.0',
       organization_id: organizationId,
-      actor,
+      actor: actor ?? { type: 'system' as const, id: 'webhook-system' },
       data: {
         system,
       },
@@ -261,7 +261,7 @@ export class EventPublisher {
       timestamp: new Date().toISOString(),
       api_version: '1.0',
       organization_id: organizationId,
-      actor,
+      actor: actor ?? { type: 'system' as const, id: 'webhook-system' },
       data: {
         sustainability,
       },
@@ -286,7 +286,7 @@ export class EventPublisher {
       timestamp: new Date().toISOString(),
       api_version: '1.0',
       organization_id: organizationId,
-      actor,
+      actor: actor ?? { type: 'system' as const, id: 'webhook-system' },
       data: {
         api_key: apiKey,
         quota,
@@ -311,7 +311,7 @@ export class EventPublisher {
       timestamp: new Date().toISOString(),
       api_version: '1.0',
       organization_id: organizationId,
-      actor,
+      actor: actor ?? { type: 'system' as const, id: 'webhook-system' },
       data: {
         compliance,
       },
@@ -335,7 +335,7 @@ export class EventPublisher {
       timestamp: new Date().toISOString(),
       api_version: '1.0',
       organization_id: organizationId,
-      actor,
+      actor: actor ?? { type: 'system' as const, id: 'webhook-system' },
       data: {
         auth,
       },

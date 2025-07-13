@@ -1,30 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ChatRequest, ChatResponse } from "@/types/conversation";
-import { aiService } from "@/lib/ai/service";
+import { ChatResponse } from "@/types/conversation";
 import { withAuth } from "@/middleware/auth-new";
 import { withErrorHandler } from "@/lib/api/error-handler";
 import { rateLimit, RateLimitConfigs } from "@/lib/api/rate-limit";
-import {
-  BLIPEE_SYSTEM_PROMPT,
-  buildPrompt,
-  buildDemoContext,
-} from "@/lib/ai/prompt-builder";
-import { parseAIResponse } from "@/lib/ai/response-parser";
-import { intelligentActionPlanner } from "@/lib/ai/action-planner";
+import { getDataCache } from "@/lib/cache/data-cache";
+import { handleDocumentInChat } from "@/lib/ai/document-handler";
 import { conversationalEngine } from "@/lib/ai/conversational-engine";
 import { predictiveIntelligence } from "@/lib/ai/predictive-intelligence";
 import { recommendationEngine } from "@/lib/ai/recommendation-engine";
-import { visualIntelligence } from "@/lib/ai/visual-intelligence";
 import { reportIntelligence } from "@/lib/ai/report-intelligence";
-import {
-  handleDocumentInChat,
-  handleBatchDocuments,
-} from "@/lib/ai/document-handler";
 import { getAICache } from "@/lib/cache/ai-cache";
-import { getDataCache } from "@/lib/cache/data-cache";
 import { aiCacheManager } from "@/lib/ai/cache-strategies";
 import { chainOfThoughtEngine } from "@/lib/ai/chain-of-thought";
-import { esgContextEngine } from "@/lib/ai/esg-context-engine";
 
 export const dynamic = 'force-dynamic';
 
@@ -170,7 +157,7 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
 
   // Initialize caching services
   const aiCache = await getAICache();
-  const dataCache = await getDataCache();
+  await getDataCache(); // For caching side effects
   await aiCacheManager.initialize();
 
   // Check cache for similar queries (skip if attachments present)
@@ -361,8 +348,8 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
 
       const response: ChatResponse = {
         message: finalMessage,
-        components: aiResponse.visualizations as ChatResponse["components"],
-        actions: aiResponse.actions,
+        components: (aiResponse.visualizations as ChatResponse["components"]) || [],
+        actions: aiResponse.actions || [],
         suggestions:
           documentResponses.length > 0
             ? [
@@ -391,7 +378,7 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
         await aiCacheManager.set(message, cacheContext, {
           message: response.message,
           suggestions: response.suggestions,
-          components: response.components,
+          components: response.components || [],
         });
       }
 
@@ -426,24 +413,24 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
       lowerMessage.includes("usage") ||
       lowerMessage.includes("consumption")
     ) {
-      response = { ...response, ...demoResponses.energy };
+      response = { ...response, ...demoResponses["energy"] };
     } else if (
       lowerMessage.includes("temperature") ||
       lowerMessage.includes("temp") ||
       lowerMessage.includes("climate")
     ) {
-      response = { ...response, ...demoResponses.temperature };
+      response = { ...response, ...demoResponses["temperature"] };
     } else if (
       lowerMessage.includes("report") ||
       lowerMessage.includes("sustainability")
     ) {
-      response = { ...response, ...demoResponses.report };
+      response = { ...response, ...demoResponses["report"] };
     } else if (
       lowerMessage.includes("save") ||
       lowerMessage.includes("saving") ||
       lowerMessage.includes("optimize")
     ) {
-      response = { ...response, ...demoResponses.savings };
+      response = { ...response, ...demoResponses["savings"] };
     } else {
       response.message = `I understand you're asking about "${message}". In the full version, I'll be able to help with:\n\n• Real-time energy monitoring\n• Device control\n• Predictive maintenance\n• Sustainability reporting\n• Cost optimization\n\nFor now, try asking about energy usage, temperature, reports, or savings opportunities!`;
       response.suggestions = [
@@ -460,8 +447,8 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
       // Use basic cache for fallback responses
       await aiCache.cacheResponse(message, cacheContext, {
         message: response.message || '',
-        suggestions: response.suggestions,
-        components: response.components,
+        suggestions: response.suggestions || [],
+        components: response.components || [],
       }, 300); // 5 minutes for fallback responses
     }
 
@@ -469,11 +456,11 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
 }));
 
 // Helper function to generate intelligent suggestions
-function generateIntelligentSuggestions(intelligentResponse: any): string[] {
+/* function generateIntelligentSuggestions(_intelligentResponse: any): string[] {
   const suggestions: string[] = [];
 
   // Suggest related actions based on the action plan
-  if (intelligentResponse.actionPlan.intent.includes("energy")) {
+  if (_intelligentResponse.actionPlan.intent.includes("energy")) {
     suggestions.push(
       "Show me the detailed energy breakdown",
       "What would happen if I implement all optimizations?",
@@ -482,14 +469,14 @@ function generateIntelligentSuggestions(intelligentResponse: any): string[] {
   }
 
   // Add predictions as suggestions
-  intelligentResponse.predictions.forEach((prediction: any) => {
+  _intelligentResponse.predictions.forEach((prediction: any) => {
     if (prediction.recommended_action) {
       suggestions.push(prediction.recommended_action);
     }
   });
 
   // Add automation suggestions
-  intelligentResponse.automations.forEach((automation: any) => {
+  _intelligentResponse.automations.forEach((automation: any) => {
     suggestions.push(`Tell me more about ${automation.name}`);
   });
 
@@ -503,4 +490,4 @@ function generateIntelligentSuggestions(intelligentResponse: any): string[] {
   }
 
   return suggestions.slice(0, 4); // Limit to 4 suggestions
-}
+} */

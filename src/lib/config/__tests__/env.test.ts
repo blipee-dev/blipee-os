@@ -41,21 +41,21 @@ describe('env config', () => {
 
   describe('environment checks', () => {
     it('should detect production environment', () => {
-      process.env.NODE_ENV = 'production';
+      process.env['NODE_ENV'] = 'production';
       expect(isProduction()).toBe(true);
       expect(isDevelopment()).toBe(false);
       expect(isTest()).toBe(false);
     });
 
     it('should detect development environment', () => {
-      process.env.NODE_ENV = 'development';
+      process.env['NODE_ENV'] = 'development';
       expect(isProduction()).toBe(false);
       expect(isDevelopment()).toBe(true);
       expect(isTest()).toBe(false);
     });
 
     it('should detect test environment', () => {
-      process.env.NODE_ENV = 'test';
+      process.env['NODE_ENV'] = 'test';
       expect(isProduction()).toBe(false);
       expect(isDevelopment()).toBe(false);
       expect(isTest()).toBe(true);

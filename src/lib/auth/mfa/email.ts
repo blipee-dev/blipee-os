@@ -305,7 +305,7 @@ export class EmailMFAService {
       console.error('Resend email error:', error);
       
       // Fallback to mock for development
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env['NODE_ENV'] === 'development') {
         return this.sendMockEmail(email, subject, text, '123456');
       }
       
@@ -343,7 +343,7 @@ export class EmailMFAService {
       console.error('SendGrid email error:', error);
       
       // Fallback to mock for development
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env['NODE_ENV'] === 'development') {
         return this.sendMockEmail(email, subject, text, '123456');
       }
       
@@ -402,7 +402,7 @@ export class EmailMFAService {
       console.error('AWS SES error:', error);
       
       // Fallback to mock for development
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env['NODE_ENV'] === 'development') {
         return this.sendMockEmail(email, subject, text, '123456');
       }
       

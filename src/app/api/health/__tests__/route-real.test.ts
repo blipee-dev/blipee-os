@@ -20,6 +20,6 @@ describe('Health Check API', () => {
     const data = await response.json();
 
     expect(data).toHaveProperty('environment');
-    expect(data.environment).toBe(process.env.NODE_ENV || 'development');
+    expect(data.environment).toBe(process.env['NODE_ENV'] || 'development');
   });
 });

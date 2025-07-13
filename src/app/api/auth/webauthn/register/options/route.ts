@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { webAuthnService } from '@/lib/auth/webauthn/service';
 import { createClient } from '@/lib/supabase/server';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await _request.json();
     const { 
       credentialName,
       authenticatorSelection = {},
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // Generate registration options
     const options = await webAuthnService.generateRegistrationOptions(
-      request,
+      _request,
       user.id,
       user.email || '',
       displayName,

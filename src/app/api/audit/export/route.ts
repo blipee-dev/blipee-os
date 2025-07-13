@@ -5,41 +5,66 @@ import { AuditEventType, AuditEventSeverity, AuditLogQuery } from '@/lib/audit/t
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication and permissions
-    const sessionCookie = request.cookies.get('blipee-session');
+    const sessionCookie = _request.cookies.get('blipee-session');
     if (!sessionCookie) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const validation = await sessionManager.validateSession(request, ['audit:export']);
+    const validation = await sessionManager.validateSession(_request, ['audit:export']);
     if (!validation.valid) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Parse query parameters
-    const searchParams = request.nextUrl.searchParams;
+    const searchParams = _request.nextUrl.searchParams;
     const format = searchParams.get('format') as 'json' | 'csv' || 'json';
     
     const query: AuditLogQuery = {
-      startDate: searchParams.get('startDate') ? new Date(searchParams.get('startDate')!) : undefined,
-      endDate: searchParams.get('endDate') ? new Date(searchParams.get('endDate')!) : undefined,
-      types: searchParams.getAll('types') as AuditEventType[],
-      severities: searchParams.getAll('severities') as AuditEventSeverity[],
-      actorId: searchParams.get('actorId') || undefined,
-      actorType: searchParams.get('actorType') as 'user' | 'system' | 'api' || undefined,
-      targetId: searchParams.get('targetId') || undefined,
-      targetType: searchParams.get('targetType') || undefined,
-      organizationId: searchParams.get('organizationId') || validation.session?.organizationId,
-      buildingId: searchParams.get('buildingId') || undefined,
-      result: searchParams.get('result') as 'success' | 'failure' || undefined,
-      search: searchParams.get('search') || undefined,
       limit: parseInt(searchParams.get('limit') || '10000'), // Higher limit for exports
       offset: parseInt(searchParams.get('offset') || '0'),
       sortBy: searchParams.get('sortBy') as 'timestamp' | 'severity' | 'type' || 'timestamp',
       sortOrder: searchParams.get('sortOrder') as 'asc' | 'desc' || 'desc',
     };
+
+    // Only add optional properties if they have values
+    const startDateParam = searchParams.get('startDate');
+    if (startDateParam) query.startDate = new Date(startDateParam);
+    
+    const endDateParam = searchParams.get('endDate');
+    if (endDateParam) query.endDate = new Date(endDateParam);
+    
+    const types = searchParams.getAll('types') as AuditEventType[];
+    if (types.length > 0) query.types = types;
+    
+    const severities = searchParams.getAll('severities') as AuditEventSeverity[];
+    if (severities.length > 0) query.severities = severities;
+    
+    const actorId = searchParams.get('actorId');
+    if (actorId) query.actorId = actorId;
+    
+    const actorType = searchParams.get('actorType') as 'user' | 'system' | 'api';
+    if (actorType) query.actorType = actorType;
+    
+    const targetId = searchParams.get('targetId');
+    if (targetId) query.targetId = targetId;
+    
+    const targetType = searchParams.get('targetType');
+    if (targetType) query.targetType = targetType;
+    
+    const organizationId = searchParams.get('organizationId') || validation.session?.organizationId;
+    if (organizationId) query.organizationId = organizationId;
+    
+    const buildingId = searchParams.get('buildingId');
+    if (buildingId) query.buildingId = buildingId;
+    
+    const result = searchParams.get('result') as 'success' | 'failure';
+    if (result) query.result = result;
+    
+    const search = searchParams.get('search');
+    if (search) query.search = search;
 
     // Get audit service and export logs
     const auditService = getAuditService();

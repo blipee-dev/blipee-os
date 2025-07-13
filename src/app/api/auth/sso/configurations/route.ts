@@ -3,7 +3,7 @@ import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { UserRole } from "@/types/auth";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Get organization ID from query params
-    const searchParams = request.nextUrl.searchParams;
+    const searchParams = _request.nextUrl.searchParams;
     const organizationId = searchParams.get("organizationId");
     
     if (!organizationId) {
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Get request data
-    const data = await request.json();
+    const data = await _request.json();
     
     if (!data.organization_id) {
       return NextResponse.json(
