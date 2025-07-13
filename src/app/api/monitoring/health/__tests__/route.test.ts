@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 
 describe('GET /api/monitoring/health', () => {
   it('should return health status', async () => {
-    const request = new NextRequest('http://localhost:3000/api/monitoring/health');
+    const _request = new NextRequest('http://localhost:3000/api/monitoring/health');
     const response = await GET(request);
     const data = await response.json();
 
@@ -16,7 +16,7 @@ describe('GET /api/monitoring/health', () => {
   });
 
   it('should include service checks', async () => {
-    const request = new NextRequest('http://localhost:3000/api/monitoring/health');
+    const _request = new NextRequest('http://localhost:3000/api/monitoring/health');
     const response = await GET(request);
     const data = await response.json();
 
@@ -28,7 +28,7 @@ describe('GET /api/monitoring/health', () => {
 
   it('should return degraded status if services fail', async () => {
     // Mock service failure
-    const request = new NextRequest('http://localhost:3000/api/monitoring/health', {
+    const _request = new NextRequest('http://localhost:3000/api/monitoring/health', {
       headers: { 'X-Force-Failure': 'database' }
     });
 

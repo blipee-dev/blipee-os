@@ -144,7 +144,7 @@ export const testSqlInjection = async (
   ];
 
   for (const payload of sqlInjectionPayloads) {
-    const request = createAuthenticatedRequest('http://localhost:3000/api/test', {
+    const _request = createAuthenticatedRequest('http://localhost:3000/api/test', {
       method: 'POST',
       body: { [paramName]: payload },
     });
@@ -172,7 +172,7 @@ export const testXssProtection = async (
   ];
 
   for (const payload of xssPayloads) {
-    const request = createAuthenticatedRequest('http://localhost:3000/api/test', {
+    const _request = createAuthenticatedRequest('http://localhost:3000/api/test', {
       method: 'POST',
       body: { [paramName]: payload },
     });

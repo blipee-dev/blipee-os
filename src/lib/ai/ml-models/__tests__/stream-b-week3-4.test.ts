@@ -419,7 +419,7 @@ describe('Stream B Week 3-4: Advanced Models', () => {
     });
 
     it('should handle emissions prediction requests', async () => {
-      const request = {
+      const _request = {
         type: 'emissions' as const,
         data: {
           historicalData: [
@@ -447,7 +447,7 @@ describe('Stream B Week 3-4: Advanced Models', () => {
     });
 
     it('should handle optimization prediction requests', async () => {
-      const request = {
+      const _request = {
         type: 'optimization' as const,
         data: {
           task: OptimizationScenarios.resourceAllocation(),
@@ -471,7 +471,7 @@ describe('Stream B Week 3-4: Advanced Models', () => {
     });
 
     it('should handle multi-model predictions', async () => {
-      const request = {
+      const _request = {
         type: 'multi_model' as const,
         data: {
           emissions: {
@@ -588,7 +588,7 @@ describe('Stream B Week 3-4: Advanced Models', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      const request = {
+      const _request = {
         type: 'invalid_type' as any,
         data: {}
       };

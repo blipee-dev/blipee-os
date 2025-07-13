@@ -17,7 +17,7 @@ export default function AuthCallbackPage() {
 
       if (code) {
         // Exchange code for session
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        const { error: _error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (error) {
           console.error("Error exchanging code for session:", error);

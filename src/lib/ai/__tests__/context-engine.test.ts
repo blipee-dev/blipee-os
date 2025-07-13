@@ -28,7 +28,7 @@ describe('AIContextEngine', () => {
   describe('buildEnrichedContext', () => {
     it('should build complete enriched context with all components', async () => {
       const userMessage = 'What is the current energy usage?';
-      const userId = 'test-user-123';
+      const _userId = 'test-user-123';
 
       const context = await contextEngine.buildEnrichedContext(userMessage, userId);
 

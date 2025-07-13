@@ -57,7 +57,7 @@ interface PerformanceMetrics {
 }
 
 export default function PerformancePage() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [metrics, setMetrics] = useState<PerformanceMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('1h');

@@ -247,7 +247,7 @@ export function AuditDashboard({ organizationId }: AuditDashboardProps) {
             </div>
           ) : (
             <div className="space-y-3">
-              {events.map((event) => (
+              {events.map((event: any) => (
                 <div
                   key={event.id}
                   className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"

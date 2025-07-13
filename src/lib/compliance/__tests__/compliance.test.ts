@@ -67,7 +67,7 @@ describe('GDPRComplianceService', () => {
 
   describe('recordConsent', () => {
     it('should record user consent successfully', async () => {
-      const userId = 'test-user-123';
+      const _userId = 'test-user-123';
       const type = ConsentType.MARKETING;
       const status = ConsentStatus.GRANTED;
 
@@ -81,7 +81,7 @@ describe('GDPRComplianceService', () => {
     });
 
     it('should record consent withdrawal', async () => {
-      const userId = 'test-user-123';
+      const _userId = 'test-user-123';
       const type = ConsentType.ANALYTICS;
       const status = ConsentStatus.WITHDRAWN;
 
@@ -94,11 +94,11 @@ describe('GDPRComplianceService', () => {
 
   describe('requestDataExport', () => {
     it('should create data export request', async () => {
-      const userId = 'test-user-123';
+      const _userId = 'test-user-123';
       const format = 'json';
       const scope = ['profile', 'activities'];
 
-      const request = await gdprService.requestDataExport(userId, format, scope);
+      const _request = await gdprService.requestDataExport(userId, format, scope);
 
       expect(request).toHaveProperty('id');
       expect(request.userId).toBe(userId);
@@ -110,10 +110,10 @@ describe('GDPRComplianceService', () => {
 
   describe('requestAccountDeletion', () => {
     it('should create deletion request', async () => {
-      const userId = 'test-user-123';
+      const _userId = 'test-user-123';
       const reason = 'No longer using the service';
 
-      const request = await gdprService.requestAccountDeletion(userId, reason);
+      const _request = await gdprService.requestAccountDeletion(userId, reason);
 
       expect(request).toHaveProperty('id');
       expect(request.userId).toBe(userId);
@@ -131,7 +131,7 @@ describe('GDPRComplianceService', () => {
 
   describe('updatePrivacySettings', () => {
     it('should update privacy settings', async () => {
-      const userId = 'test-user-123';
+      const _userId = 'test-user-123';
       const settings = {
         dataProcessing: {
           allowAnalytics: true,

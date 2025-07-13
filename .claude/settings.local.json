@@ -129,7 +129,11 @@
       "Bash(./fix-request-refs.sh:*)",
       "Bash(./fix-ml-models.sh:*)",
       "Bash(bash:*)",
-      "Bash(./fix-optional-props.sh:*)"
+      "Bash(./fix-optional-props.sh:*)",
+      "Bash(./fix-unused-vars-bulk.sh:*)",
+      "Bash(./fix-comprehensive.sh:*)",
+      "Bash(./fix-override-modifiers.sh:*)",
+      "Bash(./fix-index-signature-bulk.sh:*)"
     ],
     "deny": []
   }

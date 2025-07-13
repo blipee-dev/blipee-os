@@ -67,9 +67,19 @@ export async function POST(
     const body = await request.json();
     const validated = createBuildingSchema.parse(body);
 
+    // Build the building object conditionally to satisfy exactOptionalPropertyTypes
+    const buildingData: any = {
+      name: validated.name,
+    };
+    
+    if (validated.address !== undefined) buildingData.address = validated.address;
+    if (validated.city !== undefined) buildingData.city = validated.city;
+    if (validated.size_sqft !== undefined) buildingData.size_sqft = validated.size_sqft;
+    if (validated.floors !== undefined) buildingData.floors = validated.floors;
+
     const building = await organizationService.createBuilding(
       params.id,
-      validated,
+      buildingData,
     );
 
     return NextResponse.json({

@@ -7,7 +7,7 @@ import {
   Building2,
   Factory,
   Globe,
-
+  TreePine,
   CheckCircle,
   Sparkles,
   Users,
@@ -18,7 +18,7 @@ import {
   TrendingDown,
   Shield,
   Zap,
-
+  Target,
   Heart,
   GraduationCap,
   Banknote,

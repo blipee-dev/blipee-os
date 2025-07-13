@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as _motion, AnimatePresence } from "framer-motion";
 import { Building2, ChevronDown, Check, Users, CreditCard } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import type { Organization } from "@/types/auth";
@@ -122,10 +122,10 @@ export function OrganizationSwitcher() {
                             >
                               {badge.label}
                             </span>
-                            {org.metadata?.member_count && (
+                            {org.metadata?.['member_count'] && (
                               <span className="text-xs text-gray-500 flex items-center">
                                 <Users className="w-3 h-3 mr-1" />
-                                {org.metadata.member_count}
+                                {org.metadata['member_count']}
                               </span>
                             )}
                           </div>

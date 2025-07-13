@@ -40,7 +40,7 @@ describe('Webhooks API', () => {
 
       mockWebhookService.listWebhooks.mockResolvedValue(mockWebhooks);
 
-      const request = new NextRequest('http://localhost:3000/api/webhooks');
+      const _request = new NextRequest('http://localhost:3000/api/webhooks');
       const response = await GET(request);
       const data = await response.json();
 
@@ -57,7 +57,7 @@ describe('Webhooks API', () => {
 
       mockWebhookService.listWebhooks.mockResolvedValue([]);
 
-      const request = new NextRequest('http://localhost:3000/api/webhooks?active=true');
+      const _request = new NextRequest('http://localhost:3000/api/webhooks?active=true');
       await GET(request);
 
       expect(mockWebhookService.listWebhooks).toHaveBeenCalledWith({
@@ -84,7 +84,7 @@ describe('Webhooks API', () => {
 
       mockWebhookService.createWebhook.mockResolvedValue(newWebhook);
 
-      const request = new NextRequest('http://localhost:3000/api/webhooks', {
+      const _request = new NextRequest('http://localhost:3000/api/webhooks', {
         method: 'POST',
         body: JSON.stringify({
           url: 'https://example.com/webhook',
@@ -106,7 +106,7 @@ describe('Webhooks API', () => {
         error: null
       });
 
-      const request = new NextRequest('http://localhost:3000/api/webhooks', {
+      const _request = new NextRequest('http://localhost:3000/api/webhooks', {
         method: 'POST',
         body: JSON.stringify({
           url: 'not-a-valid-url',
@@ -124,7 +124,7 @@ describe('Webhooks API', () => {
         error: null
       });
 
-      const request = new NextRequest('http://localhost:3000/api/webhooks', {
+      const _request = new NextRequest('http://localhost:3000/api/webhooks', {
         method: 'POST',
         body: JSON.stringify({
           url: 'http://example.com/webhook',

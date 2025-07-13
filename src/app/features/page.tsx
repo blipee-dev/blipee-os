@@ -10,14 +10,16 @@ import {
   Globe,
   Shield,
   Zap,
-
+  BarChart3,
   FileText,
   Building2,
-
+  TrendingUp,
   Users,
   Sparkles,
   Home,
   ArrowRight,
+  Lock,
+  Gauge,
   CheckCircle,
   TrendingUp,
   Cloud,

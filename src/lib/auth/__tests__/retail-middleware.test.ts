@@ -5,7 +5,7 @@ import { RETAIL_PERMISSIONS } from '../retail-permissions';
 describe('Retail Middleware', () => {
   describe('withRetailAuth', () => {
     it('should allow access with valid permissions', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/test');
+      const _request = new NextRequest('http://localhost:3000/api/retail/test');
       const result = await withRetailAuth(request, RETAIL_PERMISSIONS.READ);
 
       expect(result).toBeNull(); // Null means continue
@@ -13,7 +13,7 @@ describe('Retail Middleware', () => {
     });
 
     it('should include user context in request', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/test');
+      const _request = new NextRequest('http://localhost:3000/api/retail/test');
       await withRetailAuth(request, RETAIL_PERMISSIONS.READ);
 
       const context = getRetailContext(request);
@@ -23,7 +23,7 @@ describe('Retail Middleware', () => {
     });
 
     it('should check for specific permission', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/test');
+      const _request = new NextRequest('http://localhost:3000/api/retail/test');
       
       // Mock user has retail_manager role, which includes analytics permission
       const result = await withRetailAuth(request, RETAIL_PERMISSIONS.ANALYTICS);
@@ -33,7 +33,7 @@ describe('Retail Middleware', () => {
 
   describe('getRetailContext', () => {
     it('should retrieve context from request', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/test');
+      const _request = new NextRequest('http://localhost:3000/api/retail/test');
       await withRetailAuth(request);
 
       const context = getRetailContext(request);
@@ -51,7 +51,7 @@ describe('Retail Middleware', () => {
       });
 
       const protectedHandler = withRetailPermission(RETAIL_PERMISSIONS.READ, mockHandler);
-      const request = new NextRequest('http://localhost:3000/api/retail/test');
+      const _request = new NextRequest('http://localhost:3000/api/retail/test');
 
       const response = await protectedHandler(request);
       const data = await response.json();
@@ -69,7 +69,7 @@ describe('Retail Middleware', () => {
       });
 
       const protectedHandler = withRetailPermission(RETAIL_PERMISSIONS.ANALYTICS, mockHandler);
-      const request = new NextRequest('http://localhost:3000/api/retail/test');
+      const _request = new NextRequest('http://localhost:3000/api/retail/test');
 
       await protectedHandler(request);
 
@@ -79,7 +79,7 @@ describe('Retail Middleware', () => {
     });
 
     it('should include correct permissions in context', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/test');
+      const _request = new NextRequest('http://localhost:3000/api/retail/test');
       await withRetailAuth(request);
 
       const context = getRetailContext(request);

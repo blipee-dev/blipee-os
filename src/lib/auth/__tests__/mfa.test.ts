@@ -58,7 +58,7 @@ describe('MFAService', () => {
 
   describe('MFA Setup', () => {
     it('should setup TOTP MFA successfully', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
 
       mockEncryptionService.encrypt.mockResolvedValue({
@@ -86,7 +86,7 @@ describe('MFAService', () => {
     });
 
     it('should prevent duplicate MFA setup', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
 
       // Mock existing MFA setup
@@ -108,7 +108,7 @@ describe('MFAService', () => {
     });
 
     it('should handle encryption errors during setup', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
 
       mockEncryptionService.encrypt.mockRejectedValue(new Error('Encryption failed'));
@@ -120,7 +120,7 @@ describe('MFAService', () => {
     });
 
     it('should generate secure backup codes', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
 
       mockEncryptionService.encrypt.mockResolvedValue({
@@ -157,7 +157,7 @@ describe('MFAService', () => {
 
   describe('MFA Verification', () => {
     it('should verify valid TOTP token', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const token = '123456';
 
       mockSupabase.from.mockReturnValue({
@@ -196,7 +196,7 @@ describe('MFAService', () => {
     });
 
     it('should verify valid backup code', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const backupCode = 'abcd1234';
 
       mockSupabase.from.mockReturnValue({
@@ -225,7 +225,7 @@ describe('MFAService', () => {
     });
 
     it('should reject invalid TOTP token', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const token = '000000';
 
       mockSupabase.from.mockReturnValue({
@@ -260,7 +260,7 @@ describe('MFAService', () => {
     });
 
     it('should reject used backup code', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const backupCode = 'abcd1234';
 
       mockSupabase.from.mockReturnValue({
@@ -286,7 +286,7 @@ describe('MFAService', () => {
     });
 
     it('should handle MFA not enabled', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const token = '123456';
 
       mockSupabase.from.mockReturnValue({
@@ -304,7 +304,7 @@ describe('MFAService', () => {
     });
 
     it('should handle inactive MFA', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const token = '123456';
 
       mockSupabase.from.mockReturnValue({
@@ -331,7 +331,7 @@ describe('MFAService', () => {
 
   describe('MFA Status', () => {
     it('should return MFA status for enabled user', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
 
       mockSupabase.from.mockReturnValue({
         select: jest.fn(() => ({
@@ -358,7 +358,7 @@ describe('MFAService', () => {
     });
 
     it('should return MFA status for disabled user', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
 
       mockSupabase.from.mockReturnValue({
         select: jest.fn(() => ({
@@ -378,7 +378,7 @@ describe('MFAService', () => {
 
   describe('MFA Disable', () => {
     it('should disable MFA successfully', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
 
       mockSupabase.from.mockReturnValue({
         select: jest.fn(() => ({
@@ -403,7 +403,7 @@ describe('MFAService', () => {
     });
 
     it('should handle MFA already disabled', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
 
       mockSupabase.from.mockReturnValue({
         select: jest.fn(() => ({
@@ -422,7 +422,7 @@ describe('MFAService', () => {
 
   describe('Backup Code Management', () => {
     it('should regenerate backup codes', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
 
       mockSupabase.from.mockReturnValue({
         select: jest.fn(() => ({
@@ -449,7 +449,7 @@ describe('MFAService', () => {
     });
 
     it('should handle regeneration when MFA not enabled', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
 
       mockSupabase.from.mockReturnValue({
         select: jest.fn(() => ({

@@ -63,7 +63,7 @@ describe('POST /api/ai/chat', () => {
 
       mockAIService.chat.mockResolvedValueOnce(mockResponse);
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Show me our sustainability metrics',
@@ -101,7 +101,7 @@ describe('POST /api/ai/chat', () => {
 
       mockAIService.streamChat.mockResolvedValueOnce(mockStream);
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Tell me about carbon emissions',
@@ -121,7 +121,7 @@ describe('POST /api/ai/chat', () => {
         extractedData: { emissions: 1000 },
       });
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Analyze this sustainability report',
@@ -146,7 +146,7 @@ describe('POST /api/ai/chat', () => {
     it('should enforce message length limits', async () => {
       const longMessage = 'a'.repeat(10001); // Over 10k character limit
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: longMessage,
@@ -159,7 +159,7 @@ describe('POST /api/ai/chat', () => {
 
   describe('Security Tests', () => {
     it('should require authentication', async () => {
-      const request = new Request('http://localhost:3000/api/ai/chat', {
+      const _request = new Request('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -181,7 +181,7 @@ describe('POST /api/ai/chat', () => {
         }),
       });
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Hello',
@@ -205,7 +205,7 @@ describe('POST /api/ai/chat', () => {
       ];
 
       for (const prompt of maliciousPrompts) {
-        const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+        const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
           method: 'POST',
           body: {
             message: prompt,
@@ -227,7 +227,7 @@ describe('POST /api/ai/chat', () => {
         message: 'User input was: <script>alert("XSS")</script>',
       });
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Echo this: <script>alert("XSS")</script>',
@@ -249,7 +249,7 @@ describe('POST /api/ai/chat', () => {
         message: 'Response text',
       });
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Test message',
@@ -278,7 +278,7 @@ describe('POST /api/ai/chat', () => {
         return { message: 'Response' };
       });
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Quick question',
@@ -345,7 +345,7 @@ describe('POST /api/ai/chat', () => {
         .mockRejectedValueOnce(new Error('DeepSeek API error'))
         .mockResolvedValueOnce({ message: 'Response from OpenAI' });
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Test failover',
@@ -367,7 +367,7 @@ describe('POST /api/ai/chat', () => {
 
       mockAIService.chat.mockResolvedValueOnce({ message: 'Response' });
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Test metrics',
@@ -393,7 +393,7 @@ describe('POST /api/ai/chat', () => {
 
       mockAIService.chat.mockResolvedValueOnce({ message: 'Response' });
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'What are our emissions?',
@@ -430,7 +430,7 @@ describe('POST /api/ai/chat', () => {
 
       mockAIService.chat.mockResolvedValueOnce({ message: 'Response' });
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Follow-up question',
@@ -457,7 +457,7 @@ describe('POST /api/ai/chat', () => {
     it('should handle AI service errors gracefully', async () => {
       mockAIService.chat.mockRejectedValueOnce(new Error('AI service unavailable'));
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Test error handling',
@@ -481,7 +481,7 @@ describe('POST /api/ai/chat', () => {
 
       mockAIService.chat.mockResolvedValueOnce({ message: 'Response' });
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
         method: 'POST',
         body: {
           message: 'Test context error',

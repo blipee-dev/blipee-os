@@ -3,7 +3,7 @@
 import React, { Suspense } from "react";
 import { LazyConversationInterface } from "@/components/lazy";
 import { useAuth } from "@/lib/auth/context";
-import { Leaf, TrendingDown, FileText } from "lucide-react";
+import { Leaf, TrendingDown, FileText, Target } from "lucide-react";
 
 export default function DashboardPage() {
   const { session } = useAuth();

@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     const { session, sessionId } = await sessionAuth.completeMFAVerification(
       result.userId,
       challengeId,
-      _request
+      request
     );
 
     // Create response

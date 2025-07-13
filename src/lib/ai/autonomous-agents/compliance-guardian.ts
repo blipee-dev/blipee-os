@@ -59,7 +59,7 @@ export interface ComplianceAlert {
 }
 
 export class ComplianceGuardianAgent extends AutonomousAgent {
-  protected capabilities: AgentCapability[] = [
+  protected override capabilities: AgentCapability[] = [
     {
       name: 'monitor_compliance',
       description: 'Monitor compliance status and changes',

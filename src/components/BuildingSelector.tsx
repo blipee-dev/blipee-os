@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as _motion, AnimatePresence } from "framer-motion";
 import { Building2, ChevronDown, Check, Plus, MapPin } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import type { Building } from "@/types/auth";

@@ -107,12 +107,14 @@ export function ConversationInterface({
       role: "user",
       content: message,
       timestamp: new Date(),
-      attachments: files?.map((f) => ({
-        id: f.id,
-        name: f.name,
-        type: f.type,
-        size: f.size,
-      })),
+      ...(files && files.length > 0 ? {
+        attachments: files.map((f) => ({
+          id: f.id,
+          name: f.name,
+          type: f.type,
+          size: f.size,
+        }))
+      } : {}),
     };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");

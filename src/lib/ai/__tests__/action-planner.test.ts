@@ -138,7 +138,7 @@ describe('IntelligentActionPlanner', () => {
   describe('processIntelligentRequest', () => {
     it('should process user request and return complete intelligent response', async () => {
       const userMessage = 'How can I optimize energy usage?';
-      const userId = 'test-user-123';
+      const _userId = 'test-user-123';
 
       const response = await actionPlanner.processIntelligentRequest(userMessage, userId);
 
@@ -153,7 +153,7 @@ describe('IntelligentActionPlanner', () => {
 
     it('should build enriched context with user message', async () => {
       const userMessage = 'Show me HVAC efficiency';
-      const userId = 'test-user-123';
+      const _userId = 'test-user-123';
 
       await actionPlanner.processIntelligentRequest(userMessage, userId);
 
@@ -433,7 +433,7 @@ describe('IntelligentActionPlanner', () => {
   describe('learnings extraction', () => {
     it('should extract user behavior patterns', async () => {
       const userMessage = 'Optimize energy';
-      const userId = 'test-user';
+      const _userId = 'test-user';
 
       const response = await actionPlanner.processIntelligentRequest(userMessage, userId);
 

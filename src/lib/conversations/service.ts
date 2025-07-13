@@ -150,7 +150,7 @@ export class ConversationService {
     conversationId: string,
     context: Record<string, any>,
   ): Promise<boolean> {
-    const { error } = await this.supabase
+    const { error: _error } = await this.supabase
       .from("conversations")
       .update({
         context,

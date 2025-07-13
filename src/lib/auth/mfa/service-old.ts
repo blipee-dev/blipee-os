@@ -303,7 +303,7 @@ export class MFAService {
   }
 
   private async getPendingMFASetup(userId: string): Promise<MFASetup | null> {
-    const { data } = await supabaseAdmin
+    const { data: _data } = await supabaseAdmin
       .from('pending_mfa_setups')
       .select('*')
       .eq('user_id', userId)
@@ -381,7 +381,7 @@ export class MFAService {
    * Clean up expired challenges
    */
   async cleanupChallenges() {
-    const { error } = await supabaseAdmin
+    const { error: _error } = await supabaseAdmin
       .from('mfa_challenges')
       .delete()
       .lt('expires_at', new Date().toISOString());

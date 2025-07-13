@@ -367,7 +367,7 @@ Please respond in the following JSON format:
 
   // Context retrieval methods (simplified for demo)
   private async getOrganizationContext(orgId: string): Promise<OrganizationContext> {
-    const { data } = await this.supabase
+    const { data: _data } = await this.supabase
       .from('organizations')
       .select('*')
       .eq('id', orgId)
@@ -438,7 +438,7 @@ Please respond in the following JSON format:
   }
 
   private async getMaterialTopics(orgId: string): Promise<MaterialTopic[]> {
-    const { data } = await this.supabase
+    const { data: _data } = await this.supabase
       .from('material_topics')
       .select('*')
       .eq('organization_id', orgId)
@@ -526,7 +526,7 @@ Please respond in the following JSON format:
   }
 
   private async getSustainabilityGoals(orgId: string): Promise<SustainabilityGoal[]> {
-    const { data } = await this.supabase
+    const { data: _data } = await this.supabase
       .from('sustainability_targets')
       .select('*')
       .eq('organization_id', orgId)

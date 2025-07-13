@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 
 describe('Retail Real-time Traffic API', () => {
   it('should return error when missing loja parameter', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/traffic/realtime');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/traffic/realtime');
     const response = await GET(request);
     const data = await response.json();
 
@@ -12,7 +12,7 @@ describe('Retail Real-time Traffic API', () => {
   });
 
   it('should return real-time traffic data', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/traffic/realtime?loja=OML01');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/traffic/realtime?loja=OML01');
     const response = await GET(request);
     const data = await response.json();
 
@@ -23,7 +23,7 @@ describe('Retail Real-time Traffic API', () => {
   });
 
   it('should return correct traffic data structure', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/traffic/realtime?loja=OML01');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/traffic/realtime?loja=OML01');
     const response = await GET(request);
     const data = await response.json();
 
@@ -40,7 +40,7 @@ describe('Retail Real-time Traffic API', () => {
   });
 
   it('should return valid trend values', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/traffic/realtime?loja=OML01');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/traffic/realtime?loja=OML01');
     const response = await GET(request);
     const data = await response.json();
 
@@ -49,7 +49,7 @@ describe('Retail Real-time Traffic API', () => {
   });
 
   it('should return region occupancy data', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/traffic/realtime?loja=OML01');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/traffic/realtime?loja=OML01');
     const response = await GET(request);
     const data = await response.json();
 

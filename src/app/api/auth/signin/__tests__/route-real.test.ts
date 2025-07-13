@@ -29,7 +29,7 @@ describe('Signin API', () => {
       error: null
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/signin', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/signin', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@example.com',
@@ -50,7 +50,7 @@ describe('Signin API', () => {
       error: { message: 'Invalid login credentials' }
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/signin', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/signin', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@example.com',
@@ -64,7 +64,7 @@ describe('Signin API', () => {
   });
 
   it('should validate request body', async () => {
-    const request = new NextRequest('http://localhost:3000/api/auth/signin', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/signin', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@example.com'

@@ -17,7 +17,7 @@ export class AgentManager {
   private constructor() {
     this.supabase = createClient(
       process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env.SUPABASE_SERVICE_KEY!
+      process.env['SUPABASE_SERVICE_KEY']!
     );
   }
   
@@ -222,7 +222,7 @@ export class AgentManager {
     config: AgentConfig,
     agentType: string
   ): Promise<void> {
-    const { error } = await this.supabase
+    const { error: _error } = await this.supabase
       .from('agent_configs')
       .upsert({
         organization_id: organizationId,

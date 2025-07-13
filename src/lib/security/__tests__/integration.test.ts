@@ -126,7 +126,7 @@ describe('Security Integration Tests', () => {
 
   describe('End-to-End Security Flow', () => {
     it('should complete full MFA setup and verification flow', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
 
       // Mock no existing MFA
@@ -190,7 +190,7 @@ describe('Security Integration Tests', () => {
     });
 
     it('should handle WebAuthn registration with proper security checks', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
       const userDisplayName = 'Test User';
 
@@ -224,7 +224,7 @@ describe('Security Integration Tests', () => {
     });
 
     it('should handle account recovery with multiple security layers', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
 
       // 1. Check rate limit for recovery attempts
@@ -270,7 +270,7 @@ describe('Security Integration Tests', () => {
     });
 
     it('should integrate audit logging across all security operations', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const userEmail = 'test@example.com';
 
       // Test audit logging for various operations
@@ -317,7 +317,7 @@ describe('Security Integration Tests', () => {
 
   describe('Security Boundary Tests', () => {
     it('should prevent rate limit bypass attempts', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const rule = 'mfa_attempts';
 
       // Exhaust rate limit
@@ -471,7 +471,7 @@ describe('Security Integration Tests', () => {
 
   describe('Attack Vector Tests', () => {
     it('should prevent timing attacks on token verification', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const validToken = '123456';
       const invalidToken = '000000';
 
@@ -542,7 +542,7 @@ describe('Security Integration Tests', () => {
     });
 
     it('should prevent brute force attacks through rate limiting', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const rule = 'mfa_attempts';
 
       // Simulate brute force attack
@@ -562,7 +562,7 @@ describe('Security Integration Tests', () => {
     });
 
     it('should prevent replay attacks in WebAuthn', async () => {
-      const userId = 'test-user-id';
+      const _userId = 'test-user-id';
       const authResponse = {
         id: 'test-credential-id',
         rawId: 'dGVzdC1jcmVkZW50aWFsLWlk',
@@ -657,11 +657,11 @@ describe('Security Integration Tests', () => {
 
   describe('Performance and Scalability', () => {
     it('should handle concurrent security operations', async () => {
-      const userIds = Array.from({ length: 10 }, (_, i) => `user-${i}`);
+      const _userIds = Array.from({ length: 10 }, (_, i) => `user-${i}`);
       const operations = [];
 
       // Simulate concurrent operations
-      for (const userId of userIds) {
+      for (const _userId of userIds) {
         operations.push(
           rateLimitService.check(userId, 'mfa_attempts'),
           encryptionService.encrypt(`data-for-${userId}`, { userId }),

@@ -521,8 +521,8 @@ export class AgricultureGRI13Model extends IndustryModel {
     const envScores = {
       landConservation: this.scoreLandConservation(data.land_converted_natural),
       soilHealth: this.scoreSoilHealth(data.soil_organic_carbon, data.soil_erosion_rate),
-      pesticideReduction: this.scorePesticideUse(data.pesticide_intensity, data.highly_hazardous_pesticides),
-      waterEfficiency: this.scoreWaterEfficiency(data.water_use_efficiency),
+      pesticideReduction: this.scorePesticideUse(data['pesticide_intensity'], data.highly_hazardous_pesticides),
+      waterEfficiency: this.scoreWaterEfficiency(data['water_use_efficiency']),
       climateImpact: this.scoreClimateImpact(data.ghg_emissions_agriculture),
       biodiversity: this.scoreBiodiversity(data.biodiversity_area_protected)
     };
@@ -541,7 +541,7 @@ export class AgricultureGRI13Model extends IndustryModel {
       foodSafety: this.scoreFoodSafety(data.food_safety_incidents),
       animalWelfare: this.scoreAnimalWelfare(data.animal_welfare_score),
       laborRights: this.scoreLaborRights(data.living_wage_coverage, data.child_labor_incidents),
-      foodSecurity: this.scoreFoodSecurity(data.crop_yield_per_hectare),
+      foodSecurity: this.scoreFoodSecurity(data['crop_yield_per_hectare']),
       smallholderSupport: this.scoreSmallholderSupport(data.smallholder_farmer_income)
     };
 
@@ -812,7 +812,7 @@ export class AgricultureGRI13Model extends IndustryModel {
     }
 
     // Value validation
-    if (data.pesticide_intensity !== undefined && data.pesticide_intensity < 0) {
+    if (data['pesticide_intensity'] !== undefined && data['pesticide_intensity'] < 0) {
       errors.push('Pesticide intensity cannot be negative');
     }
 

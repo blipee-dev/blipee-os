@@ -29,7 +29,7 @@ export class TaskScheduler {
   constructor() {
     this.supabase = createClient(
       process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env.SUPABASE_SERVICE_KEY!
+      process.env['SUPABASE_SERVICE_KEY']!
     );
   }
   
@@ -308,7 +308,7 @@ export class TaskScheduler {
     taskId: string,
     updates: Partial<ScheduledTask>
   ): Promise<void> {
-    const { error } = await this.supabase
+    const { error: _error } = await this.supabase
       .from('agent_scheduled_tasks')
       .update({
         task_type: updates.taskType,
@@ -326,7 +326,7 @@ export class TaskScheduler {
     
     // Reschedule if needed
     if (updates.schedulePattern || updates.enabled !== undefined) {
-      const { data } = await this.supabase
+      const { data: _data } = await this.supabase
         .from('agent_scheduled_tasks')
         .select('*')
         .eq('id', taskId)
@@ -352,7 +352,7 @@ export class TaskScheduler {
   
   // Delete scheduled task
   async deleteScheduledTask(taskId: string): Promise<void> {
-    const { error } = await this.supabase
+    const { error: _error } = await this.supabase
       .from('agent_scheduled_tasks')
       .delete()
       .eq('id', taskId);

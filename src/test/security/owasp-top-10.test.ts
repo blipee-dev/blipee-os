@@ -13,7 +13,7 @@ describe('OWASP Top 10 Security Tests', () => {
   describe('A01:2021 – Broken Access Control', () => {
     it('should prevent horizontal privilege escalation', async () => {
       // User A trying to access User B's data
-      const request = createAuthenticatedRequest('http://localhost:3000/api/users/user-b-id', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/users/user-b-id', {
         method: 'GET',
         userId: 'user-a-id',
       });
@@ -24,7 +24,7 @@ describe('OWASP Top 10 Security Tests', () => {
 
     it('should prevent vertical privilege escalation', async () => {
       // Regular user trying to access admin endpoints
-      const request = createAuthenticatedRequest('http://localhost:3000/api/admin/users', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/admin/users', {
         method: 'GET',
         userId: 'regular-user-id',
       });
@@ -35,7 +35,7 @@ describe('OWASP Top 10 Security Tests', () => {
 
     it('should enforce organization boundaries', async () => {
       // User from Org A trying to access Org B's data
-      const request = createAuthenticatedRequest('http://localhost:3000/api/organizations/org-b/data', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/organizations/org-b/data', {
         method: 'GET',
         userId: 'user-from-org-a',
       });
@@ -54,7 +54,7 @@ describe('OWASP Top 10 Security Tests', () => {
       ];
 
       for (const id of guessedIds) {
-        const request = createAuthenticatedRequest(`http://localhost:3000/api/conversations/${id}`, {
+        const _request = createAuthenticatedRequest(`http://localhost:3000/api/conversations/${id}`, {
           method: 'GET',
         });
 
@@ -95,7 +95,7 @@ describe('OWASP Top 10 Security Tests', () => {
         apiKey: 'sk_live_secret123',
       };
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/profile/update', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/profile/update', {
         method: 'POST',
         body: sensitiveData,
       });
@@ -109,7 +109,7 @@ describe('OWASP Top 10 Security Tests', () => {
     });
 
     it('should use secure communication (HTTPS)', async () => {
-      const request = new Request('http://localhost:3000/api/auth/signin', {
+      const _request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: {
           'X-Forwarded-Proto': 'http',
@@ -134,7 +134,7 @@ describe('OWASP Top 10 Security Tests', () => {
       jest.spyOn(require('@/lib/security/encryption'), 'encrypt')
         .mockRejectedValueOnce(new Error('Encryption failed'));
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/secure-data', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/secure-data', {
         method: 'POST',
         body: { sensitive: 'data' },
       });
@@ -159,7 +159,7 @@ describe('OWASP Top 10 Security Tests', () => {
       ];
 
       for (const payload of sqlInjectionPayloads) {
-        const request = createAuthenticatedRequest('http://localhost:3000/api/search', {
+        const _request = createAuthenticatedRequest('http://localhost:3000/api/search', {
           method: 'POST',
           body: { query: payload },
         });
@@ -187,7 +187,7 @@ describe('OWASP Top 10 Security Tests', () => {
       ];
 
       for (const payload of noSqlPayloads) {
-        const request = createAuthenticatedRequest('http://localhost:3000/api/users/search', {
+        const _request = createAuthenticatedRequest('http://localhost:3000/api/users/search', {
           method: 'POST',
           body: { filter: payload },
         });
@@ -206,7 +206,7 @@ describe('OWASP Top 10 Security Tests', () => {
       ];
 
       for (const payload of commandPayloads) {
-        const request = createAuthenticatedRequest('http://localhost:3000/api/files/process', {
+        const _request = createAuthenticatedRequest('http://localhost:3000/api/files/process', {
           method: 'POST',
           body: { filename: payload },
         });
@@ -228,7 +228,7 @@ describe('OWASP Top 10 Security Tests', () => {
       ];
 
       for (const payload of ldapPayloads) {
-        const request = createAuthenticatedRequest('http://localhost:3000/api/ldap/search', {
+        const _request = createAuthenticatedRequest('http://localhost:3000/api/ldap/search', {
           method: 'POST',
           body: { username: payload },
         });
@@ -241,7 +241,7 @@ describe('OWASP Top 10 Security Tests', () => {
     it('should use parameterized queries', async () => {
       const dbSpy = jest.spyOn(require('@/lib/supabase/client').createClient().from(), 'select');
 
-      const request = createAuthenticatedRequest('http://localhost:3000/api/users/search', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/users/search', {
         method: 'POST',
         body: { email: 'test@example.com' },
       });
@@ -351,7 +351,7 @@ describe('OWASP Top 10 Security Tests', () => {
       process.env['NODE_ENV'] = 'production';
 
       // Cause an error
-      const request = createAuthenticatedRequest('http://localhost:3000/api/error-test', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/error-test', {
         method: 'POST',
         body: { causeError: true },
       });
@@ -669,7 +669,7 @@ describe('OWASP Top 10 Security Tests', () => {
       ];
 
       for (const url of ssrfPayloads) {
-        const request = createAuthenticatedRequest('http://localhost:3000/api/fetch-url', {
+        const _request = createAuthenticatedRequest('http://localhost:3000/api/fetch-url', {
           method: 'POST',
           body: { url },
         });
@@ -683,7 +683,7 @@ describe('OWASP Top 10 Security Tests', () => {
     });
 
     it('should whitelist allowed external domains', async () => {
-      const request = createAuthenticatedRequest('http://localhost:3000/api/fetch-url', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/fetch-url', {
         method: 'POST',
         body: { url: 'https://random-domain.com/api/data' },
       });
@@ -697,7 +697,7 @@ describe('OWASP Top 10 Security Tests', () => {
 
     it('should prevent DNS rebinding attacks', async () => {
       // Mock DNS resolution changing mid-request
-      const request = createAuthenticatedRequest('http://localhost:3000/api/fetch-url', {
+      const _request = createAuthenticatedRequest('http://localhost:3000/api/fetch-url', {
         method: 'POST',
         body: { url: 'https://rebind.domain.com/data' },
       });

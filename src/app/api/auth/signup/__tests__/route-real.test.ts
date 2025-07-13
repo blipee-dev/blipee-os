@@ -33,7 +33,7 @@ describe('Signup API', () => {
       error: null
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/signup', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify({
         email: 'new@example.com',
@@ -50,7 +50,7 @@ describe('Signup API', () => {
   });
 
   it('should validate email format', async () => {
-    const request = new NextRequest('http://localhost:3000/api/auth/signup', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify({
         email: 'invalid-email',
@@ -64,7 +64,7 @@ describe('Signup API', () => {
   });
 
   it('should validate password strength', async () => {
-    const request = new NextRequest('http://localhost:3000/api/auth/signup', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@example.com',
@@ -83,7 +83,7 @@ describe('Signup API', () => {
       error: { message: 'User already registered' }
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/signup', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify({
         email: 'existing@example.com',

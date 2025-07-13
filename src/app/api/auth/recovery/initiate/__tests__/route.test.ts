@@ -24,7 +24,7 @@ describe('POST /api/auth/recovery/initiate', () => {
       maskedEmail: 't***@example.com'
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/recovery/initiate', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/recovery/initiate', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@example.com',
@@ -47,7 +47,7 @@ describe('POST /api/auth/recovery/initiate', () => {
       maskedPhone: '***-***-1234'
     });
 
-    const request = new NextRequest('http://localhost:3000/api/auth/recovery/initiate', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/recovery/initiate', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@example.com',
@@ -62,7 +62,7 @@ describe('POST /api/auth/recovery/initiate', () => {
   it('should handle non-existent account', async () => {
     mockRecoveryService.initiateRecovery.mockResolvedValue(null);
 
-    const request = new NextRequest('http://localhost:3000/api/auth/recovery/initiate', {
+    const _request = new NextRequest('http://localhost:3000/api/auth/recovery/initiate', {
       method: 'POST',
       body: JSON.stringify({
         email: 'notfound@example.com',

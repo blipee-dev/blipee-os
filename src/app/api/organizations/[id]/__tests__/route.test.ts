@@ -45,7 +45,7 @@ describe('Organization API', () => {
         error: null
       });
 
-      const request = new NextRequest('http://localhost:3000/api/organizations/org123');
+      const _request = new NextRequest('http://localhost:3000/api/organizations/org123');
       const response = await GET(request, { params: { id: 'org123' } });
       const data = await response.json();
 
@@ -64,7 +64,7 @@ describe('Organization API', () => {
         error: { message: 'Not found' }
       });
 
-      const request = new NextRequest('http://localhost:3000/api/organizations/org123');
+      const _request = new NextRequest('http://localhost:3000/api/organizations/org123');
       const response = await GET(request, { params: { id: 'org123' } });
 
       expect(response.status).toBe(404);
@@ -83,7 +83,7 @@ describe('Organization API', () => {
         error: null
       });
 
-      const request = new NextRequest('http://localhost:3000/api/organizations/org123', {
+      const _request = new NextRequest('http://localhost:3000/api/organizations/org123', {
         method: 'PATCH',
         body: JSON.stringify({
           name: 'Updated Org',

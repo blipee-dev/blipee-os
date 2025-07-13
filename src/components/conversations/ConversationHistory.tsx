@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as _motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, Plus, Clock, ChevronRight } from "lucide-react";
 import {
   conversationService,

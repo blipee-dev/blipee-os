@@ -23,7 +23,7 @@ import {
   ExternalLink,
   Zap
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as _motion, AnimatePresence } from 'framer-motion';
 import { 
   WebhookEndpoint, 
   WebhookEndpointCreate, 
@@ -377,7 +377,7 @@ export default function WebhooksPage() {
                   
                   {/* Events */}
                   <div className="flex flex-wrap gap-2 mb-3">
-                    {webhook.events.slice(0, 5).map((event) => (
+                    {webhook.events.slice(0, 5).map((event: any) => (
                       <span
                         key={event}
                         className="text-xs px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded text-purple-400"
@@ -560,7 +560,7 @@ function WebhookForm({
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {events.map((event) => (
+                {events.map((event: any) => (
                   <label
                     key={event}
                     className="flex items-center gap-2 p-2 bg-gray-900/30 rounded cursor-pointer hover:bg-gray-900/50 transition-colors"

@@ -316,7 +316,7 @@ describe('Stream B Production Integration Tests', () => {
 
       for (let i = 0; i < concurrentRequests; i++) {
         const modelId = `model_${i % models.length}`;
-        const request = modelScaler.predict(modelId, {
+        const _request = modelScaler.predict(modelId, {
           temperature: 25 + Math.random() * 10,
           humidity: 50 + Math.random() * 20
         });
@@ -477,7 +477,7 @@ describe('Stream B Production Integration Tests', () => {
       // Simulate high-frequency, high-latency requests
       const stressRequests = [];
       for (let i = 0; i < 50; i++) {
-        const request = monitoring.recordPrediction(
+        const _request = monitoring.recordPrediction(
           `stress_req_${i}`,
           { prediction: 'stress_test' },
           { load: i, timestamp: Date.now() },

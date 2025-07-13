@@ -24,7 +24,7 @@ export class OnboardingService {
     const flow = getOnboardingFlow(role);
 
     // Create onboarding progress record
-    const { error } = await this.supabase.from("onboarding_progress").insert({
+    const { error: _error } = await this.supabase.from("onboarding_progress").insert({
       user_id: userId,
       flow_id: flow.id,
       current_step: flow.steps[0].id,
@@ -91,7 +91,7 @@ export class OnboardingService {
     const nextStep = isLastStep ? null : flow.steps[currentStepIndex + 1];
 
     // Update progress
-    const { error } = await this.supabase
+    const { error: _error } = await this.supabase
       .from("onboarding_progress")
       .update({
         current_step: nextStep?.id || stepId,

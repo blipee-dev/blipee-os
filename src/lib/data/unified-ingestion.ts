@@ -585,7 +585,7 @@ export class UnifiedDataIngestion {
   }
 
   private async getOrganizationData(organizationId: string): Promise<any> {
-    const { data } = await this.supabase
+    const { data: _data } = await this.supabase
       .from("organizations")
       .select("*")
       .eq("id", organizationId)
@@ -595,7 +595,7 @@ export class UnifiedDataIngestion {
   }
 
   private async getEmissionsData(organizationId: string): Promise<any> {
-    const { data } = await this.supabase
+    const { data: _data } = await this.supabase
       .from("emissions")
       .select("*")
       .eq("organization_id", organizationId)
@@ -620,7 +620,7 @@ export class UnifiedDataIngestion {
   }
 
   private async getTargetsData(organizationId: string): Promise<any> {
-    const { data } = await this.supabase
+    const { data: _data } = await this.supabase
       .from("sustainability_targets")
       .select("*")
       .eq("organization_id", organizationId);
@@ -629,7 +629,7 @@ export class UnifiedDataIngestion {
   }
 
   private async getInitiativesData(organizationId: string): Promise<any> {
-    const { data } = await this.supabase
+    const { data: _data } = await this.supabase
       .from("initiatives")
       .select("*")
       .eq("organization_id", organizationId)

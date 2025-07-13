@@ -373,7 +373,7 @@ export async function checkNetworkMigrations() {
   const missingTables = [];
 
   for (const table of requiredTables) {
-    const { error } = await supabase
+    const { error: _error } = await supabase
       .from(table)
       .select('*')
       .limit(1);

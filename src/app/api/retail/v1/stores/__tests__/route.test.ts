@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 
 describe('Retail Stores API', () => {
   it('should return list of stores', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/stores');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/stores');
     const response = await GET(request);
     const data = await response.json();
 
@@ -15,7 +15,7 @@ describe('Retail Stores API', () => {
   });
 
   it('should return stores with correct structure', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/stores');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/stores');
     const response = await GET(request);
     const data = await response.json();
 
@@ -28,7 +28,7 @@ describe('Retail Stores API', () => {
   });
 
   it('should include specific store codes', async () => {
-    const request = new NextRequest('http://localhost:3000/api/retail/v1/stores');
+    const _request = new NextRequest('http://localhost:3000/api/retail/v1/stores');
     const response = await GET(request);
     const data = await response.json();
 

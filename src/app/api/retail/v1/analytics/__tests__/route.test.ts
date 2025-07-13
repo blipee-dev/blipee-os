@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 describe('Retail Analytics API', () => {
   describe('GET endpoint', () => {
     it('should return error when missing required parameters', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/v1/analytics');
+      const _request = new NextRequest('http://localhost:3000/api/retail/v1/analytics');
       const response = await GET(request);
       const data = await response.json();
 
@@ -14,7 +14,7 @@ describe('Retail Analytics API', () => {
 
     it('should return analytics data with valid parameters', async () => {
       const url = 'http://localhost:3000/api/retail/v1/analytics?loja=OML01&start_date=2025-07-12&end_date=2025-07-12';
-      const request = new NextRequest(url);
+      const _request = new NextRequest(url);
       const response = await GET(request);
       const data = await response.json();
 
@@ -28,7 +28,7 @@ describe('Retail Analytics API', () => {
 
     it('should return correct analytics structure', async () => {
       const url = 'http://localhost:3000/api/retail/v1/analytics?loja=OML01&start_date=2025-07-12&end_date=2025-07-12';
-      const request = new NextRequest(url);
+      const _request = new NextRequest(url);
       const response = await GET(request);
       const data = await response.json();
 
@@ -43,7 +43,7 @@ describe('Retail Analytics API', () => {
 
     it('should include user permissions in response', async () => {
       const url = 'http://localhost:3000/api/retail/v1/analytics?loja=OML01&start_date=2025-07-12&end_date=2025-07-12';
-      const request = new NextRequest(url);
+      const _request = new NextRequest(url);
       const response = await GET(request);
       const data = await response.json();
 
@@ -56,7 +56,7 @@ describe('Retail Analytics API', () => {
 
   describe('POST endpoint', () => {
     it('should handle POST requests with body', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/v1/analytics', {
+      const _request = new NextRequest('http://localhost:3000/api/retail/v1/analytics', {
         method: 'POST',
         body: JSON.stringify({
           loja: 'OML01',
@@ -81,7 +81,7 @@ describe('Retail Analytics API', () => {
     });
 
     it('should return error for missing POST parameters', async () => {
-      const request = new NextRequest('http://localhost:3000/api/retail/v1/analytics', {
+      const _request = new NextRequest('http://localhost:3000/api/retail/v1/analytics', {
         method: 'POST'
       });
 

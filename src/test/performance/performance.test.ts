@@ -52,7 +52,7 @@ describe('Performance Test Suite', () => {
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
         
-        const request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
+        const _request = createAuthenticatedRequest('http://localhost:3000/api/ai/chat', {
           method: 'POST',
           body: {
             message: `Test message ${i}`,
@@ -83,7 +83,7 @@ describe('Performance Test Suite', () => {
       const start = performance.now();
 
       for (let i = 0; i < concurrentRequests; i++) {
-        const request = signInHandler(new Request('http://localhost:3000/api/auth/signin', {
+        const _request = signInHandler(new Request('http://localhost:3000/api/auth/signin', {
           method: 'POST',
           body: JSON.stringify({
             email: `concurrent${i}@example.com`,

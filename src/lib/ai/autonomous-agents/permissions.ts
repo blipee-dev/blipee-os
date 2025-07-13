@@ -35,7 +35,7 @@ export class AgentPermissionSystem {
   constructor() {
     this.supabase = createClient(
       process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env.SUPABASE_SERVICE_KEY!
+      process.env['SUPABASE_SERVICE_KEY']!
     );
   }
   
@@ -191,7 +191,7 @@ export class AgentPermissionSystem {
     task: AgentTask,
     reason?: string
   ): Promise<ApprovalRequest> {
-    const request = {
+    const _request = {
       agent_id: agentId,
       organization_id: organizationId,
       task,
@@ -231,7 +231,7 @@ export class AgentPermissionSystem {
     decidedBy: string,
     notes?: string
   ): Promise<void> {
-    const { error } = await this.supabase
+    const { error: _error } = await this.supabase
       .from('agent_approvals')
       .update({
         status: decision,

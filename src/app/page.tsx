@@ -17,6 +17,9 @@ import {
   ArrowRight,
   Play,
   Star,
+  Target,
+  Building,
+  Users,
 
   FileText,
   Users,

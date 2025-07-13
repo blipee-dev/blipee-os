@@ -36,7 +36,7 @@ export class AgentErrorHandler {
   constructor() {
     this.supabase = createClient(
       process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env.SUPABASE_SERVICE_KEY!
+      process.env['SUPABASE_SERVICE_KEY']!
     );
     
     this.initializeRecoveryStrategies();
@@ -266,7 +266,7 @@ export class AgentErrorHandler {
       created_at: new Date().toISOString()
     };
     
-    const { data } = await this.supabase
+    const { data: _data } = await this.supabase
       .from('agent_errors')
       .insert(errorRecord)
       .select()

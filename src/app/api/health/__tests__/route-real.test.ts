@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 
 describe('Health Check API', () => {
   it('should return health status', async () => {
-    const request = new NextRequest('http://localhost:3000/api/health');
+    const _request = new NextRequest('http://localhost:3000/api/health');
     const response = await GET(request);
     const data = await response.json();
 
@@ -15,7 +15,7 @@ describe('Health Check API', () => {
   });
 
   it('should include environment info', async () => {
-    const request = new NextRequest('http://localhost:3000/api/health');
+    const _request = new NextRequest('http://localhost:3000/api/health');
     const response = await GET(request);
     const data = await response.json();
 

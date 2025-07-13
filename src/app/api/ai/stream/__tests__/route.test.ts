@@ -33,7 +33,7 @@ describe('POST /api/ai/stream', () => {
     const mockStream = new ReadableStream();
     mockAIService.streamResponse.mockResolvedValue(mockStream);
 
-    const request = new NextRequest('http://localhost:3000/api/ai/stream', {
+    const _request = new NextRequest('http://localhost:3000/api/ai/stream', {
       method: 'POST',
       body: JSON.stringify({
         messages: [{ role: 'user', content: 'Hello' }],
@@ -53,7 +53,7 @@ describe('POST /api/ai/stream', () => {
       error: { message: 'Not authenticated' }
     });
 
-    const request = new NextRequest('http://localhost:3000/api/ai/stream', {
+    const _request = new NextRequest('http://localhost:3000/api/ai/stream', {
       method: 'POST',
       body: JSON.stringify({ messages: [] })
     });
@@ -68,7 +68,7 @@ describe('POST /api/ai/stream', () => {
       error: null
     });
 
-    const request = new NextRequest('http://localhost:3000/api/ai/stream', {
+    const _request = new NextRequest('http://localhost:3000/api/ai/stream', {
       method: 'POST',
       body: JSON.stringify({}) // Missing messages
     });
