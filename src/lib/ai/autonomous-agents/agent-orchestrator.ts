@@ -91,7 +91,7 @@ export class AgentOrchestrator {
 
   async initialize(): Promise<void> {
     // Initialize all available agents
-    const agents = [
+    const agents: AutonomousAgent[] = [
       new ESGChiefOfStaffAgent(this.organizationId),
       new ComplianceGuardianAgent(this.organizationId),
       new CarbonHunterAgent(this.organizationId),
@@ -100,14 +100,14 @@ export class AgentOrchestrator {
 
     // Initialize each agent
     for (const agent of agents) {
-      if ('initialize' in agent && typeof agent.initialize === 'function') {
+      if (agent.initialize && typeof agent.initialize === 'function') {
         await agent.initialize();
       }
-      this.agents.set(agent['agentId'], agent);
+      this.agents.set(agent.id, agent);
       
       // Initialize resource tracking
-      this.resourceUsage.set(agent['agentId'], {
-        agent_id: agent['agentId'],
+      this.resourceUsage.set(agent.id, {
+        agent_id: agent.id,
         cpu_usage: 0,
         memory_usage: 0,
         api_calls_per_minute: 0,
