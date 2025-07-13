@@ -98,9 +98,12 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
   protected benchmarkData: Map<string, any> = new Map();
 
   constructor(organizationId: string) {
-    super(organizationId, 'supply-chain-investigator', 'SupplyChainInvestigator');
-    this.maxAutonomyLevel = 4; // High autonomy for supply chain analysis
-    this.executionInterval = 3600000; // Run every hour for continuous monitoring
+    super(organizationId, {
+      agentId: 'supply-chain-investigator',
+      capabilities: [],
+      maxAutonomyLevel: 4, // High autonomy for supply chain analysis
+      executionInterval: 3600000 // Run every hour for continuous monitoring
+    });
   }
 
   async initialize(): Promise<void> {

@@ -391,9 +391,12 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
   private coordinationEngine: CoordinationEngine;
 
   constructor(organizationId: string) {
-    super(organizationId, 'swarm-intelligence', 'SwarmIntelligence');
-    this.maxAutonomyLevel = 5; // Highest autonomy for swarm coordination
-    this.executionInterval = 600000; // Run every 10 minutes
+    super(organizationId, {
+      agentId: 'swarm-intelligence',
+      capabilities: [],
+      maxAutonomyLevel: 5, // Highest autonomy for swarm coordination
+      executionInterval: 600000 // Run every 10 minutes
+    });
     this.emergenceDetector = new EmergenceDetector(organizationId);
     this.coordinationEngine = new CoordinationEngine(organizationId);
   }
