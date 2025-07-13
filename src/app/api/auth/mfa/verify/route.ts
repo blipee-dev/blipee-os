@@ -11,10 +11,10 @@ const verifySchema = z.object({
   rememberDevice: z.boolean().optional(),
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Validate request
-    const body = await _request.json();
+    const body = await request.json();
     const { challengeId, method, code, rememberDevice } = verifySchema.parse(body);
 
     // Initialize MFA service

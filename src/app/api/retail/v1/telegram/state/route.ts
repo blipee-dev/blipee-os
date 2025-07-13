@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Mock bot state storage (in production, this would be in database/Redis)
 const botStates = new Map<string, any>();
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const chatId = searchParams.get('chat_id');
@@ -34,7 +34,7 @@ export async function GET(_request: NextRequest) {
   }
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { chat_id, state, context = {} } = body;

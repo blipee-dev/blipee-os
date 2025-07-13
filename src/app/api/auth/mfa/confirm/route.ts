@@ -8,7 +8,7 @@ const confirmSchema = z.object({
   code: z.string().length(6),
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     
@@ -22,7 +22,7 @@ export async function POST(_request: NextRequest) {
     }
 
     // Validate request
-    const body = await _request.json();
+    const body = await request.json();
     const verification = confirmSchema.parse(body);
 
     // Initialize MFA service

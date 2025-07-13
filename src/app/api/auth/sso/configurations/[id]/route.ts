@@ -97,7 +97,7 @@ export async function PUT(
     }
     
     // Get update data
-    const updates = await _request.json();
+    const updates = await request.json();
     
     // Update configuration
     const configuration = await ssoService.updateConfiguration(params.id, updates);

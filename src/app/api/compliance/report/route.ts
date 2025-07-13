@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/middleware';
 import { ComplianceFramework } from '@/lib/compliance/types';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Check authentication - only admins can generate compliance reports
-    const authResult = await requireAuth(_request, ['account_owner', 'admin']);
+    const authResult = await requireAuth(request, ['account_owner', 'admin']);
     if (!authResult.authenticated) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -13,7 +13,7 @@ export async function GET(_request: NextRequest) {
       );
     }
 
-    const searchParams = _request.nextUrl.searchParams;
+    const searchParams = request.nextUrl.searchParams;
     const framework = searchParams.get('framework') as ComplianceFramework;
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
@@ -25,12 +25,18 @@ export async function GET(_request: NextRequest) {
       );
     }
 
-    const _period = {
+    const period = {
       start: startDate ? new Date(startDate) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), // 90 days ago
       end: endDate ? new Date(endDate) : new Date(),
     };
 
-    const report = await undefined // soc2Service.generateComplianceReport(framework, period);
+    // TODO: Implement compliance report generation
+    const report = {
+      framework,
+      period,
+      status: 'not_implemented',
+      message: 'Compliance report generation is not yet implemented'
+    };
 
     return NextResponse.json({ report });
   } catch (error) {

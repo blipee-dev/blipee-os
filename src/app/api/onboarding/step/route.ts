@@ -8,7 +8,7 @@ const completeStepSchema = z.object({
   data: z.record(z.any()),
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const session = await authService.getSession();
     if (!session) {
