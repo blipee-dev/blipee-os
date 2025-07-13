@@ -4,7 +4,7 @@ import { webhookService } from '@/lib/webhooks/webhook-service';
 import { WebhookEndpointCreate } from '@/types/webhooks';
 import { webhookVerifier } from '@/lib/webhooks/webhook-verifier';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     

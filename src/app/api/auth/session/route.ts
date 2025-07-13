@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     // First check Redis session
-    const sessionData = await sessionManager.getSession(_request);
+    const sessionData = await sessionManager.getSession(request);
     
     if (!sessionData) {
       return NextResponse.json(

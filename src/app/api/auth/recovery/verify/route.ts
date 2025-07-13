@@ -44,19 +44,19 @@ export async function POST(request: NextRequest) {
       verifyRequest.verificationData = validated.verificationData;
     }
     
-    const result = await recoveryService.verifyRecovery(_request, verifyRequest);
+    const result = await recoveryService.verifyRecovery(request, verifyRequest);
     
     // Log recovery attempt
     if (result.success && result.userId) {
       await auditLogger.logAuthSuccess(
-        _request,
+        request,
         result.userId,
         '', // Email would need to be fetched
         'password'
       );
     } else {
       await auditLogger.logAuthFailure(
-        _request,
+        request,
         '',
         result.message,
         'RECOVERY_VERIFICATION_FAILED'

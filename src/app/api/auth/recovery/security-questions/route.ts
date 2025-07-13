@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     
     // Log security questions setup
     await auditLogger.logUserAction(
-      _request,
+      request,
       'updated',
       validation.session.userId,
       [{ field: 'security_questions', oldValue: null, newValue: 'configured' }]

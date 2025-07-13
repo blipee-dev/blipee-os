@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     // Verify registration
     const result = await webAuthnService.verifyRegistration(
-      _request,
+      request,
       user.id,
       credentialName,
       registrationResponse
