@@ -399,7 +399,9 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
   }
 
   async initialize(): Promise<void> {
-    await super.initialize();
+    if (super.initialize) {
+      await super.initialize();
+    }
     await this.initializeCollectiveMemory();
     await this.loadExistingNetworks();
     await this.setupCommunicationInfrastructure();
@@ -539,12 +541,16 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
       }
 
       result.executionTimeMs = Date.now() - startTime;
-      await this.logResult(task.id, result);
+      if (this.logResult) {
+        await this.logResult(task.id, result);
+      }
       return result;
 
     } catch (error) {
       const executionTime = Date.now() - startTime;
-      await this.logError(task.id, error as Error, executionTime);
+      if (this.logError) {
+        await this.logError(task.id, error as Error, executionTime);
+      }
 
       return {
         taskId: task.id,
@@ -960,10 +966,12 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
       performance_improvements: result.metadata?.efficiency_gain || 0
     };
 
-    await this.storePattern('swarm_intelligence', patterns, 0.96, {
-      timestamp: new Date().toISOString(),
-      task_type: 'swarm_coordination_task'
-    });
+    if (this.storePattern) {
+      await this.storePattern('swarm_intelligence', patterns, 0.96, {
+        timestamp: new Date().toISOString(),
+        task_type: 'swarm_coordination_task'
+      });
+    }
 
   }
 

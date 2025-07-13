@@ -611,7 +611,9 @@ export class SelfImprovementEngine extends AutonomousAgent {
   }
 
   async initialize(): Promise<void> {
-    await super.initialize();
+    if (super.initialize) {
+      await super.initialize();
+    }
     await this.initializeLearningLoops();
     await this.loadCapabilityAcquisitions();
     await this.metaLearningSystem.initialize();
@@ -750,12 +752,16 @@ export class SelfImprovementEngine extends AutonomousAgent {
       }
 
       result.executionTimeMs = Date.now() - startTime;
-      await this.logResult(task.id, result);
+      if (this.logResult) {
+        await this.logResult(task.id, result);
+      }
       return result;
 
     } catch (error) {
       const executionTime = Date.now() - startTime;
-      await this.logError(task.id, error as Error, executionTime);
+      if (this.logError) {
+        await this.logError(task.id, error as Error, executionTime);
+      }
 
       return {
         taskId: task.id,
@@ -1222,10 +1228,12 @@ export class SelfImprovementEngine extends AutonomousAgent {
       performance_improvement: result.metadata?.average_improvement || 0
     };
 
-    await this.storePattern('self_improvement', patterns, 0.98, {
-      timestamp: new Date().toISOString(),
-      task_type: 'self_improvement_task'
-    });
+    if (this.storePattern) {
+      await this.storePattern('self_improvement', patterns, 0.98, {
+        timestamp: new Date().toISOString(),
+        task_type: 'self_improvement_task'
+      });
+    }
 
   }
 

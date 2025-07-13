@@ -397,7 +397,9 @@ export class CostSavingFinderAgent extends AutonomousAgent {
   }
 
   async initialize(): Promise<void> {
-    await super.initialize();
+    if (super.initialize) {
+      await super.initialize();
+    }
     await this.loadCostData();
     await this.loadBenchmarkData();
     await this.initializeOptimizationAlgorithms();
@@ -546,12 +548,16 @@ export class CostSavingFinderAgent extends AutonomousAgent {
       }
 
       result.executionTimeMs = Date.now() - startTime;
-      await this.logResult(task.id, result);
+      if (this.logResult) {
+        await this.logResult(task.id, result);
+      }
       return result;
 
     } catch (error) {
       const executionTime = Date.now() - startTime;
-      await this.logError(task.id, error as Error, executionTime);
+      if (this.logError) {
+        await this.logError(task.id, error as Error, executionTime);
+      }
 
       return {
         taskId: task.id,
@@ -589,11 +595,14 @@ export class CostSavingFinderAgent extends AutonomousAgent {
           actions.push({
             type: 'cost_anomaly_detected',
             description: `${anomaly.severity} cost anomaly in ${anomaly.category}`,
-            category: anomaly.category,
-            anomalyId: anomaly.anomaly_id,
-            costImpact: anomaly.cost_impact,
-            severity: anomaly.severity,
-            timestamp: new Date().toISOString()
+            impact: {
+              category: anomaly.category,
+              anomalyId: anomaly.anomaly_id,
+              costImpact: anomaly.cost_impact,
+              severity: anomaly.severity,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
       }
@@ -609,10 +618,13 @@ export class CostSavingFinderAgent extends AutonomousAgent {
           actions.push({
             type: 'cost_increase_trend',
             description: `${trend.category} costs increasing at ${(trend.rate_of_change * 100).toFixed(1)}% rate`,
-            category: trend.category,
-            rateOfChange: trend.rate_of_change,
-            confidence: trend.prediction_confidence,
-            timestamp: new Date().toISOString()
+            impact: {
+              category: trend.category,
+              rateOfChange: trend.rate_of_change,
+              confidence: trend.prediction_confidence,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
       }
@@ -678,12 +690,15 @@ export class CostSavingFinderAgent extends AutonomousAgent {
         actions.push({
           type: 'high_value_opportunity_identified',
           description: `${opportunity.title}: $${opportunity.annual_savings_potential.toLocaleString()} annual savings`,
-          opportunityId: opportunity.id,
-          category: opportunity.category,
-          annualSavings: opportunity.annual_savings_potential,
-          roi: opportunity.roi_percentage,
-          payback: opportunity.payback_period_months,
-          timestamp: new Date().toISOString()
+          impact: {
+            opportunityId: opportunity.id,
+            category: opportunity.category,
+            annualSavings: opportunity.annual_savings_potential,
+            roi: opportunity.roi_percentage,
+            payback: opportunity.payback_period_months,
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
     }
@@ -739,11 +754,14 @@ export class CostSavingFinderAgent extends AutonomousAgent {
         actions.push({
           type: 'contract_optimization_opportunity',
           description: `${contract.vendor_name} contract: $${optimization.savings_potential.toLocaleString()} savings potential`,
-          contractId: contract.contract_id,
-          vendorName: contract.vendor_name,
-          savingsPotential: optimization.savings_potential,
-          strategies: optimization.recommended_strategies,
-          timestamp: new Date().toISOString()
+          impact: {
+            contractId: contract.contract_id,
+            vendorName: contract.vendor_name,
+            savingsPotential: optimization.savings_potential,
+            strategies: optimization.recommended_strategies,
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
     }
@@ -791,9 +809,12 @@ export class CostSavingFinderAgent extends AutonomousAgent {
         actions.push({
           type: 'demand_management_opportunity',
           description: `Demand management optimization: $${demandOptimization.annual_savings.toLocaleString()} annual savings`,
-          savingsAmount: demandOptimization.annual_savings,
-          strategies: demandOptimization.strategies,
-          timestamp: new Date().toISOString()
+          impact: {
+            savingsAmount: demandOptimization.annual_savings,
+            strategies: demandOptimization.strategies,
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
     }
@@ -808,9 +829,12 @@ export class CostSavingFinderAgent extends AutonomousAgent {
         actions.push({
           type: 'rate_optimization_opportunity',
           description: `Energy rate optimization: $${rateOptimization.annual_savings.toLocaleString()} annual savings`,
-          savingsAmount: rateOptimization.annual_savings,
-          newRateStructure: rateOptimization.recommended_rate,
-          timestamp: new Date().toISOString()
+          impact: {
+            savingsAmount: rateOptimization.annual_savings,
+            newRateStructure: rateOptimization.recommended_rate,
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
     }
@@ -824,9 +848,12 @@ export class CostSavingFinderAgent extends AutonomousAgent {
         actions.push({
           type: 'renewable_energy_opportunity',
           description: `Renewable energy adoption: $${renewableAnalysis.annual_savings.toLocaleString()} annual savings`,
-          savingsAmount: renewableAnalysis.annual_savings,
-          renewableOptions: renewableAnalysis.recommended_options,
-          timestamp: new Date().toISOString()
+          impact: {
+            savingsAmount: renewableAnalysis.annual_savings,
+            renewableOptions: renewableAnalysis.recommended_options,
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
     }
@@ -876,12 +903,15 @@ export class CostSavingFinderAgent extends AutonomousAgent {
           actions.push({
             type: 'process_inefficiency_identified',
             description: `${category} process inefficiency: $${inefficiency.cost_impact.toLocaleString()} impact`,
-            category: category,
-            area: inefficiency.area,
-            costImpact: inefficiency.cost_impact,
-            rootCause: inefficiency.root_cause,
-            solutions: inefficiency.potential_solutions,
-            timestamp: new Date().toISOString()
+            impact: {
+              category: category,
+              area: inefficiency.area,
+              costImpact: inefficiency.cost_impact,
+              rootCause: inefficiency.root_cause,
+              solutions: inefficiency.potential_solutions,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
       }
@@ -895,10 +925,13 @@ export class CostSavingFinderAgent extends AutonomousAgent {
             actions.push({
               type: 'automation_opportunity_identified',
               description: `${opportunity.process_name} automation: $${opportunity.annual_savings.toLocaleString()} savings`,
-              processName: opportunity.process_name,
-              savingsAmount: opportunity.annual_savings,
-              automationType: opportunity.automation_type,
-              timestamp: new Date().toISOString()
+              impact: {
+                processName: opportunity.process_name,
+                savingsAmount: opportunity.annual_savings,
+                automationType: opportunity.automation_type,
+                timestamp: new Date().toISOString()
+              },
+              reversible: false
             });
           }
         }
@@ -943,12 +976,15 @@ export class CostSavingFinderAgent extends AutonomousAgent {
           actions.push({
             type: 'tax_incentive_opportunity',
             description: `${incentive.name}: $${incentive.value.toLocaleString()} potential benefit`,
-            incentiveName: incentive.name,
-            incentiveType: type,
-            value: incentive.value,
-            requirements: incentive.requirements,
-            deadline: incentive.deadline,
-            timestamp: new Date().toISOString()
+            impact: {
+              incentiveName: incentive.name,
+              incentiveType: type,
+              value: incentive.value,
+              requirements: incentive.requirements,
+              deadline: incentive.deadline,
+              timestamp: new Date().toISOString()
+            },
+            reversible: false
           });
         }
       }
@@ -980,10 +1016,12 @@ export class CostSavingFinderAgent extends AutonomousAgent {
       categories_analyzed: result.metadata?.categories_monitored || 0
     };
 
-    await this.storePattern('cost_saving_discovery', patterns, 0.93, {
-      timestamp: new Date().toISOString(),
-      task_type: 'cost_saving_task'
-    });
+    if (this.storePattern) {
+      await this.storePattern('cost_saving_discovery', patterns, 0.93, {
+        timestamp: new Date().toISOString(),
+        task_type: 'cost_saving_task'
+      });
+    }
 
   }
 

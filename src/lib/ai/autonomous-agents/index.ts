@@ -1,9 +1,12 @@
 import { AgentManager } from "./agent-manager";
 import { TaskScheduler } from "./scheduler";
-import { ESGChiefOfStaff } from "./esg-chief-of-staff";
+import { ESGChiefOfStaffAgent } from "./esg-chief-of-staff";
 // Export base framework
 export {
-  AutonomousAgent,
+  AutonomousAgent
+} from './agent-framework';
+
+export type {
   AgentCapability,
   AgentTask,
   AgentResult,
@@ -13,30 +16,32 @@ export {
 } from './agent-framework';
 
 // Export agent manager
-export { AgentManager, ManagedAgent } from './agent-manager';
+export { AgentManager } from './agent-manager';
+export type { ManagedAgent } from './agent-manager';
 
 // Export permission system
-export {
-  AgentPermissionSystem,
+export { AgentPermissionSystem } from './permissions';
+export type {
   Permission,
   ApprovalRequest,
   PermissionMatrix
 } from './permissions';
 
 // Export task scheduler
-export { TaskScheduler, ScheduledTask } from './scheduler';
+export { TaskScheduler } from './scheduler';
+export type { ScheduledTask } from './scheduler';
 
 // Export learning system
-export {
-  AgentLearningSystem,
+export { AgentLearningSystem } from './learning-system';
+export type {
   LearningPattern,
   Outcome,
   KnowledgeEntry
 } from './learning-system';
 
 // Export error handler
-export {
-  AgentErrorHandler,
+export { AgentErrorHandler } from './error-handler';
+export type {
   AgentError,
   RecoveryStrategy,
   RollbackAction

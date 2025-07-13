@@ -557,7 +557,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
           insights.push(`⚠️ ${framework} deadline in ${daysUntil} days`);
           
           // Send reminder
-          await this.sendComplianceReminder(framework, daysUntil, status);
+          await this.sendComplianceReminder(framework as string, daysUntil, status);
           actions.push({
             type: 'compliance_reminder_sent',
             description: `Sent ${framework} deadline reminder (${daysUntil} days)`,
@@ -675,16 +675,17 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
         });
         
       for (const framework of Array.from(upcomingDeadlines)) {
+        const fw = framework as any;
         issues.push({
-          title: `${framework.name} Compliance Deadline Approaching`,
-          description: `${framework.gaps.length} gaps remaining, deadline: ${new Date(framework.nextDeadline).toLocaleDateString()}`,
+          title: `${fw.name} Compliance Deadline Approaching`,
+          description: `${fw.gaps.length} gaps remaining, deadline: ${new Date(fw.nextDeadline).toLocaleDateString()}`,
           severity: 'high',
-          recommendations: framework.gaps.slice(0, 3),
+          recommendations: fw.gaps.slice(0, 3),
           recipients: ['compliance_officer', 'cfo', 'legal'],
           metrics: {
-            gapsRemaining: framework.gaps.length,
-            daysUntilDeadline: Math.floor((new Date(framework.nextDeadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-            completeness: framework.completeness
+            gapsRemaining: fw.gaps.length,
+            daysUntilDeadline: Math.floor((new Date(fw.nextDeadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+            completeness: fw.completeness
           }
         });
       }
@@ -707,7 +708,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
       steps.push(...issue.recommendations.slice(0, 2));
     }
     
-    return [...new Set(steps)]; // Remove duplicates
+    return Array.from(new Set(steps)); // Remove duplicates
   }
   
   private extractLearnings(analysis: any, context: any, insights: string[]): Learning[] {
@@ -878,7 +879,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   private async generateReportContent(type: string, context: any, knowledge: Learning[]): Promise<ReportContent> {
     // Use AI to generate report content
     const prompt = `Generate ${type} report based on ESG data with these key points: ${knowledge.map(k => k.pattern).join(', ')}`;
-    const response = await aiService.generateResponse(prompt, this.organizationId);
+    const response = await aiService.complete(prompt);
     
     return {
       summary: response.content,
