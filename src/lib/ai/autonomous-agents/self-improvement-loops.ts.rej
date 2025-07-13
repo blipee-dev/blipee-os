@@ -1,0 +1,20 @@
+--- src/lib/ai/autonomous-agents/self-improvement-loops.ts
++++ src/lib/ai/autonomous-agents/self-improvement-loops.ts
+@@ -1205,6 +1217,8 @@
+     }
+ 
+     return {
++      taskId: task.id,
++      learnings: [],
+       success: true,
+       actions,
+       insights,
+@@ -1397,7 +1411,7 @@
+     return {
+       capability_id: `cap-${Date.now()}`,
+       capability_name: gap.capability,
+-      acquisition_method: method,
++      acquisition_method: method as "learning" | "transfer" | "imitation" | "composition" | "evolution",
+       source_agents: [],
+       progress: 0,
+       proficiency_level: 0,

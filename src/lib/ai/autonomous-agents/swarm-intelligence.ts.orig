@@ -547,8 +547,6 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
       await this.logError(task.id, error as Error, executionTime);
 
       return {
-        taskId: task.id,
-        learnings: [],
         success: false,
         error: (error as Error).message,
         executionTimeMs: executionTime,
@@ -622,8 +620,6 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
     insights.push(`Average efficiency improvement: ${(efficiencyImprovement * 100).toFixed(1)}%`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -700,8 +696,6 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
     insights.push(`${beneficialPatterns} patterns identified as beneficial to swarm performance`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -769,8 +763,6 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
     insights.push(`Resolved ${conflictsResolved} decision conflicts`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -820,8 +812,6 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
     insights.push(`Knowledge relevance improved by ${(relevanceImprovement * 100).toFixed(1)}%`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -883,8 +873,6 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
     insights.push(`Generated ${optimizationRecommendations.length} optimization recommendations`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -938,8 +926,6 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
     insights.push(`Deployed ${deployedStrategies.length} improved strategies`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,

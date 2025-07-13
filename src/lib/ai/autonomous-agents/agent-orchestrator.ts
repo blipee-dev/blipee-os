@@ -100,8 +100,8 @@ export class AgentOrchestrator {
 
     // Initialize each agent
     for (const agent of agents) {
-      if (agent.initialize && typeof agent.initialize === 'function') {
-        await agent.initialize();
+      if (agent["initialize"] && typeof agent["initialize"] === 'function') {
+        await agent["initialize"]();
       }
       this.agents.set(agent.id, agent);
       

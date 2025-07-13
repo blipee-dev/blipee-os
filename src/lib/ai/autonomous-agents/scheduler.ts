@@ -45,7 +45,7 @@ export class TaskScheduler {
     if (!tasks || tasks.length === 0) return;
     
     // Schedule each task
-    for (const task of tasks) {
+    for (const task of Array.from(tasks)) {
       await this.scheduleTask({
         id: task.id,
         agentId: task.agent_id,

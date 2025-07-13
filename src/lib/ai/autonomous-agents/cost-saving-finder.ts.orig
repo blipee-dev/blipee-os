@@ -357,43 +357,9 @@ export class CostSavingFinderAgent extends AutonomousAgent {
   private savingsOpportunities: Map<string, CostSavingOpportunity> = new Map();
 
   constructor(organizationId: string) {
-    super(organizationId, {
-      agentId: 'cost-saving-finder',
-      capabilities: [
-        {
-          name: 'cost-monitoring',
-          description: 'Monitor and analyze costs',
-          requiredPermissions: [],
-          maxAutonomyLevel: 4
-        },
-        {
-          name: 'opportunity-discovery',
-          description: 'Discover cost-saving opportunities',
-          requiredPermissions: [],
-          maxAutonomyLevel: 4
-        },
-        {
-          name: 'contract-optimization',
-          description: 'Optimize contracts and negotiations',
-          requiredPermissions: [],
-          maxAutonomyLevel: 4
-        },
-        {
-          name: 'energy-optimization',
-          description: 'Optimize energy usage and costs',
-          requiredPermissions: [],
-          maxAutonomyLevel: 4
-        },
-        {
-          name: 'process-optimization',
-          description: 'Optimize operational processes',
-          requiredPermissions: [],
-          maxAutonomyLevel: 4
-        }
-      ],
-      maxAutonomyLevel: 4,
-      executionInterval: 1800000 // 30 minutes
-    });
+    super(organizationId, 'cost-saving-finder', 'CostSavingFinder');
+    this.maxAutonomyLevel = 4; // High autonomy for cost optimization
+    this.executionInterval = 1800000; // Run every 30 minutes
   }
 
   async initialize(): Promise<void> {
@@ -419,8 +385,7 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     tasks.push({
       id: `cost-monitoring-${monitoringTask.getTime()}`,
       type: 'monitor_cost_patterns',
-      scheduledFor: monitoringTask,
-      requiresApproval: false,
+      scheduledFor: monitoringTask.toISOString(),
       priority: 'high',
       data: {
         monitoring_scope: 'all_categories',
@@ -434,8 +399,7 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     tasks.push({
       id: `opportunity-discovery-${discoveryTask.getTime()}`,
       type: 'discover_saving_opportunities',
-      scheduledFor: discoveryTask,
-      requiresApproval: false,
+      scheduledFor: discoveryTask.toISOString(),
       priority: 'critical',
       data: {
         discovery_methods: ['pattern_analysis', 'benchmarking', 'vendor_analysis'],
@@ -451,8 +415,7 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     tasks.push({
       id: `vendor-optimization-${vendorTask.getTime()}`,
       type: 'optimize_vendor_contracts',
-      scheduledFor: vendorTask,
-      requiresApproval: false,
+      scheduledFor: vendorTask.toISOString(),
       priority: 'medium',
       data: {
         contract_renewal_horizon_days: 90,
@@ -468,8 +431,7 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     tasks.push({
       id: `energy-optimization-${energyTask.getTime()}`,
       type: 'optimize_energy_costs',
-      scheduledFor: energyTask,
-      requiresApproval: false,
+      scheduledFor: energyTask.toISOString(),
       priority: 'medium',
       data: {
         optimization_areas: ['demand_management', 'rate_optimization', 'efficiency'],
@@ -485,8 +447,7 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     tasks.push({
       id: `process-efficiency-${processTask.getTime()}`,
       type: 'analyze_process_efficiency',
-      scheduledFor: processTask,
-      requiresApproval: false,
+      scheduledFor: processTask.toISOString(),
       priority: 'medium',
       data: {
         process_categories: ['operations', 'administration', 'maintenance'],
@@ -503,8 +464,7 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     tasks.push({
       id: `tax-optimization-${taxTask.getTime()}`,
       type: 'optimize_tax_incentives',
-      scheduledFor: taxTask,
-      requiresApproval: false,
+      scheduledFor: taxTask.toISOString(),
       priority: 'medium',
       data: {
         incentive_types: ['sustainability', 'research', 'employment', 'capital_investment'],
@@ -554,8 +514,6 @@ export class CostSavingFinderAgent extends AutonomousAgent {
       await this.logError(task.id, error as Error, executionTime);
 
       return {
-        taskId: task.id,
-        learnings: [],
         success: false,
         error: (error as Error).message,
         executionTimeMs: executionTime,
@@ -623,8 +581,6 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     insights.push(`Identified ${costIncreases} categories with concerning cost increases`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -700,8 +656,6 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     insights.push(`${highValueOpportunities} high-value opportunities (>$50k) identified`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -753,8 +707,6 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     insights.push(`Total contract optimization potential: $${totalOptimizationPotential.toLocaleString()}`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -838,8 +790,6 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     insights.push(`Estimated carbon footprint reduction: ${carbonReduction.toFixed(1)} tCO2e`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -909,8 +859,6 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     insights.push(`Total process efficiency gains potential: $${totalEfficiencyGains.toLocaleString()}`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,
@@ -959,8 +907,6 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     insights.push(`Total incentive value potential: $${totalIncentiveValue.toLocaleString()}`);
 
     return {
-      taskId: task.id,
-      learnings: [],
       success: true,
       actions,
       insights,

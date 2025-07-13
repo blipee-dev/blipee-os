@@ -545,7 +545,6 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
       task_type: 'supply_chain_investigator_task'
     });
 
-    await super.learn(result);
   }
 
   // Helper methods - simplified implementations
