@@ -255,7 +255,7 @@ export class CollaborationEngine {
     try {
       // Execute tasks in parallel across agents
       const agentExecutions = [];
-      for (const [agentId, agentTasks] of tasks) {
+      for (const [agentId, agentTasks] of Array.from(tasks)) {
         const agent = this.agentConnections.get(agentId);
         if (!agent) continue;
 
@@ -499,7 +499,7 @@ export class CollaborationEngine {
         const emergentTasks = await this.identifyEmergentTasks(batchResults, workflow);
         
         // Add emergent tasks to next iteration
-        for (const [agentId, tasks] of emergentTasks) {
+        for (const [agentId, tasks] of Array.from(emergentTasks)) {
           if (!currentTasks.has(agentId)) {
             currentTasks.set(agentId, []);
           }
@@ -507,8 +507,8 @@ export class CollaborationEngine {
         }
 
         // Remove completed tasks
-        for (const [agentId, tasks] of currentTasks) {
-          const remaining = tasks.filter(task => !this.isTaskCompleted(task.id, results));
+        for (const [agentId, tasks] of Array.from(currentTasks)) {
+          const remaining = tasks.filter((task: AgentTask) => !this.isTaskCompleted(task.id, results));
           if (remaining.length === 0) {
             currentTasks.delete(agentId);
           } else {
