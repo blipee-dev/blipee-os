@@ -277,9 +277,12 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
         actions.push({
           type: 'data_collection_required',
           description: `Collect missing data for ${framework.name}`,
-          framework: frameworkId,
-          missingFields: missingData,
-          timestamp: new Date().toISOString()
+          impact: {
+            framework: frameworkId,
+            missingFields: missingData,
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
 
@@ -343,9 +346,12 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
         actions.push({
           type: 'validation_fixes_required',
           description: `Fix ${errors.length} validation errors in ${framework.name}`,
-          framework: frameworkId,
-          errors: errors.slice(0, 5), // Top 5 errors
-          timestamp: new Date().toISOString()
+          impact: {
+            framework: frameworkId,
+            errors: errors.slice(0, 5), // Top 5 errors
+            timestamp: new Date().toISOString()
+          },
+          reversible: false
         });
       }
     }
@@ -390,8 +396,11 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
       actions.push({
         type: 'overdue_deadlines_alert',
         description: `${overdueDeadlines.length} deadlines are overdue`,
-        deadlines: overdueDeadlines,
-        timestamp: new Date().toISOString()
+        impact: {
+          deadlines: overdueDeadlines,
+          timestamp: new Date().toISOString()
+        },
+        reversible: false
       });
 
       insights.push(`CRITICAL: ${overdueDeadlines.length} reporting deadlines are overdue`);
@@ -402,8 +411,11 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
       actions.push({
         type: 'urgent_deadlines_notification',
         description: `${urgentDeadlines.length} deadlines within ${urgentThreshold} days`,
-        deadlines: urgentDeadlines,
-        timestamp: new Date().toISOString()
+        impact: {
+          deadlines: urgentDeadlines,
+          timestamp: new Date().toISOString()
+        },
+        reversible: false
       });
 
       insights.push(`${urgentDeadlines.length} deadlines require immediate attention`);
@@ -506,10 +518,13 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
       actions.push({
         type: 'framework_update_detected',
         description: `${update.framework} ${update.version} update available`,
-        framework: update.framework,
-        effectiveDate: update.effectiveDate,
-        changes: update.changes,
-        timestamp: new Date().toISOString()
+        impact: {
+          framework: update.framework,
+          effectiveDate: update.effectiveDate,
+          changes: update.changes,
+          timestamp: new Date().toISOString()
+        },
+        reversible: false
       });
 
       insights.push(`${update.framework} update detected: ${update.changes.length} changes`);
