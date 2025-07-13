@@ -138,7 +138,8 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
       data: {
         checkType: 'full_compliance_scan',
         frameworks: Array.from(this.complianceFrameworks.keys())
-      }
+      },
+      requiresApproval: false
     });
 
     // Daily deadline tracking (9 AM)
@@ -156,7 +157,8 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
       data: {
         lookAheadDays: 30,
         urgentThreshold: 7
-      }
+      },
+      requiresApproval: false
     });
 
     // Weekly data validation (Monday 10 AM)
@@ -173,7 +175,8 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
       data: {
         validationType: 'comprehensive',
         frameworks: ['GRI', 'TCFD', 'SASB', 'EU_Taxonomy']
-      }
+      },
+      requiresApproval: false
     });
 
     // Monthly framework updates check (1st of month, 11 AM)
@@ -310,6 +313,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     }
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
@@ -357,6 +361,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     }
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
@@ -407,6 +412,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     insights.push(`${upcomingDeadlines.length} total deadlines in next ${lookAheadDays} days`);
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
@@ -450,6 +456,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     await this.storeComplianceReport(report);
 
     return {
+      taskId: task.id,
       success: true,
       actions: [{
         type: 'compliance_report_generated',
@@ -513,6 +520,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     }
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
@@ -559,6 +567,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     await this.storeRemediationPlan(plan);
 
     return {
+      taskId: task.id,
       success: true,
       actions: [{
         type: 'remediation_plan_created',
