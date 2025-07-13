@@ -363,6 +363,7 @@ export class CarbonHunterAgent extends AutonomousAgent {
     await this.storeOpportunities(significantOpportunities);
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
@@ -438,6 +439,7 @@ export class CarbonHunterAgent extends AutonomousAgent {
     await this.storeAnomalies(anomalies);
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
@@ -497,6 +499,7 @@ export class CarbonHunterAgent extends AutonomousAgent {
     await this.storeCarbonInsights(carbonInsights);
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
@@ -571,6 +574,7 @@ export class CarbonHunterAgent extends AutonomousAgent {
     }
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
@@ -637,6 +641,7 @@ export class CarbonHunterAgent extends AutonomousAgent {
     }
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
@@ -704,6 +709,7 @@ export class CarbonHunterAgent extends AutonomousAgent {
     }
 
     return {
+      taskId: task.id,
       success: true,
       actions,
       insights,
