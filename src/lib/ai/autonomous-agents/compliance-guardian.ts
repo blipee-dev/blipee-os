@@ -110,7 +110,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     });
   }
 
-  async initialize(): Promise<void> {
+  override async initialize(): Promise<void> {
     await this.loadComplianceFrameworks();
     await this.setupValidationRules();
     
@@ -201,7 +201,7 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     return tasks;
   }
 
-  async executeTask(task: AgentTask): Promise<AgentResult> {
+  override async executeTask(task: AgentTask): Promise<AgentResult> {
     const startTime = Date.now();
 
     try {

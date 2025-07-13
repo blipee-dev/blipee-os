@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { monitoringService } from '@/lib/monitoring';
 import { AlertSeverity, AlertChannel } from '@/lib/monitoring/types';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -16,18 +16,22 @@ export async function GET(_request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(_request.url);
+    const { searchParams } = new URL(request.url);
     const severity = searchParams.get('severity') as AlertSeverity | null;
-    const severityFilter = severity || undefined;
     const limit = parseInt(searchParams.get('limit') || '50');
     const resolved = searchParams.get('resolved') === 'true';
 
-    // Get alerts from monitoring service
-    const alerts = await monitoringService.getAlerts({
-      severity: severityFilter,
+    // Get alerts from monitoring service - only include severity if it exists
+    const alertQuery: any = {
       limit,
       resolved,
-    });
+    };
+    
+    if (severity) {
+      alertQuery.severity = severity;
+    }
+    
+    const alerts = await monitoringService.getAlerts(alertQuery);
 
     // Get alert rules
     const alertRules = await monitoringService.getAlertRules();
@@ -54,7 +58,7 @@ export async function GET(_request: NextRequest) {
   }
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -82,7 +86,7 @@ export async function POST(_request: NextRequest) {
       );
     }
 
-    const body = await _request.json();
+    const body = await request.json();
     const { type, rule, alert } = body;
 
     switch (type) {

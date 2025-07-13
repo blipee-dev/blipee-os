@@ -5,10 +5,10 @@ import { auditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Rate limiting
-    const clientIp = _request.headers.get('x-forwarded-for') || 'unknown';
+    const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
     const rateLimitResult = await rateLimitService.check(
       `phone_add:${clientIp}`,
       'user_modification'
@@ -31,7 +31,7 @@ export async function POST(_request: NextRequest) {
     }
 
     // Parse request body
-    const body = await _request.json();
+    const body = await request.json();
     const { phoneNumber } = body;
 
     if (!phoneNumber) {
@@ -115,7 +115,7 @@ export async function POST(_request: NextRequest) {
   }
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Get current user
     const user = await getCurrentUser(_request);

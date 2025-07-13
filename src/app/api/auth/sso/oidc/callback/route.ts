@@ -3,9 +3,9 @@ import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SSOProvider } from "@/types/sso";
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const searchParams = _request.nextUrl.searchParams;
+    const searchParams = request.nextUrl.searchParams;
     
     // Get OIDC response parameters
     const code = searchParams.get("code");
@@ -15,7 +15,7 @@ export async function GET(_request: NextRequest) {
     
     // Handle error response
     if (error) {
-      const errorUrl = new URL("/auth/sso/error", _request.url);
+      const errorUrl = new URL("/auth/sso/error", request.url);
       errorUrl.searchParams.set("error", `${error}: ${errorDescription || ""}`);
       return NextResponse.redirect(errorUrl);
     }
@@ -38,7 +38,7 @@ export async function GET(_request: NextRequest) {
     
     if (!result.success) {
       // Redirect to error page
-      const errorUrl = new URL("/auth/sso/error", _request.url);
+      const errorUrl = new URL("/auth/sso/error", request.url);
       errorUrl.searchParams.set("error", result.error || "Authentication failed");
       return NextResponse.redirect(errorUrl);
     }
@@ -46,7 +46,7 @@ export async function GET(_request: NextRequest) {
     // Handle user provisioning if needed
     if (result.requiresProvisioning) {
       // Redirect to provisioning page
-      const provisionUrl = new URL("/auth/sso/provision", _request.url);
+      const provisionUrl = new URL("/auth/sso/provision", request.url);
       provisionUrl.searchParams.set("email", result.email!);
       provisionUrl.searchParams.set("provider", "oidc");
       // Store attributes temporarily
@@ -67,13 +67,13 @@ export async function GET(_request: NextRequest) {
       .single();
     
     if (!userData) {
-      const errorUrl = new URL("/auth/sso/error", _request.url);
+      const errorUrl = new URL("/auth/sso/error", request.url);
       errorUrl.searchParams.set("error", "User not found");
       return NextResponse.redirect(errorUrl);
     }
     
     // Set auth cookie (this is a simplified version - you may need to implement proper session management)
-    const response = NextResponse.redirect(new URL("/dashboard", _request.url));
+    const response = NextResponse.redirect(new URL("/dashboard", request.url));
     
     // Store SSO session ID in cookie
     response.cookies.set("sso_session", result.sessionId!, {
@@ -88,22 +88,22 @@ export async function GET(_request: NextRequest) {
     console.error("OIDC callback error:", error);
     
     // Redirect to error page
-    const errorUrl = new URL("/auth/sso/error", _request.url);
+    const errorUrl = new URL("/auth/sso/error", request.url);
     errorUrl.searchParams.set("error", error.message || "Authentication failed");
     return NextResponse.redirect(errorUrl);
   }
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   // Some OIDC providers may use POST
-  const formData = await _request.formData();
+  const formData = await request.formData();
   const code = formData.get("code") as string;
   const state = formData.get("state") as string;
   const error = formData.get("error") as string;
   const errorDescription = formData.get("error_description") as string;
   
   // Convert to GET parameters and redirect
-  const url = new URL(_request.url);
+  const url = new URL(request.url);
   if (code) url.searchParams.set("code", code);
   if (state) url.searchParams.set("state", state);
   if (error) url.searchParams.set("error", error);

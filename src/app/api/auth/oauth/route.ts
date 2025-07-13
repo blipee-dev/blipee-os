@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/client";
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await _request.json();
+    const body = await request.json();
     const { provider } = body;
 
     if (!provider || !["google", "azure"].includes(provider)) {
@@ -11,7 +11,7 @@ export async function POST(_request: NextRequest) {
     }
 
     const supabase = createClient();
-    const redirectTo = `${_request.nextUrl.origin}/auth/callback`;
+    const redirectTo = `${request.nextUrl.origin}/auth/callback`;
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as "google" | "azure",

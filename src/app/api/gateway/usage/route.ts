@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { subDays,  format, startOfHour, subHours } from 'date-fns';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -31,7 +31,7 @@ export async function GET(_request: NextRequest) {
     }
 
     // Parse query parameters
-    const url = new URL(_request.url);
+    const url = new URL(request.url);
     const timeRange = url.searchParams.get('timeRange') || '7d';
     const apiKeyId = url.searchParams.get('apiKey') || 'all';
 

@@ -156,7 +156,7 @@ export function InputArea({
           {/* Voice input button */}
           <VoiceInput
             onTranscript={handleVoiceTranscript}
-            disabled={disabled}
+            disabled={disabled || false}
           />
 
           {/* File attachment button */}

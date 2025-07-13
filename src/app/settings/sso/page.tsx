@@ -300,8 +300,8 @@ export default function SSOSettingsPage() {
               <div>
                 <h3 className="font-medium text-gray-900 dark:text-white mb-2">SAML 2.0</h3>
                 <ul className="space-y-1 list-disc list-inside ml-4">
-                  <li>Assertion Consumer Service URL: <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{process.env.NEXT_PUBLIC_APP_URL}/api/auth/sso/saml/callback</code></li>
-                  <li>Entity ID: <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{process.env.NEXT_PUBLIC_APP_URL}</code></li>
+                  <li>Assertion Consumer Service URL: <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{process.env['NEXT_PUBLIC_APP_URL']}/api/auth/sso/saml/callback</code></li>
+                  <li>Entity ID: <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{process.env['NEXT_PUBLIC_APP_URL']}</code></li>
                   <li>Name ID Format: Email Address</li>
                   <li>Signature Algorithm: RSA-SHA256</li>
                 </ul>
@@ -309,7 +309,7 @@ export default function SSOSettingsPage() {
               <div>
                 <h3 className="font-medium text-gray-900 dark:text-white mb-2">OpenID Connect</h3>
                 <ul className="space-y-1 list-disc list-inside ml-4">
-                  <li>Redirect URI: <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{process.env.NEXT_PUBLIC_APP_URL}/api/auth/sso/oidc/callback</code></li>
+                  <li>Redirect URI: <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{process.env['NEXT_PUBLIC_APP_URL']}/api/auth/sso/oidc/callback</code></li>
                   <li>Scopes: openid, profile, email</li>
                   <li>Response Type: code</li>
                   <li>Grant Type: authorization_code</li>

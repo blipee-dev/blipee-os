@@ -19,9 +19,9 @@ const initiateRecoverySchema = z.object({
   adminUserId: z.string().uuid().optional(),
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await _request.json();
+    const body = await request.json();
     
     // Validate input
     const validated = initiateRecoverySchema.parse(body);

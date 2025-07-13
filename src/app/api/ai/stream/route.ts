@@ -7,9 +7,9 @@ import {
   buildDemoContext,
 } from "@/lib/ai/prompt-builder";
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body: ChatRequest = await _request.json();
+    const body: ChatRequest = await request.json();
     const { message } = body;
 
     const context = buildDemoContext();

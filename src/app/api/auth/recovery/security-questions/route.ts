@@ -13,20 +13,20 @@ const securityQuestionsSchema = z.object({
   })).min(3).max(5),
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const sessionCookie = _request.cookies.get('blipee-session');
+    const sessionCookie = request.cookies.get('blipee-session');
     if (!sessionCookie) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const validation = await sessionManager.validateSession(_request);
+    const validation = await sessionManager.validateSession(request);
     if (!validation.valid || !validation.session) {
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
 
-    const body = await _request.json();
+    const body = await request.json();
     
     // Validate input
     const validated = securityQuestionsSchema.parse(body);
@@ -76,15 +76,15 @@ export async function POST(_request: NextRequest) {
   }
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Check authentication
-    const sessionCookie = _request.cookies.get('blipee-session');
+    const sessionCookie = request.cookies.get('blipee-session');
     if (!sessionCookie) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const validation = await sessionManager.validateSession(_request);
+    const validation = await sessionManager.validateSession(request);
     if (!validation.valid || !validation.session) {
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }

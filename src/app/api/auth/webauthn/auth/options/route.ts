@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { webAuthnService } from '@/lib/auth/webauthn/service';
 import { createClient } from '@/lib/supabase/server';
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
     
-    const body = await _request.json();
+    const body = await request.json();
     const { userEmail, allowCredentials = [], userVerification = 'preferred' } = body;
 
     let userId: string | undefined;

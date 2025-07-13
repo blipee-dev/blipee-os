@@ -5,10 +5,10 @@ import { auditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Rate limiting
-    const clientIp = _request.headers.get('x-forwarded-for') || 'unknown';
+    const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
     const rateLimitResult = await rateLimitService.check(
       `email_add_verify:${clientIp}`,
       'mfa_verify'
@@ -31,7 +31,7 @@ export async function POST(_request: NextRequest) {
     }
 
     // Parse request body
-    const body = await _request.json();
+    const body = await request.json();
     const { verificationId, code } = body;
 
     if (!verificationId || !code) {

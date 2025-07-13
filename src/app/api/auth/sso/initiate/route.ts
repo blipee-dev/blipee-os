@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -16,7 +16,7 @@ export async function POST(_request: NextRequest) {
     }
     
     // Get request data
-    const { email, redirectTo } = await _request.json();
+    const { email, redirectTo } = await request.json();
     
     if (!email) {
       return NextResponse.json(
@@ -45,7 +45,7 @@ export async function POST(_request: NextRequest) {
     }
     
     // Generate redirect URL
-    const appUrl = process.env['NEXT_PUBLIC_APP_URL'] || `https://${_request.headers.get("host")}`;
+    const appUrl = process.env['NEXT_PUBLIC_APP_URL'] || `https://${request.headers.get("host")}`;
     const callbackUrl = ssoConfig.provider === "saml"
       ? `${appUrl}/api/auth/sso/saml/callback`
       : `${appUrl}/api/auth/sso/oidc/callback`;
@@ -70,10 +70,10 @@ export async function POST(_request: NextRequest) {
   }
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // This endpoint can be used to check if SSO is available for a domain
-    const searchParams = _request.nextUrl.searchParams;
+    const searchParams = request.nextUrl.searchParams;
     const email = searchParams.get("email");
     
     if (!email) {

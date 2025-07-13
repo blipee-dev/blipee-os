@@ -48,32 +48,32 @@ export abstract class BaseModel {
   /**
    * Build model architecture
    */
-  abstract async buildModel(): Promise<void>;
+  abstract buildModel(): Promise<void>;
 
   /**
    * Train the model
    */
-  abstract async train(data: TrainingData): Promise<TrainingResult>;
+  abstract train(data: TrainingData): Promise<TrainingResult>;
 
   /**
    * Make predictions
    */
-  abstract async predict(input: any): Promise<Prediction>;
+  abstract predict(input: any): Promise<Prediction>;
 
   /**
    * Evaluate model performance
    */
-  abstract async evaluate(testData: TestData): Promise<EvaluationMetrics>;
+  abstract evaluate(testData: TestData): Promise<EvaluationMetrics>;
 
   /**
    * Preprocess input data
    */
-  abstract async preprocessInput(input: any): Promise<tf.Tensor>;
+  abstract preprocessInput(input: any): Promise<tf.Tensor>;
 
   /**
    * Postprocess model output
    */
-  abstract async postprocessOutput(output: tf.Tensor): Promise<any>;
+  abstract postprocessOutput(output: tf.Tensor): Promise<any>;
 
   /**
    * Save model to file system

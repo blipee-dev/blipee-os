@@ -19,9 +19,9 @@ function getSupabase() {
   return supabase;
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const contentType = _request.headers.get("content-type") || "";
+    const contentType = request.headers.get("content-type") || "";
 
     let message: string;
     let conversationId: string;
@@ -32,7 +32,7 @@ export async function POST(_request: NextRequest) {
     // Handle different content types
     if (contentType.includes("multipart/form-data")) {
       // File upload with message
-      const formData = await _request.formData();
+      const formData = await request.formData();
       message = (formData.get("message") as string) || "";
       conversationId = formData.get("conversationId") as string;
       organizationId = formData.get("organizationId") as string;
@@ -47,7 +47,7 @@ export async function POST(_request: NextRequest) {
       }
     } else {
       // Regular JSON message
-      const body = await _request.json();
+      const body = await request.json();
       message = body.message;
       conversationId = body.conversationId;
       organizationId = body.organizationId;

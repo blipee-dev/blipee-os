@@ -5,7 +5,7 @@ import { sessionManager } from '@/lib/session/manager';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Check if user has permission to view security stats
     const sessionCookie = request.cookies.get('blipee-session');

@@ -5,21 +5,21 @@ import { AuditEventType, AuditEventSeverity, AuditLogQuery } from '@/lib/audit/t
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Check authentication and permissions
-    const sessionCookie = _request.cookies.get('blipee-session');
+    const sessionCookie = request.cookies.get('blipee-session');
     if (!sessionCookie) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const validation = await sessionManager.validateSession(_request, ['audit:export']);
+    const validation = await sessionManager.validateSession(request, ['audit:export']);
     if (!validation.valid) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Parse query parameters
-    const searchParams = _request.nextUrl.searchParams;
+    const searchParams = request.nextUrl.searchParams;
     const format = searchParams.get('format') as 'json' | 'csv' || 'json';
     
     const query: AuditLogQuery = {
