@@ -441,14 +441,14 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
       id: `compliance-report-${Date.now()}`,
       type: reportType,
       generatedAt: new Date().toISOString(),
-      frameworks: [],
+      frameworks: [] as any[],
       summary: {
         overall_compliance_score: 0,
         critical_issues: 0,
         urgent_deadlines: 0,
         data_quality_score: 0
       },
-      recommendations: []
+      recommendations: [] as string[]
     };
 
     // Generate compliance data for each framework
