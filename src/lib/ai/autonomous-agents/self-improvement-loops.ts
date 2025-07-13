@@ -640,8 +640,9 @@ export class SelfImprovementEngine extends AutonomousAgent {
     tasks.push({
       id: `performance-analysis-${performanceTask.getTime()}`,
       type: 'analyze_performance',
-      scheduledFor: performanceTask.toISOString(),
+      scheduledFor: performanceTask,
       priority: 'critical',
+      requiresApproval: false,
       data: {
         analysis_scope: 'all_loops',
         include_trend_analysis: true,
@@ -655,8 +656,9 @@ export class SelfImprovementEngine extends AutonomousAgent {
     tasks.push({
       id: `learning-optimization-${optimizationTask.getTime()}`,
       type: 'optimize_learning_loops',
-      scheduledFor: optimizationTask.toISOString(),
+      scheduledFor: optimizationTask,
       priority: 'high',
+      requiresApproval: false,
       data: {
         optimization_criteria: ['convergence_speed', 'final_performance', 'stability'],
         adaptation_strategies: ['parameter_tuning', 'architecture_modification'],
@@ -669,8 +671,9 @@ export class SelfImprovementEngine extends AutonomousAgent {
     tasks.push({
       id: `capability-acquisition-${capabilityTask.getTime()}`,
       type: 'acquire_new_capabilities',
-      scheduledFor: capabilityTask.toISOString(),
+      scheduledFor: capabilityTask,
       priority: 'medium',
+      requiresApproval: false,
       data: {
         acquisition_methods: ['learning', 'imitation', 'composition'],
         target_domains: ['optimization', 'prediction', 'planning'],
@@ -683,8 +686,9 @@ export class SelfImprovementEngine extends AutonomousAgent {
     tasks.push({
       id: `meta-learning-update-${metaTask.getTime()}`,
       type: 'update_meta_learning',
-      scheduledFor: metaTask.toISOString(),
+      scheduledFor: metaTask,
       priority: 'medium',
+      requiresApproval: false,
       data: {
         meta_objectives: ['learning_speed', 'generalization', 'transfer'],
         update_algorithms: ['maml', 'reptile'],
@@ -697,8 +701,9 @@ export class SelfImprovementEngine extends AutonomousAgent {
     tasks.push({
       id: `self-modification-${modificationTask.getTime()}`,
       type: 'assess_self_modification',
-      scheduledFor: modificationTask.toISOString(),
+      scheduledFor: modificationTask,
       priority: 'medium',
+      requiresApproval: false,
       data: {
         modification_types: ['algorithm_updates', 'parameter_changes', 'architecture_evolution'],
         safety_constraints: true,
@@ -713,8 +718,9 @@ export class SelfImprovementEngine extends AutonomousAgent {
     tasks.push({
       id: `knowledge-consolidation-${consolidationTask.getTime()}`,
       type: 'consolidate_knowledge',
-      scheduledFor: consolidationTask.toISOString(),
+      scheduledFor: consolidationTask,
       priority: 'low',
+      requiresApproval: false,
       data: {
         consolidation_methods: ['memory_consolidation', 'knowledge_distillation'],
         pruning_strategies: ['magnitude_based', 'gradient_based'],
@@ -791,7 +797,7 @@ export class SelfImprovementEngine extends AutonomousAgent {
     let improvementOpportunities = 0;
 
     // Analyze each learning loop
-    for (const [loopId, loop] of this.learningLoops) {
+    for (const [loopId, loop] of Array.from(this.learningLoops)) {
       if (scope !== 'all_loops' && !scope.includes(loopId)) continue;
 
       const analysis = await this.performanceAnalyzer.analyzeLoop(loop);
@@ -902,7 +908,7 @@ export class SelfImprovementEngine extends AutonomousAgent {
     let loopsOptimized = 0;
     let totalImprovementGain = 0;
 
-    for (const [loopId, loop] of this.learningLoops) {
+    for (const [loopId, loop] of Array.from(this.learningLoops)) {
       // Determine optimization potential
       const optimizationPlan = await this.generateOptimizationPlan(loop, criteria, strategies);
       
