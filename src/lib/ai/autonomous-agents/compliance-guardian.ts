@@ -555,8 +555,8 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
       createdAt: new Date().toISOString(),
       totalIssues: issues.length,
       estimatedTimeToResolve: 0,
-      prioritizedActions: [],
-      milestones: []
+      prioritizedActions: [] as any[],
+      milestones: [] as any[]
     };
 
     // Prioritize issues by criticality and effort
