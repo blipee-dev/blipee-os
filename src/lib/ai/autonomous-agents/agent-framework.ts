@@ -26,6 +26,9 @@ export interface AgentResult {
   insights: string[];
   nextSteps: string[];
   learnings: Learning[];
+  metadata?: any;
+  executionTimeMs?: number;
+  error?: string;
 }
 
 export interface ExecutedAction {
@@ -34,6 +37,16 @@ export interface ExecutedAction {
   impact: any;
   reversible: boolean;
   rollbackPlan?: string;
+  // Common optional properties used by various agents
+  timestamp?: string | Date;
+  category?: string;
+  opportunityId?: string;
+  annualSavings?: number;
+  roi?: number;
+  payback?: number;
+  framework?: string;
+  severity?: string;
+  [key: string]: any; // Allow additional properties
 }
 
 export interface Learning {
@@ -124,6 +137,12 @@ export abstract class AutonomousAgent {
   abstract executeTask(task: AgentTask): Promise<AgentResult>;
   abstract getScheduledTasks(): Promise<AgentTask[]>;
   abstract learn(result: AgentResult): Promise<void>;
+  
+  // Optional methods that agents can override
+  protected async initialize?(): Promise<void>;
+  protected async logResult?(taskId: string, result: AgentResult): Promise<void>;
+  protected async logError?(taskId: string, error: Error, executionTime: number): Promise<void>;
+  protected async storePattern?(patternType: string, patterns: any, confidence: number, metadata: any): Promise<void>;
   
   // Permission checking
   protected async canExecuteTask(task: AgentTask): Promise<boolean> {
