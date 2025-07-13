@@ -602,9 +602,12 @@ export class SelfImprovementEngine extends AutonomousAgent {
   private adaptationController: AdaptationController;
 
   constructor(organizationId: string) {
-    super(organizationId, 'self-improvement', 'SelfImprovement');
-    this.maxAutonomyLevel = 5; // Highest autonomy for self-modification
-    this.executionInterval = 300000; // Run every 5 minutes
+    super(organizationId, {
+      agentId: 'self-improvement',
+      capabilities: [],
+      maxAutonomyLevel: 5, // Highest autonomy for self-modification
+      executionInterval: 300000 // Run every 5 minutes
+    });
     this.metaLearningSystem = new MetaLearningSystem(organizationId);
     this.performanceAnalyzer = new PerformanceAnalyzer(organizationId);
     this.adaptationController = new AdaptationController(organizationId);

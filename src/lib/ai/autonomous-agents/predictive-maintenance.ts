@@ -282,13 +282,16 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
   private equipmentRegistry: Map<string, Equipment> = new Map();
   private predictiveModels: Map<string, PredictiveModel> = new Map();
   private maintenanceScheduler: MaintenanceScheduler;
-  private iotIntegration: IoTIntegration;
+  private iotIntegration!: IoTIntegration; // Initialized in initialize()
   private costOptimizer: MaintenanceCostOptimizer;
 
   constructor(organizationId: string) {
-    super(organizationId, 'predictive-maintenance', 'PredictiveMaintenance');
-    this.maxAutonomyLevel = 4; // High autonomy for maintenance optimization
-    this.executionInterval = 900000; // Run every 15 minutes
+    super(organizationId, {
+      agentId: 'predictive-maintenance',
+      capabilities: [],
+      maxAutonomyLevel: 4, // High autonomy for maintenance optimization
+      executionInterval: 900000 // Run every 15 minutes
+    });
     this.maintenanceScheduler = new MaintenanceScheduler(organizationId);
     this.costOptimizer = new MaintenanceCostOptimizer(organizationId);
   }
@@ -319,8 +322,9 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     tasks.push({
       id: `equipment-monitoring-${monitoringTask.getTime()}`,
       type: 'monitor_equipment_health',
-      scheduledFor: monitoringTask.toISOString(),
+      scheduledFor: monitoringTask,
       priority: 'high',
+      requiresApproval: false,
       data: {
         monitoring_scope: 'all_equipment',
         include_iot_data: true,
@@ -333,8 +337,9 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     tasks.push({
       id: `failure-prediction-${predictionTask.getTime()}`,
       type: 'predict_equipment_failures',
-      scheduledFor: predictionTask.toISOString(),
+      scheduledFor: predictionTask,
       priority: 'critical',
+      requiresApproval: false,
       data: {
         prediction_horizon_days: 30,
         confidence_threshold: 0.7,
@@ -349,8 +354,9 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     tasks.push({
       id: `maintenance-scheduling-${schedulingTask.getTime()}`,
       type: 'optimize_maintenance_schedule',
-      scheduledFor: schedulingTask.toISOString(),
+      scheduledFor: schedulingTask,
       priority: 'medium',
+      requiresApproval: false,
       data: {
         optimization_window_days: 90,
         consider_production_schedule: true,
@@ -365,8 +371,9 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     tasks.push({
       id: `inventory-optimization-${inventoryTask.getTime()}`,
       type: 'optimize_parts_inventory',
-      scheduledFor: inventoryTask.toISOString(),
+      scheduledFor: inventoryTask,
       priority: 'medium',
+      requiresApproval: false,
       data: {
         lead_time_buffer_days: 14,
         service_level_target: 0.95,
@@ -382,8 +389,9 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     tasks.push({
       id: `model-retraining-${retrainingTask.getTime()}`,
       type: 'retrain_predictive_models',
-      scheduledFor: retrainingTask.toISOString(),
+      scheduledFor: retrainingTask,
       priority: 'medium',
+      requiresApproval: false,
       data: {
         models_to_retrain: 'all',
         include_new_data: true,
@@ -456,7 +464,7 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     let anomaliesDetected = 0;
 
     // Monitor all equipment in scope
-    for (const [equipmentId, equipment] of this.equipmentRegistry) {
+    for (const [equipmentId, equipment] of Array.from(this.equipmentRegistry)) {
       if (monitoringScope === 'critical_only' && equipment.status !== 'critical') {
         continue;
       }
@@ -527,7 +535,7 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     const predictions: MaintenancePrediction[] = [];
 
     // Generate predictions for each equipment
-    for (const [equipmentId, equipment] of this.equipmentRegistry) {
+    for (const [equipmentId, equipment] of Array.from(this.equipmentRegistry)) {
       const model = this.predictiveModels.get(equipment.type);
       if (!model) continue;
 
@@ -696,7 +704,7 @@ export class PredictiveMaintenanceAgent extends AutonomousAgent {
     let modelsRetrained = 0;
     let modelsImproved = 0;
 
-    for (const [modelId, model] of this.predictiveModels) {
+    for (const [modelId, model] of Array.from(this.predictiveModels)) {
       if (modelsToRetrain !== 'all' && !modelsToRetrain.includes(modelId)) {
         continue;
       }

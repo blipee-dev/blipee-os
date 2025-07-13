@@ -110,8 +110,8 @@ export class AgentPermissionSystem {
       agentId,
       organizationId,
       permissions,
-      autonomyLevel: config.max_autonomy_level,
-      restrictions: this.getRestrictionsForAutonomyLevel(config.max_autonomy_level)
+      autonomyLevel: config.max_autonomy_level as number,
+      restrictions: this.getRestrictionsForAutonomyLevel(config.max_autonomy_level as number)
     };
     
     // Cache for 5 minutes
@@ -214,13 +214,13 @@ export class AgentPermissionSystem {
     await this.notifyApprovers(organizationId, data);
     
     return {
-      id: data.id,
-      agentId: data.agent_id,
-      organizationId: data.organization_id,
-      task: data.task,
+      id: data.id as string,
+      agentId: data.agent_id as string,
+      organizationId: data.organization_id as string,
+      task: data.task as AgentTask,
       requester: agentId,
-      status: data.status,
-      requestedAt: new Date(data.created_at)
+      status: data.status as 'pending' | 'approved' | 'rejected' | 'expired',
+      requestedAt: new Date(data.created_at as string)
     };
   }
   
@@ -260,14 +260,14 @@ export class AgentPermissionSystem {
       return [];
     }
     
-    return data.map(approval => ({
-      id: approval.id,
-      agentId: approval.agent_id,
-      organizationId: approval.organization_id,
-      task: approval.task,
-      requester: approval.agent_id,
-      status: approval.status,
-      requestedAt: new Date(approval.created_at)
+    return data.map((approval: any) => ({
+      id: approval.id as string,
+      agentId: approval.agent_id as string,
+      organizationId: approval.organization_id as string,
+      task: approval.task as AgentTask,
+      requester: approval.agent_id as string,
+      status: approval.status as 'pending' | 'approved' | 'rejected' | 'expired',
+      requestedAt: new Date(approval.created_at as string)
     }));
   }
   
