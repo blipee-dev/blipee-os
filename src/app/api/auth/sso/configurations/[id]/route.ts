@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { UserRole } from "@/types/auth";
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -56,7 +56,7 @@ export async function GET(
 }
 
 export async function PUT(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -97,7 +97,7 @@ export async function PUT(
     }
     
     // Get update data
-    const updates = await request.json();
+    const updates = await _request.json();
     
     // Update configuration
     const configuration = await ssoService.updateConfiguration(params.id, updates);
@@ -113,7 +113,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {

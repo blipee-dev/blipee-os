@@ -12,7 +12,7 @@ import {
   EvaluationMetrics 
 } from './types';
 import { GeneticAlgorithm, OptimizationProblem, Solution } from './algorithms/genetic-algorithm';
-import { DQNAgent, Environment, State, Action, Policy } from './algorithms/dqn-agent';
+import { DQNAgent, Environment, Action, Policy } from './algorithms/dqn-agent';
 
 export interface OptimizationTask {
   type: 'resource_allocation' | 'emission_reduction' | 'cost_optimization' | 'efficiency_improvement';
@@ -317,6 +317,11 @@ export class OptimizationEngine extends BaseModel {
     };
     
     return {
+      solution: allocation,
+      score: expectedImpact.cost + expectedImpact.emissions + expectedImpact.efficiency,
+      improvements: [],
+      feasible: true,
+      algorithm: 'genetic',
       allocation,
       expectedImpact,
       confidence: 0.85,
@@ -435,8 +440,7 @@ export class OptimizationEngine extends BaseModel {
    */
   async evaluate(testData: TestData): Promise<EvaluationMetrics> {
     return {
-      accuracy: 0.88,
-      improvement: 0.20
+      accuracy: 0.88
     };
   }
 
