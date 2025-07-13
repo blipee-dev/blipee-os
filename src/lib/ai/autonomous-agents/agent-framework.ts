@@ -73,6 +73,10 @@ export abstract class AutonomousAgent {
   private isRunning: boolean = false;
   private runTimeout?: NodeJS.Timeout;
   
+  // Getters for commonly accessed properties
+  get id(): string { return this.agentId; }
+  get organizationId_(): string { return this.organizationId; }
+  
   constructor(organizationId: string, config: AgentConfig) {
     this.organizationId = organizationId;
     this.agentId = config.agentId;
