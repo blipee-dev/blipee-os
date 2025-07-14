@@ -10,7 +10,7 @@ import {
   Image,
   FileSpreadsheet,
 } from "lucide-react";
-import { motion as _motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { VoiceInput } from "@/components/voice/VoiceInput";
 
 interface AttachedFile {

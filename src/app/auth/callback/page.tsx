@@ -20,7 +20,7 @@ export default function AuthCallbackPage() {
         const { error: _error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (error) {
-          console.error("Error exchanging code for session:", error);
+          console.error("Error exchanging code for session:");
           router.push("/signin?error=auth_failed");
           return;
         }

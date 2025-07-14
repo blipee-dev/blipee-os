@@ -23,7 +23,7 @@ import {
   ExternalLink,
   Zap
 } from 'lucide-react';
-import { motion as _motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   WebhookEndpoint, 
   WebhookEndpointCreate, 

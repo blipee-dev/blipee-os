@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion as _motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Building2, ChevronDown, Check, Users, CreditCard } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import type { Organization } from "@/types/auth";

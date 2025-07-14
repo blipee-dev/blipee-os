@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion as _motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Clock, Sparkles, CheckCircle } from "lucide-react";
 import {
   OnboardingOrchestrator,
