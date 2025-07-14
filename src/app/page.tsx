@@ -20,11 +20,8 @@ import {
   Target,
   Building,
   Users,
-
   FileText,
-  Users,
   Gauge,
-
   Factory,
 } from "lucide-react";
 

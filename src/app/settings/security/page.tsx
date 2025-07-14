@@ -19,7 +19,7 @@ export default function SecuritySettingsPage() {
   const [loading, setLoading] = useState(false);
   const [sessions, setSessions] = useState<any[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
-  const { user: _user } = useAuth();
+  const { user } = useAuth();
 
   // Check MFA status and load sessions on mount
   useEffect(() => {

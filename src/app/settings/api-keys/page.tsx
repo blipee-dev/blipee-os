@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { GradientButton } from '@/components/premium/GradientButton';
 import { Key, Plus, Copy, Eye, EyeOff, Trash2, Calendar, Shield, Globe, Hash, AlertCircle } from 'lucide-react';
-import { motion as _motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { APIKey, APIKeyCreate, APIVersion, API_SCOPES } from '@/types/api-gateway';
 import { format } from 'date-fns';
 

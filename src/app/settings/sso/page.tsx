@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { GradientButton } from '@/components/premium/GradientButton';
 import { Shield, Plus, Edit, Trash2, ExternalLink, CheckCircle, XCircle, Users, Key, Globe, Settings, AlertCircle } from 'lucide-react';
-import { motion as _motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth/context';
 import { SSOConfiguration, SSOProvider } from '@/types/sso';
 import { SSOConfigurationForm } from '@/components/auth/sso/SSOConfigurationForm';

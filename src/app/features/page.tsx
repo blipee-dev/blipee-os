@@ -21,10 +21,7 @@ import {
   Lock,
   Gauge,
   CheckCircle,
-  TrendingUp,
   Cloud,
-  Lock,
-  Gauge,
 } from "lucide-react";
 
 // Animated background component

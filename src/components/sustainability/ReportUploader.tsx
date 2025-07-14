@@ -8,7 +8,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import { motion as _motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ReportUploaderProps {
   organizationId: string;

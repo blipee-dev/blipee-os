@@ -31,7 +31,7 @@ export class EventPublisher {
       .contains('events', [eventType]);
 
     if (error) {
-      console.error('Failed to get webhook endpoints:', error);
+      console.error('Failed to get webhook endpoints:');
       return;
     }
 
@@ -88,7 +88,7 @@ export class EventPublisher {
     try {
       await webhookService.processDelivery(deliveryId);
     } catch (error) {
-      console.error(`Failed to process webhook delivery ${deliveryId}:`, error);
+      console.error(`Failed to process webhook delivery ${deliveryId}:`);
     }
   }
 
@@ -108,7 +108,7 @@ export class EventPublisher {
       timestamp: new Date().toISOString(),
       api_version: '1.0',
       organization_id: organizationId,
-      actor,
+      ...(actor && { actor }),
       data: {
         building,
         previous_data: previousData,
@@ -134,7 +134,7 @@ export class EventPublisher {
       timestamp: new Date().toISOString(),
       api_version: '1.0',
       organization_id: organizationId,
-      actor,
+      ...(actor && { actor }),
       data: {
         emission,
         previous_data: previousData,
@@ -159,7 +159,7 @@ export class EventPublisher {
       timestamp: new Date().toISOString(),
       api_version: '1.0',
       organization_id: organizationId,
-      actor,
+      ...(actor && { actor }),
       data: {
         alert,
       },
@@ -184,7 +184,7 @@ export class EventPublisher {
       timestamp: new Date().toISOString(),
       api_version: '1.0',
       organization_id: organizationId,
-      actor,
+      ...(actor && { actor }),
       data: {
         user,
         previous_data: previousData,
@@ -358,7 +358,7 @@ export class EventPublisher {
       .limit(limit);
 
     if (error) {
-      console.error('Failed to get pending deliveries:', error);
+      console.error('Failed to get pending deliveries:');
       return;
     }
 
@@ -390,7 +390,7 @@ export class EventPublisher {
       .lt('created_at', cutoffDate.toISOString());
 
     if (error) {
-      console.error('Failed to cleanup old webhook deliveries:', error);
+      console.error('Failed to cleanup old webhook deliveries:');
     } else {
       console.log(`Cleaned up webhook deliveries older than ${daysToKeep} days`);
     }

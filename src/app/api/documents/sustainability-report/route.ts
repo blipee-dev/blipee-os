@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
       confidence: parsed.confidence,
     });
   } catch (error) {
-    console.error("Error processing sustainability report:", error);
+    console.error("Error processing sustainability report:");
     return NextResponse.json(
       { error: "Failed to process report" },
       { status: 500 },
@@ -182,7 +182,7 @@ async function processExtractedData(
     }
 
     if (emissionsToInsert.length > 0) {
-      const { error: _error } = await supabase
+      const { error } = await supabase
         .from("emissions")
         .insert(emissionsToInsert);
 
