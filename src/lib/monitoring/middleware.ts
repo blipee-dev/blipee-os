@@ -21,7 +21,7 @@ export async function withMonitoring(
     const statusCode = response.status;
     
     // Get user ID from session if available
-    const _userId = response.headers.get('x-user-id') || undefined;
+    const userId = response.headers.get('x-user-id') || undefined;
     
     await recordHttpRequest(
       method,
@@ -94,7 +94,7 @@ export function monitoringMiddleware() {
         path,
         statusCode,
         responseTime,
-        req.userId
+        req.userId || undefined
       );
       
       // Call original end
