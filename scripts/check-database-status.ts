@@ -14,7 +14,7 @@ import { config } from 'dotenv';
 config();
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error('Missing Supabase environment variables');
@@ -33,17 +33,25 @@ async function checkDatabaseStatus() {
   console.log('🔍 Checking Database Status...\n');
 
   try {
-    // Check what tables exist
-    const { data: tables, error } = await supabase
-      .from('information_schema.tables')
-      .select('table_name, table_type, is_insertable_into')
-      .eq('table_schema', 'public')
-      .order('table_name');
-
-    if (error) {
-      console.error('Error fetching tables:', error);
-      return;
+    // Check what tables exist by trying to query some known tables
+    const knownTables = ['organizations', 'buildings', 'emissions_data', 'waste_data', 'water_usage', 'sustainability_reports', 'document_uploads', 'devices', 'metrics', 'conversations', 'user_organizations'];
+    const existingTables: string[] = [];
+    
+    for (const tableName of knownTables) {
+      try {
+        const { error } = await supabase
+          .from(tableName)
+          .select('*', { count: 'exact', head: true });
+        
+        if (!error) {
+          existingTables.push(tableName);
+        }
+      } catch (e) {
+        // Table doesn't exist, ignore
+      }
     }
+    
+    const tables = existingTables.map(name => ({ table_name: name, table_type: 'BASE TABLE', is_insertable_into: 'YES' }));
 
     // Categorize tables
     const esgTables: string[] = [];

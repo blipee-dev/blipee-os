@@ -136,7 +136,7 @@ export class AgentManager {
   stopHealthMonitoring(): void {
     if (this.healthCheckInterval) {
       clearInterval(this.healthCheckInterval);
-      this.healthCheckInterval = undefined;
+      this.healthCheckInterval = undefined as any;
       console.log('🏥 Health monitoring stopped');
     }
   }
@@ -209,10 +209,10 @@ export class AgentManager {
     }
     
     return data.map(config => ({
-      agentId: config.agent_id as string,
-      capabilities: config.capabilities as AgentCapability[],
-      maxAutonomyLevel: config.max_autonomy_level as number,
-      executionInterval: config.execution_interval as number
+      agentId: config['agent_id'] as string,
+      capabilities: config['capabilities'] as AgentCapability[],
+      maxAutonomyLevel: config['max_autonomy_level'] as number,
+      executionInterval: config['execution_interval'] as number
     }));
   }
   
@@ -222,13 +222,13 @@ export class AgentManager {
     config: AgentConfig,
     agentType: string
   ): Promise<void> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from('agent_configs')
       .upsert({
         organization_id: organizationId,
         agent_id: config.agentId,
         agent_type: agentType,
-        capabilities: config.capabilities,
+        capabilities: config['capabilities'],
         max_autonomy_level: config.maxAutonomyLevel,
         execution_interval: config.executionInterval,
         enabled: true
@@ -243,6 +243,10 @@ export class AgentManager {
   // Get agent metrics
   async getAgentMetrics(agentId: string, timeRange: { start: Date; end: Date }) {
     const [agentType, organizationId] = agentId.split('-');
+    
+    if (!agentType || !organizationId) {
+      throw new Error('Invalid agent ID format');
+    }
     
     // Get task results
     const { data: results } = await this.supabase
@@ -264,14 +268,14 @@ export class AgentManager {
       
     return {
       totalTasks: results?.length || 0,
-      successfulTasks: results?.filter(r => r.success).length || 0,
-      failedTasks: results?.filter(r => !r.success).length || 0,
+      successfulTasks: results?.filter(r => r['success']).length || 0,
+      failedTasks: results?.filter(r => !r['success']).length || 0,
       totalErrors: errors?.length || 0,
       averageExecutionTime: results?.length 
         ? results.reduce((sum: number, r: any) => sum + (r.execution_time_ms || 0), 0) / results.length
         : 0,
-      insights: results?.flatMap(r => r.insights) || [],
-      actions: results?.flatMap(r => r.actions) || []
+      insights: results?.flatMap(r => r['insights']) || [],
+      actions: results?.flatMap(r => r['actions']) || []
     };
   }
   

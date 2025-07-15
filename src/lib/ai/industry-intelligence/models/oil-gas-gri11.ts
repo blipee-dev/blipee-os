@@ -3,7 +3,7 @@
  * Comprehensive implementation of GRI 11 sector standard for oil and gas companies
  */
 
-import { IndustryModel } from '../base-model';
+import { IndustryModel, IndustryModelConfig } from '../base-model';
 import {
   IndustryClassification,
   MaterialTopic,
@@ -19,7 +19,7 @@ import {
 
 export class OilGasGRI11Model extends IndustryModel {
   constructor() {
-    super({
+    const config: IndustryModelConfig = {
       industryName: 'Oil and Gas',
       griStandards: [GRISectorStandard.GRI_11_OIL_GAS],
       naicsCodes: ['211', '213111', '213112', '324110', '486'],
@@ -46,10 +46,15 @@ export class OilGasGRI11Model extends IndustryModel {
         'public-policy',
         'supply-chain-management'
       ],
-      specificMetrics: this.defineIndustryMetrics(),
+      specificMetrics: [],
       regulatoryFrameworks: ['EU-ETS', 'EPA-GHG', 'OGMP-2.0', 'TCFD'],
       certifications: ['ISO-14001', 'ISO-45001', 'API-Q1', 'API-Q2']
-    });
+    };
+    
+    super(config);
+    
+    // Now we can define metrics after super() call
+    this.config.specificMetrics = this.defineIndustryMetrics();
   }
 
   /**

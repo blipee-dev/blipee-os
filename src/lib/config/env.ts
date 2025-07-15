@@ -39,7 +39,7 @@ const envSchema = z.object({
   // Feature flags (all optional with defaults)
   NEXT_PUBLIC_ENABLE_VOICE_INPUT: z.string().optional().default('true').transform(val => val === 'true'),
   NEXT_PUBLIC_ENABLE_3D_VIEWS: z.string().optional().default('true').transform(val => val === 'true'),
-  NEXT_PUBLIC_ENABLE_MOCK_DATA: z.string().optional().default('true').transform(val => val === 'true'),
+  NEXT_PUBLIC_ENABLE_MOCK_DATA: z.string().optional().default('false').transform(val => val === 'true'),
   NEXT_PUBLIC_ENABLE_DOCUMENT_PARSING: z.string().optional().default('true').transform(val => val === 'true'),
   NEXT_PUBLIC_ENABLE_REAL_TIME_DATA: z.string().optional().default('true').transform(val => val === 'true'),
   

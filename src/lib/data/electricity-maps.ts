@@ -44,13 +44,8 @@ export class ElectricityMapsAPIClient {
       };
     } catch (error) {
       console.error("Electricity Maps API error:", error);
-      // Return mock data for demo
-      return {
-        carbonIntensity: 250,
-        renewablePercentage: 35,
-        fossilFuelPercentage: 65,
-        datetime: new Date().toISOString(),
-      };
+      // Return null to indicate API failure
+      return null;
     }
   }
 

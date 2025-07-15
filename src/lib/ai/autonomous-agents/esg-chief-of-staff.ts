@@ -4,6 +4,9 @@ import { chainOfThoughtEngine } from '../chain-of-thought';
 import { aiService } from '../service';
 import { AgentErrorHandler } from './error-handler';
 import { AgentLearningSystem } from './learning-system';
+import { AgentDatabase } from './database';
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from '../../database/types';
 
 interface CriticalIssue {
   title: string;
@@ -39,6 +42,8 @@ interface OptimizationOpportunity {
 export class ESGChiefOfStaffAgent extends AutonomousAgent {
   private errorHandler: AgentErrorHandler;
   private learningSystem: AgentLearningSystem;
+  private database: AgentDatabase;
+  private supabase: ReturnType<typeof createClient<Database>>;
   
   constructor(organizationId: string) {
     super(organizationId, {
@@ -75,6 +80,11 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
     
     this.errorHandler = new AgentErrorHandler();
     this.learningSystem = new AgentLearningSystem();
+    this.database = new AgentDatabase();
+    this.supabase = createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
   }
   
   async getScheduledTasks(): Promise<AgentTask[]> {
@@ -258,32 +268,35 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   }
   
   private async analyzeMetrics(task: AgentTask, knowledge: Learning[]): Promise<AgentResult> {
-    // Get comprehensive ESG context
+    // Perform comprehensive ESG analysis using real data
+    const analysis = await this.performComprehensiveESGAnalysis();
+    
+    // Record the analysis execution
+    const executionId = await this.database.executeAgentTask(
+      this.agentId,
+      'analyze_metrics',
+      `${task.data.period} ESG Analysis`,
+      {
+        period: task.data.period,
+        includeForecasts: task.data.includeForecasts,
+        depth: task.data.depth
+      },
+      'high'
+    );
+    
+    // Get comprehensive ESG context for additional insights
     const context = await esgContextEngine.buildESGContext(
       `Perform ${task.data.period} ESG analysis with focus on trends and anomalies`,
       this.organizationId
     );
     
-    // Apply learned insights
-    const enhancedPrompt = this.enhancePromptWithKnowledge(
-      `Analyze the organization's ESG performance for ${task.data.period}. 
-       Identify trends, anomalies, and areas needing attention.
-       ${task.data.includeForecasts ? 'Include forecasts for next period.' : ''}`,
-      knowledge
-    );
+    // Store the analysis results
+    await this.storeAnalysis(analysis, context);
     
-    // Use chain-of-thought reasoning
-    const analysis = await chainOfThoughtEngine.processWithReasoning(
-      enhancedPrompt,
-      this.organizationId
-    );
-    
-    // Extract actionable insights
-    const insights = this.extractInsights(analysis, context);
     const actions: ExecutedAction[] = [];
     
-    // Check for critical issues
-    const criticalIssues = this.identifyCriticalIssues(context);
+    // Check for critical issues in the analysis
+    const criticalIssues = this.identifyCriticalIssuesFromAnalysis(analysis);
     
     if (criticalIssues.length > 0) {
       // Send immediate alerts
@@ -322,13 +335,28 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
     // Store analysis results
     await this.storeAnalysis(analysis, context);
     
+    // Complete the task execution with results
+    await this.database.completeTaskExecution(executionId, {
+      analysis: analysis,
+      criticalIssues: criticalIssues.length,
+      alertsSent: criticalIssues.length,
+      sustainabilityScore: analysis.sustainabilityScore,
+      totalEmissions: analysis.totalEmissions,
+      anomaliesDetected: analysis.anomalies.length
+    });
+
     return {
       taskId: task.id,
       success: true,
       actions,
-      insights,
-      nextSteps: this.generateNextSteps(analysis, context),
-      learnings: this.extractLearnings(analysis, context, insights)
+      insights: analysis.insights,
+      nextSteps: [
+        ...analysis.recommendations,
+        'Continue monitoring for new anomalies',
+        'Review and validate critical alerts',
+        'Update sustainability targets based on current performance'
+      ],
+      learnings: this.extractLearningsFromAnalysis(analysis, criticalIssues)
     };
   }
   
@@ -792,15 +820,177 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   }
   
   private async getCurrentMetricValue(metric: string): Promise<any> {
-    // This would fetch real metric data from database
-    // For now, returning mock data
-    return {
-      metric,
-      value: Math.random() * 100,
-      unit: metric === 'emissions' ? 'tCO2e' : metric === 'energy' ? 'MWh' : 'units',
-      change: (Math.random() - 0.5) * 20,
-      timestamp: new Date()
+    try {
+      let value = 0;
+      let unit = '';
+      let recentData: any[] = [];
+      
+      // Map metrics to actual database tables
+      switch (metric) {
+        case 'scope1_emissions':
+        case 'scope2_emissions':
+        case 'scope3_emissions':
+        case 'total_emissions':
+          const scopeField = metric.replace('_emissions', '').replace('total', 'total_emissions');
+          const { data: emissionsData, error: emissionsError } = await this.supabase
+            .from('emissions')
+            .select('*')
+            .eq('organization_id', this.organizationId)
+            .order('created_at', { ascending: false })
+            .limit(10);
+          
+          if (!emissionsError && emissionsData && emissionsData.length > 0) {
+            recentData = emissionsData;
+            value = emissionsData[0][scopeField] || 0;
+            unit = 'tCO2e';
+          }
+          break;
+          
+        case 'energy':
+        case 'electricity':
+        case 'gas':
+          // Try energy_consumption table first
+          const { data: energyData, error: energyError } = await this.supabase
+            .from('energy_consumption')
+            .select('*')
+            .eq('organization_id', this.organizationId)
+            .order('created_at', { ascending: false })
+            .limit(10);
+          
+          if (!energyError && energyData && energyData.length > 0) {
+            recentData = energyData;
+            value = energyData[0].total_consumption || 0;
+            unit = 'kWh';
+          } else {
+            // Fallback to emissions data as proxy
+            const { data: fallbackData } = await this.supabase
+              .from('emissions')
+              .select('*')
+              .eq('organization_id', this.organizationId)
+              .order('created_at', { ascending: false })
+              .limit(10);
+            
+            if (fallbackData && fallbackData.length > 0) {
+              recentData = fallbackData;
+              // Estimate energy from scope 2 emissions (rough conversion)
+              value = (fallbackData[0].scope_2 || 0) * 2000; // Rough estimate
+              unit = 'kWh (estimated)';
+            }
+          }
+          break;
+          
+        case 'water':
+          const { data: waterData, error: waterError } = await this.supabase
+            .from('water_usage')
+            .select('*')
+            .eq('organization_id', this.organizationId)
+            .order('created_at', { ascending: false })
+            .limit(10);
+          
+          if (!waterError && waterData && waterData.length > 0) {
+            recentData = waterData;
+            value = waterData[0].total_usage || 0;
+            unit = 'm³';
+          }
+          break;
+          
+        case 'waste':
+          const { data: wasteData, error: wasteError } = await this.supabase
+            .from('waste_data')
+            .select('*')
+            .eq('organization_id', this.organizationId)
+            .order('created_at', { ascending: false })
+            .limit(10);
+          
+          if (!wasteError && wasteData && wasteData.length > 0) {
+            recentData = wasteData;
+            value = wasteData[0].total_waste || 0;
+            unit = 'tons';
+          }
+          break;
+          
+        default:
+          console.warn(`Unknown metric: ${metric}`);
+          break;
+      }
+      
+      // Calculate change from previous value
+      let change = 0;
+      if (recentData.length >= 2) {
+        const current = recentData[0];
+        const previous = recentData[1];
+        
+        const currentValue = this.extractMetricValue(current, metric);
+        const previousValue = this.extractMetricValue(previous, metric);
+        
+        if (previousValue > 0) {
+          change = ((currentValue - previousValue) / previousValue) * 100;
+        }
+      }
+      
+      return {
+        metric,
+        value,
+        unit: unit || this.getMetricUnit(metric),
+        change,
+        timestamp: recentData[0]?.created_at ? new Date(recentData[0].created_at) : new Date(),
+        status: recentData.length > 0 ? 'active' : 'no_data',
+        dataPoints: recentData.length
+      };
+    } catch (error) {
+      console.error(`Error in getCurrentMetricValue for ${metric}:`, error);
+      // Return error state instead of throwing
+      return {
+        metric,
+        value: 0,
+        unit: this.getMetricUnit(metric),
+        change: 0,
+        timestamp: new Date(),
+        status: 'error',
+        error: error.message
+      };
+    }
+  }
+
+  private getMetricUnit(metric: string): string {
+    const units = {
+      'emissions': 'tCO2e',
+      'energy': 'MWh',
+      'electricity': 'kWh',
+      'gas': 'm³',
+      'water': 'L',
+      'waste': 'kg',
+      'temperature': '°C',
+      'humidity': '%',
+      'power': 'kW',
+      'scope1_emissions': 'tCO2e',
+      'scope2_emissions': 'tCO2e',
+      'scope3_emissions': 'tCO2e'
     };
+    return units[metric] || 'units';
+  }
+  
+  private extractMetricValue(record: any, metric: string): number {
+    switch (metric) {
+      case 'scope1_emissions':
+        return record.scope_1 || 0;
+      case 'scope2_emissions':
+        return record.scope_2 || 0;
+      case 'scope3_emissions':
+        return record.scope_3 || 0;
+      case 'total_emissions':
+        return record.total_emissions || 0;
+      case 'energy':
+      case 'electricity':
+      case 'gas':
+        return record.total_consumption || record.scope_2 * 2000 || 0;
+      case 'water':
+        return record.total_usage || 0;
+      case 'waste':
+        return record.total_waste || 0;
+      default:
+        return 0;
+    }
   }
   
   private async getDynamicThreshold(metric: string, current: any, knowledge: Learning[]): Promise<any> {
@@ -838,32 +1028,366 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   private async sendAlert(alert: any): Promise<void> {
     console.log(`🚨 Sending ${alert.severity} alert: ${alert.title}`);
     
-    // This would integrate with notification system
-    await this.supabase
-      .from('agent_alerts')
-      .insert({
-        agent_id: this.agentId,
-        organization_id: this.organizationId,
-        severity: alert.severity,
-        title: alert.title,
-        description: alert.description,
-        recommendations: alert.recommendations,
-        metrics: alert.metrics,
-        created_at: new Date().toISOString()
+    try {
+      // Record the alert in our agent metrics
+      await this.database.recordMetric({
+        agent_instance_id: this.agentId,
+        metric_type: 'alert',
+        metric_name: alert.title,
+        metric_value: alert.severity === 'critical' ? 4 : alert.severity === 'high' ? 3 : 2,
+        metadata: {
+          severity: alert.severity,
+          description: alert.description,
+          recommendations: alert.recommendations,
+          metrics: alert.metrics
+        }
       });
+
+      // Create a notification task execution
+      await this.database.executeAgentTask(
+        this.agentId,
+        'send_notification',
+        `Alert: ${alert.title}`,
+        {
+          type: 'alert',
+          severity: alert.severity,
+          title: alert.title,
+          description: alert.description,
+          recommendations: alert.recommendations,
+          metrics: alert.metrics
+        },
+        alert.severity === 'critical' ? 'critical' : 'high'
+      );
+    } catch (error) {
+      console.error('Error sending alert:', error);
+    }
   }
   
   private async storeAnalysis(analysis: any, context: any): Promise<void> {
-    await this.supabase
-      .from('agent_analyses')
-      .insert({
-        agent_id: this.agentId,
-        organization_id: this.organizationId,
-        analysis_type: 'daily_metrics',
-        results: analysis,
-        context: context,
-        created_at: new Date().toISOString()
+    try {
+      // Store the analysis results as agent metrics
+      await this.database.recordMetric({
+        agent_instance_id: this.agentId,
+        metric_type: 'analysis',
+        metric_name: 'esg_analysis_complete',
+        metric_value: 1,
+        metadata: {
+          analysis_type: 'daily_metrics',
+          results: analysis,
+          context: context,
+          timestamp: new Date().toISOString()
+        }
       });
+
+      // Record analysis execution
+      await this.database.executeAgentTask(
+        this.agentId,
+        'store_analysis',
+        'ESG Analysis Storage',
+        {
+          analysis_type: 'daily_metrics',
+          results: analysis,
+          context: context
+        }
+      );
+    } catch (error) {
+      console.error('Error storing analysis:', error);
+    }
+  }
+
+  /**
+   * Performs comprehensive ESG analysis using real data
+   */
+  private async performComprehensiveESGAnalysis(): Promise<any> {
+    try {
+      // Get key ESG metrics from database
+      const keyMetrics = [
+        'scope1_emissions',
+        'scope2_emissions', 
+        'scope3_emissions',
+        'energy',
+        'electricity',
+        'gas',
+        'water',
+        'waste'
+      ];
+
+      const metricsData = await Promise.all(
+        keyMetrics.map(async (metric) => {
+          const data = await this.getCurrentMetricValue(metric);
+          return { metric, ...data };
+        })
+      );
+
+      // Calculate total emissions
+      const totalEmissions = metricsData
+        .filter(m => m.metric.includes('emissions'))
+        .reduce((sum, m) => sum + (m.value || 0), 0);
+
+      // Calculate energy intensity
+      const totalEnergy = metricsData
+        .filter(m => ['energy', 'electricity', 'gas'].includes(m.metric))
+        .reduce((sum, m) => sum + (m.value || 0), 0);
+
+      // Identify trends and anomalies
+      const trends = await this.analyzeTrends(metricsData);
+      const anomalies = await this.detectAnomalies(metricsData);
+
+      // Generate insights using AI
+      const insights = await this.generateAIInsights(metricsData, trends, anomalies);
+
+      // Calculate sustainability score
+      const sustainabilityScore = await this.calculateSustainabilityScore(metricsData);
+
+      return {
+        timestamp: new Date().toISOString(),
+        metrics: metricsData,
+        totalEmissions,
+        totalEnergy,
+        emissionIntensity: totalEmissions / Math.max(totalEnergy, 1),
+        trends,
+        anomalies,
+        insights,
+        sustainabilityScore,
+        recommendations: await this.generateRecommendations(metricsData, trends, anomalies)
+      };
+    } catch (error) {
+      console.error('Error in performComprehensiveESGAnalysis:', error);
+      throw error;
+    }
+  }
+
+  private async analyzeTrends(metricsData: any[]): Promise<any[]> {
+    const trends = [];
+    
+    for (const metric of metricsData) {
+      if (metric.status === 'active') {
+        const trend = {
+          metric: metric.metric,
+          direction: metric.change > 0 ? 'increasing' : metric.change < 0 ? 'decreasing' : 'stable',
+          changePercent: metric.change,
+          severity: Math.abs(metric.change) > 20 ? 'high' : Math.abs(metric.change) > 10 ? 'medium' : 'low'
+        };
+        trends.push(trend);
+      }
+    }
+    
+    return trends;
+  }
+
+  private async detectAnomalies(metricsData: any[]): Promise<any[]> {
+    const anomalies = [];
+    
+    for (const metric of metricsData) {
+      if (metric.status === 'active') {
+        // Simple anomaly detection based on change thresholds
+        if (Math.abs(metric.change) > 30) {
+          anomalies.push({
+            metric: metric.metric,
+            value: metric.value,
+            expectedRange: `${metric.value * 0.7} - ${metric.value * 1.3}`,
+            deviation: metric.change,
+            severity: Math.abs(metric.change) > 50 ? 'critical' : 'high'
+          });
+        }
+      }
+    }
+    
+    return anomalies;
+  }
+
+  private async generateAIInsights(metricsData: any[], trends: any[], anomalies: any[]): Promise<string[]> {
+    try {
+      const prompt = `
+        Analyze these ESG metrics and provide actionable insights:
+        
+        Metrics: ${JSON.stringify(metricsData, null, 2)}
+        Trends: ${JSON.stringify(trends, null, 2)}
+        Anomalies: ${JSON.stringify(anomalies, null, 2)}
+        
+        Provide 3-5 key insights focusing on:
+        1. Most significant changes
+        2. Areas of concern
+        3. Opportunities for improvement
+        4. Compliance implications
+      `;
+
+      const response = await aiService.complete(prompt);
+      return response.content.split('\n').filter(line => line.trim().length > 0);
+    } catch (error) {
+      console.error('Error generating AI insights:', error);
+      return ['Unable to generate insights at this time'];
+    }
+  }
+
+  private async calculateSustainabilityScore(metricsData: any[]): Promise<number> {
+    // Simple scoring algorithm - can be enhanced with ML models
+    let score = 100;
+    
+    for (const metric of metricsData) {
+      if (metric.status === 'active') {
+        // Penalize for increasing emissions
+        if (metric.metric.includes('emissions') && metric.change > 0) {
+          score -= Math.min(metric.change, 20);
+        }
+        
+        // Reward for decreasing energy consumption
+        if (metric.metric.includes('energy') && metric.change < 0) {
+          score += Math.min(Math.abs(metric.change), 10);
+        }
+      }
+    }
+    
+    return Math.max(0, Math.min(100, score));
+  }
+
+  private async generateRecommendations(metricsData: any[], trends: any[], anomalies: any[]): Promise<string[]> {
+    const recommendations = [];
+    
+    // Recommendations based on trends
+    for (const trend of trends) {
+      if (trend.direction === 'increasing' && trend.metric.includes('emissions')) {
+        recommendations.push(`Address rising ${trend.metric} - consider energy efficiency improvements`);
+      }
+      
+      if (trend.direction === 'increasing' && trend.metric.includes('energy')) {
+        recommendations.push(`Investigate increasing ${trend.metric} consumption - potential equipment issues`);
+      }
+    }
+    
+    // Recommendations based on anomalies
+    for (const anomaly of anomalies) {
+      if (anomaly.severity === 'critical') {
+        recommendations.push(`URGENT: Investigate ${anomaly.metric} anomaly - ${anomaly.deviation}% deviation detected`);
+      }
+    }
+    
+    // General recommendations
+    if (recommendations.length === 0) {
+      recommendations.push('Continue monitoring current performance levels');
+      recommendations.push('Consider implementing additional sustainability measures');
+    }
+    
+    return recommendations;
+  }
+
+  private identifyCriticalIssuesFromAnalysis(analysis: any): CriticalIssue[] {
+    const criticalIssues: CriticalIssue[] = [];
+    
+    // Check for critical anomalies
+    for (const anomaly of analysis.anomalies || []) {
+      if (anomaly.severity === 'critical') {
+        criticalIssues.push({
+          title: `Critical Anomaly: ${anomaly.metric}`,
+          description: `${anomaly.metric} shows ${anomaly.deviation}% deviation from expected range`,
+          severity: 'critical',
+          recommendations: [
+            `Investigate ${anomaly.metric} systems immediately`,
+            'Review recent changes to equipment or processes',
+            'Consider emergency response protocols'
+          ],
+          recipients: ['sustainability_manager', 'facility_manager'],
+          metrics: {
+            metric: anomaly.metric,
+            value: anomaly.value,
+            deviation: anomaly.deviation,
+            expectedRange: anomaly.expectedRange
+          }
+        });
+      }
+    }
+    
+    // Check for low sustainability score
+    if (analysis.sustainabilityScore < 50) {
+      criticalIssues.push({
+        title: 'Low Sustainability Score',
+        description: `Overall sustainability score is ${analysis.sustainabilityScore}/100, indicating significant concerns`,
+        severity: 'high',
+        recommendations: [
+          'Review all ESG metrics for improvement opportunities',
+          'Implement emergency sustainability measures',
+          'Consider external sustainability consulting'
+        ],
+        recipients: ['sustainability_manager', 'executive_team'],
+        metrics: {
+          score: analysis.sustainabilityScore,
+          totalEmissions: analysis.totalEmissions,
+          emissionIntensity: analysis.emissionIntensity
+        }
+      });
+    }
+    
+    // Check for high emission intensity
+    if (analysis.emissionIntensity > 0.5) {
+      criticalIssues.push({
+        title: 'High Emission Intensity',
+        description: `Emission intensity of ${analysis.emissionIntensity.toFixed(3)} tCO2e/MWh exceeds recommended thresholds`,
+        severity: 'high',
+        recommendations: [
+          'Implement energy efficiency measures',
+          'Consider renewable energy sources',
+          'Review equipment performance and maintenance'
+        ],
+        recipients: ['sustainability_manager', 'facility_manager'],
+        metrics: {
+          emissionIntensity: analysis.emissionIntensity,
+          totalEmissions: analysis.totalEmissions,
+          totalEnergy: analysis.totalEnergy
+        }
+      });
+    }
+    
+    return criticalIssues;
+  }
+
+  private extractLearningsFromAnalysis(analysis: any, criticalIssues: CriticalIssue[]): Learning[] {
+    const learnings: Learning[] = [];
+    
+    // Learn from anomaly patterns
+    if (analysis.anomalies.length > 0) {
+      learnings.push({
+        pattern: `Anomaly detected in ${analysis.anomalies.map(a => a.metric).join(', ')}`,
+        confidence: 0.8,
+        outcome: 'success',
+        context: 'anomaly_detection',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Learn from sustainability score trends
+    if (analysis.sustainabilityScore < 70) {
+      learnings.push({
+        pattern: `Low sustainability score: ${analysis.sustainabilityScore}`,
+        confidence: 0.9,
+        outcome: 'needs_improvement',
+        context: 'sustainability_scoring',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Learn from emission intensity
+    if (analysis.emissionIntensity > 0.3) {
+      learnings.push({
+        pattern: `High emission intensity: ${analysis.emissionIntensity}`,
+        confidence: 0.85,
+        outcome: 'optimization_needed',
+        context: 'emission_efficiency',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Learn from critical issues
+    if (criticalIssues.length > 0) {
+      learnings.push({
+        pattern: `Critical issues found: ${criticalIssues.length}`,
+        confidence: 1.0,
+        outcome: 'urgent_action_required',
+        context: 'critical_monitoring',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    return learnings;
   }
   
   // Additional helper methods would be implemented here...
@@ -943,35 +1467,153 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   }
   
   private async identifyOptimizationOpportunities(scope: string, focusAreas: string[], knowledge: Learning[]): Promise<OptimizationOpportunity[]> {
-    // This would use ML to identify opportunities
-    return [
-      {
-        id: 'opt-1',
-        name: 'HVAC Schedule Optimization',
-        category: 'energy',
-        impact: 0.85,
-        feasibility: 0.9,
-        effort: 0.3,
-        risk: 'low',
-        expectedSavings: '$5,000/month',
-        emissionsImpact: '10 tCO2e/month reduction',
-        implementation: 'Adjust HVAC schedules based on occupancy patterns',
-        rollbackPlan: 'Restore original HVAC schedules'
-      },
-      {
-        id: 'opt-2',
-        name: 'LED Lighting Upgrade',
-        category: 'energy',
-        impact: 0.7,
-        feasibility: 0.8,
-        effort: 0.5,
-        risk: 'low',
-        expectedSavings: '$3,000/month',
-        emissionsImpact: '5 tCO2e/month reduction',
-        implementation: 'Replace remaining fluorescent lights with LEDs',
-        rollbackPlan: 'N/A - permanent upgrade'
+    const opportunities: OptimizationOpportunity[] = [];
+    
+    try {
+      // Get recent metrics to analyze for opportunities
+      const metrics = await this.performComprehensiveESGAnalysis();
+      
+      // Energy optimization opportunities
+      if (focusAreas.includes('energy') || focusAreas.length === 0) {
+        const energyMetrics = metrics.metrics.filter(m => ['energy', 'electricity', 'gas'].includes(m.metric));
+        
+        for (const metric of energyMetrics) {
+          if (metric.value > 0) {
+            // High energy consumption opportunity
+            if (metric.change > 10) {
+              opportunities.push({
+                id: `energy-opt-${Date.now()}-1`,
+                name: 'Energy Consumption Reduction',
+                category: 'energy',
+                impact: 0.8,
+                feasibility: 0.85,
+                effort: 0.4,
+                risk: 'low',
+                expectedSavings: `$${Math.round(metric.value * 0.15 * 0.12)}/month`,
+                emissionsImpact: `${(metric.value * 0.15 * 0.0005).toFixed(1)} tCO2e/month reduction`,
+                implementation: `Implement energy efficiency measures to reduce ${metric.metric} consumption by 15%`,
+                rollbackPlan: 'Restore original energy consumption patterns'
+              });
+            }
+            
+            // Always suggest renewable energy transition
+            if (metric.metric === 'electricity' && metric.value > 1000) {
+              opportunities.push({
+                id: `renewable-opt-${Date.now()}`,
+                name: 'Renewable Energy Transition',
+                category: 'energy',
+                impact: 0.95,
+                feasibility: 0.7,
+                effort: 0.7,
+                risk: 'medium',
+                expectedSavings: `$${Math.round(metric.value * 0.1 * 0.12)}/month`,
+                emissionsImpact: `${(metric.value * 0.8 * 0.0005).toFixed(1)} tCO2e/month reduction`,
+                implementation: 'Transition to renewable energy sources for electricity consumption',
+                rollbackPlan: 'Continue with current energy mix'
+              });
+            }
+          }
+        }
       }
-    ];
+      
+      // Emissions reduction opportunities
+      if (focusAreas.includes('emissions') || focusAreas.length === 0) {
+        const emissionsMetrics = metrics.metrics.filter(m => m.metric.includes('emissions'));
+        
+        for (const metric of emissionsMetrics) {
+          if (metric.value > 50) {
+            opportunities.push({
+              id: `emissions-opt-${metric.metric}-${Date.now()}`,
+              name: `${metric.metric.replace('_', ' ').replace('emissions', '').trim()} Emissions Reduction`,
+              category: 'emissions',
+              impact: 0.9,
+              feasibility: 0.75,
+              effort: 0.6,
+              risk: 'medium',
+              expectedSavings: `$${Math.round(metric.value * 25)}/month in carbon costs`,
+              emissionsImpact: `${(metric.value * 0.2).toFixed(1)} tCO2e/month reduction`,
+              implementation: `Implement targeted reduction measures for ${metric.metric}`,
+              rollbackPlan: 'Return to previous emission levels'
+            });
+          }
+        }
+      }
+      
+      // Waste reduction opportunities
+      if (focusAreas.includes('waste') || focusAreas.length === 0) {
+        const wasteMetric = metrics.metrics.find(m => m.metric === 'waste');
+        
+        if (wasteMetric && wasteMetric.value > 0) {
+          opportunities.push({
+            id: `waste-opt-${Date.now()}`,
+            name: 'Waste Reduction & Recycling Program',
+            category: 'waste',
+            impact: 0.7,
+            feasibility: 0.9,
+            effort: 0.3,
+            risk: 'low',
+            expectedSavings: `$${Math.round(wasteMetric.value * 50)}/month`,
+            emissionsImpact: `${(wasteMetric.value * 0.3 * 1.5).toFixed(1)} tCO2e/month reduction`,
+            implementation: 'Implement comprehensive waste reduction and recycling program',
+            rollbackPlan: 'Return to previous waste management practices'
+          });
+        }
+      }
+      
+      // Water conservation opportunities
+      if (focusAreas.includes('water') || focusAreas.length === 0) {
+        const waterMetric = metrics.metrics.find(m => m.metric === 'water');
+        
+        if (waterMetric && waterMetric.value > 100) {
+          opportunities.push({
+            id: `water-opt-${Date.now()}`,
+            name: 'Water Conservation Initiative',
+            category: 'water',
+            impact: 0.6,
+            feasibility: 0.85,
+            effort: 0.4,
+            risk: 'low',
+            expectedSavings: `$${Math.round(waterMetric.value * 0.2 * 3.5)}/month`,
+            emissionsImpact: `${(waterMetric.value * 0.2 * 0.0003).toFixed(2)} tCO2e/month reduction`,
+            implementation: 'Install water-efficient fixtures and implement conservation measures',
+            rollbackPlan: 'Remove water-saving fixtures'
+          });
+        }
+      }
+      
+      // Apply learned optimizations from knowledge base
+      for (const learning of knowledge) {
+        if (learning.pattern.includes('optimization') && learning.confidence > 0.7) {
+          // Adjust opportunity scores based on historical success
+          opportunities.forEach(opp => {
+            if (learning.applicableTo.includes(opp.category)) {
+              opp.feasibility *= (1 + learning.confidence * 0.1);
+            }
+          });
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error identifying optimization opportunities:', error);
+      // Return default opportunities as fallback
+      return [
+        {
+          id: 'opt-default-1',
+          name: 'Energy Efficiency Audit',
+          category: 'energy',
+          impact: 0.8,
+          feasibility: 0.9,
+          effort: 0.3,
+          risk: 'low',
+          expectedSavings: '$3,000/month',
+          emissionsImpact: '8 tCO2e/month reduction',
+          implementation: 'Conduct comprehensive energy audit and implement recommendations',
+          rollbackPlan: 'N/A'
+        }
+      ];
+    }
+    
+    return opportunities;
   }
   
   private rankOpportunities(opportunities: OptimizationOpportunity[], knowledge: Learning[]): OptimizationOpportunity[] {

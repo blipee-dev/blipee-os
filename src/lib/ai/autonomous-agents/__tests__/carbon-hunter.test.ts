@@ -3,19 +3,7 @@
  */
 
 import { CarbonHunterAgent } from '../carbon-hunter';
-import { AgentTask } from '../types';
-
-// Mock Supabase client
-jest.mock('@supabase/supabase-js', () => ({
-  createClient: jest.fn(() => ({
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({ eq: jest.fn(() => ({ single: jest.fn() })) })),
-      insert: jest.fn(() => ({ select: jest.fn(() => ({ single: jest.fn() })) })),
-      update: jest.fn(),
-      delete: jest.fn()
-    }))
-  }))
-}));
+import { AgentTask } from '../agent-framework';
 
 describe('CarbonHunterAgent', () => {
   let agent: CarbonHunterAgent;

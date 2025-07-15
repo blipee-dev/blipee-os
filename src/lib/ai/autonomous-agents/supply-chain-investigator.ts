@@ -583,21 +583,226 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
 
   // Helper methods - simplified implementations
   private async loadSupplierProfiles(): Promise<void> {
-    const mockProfile: SupplierProfile = {
-      id: 'supplier-1',
-      name: 'Green Manufacturing Co',
-      category: 'components',
-      tier: 1,
-      location: { country: 'Germany', region: 'Bavaria' },
-      sustainability_score: 85,
-      carbon_intensity: 0.12,
-      certifications: ['ISO14001'],
-      risk_level: 'low',
-      last_assessment: '2024-01-15',
-      emission_data: { scope1: 45.2, scope2: 23.1, scope3: 78.5, total: 146.8 }
+    try {
+      // First, try to load real supplier data from database
+      const supplierData = await this.loadRealSupplierData();
+      
+      if (supplierData.length > 0) {
+        console.log(`✅ Loaded ${supplierData.length} real supplier profiles`);
+        return;
+      }
+      
+      // Fallback to mock data if no real data exists
+      await this.loadMockSupplierProfiles();
+      
+    } catch (error) {
+      console.error('Error loading supplier profiles, using mock data:', error);
+      await this.loadMockSupplierProfiles();
+    }
+  }
+  
+  private async loadRealSupplierData(): Promise<SupplierProfile[]> {
+    // Try to get supplier data from various sources
+    const supplierProfiles: SupplierProfile[] = [];
+    
+    // 1. Check if there's a suppliers table or related data
+    const tables = ['suppliers', 'organizations', 'emissions'];
+    
+    for (const table of tables) {
+      try {
+        const { data, error } = await this.supabase
+          .from(table)
+          .select('*')
+          .eq('organization_id', this.organizationId)
+          .limit(50);
+        
+        if (!error && data && data.length > 0) {
+          // Convert data to supplier profiles based on table type
+          const profiles = this.convertToSupplierProfiles(data, table);
+          supplierProfiles.push(...profiles);
+        }
+      } catch (tableError) {
+        // Table might not exist, continue
+        continue;
+      }
+    }
+    
+    // Store profiles in memory for quick access
+    supplierProfiles.forEach(profile => {
+      this.supplierProfiles.set(profile.id, profile);
+    });
+    
+    return supplierProfiles;
+  }
+  
+  private convertToSupplierProfiles(data: any[], tableType: string): SupplierProfile[] {
+    const profiles: SupplierProfile[] = [];
+    
+    data.forEach(record => {
+      let profile: SupplierProfile;
+      
+      switch (tableType) {
+        case 'suppliers':
+          profile = {
+            id: record.id,
+            name: record.name || record.supplier_name || 'Unknown Supplier',
+            category: record.category || record.industry || 'general',
+            tier: record.tier || 1,
+            location: {
+              country: record.country || 'Unknown',
+              region: record.region || record.state || 'Unknown'
+            },
+            sustainability_score: record.sustainability_score || 75,
+            carbon_intensity: record.carbon_intensity || 0.3,
+            certifications: record.certifications || [],
+            risk_level: record.risk_level || 'medium',
+            last_assessment: record.last_assessment || new Date().toISOString(),
+            emission_data: {
+              scope1: record.scope1_emissions || 0,
+              scope2: record.scope2_emissions || 0,
+              scope3: record.scope3_emissions || 0,
+              total: record.total_emissions || 0
+            }
+          };
+          break;
+          
+        case 'organizations':
+          // Convert organization data to supplier profiles (other organizations as suppliers)
+          if (record.id !== this.organizationId) {
+            profile = {
+              id: record.id,
+              name: record.name || 'Partner Organization',
+              category: record.industry || 'partner',
+              tier: 1,
+              location: {
+                country: record.country || 'Unknown',
+                region: record.region || 'Unknown'
+              },
+              sustainability_score: 80,
+              carbon_intensity: 0.25,
+              certifications: ['Partner Organization'],
+              risk_level: 'low',
+              last_assessment: new Date().toISOString(),
+              emission_data: { scope1: 0, scope2: 0, scope3: 0, total: 0 }
+            };
+          }
+          break;
+          
+        case 'emissions':
+          // Create synthetic supplier from emission sources
+          profile = {
+            id: `supplier-${record.id}`,
+            name: record.source || record.activity_type || 'Emission Source',
+            category: this.categorizeEmissionSource(record.source || record.activity_type),
+            tier: 1,
+            location: {
+              country: record.country || 'Unknown',
+              region: record.region || 'Unknown'
+            },
+            sustainability_score: this.calculateSustainabilityScore(record),
+            carbon_intensity: this.calculateCarbonIntensity(record),
+            certifications: [],
+            risk_level: this.assessRiskLevel(record.total_emissions || 0),
+            last_assessment: record.created_at || new Date().toISOString(),
+            emission_data: {
+              scope1: record.scope_1 || 0,
+              scope2: record.scope_2 || 0,
+              scope3: record.scope_3 || 0,
+              total: record.total_emissions || 0
+            }
+          };
+          break;
+      }
+      
+      if (profile) {
+        profiles.push(profile);
+      }
+    });
+    
+    return profiles;
+  }
+  
+  private categorizeEmissionSource(source: string): string {
+    if (!source) return 'general';
+    
+    const sourceMap: Record<string, string> = {
+      'electricity': 'energy',
+      'natural_gas': 'energy',
+      'fuel': 'transportation',
+      'travel': 'transportation',
+      'waste': 'waste_management',
+      'water': 'utilities',
+      'manufacturing': 'production',
+      'office': 'facilities'
     };
-
-    this.supplierProfiles.set(mockProfile.id, mockProfile);
+    
+    const lowerSource = source.toLowerCase();
+    return Object.entries(sourceMap).find(([key]) => 
+      lowerSource.includes(key)
+    )?.[1] || 'general';
+  }
+  
+  private calculateSustainabilityScore(record: any): number {
+    const totalEmissions = record.total_emissions || 0;
+    
+    // Lower emissions = higher sustainability score
+    if (totalEmissions < 10) return 90;
+    if (totalEmissions < 50) return 80;
+    if (totalEmissions < 100) return 70;
+    if (totalEmissions < 200) return 60;
+    return 50;
+  }
+  
+  private calculateCarbonIntensity(record: any): number {
+    const totalEmissions = record.total_emissions || 0;
+    const estimatedSpend = record.estimated_spend || 1000; // Default spend estimate
+    
+    return totalEmissions / estimatedSpend;
+  }
+  
+  private assessRiskLevel(totalEmissions: number): 'low' | 'medium' | 'high' | 'critical' {
+    if (totalEmissions > 500) return 'critical';
+    if (totalEmissions > 200) return 'high';
+    if (totalEmissions > 50) return 'medium';
+    return 'low';
+  }
+  
+  private async loadMockSupplierProfiles(): Promise<void> {
+    // Mock supplier profiles - fallback for when no real data exists
+    const mockProfiles: SupplierProfile[] = [
+      {
+        id: 'supplier-1',
+        name: 'GreenTech Solutions',
+        category: 'technology',
+        tier: 1,
+        location: { country: 'USA', region: 'California' },
+        sustainability_score: 85,
+        carbon_intensity: 0.25,
+        certifications: ['ISO 14001'],
+        risk_level: 'low',
+        last_assessment: new Date().toISOString(),
+        emission_data: { scope1: 120, scope2: 85, scope3: 340, total: 545 }
+      },
+      {
+        id: 'supplier-2',
+        name: 'Manufacturing Corp',
+        category: 'manufacturing',
+        tier: 1,
+        location: { country: 'China', region: 'Guangdong' },
+        sustainability_score: 65,
+        carbon_intensity: 0.45,
+        certifications: [],
+        risk_level: 'medium',
+        last_assessment: new Date().toISOString(),
+        emission_data: { scope1: 250, scope2: 180, scope3: 720, total: 1150 }
+      }
+    ];
+    
+    mockProfiles.forEach(profile => {
+      this.supplierProfiles.set(profile.id, profile);
+    });
+    
+    console.log(`📝 Using ${mockProfiles.length} mock supplier profiles`);
   }
 
   private async setupEmissionCategories(): Promise<void> {
@@ -669,8 +874,124 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
   }
 
   private async analyzeInternalRiskData(scope: string, types: string[]): Promise<SupplyChainRisk[]> {
-    return [
-      {
+    const risks: SupplyChainRisk[] = [];
+    
+    try {
+      // Analyze supplier risks based on real data
+      const supplierProfiles = Array.from(this.supplierProfiles.values());
+      
+      for (const supplier of supplierProfiles) {
+        // Environmental risks based on carbon intensity and location
+        if (types.includes('environmental')) {
+          if (supplier.carbon_intensity > 0.4) {
+            risks.push({
+              id: `env-risk-${supplier.id}-${Date.now()}`,
+              type: 'environmental',
+              severity: supplier.carbon_intensity > 0.6 ? 'critical' : 'high',
+              probability: 'high',
+              supplier_id: supplier.id,
+              description: `High carbon intensity supplier (${supplier.carbon_intensity.toFixed(2)} tCO2e/$)`,
+              potential_impact: 'Scope 3 emissions increase, regulatory compliance risk',
+              mitigation_strategies: [
+                'Engage supplier in carbon reduction program',
+                'Set emission reduction targets',
+                'Evaluate alternative suppliers'
+              ],
+              monitoring_required: true
+            });
+          }
+          
+          // Location-based environmental risks
+          if (supplier.location.country === 'China' || supplier.location.country === 'India') {
+            risks.push({
+              id: `location-risk-${supplier.id}-${Date.now()}`,
+              type: 'environmental',
+              severity: 'medium',
+              probability: 'medium',
+              supplier_id: supplier.id,
+              description: `Environmental compliance risk in ${supplier.location.country}`,
+              potential_impact: 'Regulatory non-compliance, reputation risk',
+              mitigation_strategies: [
+                'Conduct on-site audits',
+                'Require environmental certifications',
+                'Implement monitoring systems'
+              ],
+              monitoring_required: true
+            });
+          }
+        }
+        
+        // Social risks based on sustainability score
+        if (types.includes('social')) {
+          if (supplier.sustainability_score < 70) {
+            risks.push({
+              id: `social-risk-${supplier.id}-${Date.now()}`,
+              type: 'social',
+              severity: supplier.sustainability_score < 50 ? 'critical' : 'medium',
+              probability: 'medium',
+              supplier_id: supplier.id,
+              description: `Low sustainability score (${supplier.sustainability_score}/100)`,
+              potential_impact: 'Labor rights issues, supply chain disruption',
+              mitigation_strategies: [
+                'Conduct social compliance audit',
+                'Implement supplier development program',
+                'Require third-party certifications'
+              ],
+              monitoring_required: true
+            });
+          }
+        }
+        
+        // Governance risks based on certifications
+        if (types.includes('governance')) {
+          if (supplier.certifications.length === 0) {
+            risks.push({
+              id: `gov-risk-${supplier.id}-${Date.now()}`,
+              type: 'governance',
+              severity: 'medium',
+              probability: 'medium',
+              supplier_id: supplier.id,
+              description: 'Lack of sustainability certifications',
+              potential_impact: 'Compliance gaps, audit failures',
+              mitigation_strategies: [
+                'Require ISO 14001 certification',
+                'Conduct governance assessment',
+                'Implement supplier code of conduct'
+              ],
+              monitoring_required: true
+            });
+          }
+        }
+        
+        // Operational risks based on emission data
+        if (types.includes('operational')) {
+          if (supplier.emission_data.total > 1000) {
+            risks.push({
+              id: `op-risk-${supplier.id}-${Date.now()}`,
+              type: 'operational',
+              severity: 'high',
+              probability: 'medium',
+              supplier_id: supplier.id,
+              description: `High emission supplier (${supplier.emission_data.total} tCO2e)`,
+              potential_impact: 'Climate regulation exposure, cost increases',
+              mitigation_strategies: [
+                'Develop emission reduction roadmap',
+                'Implement energy efficiency measures',
+                'Transition to renewable energy'
+              ],
+              monitoring_required: true
+            });
+          }
+        }
+      }
+      
+      // Store risks in database
+      await this.storeSupplyChainRisks(risks);
+      
+    } catch (error) {
+      console.error('Error analyzing internal risk data:', error);
+      // Fallback to mock risk
+      risks.push({
         id: `risk-${Date.now()}`,
         type: 'environmental',
         severity: 'medium',
@@ -680,8 +1001,43 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
         potential_impact: 'Supply disruption',
         mitigation_strategies: ['Diversify supplier base'],
         monitoring_required: true
+      });
+    }
+    
+    return risks;
+  }
+  
+  private async storeSupplyChainRisks(risks: SupplyChainRisk[]): Promise<void> {
+    try {
+      // Store risks in agent_metrics table
+      const riskRecords = risks.map(risk => ({
+        agent_instance_id: this.id,
+        metric_type: 'supply_chain_risk',
+        metric_name: risk.type,
+        metric_value: risk.severity === 'critical' ? 4 : risk.severity === 'high' ? 3 : risk.severity === 'medium' ? 2 : 1,
+        metadata: {
+          riskId: risk.id,
+          supplierId: risk.supplier_id,
+          description: risk.description,
+          potentialImpact: risk.potential_impact,
+          mitigationStrategies: risk.mitigation_strategies,
+          probability: risk.probability,
+          monitoringRequired: risk.monitoring_required
+        }
+      }));
+      
+      const { error } = await this.supabase
+        .from('agent_metrics')
+        .insert(riskRecords);
+      
+      if (error) {
+        console.error('Error storing supply chain risks:', error);
+      } else {
+        console.log(`✅ Stored ${risks.length} supply chain risks in database`);
       }
-    ];
+    } catch (error) {
+      console.error('Error storing supply chain risks:', error);
+    }
   }
 
   private async analyzeSpendForEmissions(): Promise<any> {

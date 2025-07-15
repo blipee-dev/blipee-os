@@ -1,0 +1,601 @@
+openapi: 3.0.0
+info:
+  title: blipee OS API
+  description: |
+    The world's first Autonomous Sustainability Intelligence platform API.
+    
+    ## Authentication
+    
+    The API supports multiple authentication methods:
+    - **API Key**: Pass your API key in the `X-API-Key` header
+    - **Bearer Token**: Use `Authorization: Bearer <token>`
+    - **Session Cookie**: Automatic for web applications
+    
+    ## Rate Limits
+    
+    - Default: 100 requests/minute
+    - Orchestrator: 60 requests/minute
+    - ML Endpoints: 100 requests/minute
+    - Auth Endpoints: 5 requests/15 minutes
+  version: 1.0.0
+  contact:
+    name: blipee Support
+    email: support@blipee.com
+    url: https://blipee.com/support
+  license:
+    name: Proprietary
+    url: https://blipee.com/terms
+
+servers:
+  - url: https://api.blipee.com/v1
+    description: Production
+  - url: https://staging-api.blipee.com/v1
+    description: Staging
+  - url: http://localhost:3000/api/v1
+    description: Local Development
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  /orchestrator:
+    post:
+      summary: Process User Message
+      description: |
+        Main endpoint for processing natural language queries. The orchestrator
+        intelligently routes requests to appropriate agents, ML models, or data sources.
+      operationId: processMessage
+      tags:
+        - Core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrchestratorRequest'
+            examples:
+              emissions_query:
+                summary: Query emissions data
+                value:
+                  message: "What's our carbon footprint this month?"
+                  userId: "user-123"
+                  organizationId: "org-456"
+              benchmark_request:
+                summary: Request peer benchmark
+                value:
+                  message: "How do our emissions compare to industry average?"
+                  userId: "user-123"
+                  organizationId: "org-456"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrchestratorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /agents/status:
+    get:
+      summary: Get All Agents Status
+      description: Returns the current status of all autonomous agents
+      operationId: getAgentsStatus
+      tags:
+        - Agents
+      parameters:
+        - name: organizationId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Agent statuses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentStatus'
+
+  /agents/{agentId}/control:
+    post:
+      summary: Control Agent
+      description: Start, stop, or restart an autonomous agent
+      operationId: controlAgent
+      tags:
+        - Agents
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - esg-chief-of-staff
+              - compliance-guardian
+              - carbon-hunter
+              - supply-chain-investigator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - action
+                - organizationId
+              properties:
+                action:
+                  type: string
+                  enum: [start, stop, restart]
+                organizationId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Agent control successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentControlResponse'
+
+  /ml/predict:
+    post:
+      summary: Get ML Prediction
+      description: Get predictions from deployed ML models
+      operationId: getMlPrediction
+      tags:
+        - ML Models
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLPredictionRequest'
+      responses:
+        '200':
+          description: Prediction result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MLPredictionResponse'
+
+  /network/benchmark:
+    post:
+      summary: Get Peer Benchmark
+      description: Compare your metrics against anonymous industry peers
+      operationId: getPeerBenchmark
+      tags:
+        - Network Intelligence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BenchmarkRequest'
+      responses:
+        '200':
+          description: Benchmark results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BenchmarkResponse'
+
+  /network/insights:
+    get:
+      summary: Get Network Insights
+      description: Get collective intelligence insights from the network
+      operationId: getNetworkInsights
+      tags:
+        - Network Intelligence
+      parameters:
+        - name: organizationId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: categories
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+            style: form
+            explode: false
+      responses:
+        '200':
+          description: Network insights
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetworkInsights'
+
+  /health:
+    get:
+      summary: Health Check
+      description: Comprehensive health status of all systems
+      operationId: healthCheck
+      tags:
+        - System
+      security: []
+      responses:
+        '200':
+          description: System healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: System unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Your blipee API key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT or Supabase access token
+
+  schemas:
+    OrchestratorRequest:
+      type: object
+      required:
+        - message
+        - userId
+        - organizationId
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 4000
+          description: Natural language query
+        userId:
+          type: string
+          format: uuid
+          description: ID of the user making the request
+        organizationId:
+          type: string
+          format: uuid
+          description: ID of the organization
+        context:
+          type: object
+          description: Additional context for the query
+          additionalProperties: true
+
+    OrchestratorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Natural language response
+        components:
+          type: array
+          description: Dynamic UI components to render
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Component type (e.g., Chart, Table, Metric)
+              data:
+                type: object
+                description: Component data
+        actions:
+          type: array
+          description: Suggested actions
+          items:
+            type: string
+        data:
+          type: object
+          description: Raw data for further processing
+        metadata:
+          type: object
+          properties:
+            agent:
+              type: string
+              description: Agent that processed the request
+            executionTime:
+              type: number
+              description: Processing time in milliseconds
+            dataSource:
+              type: string
+              description: Primary data source used
+
+    AgentStatus:
+      type: object
+      properties:
+        agentId:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [running, stopped, error]
+        organizationId:
+          type: string
+          format: uuid
+        lastRun:
+          type: string
+          format: date-time
+        nextRun:
+          type: string
+          format: date-time
+        tasksCompleted:
+          type: integer
+        autonomyLevel:
+          type: integer
+          minimum: 1
+          maximum: 5
+        lastError:
+          type: string
+          nullable: true
+
+    AgentControlResponse:
+      type: object
+      properties:
+        agentId:
+          type: string
+        action:
+          type: string
+        status:
+          type: string
+        message:
+          type: string
+
+    MLPredictionRequest:
+      type: object
+      required:
+        - modelType
+        - organizationId
+        - parameters
+      properties:
+        modelType:
+          type: string
+          enum:
+            - emissions_prediction
+            - energy_optimization
+            - compliance_risk
+            - supplier_scoring
+        organizationId:
+          type: string
+          format: uuid
+        parameters:
+          type: object
+          description: Model-specific parameters
+
+    MLPredictionResponse:
+      type: object
+      properties:
+        prediction:
+          type: object
+          description: Model predictions
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        factors:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              impact:
+                type: number
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    BenchmarkRequest:
+      type: object
+      required:
+        - organizationId
+        - metric
+        - category
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        metric:
+          type: string
+          pattern: '^[a-z_]+$'
+        category:
+          type: string
+          enum:
+            - emissions
+            - energy
+            - waste
+            - water
+            - social
+            - governance
+        filters:
+          type: object
+          properties:
+            industry:
+              type: string
+            region:
+              type: string
+            size:
+              type: string
+              enum: [small, medium, large, enterprise]
+
+    BenchmarkResponse:
+      type: object
+      properties:
+        organizationPosition:
+          type: number
+        percentile:
+          type: number
+        industryAverage:
+          type: number
+        topPerformers:
+          type: number
+        bottomPerformers:
+          type: number
+        improvementOpportunity:
+          type: number
+        anonymizedPeers:
+          type: integer
+        insights:
+          type: array
+          items:
+            type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    NetworkInsights:
+      type: object
+      properties:
+        patterns:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              category:
+                type: string
+              confidence:
+                type: number
+              description:
+                type: string
+        predictions:
+          type: array
+          items:
+            type: object
+            properties:
+              trend:
+                type: string
+              likelihood:
+                type: number
+              timeframe:
+                type: string
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+              priority:
+                type: number
+              estimatedImpact:
+                type: number
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        checks:
+          type: object
+          properties:
+            database:
+              $ref: '#/components/schemas/CheckResult'
+            agents:
+              $ref: '#/components/schemas/CheckResult'
+            mlModels:
+              $ref: '#/components/schemas/CheckResult'
+            externalAPIs:
+              $ref: '#/components/schemas/CheckResult'
+            network:
+              $ref: '#/components/schemas/CheckResult'
+        metrics:
+          type: object
+          properties:
+            uptime:
+              type: integer
+            requestsPerMinute:
+              type: number
+            averageResponseTime:
+              type: number
+            activeUsers:
+              type: integer
+
+    CheckResult:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pass, warn, fail]
+        message:
+          type: string
+        latency:
+          type: number
+        details:
+          type: object
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: string
+        X-RateLimit-Remaining:
+          schema:
+            type: string
+        X-RateLimit-Reset:
+          schema:
+            type: string
+        Retry-After:
+          schema:
+            type: string

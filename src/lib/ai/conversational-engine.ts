@@ -4,6 +4,8 @@
  */
 
 import { blipeeIntelligence } from "./sustainability-intelligence";
+import { networkIntelligence } from "./network-intelligence/ai-integration";
+import { aiContextEngine } from "./context-engine";
 
 export class ConversationalEngine {
   private conversationHistory: Array<{ role: string; content: string }> = [];
@@ -12,7 +14,7 @@ export class ConversationalEngine {
   /**
    * The magic happens here - pure conversation to action
    */
-  async chat(userMessage: string): Promise<{
+  async chat(userMessage: string, userId?: string, organizationId?: string): Promise<{
     response: string;
     visualizations?: any[];
     actions?: any[];
@@ -21,8 +23,15 @@ export class ConversationalEngine {
     // Add to conversation history
     this.conversationHistory.push({ role: "user", content: userMessage });
 
+    // Build enriched context including network intelligence
+    const enrichedContext = await aiContextEngine.buildEnrichedContext(
+      userMessage,
+      userId,
+      organizationId
+    );
+
     // Extract intent and context
-    const understanding = await this.understand(userMessage);
+    const understanding = await this.understand(userMessage, enrichedContext);
 
     // Generate response based on intent
     let response = "";
@@ -32,7 +41,7 @@ export class ConversationalEngine {
 
     // Handle different conversation types
     if (this.isAnalyticalQuery(understanding)) {
-      response = await this.handleAnalysis(userMessage);
+      response = await this.handleAnalysis(userMessage, enrichedContext);
       visualizations = await this.generateVisualizations(understanding);
     } else if (this.isPredictiveQuery(understanding)) {
       const predictions = await this.handlePrediction(userMessage);
@@ -60,7 +69,7 @@ export class ConversationalEngine {
   /**
    * Natural language understanding
    */
-  private async understand(message: string): Promise<any> {
+  private async understand(message: string, enrichedContext?: any): Promise<any> {
     // Advanced NLU with context awareness
     const lowerMessage = message.toLowerCase();
 
@@ -73,15 +82,32 @@ export class ConversationalEngine {
       target: /target|goal|objective|aim|reach|achieve by/i,
       benchmark: /compare|benchmark|peers|industry|others|ranking/i,
       compliance: /comply|compliance|regulation|framework|csrd|tcfd/i,
+      network: /supply chain|supplier|peer|benchmark|network|partner/i,
     };
 
     // Context from conversation history
     const recentContext = this.conversationHistory.slice(-5);
 
+    // Check if network intelligence is relevant
+    let networkRelevance = null;
+    if (enrichedContext?.networkIntelligence) {
+      const networkContext = enrichedContext.networkIntelligence;
+      if (patterns.network.test(message) || patterns.benchmark.test(message)) {
+        networkRelevance = {
+          hasSupplyChainData: !!networkContext.supplyChainRisk,
+          hasPeerBenchmarks: !!networkContext.peerBenchmarks?.length,
+          hasNetworkMetrics: !!networkContext.networkMetrics,
+          summary: networkIntelligence.generateContextSummary(networkContext)
+        };
+      }
+    }
+
     return {
       patterns,
       message,
       recentContext,
+      enrichedContext,
+      networkRelevance,
       timestamp: new Date(),
     };
   }
@@ -89,7 +115,7 @@ export class ConversationalEngine {
   /**
    * Handle analytical queries
    */
-  private async handleAnalysis(message: string): Promise<string> {
+  private async handleAnalysis(message: string, enrichedContext?: any): Promise<string> {
     // Examples of natural analysis
     if (message.includes("emissions")) {
       return await this.analyzeEmissions(message);
@@ -97,8 +123,11 @@ export class ConversationalEngine {
     if (message.includes("energy")) {
       return await this.analyzeEnergy(message);
     }
-    if (message.includes("suppliers")) {
-      return await this.analyzeSupplyChain(message);
+    if (message.includes("suppliers") || message.includes("supply chain")) {
+      return await this.analyzeSupplyChain(message, enrichedContext);
+    }
+    if (message.includes("benchmark") || message.includes("compare")) {
+      return await this.analyzeBenchmarks(message, enrichedContext);
     }
 
     // Default analysis
@@ -115,8 +144,60 @@ export class ConversationalEngine {
   /**
    * Natural supply chain analysis
    */
-  private async analyzeSupplyChain(message: string): Promise<string> {
-    return `I've analyzed your supply chain emissions. Here's what I found...`;
+  private async analyzeSupplyChain(message: string, enrichedContext?: any): Promise<string> {
+    if (enrichedContext?.networkIntelligence?.supplyChainRisk) {
+      const risk = enrichedContext.networkIntelligence.supplyChainRisk;
+      
+      let response = `I've analyzed your supply chain network. `;
+      
+      if (risk.totalConnections > 0) {
+        response += `You have ${risk.totalConnections} active supplier connections. `;
+      }
+      
+      if (risk.criticalSuppliers.length > 0) {
+        response += `\n\nHeads up - ${risk.criticalSuppliers.length} suppliers need attention:\n`;
+        risk.criticalSuppliers.slice(0, 3).forEach((supplier, i) => {
+          response += `${i + 1}. ${supplier.name} (Risk: ${supplier.riskScore}/100, Tier ${supplier.tier})\n`;
+        });
+      }
+      
+      if (risk.riskDistribution) {
+        response += `\n\nRisk distribution: ${risk.riskDistribution.low_risk} low-risk, `;
+        response += `${risk.riskDistribution.medium_risk} medium-risk, `;
+        response += `${risk.riskDistribution.high_risk} high-risk suppliers.`;
+      }
+      
+      return response;
+    }
+    
+    return `I'll analyze your supply chain for you. To get detailed insights, make sure your suppliers are connected to the network.`;
+  }
+
+  /**
+   * Natural benchmark analysis
+   */
+  private async analyzeBenchmarks(message: string, enrichedContext?: any): Promise<string> {
+    if (enrichedContext?.networkIntelligence?.peerBenchmarks) {
+      const benchmarks = enrichedContext.networkIntelligence.peerBenchmarks;
+      
+      if (benchmarks.length > 0) {
+        let response = `Here's how you compare to your industry peers:\n\n`;
+        
+        benchmarks.slice(0, 5).forEach((benchmark, i) => {
+          response += `• ${benchmark.metricName}: Industry average is ${benchmark.industryMean.toFixed(1)}`;
+          if (benchmark.industryMedian) {
+            response += ` (median: ${benchmark.industryMedian.toFixed(1)})`;
+          }
+          response += `\n  ${benchmark.interpretation}\n\n`;
+        });
+        
+        response += `These benchmarks are based on anonymous data from organizations in your industry.`;
+        
+        return response;
+      }
+    }
+    
+    return `I'll help you benchmark against industry peers. Join the network to access anonymous benchmark data from similar organizations.`;
   }
 
   /**

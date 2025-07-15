@@ -792,45 +792,284 @@ export class CarbonHunterAgent extends AutonomousAgent {
     this.benchmarkData.set('waste_diversion_rate', 0.75); // 75% average
   }
 
-  // Mock implementations for demonstration
+  // Real implementation with database integration
   private async findEnergyOpportunities(): Promise<CarbonOpportunity[]> {
-    return [
-      {
-        id: 'energy-opp-1',
-        type: 'energy_efficiency',
-        title: 'LED Lighting Retrofit',
-        description: 'Replace 200 fluorescent fixtures with LED',
-        location: 'Building A - Main Floor',
-        estimatedReduction: 12.5,
-        estimatedCost: 18000,
-        paybackPeriod: 24,
-        difficulty: 'low',
-        priority: 'medium',
-        status: 'identified',
-        roi: 15.2,
-        confidence: 0.9
+    const opportunities: CarbonOpportunity[] = [];
+    
+    try {
+      // Get real energy consumption data from the actual database
+      const { data: energyData, error } = await this.supabase
+        .from('energy_consumption')
+        .select(`
+          *,
+          facility:facilities(
+            name,
+            facility_type,
+            address_line1
+          )
+        `)
+        .eq('organization_id', this.organizationId)
+        .gte('period_start', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()) // Last 7 days
+        .order('period_start', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching energy data:', error);
+        return opportunities;
       }
-    ];
+
+      // Analyze energy consumption patterns from facilities
+      const facilityConsumption = new Map<string, number>();
+      const facilityLocations = new Map<string, string>();
+      const facilityTypes = new Map<string, string>();
+
+      energyData.forEach(record => {
+        if (record.facility) {
+          const facilityId = record.facility.name || record.facility_id;
+          const currentConsumption = facilityConsumption.get(facilityId) || 0;
+          facilityConsumption.set(facilityId, currentConsumption + (record.consumption_kwh || 0));
+          facilityLocations.set(facilityId, record.facility.address_line1 || 'Unknown');
+          facilityTypes.set(facilityId, record.facility.facility_type || 'Unknown');
+        }
+      });
+
+      // If no energy data, use emissions data as proxy
+      if (facilityConsumption.size === 0) {
+        // Get emissions data to estimate energy consumption
+        const { data: emissionsData, error: emissionsError } = await this.supabase
+          .from('emissions')
+          .select(`
+            *,
+            emission_source:emission_sources(name, scope, category),
+            facility:facilities(name, facility_type, address_line1)
+          `)
+          .eq('organization_id', this.organizationId)
+          .gte('period_start', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+          .order('period_start', { ascending: false });
+
+        if (!emissionsError && emissionsData.length > 0) {
+          // Estimate energy consumption from emissions data
+          emissionsData.forEach(emission => {
+            if (emission.emission_source?.scope === 'scope2' && emission.facility) {
+              const facilityId = emission.facility.name || emission.facility_id;
+              const estimatedConsumption = emission.co2e_tonnes * 2000; // Rough estimate: 2000 kWh per tonne CO2e
+              const current = facilityConsumption.get(facilityId) || 0;
+              facilityConsumption.set(facilityId, current + estimatedConsumption);
+              facilityLocations.set(facilityId, emission.facility.address_line1 || 'Unknown');
+              facilityTypes.set(facilityId, emission.facility.facility_type || 'Unknown');
+            }
+          });
+        }
+      }
+
+      // Identify high-consumption facilities for energy efficiency opportunities
+      for (const [facilityId, consumption] of facilityConsumption.entries()) {
+        const facilityType = facilityTypes.get(facilityId);
+        const location = facilityLocations.get(facilityId);
+        
+        // LED retrofit opportunities for office facilities
+        if ((facilityType === 'office' || facilityType === 'warehouse') && consumption > 100) { // kWh threshold
+          const estimatedReduction = consumption * 0.6 * 0.0005; // 60% reduction, 0.0005 tCO2e/kWh
+          const estimatedCost = Math.ceil(consumption / 10) * 150; // $150 per fixture estimate
+          const paybackPeriod = estimatedCost / (consumption * 0.6 * 0.12); // $0.12/kWh savings
+          
+          opportunities.push({
+            id: `energy-led-${facilityId}-${Date.now()}`,
+            type: 'energy_efficiency',
+            title: `LED Retrofit - ${facilityId}`,
+            description: `Replace existing lighting with LED fixtures for ${facilityId}`,
+            location: location || 'Unknown',
+            estimatedReduction,
+            estimatedCost,
+            paybackPeriod: Math.ceil(paybackPeriod),
+            difficulty: 'low',
+            priority: estimatedReduction > 10 ? 'high' : 'medium',
+            status: 'identified',
+            roi: ((estimatedReduction * 50) / estimatedCost) * 100, // $50/tCO2e carbon price
+            confidence: 0.85
+          });
+        }
+
+        // HVAC optimization opportunities for all facility types
+        if (consumption > 200) {
+          const estimatedReduction = consumption * 0.25 * 0.0005; // 25% reduction potential
+          const estimatedCost = 15000; // Smart controls cost
+          const paybackPeriod = estimatedCost / (consumption * 0.25 * 0.12);
+          
+          opportunities.push({
+            id: `energy-hvac-${facilityId}-${Date.now()}`,
+            type: 'energy_efficiency',
+            title: `HVAC Optimization - ${facilityId}`,
+            description: `Install smart controls and optimize scheduling for ${facilityId}`,
+            location: location || 'Unknown',
+            estimatedReduction,
+            estimatedCost,
+            paybackPeriod: Math.ceil(paybackPeriod),
+            difficulty: 'medium',
+            priority: estimatedReduction > 15 ? 'high' : 'medium',
+            status: 'identified',
+            roi: ((estimatedReduction * 50) / estimatedCost) * 100,
+            confidence: 0.75
+          });
+        }
+      }
+
+      // Building envelope opportunities based on high energy intensity
+      const totalConsumption = Array.from(facilityConsumption.values()).reduce((sum, val) => sum + val, 0);
+      const avgConsumption = totalConsumption / facilityConsumption.size;
+      
+      if (avgConsumption > 150) { // High energy intensity
+        opportunities.push({
+          id: `energy-envelope-${Date.now()}`,
+          type: 'energy_efficiency',
+          title: 'Building Envelope Improvements',
+          description: 'Upgrade insulation, windows, and air sealing',
+          location: 'Building-wide',
+          estimatedReduction: totalConsumption * 0.15 * 0.0005, // 15% reduction
+          estimatedCost: 50000,
+          paybackPeriod: 36,
+          difficulty: 'high',
+          priority: 'medium',
+          status: 'identified',
+          roi: ((totalConsumption * 0.15 * 0.0005 * 50) / 50000) * 100,
+          confidence: 0.7
+        });
+      }
+
+    } catch (error) {
+      console.error('Error finding energy opportunities:', error);
+    }
+
+    return opportunities;
   }
 
   private async findWasteOpportunities(): Promise<CarbonOpportunity[]> {
-    return [
-      {
-        id: 'waste-opp-1',
-        type: 'waste_reduction',
-        title: 'Composting Program Implementation',
-        description: 'Implement organic waste composting for cafeteria',
-        location: 'Building B - Cafeteria',
-        estimatedReduction: 3.2,
-        estimatedCost: 5000,
-        paybackPeriod: 18,
-        difficulty: 'low',
-        priority: 'high',
-        status: 'identified',
-        roi: 22.1,
-        confidence: 0.85
+    const opportunities: CarbonOpportunity[] = [];
+    
+    try {
+      // Get real waste generation data from the actual database
+      const { data: wasteData, error } = await this.supabase
+        .from('waste_data')
+        .select(`
+          *,
+          facility:facilities(
+            name,
+            facility_type,
+            address_line1
+          )
+        `)
+        .eq('organization_id', this.organizationId)
+        .gte('period_start', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()) // Last 30 days
+        .order('period_start', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching waste data:', error);
+        return opportunities;
       }
-    ];
+
+      // Analyze waste generation patterns
+      const wasteByLocation = new Map<string, { total: number, organic: number, recyclable: number }>();
+      
+      wasteData.forEach(metric => {
+        if (metric.device) {
+          const location = metric.device.location || 'Unknown';
+          const current = wasteByLocation.get(location) || { total: 0, organic: 0, recyclable: 0 };
+          
+          current.total += metric.value;
+          
+          // Analyze waste composition from metadata
+          if (metric.metadata) {
+            const metadata = typeof metric.metadata === 'string' ? JSON.parse(metric.metadata) : metric.metadata;
+            current.organic += metadata.organic_waste || 0;
+            current.recyclable += metadata.recyclable_waste || 0;
+          }
+          
+          wasteByLocation.set(location, current);
+        }
+      });
+
+      // Identify waste reduction opportunities
+      for (const [location, wasteData] of wasteByLocation.entries()) {
+        const organicPercentage = wasteData.organic / wasteData.total;
+        const recyclablePercentage = wasteData.recyclable / wasteData.total;
+        
+        // Composting opportunity for locations with high organic waste
+        if (wasteData.organic > 50 && organicPercentage > 0.3) { // >50kg organic waste and >30% organic
+          const estimatedReduction = wasteData.organic * 0.21 * 0.001; // 0.21 kg CO2e per kg organic waste
+          const estimatedCost = 3000 + (wasteData.organic / 10) * 200; // Base cost + bins
+          const monthlySavings = wasteData.organic * 0.15; // $0.15/kg waste disposal savings
+          const paybackPeriod = estimatedCost / (monthlySavings * 12);
+          
+          opportunities.push({
+            id: `waste-compost-${location}-${Date.now()}`,
+            type: 'waste_reduction',
+            title: `Composting Program - ${location}`,
+            description: `Implement organic waste composting program for ${location}`,
+            location,
+            estimatedReduction,
+            estimatedCost,
+            paybackPeriod: Math.ceil(paybackPeriod),
+            difficulty: 'low',
+            priority: estimatedReduction > 5 ? 'high' : 'medium',
+            status: 'identified',
+            roi: ((monthlySavings * 12) / estimatedCost) * 100,
+            confidence: 0.8
+          });
+        }
+
+        // Recycling program for locations with high recyclable waste
+        if (wasteData.recyclable > 100 && recyclablePercentage > 0.4) {
+          const estimatedReduction = wasteData.recyclable * 0.5 * 0.001; // 0.5 kg CO2e per kg recyclable
+          const estimatedCost = 2000 + (wasteData.recyclable / 20) * 100; // Recycling bins and setup
+          const monthlySavings = wasteData.recyclable * 0.08; // $0.08/kg recycling value
+          const paybackPeriod = estimatedCost / (monthlySavings * 12);
+          
+          opportunities.push({
+            id: `waste-recycle-${location}-${Date.now()}`,
+            type: 'waste_reduction',
+            title: `Enhanced Recycling - ${location}`,
+            description: `Expand recycling program for ${location}`,
+            location,
+            estimatedReduction,
+            estimatedCost,
+            paybackPeriod: Math.ceil(paybackPeriod),
+            difficulty: 'low',
+            priority: 'medium',
+            status: 'identified',
+            roi: ((monthlySavings * 12) / estimatedCost) * 100,
+            confidence: 0.75
+          });
+        }
+
+        // Waste reduction program for high-waste locations
+        if (wasteData.total > 500) { // >500kg monthly waste
+          const estimatedReduction = wasteData.total * 0.2 * 0.001; // 20% reduction potential
+          const estimatedCost = 5000; // Education and infrastructure
+          const monthlySavings = wasteData.total * 0.2 * 0.12; // $0.12/kg disposal savings
+          const paybackPeriod = estimatedCost / (monthlySavings * 12);
+          
+          opportunities.push({
+            id: `waste-reduction-${location}-${Date.now()}`,
+            type: 'waste_reduction',
+            title: `Waste Reduction Program - ${location}`,
+            description: `Implement comprehensive waste reduction program for ${location}`,
+            location,
+            estimatedReduction,
+            estimatedCost,
+            paybackPeriod: Math.ceil(paybackPeriod),
+            difficulty: 'medium',
+            priority: 'medium',
+            status: 'identified',
+            roi: ((monthlySavings * 12) / estimatedCost) * 100,
+            confidence: 0.7
+          });
+        }
+      }
+
+    } catch (error) {
+      console.error('Error finding waste opportunities:', error);
+    }
+
+    return opportunities;
   }
 
   private async findTransportationOpportunities(): Promise<CarbonOpportunity[]> {
@@ -878,34 +1117,172 @@ export class CarbonHunterAgent extends AutonomousAgent {
   }
 
   private async getRecentEmissionData(timeWindow: string): Promise<any> {
-    // Mock emission data
-    return {
-      'electricity': [{ timestamp: new Date(), value: 150.2 }],
-      'natural_gas': [{ timestamp: new Date(), value: 45.8 }],
-      'fleet_vehicles': [{ timestamp: new Date(), value: 22.1 }]
-    };
+    try {
+      // Parse time window (e.g., "1h", "24h", "7d")
+      const timeValue = parseInt(timeWindow.replace(/[^0-9]/g, ''));
+      const timeUnit = timeWindow.replace(/[0-9]/g, '');
+      
+      let milliseconds = 0;
+      switch (timeUnit) {
+        case 'h':
+          milliseconds = timeValue * 60 * 60 * 1000;
+          break;
+        case 'd':
+          milliseconds = timeValue * 24 * 60 * 60 * 1000;
+          break;
+        default:
+          milliseconds = 60 * 60 * 1000; // Default to 1 hour
+      }
+      
+      const cutoffTime = new Date(Date.now() - milliseconds);
+      
+      // Get real emission data from the actual database
+      const { data: emissionData, error } = await this.supabase
+        .from('emissions')
+        .select(`
+          *,
+          emission_source:emission_sources(
+            name,
+            code,
+            scope,
+            category
+          ),
+          facility:facilities(
+            name,
+            facility_type,
+            address_line1
+          )
+        `)
+        .eq('organization_id', this.organizationId)
+        .gte('period_start', cutoffTime.toISOString())
+        .order('period_start', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching emission data:', error);
+        return {};
+      }
+
+      // Group data by emission source
+      const emissionsBySource: Record<string, any[]> = {};
+      
+      emissionData.forEach(emission => {
+        if (emission.emission_source) {
+          const sourceKey = `${emission.emission_source.scope}_${emission.emission_source.category}`;
+          if (!emissionsBySource[sourceKey]) {
+            emissionsBySource[sourceKey] = [];
+          }
+          
+          emissionsBySource[sourceKey].push({
+            timestamp: new Date(emission.period_start),
+            value: emission.co2e_tonnes,
+            source: emission.emission_source.name,
+            location: emission.facility?.address_line1 || 'Unknown',
+            activity_value: emission.activity_value,
+            activity_unit: emission.activity_unit
+          });
+        }
+      });
+
+      return emissionsBySource;
+    } catch (error) {
+      console.error('Error getting recent emission data:', error);
+      return {};
+    }
   }
 
   private async runAnomalyDetection(source: string, data: any[], sensitivity: string): Promise<EmissionAnomaly[]> {
-    // Mock anomaly detection
-    if (Math.random() > 0.8) {
-      return [
-        {
-          id: `anomaly-${source}-${Date.now()}`,
-          source,
-          location: 'Building A',
-          detected_at: new Date().toISOString(),
-          anomaly_type: 'spike',
-          severity: 'high',
-          current_value: 180.5,
-          expected_value: 150.2,
-          deviation_percentage: 20.1,
-          potential_causes: ['Equipment malfunction', 'Unusual operational activity'],
-          investigation_status: 'pending'
-        }
-      ];
+    const anomalies: EmissionAnomaly[] = [];
+    
+    if (data.length < 3) {
+      return anomalies; // Need at least 3 data points for anomaly detection
     }
-    return [];
+
+    try {
+      // Sort data by timestamp
+      const sortedData = data.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      
+      // Calculate statistical measures
+      const values = sortedData.map(d => d.value);
+      const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+      const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+      const stdDev = Math.sqrt(variance);
+      
+      // Set thresholds based on sensitivity
+      let threshold = 2.0; // Default: 2 standard deviations
+      switch (sensitivity) {
+        case 'high':
+          threshold = 1.5;
+          break;
+        case 'medium':
+          threshold = 2.0;
+          break;
+        case 'low':
+          threshold = 2.5;
+          break;
+      }
+
+      // Detect anomalies in the most recent data points
+      const recentData = sortedData.slice(-5); // Check last 5 data points
+      
+      for (const dataPoint of recentData) {
+        const deviationFromMean = Math.abs(dataPoint.value - mean);
+        const zScore = stdDev > 0 ? deviationFromMean / stdDev : 0;
+        
+        if (zScore > threshold) {
+          const deviationPercentage = ((dataPoint.value - mean) / mean) * 100;
+          
+          // Determine anomaly type
+          let anomalyType: 'spike' | 'sustained_increase' | 'unexpected_pattern' | 'baseline_drift';
+          if (deviationPercentage > 50) {
+            anomalyType = 'spike';
+          } else if (deviationPercentage > 20) {
+            anomalyType = 'sustained_increase';
+          } else if (deviationPercentage < -20) {
+            anomalyType = 'unexpected_pattern';
+          } else {
+            anomalyType = 'baseline_drift';
+          }
+          
+          // Determine severity
+          let severity: 'critical' | 'high' | 'medium' | 'low';
+          if (zScore > 3.0) {
+            severity = 'critical';
+          } else if (zScore > 2.5) {
+            severity = 'high';
+          } else if (zScore > 2.0) {
+            severity = 'medium';
+          } else {
+            severity = 'low';
+          }
+          
+          // Generate potential causes based on anomaly characteristics
+          const potentialCauses = this.generatePotentialCauses(anomalyType, dataPoint, source);
+          
+          anomalies.push({
+            id: `anomaly-${source}-${dataPoint.timestamp.getTime()}`,
+            source,
+            location: dataPoint.location || 'Unknown',
+            detected_at: new Date().toISOString(),
+            anomaly_type: anomalyType,
+            severity,
+            current_value: dataPoint.value,
+            expected_value: mean,
+            deviation_percentage: Math.abs(deviationPercentage),
+            potential_causes: potentialCauses,
+            investigation_status: 'pending'
+          });
+        }
+      }
+      
+      // Detect trend-based anomalies
+      const trendAnomalies = this.detectTrendAnomalies(sortedData, source);
+      anomalies.push(...trendAnomalies);
+      
+    } catch (error) {
+      console.error('Error in anomaly detection:', error);
+    }
+
+    return anomalies;
   }
 
   private analyzeAnomalyPatterns(anomalies: EmissionAnomaly[]): string[] {
@@ -945,7 +1322,120 @@ export class CarbonHunterAgent extends AutonomousAgent {
   }
 
   private async storeAnomalies(anomalies: EmissionAnomaly[]): Promise<void> {
-    console.log(`Storing ${anomalies.length} emission anomalies`);
+    try {
+      if (anomalies.length === 0) return;
+      
+      // Store anomalies in the database
+      const anomalyRecords = anomalies.map(anomaly => ({
+        id: anomaly.id,
+        organization_id: this.organizationId,
+        source: anomaly.source,
+        location: anomaly.location,
+        detected_at: anomaly.detected_at,
+        anomaly_type: anomaly.anomaly_type,
+        severity: anomaly.severity,
+        current_value: anomaly.current_value,
+        expected_value: anomaly.expected_value,
+        deviation_percentage: anomaly.deviation_percentage,
+        potential_causes: JSON.stringify(anomaly.potential_causes),
+        investigation_status: anomaly.investigation_status,
+        created_at: new Date().toISOString()
+      }));
+      
+      const { error } = await this.supabase
+        .from('emission_anomalies')
+        .upsert(anomalyRecords, { onConflict: 'id' });
+      
+      if (error) {
+        console.error('Error storing anomalies:', error);
+      } else {
+        console.log(`Successfully stored ${anomalies.length} emission anomalies`);
+      }
+    } catch (error) {
+      console.error('Error in storeAnomalies:', error);
+    }
+  }
+
+  private generatePotentialCauses(anomalyType: string, dataPoint: any, source: string): string[] {
+    const causes: string[] = [];
+    
+    // Base causes for different anomaly types
+    switch (anomalyType) {
+      case 'spike':
+        causes.push('Equipment malfunction or failure');
+        causes.push('Unusual operational activity');
+        causes.push('Measurement error or sensor issue');
+        break;
+      case 'sustained_increase':
+        causes.push('Gradual equipment degradation');
+        causes.push('Increased operational demand');
+        causes.push('Process efficiency decline');
+        break;
+      case 'unexpected_pattern':
+        causes.push('Operational schedule changes');
+        causes.push('Seasonal variations');
+        causes.push('External factors (weather, etc.)');
+        break;
+      case 'baseline_drift':
+        causes.push('Long-term equipment aging');
+        causes.push('Process modifications');
+        causes.push('Calibration drift');
+        break;
+    }
+    
+    // Add source-specific causes
+    if (source.includes('hvac')) {
+      causes.push('HVAC system issues');
+      causes.push('Temperature control problems');
+      causes.push('Filter blockage');
+    } else if (source.includes('lighting')) {
+      causes.push('Lighting system malfunction');
+      causes.push('Occupancy sensor issues');
+    } else if (source.includes('vehicle')) {
+      causes.push('Vehicle maintenance issues');
+      causes.push('Route optimization problems');
+      causes.push('Driver behavior changes');
+    }
+    
+    return causes;
+  }
+
+  private detectTrendAnomalies(data: any[], source: string): EmissionAnomaly[] {
+    const anomalies: EmissionAnomaly[] = [];
+    
+    if (data.length < 5) return anomalies;
+    
+    // Calculate moving averages to detect trends
+    const windowSize = Math.min(5, data.length);
+    const recentAvg = data.slice(-windowSize).reduce((sum, d) => sum + d.value, 0) / windowSize;
+    const earlierAvg = data.slice(-windowSize * 2, -windowSize).reduce((sum, d) => sum + d.value, 0) / windowSize;
+    
+    if (earlierAvg === 0) return anomalies;
+    
+    const trendChange = ((recentAvg - earlierAvg) / earlierAvg) * 100;
+    
+    // Detect significant upward trends
+    if (trendChange > 30) {
+      anomalies.push({
+        id: `trend-anomaly-${source}-${Date.now()}`,
+        source,
+        location: data[data.length - 1].location || 'Unknown',
+        detected_at: new Date().toISOString(),
+        anomaly_type: 'sustained_increase',
+        severity: trendChange > 50 ? 'high' : 'medium',
+        current_value: recentAvg,
+        expected_value: earlierAvg,
+        deviation_percentage: Math.abs(trendChange),
+        potential_causes: [
+          'Gradual system degradation',
+          'Increased operational demand',
+          'Seasonal factors'
+        ],
+        investigation_status: 'pending'
+      });
+    }
+    
+    return anomalies;
   }
 
   private async performTrendAnalysis(type: string, timeRange: string): Promise<any> {

@@ -3,7 +3,7 @@
  * Comprehensive implementation of GRI 13 sector standard
  */
 
-import { IndustryModel } from '../base-model';
+import { IndustryModel, IndustryModelConfig } from '../base-model';
 import {
   IndustryClassification,
   MaterialTopic,
@@ -19,7 +19,7 @@ import {
 
 export class AgricultureGRI13Model extends IndustryModel {
   constructor() {
-    super({
+    const config: IndustryModelConfig = {
       industryName: 'Agriculture, Aquaculture and Fishing',
       griStandards: [GRISectorStandard.GRI_13_AGRICULTURE],
       naicsCodes: ['111', '112', '114', '115', '1141', '1142'],
@@ -46,10 +46,15 @@ export class AgricultureGRI13Model extends IndustryModel {
         'living-wages',
         'non-discrimination'
       ],
-      specificMetrics: this.defineIndustryMetrics(),
+      specificMetrics: [],
       regulatoryFrameworks: ['CAP', 'FIFRA', 'FSIS', 'MSC', 'ASC', 'RTRS'],
       certifications: ['Organic', 'Fair-Trade', 'Rainforest-Alliance', 'UTZ', 'GLOBALGAP']
-    });
+    };
+    
+    super(config);
+    
+    // Now we can define metrics after super() call
+    this.config.specificMetrics = this.defineIndustryMetrics();
   }
 
   /**
@@ -1030,11 +1035,11 @@ Key Sector Considerations:
     return score;
   }
 
-  private scoreFoodSecurity(yield: number): number {
-    if (yield >= 8) return 1.0;
-    if (yield >= 6) return 0.8;
-    if (yield >= 4) return 0.6;
-    if (yield >= 2) return 0.4;
+  private scoreFoodSecurity(cropYield: number): number {
+    if (cropYield >= 8) return 1.0;
+    if (cropYield >= 6) return 0.8;
+    if (cropYield >= 4) return 0.6;
+    if (cropYield >= 2) return 0.4;
     return 0.2;
   }
 

@@ -12,7 +12,7 @@ interface EnrichedContext {
   predictiveInsights: PredictiveInsight[];
   deviceCapabilities: DeviceCapability[];
   plannedActivities: PlannedActivity[];
-  networkIntelligence?: NetworkIntelligenceContext;
+  networkIntelligence?: NetworkIntelligenceContext | undefined;
 }
 
 interface RealTimeMetrics {
@@ -133,12 +133,12 @@ interface UISpecification {
 
 export class AIContextEngine {
   private buildingData: any;
-  private userProfile: UserProfile;
-  private conversationHistory: ConversationMemory;
+  private _userProfile: UserProfile;
+  private _conversationHistory: ConversationMemory;
 
   constructor() {
     this.initializeContext();
-    this.userProfile = {
+    this._userProfile = {
       firstName: "Alex",
       expertise: "intermediate",
       role: "facility_manager",
@@ -150,7 +150,7 @@ export class AIContextEngine {
       goals: ["Reduce energy costs by 20%", "Improve tenant comfort"],
       previousInteractions: [],
     };
-    this.conversationHistory = {
+    this._conversationHistory = {
       currentSession: [],
       recentTopics: [],
       unresolved: [],
@@ -199,7 +199,7 @@ export class AIContextEngine {
       predictiveInsights,
       deviceCapabilities,
       plannedActivities,
-      networkIntelligence: networkIntelligenceContext,
+      networkIntelligence: networkIntelligenceContext || undefined,
     };
   }
 
@@ -388,7 +388,7 @@ Remember: You are not just answering questions - you are actively managing this 
           "Thursday",
           "Friday",
           "Saturday",
-        ][new Date().getDay()],
+        ][new Date().getDay()] as string,
         season: "summer",
         isHoliday: false,
         specialEvents: [],
@@ -528,7 +528,7 @@ Remember: You are not just answering questions - you are actively managing this 
     };
   }
 
-  private async getUserProfile(userId?: string): Promise<UserProfile> {
+  private async getUserProfile(_userId?: string): Promise<UserProfile> {
     return {
       firstName: "Alex",
       expertise: "intermediate",
@@ -548,7 +548,7 @@ Remember: You are not just answering questions - you are actively managing this 
   }
 
   private async getConversationMemory(
-    userId?: string,
+    _userId?: string,
   ): Promise<ConversationMemory> {
     return {
       currentSession: [],
@@ -614,7 +614,7 @@ Remember: You are not just answering questions - you are actively managing this 
         title: "Quarterly HVAC Maintenance",
         description:
           "Scheduled maintenance for Chiller #1 and air handling units",
-        date: today.toISOString().split("T")[0],
+        date: today.toISOString().split("T")[0]!,
         time: "10:00 AM",
         type: "maintenance",
         impact: "medium",
@@ -626,7 +626,7 @@ Remember: You are not just answering questions - you are actively managing this 
         id: "2",
         title: "Energy Audit Meeting",
         description: "Review Q3 energy performance with facilities team",
-        date: today.toISOString().split("T")[0],
+        date: today.toISOString().split("T")[0]!,
         time: "2:00 PM",
         type: "meeting",
         impact: "none",
@@ -656,7 +656,7 @@ Remember: You are not just answering questions - you are actively managing this 
 
   private async analyzeUserIntent(
     userMessage: string,
-    context: EnrichedContext,
+    _context: EnrichedContext,
   ): Promise<string> {
     // Advanced intent analysis would go here
     return userMessage.toLowerCase().includes("energy")
@@ -666,7 +666,7 @@ Remember: You are not just answering questions - you are actively managing this 
 
   private async createIntelligentPlan(
     intent: string,
-    context: EnrichedContext,
+    _context: EnrichedContext,
   ): Promise<Omit<ActionPlan, "uiSpecification">> {
     // Intelligent planning logic would go here
     return {
@@ -692,6 +692,41 @@ Remember: You are not just answering questions - you are actively managing this 
       interactions: [],
       animations: [],
     };
+  }
+
+  /**
+   * Get network intelligence context for supply chain and peer insights
+   */
+  private async getNetworkIntelligence(
+    organizationId?: string,
+    userMessage?: string,
+  ): Promise<NetworkIntelligenceContext | undefined> {
+    if (!organizationId) {
+      return undefined;
+    }
+
+    try {
+      // Get comprehensive network intelligence
+      const intelligence = await networkIntelligence.getNetworkIntelligence(organizationId);
+      
+      // If user message mentions specific network topics, get targeted insights
+      if (userMessage) {
+        const insights = await networkIntelligence.getNetworkInsights(
+          organizationId,
+          userMessage
+        );
+        
+        // Log insights for debugging
+        if (insights.length > 0) {
+          console.log('Network insights for user query:', insights);
+        }
+      }
+      
+      return intelligence;
+    } catch (error) {
+      console.error('Error getting network intelligence:', error);
+      return undefined;
+    }
   }
 }
 

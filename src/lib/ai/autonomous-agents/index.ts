@@ -1,6 +1,9 @@
 import { AgentManager } from "./agent-manager";
 import { TaskScheduler } from "./scheduler";
 import { ESGChiefOfStaffAgent } from "./esg-chief-of-staff";
+import { ComplianceGuardianAgent } from "./compliance-guardian";
+import { CarbonHunterAgent } from "./carbon-hunter";
+import { SupplyChainInvestigatorAgent } from "./supply-chain-investigator";
 // Export base framework
 export {
   AutonomousAgent
@@ -49,9 +52,14 @@ export type {
 
 // Export agents
 export { ESGChiefOfStaffAgent } from './esg-chief-of-staff';
+export { ComplianceGuardianAgent } from './compliance-guardian';
+export { CarbonHunterAgent } from './carbon-hunter';
+export { SupplyChainInvestigatorAgent } from './supply-chain-investigator';
 
 // Convenience function to initialize the agent system
-export async function initializeAgentSystem(organizationId: string) {
+export async function initializeAgentSystem(organizationId: string, options?: {
+  agents?: ('all' | 'chief' | 'compliance' | 'carbon' | 'supply')[]
+}) {
   const manager = AgentManager.getInstance();
   const scheduler = new TaskScheduler();
   
@@ -61,19 +69,49 @@ export async function initializeAgentSystem(organizationId: string) {
   // Start health monitoring
   manager.startHealthMonitoring();
   
-  // Start ESG Chief of Staff agent
-  const chiefOfStaffId = await manager.startAgent(
-    ESGChiefOfStaffAgent,
-    organizationId
-  );
+  const agentIds: Record<string, string> = {};
+  const agentsToStart = options?.agents || ['all'];
+  
+  // Start agents based on options
+  if (agentsToStart.includes('all') || agentsToStart.includes('chief')) {
+    agentIds.chiefOfStaffId = await manager.startAgent(
+      ESGChiefOfStaffAgent,
+      organizationId
+    );
+    console.log(`✅ ESG Chief of Staff agent running: ${agentIds.chiefOfStaffId}`);
+  }
+  
+  if (agentsToStart.includes('all') || agentsToStart.includes('compliance')) {
+    agentIds.complianceGuardianId = await manager.startAgent(
+      ComplianceGuardianAgent,
+      organizationId
+    );
+    console.log(`✅ Compliance Guardian agent running: ${agentIds.complianceGuardianId}`);
+  }
+  
+  if (agentsToStart.includes('all') || agentsToStart.includes('carbon')) {
+    agentIds.carbonHunterId = await manager.startAgent(
+      CarbonHunterAgent,
+      organizationId
+    );
+    console.log(`✅ Carbon Hunter agent running: ${agentIds.carbonHunterId}`);
+  }
+  
+  if (agentsToStart.includes('all') || agentsToStart.includes('supply')) {
+    agentIds.supplyChainInvestigatorId = await manager.startAgent(
+      SupplyChainInvestigatorAgent,
+      organizationId
+    );
+    console.log(`✅ Supply Chain Investigator agent running: ${agentIds.supplyChainInvestigatorId}`);
+  }
   
   console.log(`🚀 Agent system initialized for organization ${organizationId}`);
-  console.log(`✅ ESG Chief of Staff agent running: ${chiefOfStaffId}`);
+  console.log(`📊 Total agents running: ${Object.keys(agentIds).length}`);
   
   return {
     manager,
     scheduler,
-    chiefOfStaffId
+    agentIds
   };
 }
 

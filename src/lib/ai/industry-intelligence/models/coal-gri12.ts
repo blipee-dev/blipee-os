@@ -3,7 +3,7 @@
  * Comprehensive implementation of GRI 12 sector standard for coal companies
  */
 
-import { IndustryModel } from '../base-model';
+import { IndustryModel, IndustryModelConfig } from '../base-model';
 import {
   IndustryClassification,
   MaterialTopic,
@@ -19,7 +19,7 @@ import {
 
 export class CoalGRI12Model extends IndustryModel {
   constructor() {
-    super({
+    const config: IndustryModelConfig = {
       industryName: 'Coal',
       griStandards: [GRISectorStandard.GRI_12_COAL],
       naicsCodes: ['2121', '212111', '212112', '212113'],
@@ -46,10 +46,15 @@ export class CoalGRI12Model extends IndustryModel {
         'payments-governments',
         'public-policy'
       ],
-      specificMetrics: this.defineIndustryMetrics(),
+      specificMetrics: [],
       regulatoryFrameworks: ['EU-ETS', 'MSHA', 'NPDES', 'CAA', 'SMCRA'],
       certifications: ['ISO-14001', 'ISO-45001', 'ISO-50001']
-    });
+    };
+    
+    super(config);
+    
+    // Now we can define metrics after super() call
+    this.config.specificMetrics = this.defineIndustryMetrics();
   }
 
   /**

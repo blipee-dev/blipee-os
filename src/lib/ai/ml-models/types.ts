@@ -211,11 +211,18 @@ export interface TrainingResult {
 }
 
 export interface ModelConfig {
-  name: string;
-  type: string;
+  name?: string;
+  type?: string;
   version?: string;
   hyperparameters?: Record<string, any>;
   metadata?: Record<string, any>;
+  epochs?: number;
+  batchSize?: number;
+  learningRate?: number;
+  optimizer?: string;
+  loss?: string;
+  metrics?: string[];
+  [key: string]: any;
 }
 
 export interface EvaluationMetrics {

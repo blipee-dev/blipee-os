@@ -20,12 +20,27 @@ export enum GRISectorStandard {
 /**
  * Industry Classification Systems
  */
-export interface IndustryClassification {
+export interface IndustryClassificationData {
   naicsCode?: string;
   sicCode?: string;
   gicsCode?: string;
   customCode?: string;
   confidence: number;
+}
+
+/**
+ * Industry Classification Enum for common industry types
+ */
+export enum IndustryClassification {
+  OIL_AND_GAS = 'oil_and_gas',
+  COAL = 'coal',
+  AGRICULTURE = 'agriculture',
+  MANUFACTURING = 'manufacturing',
+  TECHNOLOGY = 'technology',
+  MINING = 'mining',
+  CONSTRUCTION = 'construction',
+  FINANCIAL_SERVICES = 'financial_services',
+  PUBLIC_SECTOR = 'public_sector'
 }
 
 /**

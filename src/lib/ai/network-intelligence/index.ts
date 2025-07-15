@@ -25,3 +25,7 @@ export * from './types';
 
 // Utility Functions
 export { initializeNetworkIntelligence } from './utils';
+
+// AI Integration
+export { NetworkIntelligenceService, networkIntelligence } from './ai-integration';
+export type { NetworkIntelligenceContext, SupplyChainRisk, PeerBenchmark, NetworkMetrics, MarketplaceOpportunity } from './ai-integration';

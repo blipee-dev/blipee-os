@@ -63,7 +63,7 @@ export class WeatherAPIClient {
       };
     } catch (error) {
       console.error("Weather API error:", error);
-      return this.getMockWeatherData();
+      throw new Error("Failed to fetch weather data. Please check API key and try again.");
     }
   }
 

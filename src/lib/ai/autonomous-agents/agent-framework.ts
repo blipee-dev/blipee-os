@@ -1,6 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { aiService } from '../service';
-import { chainOfThoughtEngine } from '../chain-of-thought';
 
 export interface AgentCapability {
   name: string;
@@ -133,7 +131,7 @@ export abstract class AutonomousAgent {
       // Schedule next run
       this.scheduleNextRun();
     } catch (error) {
-      await this.handleError(error);
+      await this.handleError(error as Error);
     }
   }
   
@@ -183,7 +181,7 @@ export abstract class AutonomousAgent {
     }
     
     // Wait for approval (with timeout)
-    return this.waitForApproval(data.id as string, 3600000); // 1 hour timeout
+    return this.waitForApproval(data['id'] as string, 3600000); // 1 hour timeout
   }
   
   private async waitForApproval(approvalId: string, timeout: number): Promise<boolean> {
