@@ -126,3 +126,6 @@ export class TelemetryService {
     console.log('✅ Telemetry shutdown complete');
   }
 }
+
+// Export singleton instance for compatibility
+export const telemetry = TelemetryService.getInstance();
