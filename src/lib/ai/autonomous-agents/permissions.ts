@@ -281,7 +281,7 @@ export class AgentPermissionSystem {
       .from('team_members')
       .select('user_id, role')
       .eq('organization_id', organizationId)
-      .in('role', ['account_owner', 'sustainability_manager', 'facility_manager']);
+      .in('role', ['account_owner', 'sustainability_lead', 'facility_manager']);
       
     if (!approvers || approvers.length === 0) return;
     

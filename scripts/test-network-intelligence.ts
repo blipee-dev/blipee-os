@@ -6,6 +6,11 @@
 import { NetworkIntelligenceService } from '../src/lib/ai/network-intelligence';
 import { createBrowserClient } from '../src/lib/supabase/client';
 
+// Mock Supabase for testing without database
+process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://mock.supabase.co';
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'mock-key';
+process.env.SUPABASE_SERVICE_KEY = 'mock-service-key';
+
 async function testNetworkIntelligence() {
   console.log('🌐 Testing Network Intelligence Implementation...');
   console.log('='.repeat(50));

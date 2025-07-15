@@ -355,7 +355,7 @@ export class AgentErrorHandler {
       .from('team_members')
       .select('user_id')
       .eq('organization_id', error.organizationId)
-      .in('role', ['account_owner', 'sustainability_manager']);
+      .in('role', ['account_owner', 'sustainability_lead']);
     
     if (!admins || admins.length === 0) {
       console.error('No admins found for escalation');

@@ -149,7 +149,8 @@
       "Bash(NEXT_PUBLIC_SUPABASE_URL=https://quovvwrwyfkzhgqdeham.supabase.co SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgyOTIyMiwiZXhwIjoyMDY3NDA1MjIyfQ.3Tua91dJQ9obteac_y9aSD6IEGMO04rkg7Z8sM88yOI node scripts/test-compliance-guardian.js)",
       "Bash(NEXT_PUBLIC_SUPABASE_URL=https://quovvwrwyfkzhgqdeham.supabase.co SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgyOTIyMiwiZXhwIjoyMDY3NDA1MjIyfQ.3Tua91dJQ9obteac_y9aSD6IEGMO04rkg7Z8sM88yOI node scripts/test-supply-chain-investigator.js)",
       "Bash(NEXT_PUBLIC_SUPABASE_URL=https://quovvwrwyfkzhgqdeham.supabase.co SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgyOTIyMiwiZXhwIjoyMDY3NDA1MjIyfQ.3Tua91dJQ9obteac_y9aSD6IEGMO04rkg7Z8sM88yOI node scripts/test-esg-chief-of-staff.js)",
-      "Bash(PGPASSWORD=\"lOeth3PlL2MnFPpQ\" npx supabase db pull)"
+      "Bash(PGPASSWORD=\"lOeth3PlL2MnFPpQ\" npx supabase db pull)",
+      "Bash(npx ts-node:*)"
     ],
     "deny": []
   }

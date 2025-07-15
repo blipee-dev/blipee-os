@@ -117,7 +117,7 @@ describe('Complete E2E User Journey', () => {
 
     // 2. Invite team members
     const invites = [
-      { email: 'manager@company.com', role: 'sustainability_manager' },
+      { email: 'manager@company.com', role: 'sustainability_lead' },
       { email: 'analyst@company.com', role: 'analyst' },
       { email: 'viewer@company.com', role: 'viewer' }
     ];

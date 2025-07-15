@@ -90,7 +90,7 @@ describe('Retail Middleware', () => {
       expect(context.permissions).toContain('retail:analytics');
       expect(context.permissions).toContain('retail:store_management');
       
-      // sustainability_manager should also contribute
+      // sustainability_lead should also contribute
       expect(context.permissions).toContain('retail:read');
     });
   });

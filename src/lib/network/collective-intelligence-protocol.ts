@@ -633,4 +633,33 @@ export class CollectiveIntelligenceProtocol {
       description: this.generalizeDescription(learning.description),
       region: this.generalizeRegion(org.headquarters_country),
       industry: org.industry,
-      sizeCategory: this.categorizeSi
+      sizeCategory: this.categorizeSize(org.employee_count || 0)
+    };
+  }
+
+  private generalizeDescription(description: string): string {
+    // Remove company-specific information
+    return description.replace(/\b[A-Z]\w+\b/g, '[COMPANY]');
+  }
+
+  private generalizeRegion(country: string): string {
+    // Group countries into regions
+    const regions: Record<string, string> = {
+      'United States': 'North America',
+      'Canada': 'North America',
+      'Mexico': 'North America',
+      'United Kingdom': 'Europe',
+      'Germany': 'Europe',
+      'France': 'Europe',
+      // Add more mappings as needed
+    };
+    return regions[country] || 'Other';
+  }
+
+  private categorizeSize(employeeCount: number): string {
+    if (employeeCount < 50) return 'Small';
+    if (employeeCount < 250) return 'Medium';
+    if (employeeCount < 1000) return 'Large';
+    return 'Enterprise';
+  }
+}

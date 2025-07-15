@@ -217,7 +217,7 @@ export async function PUT(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'account_owner' && profile?.role !== 'sustainability_manager') {
+    if (profile?.role !== 'account_owner' && profile?.role !== 'sustainability_lead') {
       return NextResponse.json(
         { error: 'Forbidden', message: 'Only administrators can control agents' },
         { status: 403 }

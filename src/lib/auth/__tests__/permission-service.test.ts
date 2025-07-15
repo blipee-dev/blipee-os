@@ -7,7 +7,7 @@ describe('Permission Service', () => {
         permissions: ['*'], // All permissions
         inherits: []
       },
-      sustainability_manager: {
+      sustainability_lead: {
         permissions: [
           'sustainability.view',
           'sustainability.edit',
@@ -176,7 +176,7 @@ describe('Permission Service', () => {
     });
     
     it('should check inherited permissions', () => {
-      service.assignRole('user123', 'sustainability_manager');
+      service.assignRole('user123', 'sustainability_lead');
       
       // Direct permission
       expect(service.hasPermission('user123', 'sustainability.edit')).toBe(true);
@@ -206,7 +206,7 @@ describe('Permission Service', () => {
   
   describe('Permission collection', () => {
     it('should get all permissions for user', () => {
-      service.assignRole('user123', 'sustainability_manager');
+      service.assignRole('user123', 'sustainability_lead');
       
       const permissions = service.getAllPermissions('user123');
       

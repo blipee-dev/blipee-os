@@ -185,7 +185,7 @@ CREATE POLICY "Users can insert buildings in their organization" ON public.build
     organization_id IN (
       SELECT organization_id FROM public.organization_members 
       WHERE user_id = auth.uid() 
-      AND role IN ('account_owner', 'sustainability_manager', 'facility_manager')
+      AND role IN ('account_owner', 'sustainability_lead', 'facility_manager')
     )
   );
 
@@ -194,7 +194,7 @@ CREATE POLICY "Users can update buildings in their organization" ON public.build
     organization_id IN (
       SELECT organization_id FROM public.organization_members 
       WHERE user_id = auth.uid() 
-      AND role IN ('account_owner', 'sustainability_manager', 'facility_manager')
+      AND role IN ('account_owner', 'sustainability_lead', 'facility_manager')
     )
   );
 
@@ -212,7 +212,7 @@ CREATE POLICY "Users can insert emissions in their organization" ON public.emiss
     organization_id IN (
       SELECT organization_id FROM public.organization_members 
       WHERE user_id = auth.uid() 
-      AND role IN ('account_owner', 'sustainability_manager', 'analyst')
+      AND role IN ('account_owner', 'sustainability_lead', 'analyst')
     )
   );
 

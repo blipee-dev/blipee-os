@@ -684,7 +684,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
           'Check equipment efficiency',
           'Implement immediate reduction measures'
         ],
-        recipients: ['sustainability_manager', 'operations_head', 'ceo'],
+        recipients: ['sustainability_lead', 'operations_head', 'ceo'],
         metrics: {
           current: context.esgMetrics.emissions.scope1.current,
           target: context.esgMetrics.emissions.scope1.target,
@@ -1286,7 +1286,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
             'Review recent changes to equipment or processes',
             'Consider emergency response protocols'
           ],
-          recipients: ['sustainability_manager', 'facility_manager'],
+          recipients: ['sustainability_lead', 'facility_manager'],
           metrics: {
             metric: anomaly.metric,
             value: anomaly.value,
@@ -1308,7 +1308,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
           'Implement emergency sustainability measures',
           'Consider external sustainability consulting'
         ],
-        recipients: ['sustainability_manager', 'executive_team'],
+        recipients: ['sustainability_lead', 'executive_team'],
         metrics: {
           score: analysis.sustainabilityScore,
           totalEmissions: analysis.totalEmissions,
@@ -1328,7 +1328,7 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
           'Consider renewable energy sources',
           'Review equipment performance and maintenance'
         ],
-        recipients: ['sustainability_manager', 'facility_manager'],
+        recipients: ['sustainability_lead', 'facility_manager'],
         metrics: {
           emissionIntensity: analysis.emissionIntensity,
           totalEmissions: analysis.totalEmissions,

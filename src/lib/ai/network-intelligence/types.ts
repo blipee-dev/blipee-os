@@ -682,3 +682,207 @@ export interface IntegrationHealth {
   mlNetwork: boolean;
   crossStream: boolean;
 }
+
+// Additional types for peer benchmarking
+export interface PeerBenchmark {
+  organizationId: string;
+  peerGroup: {
+    cohortId: string;
+    name: string;
+    size: number;
+    criteria: Record<string, any>;
+  };
+  comparisons: BenchmarkComparison[];
+  overallScore: number;
+  rank: string;
+  insights: string[];
+  metadata: {
+    generatedAt: Date;
+    confidenceLevel: number;
+    dataQuality: string;
+  };
+}
+
+export interface BenchmarkComparison {
+  metric: string;
+  organizationValue: number;
+  peerAverage: number;
+  peerMedian: number;
+  percentile: number;
+  gap: number;
+  relativePerformance: number;
+  peerGroup: {
+    min: number;
+    max: number;
+    quartiles: Record<number, number>;
+  };
+}
+
+export interface BenchmarkReport {
+  organizationId: string;
+  peerGroup: {
+    cohortId: string;
+    name: string;
+    size: number;
+    criteria: Record<string, any>;
+  };
+  comparisons: BenchmarkComparison[];
+  overallScore: number;
+  rank: string;
+  insights: string[];
+  metadata: {
+    generatedAt: Date;
+    confidenceLevel: number;
+    dataQuality: string;
+  };
+}
+
+export interface IndustryStatistics {
+  industry: string;
+  metric: string;
+  mean: number;
+  median: number;
+  percentiles: Record<number, number>;
+  standardDeviation: number;
+  sampleSize: number;
+  lastUpdated: Date;
+}
+
+export interface PerformanceGap {
+  metric: string;
+  currentValue: number;
+  targetValue: number;
+  gap: number;
+  percentileGap: number;
+  improvementPotential: number;
+  estimatedEffort: 'low' | 'medium' | 'high';
+  recommendations: string[];
+}
+
+// Additional types for supplier discovery
+export interface Supplier {
+  id: string;
+  name: string;
+  industry?: string;
+  location?: any;
+  size?: string;
+  certifications: string[];
+  esgScore?: number;
+  products: string[];
+  capabilities: string[];
+  capacity?: any;
+  reliability?: any;
+  verified: boolean;
+  metadata: Record<string, any>;
+}
+
+export interface SupplierSearchCriteria {
+  industry?: string;
+  products?: string[];
+  capabilities?: string[];
+  certifications?: string[];
+  minEsgScore?: number;
+  size?: string;
+  location?: any;
+}
+
+export interface SupplierMatch {
+  supplier: Supplier;
+  matchScore: number;
+  assessment: SupplierAssessment;
+  recommendations: string[];
+}
+
+// Additional types for data marketplace
+export interface DataListing {
+  id: string;
+  providerId: string;
+  providerName?: string;
+  title: string;
+  description: string;
+  category: string;
+  dataType: string;
+  industry: string[];
+  geography: string[];
+  timeRange?: any;
+  updateFrequency?: string;
+  quality?: DataQuality;
+  pricing: PricingModel;
+  access: AccessPermissions;
+  privacyGuarantees?: any;
+  metadata: Record<string, any>;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DataTransaction {
+  id: string;
+  listingId: string;
+  consumerId: string;
+  providerId: string;
+  transactionType: 'one-time' | 'subscription';
+  credits: number;
+  timestamp: Date;
+  status: string;
+  accessDetails?: any;
+}
+
+export interface MarketplaceAccount {
+  id: string;
+  organizationId: string;
+  credits: number;
+  reputationScore: number;
+  totalContributions: number;
+  totalPurchases: number;
+  joinedAt: Date;
+}
+
+export interface DataQuality {
+  score: number;
+  completeness: number;
+  accuracy: number;
+  consistency: number;
+  timeliness: number;
+  validation: {
+    lastChecked: Date;
+    issues: string[];
+  };
+}
+
+export interface PricingModel {
+  model: 'free' | 'credits' | 'subscription';
+  credits?: number;
+  subscriptionFee?: number;
+  subscriptionPeriod?: string;
+}
+
+export interface AccessPermissions {
+  minGroupSize?: number;
+  retentionDays?: number;
+  allowedUses?: string[];
+  restrictions?: string[];
+}
+
+// Network trends and insights
+export interface NetworkTrend {
+  id: string;
+  type: 'growth' | 'activity' | 'collaboration' | 'risk';
+  metric: string;
+  direction: 'up' | 'down' | 'stable';
+  value: number;
+  timeframe: string;
+  description: string;
+}
+
+export interface NetworkInsight {
+  id: string;
+  type: 'risk' | 'opportunity' | 'trend';
+  severity: 'low' | 'medium' | 'high';
+  title: string;
+  description: string;
+  action: string;
+  impact: number;
+  confidence: number;
+  supplier?: string;
+}

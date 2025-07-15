@@ -196,7 +196,7 @@ describe('Validation Schemas', () => {
       });
 
       it('should validate role enum', () => {
-        const validRoles = ['viewer', 'analyst', 'facility_manager', 'sustainability_manager', 'account_owner'];
+        const validRoles = ['viewer', 'analyst', 'facility_manager', 'sustainability_lead', 'account_owner'];
         
         validRoles.forEach(role => {
           const result = signUpSchema.safeParse({

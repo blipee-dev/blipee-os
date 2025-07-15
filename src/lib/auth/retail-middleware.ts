@@ -8,7 +8,7 @@ function getMockUserSession() {
       id: 'user-123',
       email: 'demo@blipee.ai',
       name: 'Demo User',
-      roles: ['retail_manager', 'sustainability_manager']
+      roles: ['retail_manager', 'sustainability_lead']
     },
     organization: {
       id: 'org-456',

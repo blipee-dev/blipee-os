@@ -79,7 +79,7 @@ export default function PerformancePage() {
 
   useEffect(() => {
     // Require admin role
-    requireRole(user, ['account_owner', 'sustainability_manager']);
+    requireRole(user, ['account_owner', 'sustainability_lead']);
     
     fetchMetrics();
     

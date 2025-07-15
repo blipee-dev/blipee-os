@@ -32,7 +32,7 @@ export const signUpSchema = z.object({
     .min(2, 'Company name must be at least 2 characters')
     .max(100, 'Company name is too long')
     .optional(),
-  role: z.enum(['viewer', 'analyst', 'facility_manager', 'sustainability_manager', 'account_owner'])
+  role: z.enum(['viewer', 'analyst', 'facility_manager', 'sustainability_lead', 'account_owner'])
     .optional()
     .default('viewer'),
 });
@@ -92,7 +92,7 @@ export const organizationUpdateSchema = organizationCreateSchema.partial();
 
 export const organizationMemberInviteSchema = z.object({
   email: emailSchema,
-  role: z.enum(['viewer', 'analyst', 'facility_manager', 'sustainability_manager', 'account_owner']),
+  role: z.enum(['viewer', 'analyst', 'facility_manager', 'sustainability_lead', 'account_owner']),
   sendEmail: z.boolean().optional().default(true),
 });
 

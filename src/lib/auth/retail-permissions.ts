@@ -30,7 +30,7 @@ export const RETAIL_ROLE_PERMISSIONS = {
   ],
   // Global roles that include retail access
   account_owner: Object.values(RETAIL_PERMISSIONS),
-  sustainability_manager: [RETAIL_PERMISSIONS.READ, RETAIL_PERMISSIONS.ANALYTICS],
+  sustainability_lead: [RETAIL_PERMISSIONS.READ, RETAIL_PERMISSIONS.ANALYTICS],
 } as const;
 
 export function hasRetailPermission(

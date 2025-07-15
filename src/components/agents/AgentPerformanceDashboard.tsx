@@ -616,7 +616,7 @@ const AgentPerformanceDashboard = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Emergency Response Time</span>
-                    <Badge className="bg-green-500">< 2 min</Badge>
+                    <Badge className="bg-green-500">&lt; 2 min</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Consensus Achievement</span>
@@ -716,7 +716,7 @@ const AgentPerformanceDashboard = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Avg Response Time</span>
-                    <span className="text-sm font-semibold">< 5 min</span>
+                    <span className="text-sm font-semibold">&lt; 5 min</span>
                   </div>
                 </div>
               </CardContent>

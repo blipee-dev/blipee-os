@@ -87,7 +87,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if user has permissions
-    if (!['account_owner', 'admin', 'sustainability_manager'].includes(member.role)) {
+    if (!['account_owner', 'admin', 'sustainability_lead'].includes(member.role)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
         { status: 403 }
@@ -177,7 +177,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if user has permissions
-    if (!['account_owner', 'admin', 'sustainability_manager'].includes(member.role)) {
+    if (!['account_owner', 'admin', 'sustainability_lead'].includes(member.role)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
         { status: 403 }

@@ -32,7 +32,7 @@ export const SYSTEM_ROLES: UserRole[] = [
     permissions: ["*"],
   },
   {
-    id: "sustainability_manager",
+    id: "sustainability_lead",
     name: "Sustainability Manager",
     description: "Manage targets, compliance, and sustainability initiatives",
     permissions: [

@@ -281,7 +281,7 @@ CREATE POLICY "Organizations can manage own suppliers"
   ON suppliers FOR ALL
   USING (organization_id IN (
     SELECT om.organization_id FROM organization_members om
-    WHERE om.user_id = auth.uid() AND om.role IN ('account_owner', 'sustainability_manager')
+    WHERE om.user_id = auth.uid() AND om.role IN ('account_owner', 'sustainability_lead', 'admin')
   ));
 
 -- Network nodes: Public read for verified nodes

@@ -351,7 +351,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
             <option value="viewer">Viewer</option>
             <option value="analyst">Analyst</option>
             <option value="facility_manager">Facility Manager</option>
-            <option value="sustainability_manager">Sustainability Manager</option>
+            <option value="sustainability_lead">Sustainability Manager</option>
             <option value="account_owner">Account Owner</option>
           </select>
         </div>

@@ -211,7 +211,7 @@ export class TeamManagementService {
   private getRolePermissions(role: string): string[] {
     const rolePermissions: Record<string, string[]> = {
       account_owner: ["*"],
-      sustainability_manager: [
+      sustainability_lead: [
         "targets.create",
         "targets.edit",
         "targets.delete",

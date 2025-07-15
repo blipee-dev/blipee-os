@@ -19,7 +19,7 @@ export async function GET(_request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    if (!profile || !['account_owner', 'sustainability_manager'].includes(profile.role)) {
+    if (!profile || !['account_owner', 'sustainability_lead'].includes(profile.role)) {
       return NextResponse.json({ error: 'Insufficient privileges' }, { status: 403 });
     }
 
