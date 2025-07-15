@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { UnifiedOrchestrator } from '@/lib/orchestration/unified-orchestrator';
 import { AgentActivationService } from '@/lib/agents/agent-activation-service';
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   try {
     // 1. Authentication
     const cookieStore = cookies();
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    const supabase = createServerComponentClient({ cookies: () => cookieStore });
     
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
   try {
     // Authentication
     const cookieStore = cookies();
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    const supabase = createServerComponentClient({ cookies: () => cookieStore });
     
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -200,7 +200,7 @@ export async function PUT(request: NextRequest) {
   try {
     // Authentication
     const cookieStore = cookies();
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    const supabase = createServerComponentClient({ cookies: () => cookieStore });
     
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {

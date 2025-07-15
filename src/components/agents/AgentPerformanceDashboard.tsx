@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -670,26 +670,27 @@ const AgentPerformanceDashboard = () => {
             <CardContent>
               <div className="space-y-2">
                 {alerts.map((alert) => (
-                  <Alert key={alert.id} className={
-                    alert.severity === 'critical' ? 'border-red-500' : 
-                    alert.severity === 'warning' ? 'border-yellow-500' : 
-                    'border-green-500'
-                  }>
+                  <div key={alert.id} className={`
+                    p-4 rounded-lg border ${
+                    alert.severity === 'critical' ? 'border-red-500 bg-red-50 dark:bg-red-900/10' : 
+                    alert.severity === 'warning' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/10' : 
+                    'border-green-500 bg-green-50 dark:bg-green-900/10'
+                  }`}>
                     <div className="flex items-start space-x-2">
                       {getAlertIcon(alert.severity)}
                       <div className="flex-1">
-                        <AlertTitle className="text-sm font-medium">
+                        <div className="text-sm font-medium">
                           {alert.agent}
-                        </AlertTitle>
-                        <AlertDescription className="text-sm">
+                        </div>
+                        <div className="text-sm">
                           {alert.message}
-                        </AlertDescription>
+                        </div>
                         <div className="text-xs text-muted-foreground mt-1">
                           {new Date(alert.timestamp).toLocaleString()}
                         </div>
                       </div>
                     </div>
-                  </Alert>
+                  </div>
                 ))}
               </div>
             </CardContent>
