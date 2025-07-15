@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -42,7 +41,8 @@ import {
   GitBranch,
   BarChart3,
   Clock,
-  Award
+  Award,
+  Info
 } from 'lucide-react';
 
 interface PerformanceMetric {

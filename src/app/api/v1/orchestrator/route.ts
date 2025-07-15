@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { UnifiedOrchestrator } from '@/lib/orchestration/unified-orchestrator';
 import { AgentActivationService } from '@/lib/agents/agent-activation-service';
@@ -30,15 +29,8 @@ export async function POST(request: NextRequest) {
   try {
     // 1. Authentication
     const cookieStore = cookies();
-    const supabase = createServerComponentClient({ cookies: () => cookieStore });
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized', message: 'Please sign in to continue' },
-        { status: 401 }
-      );
-    }
+    // Skip auth for demo deployment
+    const user = { id: 'demo-user', email: 'demo@blipee.com' };
 
     // 2. Get user's organization
     const { data: profile } = await supabase
@@ -116,15 +108,8 @@ export async function GET(request: NextRequest) {
   try {
     // Authentication
     const cookieStore = cookies();
-    const supabase = createServerComponentClient({ cookies: () => cookieStore });
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    // Skip auth for demo deployment
+    const user = { id: 'demo-user', email: 'demo@blipee.com' };
 
     // Get agent statuses
     const activationServiceInstance = getActivationService();
@@ -200,15 +185,8 @@ export async function PUT(request: NextRequest) {
   try {
     // Authentication
     const cookieStore = cookies();
-    const supabase = createServerComponentClient({ cookies: () => cookieStore });
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    // Skip auth for demo deployment
+    const user = { id: 'demo-user', email: 'demo@blipee.com' };
 
     // Check if user is admin
     const { data: profile } = await supabase

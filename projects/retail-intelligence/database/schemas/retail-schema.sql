@@ -66,18 +66,24 @@ CREATE TABLE retail.sensors (
     UNIQUE(store_id, sensor_id)
 );
 
--- Raw foot traffic data
+-- Raw foot traffic data (updated to match reference system)
 CREATE TABLE retail.foot_traffic_raw (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     store_id UUID NOT NULL REFERENCES retail.stores(id) ON DELETE CASCADE,
     sensor_id UUID REFERENCES retail.sensors(id),
-    timestamp TIMESTAMPTZ NOT NULL,
-    count_in INTEGER DEFAULT 0,
-    count_out INTEGER DEFAULT 0,
+    sensor_ip VARCHAR(50),
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ NOT NULL,
+    total_in INTEGER DEFAULT 0,
+    line1_in INTEGER DEFAULT 0,
+    line2_in INTEGER DEFAULT 0,
+    line3_in INTEGER DEFAULT 0,
+    line4_in INTEGER DEFAULT 0,
+    line4_out INTEGER DEFAULT 0,
     accuracy DECIMAL(5,2), -- Percentage accuracy
     raw_data JSONB, -- Original sensor data
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(store_id, sensor_id, timestamp)
+    UNIQUE(store_id, sensor_ip, start_time, end_time)
 );
 
 -- Aggregated foot traffic (hourly)
@@ -249,6 +255,80 @@ CREATE TABLE retail.staff_performance (
 -- ANALYTICS & INSIGHTS
 -- =====================================================
 
+-- Analytics results cache (from reference system)
+CREATE TABLE retail.analytics_results (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    store_id UUID NOT NULL REFERENCES retail.stores(id) ON DELETE CASCADE,
+    data_inicio TIMESTAMPTZ NOT NULL,
+    data_fim TIMESTAMPTZ NOT NULL,
+    total_vendas_com_iva DECIMAL(12,2) DEFAULT 0,
+    total_vendas_sem_iva DECIMAL(12,2) DEFAULT 0,
+    transacoes_vendas INTEGER DEFAULT 0,
+    visitantes INTEGER DEFAULT 0,
+    taxa_conversao DECIMAL(5,2) DEFAULT 0,
+    tempo_medio_permanencia DECIMAL(10,2) DEFAULT 0,
+    ticket_medio_com_iva DECIMAL(10,2) DEFAULT 0,
+    ticket_medio_sem_iva DECIMAL(10,2) DEFAULT 0,
+    unidades_por_transacao DECIMAL(5,2) DEFAULT 0,
+    indice_devolucoes DECIMAL(5,2) DEFAULT 0,
+    indice_descontos DECIMAL(5,2) DEFAULT 0,
+    entry_rate DECIMAL(5,2) DEFAULT 0,
+    total_passagens INTEGER DEFAULT 0,
+    ultima_coleta TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(store_id, data_inicio, data_fim)
+);
+
+-- Regional people counting data (from reference system)
+CREATE TABLE retail.regional_people_counting_data (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    store_id UUID NOT NULL REFERENCES retail.stores(id) ON DELETE CASCADE,
+    sensor_ip VARCHAR(50) NOT NULL,
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ NOT NULL,
+    region1 INTEGER DEFAULT 0,
+    region2 INTEGER DEFAULT 0,
+    region3 INTEGER DEFAULT 0,
+    region4 INTEGER DEFAULT 0,
+    region5 INTEGER DEFAULT 0,
+    region6 INTEGER DEFAULT 0,
+    region7 INTEGER DEFAULT 0,
+    region8 INTEGER DEFAULT 0,
+    total INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(store_id, sensor_ip, start_time, end_time)
+);
+
+-- Heatmap data for dwell time analysis (from reference system)
+CREATE TABLE retail.heatmap_data (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    store_id UUID NOT NULL REFERENCES retail.stores(id) ON DELETE CASCADE,
+    sensor_ip VARCHAR(50) NOT NULL,
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ NOT NULL,
+    value INTEGER DEFAULT 0, -- Duration in seconds
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(store_id, sensor_ip, start_time, end_time)
+);
+
+-- Last update tracking (from reference system)
+CREATE TABLE retail.last_update (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    store_id UUID NOT NULL REFERENCES retail.stores(id) ON DELETE CASCADE,
+    last_update_time TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(store_id)
+);
+
+-- Processed files tracking (from reference system)
+CREATE TABLE retail.processed_files (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    file_name VARCHAR(255) UNIQUE NOT NULL,
+    processed_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- AI predictions
 CREATE TABLE retail.predictions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -310,6 +390,13 @@ CREATE INDEX idx_sales_items_product ON retail.sales_items(product_id);
 CREATE INDEX idx_capture_rates_date ON retail.capture_rates(store_id, date DESC);
 CREATE INDEX idx_targets_period ON retail.targets(store_id, period_start, period_end);
 CREATE INDEX idx_predictions_target ON retail.predictions(store_id, target_timestamp);
+
+-- New table indexes (from reference system)
+CREATE INDEX idx_analytics_results_store_date ON retail.analytics_results(store_id, data_inicio DESC, data_fim DESC);
+CREATE INDEX idx_regional_people_counting_store_time ON retail.regional_people_counting_data(store_id, start_time DESC);
+CREATE INDEX idx_heatmap_data_store_time ON retail.heatmap_data(store_id, start_time DESC);
+CREATE INDEX idx_last_update_store ON retail.last_update(store_id);
+CREATE INDEX idx_foot_traffic_raw_sensor_time ON retail.foot_traffic_raw(store_id, sensor_ip, start_time DESC);
 
 -- =====================================================
 -- VIEWS
