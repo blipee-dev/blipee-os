@@ -16,7 +16,7 @@ DROP VIEW IF EXISTS public.executive_sustainability_dashboard CASCADE;
 -- Check if tables exist before enabling RLS
 DO $$
 DECLARE
-  table_name text;
+  tbl_name text;
   tables text[] := ARRAY[
     'api_usage_hourly', 'api_quotas', 'query_performance',
     'emissions_2023', 'emissions_2024', 'emissions_2025',
@@ -25,13 +25,13 @@ DECLARE
     'ai_feedback', 'air_emissions', 'biodiversity_sites'
   ];
 BEGIN
-  FOREACH table_name IN ARRAY tables
+  FOREACH tbl_name IN ARRAY tables
   LOOP
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = table_name) THEN
-      EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', table_name);
-      RAISE NOTICE 'Enabled RLS on table: %', table_name;
+    IF EXISTS (SELECT 1 FROM information_schema.tables t WHERE t.table_schema = 'public' AND t.table_name = tbl_name) THEN
+      EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', tbl_name);
+      RAISE NOTICE 'Enabled RLS on table: %', tbl_name;
     ELSE
-      RAISE NOTICE 'Table % does not exist, skipping RLS enable', table_name;
+      RAISE NOTICE 'Table % does not exist, skipping RLS enable', tbl_name;
     END IF;
   END LOOP;
 END $$;
@@ -42,9 +42,9 @@ END $$;
 -- API Usage Hourly (check if table exists and create basic policy)
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'api_usage_hourly') THEN
+  IF EXISTS (SELECT 1 FROM information_schema.tables t WHERE t.table_schema = 'public' AND t.table_name = 'api_usage_hourly') THEN
     -- Check if organization_id column exists
-    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'api_usage_hourly' AND column_name = 'organization_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns c WHERE c.table_schema = 'public' AND c.table_name = 'api_usage_hourly' AND c.column_name = 'organization_id') THEN
       CREATE POLICY "Users can view their org's API usage" ON public.api_usage_hourly
         FOR SELECT USING (
           organization_id IN (
@@ -63,9 +63,9 @@ END $$;
 -- API Quotas (check if table exists and create basic policy)
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'api_quotas') THEN
+  IF EXISTS (SELECT 1 FROM information_schema.tables t WHERE t.table_schema = 'public' AND t.table_name = 'api_quotas') THEN
     -- Check if organization_id column exists
-    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'api_quotas' AND column_name = 'organization_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns c WHERE c.table_schema = 'public' AND c.table_name = 'api_quotas' AND c.column_name = 'organization_id') THEN
       CREATE POLICY "Users can view their org's API quotas" ON public.api_quotas
         FOR SELECT USING (
           organization_id IN (
@@ -84,7 +84,7 @@ END $$;
 -- Query Performance (check if table exists and create basic policy)
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'query_performance') THEN
+  IF EXISTS (SELECT 1 FROM information_schema.tables t WHERE t.table_schema = 'public' AND t.table_name = 'query_performance') THEN
     CREATE POLICY "Authenticated users can view query performance" ON public.query_performance
       FOR SELECT USING (auth.uid() IS NOT NULL);
   END IF;
@@ -182,7 +182,7 @@ CREATE POLICY "Users can view their org's biodiversity sites" ON public.biodiver
 -- Grant permissions for service role to manage these tables
 DO $$
 DECLARE
-  table_name text;
+  tbl_name text;
   tables text[] := ARRAY[
     'api_usage_hourly', 'api_quotas', 'query_performance',
     'emissions_2023', 'emissions_2024', 'emissions_2025',
@@ -191,11 +191,11 @@ DECLARE
     'ai_feedback', 'air_emissions', 'biodiversity_sites'
   ];
 BEGIN
-  FOREACH table_name IN ARRAY tables
+  FOREACH tbl_name IN ARRAY tables
   LOOP
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = table_name) THEN
-      EXECUTE format('GRANT ALL ON public.%I TO service_role', table_name);
-      RAISE NOTICE 'Granted permissions on table: %', table_name;
+    IF EXISTS (SELECT 1 FROM information_schema.tables t WHERE t.table_schema = 'public' AND t.table_name = tbl_name) THEN
+      EXECUTE format('GRANT ALL ON public.%I TO service_role', tbl_name);
+      RAISE NOTICE 'Granted permissions on table: %', tbl_name;
     END IF;
   END LOOP;
 END $$;
