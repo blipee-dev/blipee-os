@@ -15,15 +15,26 @@ interface BenchmarkingOptions {
 }
 
 export class PeerBenchmarkingEngine {
-  private supabase: ReturnType<typeof createClient>;
+  private supabase: ReturnType<typeof createClient> | null = null;
   private cache: Map<string, any> = new Map();
   private cacheTimeout = 15 * 60 * 1000; // 15 minutes
 
   constructor() {
-    this.supabase = createClient(
-      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env.SUPABASE_SERVICE_KEY!
-    );
+    // Lazy initialization to avoid build-time errors
+  }
+
+  private getSupabase() {
+    if (!this.supabase) {
+      const url = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+      const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+      
+      if (!url || !key) {
+        throw new Error('Supabase configuration missing');
+      }
+      
+      this.supabase = createClient(url, key);
+    }
+    return this.supabase;
   }
 
   /**

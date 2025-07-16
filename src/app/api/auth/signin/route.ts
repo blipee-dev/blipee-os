@@ -66,16 +66,21 @@ async function signInHandler(request: NextRequest) {
     return response;
   } catch (error: any) {
     console.error("Signin error:", error);
+    console.error("Error stack:", error.stack);
 
     // Log authentication failure
-    const body = await request.clone().json().catch(() => ({}));
-    if (body.email) {
-      await auditLogger.logAuthFailure(
-        request,
-        body.email,
-        error.message || "Authentication failed",
-        error.code
-      );
+    try {
+      const body = await request.clone().json().catch(() => ({}));
+      if (body.email) {
+        await auditLogger.logAuthFailure(
+          request,
+          body.email,
+          error.message || "Authentication failed",
+          error.code
+        );
+      }
+    } catch (auditError) {
+      console.error("Audit logging error:", auditError);
     }
 
     if (error instanceof z.ZodError) {

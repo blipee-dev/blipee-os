@@ -16,15 +16,26 @@ interface MarketplaceOptions {
 }
 
 export class ESGDataMarketplace {
-  private supabase: ReturnType<typeof createClient>;
+  private supabase: ReturnType<typeof createClient> | null = null;
   private cache: Map<string, any> = new Map();
   private cacheTimeout = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
-    this.supabase = createClient(
-      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env.SUPABASE_SERVICE_KEY!
-    );
+    // Lazy initialization to avoid build-time errors
+  }
+
+  private getSupabase() {
+    if (!this.supabase) {
+      const url = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+      const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+      
+      if (!url || !key) {
+        throw new Error('Supabase configuration missing');
+      }
+      
+      this.supabase = createClient(url, key);
+    }
+    return this.supabase;
   }
 
   /**
@@ -575,14 +586,14 @@ export class ESGDataMarketplace {
 
   private async processPayment(consumerId: string, providerId: string, amount: number): Promise<void> {
     // Deduct from consumer
-    await this.supabase.rpc('deduct_marketplace_credits', {
+    await this.getSupabase().rpc('deduct_marketplace_credits', {
       p_consumer_id: consumerId,
       p_amount: amount
     });
 
     // Add to provider (minus platform fee)
     const providerAmount = Math.round(amount * 0.9); // 10% platform fee
-    await this.supabase.rpc('award_marketplace_credits', {
+    await this.getSupabase().rpc('award_marketplace_credits', {
       p_provider_id: providerId,
       p_amount: providerAmount
     });
@@ -594,7 +605,7 @@ export class ESGDataMarketplace {
   }
 
   private async awardCredits(organizationId: string, amount: number): Promise<void> {
-    await this.supabase.rpc('award_marketplace_credits', {
+    await this.getSupabase().rpc('award_marketplace_credits', {
       p_provider_id: organizationId,
       p_amount: amount
     });
