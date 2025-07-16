@@ -431,4 +431,39 @@ export class RetailAgentRegistry {
 }
 
 // Singleton instance
-export const retailAgentRegistry = new RetailAgentRegistry();
+// Lazy-loaded singleton instance
+let _retailAgentRegistry: RetailAgentRegistry | null = null;
+
+export const retailAgentRegistry = {
+  getInstance(): RetailAgentRegistry {
+    if (!_retailAgentRegistry) {
+      _retailAgentRegistry = new RetailAgentRegistry();
+    }
+    return _retailAgentRegistry;
+  },
+  
+  // Proxy methods to maintain compatibility
+  initializeStore: async (...args: Parameters<RetailAgentRegistry['initializeStore']>) => {
+    return retailAgentRegistry.getInstance().initializeStore(...args);
+  },
+  
+  shutdownStore: async (...args: Parameters<RetailAgentRegistry['shutdownStore']>) => {
+    return retailAgentRegistry.getInstance().shutdownStore(...args);
+  },
+  
+  getAgentStatus: (...args: Parameters<RetailAgentRegistry['getAgentStatus']>) => {
+    return retailAgentRegistry.getInstance().getAgentStatus(...args);
+  },
+  
+  getStoreMetrics: (...args: Parameters<RetailAgentRegistry['getStoreMetrics']>) => {
+    return retailAgentRegistry.getInstance().getStoreMetrics(...args);
+  },
+  
+  updateAgentConfig: async (...args: Parameters<RetailAgentRegistry['updateAgentConfig']>) => {
+    return retailAgentRegistry.getInstance().updateAgentConfig(...args);
+  },
+  
+  triggerManualRun: async (...args: Parameters<RetailAgentRegistry['triggerManualRun']>) => {
+    return retailAgentRegistry.getInstance().triggerManualRun(...args);
+  }
+};

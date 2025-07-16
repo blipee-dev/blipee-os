@@ -6,9 +6,30 @@ export { createBrowserClient };
 
 // Create a Supabase client for client-side usage
 export function createClient() {
+  const url = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!url || !key) {
+    console.error('Supabase configuration missing:', { url: !!url, key: !!key });
+    // Return a mock client to prevent crashes
+    return {
+      auth: {
+        getUser: async () => ({ data: { user: null }, error: null }),
+        signIn: async () => ({ data: null, error: new Error('Supabase not configured') }),
+        signOut: async () => ({ error: null }),
+      },
+      from: () => ({
+        select: () => ({ data: [], error: null }),
+        insert: () => ({ data: null, error: null }),
+        update: () => ({ data: null, error: null }),
+        delete: () => ({ data: null, error: null }),
+      }),
+    } as any;
+  }
+  
   return createBrowserClient<Database>(
-    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    key,
     {
       cookies: {
         getAll() {

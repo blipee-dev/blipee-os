@@ -5,14 +5,13 @@ import { ConversationalOnboarding } from "@/components/onboarding/Conversational
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-const supabase = createClient();
-
 export default function OnboardingPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
     const checkUser = async () => {
+      const supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
