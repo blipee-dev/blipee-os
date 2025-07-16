@@ -149,19 +149,5 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Insert profile for existing user pedro@blipee.com
-INSERT INTO public.user_profiles (
-  id,
-  email,
-  full_name,
-  display_name,
-  role,
-  created_at
-) VALUES (
-  'd5708d9c-34fb-4c85-90ec-34faad9e2896',
-  'pedro@blipee.com',
-  'Pedro',
-  'Pedro',
-  'account_owner',
-  '2025-07-07T23:27:07.022016Z'
-) ON CONFLICT (id) DO NOTHING;
+-- Insert profile for existing user pedro@blipee.com (already done)
+-- Skip this as the profile already exists
