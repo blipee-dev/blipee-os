@@ -131,7 +131,7 @@ CREATE POLICY "Facility managers can manage buildings" ON public.buildings
     organization_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid() 
-      AND role IN ('account_owner', 'sustainability_manager', 'facility_manager')
+      AND role IN ('account_owner', 'sustainability_lead', 'facility_manager')
     )
   );
 
@@ -149,7 +149,7 @@ CREATE POLICY "Users can manage their org's documents" ON public.documents
     organization_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
-      AND role IN ('account_owner', 'sustainability_manager', 'facility_manager', 'analyst')
+      AND role IN ('account_owner', 'sustainability_lead', 'facility_manager', 'analyst')
     )
   );
 
@@ -179,7 +179,7 @@ CREATE POLICY "Managers can manage emissions data" ON public.emissions_data
     organization_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
-      AND role IN ('account_owner', 'sustainability_manager', 'facility_manager')
+      AND role IN ('account_owner', 'sustainability_lead', 'facility_manager')
     )
   );
 
@@ -197,7 +197,7 @@ CREATE POLICY "Managers can manage waste data" ON public.waste_data
     organization_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
-      AND role IN ('account_owner', 'sustainability_manager', 'facility_manager')
+      AND role IN ('account_owner', 'sustainability_lead', 'facility_manager')
     )
   );
 
@@ -215,7 +215,7 @@ CREATE POLICY "Managers can manage water usage" ON public.water_usage
     organization_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
-      AND role IN ('account_owner', 'sustainability_manager', 'facility_manager')
+      AND role IN ('account_owner', 'sustainability_lead', 'facility_manager')
     )
   );
 
@@ -233,7 +233,7 @@ CREATE POLICY "Managers can manage reports" ON public.sustainability_reports
     organization_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
-      AND role IN ('account_owner', 'sustainability_manager')
+      AND role IN ('account_owner', 'sustainability_lead')
     )
   );
 
@@ -251,7 +251,7 @@ CREATE POLICY "Managers can manage supplier assessments" ON public.supplier_asse
     organization_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
-      AND role IN ('account_owner', 'sustainability_manager', 'analyst')
+      AND role IN ('account_owner', 'sustainability_lead', 'analyst')
     )
   );
 
