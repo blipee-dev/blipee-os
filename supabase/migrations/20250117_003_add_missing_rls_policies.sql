@@ -2,62 +2,84 @@
 -- This migration addresses the rls_enabled_no_policy INFO warnings
 
 -- 1. Agent-related tables
--- These tables are scoped to organizations
+-- These tables are linked to organizations through agent_instances
 
--- agent_collaborations
+-- agent_collaborations (linked through initiator_agent_id and collaborator_agent_id)
 CREATE POLICY "Users can view their org's agent collaborations" ON public.agent_collaborations
   FOR SELECT USING (
-    organization_id IN (
-      SELECT organization_id FROM public.organization_members
-      WHERE user_id = auth.uid()
+    initiator_agent_id IN (
+      SELECT id FROM public.agent_instances
+      WHERE organization_id IN (
+        SELECT organization_id FROM public.organization_members
+        WHERE user_id = auth.uid()
+      )
+    )
+    OR collaborator_agent_id IN (
+      SELECT id FROM public.agent_instances
+      WHERE organization_id IN (
+        SELECT organization_id FROM public.organization_members
+        WHERE user_id = auth.uid()
+      )
     )
   );
 
 CREATE POLICY "Service role can manage agent collaborations" ON public.agent_collaborations
   FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 
--- agent_decisions
+-- agent_decisions (linked through agent_instance_id)
 CREATE POLICY "Users can view their org's agent decisions" ON public.agent_decisions
   FOR SELECT USING (
-    organization_id IN (
-      SELECT organization_id FROM public.organization_members
-      WHERE user_id = auth.uid()
+    agent_instance_id IN (
+      SELECT id FROM public.agent_instances
+      WHERE organization_id IN (
+        SELECT organization_id FROM public.organization_members
+        WHERE user_id = auth.uid()
+      )
     )
   );
 
 CREATE POLICY "Service role can manage agent decisions" ON public.agent_decisions
   FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 
--- agent_learning_patterns
+-- agent_learning_patterns (linked through agent_instance_id)
 CREATE POLICY "Users can view their org's agent learning patterns" ON public.agent_learning_patterns
   FOR SELECT USING (
-    organization_id IN (
-      SELECT organization_id FROM public.organization_members
-      WHERE user_id = auth.uid()
+    agent_instance_id IN (
+      SELECT id FROM public.agent_instances
+      WHERE organization_id IN (
+        SELECT organization_id FROM public.organization_members
+        WHERE user_id = auth.uid()
+      )
     )
   );
 
 CREATE POLICY "Service role can manage agent learning patterns" ON public.agent_learning_patterns
   FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 
--- agent_metrics
+-- agent_metrics (linked through agent_instance_id)
 CREATE POLICY "Users can view their org's agent metrics" ON public.agent_metrics
   FOR SELECT USING (
-    organization_id IN (
-      SELECT organization_id FROM public.organization_members
-      WHERE user_id = auth.uid()
+    agent_instance_id IN (
+      SELECT id FROM public.agent_instances
+      WHERE organization_id IN (
+        SELECT organization_id FROM public.organization_members
+        WHERE user_id = auth.uid()
+      )
     )
   );
 
 CREATE POLICY "Service role can manage agent metrics" ON public.agent_metrics
   FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 
--- agent_task_executions
+-- agent_task_executions (linked through agent_instance_id)
 CREATE POLICY "Users can view their org's agent task executions" ON public.agent_task_executions
   FOR SELECT USING (
-    organization_id IN (
-      SELECT organization_id FROM public.organization_members
-      WHERE user_id = auth.uid()
+    agent_instance_id IN (
+      SELECT id FROM public.agent_instances
+      WHERE organization_id IN (
+        SELECT organization_id FROM public.organization_members
+        WHERE user_id = auth.uid()
+      )
     )
   );
 
