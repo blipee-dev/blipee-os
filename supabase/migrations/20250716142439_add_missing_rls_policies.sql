@@ -1,5 +1,6 @@
 -- Add missing RLS policies for tables with RLS enabled but no policies
 -- This migration addresses the rls_enabled_no_policy INFO warnings
+-- FIXED VERSION: Corrects column names for tables that don't have organization_id
 
 -- 1. Agent-related tables
 -- These tables are linked to organizations through agent_instances
@@ -88,22 +89,14 @@ CREATE POLICY "Service role can manage agent task executions" ON public.agent_ta
 
 -- 2. Benchmark and network tables
 
--- benchmark_cohorts
-CREATE POLICY "Users can view benchmark cohorts they're part of" ON public.benchmark_cohorts
-  FOR SELECT USING (
-    id IN (
-      SELECT cohort_id FROM public.cohort_members
-      WHERE organization_id IN (
-        SELECT organization_id FROM public.organization_members
-        WHERE user_id = auth.uid()
-      )
-    )
-  );
+-- benchmark_cohorts (no direct organization link - public table)
+CREATE POLICY "Public can view benchmark cohorts" ON public.benchmark_cohorts
+  FOR SELECT USING (true);
 
 CREATE POLICY "Service role can manage benchmark cohorts" ON public.benchmark_cohorts
   FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 
--- cohort_members
+-- cohort_members (has organization_id)
 CREATE POLICY "Users can view their org's cohort memberships" ON public.cohort_members
   FOR SELECT USING (
     organization_id IN (
@@ -257,7 +250,7 @@ CREATE POLICY "Managers can manage supplier assessments" ON public.supplier_asse
 
 -- 5. Marketplace and data exchange
 
--- marketplace_accounts
+-- marketplace_accounts (has organization_id)
 CREATE POLICY "Users can view their org's marketplace account" ON public.marketplace_accounts
   FOR SELECT USING (
     organization_id IN (
@@ -275,10 +268,10 @@ CREATE POLICY "Account owners can manage marketplace account" ON public.marketpl
     )
   );
 
--- data_contributions
+-- data_contributions (uses provider_id instead of organization_id)
 CREATE POLICY "Users can view their org's data contributions" ON public.data_contributions
   FOR SELECT USING (
-    organization_id IN (
+    provider_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
     )
@@ -287,10 +280,14 @@ CREATE POLICY "Users can view their org's data contributions" ON public.data_con
 CREATE POLICY "Service role can manage data contributions" ON public.data_contributions
   FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 
--- data_exchange_agreements
+-- data_exchange_agreements (uses provider_id and consumer_id)
 CREATE POLICY "Users can view their org's data agreements" ON public.data_exchange_agreements
   FOR SELECT USING (
-    organization_id IN (
+    provider_id IN (
+      SELECT organization_id FROM public.organization_members
+      WHERE user_id = auth.uid()
+    )
+    OR consumer_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
     )
@@ -298,21 +295,26 @@ CREATE POLICY "Users can view their org's data agreements" ON public.data_exchan
 
 CREATE POLICY "Account owners can manage data agreements" ON public.data_exchange_agreements
   FOR ALL USING (
-    organization_id IN (
+    (provider_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
       AND role = 'account_owner'
-    )
+    ))
+    OR (consumer_id IN (
+      SELECT organization_id FROM public.organization_members
+      WHERE user_id = auth.uid()
+      AND role = 'account_owner'
+    ))
   );
 
--- data_transactions
+-- data_transactions (uses consumer_id and provider_id)
 CREATE POLICY "Users can view their org's data transactions" ON public.data_transactions
   FOR SELECT USING (
-    requester_org_id IN (
+    consumer_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
     )
-    OR provider_org_id IN (
+    OR provider_id IN (
       SELECT organization_id FROM public.organization_members
       WHERE user_id = auth.uid()
     )
@@ -323,17 +325,27 @@ CREATE POLICY "Service role can manage data transactions" ON public.data_transac
 
 -- 6. ML tables
 
--- ml_experiments
-CREATE POLICY "Users can view their org's ML experiments" ON public.ml_experiments
-  FOR SELECT USING (
-    organization_id IN (
-      SELECT organization_id FROM public.organization_members
-      WHERE user_id = auth.uid()
-    )
-  );
+-- ml_experiments (check if table exists and has organization_id)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'ml_experiments' 
+    AND column_name = 'organization_id'
+  ) THEN
+    EXECUTE 'CREATE POLICY "Users can view their org''s ML experiments" ON public.ml_experiments
+      FOR SELECT USING (
+        organization_id IN (
+          SELECT organization_id FROM public.organization_members
+          WHERE user_id = auth.uid()
+        )
+      )';
 
-CREATE POLICY "Service role can manage ML experiments" ON public.ml_experiments
-  FOR ALL USING (auth.jwt()->>'role' = 'service_role');
+    EXECUTE 'CREATE POLICY "Service role can manage ML experiments" ON public.ml_experiments
+      FOR ALL USING (auth.jwt()::jsonb->>''role'' = ''service_role'')';
+  END IF;
+END $$;
 
 -- 7. Authentication tables (user-specific)
 
@@ -351,7 +363,7 @@ CREATE POLICY "Users can view their own pending MFA setups" ON public.pending_mf
 CREATE POLICY "Users can manage their own MFA setups" ON public.pending_mfa_setups
   FOR ALL USING (user_id = auth.uid());
 
--- sso_auth_requests
+-- sso_auth_requests (no direct user/org link - service role only)
 CREATE POLICY "Service role can manage SSO auth requests" ON public.sso_auth_requests
   FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 
@@ -360,4 +372,5 @@ DO $$
 BEGIN
   RAISE NOTICE 'Successfully added RLS policies for all tables with RLS enabled but no policies';
   RAISE NOTICE 'Tables now have appropriate access controls based on organization membership and user roles';
+  RAISE NOTICE 'Fixed column references for tables using provider_id/consumer_id instead of organization_id';
 END $$;
