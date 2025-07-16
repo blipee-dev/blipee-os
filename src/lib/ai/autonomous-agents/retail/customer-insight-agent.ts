@@ -1,4 +1,4 @@
-import { AutonomousAgent, AgentCapability, Task, TaskResult } from '../base';
+import { AutonomousAgent, AgentCapability, Task, TaskResult } from '../base/index';
 import { createClient } from '@supabase/supabase-js';
 import { MLPipeline } from '../../ml-models/pipeline';
 

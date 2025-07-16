@@ -97,10 +97,21 @@ const EXCLUDED_ITEMS = [
 ];
 
 export class RetailAnalyticsEngine {
-  private supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  private _supabase: any = null;
+  
+  private get supabase() {
+    if (!this._supabase) {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+      
+      if (!url || !key) {
+        throw new Error('Supabase configuration missing. Required: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+      }
+      
+      this._supabase = createClient(url, key);
+    }
+    return this._supabase;
+  }
 
   /**
    * Calculate comprehensive analytics for a store and period
@@ -591,4 +602,28 @@ export class RetailAnalyticsEngine {
   }
 }
 
-export const retailAnalyticsEngine = new RetailAnalyticsEngine();
+// Lazy-loaded singleton instance
+let _retailAnalyticsEngine: RetailAnalyticsEngine | null = null;
+
+export const retailAnalyticsEngine = {
+  calculateAnalytics: async (...args: Parameters<RetailAnalyticsEngine['calculateAnalytics']>) => {
+    if (!_retailAnalyticsEngine) {
+      _retailAnalyticsEngine = new RetailAnalyticsEngine();
+    }
+    return _retailAnalyticsEngine.calculateAnalytics(...args);
+  },
+  
+  getCachedAnalytics: async (...args: Parameters<RetailAnalyticsEngine['getCachedAnalytics']>) => {
+    if (!_retailAnalyticsEngine) {
+      _retailAnalyticsEngine = new RetailAnalyticsEngine();
+    }
+    return _retailAnalyticsEngine.getCachedAnalytics(...args);
+  },
+  
+  calculatePeriodComparison: async (...args: Parameters<RetailAnalyticsEngine['calculatePeriodComparison']>) => {
+    if (!_retailAnalyticsEngine) {
+      _retailAnalyticsEngine = new RetailAnalyticsEngine();
+    }
+    return _retailAnalyticsEngine.calculatePeriodComparison(...args);
+  }
+};

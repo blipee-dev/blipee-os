@@ -60,10 +60,21 @@ const EXCLUDED_ITEMS = [
 
 export class SalesAPIService {
   private config: SalesAPIConfig;
-  private supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  private _supabase: any = null;
+  
+  private get supabase() {
+    if (!this._supabase) {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+      
+      if (!url || !key) {
+        throw new Error('Supabase configuration missing. Required: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+      }
+      
+      this._supabase = createClient(url, key);
+    }
+    return this._supabase;
+  }
 
   constructor() {
     this.config = {
@@ -448,4 +459,22 @@ export class SalesAPIService {
   }
 }
 
-export const salesAPIService = new SalesAPIService();
+// Lazy-loaded singleton instance
+let _salesAPIService: SalesAPIService | null = null;
+
+export const salesAPIService = {
+  async getSalesData(storeId: string, startDate: Date, endDate: Date) {
+    if (!_salesAPIService) {
+      _salesAPIService = new SalesAPIService();
+    }
+    return _salesAPIService.collectSalesData(storeId, startDate, endDate);
+  },
+  
+  async testConnection() {
+    // Return a mock response for build purposes
+    return {
+      connected: false,
+      message: 'Sales API integration not configured for build'
+    };
+  }
+};

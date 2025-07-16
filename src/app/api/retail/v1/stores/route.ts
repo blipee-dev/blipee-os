@@ -1,10 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy-load Supabase client
+let supabase: any = null;
+
+function getSupabase() {
+  if (!supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+    
+    if (!url || !key) {
+      throw new Error('Supabase configuration missing. Required: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+    }
+    
+    supabase = createClient(url, key);
+  }
+  return supabase;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +24,7 @@ export async function GET(request: NextRequest) {
     const activeOnly = searchParams.get('active_only') === 'true';
     
     // Build query
-    let query = supabase
+    let query = getSupabase()
       .from('retail.stores')
       .select(`
         id,

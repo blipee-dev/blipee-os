@@ -1,5 +1,14 @@
-import Redis from 'ioredis';
 import { z } from 'zod';
+
+// Lazy load Redis to prevent build-time errors
+let Redis: any = null;
+if (typeof window === 'undefined') {
+  try {
+    Redis = require('ioredis');
+  } catch (error) {
+    console.warn('Redis module not available, using memory cache fallback');
+  }
+}
 
 const redisConfigSchema = z.object({
   host: z.string().default('localhost'),
@@ -11,14 +20,16 @@ const redisConfigSchema = z.object({
   maxRetries: z.number().default(3),
   retryDelay: z.number().default(100),
   enableOfflineQueue: z.boolean().default(true),
+  useMemoryFallback: z.boolean().default(true), // Use memory cache if Redis unavailable
 });
 
 export type RedisConfig = z.infer<typeof redisConfigSchema>;
 
 export class RedisClient {
-  private client: Redis | null = null;
+  private client: any | null = null;
   private config: RedisConfig;
   private isConnected = false;
+  private memoryCache: Map<string, { value: any; expires: number }> = new Map();
 
   constructor(config?: Partial<RedisConfig>) {
     this.config = redisConfigSchema.parse(config || {
@@ -27,12 +38,23 @@ export class RedisClient {
       password: process.env.REDIS_PASSWORD,
       db: parseInt(process.env.REDIS_DB || '0', 10),
       keyPrefix: process.env.REDIS_KEY_PREFIX || 'blipee:',
+      useMemoryFallback: process.env.NODE_ENV === 'production',
     });
   }
 
   async connect(): Promise<void> {
     if (this.isConnected && this.client) {
       return;
+    }
+
+    // If Redis module is not available, use memory fallback
+    if (!Redis) {
+      if (this.config.useMemoryFallback) {
+        console.log('Using in-memory cache (Redis not available)');
+        this.isConnected = true;
+        return;
+      }
+      throw new Error('Redis module not available and memory fallback disabled');
     }
 
     try {
@@ -45,6 +67,12 @@ export class RedisClient {
         retryStrategy: (times: number) => {
           if (times > this.config.maxRetries) {
             console.error('Redis connection failed after maximum retries');
+            if (this.config.useMemoryFallback) {
+              console.log('Falling back to in-memory cache');
+              this.client = null;
+              this.isConnected = true; // Use memory cache
+              return null;
+            }
             return null;
           }
           return Math.min(times * this.config.retryDelay, 2000);
@@ -58,9 +86,15 @@ export class RedisClient {
         this.isConnected = true;
       });
 
-      this.client.on('error', (error) => {
+      this.client.on('error', (error: any) => {
         console.error('Redis error:', error);
-        this.isConnected = false;
+        if (this.config.useMemoryFallback && error.code === 'ECONNREFUSED') {
+          console.log('Redis unavailable, using memory fallback');
+          this.client = null;
+          this.isConnected = true; // Use memory cache
+        } else {
+          this.isConnected = false;
+        }
       });
 
       this.client.on('close', () => {
@@ -71,7 +105,13 @@ export class RedisClient {
       await this.client.connect();
     } catch (error) {
       console.error('Failed to connect to Redis:', error);
-      throw error;
+      if (this.config.useMemoryFallback) {
+        console.log('Using in-memory cache fallback');
+        this.client = null;
+        this.isConnected = true; // Use memory cache
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -84,6 +124,16 @@ export class RedisClient {
   }
 
   async get<T = any>(key: string): Promise<T | null> {
+    // Use memory cache if Redis is not available
+    if (!this.client && this.isConnected && this.config.useMemoryFallback) {
+      const cached = this.memoryCache.get(key);
+      if (cached && cached.expires > Date.now()) {
+        return cached.value;
+      }
+      this.memoryCache.delete(key);
+      return null;
+    }
+
     if (!this.client || !this.isConnected) {
       console.warn('Redis not connected, skipping get operation');
       return null;
@@ -103,6 +153,16 @@ export class RedisClient {
     value: T, 
     ttl?: number
   ): Promise<boolean> {
+    // Use memory cache if Redis is not available
+    if (!this.client && this.isConnected && this.config.useMemoryFallback) {
+      const expiry = ttl || this.config.ttl;
+      this.memoryCache.set(key, {
+        value,
+        expires: Date.now() + (expiry * 1000)
+      });
+      return true;
+    }
+
     if (!this.client || !this.isConnected) {
       console.warn('Redis not connected, skipping set operation');
       return false;
@@ -126,6 +186,11 @@ export class RedisClient {
   }
 
   async delete(key: string): Promise<boolean> {
+    // Use memory cache if Redis is not available
+    if (!this.client && this.isConnected && this.config.useMemoryFallback) {
+      return this.memoryCache.delete(key);
+    }
+
     if (!this.client || !this.isConnected) {
       console.warn('Redis not connected, skipping delete operation');
       return false;

@@ -61,10 +61,21 @@ const STORE_CONFIGS: CollectionConfig[] = [
 ];
 
 export class RetailDataCollector {
-  private supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  private _supabase: any = null;
+  
+  private get supabase() {
+    if (!this._supabase) {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+      
+      if (!url || !key) {
+        throw new Error('Supabase configuration missing. Required: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+      }
+      
+      this._supabase = createClient(url, key);
+    }
+    return this._supabase;
+  }
 
   private isCollecting = false;
   private collectionInterval: NodeJS.Timeout | null = null;
@@ -431,4 +442,49 @@ export class RetailDataCollector {
   }
 }
 
-export const retailDataCollector = new RetailDataCollector();
+// Lazy-loaded singleton instance
+let _retailDataCollector: RetailDataCollector | null = null;
+
+export const retailDataCollector = {
+  getCollectionStatus: () => {
+    if (!_retailDataCollector) {
+      _retailDataCollector = new RetailDataCollector();
+    }
+    return _retailDataCollector.getCollectionStatus();
+  },
+  
+  testConnections: async () => {
+    if (!_retailDataCollector) {
+      _retailDataCollector = new RetailDataCollector();
+    }
+    return _retailDataCollector.testConnections();
+  },
+  
+  startAutomaticCollection: (intervalMinutes?: number) => {
+    if (!_retailDataCollector) {
+      _retailDataCollector = new RetailDataCollector();
+    }
+    return _retailDataCollector.startAutomaticCollection(intervalMinutes);
+  },
+  
+  stopAutomaticCollection: () => {
+    if (!_retailDataCollector) {
+      _retailDataCollector = new RetailDataCollector();
+    }
+    return _retailDataCollector.stopAutomaticCollection();
+  },
+  
+  collectAllStores: async () => {
+    if (!_retailDataCollector) {
+      _retailDataCollector = new RetailDataCollector();
+    }
+    return _retailDataCollector.collectAllStores();
+  },
+  
+  collectStore: async (storeId: string, startDate?: Date, endDate?: Date) => {
+    if (!_retailDataCollector) {
+      _retailDataCollector = new RetailDataCollector();
+    }
+    return _retailDataCollector.collectStore(storeId, startDate, endDate);
+  }
+};

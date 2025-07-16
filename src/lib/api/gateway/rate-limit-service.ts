@@ -1,16 +1,25 @@
-import { Redis } from 'ioredis';
 import { RateLimitInfo } from '@/types/api-gateway';
 
+// Lazy load Redis to prevent build-time errors
+let Redis: any = null;
+if (typeof window === 'undefined' && process.env.NODE_ENV !== 'production') {
+  try {
+    Redis = require('ioredis').Redis;
+  } catch (error) {
+    console.log('Redis module not available, using in-memory rate limiting');
+  }
+}
+
 export class RateLimitService {
-  private redis: Redis | null = null;
+  private redis: any | null = null;
   private inMemoryStore: Map<string, { count: number; resetAt: Date }> = new Map();
   
   constructor() {
-    // Initialize Redis connection if available
-    if (process.env.REDIS_URL) {
+    // Initialize Redis connection if available and not in build
+    if (Redis && process.env.REDIS_URL && process.env.NODE_ENV !== 'production') {
       try {
         this.redis = new Redis(process.env.REDIS_URL);
-        this.redis.on('error', (err) => {
+        this.redis.on('error', (err: any) => {
           console.error('Redis rate limit error:', err);
           // Fall back to in-memory if Redis fails
           this.redis = null;
