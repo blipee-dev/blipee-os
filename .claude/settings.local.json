@@ -133,7 +133,9 @@
       "Bash(./fix-unused-vars-bulk.sh:*)",
       "Bash(./fix-comprehensive.sh:*)",
       "Bash(./fix-override-modifiers.sh:*)",
-      "Bash(./fix-index-signature-bulk.sh:*)"
+      "Bash(./fix-index-signature-bulk.sh:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npm audit:*)"
     ],
     "deny": []
   }
