@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { csrfMiddleware, setCSRFCookie } from './lib/security/csrf';
+import { applySecurityHeaders } from './lib/security/headers';
+import { secureSessionManager } from './lib/session/secure-manager';
+import { securityAuditLogger, SecurityEventType } from './lib/security/audit-logger';
 
 // Simple metrics collection for Edge Runtime
 const recordMetric = (name: string, value: number, labels?: Record<string, string>) => {
@@ -90,12 +94,46 @@ export async function middleware(request: NextRequest) {
              request.headers.get('x-real-ip') || 
              '127.0.0.1';
 
+  // Apply CSRF protection first for API routes
+  if (path.startsWith('/api/')) {
+    const csrfResponse = await csrfMiddleware(request);
+    if (csrfResponse) {
+      // Log CSRF violation
+      await securityAuditLogger.log({
+        eventType: SecurityEventType.CSRF_VIOLATION,
+        ipAddress: ip,
+        userAgent: request.headers.get('user-agent') || undefined,
+        resource: path,
+        action: method,
+        result: 'failure',
+        details: {
+          reason: 'CSRF token validation failed',
+        },
+      });
+      return csrfResponse;
+    }
+  }
+
   // Apply DDoS protection
   const ddosCheck = ddosProtection.check(ip);
   if (ddosCheck.blocked) {
     // Record rate limit exceeded
     recordMetric('http_requests_total', 1, { method, path, status: '429' });
     recordMetric('rate_limit_exceeded_total', 1, { method, path, ip });
+    
+    // Log security event
+    await securityAuditLogger.log({
+      eventType: SecurityEventType.RATE_LIMIT_EXCEEDED,
+      ipAddress: ip,
+      userAgent: request.headers.get('user-agent') || undefined,
+      resource: path,
+      action: method,
+      result: 'failure',
+      details: {
+        requestCount: 100,
+        windowMs: 60000,
+      },
+    });
     
     return NextResponse.json(
       { error: 'Too many requests' },
@@ -117,6 +155,11 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.some(route => path === route || path.startsWith(route + '/'));
   if (isPublicRoute) {
     response = NextResponse.next();
+    
+    // Set CSRF token for forms on public pages (signin, signup)
+    if (path === '/signin' || path === '/signup' || path === '/forgot-password') {
+      setCSRFCookie(response);
+    }
   } else {
     // Check if route requires authentication
     const requiresAuth = protectedRoutes.some(route => path.startsWith(route));
@@ -143,10 +186,39 @@ export async function middleware(request: NextRequest) {
           statusCode = 302;
         }
       } else {
-        // Session exists, continue with rate limit headers
-        response = NextResponse.next();
-        response.headers.set('X-RateLimit-Limit', '100');
-        response.headers.set('X-RateLimit-Remaining', ddosCheck.remaining.toString());
+        // Validate session security
+        const sessionValidation = await secureSessionManager.validateSession(request);
+        
+        if (!sessionValidation.session) {
+          // Invalid session, redirect to signin
+          statusCode = 401;
+          if (path.startsWith('/api/')) {
+            response = NextResponse.json(
+              { error: 'Session expired or invalid' },
+              { status: 401 }
+            );
+          } else {
+            const url = new URL('/signin', request.url);
+            url.searchParams.set('redirect', path);
+            url.searchParams.set('reason', 'session_invalid');
+            response = NextResponse.redirect(url);
+            statusCode = 302;
+          }
+        } else {
+          // Valid session, use rotated response if needed
+          response = sessionValidation.response || NextResponse.next();
+          response.headers.set('X-RateLimit-Limit', '100');
+          response.headers.set('X-RateLimit-Remaining', ddosCheck.remaining.toString());
+          
+          // Set session info headers for debugging (dev only)
+          if (process.env.NODE_ENV === 'development') {
+            response.headers.set('X-Session-ID', sessionValidation.session.id.substring(0, 8));
+            response.headers.set('X-Session-Rotated', sessionValidation.response ? 'true' : 'false');
+          }
+          
+          // Set CSRF token for authenticated sessions
+          setCSRFCookie(response);
+        }
       }
     }
   }
@@ -166,7 +238,8 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  return response;
+  // Apply security headers to all responses
+  return applySecurityHeaders(response, request);
 }
 
 export const config = {

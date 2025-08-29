@@ -1,0 +1,394 @@
+{
+  "@anthropic-ai/sdk": {
+    "current": "0.24.3",
+    "wanted": "0.24.3",
+    "latest": "0.60.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@anthropic-ai/sdk"
+  },
+  "@apollo/server": {
+    "current": "4.12.2",
+    "wanted": "4.12.2",
+    "latest": "5.0.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@apollo/server"
+  },
+  "@as-integrations/next": {
+    "current": "3.2.0",
+    "wanted": "3.2.0",
+    "latest": "4.0.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@as-integrations/next"
+  },
+  "@aws-sdk/client-ses": {
+    "current": "3.840.0",
+    "wanted": "3.876.0",
+    "latest": "3.876.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@aws-sdk/client-ses"
+  },
+  "@aws-sdk/client-sns": {
+    "current": "3.840.0",
+    "wanted": "3.876.0",
+    "latest": "3.876.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@aws-sdk/client-sns"
+  },
+  "@cypress/code-coverage": {
+    "current": "3.14.5",
+    "wanted": "3.14.6",
+    "latest": "3.14.6",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@cypress/code-coverage"
+  },
+  "@graphql-tools/schema": {
+    "current": "10.0.23",
+    "wanted": "10.0.25",
+    "latest": "10.0.25",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@graphql-tools/schema"
+  },
+  "@jest/globals": {
+    "current": "30.0.4",
+    "wanted": "30.1.1",
+    "latest": "30.1.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@jest/globals"
+  },
+  "@radix-ui/react-dialog": {
+    "current": "1.1.14",
+    "wanted": "1.1.15",
+    "latest": "1.1.15",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@radix-ui/react-dialog"
+  },
+  "@radix-ui/react-dropdown-menu": {
+    "current": "2.1.15",
+    "wanted": "2.1.16",
+    "latest": "2.1.16",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@radix-ui/react-dropdown-menu"
+  },
+  "@radix-ui/react-scroll-area": {
+    "current": "1.2.9",
+    "wanted": "1.2.10",
+    "latest": "1.2.10",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@radix-ui/react-scroll-area"
+  },
+  "@radix-ui/react-select": {
+    "current": "2.2.5",
+    "wanted": "2.2.6",
+    "latest": "2.2.6",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@radix-ui/react-select"
+  },
+  "@radix-ui/react-switch": {
+    "current": "1.2.5",
+    "wanted": "1.2.6",
+    "latest": "1.2.6",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@radix-ui/react-switch"
+  },
+  "@radix-ui/react-tabs": {
+    "current": "1.1.12",
+    "wanted": "1.1.13",
+    "latest": "1.1.13",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@radix-ui/react-tabs"
+  },
+  "@radix-ui/react-toast": {
+    "current": "1.2.14",
+    "wanted": "1.2.15",
+    "latest": "1.2.15",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@radix-ui/react-toast"
+  },
+  "@react-three/drei": {
+    "current": "9.122.0",
+    "wanted": "9.122.0",
+    "latest": "10.7.4",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@react-three/drei"
+  },
+  "@react-three/fiber": {
+    "current": "8.18.0",
+    "wanted": "8.18.0",
+    "latest": "9.3.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@react-three/fiber"
+  },
+  "@supabase/ssr": {
+    "current": "0.6.1",
+    "wanted": "0.6.1",
+    "latest": "0.7.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@supabase/ssr"
+  },
+  "@supabase/supabase-js": {
+    "current": "2.50.3",
+    "wanted": "2.56.0",
+    "latest": "2.56.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@supabase/supabase-js"
+  },
+  "@swc/core": {
+    "current": "1.12.11",
+    "wanted": "1.13.5",
+    "latest": "1.13.5",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@swc/core"
+  },
+  "@testing-library/jest-dom": {
+    "current": "6.6.3",
+    "wanted": "6.8.0",
+    "latest": "6.8.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@testing-library/jest-dom"
+  },
+  "@types/node": {
+    "current": "20.19.4",
+    "wanted": "20.19.11",
+    "latest": "24.3.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@types/node"
+  },
+  "@types/react": {
+    "current": "18.3.23",
+    "wanted": "18.3.24",
+    "latest": "19.1.12",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@types/react"
+  },
+  "@types/react-dom": {
+    "current": "18.3.7",
+    "wanted": "18.3.7",
+    "latest": "19.1.9",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@types/react-dom"
+  },
+  "@types/three": {
+    "current": "0.167.2",
+    "wanted": "0.167.2",
+    "latest": "0.179.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@types/three"
+  },
+  "@typescript-eslint/eslint-plugin": {
+    "current": "7.18.0",
+    "wanted": "7.18.0",
+    "latest": "8.41.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@typescript-eslint/eslint-plugin"
+  },
+  "@typescript-eslint/parser": {
+    "current": "7.18.0",
+    "wanted": "7.18.0",
+    "latest": "8.41.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/@typescript-eslint/parser"
+  },
+  "cypress": {
+    "current": "14.5.1",
+    "wanted": "14.5.4",
+    "latest": "15.0.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/cypress"
+  },
+  "dotenv": {
+    "current": "17.0.1",
+    "wanted": "17.2.1",
+    "latest": "17.2.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/dotenv"
+  },
+  "eslint": {
+    "current": "8.57.1",
+    "wanted": "8.57.1",
+    "latest": "9.34.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/eslint"
+  },
+  "eslint-config-next": {
+    "current": "14.2.5",
+    "wanted": "14.2.5",
+    "latest": "15.5.2",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/eslint-config-next"
+  },
+  "eslint-plugin-react-hooks": {
+    "current": "4.6.2",
+    "wanted": "4.6.2",
+    "latest": "5.2.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/eslint-plugin-react-hooks"
+  },
+  "fast-xml-parser": {
+    "current": "4.4.1",
+    "wanted": "4.5.3",
+    "latest": "5.2.5",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/fast-xml-parser"
+  },
+  "framer-motion": {
+    "current": "11.18.2",
+    "wanted": "11.18.2",
+    "latest": "12.23.12",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/framer-motion"
+  },
+  "graphql-ws": {
+    "current": "6.0.5",
+    "wanted": "6.0.6",
+    "latest": "6.0.6",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/graphql-ws"
+  },
+  "ioredis": {
+    "current": "5.6.1",
+    "wanted": "5.7.0",
+    "latest": "5.7.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/ioredis"
+  },
+  "jest": {
+    "current": "29.7.0",
+    "wanted": "29.7.0",
+    "latest": "30.1.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/jest"
+  },
+  "jest-environment-jsdom": {
+    "current": "30.0.4",
+    "wanted": "30.1.1",
+    "latest": "30.1.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/jest-environment-jsdom"
+  },
+  "jest-environment-node": {
+    "current": "30.0.4",
+    "wanted": "30.1.1",
+    "latest": "30.1.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/jest-environment-node"
+  },
+  "lucide-react": {
+    "current": "0.424.0",
+    "wanted": "0.424.0",
+    "latest": "0.542.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/lucide-react"
+  },
+  "next": {
+    "current": "14.2.32",
+    "wanted": "14.2.32",
+    "latest": "15.5.2",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/next"
+  },
+  "openai": {
+    "current": "4.104.0",
+    "wanted": "4.104.0",
+    "latest": "5.16.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/openai"
+  },
+  "react": {
+    "current": "18.3.1",
+    "wanted": "18.3.1",
+    "latest": "19.1.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/react"
+  },
+  "react-dom": {
+    "current": "18.3.1",
+    "wanted": "18.3.1",
+    "latest": "19.1.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/react-dom"
+  },
+  "react-markdown": {
+    "current": "9.1.0",
+    "wanted": "9.1.0",
+    "latest": "10.1.0",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/react-markdown"
+  },
+  "recharts": {
+    "current": "2.15.4",
+    "wanted": "2.15.4",
+    "latest": "3.1.2",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/recharts"
+  },
+  "resend": {
+    "current": "4.6.0",
+    "wanted": "4.8.0",
+    "latest": "6.0.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/resend"
+  },
+  "tailwind-merge": {
+    "current": "2.6.0",
+    "wanted": "2.6.0",
+    "latest": "3.3.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/tailwind-merge"
+  },
+  "tailwindcss": {
+    "current": "3.4.17",
+    "wanted": "3.4.17",
+    "latest": "4.1.12",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/tailwindcss"
+  },
+  "three": {
+    "current": "0.167.1",
+    "wanted": "0.167.1",
+    "latest": "0.179.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/three"
+  },
+  "ts-jest": {
+    "current": "29.4.0",
+    "wanted": "29.4.1",
+    "latest": "29.4.1",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/ts-jest"
+  },
+  "tsx": {
+    "current": "4.20.3",
+    "wanted": "4.20.5",
+    "latest": "4.20.5",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/tsx"
+  },
+  "twilio": {
+    "current": "5.7.2",
+    "wanted": "5.8.2",
+    "latest": "5.8.2",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/twilio"
+  },
+  "typescript": {
+    "current": "5.8.3",
+    "wanted": "5.9.2",
+    "latest": "5.9.2",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/typescript"
+  },
+  "zod": {
+    "current": "3.25.74",
+    "wanted": "3.25.76",
+    "latest": "4.1.5",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/zod"
+  },
+  "zustand": {
+    "current": "4.5.7",
+    "wanted": "4.5.7",
+    "latest": "5.0.8",
+    "dependent": "blipee-os",
+    "location": "/Users/pedro/Documents/blipee/blipee-os/node_modules/zustand"
+  }
+}
