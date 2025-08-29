@@ -23,11 +23,14 @@ export async function POST(req: NextRequest) {
     // Get SSO session details
     const { data: ssoSession } = await supabase
       .from('sso_sessions')
-      .select('*, sso_configurations(*)')
+      .select(`
+        *,
+        sso_configuration:sso_configurations!sso_configuration_id(*)
+      `)
       .eq('id', ssoSessionId)
       .single();
 
-    if (!ssoSession || !ssoSession.sso_configurations) {
+    if (!ssoSession || !ssoSession.sso_configuration) {
       // Invalid session, just perform regular logout
       await supabase.auth.signOut();
       const response = NextResponse.redirect(new URL('/signin', req.url));
@@ -35,10 +38,10 @@ export async function POST(req: NextRequest) {
       return response;
     }
 
-    const config = ssoSession.sso_configurations;
+    const config = ssoSession.sso_configuration;
 
     // Initiate SSO logout based on provider type
-    if (config.provider === 'saml' && config.saml_config?.slo_url) {
+    if (config.provider === 'saml' && config.saml_sso_url) {
       // SAML Single Logout
       const logoutRequest = await ssoService.generateSAMLLogoutRequest(
         config,
@@ -73,17 +76,17 @@ export async function POST(req: NextRequest) {
       const response = NextResponse.redirect(logoutRequest.url);
       response.cookies.delete('sso_session');
       return response;
-    } else if (config.provider === 'oidc' && config.oidc_config?.end_session_endpoint) {
+    } else if (config.provider === 'oidc' && config.oidc_issuer_url) {
       // OIDC End Session
-      const logoutUrl = new URL(config.oidc_config.end_session_endpoint);
+      const logoutUrl = new URL('/v2/logout', config.oidc_issuer_url);
       
       // Add post_logout_redirect_uri if configured
       const postLogoutRedirectUri = new URL('/signin', req.url).toString();
       logoutUrl.searchParams.set('post_logout_redirect_uri', postLogoutRedirectUri);
       
       // Add id_token_hint if available
-      if (ssoSession.id_token) {
-        logoutUrl.searchParams.set('id_token_hint', ssoSession.id_token);
+      if (ssoSession.oidc_id_token) {
+        logoutUrl.searchParams.set('id_token_hint', ssoSession.oidc_id_token);
       }
 
       await auditService.log({

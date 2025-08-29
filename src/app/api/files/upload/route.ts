@@ -95,7 +95,7 @@ export const POST = withAuth(withErrorHandler(async (req: NextRequest, userId: s
     const supabase = createClient();
 
     // Upload to Supabase Storage with secure path
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { data: _uploadData, error: uploadError } = await supabase.storage
       .from("uploads")
       .upload(securePath, buffer, {
         contentType: file.type,

@@ -17,14 +17,15 @@ export async function POST(request: NextRequest) {
 
     // If user email is provided, get the user ID
     if (userEmail) {
-      const { data: user } = await supabase
-        .from('auth.users')
+      // Use user_profiles table instead of auth.users
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
         .select('id')
         .eq('email', userEmail)
         .single();
 
-      if (user) {
-        userId = user.id;
+      if (userProfile) {
+        userId = userProfile.id;
       }
     }
 

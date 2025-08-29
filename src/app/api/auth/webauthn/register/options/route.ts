@@ -26,13 +26,11 @@ export async function POST(request: NextRequest) {
     // Get user profile for display name
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('first_name, last_name')
+      .select('full_name')
       .eq('id', user.id)
       .single();
 
-    const displayName = profile 
-      ? `${profile.first_name} ${profile.last_name}`.trim()
-      : user.email || 'User';
+    const displayName = profile?.full_name || user.email || 'User';
 
     // Generate registration options
     const options = await webAuthnService.generateRegistrationOptions(

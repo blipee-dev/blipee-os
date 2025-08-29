@@ -81,24 +81,22 @@ export async function POST(request: NextRequest) {
         }
 
         // Prepare emission record
-        const emissionRecord = {
+        const emissionRecord: any = {
           organization_id: record.organization_id,
-          source_id: emissionSourceId || null,
+          source_id: emissionSourceId || record.source_id || '',  // source_id is required
           period_start: record.period_start,
           period_end: record.period_end,
           activity_value: parseFloat(record.activity_value),
           activity_unit: record.activity_unit || 'kg',
-          activity_description: record.activity_description || '',
+          activity_description: record.activity_description || null,
           emission_factor: parseFloat(record.emission_factor) || 1,
           emission_factor_unit: record.emission_factor_unit || 'kgCO2e/unit',
-          emission_factor_source: record.emission_factor_source || 'user_input',
+          emission_factor_source: record.emission_factor_source || null,
           co2e_tonnes: parseFloat(record.co2e_tonnes) || (parseFloat(record.activity_value) * parseFloat(record.emission_factor) / 1000),
           data_quality: record.data_quality || 'estimated',
-          verification_status: record.verification_status || 'unverified',
-          notes: record.notes || '',
-          created_by: user.id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          verification_status: record.verification_status || null,
+          notes: record.notes || null,
+          created_by: user.id
         };
 
         // Insert emission record
