@@ -162,7 +162,7 @@ export class ModelRegistry implements IModelRegistry {
     let totalAccuracy = 0;
     let accuracyCount = 0;
     
-    for (const [type, ids] of this.modelsByType.entries()) {
+    for (const [type, ids] of Array.from(this.modelsByType.entries())) {
       stats[type] = ids.length;
       
       for (const id of ids) {

@@ -39,7 +39,7 @@ export class FeatureStore implements IFeatureStore {
     let allFeatures: Feature[] = [];
     
     // Get all stored features
-    for (const [timestamp, features] of this.features.entries()) {
+    for (const [timestamp, features] of Array.from(this.features.entries())) {
       const date = new Date(timestamp);
       
       // Apply time range filter
@@ -81,7 +81,7 @@ export class FeatureStore implements IFeatureStore {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
     
-    for (const [timestamp, _] of this.features.entries()) {
+    for (const [timestamp, _] of Array.from(this.features.entries())) {
       if (new Date(timestamp) < cutoffDate) {
         this.features.delete(timestamp);
       }
