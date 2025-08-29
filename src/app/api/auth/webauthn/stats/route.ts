@@ -12,14 +12,18 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user has admin privileges
-    const { data: profile } = await supabase
-      .from('user_profiles')
+    // Check if user has admin privileges in any organization
+    const { data: memberships } = await supabase
+      .from('organization_members')
       .select('role')
-      .eq('id', user.id)
-      .single();
+      .eq('user_id', user.id)
+      .eq('invitation_status', 'accepted');
 
-    if (!profile || !['account_owner', 'sustainability_manager'].includes(profile.role)) {
+    const hasAdminRole = memberships?.some(m => 
+      ['account_owner', 'admin', 'sustainability_lead'].includes(m.role)
+    );
+
+    if (!hasAdminRole) {
       return NextResponse.json({ error: 'Insufficient privileges' }, { status: 403 });
     }
 

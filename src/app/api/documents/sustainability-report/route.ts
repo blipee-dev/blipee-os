@@ -175,7 +175,7 @@ async function processExtractedData(
 
     // Process emissions by source if available
     if (data.emissions.bySite) {
-      for (const [site, siteData] of Object.entries(data.emissions.bySite)) {
+      for (const [_site, _siteData] of Object.entries(data.emissions.bySite)) {
         // Store site-specific emissions
         // Would need to match site names to building IDs
       }
@@ -274,7 +274,7 @@ async function processExtractedData(
         .from("esg_metrics")
         .insert(metricsToInsert);
 
-      if (!error) {
+      if (!_error) {
         results.metrics = metricsToInsert.length;
       }
     }
@@ -289,7 +289,7 @@ async function processExtractedData(
   return results;
 }
 
-async function generateInsights(data: any, organizationId: string) {
+async function generateInsights(data: any, _organizationId: string) {
   const insights = {
     trends: [] as Array<{
       metric: string;
@@ -339,6 +339,7 @@ async function generateInsights(data: any, organizationId: string) {
 }
 
 // Helper function to interpolate monthly data from annual totals
+// @ts-ignore - Unused function kept for future implementation
 async function generateMonthlyBreakdown(
   annualData: any,
   organizationId: string,

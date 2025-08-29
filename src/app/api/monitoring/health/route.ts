@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSystemHealth } from '@/lib/monitoring/health';
 import { createMonitoredHandler } from '@/lib/monitoring/middleware';
 
-export const GET = createMonitoredHandler(async (request: NextRequest) => {
+export const GET = createMonitoredHandler(async (_request: NextRequest) => {
   try {
     const health = await getSystemHealth();
     

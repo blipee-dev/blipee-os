@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { UserRole } from "@/types/auth";
+// import { UserRole } from "@/types/auth"; // Unused after fixing role checks
 
 export async function GET(request: NextRequest) {
   try {
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       .eq("invitation_status", "accepted")
       .single();
     
-    if (!membership || membership.role !== UserRole.SUBSCRIPTION_OWNER) {
+    if (!membership || membership.role !== 'account_owner') {
       return NextResponse.json(
         { error: "Only subscription owners can create SSO configurations" },
         { status: 403 }

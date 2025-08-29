@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { UserRole } from "@/types/auth";
+// import { UserRole } from "@/types/auth"; // Unused after fixing role checks
 
 export async function GET(
   _request: NextRequest,
@@ -89,7 +89,7 @@ export async function PUT(
       .eq("invitation_status", "accepted")
       .single();
     
-    if (!membership || membership.role !== UserRole.SUBSCRIPTION_OWNER) {
+    if (!membership || membership.role !== 'account_owner') {
       return NextResponse.json(
         { error: "Only subscription owners can update SSO configurations" },
         { status: 403 }
@@ -146,7 +146,7 @@ export async function DELETE(
       .eq("invitation_status", "accepted")
       .single();
     
-    if (!membership || membership.role !== UserRole.SUBSCRIPTION_OWNER) {
+    if (!membership || membership.role !== 'account_owner') {
       return NextResponse.json(
         { error: "Only subscription owners can delete SSO configurations" },
         { status: 403 }
