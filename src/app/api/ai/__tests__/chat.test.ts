@@ -44,7 +44,7 @@ describe('POST /api/ai/chat', () => {
     // Default auth mock
     mockSupabaseClient.auth.getUser.mockResolvedValue({
       data: { user: { id: 'user-123', email: 'test@example.com' } },
-      error: null,
+      _error: null,
     });
   });
 
@@ -86,7 +86,7 @@ describe('POST /api/ai/chat', () => {
           userData: expect.any(Object),
         }),
         conversationId: 'conv-123',
-        userId: 'user-123',
+        _userId: 'user-123',
       });
     });
 
@@ -177,7 +177,7 @@ describe('POST /api/ai/chat', () => {
         eq: jest.fn().mockReturnThis(),
         single: jest.fn().mockResolvedValue({
           data: null,
-          error: { message: 'Not found' },
+          _error: { message: 'Not found' },
         }),
       });
 
@@ -260,7 +260,7 @@ describe('POST /api/ai/chat', () => {
       await POST(request);
 
       expect(auditSpy).toHaveBeenCalledWith({
-        userId: 'user-123',
+        _userId: 'user-123',
         conversationId: 'conv-123',
         message: 'Test message',
         response: expect.any(Object),
@@ -406,7 +406,7 @@ describe('POST /api/ai/chat', () => {
       expect(contextSpy).toHaveBeenCalled();
       const contextEngine = contextSpy.mock.results[0].value;
       expect(contextEngine.buildContext).toHaveBeenCalledWith({
-        userId: 'user-123',
+        _userId: 'user-123',
         organizationId: 'org-123',
         conversationId: expect.any(String),
         message: 'What are our emissions?',
@@ -424,7 +424,7 @@ describe('POST /api/ai/chat', () => {
             { role: 'user', content: 'Previous question' },
             { role: 'assistant', content: 'Previous answer' },
           ],
-          error: null,
+          _error: null,
         }),
       });
 

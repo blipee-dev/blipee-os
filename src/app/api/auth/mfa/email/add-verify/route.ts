@@ -5,7 +5,7 @@ import { auditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     // Rate limiting
     const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { error: 'Too many verification attempts. Please try again later.' },
+        { _error: 'Too many verification attempts. Please try again later.' },
         { status: 429 }
       );
     }
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { _error: 'Authentication required' },
         { status: 401 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     if (!verificationId || !code) {
       return NextResponse.json(
-        { error: 'Verification ID and code are required' },
+        { _error: 'Verification ID and code are required' },
         { status: 400 }
       );
     }
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     // Validate code format (6 digits)
     if (!/^\d{6}$/.test(code)) {
       return NextResponse.json(
-        { error: 'Invalid verification code format' },
+        { _error: 'Invalid verification code format' },
         { status: 400 }
       );
     }
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         context: {},
         metadata: {
           action: 'email_add_verify_failed',
-          error: result.message,
+          _error: result.message,
           verificationId,
           clientIp,
         },
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       });
 
       return NextResponse.json(
-        { error: result.message },
+        { _error: result.message },
         { status: 400 }
       );
     }
@@ -105,10 +105,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Email add verify error:', error);
+    console.error('Email add verify _error:', error);
     
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { _error: 'Internal server error' },
       { status: 500 }
     );
   }

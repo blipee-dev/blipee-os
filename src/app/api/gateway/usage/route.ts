@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { subDays,  format, startOfHour, subHours } from 'date-fns';
 
-export async function GET(request: NextRequest) {
+export async function GET((_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     if (!member) {
       return NextResponse.json(
-        { error: 'No organization found' },
+        { _error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       usageQuery = usageQuery.eq('api_key_id', apiKeyId);
     }
 
-    const { data: usageData, error: usageError } = await usageQuery;
+    const { data: usageData, _error: usageError } = await usageQuery;
 
     if (usageError) {
       throw usageError;
@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Failed to load usage metrics:', error);
     return NextResponse.json(
-      { error: 'Failed to load usage metrics' },
+      { _error: 'Failed to load usage metrics' },
       { status: 500 }
     );
   }

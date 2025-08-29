@@ -5,7 +5,7 @@ import { auditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     // Rate limiting
     const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { error: 'Too many SMS requests. Please try again later.' },
+        { _error: 'Too many SMS requests. Please try again later.' },
         { status: 429 }
       );
     }
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { _error: 'Authentication required' },
         { status: 401 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     if (!phoneNumber) {
       return NextResponse.json(
-        { error: 'Phone number is required' },
+        { _error: 'Phone number is required' },
         { status: 400 }
       );
     }
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
     if (!phoneRegex.test(phoneNumber.replace(/\s+/g, ''))) {
       return NextResponse.json(
-        { error: 'Invalid phone number format' },
+        { _error: 'Invalid phone number format' },
         { status: 400 }
       );
     }
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         },
         context: {},
         metadata: {
-          error: result.message,
+          _error: result.message,
           phoneNumber: phoneNumber.slice(-4).padStart(phoneNumber.length, '*'),
           purpose,
         },
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       });
 
       return NextResponse.json(
-        { error: result.message },
+        { _error: result.message },
         { status: 400 }
       );
     }
@@ -106,10 +106,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('SMS send error:', error);
+    console.error('SMS send _error:', error);
     
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { _error: 'Internal server error' },
       { status: 500 }
     );
   }

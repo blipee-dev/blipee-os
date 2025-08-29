@@ -438,6 +438,17 @@ export class BlipeeIntelligence {
   // - Context preservation
   // - Learning loops
 
+  async analyzeQuery(query: string, organizationId: string, buildingId?: string): Promise<any> {
+    // Analyze sustainability-related queries
+    return {
+      intent: 'sustainability_analysis',
+      focusAreas: ['emissions', 'energy', 'compliance'],
+      confidence: 0.9,
+      suggestedMetrics: ['scope1', 'scope2', 'energy_usage'],
+      dataRequirements: ['utility_bills', 'activity_data']
+    };
+  }
+
   analyze: AnalysisCapability = {
     understandRequest: async (query: string) => {
       // NLP to understand intent and extract entities

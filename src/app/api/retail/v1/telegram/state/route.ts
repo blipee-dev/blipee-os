@@ -3,14 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 // Mock bot state storage (in production, this would be in database/Redis)
 const botStates = new Map<string, any>();
 
-export async function GET(request: NextRequest) {
+export async function GET((_request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const chatId = searchParams.get('chat_id');
 
     if (!chatId) {
       return NextResponse.json(
-        { error: 'chat_id parameter is required' },
+        { _error: 'chat_id parameter is required' },
         { status: 400 }
       );
     }
@@ -28,20 +28,20 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to get bot state' },
+      { _error: 'Failed to get bot state' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     const body = await request.json();
     const { chat_id, state, context = {} } = body;
 
     if (!chat_id || !state) {
       return NextResponse.json(
-        { error: 'chat_id and state are required' },
+        { _error: 'chat_id and state are required' },
         { status: 400 }
       );
     }
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to update bot state' },
+      { _error: 'Failed to update bot state' },
       { status: 500 }
     );
   }

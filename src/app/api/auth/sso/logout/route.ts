@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ssoService } from '@/lib/auth/sso/service';
 import { getAuditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
+import { SSOConfiguration } from '@/types/sso';
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
       return response;
     }
 
-    const config = ssoSession.sso_configuration;
+    const config = ssoSession.sso_configuration as SSOConfiguration;
 
     // Initiate SSO logout based on provider type
     if (config.provider === 'saml' && config.saml_sso_url) {
@@ -148,7 +149,7 @@ export async function POST(req: NextRequest) {
     response.cookies.delete('sso_session');
     return response;
   } catch (error) {
-    console.error('SSO logout error:', error);
+    console.error('SSO logout _error:', error);
     
     // Fallback to regular logout on error
     const supabase = await createServerSupabaseClient();

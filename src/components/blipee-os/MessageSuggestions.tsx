@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { } from "lucide-react";
 
 interface MessageSuggestionsProps {
   suggestions: string[];

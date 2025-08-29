@@ -3,7 +3,7 @@ import { readReplicaManager } from '@/lib/database/read-replica';
 import { queryRouter } from '@/lib/database/query-router';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-export async function GET(_request: NextRequest) {
+export async function GET(_(_request: NextRequest) {
   try {
     // Get read replica statistics
     const replicaStats = readReplicaManager.getStatistics();
@@ -93,11 +93,11 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json(report, { status: statusCode });
     
   } catch (error) {
-    console.error('Read replica monitoring error:', error);
+    console.error('Read replica monitoring _error:', error);
     return NextResponse.json(
       {
         status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        _error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
       { status: 503 }

@@ -3,7 +3,7 @@ import { gdprService } from '@/lib/compliance/service';
 import { requireAuth } from '@/lib/auth/session';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
-export async function GET(request: NextRequest) {
+export async function GET((_request: NextRequest) {
   try {
     const user = await requireAuth(request);
 
@@ -20,17 +20,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ requests: data });
   } catch (error) {
     if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to get deletion requests' },
+      { _error: error instanceof Error ? error.message : 'Failed to get deletion requests' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     const user = await requireAuth(request);
     const body = await request.json();
@@ -42,20 +42,20 @@ export async function POST(request: NextRequest) {
       reason
     );
 
-    return NextResponse.json({ request: deletionRequest }, { status: 201 });
+    return NextResponse.json({ (_request: deletionRequest }, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to request account deletion' },
+      { _error: error instanceof Error ? error.message : 'Failed to request account deletion' },
       { status: 500 }
     );
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE((_request: NextRequest) {
   try {
     const user = await requireAuth(request);
     const searchParams = request.nextUrl.searchParams;
@@ -63,7 +63,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!requestId) {
       return NextResponse.json(
-        { error: 'Request ID is required' },
+        { _error: 'Request ID is required' },
         { status: 400 }
       );
     }
@@ -73,11 +73,11 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to cancel deletion request' },
+      { _error: error instanceof Error ? error.message : 'Failed to cancel deletion request' },
       { status: 500 }
     );
   }

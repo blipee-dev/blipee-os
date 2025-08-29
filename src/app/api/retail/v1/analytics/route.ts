@@ -48,7 +48,7 @@ const generateMockAnalytics = (loja: string, startDate: string, endDate: string)
 };
 
 // Protected GET handler
-async function handleGetAnalytics(request: NextRequest, context: any) {
+async function handleGetAnalytics((_request: NextRequest, context: any) {
   try {
     const { searchParams } = new URL(request.url);
     const loja = searchParams.get('loja');
@@ -58,7 +58,7 @@ async function handleGetAnalytics(request: NextRequest, context: any) {
 
     if (!loja || !startDate || !endDate) {
       return NextResponse.json(
-        { error: 'Missing required parameters: loja, start_date, end_date' },
+        { _error: 'Missing required parameters: loja, start_date, end_date' },
         { status: 400 }
       );
     }
@@ -77,7 +77,7 @@ async function handleGetAnalytics(request: NextRequest, context: any) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch analytics' },
+      { _error: 'Failed to fetch analytics' },
       { status: 500 }
     );
   }
@@ -86,14 +86,14 @@ async function handleGetAnalytics(request: NextRequest, context: any) {
 export const GET = withRetailPermission(RETAIL_PERMISSIONS.ANALYTICS, handleGetAnalytics);
 
 // Protected POST handler
-async function handlePostAnalytics(request: NextRequest, context: any) {
+async function handlePostAnalytics((_request: NextRequest, context: any) {
   try {
     const body = await request.json();
     const { loja, start_date, end_date, metric_type = 'all' } = body;
 
     if (!loja || !start_date || !end_date) {
       return NextResponse.json(
-        { error: 'Missing required parameters: loja, start_date, end_date' },
+        { _error: 'Missing required parameters: loja, start_date, end_date' },
         { status: 400 }
       );
     }
@@ -112,7 +112,7 @@ async function handlePostAnalytics(request: NextRequest, context: any) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch analytics' },
+      { _error: 'Failed to fetch analytics' },
       { status: 500 }
     );
   }

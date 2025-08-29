@@ -2,24 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     const user = await getCurrentUser(request);
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     const { data: bulkData } = await request.json();
     
     if (!bulkData || !Array.isArray(bulkData)) {
       return NextResponse.json(
-        { error: 'Invalid data format. Expected array of energy consumption records.' },
+        { _error: 'Invalid data format. Expected array of energy consumption records.' },
         { status: 400 }
       );
     }
 
     const supabase = createClient();
-    const errors: Array<{ row: number; error: string }> = [];
+    const errors: Array<{ row: number; _error: string }> = [];
     const successfulInserts: any[] = [];
 
     // Process each record
@@ -29,12 +29,12 @@ export async function POST(request: NextRequest) {
       try {
         // Validate required fields
         if (!record.facility_name || !record.period_start || !record.period_end || !record.energy_type || !record.consumption_value) {
-          errors.push({ row: i + 1, error: 'Missing required fields' });
+          errors.push({ row: i + 1, _error: 'Missing required fields' });
           continue;
         }
 
         // Get facility_id from facility_name
-        const { data: facility, error: facilityError } = await supabase
+        const { data: facility, _error: facilityError } = await supabase
           .from('facilities')
           .select('id')
           .eq('organization_id', record.organization_id)
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (facilityError || !facility) {
-          errors.push({ row: i + 1, error: `Facility '${record.facility_name}' not found` });
+          errors.push({ row: i + 1, _error: `Facility '${record.facility_name}' not found` });
           continue;
         }
 
@@ -77,14 +77,14 @@ export async function POST(request: NextRequest) {
         };
 
         // Insert energy consumption record
-        const { data: insertedRecord, error: insertError } = await supabase
+        const { data: insertedRecord, _error: insertError } = await supabase
           .from('energy_consumption')
           .insert([energyRecord])
           .select()
           .single();
 
         if (insertError) {
-          errors.push({ row: i + 1, error: insertError.message });
+          errors.push({ row: i + 1, _error: insertError.message });
           continue;
         }
 
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 
       } catch (error) {
         console.error(`Error processing row ${i + 1}:`, error);
-        errors.push({ row: i + 1, error: 'Processing error' });
+        errors.push({ row: i + 1, _error: 'Processing error' });
       }
     }
 
@@ -104,9 +104,9 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Bulk import error:', error);
+    console.error('Bulk import _error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { _error: 'Internal server error' },
       { status: 500 }
     );
   }

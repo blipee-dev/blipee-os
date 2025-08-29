@@ -3,7 +3,7 @@ import { gdprService } from '@/lib/compliance/service';
 import { requireAuth } from '@/lib/auth/session';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
-export async function GET(request: NextRequest) {
+export async function GET((_request: NextRequest) {
   try {
     const user = await requireAuth(request);
 
@@ -41,17 +41,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ settings });
   } catch (error) {
     if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to get privacy settings' },
+      { _error: error instanceof Error ? error.message : 'Failed to get privacy settings' },
       { status: 500 }
     );
   }
 }
 
-export async function PUT(request: NextRequest) {
+export async function PUT((_request: NextRequest) {
   try {
     const user = await requireAuth(request);
     const body = await request.json();
@@ -61,11 +61,11 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ settings });
   } catch (error) {
     if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to update privacy settings' },
+      { _error: error instanceof Error ? error.message : 'Failed to update privacy settings' },
       { status: 500 }
     );
   }

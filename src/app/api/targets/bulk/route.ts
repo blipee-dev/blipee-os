@@ -2,24 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     const user = await getCurrentUser(request);
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     const { data: bulkData } = await request.json();
     
     if (!bulkData || !Array.isArray(bulkData)) {
       return NextResponse.json(
-        { error: 'Invalid data format. Expected array of target records.' },
+        { _error: 'Invalid data format. Expected array of target records.' },
         { status: 400 }
       );
     }
 
     const supabase = createClient();
-    const errors: Array<{ row: number; error: string }> = [];
+    const errors: Array<{ row: number; _error: string }> = [];
     const successfulInserts: any[] = [];
 
     // Process each record
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       try {
         // Validate required fields
         if (!record.target_name || !record.target_type || !record.baseline_year || !record.target_year) {
-          errors.push({ row: i + 1, error: 'Missing required fields' });
+          errors.push({ row: i + 1, _error: 'Missing required fields' });
           continue;
         }
 
@@ -62,14 +62,14 @@ export async function POST(request: NextRequest) {
         };
 
         // Insert target record
-        const { data: insertedRecord, error: insertError } = await supabase
+        const { data: insertedRecord, _error: insertError } = await supabase
           .from('sustainability_targets')
           .insert([targetRecord])
           .select()
           .single();
 
         if (insertError) {
-          errors.push({ row: i + 1, error: insertError.message });
+          errors.push({ row: i + 1, _error: insertError.message });
           continue;
         }
 
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
 
       } catch (error) {
         console.error(`Error processing row ${i + 1}:`, error);
-        errors.push({ row: i + 1, error: 'Processing error' });
+        errors.push({ row: i + 1, _error: 'Processing error' });
       }
     }
 
@@ -89,9 +89,9 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Bulk import error:', error);
+    console.error('Bulk import _error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { _error: 'Internal server error' },
       { status: 500 }
     );
   }

@@ -4,7 +4,7 @@ import { createMonitoredHandler } from '@/lib/monitoring/middleware';
 import { requireAuth } from '@/lib/auth/middleware';
 
 export const DELETE = createMonitoredHandler(async (
-  request: NextRequest,
+  (_request: NextRequest,
   { params }: { params: { id: string } }
 ) => {
   try {
@@ -12,7 +12,7 @@ export const DELETE = createMonitoredHandler(async (
     const authResult = await requireAuth(request, ['account_owner']);
     if (!authResult.authenticated) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -22,7 +22,7 @@ export const DELETE = createMonitoredHandler(async (
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to delete alert rule' },
+      { _error: error instanceof Error ? error.message : 'Failed to delete alert rule' },
       { status: 500 }
     );
   }
