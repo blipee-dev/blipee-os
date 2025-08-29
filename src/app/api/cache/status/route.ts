@@ -13,9 +13,9 @@ export async function GET() {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, _error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has admin role
@@ -26,7 +26,7 @@ export async function GET() {
       .single();
 
     if (!member || !['account_owner', 'sustainability_manager'].includes(member.role)) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json({ _error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Get cache statistics
@@ -94,22 +94,22 @@ export async function GET() {
     return NextResponse.json(response);
 
   } catch (error) {
-    console.error('Cache status error:', error);
+    console.error('Cache status _error:', error);
     return NextResponse.json(
-      { error: 'Failed to get cache status' },
+      { _error: 'Failed to get cache status' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, _error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has admin role
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (!member || member.role !== 'account_owner') {
-      return NextResponse.json({ error: 'Only account owners can manage cache' }, { status: 403 });
+      return NextResponse.json({ _error: 'Only account owners can manage cache' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
         break;
         
       default:
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+        return NextResponse.json({ _error: 'Invalid action' }, { status: 400 });
     }
 
     return NextResponse.json({
@@ -167,9 +167,9 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Cache management error:', error);
+    console.error('Cache management _error:', error);
     return NextResponse.json(
-      { error: 'Failed to perform cache operation' },
+      { _error: 'Failed to perform cache operation' },
       { status: 500 }
     );
   }

@@ -23,14 +23,14 @@ const generateMockTraffic = (loja: string) => {
   };
 };
 
-export async function GET(request: NextRequest) {
+export async function GET((_request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const loja = searchParams.get('loja');
 
     if (!loja) {
       return NextResponse.json(
-        { error: 'Store (loja) parameter is required' },
+        { _error: 'Store (loja) parameter is required' },
         { status: 400 }
       );
     }
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch real-time traffic' },
+      { _error: 'Failed to fetch real-time traffic' },
       { status: 500 }
     );
   }

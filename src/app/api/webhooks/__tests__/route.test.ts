@@ -25,7 +25,7 @@ describe('Webhooks API', () => {
     it('should list user webhooks', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       const mockWebhooks = [
@@ -52,7 +52,7 @@ describe('Webhooks API', () => {
     it('should filter by active status', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       mockWebhookService.listWebhooks.mockResolvedValue([]);
@@ -61,7 +61,7 @@ describe('Webhooks API', () => {
       await GET(request);
 
       expect(mockWebhookService.listWebhooks).toHaveBeenCalledWith({
-        userId: 'user123',
+        _userId: 'user123',
         active: true
       });
     });
@@ -71,7 +71,7 @@ describe('Webhooks API', () => {
     it('should create new webhook', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       const newWebhook = {
@@ -103,7 +103,7 @@ describe('Webhooks API', () => {
     it('should validate webhook URL', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       const _request = new NextRequest('http://localhost:3000/api/webhooks', {
@@ -121,7 +121,7 @@ describe('Webhooks API', () => {
     it('should require HTTPS URLs', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       const _request = new NextRequest('http://localhost:3000/api/webhooks', {

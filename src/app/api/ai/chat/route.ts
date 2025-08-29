@@ -379,11 +379,11 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
       // Cache the response using advanced strategies
       if (!attachments || attachments.length === 0) {
         const cacheContext = { organizationId, buildingId, userId };
-        await aiCacheManager.set(message, cacheContext, {
+        await aiCacheManager.set(message, {
           message: response.message,
           suggestions: response.suggestions,
           components: response.components || [],
-        });
+        }, cacheContext);
       }
 
       return NextResponse.json(response);
@@ -449,11 +449,21 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
     if (!attachments || attachments.length === 0) {
       const cacheContext = { organizationId, buildingId, userId };
       // Use basic cache for fallback responses
-      await aiCache.cacheResponse(message, cacheContext, {
-        message: response.message || '',
-        suggestions: response.suggestions || [],
-        components: response.components || [],
-      }, 300); // 5 minutes for fallback responses
+      await aiCache.cacheResponse(
+        message, 
+        {
+          content: response.message || '',
+          provider: 'demo',
+          model: 'fallback',
+          timestamp: new Date().toISOString(),
+          cached: false,
+          message: response.message,
+          suggestions: response.suggestions,
+          components: response.components
+        },
+        'demo',
+        { ttl: 300 }
+      ); // 5 minutes for fallback responses
     }
 
     return NextResponse.json(response);

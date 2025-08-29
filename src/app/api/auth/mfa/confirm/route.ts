@@ -8,15 +8,15 @@ const confirmSchema = z.object({
   code: z.string().length(6),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     const supabase = await createClient();
     
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, _error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     if (!confirmed) {
       return NextResponse.json(
-        { error: 'Invalid verification code' },
+        { _error: 'Invalid verification code' },
         { status: 400 }
       );
     }
@@ -43,17 +43,17 @@ export async function POST(request: NextRequest) {
       message: 'MFA enabled successfully'
     });
   } catch (error) {
-    console.error('MFA confirm error:', error);
+    console.error('MFA confirm _error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request', details: error.errors },
+        { _error: 'Invalid request', details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to confirm MFA' },
+      { _error: error instanceof Error ? error.message : 'Failed to confirm MFA' },
       { status: 500 }
     );
   }

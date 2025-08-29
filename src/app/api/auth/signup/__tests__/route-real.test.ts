@@ -26,11 +26,11 @@ describe('Signup API', () => {
     const mockUser = { id: 'user123', email: 'new@example.com' };
     mockSupabase.auth.signUp.mockResolvedValue({
       data: { user: mockUser },
-      error: null
+      _error: null
     });
     mockSupabase.from().insert.mockResolvedValue({
       data: { id: 'profile123' },
-      error: null
+      _error: null
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/signup', {
@@ -80,7 +80,7 @@ describe('Signup API', () => {
   it('should handle duplicate email', async () => {
     mockSupabase.auth.signUp.mockResolvedValue({
       data: null,
-      error: { message: 'User already registered' }
+      _error: { message: 'User already registered' }
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/signup', {

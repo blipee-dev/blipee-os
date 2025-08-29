@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 // import { UserRole } from "@/types/auth"; // Unused after fixing role checks
 
 export async function GET(
-  _request: NextRequest,
+  _(_request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -14,7 +14,7 @@ export async function GET(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { _error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -24,7 +24,7 @@ export async function GET(
     
     if (!configuration) {
       return NextResponse.json(
-        { error: "Configuration not found" },
+        { _error: "Configuration not found" },
         { status: 404 }
       );
     }
@@ -40,23 +40,23 @@ export async function GET(
     
     if (!membership || !["subscription_owner", "organization_admin"].includes(membership.role)) {
       return NextResponse.json(
-        { error: "Forbidden" },
+        { _error: "Forbidden" },
         { status: 403 }
       );
     }
     
     return NextResponse.json({ configuration });
-  } catch (error: any) {
+  } catch (_error: any) {
     console.error("Failed to get SSO configuration:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to get configuration" },
+      { _error: error.message || "Failed to get configuration" },
       { status: 500 }
     );
   }
 }
 
 export async function PUT(
-  request: NextRequest,
+  (_request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -66,7 +66,7 @@ export async function PUT(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { _error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -75,7 +75,7 @@ export async function PUT(
     const existing = await ssoService.getConfiguration(params.id);
     if (!existing) {
       return NextResponse.json(
-        { error: "Configuration not found" },
+        { _error: "Configuration not found" },
         { status: 404 }
       );
     }
@@ -91,7 +91,7 @@ export async function PUT(
     
     if (!membership || membership.role !== 'account_owner') {
       return NextResponse.json(
-        { error: "Only subscription owners can update SSO configurations" },
+        { _error: "Only subscription owners can update SSO configurations" },
         { status: 403 }
       );
     }
@@ -103,17 +103,17 @@ export async function PUT(
     const configuration = await ssoService.updateConfiguration(params.id, updates);
     
     return NextResponse.json({ configuration });
-  } catch (error: any) {
+  } catch (_error: any) {
     console.error("Failed to update SSO configuration:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to update configuration" },
+      { _error: error.message || "Failed to update configuration" },
       { status: 500 }
     );
   }
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  _(_request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -123,7 +123,7 @@ export async function DELETE(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { _error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -132,7 +132,7 @@ export async function DELETE(
     const existing = await ssoService.getConfiguration(params.id);
     if (!existing) {
       return NextResponse.json(
-        { error: "Configuration not found" },
+        { _error: "Configuration not found" },
         { status: 404 }
       );
     }
@@ -148,7 +148,7 @@ export async function DELETE(
     
     if (!membership || membership.role !== 'account_owner') {
       return NextResponse.json(
-        { error: "Only subscription owners can delete SSO configurations" },
+        { _error: "Only subscription owners can delete SSO configurations" },
         { status: 403 }
       );
     }
@@ -157,10 +157,10 @@ export async function DELETE(
     await ssoService.deleteConfiguration(params.id);
     
     return NextResponse.json({ success: true }, { status: 200 });
-  } catch (error: any) {
+  } catch (_error: any) {
     console.error("Failed to delete SSO configuration:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to delete configuration" },
+      { _error: error.message || "Failed to delete configuration" },
       { status: 500 }
     );
   }

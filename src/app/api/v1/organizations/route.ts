@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { withAPIGateway, createSuccessResponse, createPaginatedResponse, APIGatewayContext } from '@/lib/api/gateway/middleware';
 
-export const GET = withAPIGateway(async (request: NextRequest, context: APIGatewayContext) => {
+export const GET = withAPIGateway(async ((_request: NextRequest, context: APIGatewayContext) => {
   const supabase = await createServerSupabaseClient();
   
   // Get pagination parameters
@@ -34,14 +34,14 @@ export const GET = withAPIGateway(async (request: NextRequest, context: APIGatew
   );
 });
 
-export const POST = withAPIGateway(async (request: NextRequest, context: APIGatewayContext) => {
+export const POST = withAPIGateway(async ((_request: NextRequest, context: APIGatewayContext) => {
   const supabase = await createServerSupabaseClient();
   const body = await request.json();
 
   // Validate required fields
   if (!body.name) {
     return createSuccessResponse(
-      { error: 'Name is required' },
+      { _error: 'Name is required' },
       context.version
     );
   }

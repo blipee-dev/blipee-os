@@ -4,15 +4,15 @@ import { webhookService } from '@/lib/webhooks/webhook-service';
 import { WebhookEndpointCreate } from '@/types/webhooks';
 import { webhookVerifier } from '@/lib/webhooks/webhook-verifier';
 
-export async function GET(_request: NextRequest) {
+export async function GET(_(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -27,7 +27,7 @@ export async function GET(_request: NextRequest) {
 
     if (!member) {
       return NextResponse.json(
-        { error: 'No organization found' },
+        { _error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -35,7 +35,7 @@ export async function GET(_request: NextRequest) {
     // Check if user has permissions
     if (!['account_owner', 'admin'].includes(member.role)) {
       return NextResponse.json(
-        { error: 'Insufficient permissions' },
+        { _error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -47,21 +47,21 @@ export async function GET(_request: NextRequest) {
   } catch (error) {
     console.error('Failed to get webhooks:', error);
     return NextResponse.json(
-      { error: 'Failed to get webhooks' },
+      { _error: 'Failed to get webhooks' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     if (!member) {
       return NextResponse.json(
-        { error: 'No organization found' },
+        { _error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     // Check if user has permissions
     if (!['account_owner', 'admin'].includes(member.role)) {
       return NextResponse.json(
-        { error: 'Insufficient permissions' },
+        { _error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     const urlValidation = webhookVerifier.validateWebhookUrl(data.url);
     if (!urlValidation.valid) {
       return NextResponse.json(
-        { error: 'Invalid webhook URL', details: urlValidation.errors },
+        { _error: 'Invalid webhook URL', details: urlValidation.errors },
         { status: 400 }
       );
     }
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     const eventValidation = webhookVerifier.validateEventTypes(data.events);
     if (!eventValidation.valid) {
       return NextResponse.json(
-        { error: 'Invalid event types', details: eventValidation.errors },
+        { _error: 'Invalid event types', details: eventValidation.errors },
         { status: 400 }
       );
     }
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       const headerValidation = webhookVerifier.validateHeaders(data.headers);
       if (!headerValidation.valid) {
         return NextResponse.json(
-          { error: 'Invalid headers', details: headerValidation.errors },
+          { _error: 'Invalid headers', details: headerValidation.errors },
           { status: 400 }
         );
       }
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Failed to create webhook:', error);
     return NextResponse.json(
-      { error: 'Failed to create webhook' },
+      { _error: 'Failed to create webhook' },
       { status: 500 }
     );
   }

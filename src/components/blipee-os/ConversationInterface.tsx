@@ -67,8 +67,8 @@ export function ConversationInterface({
 
         // Load existing messages if any
         const conversation = await conversationService.getConversation(id);
-        if (conversation && conversation.messages) {
-          const existingMessages = jsonToMessages(conversation.messages);
+        if (conversation && (conversation as any).messages) {
+          const existingMessages = jsonToMessages((conversation as any).messages);
           if (existingMessages.length > 0) {
             setMessages(existingMessages);
             setIsInitializing(false);
@@ -177,12 +177,13 @@ export function ConversationInterface({
       if (!data) throw new Error("Failed to get response");
 
       // Add assistant response
+      const aiResponse = data as any;
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: data.message || "I&apos;m processing your request...",
-        components: data.components,
-        suggestions: data.suggestions,
+        content: aiResponse.message || "I'm processing your request...",
+        components: aiResponse.components,
+        suggestions: aiResponse.suggestions,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);

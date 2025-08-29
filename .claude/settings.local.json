@@ -139,7 +139,10 @@
       "Bash(npm uninstall:*)",
       "Bash(npm update)",
       "Bash(tsx scripts/generate-supabase-types.ts:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(git log:*)",
+      "Bash(test:*)",
+      "Bash(/Users/pedro/Documents/blipee/blipee-os/fix-unused-bulk.sh)"
     ],
     "deny": []
   }

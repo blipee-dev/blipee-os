@@ -9,10 +9,10 @@ jest.mock('@/lib/supabase/server', () => ({
     from: jest.fn(() => ({
       select: jest.fn(() => ({
         eq: jest.fn(() => ({
-          single: jest.fn(() => ({ data: null, error: null }))
+          single: jest.fn(() => ({ data: null, _error: null }))
         }))
       })),
-      update: jest.fn(() => ({ data: null, error: null }))
+      update: jest.fn(() => ({ data: null, _error: null }))
     }))
   }))
 }));
@@ -30,7 +30,7 @@ describe('POST /api/auth/mfa/setup', () => {
   it('should setup TOTP MFA', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: 'user123', email: 'test@example.com' } },
-      error: null
+      _error: null
     });
 
     (speakeasy.generateSecret as jest.Mock).mockReturnValue({
@@ -54,7 +54,7 @@ describe('POST /api/auth/mfa/setup', () => {
   it('should setup SMS MFA', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: 'user123' } },
-      error: null
+      _error: null
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {
@@ -75,7 +75,7 @@ describe('POST /api/auth/mfa/setup', () => {
   it('should require authentication', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: null },
-      error: { message: 'Not authenticated' }
+      _error: { message: 'Not authenticated' }
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {
@@ -90,7 +90,7 @@ describe('POST /api/auth/mfa/setup', () => {
   it('should validate MFA type', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: 'user123' } },
-      error: null
+      _error: null
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/mfa/setup', {

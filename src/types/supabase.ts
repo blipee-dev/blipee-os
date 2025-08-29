@@ -1,3 +1,4 @@
+
 export type Json =
   | string
   | number
@@ -11,6 +12,31 @@ export type Database = {
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -62,13 +88,6 @@ export type Database = {
             foreignKeyName: "agent_alerts_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "agent_alerts_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -106,13 +125,6 @@ export type Database = {
           results?: Json
         }
         Relationships: [
-          {
-            foreignKeyName: "agent_analyses_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "agent_analyses_organization_id_fkey"
             columns: ["organization_id"]
@@ -160,13 +172,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "agent_approvals_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "agent_approvals_organization_id_fkey"
             columns: ["organization_id"]
@@ -265,13 +270,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "agent_configs_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "agent_configs_organization_id_fkey"
             columns: ["organization_id"]
@@ -414,13 +412,6 @@ export type Database = {
             foreignKeyName: "agent_errors_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "agent_errors_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -452,13 +443,6 @@ export type Database = {
           organization_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "agent_events_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "agent_events_organization_id_fkey"
             columns: ["organization_id"]
@@ -520,13 +504,6 @@ export type Database = {
             foreignKeyName: "agent_instances_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "agent_instances_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -555,13 +532,6 @@ export type Database = {
           organization_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "agent_knowledge_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "agent_knowledge_organization_id_fkey"
             columns: ["organization_id"]
@@ -609,13 +579,6 @@ export type Database = {
           validated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "agent_knowledge_base_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "agent_knowledge_base_organization_id_fkey"
             columns: ["organization_id"]
@@ -755,13 +718,6 @@ export type Database = {
             foreignKeyName: "agent_outcomes_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "agent_outcomes_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -812,13 +768,6 @@ export type Database = {
             foreignKeyName: "agent_patterns_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "agent_patterns_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -862,13 +811,6 @@ export type Database = {
           task_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "agent_results_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "agent_results_organization_id_fkey"
             columns: ["organization_id"]
@@ -925,13 +867,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "agent_scheduled_tasks_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "agent_scheduled_tasks_organization_id_fkey"
             columns: ["organization_id"]
@@ -1157,13 +1092,6 @@ export type Database = {
             foreignKeyName: "air_emissions_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "air_emissions_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -1330,13 +1258,6 @@ export type Database = {
           version?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "api_keys_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "api_keys_organization_id_fkey"
             columns: ["organization_id"]
@@ -1619,17 +1540,55 @@ export type Database = {
             foreignKeyName: "audit_logs_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "audit_logs_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
+      }
+      backup_history: {
+        Row: {
+          backup_id: string
+          backup_type: string
+          compressed: boolean | null
+          created_at: string | null
+          created_by: string | null
+          error_message: string | null
+          format: string
+          id: string
+          metadata: Json | null
+          size_bytes: number | null
+          status: string | null
+          tables: string[] | null
+        }
+        Insert: {
+          backup_id: string
+          backup_type: string
+          compressed?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          format: string
+          id?: string
+          metadata?: Json | null
+          size_bytes?: number | null
+          status?: string | null
+          tables?: string[] | null
+        }
+        Update: {
+          backup_id?: string
+          backup_type?: string
+          compressed?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          format?: string
+          id?: string
+          metadata?: Json | null
+          size_bytes?: number | null
+          status?: string | null
+          tables?: string[] | null
+        }
+        Relationships: []
       }
       benchmark_cohorts: {
         Row: {
@@ -1691,13 +1650,6 @@ export type Database = {
             foreignKeyName: "benchmark_contributions_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "benchmark_contributions_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -1747,13 +1699,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "industry_metrics"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "benchmark_data_points_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "benchmark_data_points_organization_id_fkey"
@@ -1861,13 +1806,6 @@ export type Database = {
             foreignKeyName: "biodiversity_sites_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "biodiversity_sites_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -1933,13 +1871,6 @@ export type Database = {
             foreignKeyName: "buildings_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "buildings_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -1974,13 +1905,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "benchmark_cohorts"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cohort_members_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "cohort_members_organization_id_fkey"
@@ -2026,6 +1950,165 @@ export type Database = {
           summary?: Json
         }
         Relationships: []
+      }
+      conversation_analytics: {
+        Row: {
+          ai_provider_usage: Json | null
+          avg_conversation_length: number
+          created_at: string
+          date: string
+          id: string
+          organization_id: string
+          response_times: Json | null
+          sentiment_distribution: Json | null
+          top_topics: string[] | null
+          total_conversations: number
+          total_messages: number
+          updated_at: string
+          user_id: string
+          user_satisfaction_score: number | null
+        }
+        Insert: {
+          ai_provider_usage?: Json | null
+          avg_conversation_length?: number
+          created_at?: string
+          date?: string
+          id?: string
+          organization_id: string
+          response_times?: Json | null
+          sentiment_distribution?: Json | null
+          top_topics?: string[] | null
+          total_conversations?: number
+          total_messages?: number
+          updated_at?: string
+          user_id: string
+          user_satisfaction_score?: number | null
+        }
+        Update: {
+          ai_provider_usage?: Json | null
+          avg_conversation_length?: number
+          created_at?: string
+          date?: string
+          id?: string
+          organization_id?: string
+          response_times?: Json | null
+          sentiment_distribution?: Json | null
+          top_topics?: string[] | null
+          total_conversations?: number
+          total_messages?: number
+          updated_at?: string
+          user_id?: string
+          user_satisfaction_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_analytics_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_contexts: {
+        Row: {
+          context_data: Json
+          conversation_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          organization_id: string
+          relevance_score: number
+          token_estimate: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context_data: Json
+          conversation_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          organization_id: string
+          relevance_score?: number
+          token_estimate?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context_data?: Json
+          conversation_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          organization_id?: string
+          relevance_score?: number
+          token_estimate?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_contexts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_memories: {
+        Row: {
+          created_at: string
+          entities: Json | null
+          id: string
+          key_topics: string[] | null
+          metadata: Json | null
+          organization_id: string
+          preferences: Json | null
+          sentiment: Json | null
+          summary: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entities?: Json | null
+          id?: string
+          key_topics?: string[] | null
+          metadata?: Json | null
+          organization_id: string
+          preferences?: Json | null
+          sentiment?: Json | null
+          summary: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entities?: Json | null
+          id?: string
+          key_topics?: string[] | null
+          metadata?: Json | null
+          organization_id?: string
+          preferences?: Json | null
+          sentiment?: Json | null
+          summary?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_memories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
@@ -2077,13 +2160,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "conversations_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "conversations_organization_id_fkey"
             columns: ["organization_id"]
@@ -2145,13 +2221,6 @@ export type Database = {
           time_range?: Json | null
         }
         Relationships: [
-          {
-            foreignKeyName: "data_contributions_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "data_contributions_provider_id_fkey"
             columns: ["provider_id"]
@@ -2239,22 +2308,8 @@ export type Database = {
             foreignKeyName: "data_exchange_agreements_consumer_id_fkey"
             columns: ["consumer_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "data_exchange_agreements_consumer_id_fkey"
-            columns: ["consumer_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "data_exchange_agreements_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "data_exchange_agreements_provider_id_fkey"
@@ -2369,13 +2424,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "data_listings_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "data_listings_provider_id_fkey"
             columns: ["provider_id"]
@@ -2505,13 +2553,6 @@ export type Database = {
             foreignKeyName: "data_transactions_consumer_id_fkey"
             columns: ["consumer_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "data_transactions_consumer_id_fkey"
-            columns: ["consumer_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -2526,17 +2567,43 @@ export type Database = {
             foreignKeyName: "data_transactions_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "data_transactions_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
+      }
+      database_health_metrics: {
+        Row: {
+          checked_at: string | null
+          id: string
+          is_healthy: boolean | null
+          metric_name: string
+          metric_value: number
+          threshold_critical: number | null
+          threshold_warning: number | null
+          unit: string | null
+        }
+        Insert: {
+          checked_at?: string | null
+          id?: string
+          is_healthy?: boolean | null
+          metric_name: string
+          metric_value: number
+          threshold_critical?: number | null
+          threshold_warning?: number | null
+          unit?: string | null
+        }
+        Update: {
+          checked_at?: string | null
+          id?: string
+          is_healthy?: boolean | null
+          metric_name?: string
+          metric_value?: number
+          threshold_critical?: number | null
+          threshold_warning?: number | null
+          unit?: string | null
+        }
+        Relationships: []
       }
       document_uploads: {
         Row: {
@@ -2597,13 +2664,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "buildings"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "document_uploads_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "document_uploads_organization_id_fkey"
@@ -2724,13 +2784,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user_profiles"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "documents_organization_id_fkey"
@@ -2895,13 +2948,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "facilities"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "emission_sources_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "emission_sources_organization_id_fkey"
@@ -3454,13 +3500,6 @@ export type Database = {
             foreignKeyName: "emissions_data_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "emissions_data_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -3809,13 +3848,6 @@ export type Database = {
             foreignKeyName: "facilities_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "facilities_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -3995,13 +4027,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "industry_classifications"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "industry_analysis_results_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "industry_analysis_results_organization_id_fkey"
@@ -4266,13 +4291,6 @@ export type Database = {
             foreignKeyName: "marketplace_accounts_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: true
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "marketplace_accounts_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: true
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -4430,13 +4448,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user_profiles"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "materiality_assessments_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "materiality_assessments_organization_id_fkey"
@@ -4631,13 +4642,6 @@ export type Database = {
             foreignKeyName: "ml_datasets_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "ml_datasets_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -4811,13 +4815,6 @@ export type Database = {
             foreignKeyName: "ml_experiments_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "ml_experiments_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -4861,13 +4858,6 @@ export type Database = {
           validity_period?: unknown
         }
         Relationships: [
-          {
-            foreignKeyName: "ml_features_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "ml_features_organization_id_fkey"
             columns: ["organization_id"]
@@ -4977,13 +4967,6 @@ export type Database = {
             foreignKeyName: "ml_model_performance_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "ml_model_performance_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -5085,13 +5068,6 @@ export type Database = {
             foreignKeyName: "ml_models_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "ml_models_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -5153,13 +5129,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "ml_models"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ml_predictions_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "ml_predictions_organization_id_fkey"
@@ -5235,13 +5204,6 @@ export type Database = {
           total_epochs?: number | null
         }
         Relationships: [
-          {
-            foreignKeyName: "ml_training_jobs_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "ml_training_jobs_organization_id_fkey"
             columns: ["organization_id"]
@@ -5349,13 +5311,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_marketplace_provider_org"
-            columns: ["provider_org_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "fk_marketplace_provider_org"
             columns: ["provider_org_id"]
@@ -5479,13 +5434,6 @@ export type Database = {
             foreignKeyName: "fk_network_nodes_org"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "fk_network_nodes_org"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -5530,13 +5478,6 @@ export type Database = {
             foreignKeyName: "fk_privacy_settings_org"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "fk_privacy_settings_org"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -5577,13 +5518,6 @@ export type Database = {
           valid_until?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_assessments_requester_org"
-            columns: ["requester_org_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "fk_assessments_requester_org"
             columns: ["requester_org_id"]
@@ -5722,13 +5656,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user_profiles"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "organization_members_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "organization_members_organization_id_fkey"
@@ -5994,6 +5921,36 @@ export type Database = {
         }
         Relationships: []
       }
+      query_performance_metrics: {
+        Row: {
+          id: string
+          metadata: Json | null
+          metric_type: string
+          operation: string | null
+          table_name: string | null
+          timestamp: string | null
+          value: number
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          metric_type: string
+          operation?: string | null
+          table_name?: string | null
+          timestamp?: string | null
+          value: number
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          metric_type?: string
+          operation?: string | null
+          table_name?: string | null
+          timestamp?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
       rate_limit_rules: {
         Row: {
           burst_limit: number
@@ -6128,6 +6085,51 @@ export type Database = {
         }
         Relationships: []
       }
+      schema_migrations: {
+        Row: {
+          applied_at: string | null
+          checksum: string
+          created_at: string | null
+          error_message: string | null
+          executed_by: string | null
+          execution_time_ms: number | null
+          id: string
+          metadata: Json | null
+          name: string
+          rollback_sql: string | null
+          status: string | null
+          version: number
+        }
+        Insert: {
+          applied_at?: string | null
+          checksum: string
+          created_at?: string | null
+          error_message?: string | null
+          executed_by?: string | null
+          execution_time_ms?: number | null
+          id: string
+          metadata?: Json | null
+          name: string
+          rollback_sql?: string | null
+          status?: string | null
+          version: number
+        }
+        Update: {
+          applied_at?: string | null
+          checksum?: string
+          created_at?: string | null
+          error_message?: string | null
+          executed_by?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          rollback_sql?: string | null
+          status?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       security_events: {
         Row: {
           created_at: string | null
@@ -6209,6 +6211,54 @@ export type Database = {
           review_date?: string
           updated_at?: string | null
           version?: string
+        }
+        Relationships: []
+      }
+      slow_query_logs: {
+        Row: {
+          created_at: string | null
+          database_name: string | null
+          execution_time_ms: number
+          first_seen: string | null
+          id: string
+          last_seen: string | null
+          max_time_ms: number | null
+          mean_time_ms: number | null
+          query_fingerprint: string | null
+          query_text: string
+          rows_affected: number | null
+          total_calls: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          database_name?: string | null
+          execution_time_ms: number
+          first_seen?: string | null
+          id?: string
+          last_seen?: string | null
+          max_time_ms?: number | null
+          mean_time_ms?: number | null
+          query_fingerprint?: string | null
+          query_text: string
+          rows_affected?: number | null
+          total_calls?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          database_name?: string | null
+          execution_time_ms?: number
+          first_seen?: string | null
+          id?: string
+          last_seen?: string | null
+          max_time_ms?: number | null
+          mean_time_ms?: number | null
+          query_fingerprint?: string | null
+          query_text?: string
+          rows_affected?: number | null
+          total_calls?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -6360,13 +6410,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "sso_configurations_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "sso_configurations_organization_id_fkey"
             columns: ["organization_id"]
@@ -6545,13 +6588,6 @@ export type Database = {
             foreignKeyName: "supplier_assessments_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "supplier_assessments_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -6641,13 +6677,6 @@ export type Database = {
             foreignKeyName: "suppliers_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "suppliers_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -6718,13 +6747,6 @@ export type Database = {
           upstream_emissions_tco2e?: number | null
         }
         Relationships: [
-          {
-            foreignKeyName: "supply_chain_emissions_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "supply_chain_emissions_organization_id_fkey"
             columns: ["organization_id"]
@@ -6812,13 +6834,6 @@ export type Database = {
           water_consumption?: number | null
         }
         Relationships: [
-          {
-            foreignKeyName: "sustainability_reports_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
           {
             foreignKeyName: "sustainability_reports_organization_id_fkey"
             columns: ["organization_id"]
@@ -6930,13 +6945,6 @@ export type Database = {
             foreignKeyName: "sustainability_targets_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "sustainability_targets_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -6945,6 +6953,59 @@ export type Database = {
             columns: ["parent_target_id"]
             isOneToOne: false
             referencedRelation: "sustainability_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_ai_preferences: {
+        Row: {
+          communication_style: string
+          confidence_score: number
+          created_at: string
+          domain_interests: string[] | null
+          id: string
+          interaction_patterns: Json | null
+          learned_from_conversations: number
+          organization_id: string
+          preferred_metrics: string[] | null
+          response_length: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          communication_style?: string
+          confidence_score?: number
+          created_at?: string
+          domain_interests?: string[] | null
+          id?: string
+          interaction_patterns?: Json | null
+          learned_from_conversations?: number
+          organization_id: string
+          preferred_metrics?: string[] | null
+          response_length?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          communication_style?: string
+          confidence_score?: number
+          created_at?: string
+          domain_interests?: string[] | null
+          id?: string
+          interaction_patterns?: Json | null
+          learned_from_conversations?: number
+          organization_id?: string
+          preferred_metrics?: string[] | null
+          response_length?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_ai_preferences_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -7138,13 +7199,6 @@ export type Database = {
             foreignKeyName: "user_organizations_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "user_organizations_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -7321,13 +7375,6 @@ export type Database = {
             foreignKeyName: "waste_data_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "waste_data_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -7426,13 +7473,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "facilities"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "waste_generation_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "waste_generation_organization_id_fkey"
@@ -7541,13 +7581,6 @@ export type Database = {
             foreignKeyName: "water_consumption_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "water_consumption_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -7609,13 +7642,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "buildings"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "water_usage_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "water_usage_organization_id_fkey"
@@ -7770,13 +7796,6 @@ export type Database = {
             foreignKeyName: "webhook_deliveries_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
-          },
-          {
-            foreignKeyName: "webhook_deliveries_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -7852,11 +7871,223 @@ export type Database = {
             foreignKeyName: "webhook_endpoints_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "mv_org_dashboard_metrics"
-            referencedColumns: ["organization_id"]
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_messages: {
+        Row: {
+          id: string
+          conversation_id: string
+          role: string
+          content: string
+          metadata: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          conversation_id: string
+          role: string
+          content: string
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          conversation_id?: string
+          role?: string
+          content?: string
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      conversation_memories: {
+        Row: {
+          id: string
+          user_id: string
+          organization_id: string
+          title: string
+          summary: string | null
+          key_topics: string[] | null
+          entities: Json | null
+          sentiment: Json | null
+          preferences: Json | null
+          metadata: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          organization_id: string
+          title: string
+          summary?: string | null
+          key_topics?: string[] | null
+          entities?: Json | null
+          sentiment?: Json | null
+          preferences?: Json | null
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          organization_id?: string
+          title?: string
+          summary?: string | null
+          key_topics?: string[] | null
+          entities?: Json | null
+          sentiment?: Json | null
+          preferences?: Json | null
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_memories_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "webhook_endpoints_organization_id_fkey"
+            foreignKeyName: "conversation_memories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      ai_test_results: {
+        Row: {
+          id: string
+          organization_id: string
+          suite_id: string
+          scenario_id: string | null
+          results: Json
+          report: string
+          passed: boolean
+          score: number
+          run_by: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          suite_id: string
+          scenario_id?: string | null
+          results: Json
+          report: string
+          passed?: boolean
+          score: number
+          run_by: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          suite_id?: string
+          scenario_id?: string | null
+          results?: Json
+          report?: string
+          passed?: boolean
+          score?: number
+          run_by?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_test_results_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_test_results_run_by_fkey"
+            columns: ["run_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      ai_test_suites: {
+        Row: {
+          id: string
+          organization_id: string
+          suite_data: Json
+          created_by: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          organization_id: string
+          suite_data: Json
+          created_by: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          suite_data?: Json
+          created_by?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_test_suites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_test_suites_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+    }
+    Views: {
+      mv_org_dashboard_metrics: {
+        Row: {
+          avg_emissions_tonnes: number | null
+          emission_categories: number | null
+          month: string | null
+          organization_id: string | null
+          reporting_buildings: number | null
+          reporting_days: number | null
+          scope1_emissions: number | null
+          scope2_emissions: number | null
+          scope3_emissions: number | null
+          total_emissions_tonnes: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emissions_data_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -7865,23 +8096,24 @@ export type Database = {
         ]
       }
     }
-    Views: {
-      mv_org_dashboard_metrics: {
-        Row: {
-          avg_energy_usage: number | null
-          last_conversation_at: string | null
-          organization_id: string | null
-          total_emissions_mtco2e: number | null
-          total_facilities: number | null
-          total_users: number | null
-        }
-        Relationships: []
-      }
-    }
     Functions: {
       aggregate_api_usage_hourly: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      analyze_query: {
+        Args: { query_params?: string[]; query_text: string }
+        Returns: Json
+      }
+      analyze_query_patterns: {
+        Args: { p_days?: number }
+        Returns: {
+          avg_execution_time: number
+          example_query: string
+          occurrence_count: number
+          pattern_name: string
+          total_time: number
+        }[]
       }
       award_marketplace_credits: {
         Args: { p_amount: number; p_provider_id: string }
@@ -7903,6 +8135,14 @@ export type Database = {
           p_year: number
         }
         Returns: number
+      }
+      check_database_health: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_expired_conversation_contexts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_expired_mfa_challenges: {
         Args: Record<PropertyKey, never>
@@ -7936,6 +8176,15 @@ export type Database = {
         Args: { p_amount: number; p_consumer_id: string }
         Returns: undefined
       }
+      estimate_backup_size: {
+        Args: { tables?: string[] }
+        Returns: {
+          row_count: number
+          table_count: number
+          total_size_bytes: number
+          total_size_pretty: string
+        }[]
+      }
       execute_agent_task: {
         Args: {
           p_agent_instance_id: string
@@ -7945,6 +8194,14 @@ export type Database = {
           p_task_type: string
         }
         Returns: string
+      }
+      execute_backup_sql: {
+        Args: { sql_query: string }
+        Returns: undefined
+      }
+      execute_sql: {
+        Args: { sql_query: string }
+        Returns: undefined
       }
       expire_old_recovery_tokens: {
         Args: Record<PropertyKey, never>
@@ -7958,6 +8215,25 @@ export type Database = {
         Args: { p_num_companies?: number; p_year?: number }
         Returns: undefined
       }
+      get_all_tables: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          schema_name: string
+          table_name: string
+        }[]
+      }
+      get_index_stats: {
+        Args: { target_index_name?: string }
+        Returns: {
+          created_at: string
+          idx_scan: number
+          idx_tup_fetch: number
+          idx_tup_read: number
+          index_name: string
+          index_size: string
+          table_name: string
+        }[]
+      }
       get_industry_material_topics: {
         Args: { p_industry_id: string }
         Returns: {
@@ -7965,6 +8241,27 @@ export type Database = {
           relevance: string
           topic_id: string
           topic_name: string
+        }[]
+      }
+      get_query_insights: {
+        Args: { p_hours?: number }
+        Returns: {
+          description: string
+          impact: string
+          insight_type: string
+          query_example: string
+          recommendation: string
+        }[]
+      }
+      get_slow_queries: {
+        Args: { duration_threshold_ms?: number; limit_count?: number }
+        Returns: {
+          calls: number
+          max_time: number
+          mean_time: number
+          query: string
+          rows: number
+          total_time: number
         }[]
       }
       get_sso_config_by_email: {
@@ -7975,6 +8272,56 @@ export type Database = {
           id: string
           organization_id: string
           provider: Database["public"]["Enums"]["sso_provider"]
+        }[]
+      }
+      get_table_columns: {
+        Args: { table_name: string }
+        Returns: {
+          character_maximum_length: number
+          column_default: string
+          column_name: string
+          data_type: string
+          is_nullable: string
+          numeric_precision: number
+          numeric_scale: number
+        }[]
+      }
+      get_table_constraints: {
+        Args: { table_name: string }
+        Returns: {
+          constraint_definition: string
+          constraint_name: string
+          constraint_type: string
+        }[]
+      }
+      get_table_indexes: {
+        Args: { table_name: string }
+        Returns: {
+          index_definition: string
+          index_name: string
+          is_primary: boolean
+          is_unique: boolean
+        }[]
+      }
+      get_table_stats: {
+        Args: { target_table_name: string }
+        Returns: {
+          bloat_ratio: number
+          index_size: string
+          last_analyze: string
+          last_vacuum: string
+          row_count: number
+          table_size: string
+          total_size: string
+        }[]
+      }
+      get_unused_indexes: {
+        Args: { days_threshold?: number; target_table_name?: string }
+        Returns: {
+          index_name: string
+          index_scans: number
+          index_size: string
+          table_name: string
         }[]
       }
       get_user_recovery_options: {
@@ -8019,9 +8366,30 @@ export type Database = {
         Args: { org_id: string }
         Returns: boolean
       }
+      log_slow_query: {
+        Args: {
+          p_execution_time_ms: number
+          p_query_text: string
+          p_rows_affected?: number
+          p_user_id?: string
+        }
+        Returns: string
+      }
       map_organization_to_gri_sector: {
         Args: { org_id: string }
         Returns: string
+      }
+      monitor_query_performance: {
+        Args: { threshold_ms?: number }
+        Returns: {
+          calls: number
+          max_time: number
+          mean_time: number
+          query_text: string
+          query_type: string
+          rows: number
+          total_time: number
+        }[]
       }
       record_agent_decision: {
         Args: {
@@ -8044,6 +8412,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      refresh_dashboard_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       refresh_org_dashboard_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -8058,6 +8430,31 @@ export type Database = {
           p_task_type: string
         }
         Returns: string
+      }
+      search_conversation_memories: {
+        Args: {
+          p_limit?: number
+          p_organization_id?: string
+          p_query: string
+          p_user_id: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          key_topics: string[]
+          relevance_score: number
+          summary: string
+          title: string
+        }[]
+      }
+      suggest_indexes: {
+        Args: { target_table_name: string }
+        Returns: {
+          create_statement: string
+          estimated_improvement: string
+          reason: string
+          suggestion: string
+        }[]
       }
       track_api_usage: {
         Args: {
@@ -8079,12 +8476,27 @@ export type Database = {
         Args: { p_agent_instance_id: string; p_health_score: number }
         Returns: undefined
       }
+      update_conversation_analytics: {
+        Args: { p_date?: string; p_organization_id: string; p_user_id: string }
+        Returns: undefined
+      }
       update_deployment_metrics: {
         Args: {
           p_avg_latency: number
           p_deployment_id: string
           p_error_count: number
           p_request_count: number
+        }
+        Returns: undefined
+      }
+      update_user_ai_preferences: {
+        Args: {
+          p_communication_style?: string
+          p_domain_interests?: string[]
+          p_organization_id: string
+          p_preferred_metrics?: string[]
+          p_response_length?: string
+          p_user_id: string
         }
         Returns: undefined
       }
@@ -8230,6 +8642,7 @@ export type Database = {
         | "analyst"
         | "reporter"
         | "viewer"
+        | "sustainability_manager"
       verification_status:
         | "unverified"
         | "self_verified"
@@ -8361,6 +8774,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       api_key_status: ["active", "revoked", "expired"],
@@ -8501,6 +8917,7 @@ export const Constants = {
         "analyst",
         "reporter",
         "viewer",
+        "sustainability_manager",
       ],
       verification_status: [
         "unverified",

@@ -8,7 +8,7 @@ jest.mock('@/lib/supabase/server', () => ({
     auth: {
       getUser: jest.fn(() => ({ 
         data: { user: { id: 'user-1' } }, 
-        error: null 
+        _error: null 
       }))
     }
   }))
@@ -70,7 +70,7 @@ describe('API Keys endpoint', () => {
         auth: {
           getUser: jest.fn(() => ({ 
             data: { user: null }, 
-            error: new Error('Not authenticated') 
+            _error: new Error('Not authenticated') 
           }))
         }
       });
@@ -117,7 +117,7 @@ describe('API Keys endpoint', () => {
         auth: {
           getUser: jest.fn(() => ({ 
             data: { user: null }, 
-            error: new Error('Not authenticated') 
+            _error: new Error('Not authenticated') 
           }))
         }
       });

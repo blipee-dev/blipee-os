@@ -4,7 +4,7 @@ import { dbMonitor } from '@/lib/database/monitoring';
 import { getConnectionPoolStats } from '@/lib/supabase/server-pooled';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-export async function GET(_request: NextRequest) {
+export async function GET(_(_request: NextRequest) {
   try {
     // Get connection pool health
     const poolHealth = await checkPoolHealth();
@@ -87,11 +87,11 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json(healthReport, { status: statusCode });
     
   } catch (error) {
-    console.error('Database monitoring error:', error);
+    console.error('Database monitoring _error:', error);
     return NextResponse.json(
       {
         status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        _error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
       { status: 503 }

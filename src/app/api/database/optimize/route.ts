@@ -2,16 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { indexOptimizer } from '@/lib/database/index-optimizer';
 import { queryAnalyzer } from '@/lib/database/query-analyzer';
-import { SecurityAuditLog } from '@/lib/security/audit-logger';
+import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-logger';
 
-export async function GET(request: NextRequest) {
+export async function GET((_request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, _error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has admin role
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (!member || !['account_owner', 'sustainability_manager'].includes(member.role)) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json({ _error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -42,10 +42,12 @@ export async function GET(request: NextRequest) {
         result = await indexOptimizer.optimizeIndexes(dryRun);
         
         // Log security audit
-        await securityAudit.log({
-          userId: user.id,
+        await securityAuditLogger.log({
+          eventType: SecurityEventType.DATABASE_REPAIR,
+          _userId: user.id,
           action: 'database_optimization',
           resource: 'indexes',
+          result: 'success',
           details: {
             dryRun,
             actionsCount: result.actions.length
@@ -60,10 +62,12 @@ export async function GET(request: NextRequest) {
         result = await indexOptimizer.createCoreIndexes();
         
         // Log security audit
-        await securityAudit.log({
-          userId: user.id,
+        await securityAuditLogger.log({
+          eventType: SecurityEventType.DATABASE_REPAIR,
+          _userId: user.id,
           action: 'create_core_indexes',
           resource: 'indexes',
+          result: 'success',
           details: result,
           ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
           userAgent: request.headers.get('user-agent') || 'unknown'
@@ -80,14 +84,14 @@ export async function GET(request: NextRequest) {
         // Get table statistics
         const tableName = searchParams.get('table');
         if (!tableName) {
-          return NextResponse.json({ error: 'Table name required' }, { status: 400 });
+          return NextResponse.json({ _error: 'Table name required' }, { status: 400 });
         }
         result = await queryAnalyzer.getTableStatistics(tableName);
         break;
         
       default:
         return NextResponse.json({ 
-          error: 'Invalid action. Valid actions: analyze, optimize, create-core, index-stats, table-stats' 
+          _error: 'Invalid action. Valid actions: analyze, optimize, create-core, index-stats, table-stats' 
         }, { status: 400 });
     }
 
@@ -99,22 +103,22 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Database optimization error:', error);
+    console.error('Database optimization _error:', error);
     return NextResponse.json(
-      { error: 'Failed to perform database optimization' },
+      { _error: 'Failed to perform database optimization' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, _error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has admin role
@@ -125,7 +129,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (!member || member.role !== 'account_owner') {
-      return NextResponse.json({ error: 'Only account owners can modify indexes' }, { status: 403 });
+      return NextResponse.json({ _error: 'Only account owners can modify indexes' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -137,7 +141,7 @@ export async function POST(request: NextRequest) {
       case 'create':
         // Create a specific index
         if (!index) {
-          return NextResponse.json({ error: 'Index definition required' }, { status: 400 });
+          return NextResponse.json({ _error: 'Index definition required' }, { status: 400 });
         }
         result = await indexOptimizer.createIndex(index);
         break;
@@ -145,7 +149,7 @@ export async function POST(request: NextRequest) {
       case 'drop':
         // Drop a specific index
         if (!index?.name) {
-          return NextResponse.json({ error: 'Index name required' }, { status: 400 });
+          return NextResponse.json({ _error: 'Index name required' }, { status: 400 });
         }
         result = await indexOptimizer.dropIndex(index.name, true);
         break;
@@ -153,7 +157,7 @@ export async function POST(request: NextRequest) {
       case 'rebuild':
         // Rebuild a specific index
         if (!index?.name) {
-          return NextResponse.json({ error: 'Index name required' }, { status: 400 });
+          return NextResponse.json({ _error: 'Index name required' }, { status: 400 });
         }
         result = await indexOptimizer.rebuildIndex(index.name);
         break;
@@ -162,23 +166,25 @@ export async function POST(request: NextRequest) {
         // Analyze a specific query
         const { query, params } = body;
         if (!query) {
-          return NextResponse.json({ error: 'Query required' }, { status: 400 });
+          return NextResponse.json({ _error: 'Query required' }, { status: 400 });
         }
         result = await queryAnalyzer.analyzeQuery(query, params);
         break;
         
       default:
         return NextResponse.json({ 
-          error: 'Invalid action. Valid actions: create, drop, rebuild, analyze-query' 
+          _error: 'Invalid action. Valid actions: create, drop, rebuild, analyze-query' 
         }, { status: 400 });
     }
 
     // Log security audit for index modifications
     if (['create', 'drop', 'rebuild'].includes(action)) {
-      await securityAudit.log({
-        userId: user.id,
+      await securityAuditLogger.log({
+        eventType: SecurityEventType.DATABASE_REPAIR,
+        _userId: user.id,
         action: `index_${action}`,
         resource: 'indexes',
+        result: 'success',
         details: {
           indexName: index?.name,
           success: result
@@ -196,9 +202,9 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Database optimization error:', error);
+    console.error('Database optimization _error:', error);
     return NextResponse.json(
-      { error: 'Failed to perform database operation' },
+      { _error: 'Failed to perform database operation' },
       { status: 500 }
     );
   }

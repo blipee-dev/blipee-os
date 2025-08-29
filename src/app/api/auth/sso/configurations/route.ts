@@ -3,7 +3,7 @@ import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 // import { UserRole } from "@/types/auth"; // Unused after fixing role checks
 
-export async function GET(request: NextRequest) {
+export async function GET((_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { _error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     
     if (!organizationId) {
       return NextResponse.json(
-        { error: "Organization ID is required" },
+        { _error: "Organization ID is required" },
         { status: 400 }
       );
     }
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     
     if (!membership) {
       return NextResponse.json(
-        { error: "Forbidden" },
+        { _error: "Forbidden" },
         { status: 403 }
       );
     }
@@ -47,16 +47,16 @@ export async function GET(request: NextRequest) {
     const configurations = await ssoService.listConfigurations(organizationId);
     
     return NextResponse.json({ configurations });
-  } catch (error: any) {
+  } catch (_error: any) {
     console.error("Failed to list SSO configurations:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to list configurations" },
+      { _error: error.message || "Failed to list configurations" },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { _error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     
     if (!data.organization_id) {
       return NextResponse.json(
-        { error: "Organization ID is required" },
+        { _error: "Organization ID is required" },
         { status: 400 }
       );
     }
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     
     if (!membership || membership.role !== 'account_owner') {
       return NextResponse.json(
-        { error: "Only subscription owners can create SSO configurations" },
+        { _error: "Only subscription owners can create SSO configurations" },
         { status: 403 }
       );
     }
@@ -102,10 +102,10 @@ export async function POST(request: NextRequest) {
     });
     
     return NextResponse.json({ configuration }, { status: 201 });
-  } catch (error: any) {
+  } catch (_error: any) {
     console.error("Failed to create SSO configuration:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to create configuration" },
+      { _error: error.message || "Failed to create configuration" },
       { status: 500 }
     );
   }

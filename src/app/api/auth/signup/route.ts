@@ -15,7 +15,7 @@ const signUpSchema = z.object({
 
 const limiter = rateLimit(RateLimitConfigs.auth.signup);
 
-export const POST = withErrorHandler(async (request: NextRequest) => {
+export const POST = withErrorHandler(async ((_request: NextRequest) => {
   // Check rate limit
   await limiter.check(request);
 

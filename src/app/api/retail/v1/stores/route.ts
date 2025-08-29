@@ -25,7 +25,7 @@ const mockStores = [
   },
 ];
 
-export async function GET(_request: NextRequest) {
+export async function GET(_(_request: NextRequest) {
   try {
     // For now, return mock data
     // TODO: Replace with actual database query
@@ -37,7 +37,7 @@ export async function GET(_request: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch stores' },
+      { _error: 'Failed to fetch stores' },
       { status: 500 }
     );
   }

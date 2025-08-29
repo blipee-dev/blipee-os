@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { webhookService } from '@/lib/webhooks/webhook-service';
 
-export async function GET(_request: NextRequest) {
+export async function GET(_(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -25,7 +25,7 @@ export async function GET(_request: NextRequest) {
 
     if (!member) {
       return NextResponse.json(
-        { error: 'No organization found' },
+        { _error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -37,7 +37,7 @@ export async function GET(_request: NextRequest) {
   } catch (error) {
     console.error('Failed to get webhook stats:', error);
     return NextResponse.json(
-      { error: 'Failed to get webhook stats' },
+      { _error: 'Failed to get webhook stats' },
       { status: 500 }
     );
   }

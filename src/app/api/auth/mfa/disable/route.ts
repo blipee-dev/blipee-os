@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MFAService } from '@/lib/auth/mfa/service';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-export async function POST(_request: NextRequest) {
+export async function POST(_(_request: NextRequest) {
   try {
     // Get authenticated user
     const supabase = await createServerSupabaseClient();
@@ -10,7 +10,7 @@ export async function POST(_request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -26,10 +26,10 @@ export async function POST(_request: NextRequest) {
       message: 'MFA disabled successfully'
     });
   } catch (error) {
-    console.error('MFA disable error:', error);
+    console.error('MFA disable _error:', error);
     
     return NextResponse.json(
-      { error: 'Failed to disable MFA' },
+      { _error: 'Failed to disable MFA' },
       { status: 500 }
     );
   }

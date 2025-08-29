@@ -27,7 +27,7 @@ describe('POST /api/ai/stream', () => {
   it('should stream AI response', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: 'user123' } },
-      error: null
+      _error: null
     });
 
     const mockStream = new ReadableStream();
@@ -50,7 +50,7 @@ describe('POST /api/ai/stream', () => {
   it('should require authentication', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: null },
-      error: { message: 'Not authenticated' }
+      _error: { message: 'Not authenticated' }
     });
 
     const _request = new NextRequest('http://localhost:3000/api/ai/stream', {
@@ -65,7 +65,7 @@ describe('POST /api/ai/stream', () => {
   it('should validate request body', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: 'user123' } },
-      error: null
+      _error: null
     });
 
     const _request = new NextRequest('http://localhost:3000/api/ai/stream', {

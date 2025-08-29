@@ -11,7 +11,7 @@ const verifySchema = z.object({
   rememberDevice: z.boolean().optional(),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST((_request: NextRequest) {
   try {
     // Validate request
     const body = await request.json();
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     if (!result.success || !result.userId) {
       return NextResponse.json(
-        { error: 'Invalid verification code' },
+        { _error: 'Invalid verification code' },
         { status: 400 }
       );
     }
@@ -57,17 +57,17 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('MFA verify error:', error);
+    console.error('MFA verify _error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request', details: error.errors },
+        { _error: 'Invalid request', details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Verification failed' },
+      { _error: 'Verification failed' },
       { status: 500 }
     );
   }

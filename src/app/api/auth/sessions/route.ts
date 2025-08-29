@@ -7,13 +7,13 @@ export const dynamic = 'force-dynamic';
 /**
  * GET /api/auth/sessions - Get all active sessions for current user
  */
-export async function GET(request: NextRequest) {
+export async function GET((_request: NextRequest) {
   try {
     // Get current session
     const sessionData = await sessionManager.getSession(request);
     if (!sessionData) {
       return NextResponse.json(
-        { error: 'Not authenticated' },
+        { _error: 'Not authenticated' },
         { status: 401 }
       );
     }
@@ -37,12 +37,12 @@ export async function GET(request: NextRequest) {
         total: sessions.length,
       },
     });
-  } catch (error: any) {
-    console.error('Get sessions error:', error);
+  } catch (_error: any) {
+    console.error('Get sessions _error:', error);
     return NextResponse.json(
       { 
         success: false,
-        error: error.message || 'Failed to get sessions' 
+        _error: error.message || 'Failed to get sessions' 
       },
       { status: 500 }
     );
@@ -52,13 +52,13 @@ export async function GET(request: NextRequest) {
 /**
  * DELETE /api/auth/sessions - Terminate a specific session or all sessions
  */
-export async function DELETE(request: NextRequest) {
+export async function DELETE((_request: NextRequest) {
   try {
     // Get current session
     const sessionData = await sessionManager.getSession(request);
     if (!sessionData) {
       return NextResponse.json(
-        { error: 'Not authenticated' },
+        { _error: 'Not authenticated' },
         { status: 401 }
       );
     }
@@ -103,17 +103,17 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json(
         { 
           success: false,
-          error: 'Session ID required' 
+          _error: 'Session ID required' 
         },
         { status: 400 }
       );
     }
-  } catch (error: any) {
-    console.error('Delete session error:', error);
+  } catch (_error: any) {
+    console.error('Delete session _error:', error);
     return NextResponse.json(
       { 
         success: false,
-        error: error.message || 'Failed to terminate session' 
+        _error: error.message || 'Failed to terminate session' 
       },
       { status: 500 }
     );
