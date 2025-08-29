@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const CSRF_COOKIE_NAME = '_csrf';
 const CSRF_HEADER_NAME = 'X-CSRF-Token';
@@ -78,9 +78,9 @@ export function withCSRF<P extends object>(
     const { token } = useCSRF();
     
     if (!token) {
-      return <div>Loading security token...</div>;
+      return React.createElement('div', null, 'Loading security token...');
     }
     
-    return <Component {...props} />;
+    return React.createElement(Component, props);
   };
 }

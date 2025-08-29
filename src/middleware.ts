@@ -102,7 +102,7 @@ export async function middleware(request: NextRequest) {
       await securityAuditLogger.log({
         eventType: SecurityEventType.CSRF_VIOLATION,
         ipAddress: ip,
-        userAgent: request.headers.get('user-agent') || undefined,
+        ...(request.headers.get('user-agent') && { userAgent: request.headers.get('user-agent')! }),
         resource: path,
         action: method,
         result: 'failure',

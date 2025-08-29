@@ -172,19 +172,20 @@ export function useCSRFHeaders(): Record<string, string> {
 }
 
 /**
- * Enhanced fetch with CSRF token
+ * Enhanced fetch with CSRF token (server-side)
  */
 export async function secureFetch(
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  csrfToken?: string
 ): Promise<Response> {
-  const csrfHeaders = useCSRFHeaders();
+  const token = csrfToken || (await getCSRFToken());
   
   const enhancedOptions: RequestInit = {
     ...options,
     headers: {
       ...options.headers,
-      ...csrfHeaders,
+      ...(token ? { [CSRF_HEADER_NAME]: token } : {}),
     },
     credentials: 'include', // Include cookies
   };
