@@ -285,7 +285,7 @@ export class OptimizationEngine extends BaseModel {
     
     return {
       model: this,
-      metrics: this.metrics
+      metrics: this.metrics as any
     };
   }
 
@@ -420,7 +420,7 @@ export class OptimizationEngine extends BaseModel {
     );
     
     return {
-      value: result.expectedImpact,
+      value: [result.expectedImpact.cost, result.expectedImpact.emissions, result.expectedImpact.efficiency],
       confidence: result.confidence,
       timestamp: new Date(),
       modelVersion: this.config.version || '1.0.0',

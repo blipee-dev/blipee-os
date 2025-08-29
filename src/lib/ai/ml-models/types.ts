@@ -58,6 +58,7 @@ export interface TrainedModel {
   metrics: ModelMetrics;
   createdAt: Date;
   parameters: any;
+  model?: any; // The actual trained model instance
 }
 
 export interface ModelMetrics {
@@ -72,6 +73,7 @@ export interface ModelMetrics {
   loss?: number;
   improvement?: number;
   feasibility?: number;
+  [key: string]: number | undefined; // Allow any numeric metric
 }
 
 export interface Prediction {
@@ -228,7 +230,9 @@ export interface EvaluationMetrics {
   precision?: number;
   recall?: number;
   f1Score?: number;
+  improvement?: number;
   confusionMatrix?: number[][];
+  [key: string]: number | number[][] | undefined; // Allow any numeric metric
 }
 
 export interface TestData {
@@ -236,7 +240,7 @@ export interface TestData {
 }
 
 export interface ValidationResults {
-  [modelName: string]: ModelMetrics;
+  [modelName: string]: ModelMetrics | CrossValidationResult;
   cross?: CrossValidationResult;
 }
 
