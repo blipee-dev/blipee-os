@@ -13,17 +13,17 @@ const securityQuestionsSchema = z.object({
   })).min(3).max(5),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Check authentication
     const sessionCookie = request.cookies.get('blipee-session');
     if (!sessionCookie) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     const validation = await sessionManager.validateSession(request);
     if (!validation.valid || !validation.session) {
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+      return NextResponse.json({ _error: 'Invalid session' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -52,14 +52,14 @@ export async function POST(request: NextRequest) {
       success: result.success,
       message: result.message,
     });
-  } catch (error: any) {
-    console.error('Security questions setup error:', error);
+  } catch (_error: any) {
+    console.error('Security questions setup _error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Validation error',
+          _error: 'Validation error',
           details: error.errors,
         },
         { status: 400 }
@@ -69,24 +69,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to setup security questions',
+        _error: error.message || 'Failed to setup security questions',
       },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
     const sessionCookie = request.cookies.get('blipee-session');
     if (!sessionCookie) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     const validation = await sessionManager.validateSession(request);
     if (!validation.valid || !validation.session) {
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+      return NextResponse.json({ _error: 'Invalid session' }, { status: 401 });
     }
 
     // Get user's recovery options
@@ -122,12 +122,12 @@ export async function GET(request: NextRequest) {
         securityQuestionsCount: recoveryOptions.security_questions_count,
       },
     });
-  } catch (error: any) {
-    console.error('Get recovery options error:', error);
+  } catch (_error: any) {
+    console.error('Get recovery options _error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to get recovery options',
+        _error: error.message || 'Failed to get recovery options',
       },
       { status: 500 }
     );

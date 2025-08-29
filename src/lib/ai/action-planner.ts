@@ -182,7 +182,8 @@ Respond with deep intelligence and strategic thinking. Be the AI that facility m
     });
 
     // Parse AI response and extract structured intelligence
-    return this.parseAIResponse(response.content || "");
+    const content = typeof response === 'string' ? response : response.content || "";
+    return this.parseAIResponse(content);
   }
 
   /**
@@ -248,7 +249,7 @@ Respond with deep intelligence and strategic thinking. Be the AI that facility m
    */
   private async generatePredictions(
     context: any,
-    aiAnalysis: any,
+    _aiAnalysis: any,
   ): Promise<Prediction[]> {
     const predictions: Prediction[] = [];
 
@@ -295,8 +296,8 @@ Respond with deep intelligence and strategic thinking. Be the AI that facility m
    * Generate intelligent automations
    */
   private async generateAutomations(
-    actionPlan: ActionPlan,
-    context: any,
+    _actionPlan: ActionPlan,
+    _context: any,
   ): Promise<Automation[]> {
     const automations: Automation[] = [];
 
@@ -343,9 +344,9 @@ Respond with deep intelligence and strategic thinking. Be the AI that facility m
    * Extract learnings from interaction
    */
   private async extractLearnings(
-    userMessage: string,
+    _userMessage: string,
     context: any,
-    aiAnalysis: any,
+    _aiAnalysis: any,
   ): Promise<Learning[]> {
     return [
       {
@@ -425,8 +426,8 @@ Respond with deep intelligence and strategic thinking. Be the AI that facility m
   }
 
   private async createOptimizationDashboard(
-    actionPlan: ActionPlan,
-    context: any,
+    _actionPlan: ActionPlan,
+    _context: any,
   ): Promise<UIComponent> {
     return {
       type: "optimization-dashboard",
@@ -506,7 +507,7 @@ Respond with deep intelligence and strategic thinking. Be the AI that facility m
   }
 
   private async createInsightsPanel(
-    aiAnalysis: any,
+    _aiAnalysis: any,
     context: any,
   ): Promise<UIComponent> {
     return {
@@ -516,7 +517,7 @@ Respond with deep intelligence and strategic thinking. Be the AI that facility m
         insights: [
           {
             type: "pattern",
-            text: `Your building typically uses 15% more energy on ${context.environmentalFactors.timeContext.dayOfWeek}s`,
+            text: `Your building typically uses 15% more energy on ${context?.environmentalFactors?.timeContext?.dayOfWeek || 'Monday'}s`,
             confidence: 0.84,
             actionable: true,
           },
@@ -533,10 +534,10 @@ Respond with deep intelligence and strategic thinking. Be the AI that facility m
             actionable: true,
           },
         ],
-        trends: context.historicalPatterns,
-        alerts: context.predictiveInsights.filter(
+        trends: context?.historicalPatterns || [],
+        alerts: context?.predictiveInsights?.filter(
           (i: any) => i.urgency === "high",
-        ),
+        ) || [],
       },
     };
   }
@@ -552,7 +553,7 @@ Respond with deep intelligence and strategic thinking. Be the AI that facility m
     };
   }
 
-  private extractIntent(aiAnalysis: any, context: any): string {
+  private extractIntent(aiAnalysis: any, _context: any): string {
     // Advanced intent extraction
     return aiAnalysis.intent || "general_inquiry";
   }

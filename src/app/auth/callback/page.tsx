@@ -39,7 +39,7 @@ export default function AuthCallbackPage() {
           .eq("id", session.user.id)
           .single();
 
-        if (profile?.onboarding_completed) {
+        if (profile && 'onboarding_completed' in profile && profile.onboarding_completed) {
           router.push("/dashboard");
         } else {
           router.push("/onboarding");

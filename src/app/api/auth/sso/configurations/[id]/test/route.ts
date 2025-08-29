@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { UserRole } from "@/types/auth";
+// import { UserRole } from "@/types/auth"; // Unused after fixing role checks
 
 export async function POST(
   _request: NextRequest,
@@ -14,7 +14,7 @@ export async function POST(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { _error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -24,7 +24,7 @@ export async function POST(
     
     if (!configuration) {
       return NextResponse.json(
-        { error: "Configuration not found" },
+        { _error: "Configuration not found" },
         { status: 404 }
       );
     }
@@ -38,9 +38,9 @@ export async function POST(
       .eq("invitation_status", "accepted")
       .single();
     
-    if (!membership || membership.role !== UserRole.SUBSCRIPTION_OWNER) {
+    if (!membership || membership.role !== 'account_owner') {
       return NextResponse.json(
-        { error: "Only subscription owners can test SSO configurations" },
+        { _error: "Only subscription owners can test SSO configurations" },
         { status: 403 }
       );
     }
@@ -49,10 +49,10 @@ export async function POST(
     const result = await ssoService.testConfiguration(params.id);
     
     return NextResponse.json(result);
-  } catch (error: any) {
+  } catch (_error: any) {
     console.error("Failed to test SSO configuration:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to test configuration" },
+      { _error: error.message || "Failed to test configuration" },
       { status: 500 }
     );
   }

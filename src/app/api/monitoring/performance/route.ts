@@ -6,7 +6,7 @@ import { getCacheService } from '@/lib/cache/cache-service';
 import { getConnectionPool } from '@/lib/db/connection-pool';
 import { getRedisClient } from '@/lib/cache/redis';
 
-export const GET = withAuth(withErrorHandler(async (request: NextRequest, userId: string) => {
+export const GET = withAuth(withErrorHandler(async (_request: NextRequest, _userId: string) => {
   const { searchParams } = new URL(request.url);
   const timeRange = searchParams.get('range') || '1h';
   const detailed = searchParams.get('detailed') === 'true';
@@ -116,7 +116,7 @@ function calculateRPM(totalRequests: number, timeRange: string): number {
 function calculateHealthStatus(
   performanceStats: any,
   cacheStats: any,
-  dbPoolStats: any
+  _dbPoolStats: any
 ): 'healthy' | 'degraded' | 'critical' {
   const errorRate = performanceStats?.errorRate || 0;
   const avgResponseTime = performanceStats?.avgResponseTime || 0;
@@ -178,7 +178,7 @@ async function getErrorDetails() {
 }
 
 // POST endpoint to manually trigger performance optimization
-export const POST = withAuth(withErrorHandler(async (request: NextRequest, userId: string) => {
+export const POST = withAuth(withErrorHandler(async (_request: NextRequest, _userId: string) => {
   const { action } = await request.json();
   
   switch (action) {
@@ -199,7 +199,7 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
       
     default:
       return NextResponse.json(
-        { error: 'Invalid action' },
+        { _error: 'Invalid action' },
         { status: 400 }
       );
   }

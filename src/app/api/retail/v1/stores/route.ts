@@ -37,7 +37,7 @@ export async function GET(_request: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch stores' },
+      { _error: 'Failed to fetch stores' },
       { status: 500 }
     );
   }

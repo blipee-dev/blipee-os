@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { subDays,  format, startOfHour, subHours } from 'date-fns';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     if (!member) {
       return NextResponse.json(
-        { error: 'No organization found' },
+        { _error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       usageQuery = usageQuery.eq('api_key_id', apiKeyId);
     }
 
-    const { data: usageData, error: usageError } = await usageQuery;
+    const { data: usageData, _error: usageError } = await usageQuery;
 
     if (usageError) {
       throw usageError;
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
     const successfulRequests = usageData?.filter(u => u.status_code >= 200 && u.status_code < 300).length || 0;
     const failedRequests = totalRequests - successfulRequests;
     const averageResponseTime = usageData?.length 
-      ? usageData.reduce((sum, u) => sum + (u.response_time || 0), 0) / usageData.length 
+      ? usageData.reduce((sum, u) => sum + (u.response_time_ms || 0), 0) / usageData.length 
       : 0;
 
     // Group requests over time
@@ -101,11 +101,11 @@ export async function GET(request: NextRequest) {
 
     // Response time distribution
     const responseTimeDistribution = [
-      { range: '0-100ms', count: usageData?.filter(u => u.response_time < 100).length || 0 },
-      { range: '100-300ms', count: usageData?.filter(u => u.response_time >= 100 && u.response_time < 300).length || 0 },
-      { range: '300-500ms', count: usageData?.filter(u => u.response_time >= 300 && u.response_time < 500).length || 0 },
-      { range: '500-1000ms', count: usageData?.filter(u => u.response_time >= 500 && u.response_time < 1000).length || 0 },
-      { range: '>1000ms', count: usageData?.filter(u => u.response_time >= 1000).length || 0 },
+      { range: '0-100ms', count: usageData?.filter(u => u.response_time_ms < 100).length || 0 },
+      { range: '100-300ms', count: usageData?.filter(u => u.response_time_ms >= 100 && u.response_time_ms < 300).length || 0 },
+      { range: '300-500ms', count: usageData?.filter(u => u.response_time_ms >= 300 && u.response_time_ms < 500).length || 0 },
+      { range: '500-1000ms', count: usageData?.filter(u => u.response_time_ms >= 500 && u.response_time_ms < 1000).length || 0 },
+      { range: '>1000ms', count: usageData?.filter(u => u.response_time_ms >= 1000).length || 0 },
     ];
 
     // Status code distribution
@@ -122,11 +122,11 @@ export async function GET(request: NextRequest) {
     // Top endpoints
     const endpointMap = new Map<string, { count: number; totalTime: number }>();
     usageData?.forEach(u => {
-      const key = `${u.method} ${u.path}`;
+      const key = `${u.method} ${u.endpoint}`;
       const existing = endpointMap.get(key) || { count: 0, totalTime: 0 };
       endpointMap.set(key, {
         count: existing.count + 1,
-        totalTime: existing.totalTime + (u.response_time || 0),
+        totalTime: existing.totalTime + (u.response_time_ms || 0),
       });
     });
 
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
       averageResponseTime,
       apiKeysActive: activeKeysCount || 0,
       quotaUsage: currentUsage || 0,
-      quotaLimit: quotaData?.requests_per_hour || 1000,
+      quotaLimit: quotaData?.limit_value || 1000,
       topEndpoints,
       requestsOverTime,
       responseTimeDistribution,
@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Failed to load usage metrics:', error);
     return NextResponse.json(
-      { error: 'Failed to load usage metrics' },
+      { _error: 'Failed to load usage metrics' },
       { status: 500 }
     );
   }

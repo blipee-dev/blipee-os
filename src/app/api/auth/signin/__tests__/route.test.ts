@@ -32,7 +32,7 @@ describe('POST /api/auth/signin', () => {
 
     mockSupabase.auth.signInWithPassword.mockResolvedValue({
       data: { session: mockSession },
-      error: null
+      _error: null
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/signin', {
@@ -54,7 +54,7 @@ describe('POST /api/auth/signin', () => {
   it('should handle invalid credentials', async () => {
     mockSupabase.auth.signInWithPassword.mockResolvedValue({
       data: null,
-      error: { message: 'Invalid login credentials' }
+      _error: { message: 'Invalid login credentials' }
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/signin', {
@@ -87,7 +87,7 @@ describe('POST /api/auth/signin', () => {
 
     mockSupabase.auth.signInWithPassword.mockResolvedValue({
       data: { session: {} },
-      error: null
+      _error: null
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/signin', {

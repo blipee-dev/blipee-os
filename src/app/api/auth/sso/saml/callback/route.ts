@@ -3,7 +3,7 @@ import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SSOProvider } from "@/types/sso";
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Get SAML response from form data
     const formData = await request.formData();
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     
     if (!samlResponse) {
       return NextResponse.json(
-        { error: "Missing SAML response" },
+        { _error: "Missing SAML response" },
         { status: 400 }
       );
     }
@@ -70,8 +70,8 @@ export async function POST(request: NextRequest) {
     });
     
     return response;
-  } catch (error: any) {
-    console.error("SAML callback error:", error);
+  } catch (_error: any) {
+    console.error("SAML callback _error:", error);
     
     // Redirect to error page
     const errorUrl = new URL("/auth/sso/error", request.url);
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 export async function GET(_request: NextRequest) {
   // Some IdPs may use GET for the callback
   return NextResponse.json(
-    { error: "Method not allowed. Please use POST." },
+    { _error: "Method not allowed. Please use POST." },
     { status: 405 }
   );
 }

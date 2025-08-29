@@ -6,7 +6,7 @@ const resetPasswordSchema = z.object({
   email: z.string().email(),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const body = await request.json();
 
@@ -20,14 +20,14 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Password reset email sent",
     });
-  } catch (error: any) {
-    console.error("Reset password error:", error);
+  } catch (_error: any) {
+    console.error("Reset password _error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid email address",
+          _error: "Invalid email address",
         },
         { status: 400 },
       );
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to send reset email. Please try again.",
+        _error: "Failed to send reset email. Please try again.",
       },
       { status: 500 },
     );

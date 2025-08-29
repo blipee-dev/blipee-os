@@ -25,12 +25,12 @@ describe('File Upload API', () => {
     it('should upload file', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       mockSupabase.storage.from().upload.mockResolvedValue({
         data: { path: 'uploads/file123.pdf' },
-        error: null
+        _error: null
       });
 
       const formData = new FormData();
@@ -51,7 +51,7 @@ describe('File Upload API', () => {
     it('should validate file type', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       const formData = new FormData();
@@ -69,7 +69,7 @@ describe('File Upload API', () => {
     it('should enforce file size limit', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       const largeFile = new Blob([new Array(11 * 1024 * 1024).join('a')]);

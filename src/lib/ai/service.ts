@@ -2,6 +2,7 @@ import { OpenAIProvider } from "./providers/openai";
 import { AnthropicProvider } from "./providers/anthropic";
 import { DeepSeekProvider } from "./providers/deepseek";
 import { AIProvider, CompletionOptions, StreamOptions } from "./types";
+import { aiCache } from "@/lib/cache";
 
 export class AIService {
   private providers: AIProvider[] = [];
@@ -80,6 +81,14 @@ Only include targetData if the user is clearly ready to create a specific target
       throw new Error("No AI providers available");
     }
 
+    // Try to get cached response first
+    const providerName = this.providers[this.currentProviderIndex]?.name;
+    const cachedResponse = await aiCache.getCachedResponse(prompt, providerName, options);
+    
+    if (cachedResponse) {
+      return cachedResponse.content || cachedResponse.message || '';
+    }
+
     let lastError: Error | null = null;
 
     // Try each provider with fallback
@@ -91,6 +100,19 @@ Only include targetData if the user is clearly ready to create a specific target
       try {
         console.log(`Trying ${provider.name}...`);
         const response = await provider.complete(prompt, options);
+
+        // Cache the successful response
+        await aiCache.cacheResponse(
+          prompt,
+          {
+            content: response,
+            provider: provider.name,
+            model: options?.model,
+            timestamp: new Date().toISOString(),
+          },
+          provider.name,
+          options
+        );
 
         // Rotate to next provider for load balancing
         this.currentProviderIndex = (providerIndex + 1) % this.providers.length;

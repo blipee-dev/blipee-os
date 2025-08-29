@@ -34,7 +34,7 @@ describe('POST /api/auth/signin', () => {
       
       mockSupabaseClient.auth.signInWithPassword.mockResolvedValueOnce({
         data: { user: mockUser, session: mockSession },
-        error: null,
+        _error: null,
       });
 
       const _request = new Request('http://localhost:3000/api/auth/signin', {
@@ -59,7 +59,7 @@ describe('POST /api/auth/signin', () => {
     it('should return 401 for invalid credentials', async () => {
       mockSupabaseClient.auth.signInWithPassword.mockResolvedValueOnce({
         data: { user: null, session: null },
-        error: { message: 'Invalid login credentials' },
+        _error: { message: 'Invalid login credentials' },
       });
 
       const _request = new Request('http://localhost:3000/api/auth/signin', {
@@ -81,7 +81,7 @@ describe('POST /api/auth/signin', () => {
     it('should handle MFA requirement', async () => {
       mockSupabaseClient.auth.signInWithPassword.mockResolvedValueOnce({
         data: { user: null, session: null },
-        error: { message: 'MFA required', code: 'mfa_required' },
+        _error: { message: 'MFA required', code: 'mfa_required' },
       });
 
       const _request = new Request('http://localhost:3000/api/auth/signin', {
@@ -173,7 +173,7 @@ describe('POST /api/auth/signin', () => {
       // Test with existing user
       mockSupabaseClient.auth.signInWithPassword.mockResolvedValueOnce({
         data: { user: null, session: null },
-        error: { message: 'Invalid login credentials' },
+        _error: { message: 'Invalid login credentials' },
       });
 
       const existingUserRequest = new Request('http://localhost:3000/api/auth/signin', {
@@ -190,7 +190,7 @@ describe('POST /api/auth/signin', () => {
       // Test with non-existing user
       mockSupabaseClient.auth.signInWithPassword.mockResolvedValueOnce({
         data: { user: null, session: null },
-        error: { message: 'Invalid login credentials' },
+        _error: { message: 'Invalid login credentials' },
       });
 
       const nonExistingUserRequest = new Request('http://localhost:3000/api/auth/signin', {
@@ -213,7 +213,7 @@ describe('POST /api/auth/signin', () => {
 
       mockSupabaseClient.auth.signInWithPassword.mockResolvedValueOnce({
         data: { user: null, session: null },
-        error: { message: 'Invalid login credentials' },
+        _error: { message: 'Invalid login credentials' },
       });
 
       const _request = new Request('http://localhost:3000/api/auth/signin', {
@@ -228,7 +228,7 @@ describe('POST /api/auth/signin', () => {
       await POST(request);
 
       expect(auditLogSpy).toHaveBeenCalledWith({
-        event: 'FAILED_LOGIN_ATTEMPT',
+        _event: 'FAILED_LOGIN_ATTEMPT',
         email: 'test@example.com',
         ip: expect.any(String),
         userAgent: expect.any(String),
@@ -240,7 +240,7 @@ describe('POST /api/auth/signin', () => {
     it('should respond within 500ms', async () => {
       mockSupabaseClient.auth.signInWithPassword.mockResolvedValue({
         data: { user: { id: 'user-123' }, session: { access_token: 'token' } },
-        error: null,
+        _error: null,
       });
 
       const _request = new Request('http://localhost:3000/api/auth/signin', {
@@ -259,7 +259,7 @@ describe('POST /api/auth/signin', () => {
     it('should handle concurrent sign-in requests', async () => {
       mockSupabaseClient.auth.signInWithPassword.mockResolvedValue({
         data: { user: { id: 'user-123' }, session: { access_token: 'token' } },
-        error: null,
+        _error: null,
       });
 
       const requests = Array(50).fill(null).map((_, i) => 

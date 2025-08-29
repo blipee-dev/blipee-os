@@ -8,10 +8,10 @@ jest.mock('@/lib/supabase/server', () => ({
     from: jest.fn(() => ({
       select: jest.fn(() => ({
         eq: jest.fn(() => ({
-          single: jest.fn(() => ({ data: null, error: null }))
+          single: jest.fn(() => ({ data: null, _error: null }))
         }))
       })),
-      insert: jest.fn(() => ({ data: null, error: null }))
+      insert: jest.fn(() => ({ data: null, _error: null }))
     }))
   }))
 }));
@@ -27,7 +27,7 @@ describe('POST /api/ai/chat', () => {
   it('should process chat message', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: 'user123' } },
-      error: null
+      _error: null
     });
 
     const _request = new NextRequest('http://localhost:3000/api/ai/chat', {
@@ -50,7 +50,7 @@ describe('POST /api/ai/chat', () => {
   it('should handle document attachments', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: 'user123' } },
-      error: null
+      _error: null
     });
 
     const _request = new NextRequest('http://localhost:3000/api/ai/chat', {
@@ -69,7 +69,7 @@ describe('POST /api/ai/chat', () => {
   it('should enforce rate limits', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: 'user123' } },
-      error: null
+      _error: null
     });
 
     // Simulate rate limit exceeded

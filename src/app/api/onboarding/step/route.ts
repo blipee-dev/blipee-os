@@ -8,12 +8,12 @@ const completeStepSchema = z.object({
   data: z.record(z.any()),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const session = await authService.getSession();
     if (!session) {
       return NextResponse.json(
-        { success: false, error: "Not authenticated" },
+        { success: false, _error: "Not authenticated" },
         { status: 401 },
       );
     }
@@ -31,14 +31,14 @@ export async function POST(request: NextRequest) {
       success: true,
       data: result,
     });
-  } catch (error: any) {
-    console.error("Complete step error:", error);
+  } catch (_error: any) {
+    console.error("Complete step _error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           success: false,
-          error: "Validation error",
+          _error: "Validation error",
           details: error.errors,
         },
         { status: 400 },
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to complete step" },
+      { success: false, _error: error.message || "Failed to complete step" },
       { status: 500 },
     );
   }

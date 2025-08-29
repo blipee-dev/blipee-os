@@ -2,25 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import { webAuthnService } from '@/lib/auth/webauthn/service';
 import { createClient } from '@/lib/supabase/server';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = createClient();
     
     const body = await request.json();
     const { userEmail, allowCredentials = [], userVerification = 'preferred' } = body;
 
-    let userId: string | undefined;
+    let _userId: string | undefined;
 
     // If user email is provided, get the user ID
     if (userEmail) {
-      const { data: user } = await supabase
-        .from('auth.users')
+      // Use user_profiles table instead of auth.users
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
         .select('id')
         .eq('email', userEmail)
         .single();
 
-      if (user) {
-        userId = user.id;
+      if (userProfile) {
+        userId = userProfile.id;
       }
     }
 
@@ -39,10 +40,10 @@ export async function POST(request: NextRequest) {
       options,
     });
   } catch (error) {
-    console.error('WebAuthn authentication options error:', error);
+    console.error('WebAuthn authentication options _error:', error);
     return NextResponse.json(
       { 
-        error: 'Failed to generate authentication options',
+        _error: 'Failed to generate authentication options',
         details: error instanceof Error ? error.message : 'Unknown error'
       }, 
       { status: 500 }

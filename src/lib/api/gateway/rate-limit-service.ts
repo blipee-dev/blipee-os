@@ -7,9 +7,9 @@ export class RateLimitService {
   
   constructor() {
     // Initialize Redis connection if available
-    if (process.env.REDIS_URL) {
+    if (process.env['REDIS_URL']) {
       try {
-        this.redis = new Redis(process.env.REDIS_URL);
+        this.redis = new Redis(process.env['REDIS_URL']);
         this.redis.on('error', (err) => {
           console.error('Redis rate limit error:', err);
           // Fall back to in-memory if Redis fails

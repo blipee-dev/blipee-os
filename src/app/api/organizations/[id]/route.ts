@@ -5,14 +5,14 @@ import { authService } from "@/lib/auth/service";
 export const dynamic = 'force-dynamic';
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } },
+  _request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await authService.getSession();
     if (!session) {
       return NextResponse.json(
-        { success: false, error: "Not authenticated" },
+        { success: false, _error: "Not authenticated" },
         { status: 401 },
       );
     }
@@ -21,7 +21,7 @@ export async function GET(
 
     if (!organization) {
       return NextResponse.json(
-        { success: false, error: "Organization not found" },
+        { success: false, _error: "Organization not found" },
         { status: 404 },
       );
     }
@@ -30,24 +30,24 @@ export async function GET(
       success: true,
       data: organization,
     });
-  } catch (error: any) {
-    console.error("Get organization error:", error);
+  } catch (_error: any) {
+    console.error("Get organization _error:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to get organization" },
+      { success: false, _error: error.message || "Failed to get organization" },
       { status: 500 },
     );
   }
 }
 
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } },
+  _request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await authService.getSession();
     if (!session) {
       return NextResponse.json(
-        { success: false, error: "Not authenticated" },
+        { success: false, _error: "Not authenticated" },
         { status: 401 },
       );
     }
@@ -55,7 +55,7 @@ export async function PATCH(
     // Check permissions
     if (!authService.hasPermission(session, "organization", "edit")) {
       return NextResponse.json(
-        { success: false, error: "Insufficient permissions" },
+        { success: false, _error: "Insufficient permissions" },
         { status: 403 },
       );
     }
@@ -70,12 +70,12 @@ export async function PATCH(
       success: true,
       data: organization,
     });
-  } catch (error: any) {
-    console.error("Update organization error:", error);
+  } catch (_error: any) {
+    console.error("Update organization _error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || "Failed to update organization",
+        _error: error.message || "Failed to update organization",
       },
       { status: 500 },
     );

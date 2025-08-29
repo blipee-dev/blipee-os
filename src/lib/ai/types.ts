@@ -18,6 +18,12 @@ export interface CompletionOptions {
   structuredOutput?: boolean;
   responseSchema?: ResponseSchema;
   chainOfThought?: boolean;
+  allowSimilarCache?: boolean;
+  topP?: number;
+  frequencyPenalty?: number;
+  presencePenalty?: number;
+  stopSequences?: string[];
+  timeout?: number;
 }
 
 export interface ResponseSchema {

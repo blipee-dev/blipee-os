@@ -8,10 +8,10 @@ export async function GET(_request: NextRequest) {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -26,7 +26,7 @@ export async function GET(_request: NextRequest) {
 
     if (!member) {
       return NextResponse.json(
-        { error: 'No organization found' },
+        { _error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -34,7 +34,7 @@ export async function GET(_request: NextRequest) {
     // Check if user is admin
     if (!['account_owner', 'admin'].includes(member.role)) {
       return NextResponse.json(
-        { error: 'Insufficient permissions' },
+        { _error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -46,21 +46,21 @@ export async function GET(_request: NextRequest) {
   } catch (error) {
     console.error('Failed to list API keys:', error);
     return NextResponse.json(
-      { error: 'Failed to list API keys' },
+      { _error: 'Failed to list API keys' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     if (!member) {
       return NextResponse.json(
-        { error: 'No organization found' },
+        { _error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     // Check if user is admin
     if (!['account_owner', 'admin'].includes(member.role)) {
       return NextResponse.json(
-        { error: 'Insufficient permissions' },
+        { _error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!data.name) {
       return NextResponse.json(
-        { error: 'Name is required' },
+        { _error: 'Name is required' },
         { status: 400 }
       );
     }
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Failed to create API key:', error);
     return NextResponse.json(
-      { error: 'Failed to create API key' },
+      { _error: 'Failed to create API key' },
       { status: 500 }
     );
   }

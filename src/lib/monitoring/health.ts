@@ -2,6 +2,9 @@ import { HealthCheck } from './types';
 import { monitoringService } from './service';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { sessionStore } from '@/lib/auth/session-store';
+import { checkPoolHealth } from '@/lib/database/connection-pool';
+import { dbMonitor } from '@/lib/database/monitoring';
+import { isConnectionPoolingEnabled } from '@/lib/supabase/server-pooled';
 
 /**
  * Health check service for monitoring system components
@@ -55,6 +58,49 @@ export class HealthCheckService {
         };
       }
     });
+
+    // Connection pool health check
+    if (isConnectionPoolingEnabled()) {
+      this.register('connection-pool', async () => {
+        const startTime = Date.now();
+        try {
+          const poolHealth = await checkPoolHealth();
+          const performanceMetrics = dbMonitor.getPerformanceMetrics();
+          const responseTime = Date.now() - startTime;
+          
+          let status: 'healthy' | 'degraded' | 'unhealthy';
+          if (!poolHealth.healthy) {
+            status = 'unhealthy';
+          } else if (poolHealth.waitingClients > 0 || performanceMetrics.connectionUtilization > 0.8) {
+            status = 'degraded';
+          } else {
+            status = 'healthy';
+          }
+          
+          return {
+            service: 'connection-pool',
+            status,
+            responseTime,
+            lastCheck: new Date(),
+            details: {
+              ...poolHealth,
+              utilizationPercent: Math.round(performanceMetrics.connectionUtilization * 100),
+              avgQueryTimeMs: Math.round(performanceMetrics.averageQueryTime),
+              slowQueries: performanceMetrics.slowQueries,
+              errorRate: Math.round(performanceMetrics.errorRate * 100),
+            },
+          };
+        } catch (error) {
+          return {
+            service: 'connection-pool',
+            status: 'unhealthy',
+            responseTime: Date.now() - startTime,
+            lastCheck: new Date(),
+            details: { error: error instanceof Error ? error.message : 'Unknown error' },
+          };
+        }
+      });
+    }
 
     // Redis/Session store health check
     this.register('session-store', async () => {

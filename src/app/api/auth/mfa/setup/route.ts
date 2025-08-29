@@ -7,15 +7,15 @@ const setupSchema = z.object({
   method: z.enum(['totp']),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createClient();
     
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, _error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -39,17 +39,17 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('MFA setup error:', error);
+    console.error('MFA setup _error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request', details: error.errors },
+        { _error: 'Invalid request', details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to setup MFA' },
+      { _error: 'Failed to setup MFA' },
       { status: 500 }
     );
   }

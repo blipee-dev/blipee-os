@@ -72,7 +72,10 @@ export class WebhookService {
       throw new Error(`Failed to get webhook endpoints: ${error.message}`);
     }
 
-    return endpoints || [];
+    return (endpoints || []).map(endpoint => ({
+      ...endpoint,
+      description: endpoint.description || undefined
+    }));
   }
 
   /**
@@ -95,7 +98,10 @@ export class WebhookService {
       throw new Error(`Failed to get webhook endpoint: ${error.message}`);
     }
 
-    return endpoint;
+    return endpoint ? {
+      ...endpoint,
+      description: endpoint.description || undefined
+    } : null;
   }
 
   /**
@@ -123,7 +129,10 @@ export class WebhookService {
       throw new Error(`Failed to update webhook endpoint: ${error.message}`);
     }
 
-    return endpoint;
+    return {
+      ...endpoint,
+      description: endpoint.description || undefined
+    };
   }
 
   /**
@@ -132,7 +141,7 @@ export class WebhookService {
   static async deleteEndpoint(id: string, organizationId: string): Promise<void> {
     const supabase = await createServerSupabaseClient();
     
-    const { error: _error } = await supabase
+    const { error } = await supabase
       .from('webhook_endpoints')
       .delete()
       .eq('id', id)

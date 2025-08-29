@@ -4,17 +4,17 @@ import { sessionManager } from '@/lib/session/manager';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication and admin permissions
     const sessionCookie = request.cookies.get('blipee-session');
     if (!sessionCookie) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     const validation = await sessionManager.validateSession(request, ['recovery:view_stats']);
     if (!validation.valid) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json({ _error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Get organization ID from query params or session
@@ -29,12 +29,12 @@ export async function GET(request: NextRequest) {
       success: true,
       data: stats,
     });
-  } catch (error: any) {
-    console.error('Recovery stats error:', error);
+  } catch (_error: any) {
+    console.error('Recovery stats _error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to fetch recovery statistics',
+        _error: error.message || 'Failed to fetch recovery statistics',
       },
       { status: 500 }
     );

@@ -3,15 +3,15 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { monitoringService } from '@/lib/monitoring';
 import { AlertSeverity, AlertChannel } from '@/lib/monitoring/types';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       summary: {
         total: alerts.length,
         critical: alerts.filter(a => a.severity === AlertSeverity.CRITICAL).length,
-        error: alerts.filter(a => a.severity === AlertSeverity.ERROR).length,
+        _error: alerts.filter(a => a.severity === AlertSeverity.ERROR).length,
         warning: alerts.filter(a => a.severity === AlertSeverity.WARNING).length,
         info: alerts.filter(a => a.severity === AlertSeverity.INFO).length,
         resolved: alerts.filter(a => a.resolved).length,
@@ -52,21 +52,21 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching alerts:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch alerts' },
+      { _error: 'Failed to fetch alerts' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     if (!member || !['account_owner', 'admin'].includes(member.role)) {
       return NextResponse.json(
-        { error: 'Insufficient permissions' },
+        { _error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       case 'create_rule':
         if (!rule) {
           return NextResponse.json(
-            { error: 'Missing alert rule data' },
+            { _error: 'Missing alert rule data' },
             { status: 400 }
           );
         }
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       case 'trigger_alert':
         if (!alert) {
           return NextResponse.json(
-            { error: 'Missing alert data' },
+            { _error: 'Missing alert data' },
             { status: 400 }
           );
         }
@@ -167,14 +167,14 @@ export async function POST(request: NextRequest) {
 
       default:
         return NextResponse.json(
-          { error: 'Invalid request type' },
+          { _error: 'Invalid request type' },
           { status: 400 }
         );
     }
   } catch (error) {
-    console.error('Error handling alert request:', error);
+    console.error('Error handling alert (_request:', error);
     return NextResponse.json(
-      { error: 'Failed to process alert request' },
+      { _error: 'Failed to process alert request' },
       { status: 500 }
     );
   }
