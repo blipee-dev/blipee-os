@@ -155,7 +155,8 @@
       "Bash(NEXT_PHASE=phase-production-build npm run build)",
       "Bash(git fetch:*)",
       "Bash(git merge:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "WebFetch(domain:www.globalreporting.org)"
     ],
     "deny": []
   }
