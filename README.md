@@ -24,6 +24,21 @@ blipee OS is a comprehensive sustainability and building management platform tha
 - **Voice Control** - Hands-free operation with speech recognition
 - **Document Intelligence** - Upload and analyze invoices, reports, and sustainability documents
 
+### 🤖 Autonomous AI Employees
+Revolutionary 24/7 AI agents that work independently to manage sustainability operations:
+
+- **👔 ESG Chief of Staff** - Strategic sustainability leadership and stakeholder coordination
+- **🔍 Carbon Hunter** - Autonomous emissions tracking, detection, and optimization
+- **🛡️ Compliance Guardian** - Regulatory monitoring, filing, and deadline management
+- **🕵️ Supply Chain Investigator** - Deep supplier analysis and risk assessment
+
+**Framework Features:**
+- **Autonomous Decision Making** - AI agents make decisions within approved parameters
+- **Human-AI Collaboration** - Smart approval workflows for critical actions
+- **Continuous Learning** - Agents improve performance based on feedback
+- **Task Orchestration** - Intelligent workload distribution and scheduling
+- **Risk Assessment** - Built-in risk evaluation for all autonomous actions
+
 ### 📊 Sustainability Intelligence Suite
 Our AI provides 12 comprehensive sustainability capabilities:
 

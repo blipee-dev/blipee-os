@@ -1,94 +1,75 @@
-import { AgentManager } from "./agent-manager";
-import { TaskScheduler } from "./scheduler";
-import { ESGChiefOfStaffAgent } from "./esg-chief-of-staff";
-// Export base framework
-export {
-  AutonomousAgent
-} from './agent-framework';
+/**
+ * Autonomous Agents Index
+ * 
+ * Central export point for all autonomous AI employees and orchestration systems.
+ * This is the heart of blipee OS's revolutionary autonomous intelligence.
+ */
 
-export type {
-  AgentCapability,
-  AgentTask,
-  AgentResult,
-  ExecutedAction,
-  Learning,
-  AgentConfig
-} from './agent-framework';
+// Base framework
+export { AutonomousAgent, AgentRegistry, type Task, type TaskResult, type AgentContext, type AgentCapabilities } from './base/AutonomousAgent';
+export { TaskScheduler } from './base/TaskScheduler';
+export { DecisionEngine } from './base/DecisionEngine';
+export { ApprovalWorkflow } from './base/ApprovalWorkflow';
+export { AgentOrchestrator, agentOrchestrator } from './base/AgentOrchestrator';
 
-// Export agent manager
-export { AgentManager } from './agent-manager';
-export type { ManagedAgent } from './agent-manager';
+// AI Employees
+export { EsgChiefOfStaff } from './agents/EsgChiefOfStaff';
+export { CarbonHunter } from './agents/CarbonHunter';
+export { ComplianceGuardian } from './agents/ComplianceGuardian';
+export { SupplyChainInvestigator } from './agents/SupplyChainInvestigator';
 
-// Export permission system
-export { AgentPermissionSystem } from './permissions';
-export type {
-  Permission,
-  ApprovalRequest,
-  PermissionMatrix
-} from './permissions';
+// Import all agents and orchestrator for the convenience functions
+import { EsgChiefOfStaff } from './agents/EsgChiefOfStaff';
+import { CarbonHunter } from './agents/CarbonHunter';
+import { ComplianceGuardian } from './agents/ComplianceGuardian';
+import { SupplyChainInvestigator } from './agents/SupplyChainInvestigator';
+import { AgentRegistry } from './base/AutonomousAgent';
+import { agentOrchestrator } from './base/AgentOrchestrator';
 
-// Export task scheduler
-export { TaskScheduler } from './scheduler';
-export type { ScheduledTask } from './scheduler';
-
-// Export learning system
-export { AgentLearningSystem } from './learning-system';
-export type {
-  LearningPattern,
-  Outcome,
-  KnowledgeEntry
-} from './learning-system';
-
-// Export error handler
-export { AgentErrorHandler } from './error-handler';
-export type {
-  AgentError,
-  RecoveryStrategy,
-  RollbackAction
-} from './error-handler';
-
-// Export agents
-export { ESGChiefOfStaffAgent } from './esg-chief-of-staff';
-
-// Convenience function to initialize the agent system
-export async function initializeAgentSystem(organizationId: string) {
-  const manager = AgentManager.getInstance();
-  const scheduler = new TaskScheduler();
+// Convenience function to initialize the autonomous agent system
+export async function initializeAutonomousAgents(organizationId: string) {
+  console.log('🚀 Initializing Autonomous Agent System...');
   
-  // Initialize scheduler for organization
-  await scheduler.initialize(organizationId);
+  // Create and register all AI employees
+  const esgChief = new EsgChiefOfStaff();
+  const carbonHunter = new CarbonHunter();
+  const complianceGuardian = new ComplianceGuardian();
+  const supplyChainInvestigator = new SupplyChainInvestigator();
   
-  // Start health monitoring
-  manager.startHealthMonitoring();
+  // Register agents with the registry
+  AgentRegistry.register(esgChief);
+  AgentRegistry.register(carbonHunter);
+  AgentRegistry.register(complianceGuardian);
+  AgentRegistry.register(supplyChainInvestigator);
   
-  // Start ESG Chief of Staff agent
-  const chiefOfStaffId = await manager.startAgent(
-    ESGChiefOfStaffAgent,
-    organizationId
-  );
+  // Start the orchestrator
+  await agentOrchestrator.start();
   
-  console.log(`🚀 Agent system initialized for organization ${organizationId}`);
-  console.log(`✅ ESG Chief of Staff agent running: ${chiefOfStaffId}`);
+  console.log('✅ Autonomous Agent System initialized successfully!');
+  console.log('🤖 AI Employees active:');
+  console.log('  👔 ESG Chief of Staff - Strategic leadership');
+  console.log('  🔍 Carbon Hunter - Emissions tracking');
+  console.log('  🛡️ Compliance Guardian - Regulatory monitoring');
+  console.log('  🕵️ Supply Chain Investigator - Chain analysis');
   
   return {
-    manager,
-    scheduler,
-    chiefOfStaffId
+    orchestrator: agentOrchestrator,
+    agents: {
+      esgChief,
+      carbonHunter,
+      complianceGuardian,
+      supplyChainInvestigator
+    },
+    registry: AgentRegistry
   };
 }
 
-// Function to shutdown agent system
-export async function shutdownAgentSystem(organizationId: string) {
-  const manager = AgentManager.getInstance();
+// Function to shutdown the autonomous agent system
+export async function shutdownAutonomousAgents() {
+  console.log('🛑 Shutting down Autonomous Agent System...');
   
-  // Stop all agents for organization
-  await manager.stopOrganizationAgents(organizationId);
+  // Stop the orchestrator
+  await agentOrchestrator.stop();
   
-  // Stop health monitoring if no agents remain
-  const remainingAgents = Array.from(manager['agents'].keys());
-  if (remainingAgents.length === 0) {
-    manager.stopHealthMonitoring();
-  }
-  
-  console.log(`🛑 Agent system shut down for organization ${organizationId}`);
+  console.log('✅ Autonomous Agent System shut down safely');
 }
