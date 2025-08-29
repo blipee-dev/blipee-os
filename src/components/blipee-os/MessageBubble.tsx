@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import { sanitizeUserInput } from "@/lib/validation/sanitization";
 
 interface MessageBubbleProps {
   message: Message;
@@ -107,14 +109,21 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-blue-400/60 light-mode:text-blue-500/70" />
             )}
 
-            <p
+            <div
               className={`
-              relative z-10 whitespace-pre-wrap
+              relative z-10
               ${isUser ? "text-white/95 light-mode:text-gray-800" : "text-white/90 light-mode:text-gray-700"}
             `}
             >
-              {message.content}
-            </p>
+              <ReactMarkdown
+                className="prose prose-sm prose-invert max-w-none 
+                  prose-p:mb-2 prose-p:last:mb-0
+                  prose-strong:text-purple-400
+                  prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:bg-white/10 prose-code:text-purple-300"
+              >
+                {sanitizeUserInput(message.content)}
+              </ReactMarkdown>
+            </div>
 
             {/* Attached files */}
             {message.attachments && message.attachments.length > 0 && (
