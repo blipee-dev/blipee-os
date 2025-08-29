@@ -5,12 +5,10 @@
 
 import * as tf from '@tensorflow/tfjs-node';
 import { 
-  ModelConfig, 
   TrainingData, 
   TrainingResult, 
   Prediction, 
-  TestData, 
-  EvaluationMetrics 
+  TestData
 } from '../types';
 
 export interface ModelConfig {
@@ -31,7 +29,9 @@ export interface EvaluationMetrics {
   precision?: number;
   recall?: number;
   f1Score?: number;
+  improvement?: number;
   confusionMatrix?: number[][];
+  [key: string]: number | number[][] | undefined; // Allow any numeric metric
 }
 
 export abstract class BaseModel {

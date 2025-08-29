@@ -329,7 +329,7 @@ export class ModelTrainingPipeline {
     for (const [name, trainedModel] of Object.entries(models)) {
       if (trainedModel) {
         const metrics = validation[name];
-        if (this.meetsQualityThreshold(metrics)) {
+        if (this.meetsQualityThreshold(metrics as ModelMetrics)) {
           this.trainedModels.set(trainedModel.type as ModelType, trainedModel);
           console.log(`Registered ${name} model with metrics:`, metrics);
         } else {
@@ -426,7 +426,7 @@ export class ModelTrainingPipeline {
    * Save all models to disk
    */
   async saveModels(basePath: string): Promise<void> {
-    for (const [modelType, trainedModel] of this.trainedModels) {
+    for (const [modelType, trainedModel] of Array.from(this.trainedModels.entries())) {
       const path = `${basePath}/${modelType}`;
       if (trainedModel.model && trainedModel.model.save) {
         await trainedModel.model.save(path);

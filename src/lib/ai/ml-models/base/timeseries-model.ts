@@ -201,9 +201,9 @@ export abstract class TimeSeriesModel extends BaseModel {
   }
 
   /**
-   * Split data into train/validation/test sets
+   * Split time series data into train/validation/test sets
    */
-  protected splitData(
+  protected splitTimeSeriesData(
     data: any[], 
     splits: number[] = [0.7, 0.15, 0.15]
   ): { train: any[]; validation: any[]; test: any[] } {

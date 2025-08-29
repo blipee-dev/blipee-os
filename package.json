@@ -125,6 +125,7 @@
     "jsonwebtoken": "^9.0.2",
     "lru-cache": "^11.1.0",
     "lucide-react": "^0.424.0",
+    "ml-matrix": "^6.12.1",
     "next": "^14.2.32",
     "node-cron": "^4.2.1",
     "openai": "^5.16.0",

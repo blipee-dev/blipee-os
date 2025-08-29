@@ -95,7 +95,7 @@ export class AnomalyDetectionModel extends BaseModel {
     
     return {
       model: { isolationForest: this.isolationForest, autoEncoder: this.autoEncoder },
-      metrics: this.metrics
+      metrics: this.metrics as any
     };
   }
 
@@ -181,7 +181,7 @@ export class AnomalyDetectionModel extends BaseModel {
     // Combine scores for each data point
     const ensembleResults: AnomalyResult[] = [];
     
-    for (const [index, group] of grouped.entries()) {
+    for (const [index, group] of Array.from(grouped.entries())) {
       const ifResult = group.find(r => r.method === 'isolation_forest');
       const aeResult = group.find(r => r.method === 'autoencoder');
       
