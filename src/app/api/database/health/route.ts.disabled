@@ -9,6 +9,10 @@ import { createClient } from '@/lib/supabase/server';
 import { schemaValidator } from '@/lib/database/schema-validator';
 import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-logger';
 
+// Prevent this route from being statically rendered
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 /**
  * GET /api/database/health - Get database health status
  */
