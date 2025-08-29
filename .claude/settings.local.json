@@ -138,7 +138,8 @@
       "Bash(npm audit:*)",
       "Bash(npm uninstall:*)",
       "Bash(npm update)",
-      "Bash(tsx scripts/generate-supabase-types.ts:*)"
+      "Bash(tsx scripts/generate-supabase-types.ts:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

@@ -3,6 +3,11 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
+  // Enable instrumentation hook
+  experimental: {
+    instrumentationHook: true,
+  },
+  
   // Skip TypeScript errors during build
   typescript: {
     ignoreBuildErrors: true,
