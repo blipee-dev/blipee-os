@@ -161,8 +161,6 @@ export function ConversationInterface({
       }
 
       // Include building context if available
-      const apiClient = useAPIClient();
-      
       const data = await apiClient.post("/api/ai/chat", {
         message,
         conversationId: conversationId || "demo",
