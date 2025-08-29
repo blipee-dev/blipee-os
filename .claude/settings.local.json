@@ -135,7 +135,9 @@
       "Bash(./fix-override-modifiers.sh:*)",
       "Bash(./fix-index-signature-bulk.sh:*)",
       "Bash(npm outdated:*)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm update)"
     ],
     "deny": []
   }
