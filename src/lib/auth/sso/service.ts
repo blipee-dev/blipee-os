@@ -8,7 +8,6 @@ import {
   SSOProvider,
   SSOStatus,
   SSOSession,
-  SSOAuthenticationRequest,
   SSOUser,
   ISSOService,
   SSOAuthenticationResult,
@@ -30,13 +29,13 @@ export class SSOService implements ISSOService {
     // Create a simple local encryption provider for SSO
     const localProvider = {
       async encrypt(plaintext: string): Promise<string> {
-        const cipher = crypto.createCipher('aes-256-cbc', process.env.ENCRYPTION_KEY || 'default-key');
+        const cipher = crypto.createCipher('aes-256-cbc', process.env['ENCRYPTION_KEY'] || 'default-key');
         let encrypted = cipher.update(plaintext, 'utf8', 'hex');
         encrypted += cipher.final('hex');
         return encrypted;
       },
       async decrypt(ciphertext: string): Promise<string> {
-        const decipher = crypto.createDecipher('aes-256-cbc', process.env.ENCRYPTION_KEY || 'default-key');
+        const decipher = crypto.createDecipher('aes-256-cbc', process.env['ENCRYPTION_KEY'] || 'default-key');
         let decrypted = decipher.update(ciphertext, 'hex', 'utf8');
         decrypted += decipher.final('utf8');
         return decrypted;

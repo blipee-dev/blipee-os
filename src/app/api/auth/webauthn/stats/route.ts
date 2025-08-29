@@ -7,20 +7,24 @@ export async function GET(_request: NextRequest) {
     const supabase = createClient();
     
     // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, _error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user has admin privileges
-    const { data: profile } = await supabase
-      .from('user_profiles')
+    // Check if user has admin privileges in any organization
+    const { data: memberships } = await supabase
+      .from('organization_members')
       .select('role')
-      .eq('id', user.id)
-      .single();
+      .eq('user_id', user.id)
+      .eq('invitation_status', 'accepted');
 
-    if (!profile || !['account_owner', 'sustainability_manager'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Insufficient privileges' }, { status: 403 });
+    const hasAdminRole = memberships?.some(m => 
+      ['account_owner', 'admin', 'sustainability_lead'].includes(m.role)
+    );
+
+    if (!hasAdminRole) {
+      return NextResponse.json({ _error: 'Insufficient privileges' }, { status: 403 });
     }
 
     // Get WebAuthn statistics
@@ -31,10 +35,10 @@ export async function GET(_request: NextRequest) {
       stats,
     });
   } catch (error) {
-    console.error('WebAuthn stats fetch error:', error);
+    console.error('WebAuthn stats fetch _error:', error);
     return NextResponse.json(
       { 
-        error: 'Failed to fetch WebAuthn statistics',
+        _error: 'Failed to fetch WebAuthn statistics',
         details: error instanceof Error ? error.message : 'Unknown error'
       }, 
       { status: 500 }

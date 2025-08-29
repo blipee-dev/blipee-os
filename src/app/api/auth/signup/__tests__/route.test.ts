@@ -6,7 +6,7 @@ jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(() => ({
     auth: { signUp: jest.fn() },
     from: jest.fn(() => ({
-      insert: jest.fn(() => ({ data: null, error: null }))
+      insert: jest.fn(() => ({ data: null, _error: null }))
     }))
   }))
 }));
@@ -28,7 +28,7 @@ describe('POST /api/auth/signup', () => {
 
     mockSupabase.auth.signUp.mockResolvedValue({
       data: { user: mockUser },
-      error: null
+      _error: null
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/signup', {
@@ -68,7 +68,7 @@ describe('POST /api/auth/signup', () => {
   it('should handle duplicate email', async () => {
     mockSupabase.auth.signUp.mockResolvedValue({
       data: null,
-      error: { message: 'User already registered' }
+      _error: { message: 'User already registered' }
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/signup', {
@@ -87,7 +87,7 @@ describe('POST /api/auth/signup', () => {
   it('should create organization if provided', async () => {
     mockSupabase.auth.signUp.mockResolvedValue({
       data: { user: { id: 'user123' } },
-      error: null
+      _error: null
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/signup', {

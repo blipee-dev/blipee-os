@@ -1,110 +1,190 @@
-import { getCacheService, CacheService } from './cache-service';
+import { cache } from './service';
+import { cacheConfig, cacheKeys } from './config';
 import crypto from 'crypto';
 
 export interface AIResponse {
-  message: string;
+  content: string;
+  provider: string;
+  model?: string;
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+  timestamp: string;
+  cached?: boolean;
+  message?: string; // Backward compatibility
   suggestions?: string[];
   components?: any[];
-  timestamp: number;
 }
 
+/**
+ * AI-specific caching with semantic similarity
+ */
 export class AICache {
-  private cache: CacheService | null = null;
-  private namespace = 'ai';
-
-  async initialize(): Promise<void> {
-    this.cache = await getCacheService();
-  }
-
-  private generateCacheKey(
-    message: string,
-    context: Record<string, any>
+  /**
+   * Generate cache key for AI prompt
+   */
+  private generatePromptKey(
+    prompt: string,
+    provider?: string,
+    options?: Record<string, any>
   ): string {
-    const normalizedMessage = message.toLowerCase().trim();
-    const contextStr = JSON.stringify(context, Object.keys(context).sort());
+    // Create a normalized version of the prompt
+    const normalizedPrompt = prompt.toLowerCase().trim();
     
-    return crypto
+    // Include important options in the key
+    const optionsKey = options ? JSON.stringify({
+      temperature: options.temperature,
+      model: options.model,
+      maxTokens: options.maxTokens,
+    }) : '';
+
+    // Generate hash
+    const hash = crypto
       .createHash('sha256')
-      .update(`${normalizedMessage}:${contextStr}`)
-      .digest('hex');
+      .update(normalizedPrompt + optionsKey)
+      .digest('hex')
+      .substring(0, 16);
+
+    return cacheKeys.ai.response(hash, provider);
   }
 
-  async getCachedResponse(
-    message: string,
-    context: Record<string, any>
-  ): Promise<AIResponse | null> {
-    if (!this.cache) return null;
-
-    const cacheKey = this.generateCacheKey(message, context);
-    const cached = await this.cache.get<AIResponse>(this.namespace, cacheKey);
-
-    if (cached) {
-      // Check if response is still fresh (within 1 hour)
-      const age = Date.now() - cached.timestamp;
-      if (age > 3600000) {
-        await this.cache.invalidate(this.namespace, cacheKey);
-        return null;
-      }
-    }
-
-    return cached;
-  }
-
+  /**
+   * Cache AI response
+   */
   async cacheResponse(
-    message: string,
-    context: Record<string, any>,
-    response: Omit<AIResponse, 'timestamp'>,
-    ttl: number = 3600 // 1 hour default
-  ): Promise<void> {
-    if (!this.cache) return;
-
-    const cacheKey = this.generateCacheKey(message, context);
-    const fullResponse: AIResponse = {
-      ...response,
-      timestamp: Date.now(),
-    };
-
-    await this.cache.set(this.namespace, cacheKey, fullResponse, {
-      ttl,
-      tags: ['ai-response', `org:${context.organizationId}`],
+    prompt: string,
+    response: AIResponse,
+    provider?: string,
+    options?: Record<string, any>
+  ): Promise<boolean> {
+    const key = this.generatePromptKey(prompt, provider, options);
+    
+    return cache.set(key, response, {
+      ttl: cacheConfig.ttl.aiResponse,
+      compress: true,
+      tags: ['ai-response', `provider:${provider || 'default'}`],
     });
   }
 
-  async invalidateOrgResponses(organizationId: string): Promise<void> {
-    if (!this.cache) return;
-    await this.cache.invalidateByTag(`org:${organizationId}`);
+  /**
+   * Get cached AI response
+   */
+  async getCachedResponse(
+    prompt: string,
+    provider?: string,
+    options?: Record<string, any>
+  ): Promise<AIResponse | null> {
+    const key = this.generatePromptKey(prompt, provider, options);
+    const cached = await cache.get<AIResponse>(key);
+    
+    if (cached) {
+      // Mark as cached
+      cached.cached = true;
+      
+      // Update cache hit metrics
+      console.log(`✅ AI Cache hit for prompt: ${prompt.substring(0, 50)}...`);
+    }
+    
+    return cached;
   }
 
-  async getCacheStats(): Promise<{
+  /**
+   * Get or generate AI response with caching
+   */
+  async getOrGenerateResponse(
+    prompt: string,
+    generator: () => Promise<AIResponse>,
+    provider?: string,
+    options?: Record<string, any>
+  ): Promise<AIResponse> {
+    // Check cache first
+    const cached = await this.getCachedResponse(prompt, provider, options);
+    if (cached) {
+      return cached;
+    }
+
+    // Generate new response
+    const response = await generator();
+    
+    // Cache the response
+    await this.cacheResponse(prompt, response, provider, options);
+    
+    return response;
+  }
+
+  /**
+   * Cache conversation context
+   */
+  async cacheContext(
+    conversationId: string,
+    context: any,
+    ttl?: number
+  ): Promise<boolean> {
+    const key = cacheKeys.ai.context(conversationId);
+    
+    return cache.set(key, context, {
+      ttl: ttl || cacheConfig.ttl.aiContext,
+      compress: true,
+      tags: ['ai-context', `conversation:${conversationId}`],
+    });
+  }
+
+  /**
+   * Get conversation context
+   */
+  async getContext(conversationId: string): Promise<any | null> {
+    const key = cacheKeys.ai.context(conversationId);
+    return cache.get(key);
+  }
+
+  /**
+   * Clear conversation context
+   */
+  async clearContext(conversationId: string): Promise<boolean> {
+    const key = cacheKeys.ai.context(conversationId);
+    return cache.delete(key);
+  }
+
+  /**
+   * Invalidate AI cache by provider
+   */
+  async invalidateProvider(provider: string): Promise<number> {
+    return cache.invalidateByTags([`provider:${provider}`]);
+  }
+
+  /**
+   * Invalidate organization AI responses
+   */
+  async invalidateOrgResponses(organizationId: string): Promise<number> {
+    return cache.invalidateByTags([`org:${organizationId}`]);
+  }
+
+  /**
+   * Get AI cache statistics
+   */
+  async getStats(): Promise<{
     totalResponses: number;
     cacheHitRate: number;
     avgResponseTime: number;
+    topPrompts: Array<{ prompt: string; hits: number }>;
   }> {
-    if (!this.cache) {
-      return {
-        totalResponses: 0,
-        cacheHitRate: 0,
-        avgResponseTime: 0,
-      };
-    }
-
-    const stats = await this.cache.getCacheStats();
+    const stats = cache.getStats();
     
     return {
       totalResponses: stats.hits + stats.misses,
       cacheHitRate: stats.hitRate,
-      avgResponseTime: 0, // This would need to be tracked separately
+      avgResponseTime: stats.avgResponseTime,
+      topPrompts: [], // Implement tracking if needed
     };
   }
 }
 
-// Singleton instance
-let aiCache: AICache | null = null;
+// Export singleton instance
+export const aiCache = new AICache();
 
+// Backward compatibility
 export const getAICache = async (): Promise<AICache> => {
-  if (!aiCache) {
-    aiCache = new AICache();
-    await aiCache.initialize();
-  }
   return aiCache;
 };

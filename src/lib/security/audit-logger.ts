@@ -44,6 +44,15 @@ export enum SecurityEventType {
   SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY',
   IP_CHANGE_DETECTED = 'IP_CHANGE_DETECTED',
   DEVICE_CHANGE_DETECTED = 'DEVICE_CHANGE_DETECTED',
+  
+  // AI and system operations
+  AI_STREAM_STARTED = 'AI_STREAM_STARTED',
+  DATABASE_REPAIR = 'DATABASE_REPAIR',
+  DATABASE_HEALTH_CHECK = 'DATABASE_HEALTH_CHECK',
+  SETTINGS_CHANGED = 'SETTINGS_CHANGED',
+  AI_TEST_RUN = 'AI_TEST_RUN',
+  CONVERSATION_ACCESSED = 'CONVERSATION_ACCESSED',
+  DATABASE_ADMIN_ACTION = 'DATABASE_ADMIN_ACTION',
 }
 
 /**
@@ -90,6 +99,11 @@ export class SecurityAuditLogger {
   private flushInterval: NodeJS.Timeout | null = null;
   
   private constructor() {
+    // Skip initialization during build
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      return;
+    }
+    
     // Initialize Supabase client for audit logs
     if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       this.supabase = createClient(
@@ -132,6 +146,11 @@ export class SecurityAuditLogger {
     details?: Record<string, any>;
     metadata?: SecurityAuditLog['metadata'];
   }): Promise<void> {
+    // Skip during build
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      return;
+    }
+    
     const logEntry: SecurityAuditLog = {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),

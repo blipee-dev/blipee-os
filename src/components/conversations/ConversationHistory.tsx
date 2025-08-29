@@ -35,7 +35,7 @@ export function ConversationHistory({
   };
 
   const getConversationTitle = (conversation: ConversationRow) => {
-    const messages = conversation.messages as any[];
+    const messages = (conversation as any).messages as any[];
     if (!messages || messages.length === 0) return "New conversation";
 
     // Find first user message

@@ -4,7 +4,7 @@ import { sessionManager } from "@/lib/session/manager";
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Create response first
     const response = NextResponse.json({
@@ -24,13 +24,13 @@ export async function POST(request: NextRequest) {
     await authService.signOut();
 
     return response;
-  } catch (error: any) {
-    console.error("Signout error:", error);
+  } catch (_error: any) {
+    console.error("Signout _error:", error);
 
     return NextResponse.json(
       {
         success: false,
-        error: error.message || "Failed to sign out",
+        _error: error.message || "Failed to sign out",
       },
       { status: 500 },
     );

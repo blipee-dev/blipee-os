@@ -10,14 +10,14 @@ const inviteUserSchema = z.object({
 });
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } },
+  _request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await authService.getSession();
     if (!session) {
       return NextResponse.json(
-        { success: false, error: "Not authenticated" },
+        { success: false, _error: "Not authenticated" },
         { status: 401 },
       );
     }
@@ -28,10 +28,10 @@ export async function GET(
       success: true,
       data: members,
     });
-  } catch (error: any) {
-    console.error("Get members error:", error);
+  } catch (_error: any) {
+    console.error("Get members _error:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to get members" },
+      { success: false, _error: error.message || "Failed to get members" },
       { status: 500 },
     );
   }
@@ -39,13 +39,13 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await authService.getSession();
     if (!session) {
       return NextResponse.json(
-        { success: false, error: "Not authenticated" },
+        { success: false, _error: "Not authenticated" },
         { status: 401 },
       );
     }
@@ -53,7 +53,7 @@ export async function POST(
     // Check permissions
     if (!authService.hasPermission(session, "users", "invite")) {
       return NextResponse.json(
-        { success: false, error: "Insufficient permissions" },
+        { success: false, _error: "Insufficient permissions" },
         { status: 403 },
       );
     }
@@ -72,14 +72,14 @@ export async function POST(
       success: true,
       data: member,
     });
-  } catch (error: any) {
-    console.error("Invite user error:", error);
+  } catch (_error: any) {
+    console.error("Invite user _error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           success: false,
-          error: "Validation error",
+          _error: "Validation error",
           details: error.errors,
         },
         { status: 400 },
@@ -87,7 +87,7 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to invite user" },
+      { success: false, _error: error.message || "Failed to invite user" },
       { status: 500 },
     );
   }

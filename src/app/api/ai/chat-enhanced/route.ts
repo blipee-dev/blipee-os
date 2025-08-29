@@ -19,14 +19,14 @@ function getSupabase() {
   return supabase;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const contentType = request.headers.get("content-type") || "";
 
     let message: string;
     let conversationId: string;
     let organizationId: string;
-    let userId: string;
+    let _userId: string;
     let files: File[] = [];
 
     // Handle different content types
@@ -126,10 +126,10 @@ export async function POST(request: NextRequest) {
         processingTime: Date.now() - Date.now(),
       },
     });
-  } catch (error: any) {
-    console.error("Enhanced chat API error:", error);
+  } catch (_error: any) {
+    console.error("Enhanced chat API _error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to process request" },
+      { _error: error.message || "Failed to process request" },
       { status: 500 },
     );
   }

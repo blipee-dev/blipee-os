@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Download } from "lucide-react";
 
 interface ReportComponentProps {
   title?: string;

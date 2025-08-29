@@ -3,7 +3,7 @@ import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SSOProvider } from "@/types/sso";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     
     if (!code || !state) {
       return NextResponse.json(
-        { error: "Missing required parameters" },
+        { _error: "Missing required parameters" },
         { status: 400 }
       );
     }
@@ -84,8 +84,8 @@ export async function GET(request: NextRequest) {
     });
     
     return response;
-  } catch (error: any) {
-    console.error("OIDC callback error:", error);
+  } catch (_error: any) {
+    console.error("OIDC callback _error:", error);
     
     // Redirect to error page
     const errorUrl = new URL("/auth/sso/error", request.url);
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   // Some OIDC providers may use POST
   const formData = await request.formData();
   const code = formData.get("code") as string;

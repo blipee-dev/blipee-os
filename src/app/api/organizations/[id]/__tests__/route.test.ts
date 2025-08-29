@@ -8,11 +8,11 @@ jest.mock('@/lib/supabase/server', () => ({
     from: jest.fn(() => ({
       select: jest.fn(() => ({
         eq: jest.fn(() => ({
-          single: jest.fn(() => ({ data: null, error: null }))
+          single: jest.fn(() => ({ data: null, _error: null }))
         }))
       })),
       update: jest.fn(() => ({
-        eq: jest.fn(() => ({ data: null, error: null }))
+        eq: jest.fn(() => ({ data: null, _error: null }))
       }))
     }))
   }))
@@ -29,7 +29,7 @@ describe('Organization API', () => {
     it('should return organization details', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       const mockOrg = {
@@ -42,7 +42,7 @@ describe('Organization API', () => {
 
       mockSupabase.from().select().eq().single.mockResolvedValue({
         data: mockOrg,
-        error: null
+        _error: null
       });
 
       const _request = new NextRequest('http://localhost:3000/api/organizations/org123');
@@ -56,12 +56,12 @@ describe('Organization API', () => {
     it('should check user access', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       mockSupabase.from().select().eq().single.mockResolvedValue({
         data: null,
-        error: { message: 'Not found' }
+        _error: { message: 'Not found' }
       });
 
       const _request = new NextRequest('http://localhost:3000/api/organizations/org123');
@@ -75,12 +75,12 @@ describe('Organization API', () => {
     it('should update organization', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       mockSupabase.from().update().eq.mockResolvedValue({
         data: { id: 'org123', name: 'Updated Org' },
-        error: null
+        _error: null
       });
 
       const _request = new NextRequest('http://localhost:3000/api/organizations/org123', {

@@ -56,43 +56,44 @@ export class EmissionsPredictionModel extends TimeSeriesModel {
    * Build LSTM model architecture
    */
   async buildModel(): Promise<void> {
-    this.model = tf.sequential();
+    const model = tf.sequential();
     
     // First LSTM layer
-    this.model.add(tf.layers.lstm({
-      units: this.lstmUnits[0],
+    model.add(tf.layers.lstm({
+      units: this.lstmUnits[0] || 128,
       returnSequences: this.lstmUnits.length > 1,
       inputShape: [this.sequenceLength, this.features]
     }));
     
     // Dropout
     if (this.dropout > 0) {
-      this.model.add(tf.layers.dropout({ rate: this.dropout }));
+      model.add(tf.layers.dropout({ rate: this.dropout }));
     }
     
     // Additional LSTM layers
     for (let i = 1; i < this.lstmUnits.length; i++) {
-      this.model.add(tf.layers.lstm({
-        units: this.lstmUnits[i],
+      model.add(tf.layers.lstm({
+        units: this.lstmUnits[i] || 64,
         returnSequences: i < this.lstmUnits.length - 1
       }));
       
       if (this.dropout > 0) {
-        this.model.add(tf.layers.dropout({ rate: this.dropout }));
+        model.add(tf.layers.dropout({ rate: this.dropout }));
       }
     }
     
     // Dense layers
-    this.model.add(tf.layers.dense({ units: 32, activation: 'relu' }));
-    this.model.add(tf.layers.dense({ units: 3 })); // Scope 1, 2, 3 predictions
+    model.add(tf.layers.dense({ units: 32, activation: 'relu' }));
+    model.add(tf.layers.dense({ units: 3 })); // Scope 1, 2, 3 predictions
     
     // Compile model
-    this.model.compile({
+    model.compile({
       optimizer: tf.train.adam(this.learningRate),
       loss: 'meanSquaredError',
       metrics: ['mae']
     });
     
+    this.model = model;
     console.log('Emissions prediction model built successfully');
   }
 

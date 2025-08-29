@@ -22,7 +22,7 @@ describe('POST /api/auth/webauthn/register/options', () => {
   it('should generate registration options', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: 'user123', email: 'test@example.com' } },
-      error: null
+      _error: null
     });
 
     const mockOptions = {
@@ -52,7 +52,7 @@ describe('POST /api/auth/webauthn/register/options', () => {
   it('should require authentication', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: null },
-      error: { message: 'Not authenticated' }
+      _error: { message: 'Not authenticated' }
     });
 
     const _request = new NextRequest('http://localhost:3000/api/auth/webauthn/register/options', {

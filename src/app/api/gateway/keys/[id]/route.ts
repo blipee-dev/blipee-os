@@ -13,10 +13,10 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -26,7 +26,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     
     if (!key) {
       return NextResponse.json(
-        { error: 'API key not found' },
+        { _error: 'API key not found' },
         { status: 404 }
       );
     }
@@ -42,7 +42,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     if (!member || !['account_owner', 'admin'].includes(member.role)) {
       return NextResponse.json(
-        { error: 'Insufficient permissions' },
+        { _error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -51,21 +51,21 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Failed to get API key:', error);
     return NextResponse.json(
-      { error: 'Failed to get API key' },
+      { _error: 'Failed to get API key' },
       { status: 500 }
     );
   }
 }
 
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT(_request: NextRequest, { params }: RouteParams) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -75,7 +75,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     
     if (!existingKey) {
       return NextResponse.json(
-        { error: 'API key not found' },
+        { _error: 'API key not found' },
         { status: 404 }
       );
     }
@@ -91,7 +91,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     if (!member || !['account_owner', 'admin'].includes(member.role)) {
       return NextResponse.json(
-        { error: 'Insufficient permissions' },
+        { _error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -106,21 +106,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Failed to update API key:', error);
     return NextResponse.json(
-      { error: 'Failed to update API key' },
+      { _error: 'Failed to update API key' },
       { status: 500 }
     );
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, _error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { _error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -130,7 +130,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     
     if (!existingKey) {
       return NextResponse.json(
-        { error: 'API key not found' },
+        { _error: 'API key not found' },
         { status: 404 }
       );
     }
@@ -146,7 +146,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     if (!member || !['account_owner', 'admin'].includes(member.role)) {
       return NextResponse.json(
-        { error: 'Insufficient permissions' },
+        { _error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -165,7 +165,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Failed to revoke API key:', error);
     return NextResponse.json(
-      { error: 'Failed to revoke API key' },
+      { _error: 'Failed to revoke API key' },
       { status: 500 }
     );
   }

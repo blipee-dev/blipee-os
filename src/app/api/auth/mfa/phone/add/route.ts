@@ -5,7 +5,7 @@ import { auditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Rate limiting
     const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
+        { _error: 'Too many requests. Please try again later.' },
         { status: 429 }
       );
     }
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { _error: 'Authentication required' },
         { status: 401 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     if (!phoneNumber) {
       return NextResponse.json(
-        { error: 'Phone number is required' },
+        { _error: 'Phone number is required' },
         { status: 400 }
       );
     }
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     
     if (!phoneRegex.test(cleanPhone)) {
       return NextResponse.json(
-        { error: 'Invalid phone number format. Use international format (e.g., +1234567890)' },
+        { _error: 'Invalid phone number format. Use international format (e.g., +1234567890)' },
         { status: 400 }
       );
     }
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         context: {},
         metadata: {
           action: 'phone_add_failed',
-          error: result.message,
+          _error: result.message,
           phoneNumber: cleanPhone.slice(-4).padStart(cleanPhone.length, '*'),
           clientIp,
         },
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       });
 
       return NextResponse.json(
-        { error: result.message },
+        { _error: result.message },
         { status: 400 }
       );
     }
@@ -106,22 +106,22 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Phone add error:', error);
+    console.error('Phone add _error:', error);
     
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { _error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get current user
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { _error: 'Authentication required' },
         { status: 401 }
       );
     }
@@ -138,10 +138,10 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Phone list error:', error);
+    console.error('Phone list _error:', error);
     
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { _error: 'Internal server error' },
       { status: 500 }
     );
   }

@@ -5,7 +5,7 @@ import { auditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Rate limiting
     const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { error: 'Too many email requests. Please try again later.' },
+        { _error: 'Too many email requests. Please try again later.' },
         { status: 429 }
       );
     }
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { _error: 'Authentication required' },
         { status: 401 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     if (!email) {
       return NextResponse.json(
-        { error: 'Email address is required' },
+        { _error: 'Email address is required' },
         { status: 400 }
       );
     }
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { _error: 'Invalid email format' },
         { status: 400 }
       );
     }
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         context: {},
         metadata: {
           action: 'email_send_failed',
-          error: result.message,
+          _error: result.message,
           email: email.split('@')[0].slice(0, 2) + '***@' + email.split('@')[1],
           purpose,
           clientIp,
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       });
 
       return NextResponse.json(
-        { error: result.message },
+        { _error: result.message },
         { status: 400 }
       );
     }
@@ -110,10 +110,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Email send error:', error);
+    console.error('Email send _error:', error);
     
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { _error: 'Internal server error' },
       { status: 500 }
     );
   }

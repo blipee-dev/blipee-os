@@ -4,17 +4,17 @@ import { sessionManager } from '@/lib/session/manager';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication and permissions
     const sessionCookie = request.cookies.get('blipee-session');
     if (!sessionCookie) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
     }
 
     const validation = await sessionManager.validateSession(request, ['audit:read']);
     if (!validation.valid) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json({ _error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Parse query parameters
@@ -38,12 +38,12 @@ export async function GET(request: NextRequest) {
       success: true,
       data: summary,
     });
-  } catch (error: any) {
-    console.error('Audit summary API error:', error);
+  } catch (_error: any) {
+    console.error('Audit summary API _error:', error);
     return NextResponse.json(
       { 
         success: false, 
-        error: error.message || 'Failed to fetch audit summary' 
+        _error: error.message || 'Failed to fetch audit summary' 
       },
       { status: 500 }
     );

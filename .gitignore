@@ -38,6 +38,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# database backups
+.backups/
+*.backup
+*.sql.gz
+
 # archives and backups
 **/archive/
 backup/

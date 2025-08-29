@@ -11,14 +11,14 @@ jest.mock('@/lib/supabase/server', () => ({
       select: jest.fn(() => ({
         eq: jest.fn(() => ({
           data: [],
-          error: null
+          _error: null
         }))
       })),
       insert: jest.fn(() => ({
         select: jest.fn(() => ({
           single: jest.fn(() => ({
             data: {},
-            error: null
+            _error: null
           }))
         }))
       }))
@@ -38,7 +38,7 @@ describe('Organizations API', () => {
     it('should return user organizations', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       const mockOrgs = [
@@ -48,7 +48,7 @@ describe('Organizations API', () => {
 
       mockSupabase.from().select().eq.mockResolvedValue({
         data: mockOrgs,
-        error: null
+        _error: null
       });
 
       const _request = new NextRequest('http://localhost:3000/api/organizations');
@@ -62,7 +62,7 @@ describe('Organizations API', () => {
     it('should handle unauthorized requests', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: null },
-        error: { message: 'Not authenticated' }
+        _error: { message: 'Not authenticated' }
       });
 
       const _request = new NextRequest('http://localhost:3000/api/organizations');
@@ -76,7 +76,7 @@ describe('Organizations API', () => {
     it('should create new organization', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       const newOrg = {
@@ -87,7 +87,7 @@ describe('Organizations API', () => {
 
       mockSupabase.from().insert().select().single.mockResolvedValue({
         data: newOrg,
-        error: null
+        _error: null
       });
 
       const _request = new NextRequest('http://localhost:3000/api/organizations', {
@@ -108,7 +108,7 @@ describe('Organizations API', () => {
     it('should validate organization name', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user123' } },
-        error: null
+        _error: null
       });
 
       const _request = new NextRequest('http://localhost:3000/api/organizations', {
