@@ -18,6 +18,7 @@ import {
   Send,
   Check,
 } from "lucide-react";
+import { sanitizeHTML } from "@/lib/validation/sanitization";
 
 interface EnhancedReportComponentProps {
   title?: string;
@@ -258,18 +259,20 @@ With continued focus and innovation, we're confident in achieving our ambitious 
                   <div
                     className="prose prose-invert max-w-none"
                     dangerouslySetInnerHTML={{
-                      __html: section.content
-                        .replace(
-                          /\*\*(.*?)\*\*/g,
-                          '<strong class="text-purple-400">$1</strong>',
-                        )
-                        .replace(/\n/g, "<br />")
-                        .replace(/•/g, '<span class="text-purple-400">•</span>')
-                        .replace(/🏆/g, '<span class="text-2xl">🏆</span>')
-                        .replace(
-                          /✅/g,
-                          '<span class="text-green-400">✅</span>',
-                        ),
+                      __html: sanitizeHTML(
+                        section.content
+                          .replace(
+                            /\*\*(.*?)\*\*/g,
+                            '<strong class="text-purple-400">$1</strong>',
+                          )
+                          .replace(/\n/g, "<br />")
+                          .replace(/•/g, '<span class="text-purple-400">•</span>')
+                          .replace(/🏆/g, '<span class="text-2xl">🏆</span>')
+                          .replace(
+                            /✅/g,
+                            '<span class="text-green-400">✅</span>',
+                          )
+                      ),
                     }}
                   />
                 </div>

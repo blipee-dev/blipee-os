@@ -12,6 +12,7 @@ import { reportIntelligence } from "@/lib/ai/report-intelligence";
 import { getAICache } from "@/lib/cache/ai-cache";
 import { aiCacheManager } from "@/lib/ai/cache-strategies";
 import { chainOfThoughtEngine } from "@/lib/ai/chain-of-thought";
+import { sanitizeUserInput } from "@/lib/validation/sanitization";
 
 export const dynamic = 'force-dynamic';
 
@@ -151,7 +152,10 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
   await limiter.check(request, RateLimitConfigs.ai.chat.limit, userId);
 
   const body = await request.json();
-  const { message, attachments, organizationId, buildingId } = body;
+  const { message: rawMessage, attachments, organizationId, buildingId } = body;
+  
+  // Sanitize user input to prevent XSS
+  const message = sanitizeUserInput(rawMessage);
 
   const startTime = Date.now();
 

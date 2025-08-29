@@ -1,0 +1,613 @@
+openapi: 3.0.3
+info:
+  title: Blipee OS API
+  description: |
+    The Blipee OS API provides programmatic access to the world's first Autonomous Sustainability Intelligence platform.
+    
+    ## Authentication
+    The API uses session-based authentication with CSRF protection. All requests must include:
+    - Valid session cookie (`blipee-session`)
+    - CSRF token in `X-CSRF-Token` header for mutating operations
+    
+    ## Rate Limiting
+    - 100 requests per minute per IP address
+    - Rate limit headers included in responses
+    
+    ## Security
+    - All endpoints require HTTPS in production
+    - Comprehensive security headers applied
+    - Session rotation every 30 minutes
+    - Security audit logging for all operations
+  version: 1.0.0
+  contact:
+    name: Blipee OS Support
+    email: support@blipee.com
+  license:
+    name: Proprietary
+    
+servers:
+  - url: https://api.blipee.com/v1
+    description: Production
+  - url: https://staging-api.blipee.com/v1
+    description: Staging
+  - url: http://localhost:3000/api
+    description: Development
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Organizations
+    description: Organization management
+  - name: Buildings
+    description: Building and facility management
+  - name: AI Chat
+    description: Conversational AI interface
+  - name: Metrics
+    description: Sustainability metrics and data
+  - name: Documents
+    description: Document upload and analysis
+  - name: Reports
+    description: ESG reporting and analytics
+
+paths:
+  /auth/signin:
+    post:
+      tags:
+        - Authentication
+      summary: Sign in user
+      description: Authenticate user with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+      responses:
+        200:
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        401:
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          description: Rate limit exceeded
+          
+  /auth/signout:
+    post:
+      tags:
+        - Authentication
+      summary: Sign out user
+      description: Terminate user session
+      security:
+        - sessionAuth: []
+        - csrf: []
+      responses:
+        200:
+          description: Successfully signed out
+        401:
+          description: Not authenticated
+          
+  /auth/session:
+    get:
+      tags:
+        - Authentication
+      summary: Get current session
+      description: Retrieve information about the current authenticated session
+      security:
+        - sessionAuth: []
+      responses:
+        200:
+          description: Session information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        401:
+          description: Not authenticated
+          
+  /organizations:
+    get:
+      tags:
+        - Organizations
+      summary: List organizations
+      description: Get all organizations the user has access to
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        200:
+          description: List of organizations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Organization'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                    
+    post:
+      tags:
+        - Organizations
+      summary: Create organization
+      description: Create a new organization
+      security:
+        - sessionAuth: []
+        - csrf: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganization'
+      responses:
+        201:
+          description: Organization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        400:
+          description: Invalid input
+        403:
+          description: CSRF token invalid
+          
+  /organizations/{organizationId}:
+    get:
+      tags:
+        - Organizations
+      summary: Get organization
+      description: Get organization details by ID
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Organization details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        404:
+          description: Organization not found
+          
+  /buildings:
+    get:
+      tags:
+        - Buildings
+      summary: List buildings
+      description: Get all buildings in an organization
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: organizationId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: List of buildings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Building'
+                  
+  /ai/chat:
+    post:
+      tags:
+        - AI Chat
+      summary: Send chat message
+      description: Send a message to the AI assistant and receive a response
+      security:
+        - sessionAuth: []
+        - csrf: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: User message (sanitized for XSS)
+                  maxLength: 4000
+                conversationId:
+                  type: string
+                  description: Conversation ID for context
+                buildingId:
+                  type: string
+                  format: uuid
+                  description: Building context
+                attachments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum: [pdf, image, spreadsheet]
+      responses:
+        200:
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        400:
+          description: Invalid request
+        429:
+          description: Rate limit exceeded
+          
+  /metrics/emissions:
+    get:
+      tags:
+        - Metrics
+      summary: Get emissions data
+      description: Retrieve emissions metrics for a building or organization
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: buildingId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: scope
+          in: query
+          schema:
+            type: string
+            enum: [scope1, scope2, scope3, all]
+      responses:
+        200:
+          description: Emissions data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmissionsData'
+                
+  /files/upload:
+    post:
+      tags:
+        - Documents
+      summary: Upload document
+      description: Upload a document for analysis (PDF, images, spreadsheets)
+      security:
+        - sessionAuth: []
+        - csrf: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                conversationId:
+                  type: string
+      responses:
+        200:
+          description: Upload successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  filename:
+                    type: string
+                  size:
+                    type: integer
+                  type:
+                    type: string
+                  extractedData:
+                    type: object
+                    description: AI-extracted data from document
+                    
+  /reports/generate:
+    post:
+      tags:
+        - Reports
+      summary: Generate ESG report
+      description: Generate a comprehensive ESG report
+      security:
+        - sessionAuth: []
+        - csrf: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                organizationId:
+                  type: string
+                  format: uuid
+                reportType:
+                  type: string
+                  enum: [quarterly, annual, gri, tcfd, custom]
+                startDate:
+                  type: string
+                  format: date
+                endDate:
+                  type: string
+                  format: date
+      responses:
+        202:
+          description: Report generation started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reportId:
+                    type: string
+                  status:
+                    type: string
+                    enum: [pending, processing, completed]
+                  estimatedTime:
+                    type: integer
+                    description: Estimated seconds to complete
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: blipee-session
+      description: Session cookie with secure, httpOnly, and sameSite attributes
+      
+    csrf:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: CSRF token required for all mutating operations
+      
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        session:
+          $ref: '#/components/schemas/Session'
+          
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [account_owner, sustainability_manager, facility_manager, analyst, viewer]
+          
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+          format: uuid
+        expiresAt:
+          type: string
+          format: date-time
+        isMfaVerified:
+          type: boolean
+        permissions:
+          type: array
+          items:
+            type: string
+            
+    Organization:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        industry:
+          type: string
+        size:
+          type: string
+          enum: [small, medium, large, enterprise]
+        settings:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+          
+    CreateOrganization:
+      type: object
+      required:
+        - name
+        - industry
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        industry:
+          type: string
+        size:
+          type: string
+          enum: [small, medium, large, enterprise]
+          
+    Building:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organizationId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          type: string
+        metadata:
+          type: object
+          properties:
+            size_sqft:
+              type: integer
+            floors:
+              type: integer
+            occupancy_types:
+              type: array
+              items:
+                type: string
+                
+    ChatResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: AI response message
+        components:
+          type: array
+          description: Dynamic UI components to render
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [chart, table, metric-card, report, alert]
+              props:
+                type: object
+        suggestions:
+          type: array
+          description: Follow-up question suggestions
+          items:
+            type: string
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        processingTime:
+          type: integer
+          description: Response time in milliseconds
+          
+    EmissionsData:
+      type: object
+      properties:
+        period:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+        emissions:
+          type: object
+          properties:
+            scope1:
+              type: number
+            scope2:
+              type: number
+            scope3:
+              type: number
+            total:
+              type: number
+        trends:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              value:
+                type: number
+                
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+          
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+        details:
+          type: object

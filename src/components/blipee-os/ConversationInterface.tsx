@@ -14,6 +14,8 @@ import { Message, UIComponent } from "@/types/conversation";
 import { conversationService } from "@/lib/conversations/service";
 import { jsonToMessages } from "@/lib/conversations/utils";
 import { proactiveInsightEngine } from "@/lib/ai/proactive-insights";
+import { useAPIClient } from "@/lib/api/client";
+import { useCSRF } from "@/hooks/use-csrf";
 
 interface BuildingContext {
   id: string;
@@ -43,6 +45,8 @@ export function ConversationInterface({
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const apiClient = useAPIClient();
+  const { headers: csrfHeaders } = useCSRF();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -136,7 +140,9 @@ export function ConversationInterface({
 
           const uploadResponse = await fetch("/api/files/upload", {
             method: "POST",
+            headers: csrfHeaders,
             body: formData,
+            credentials: "include",
           });
 
           if (uploadResponse.ok) {
@@ -155,26 +161,20 @@ export function ConversationInterface({
       }
 
       // Include building context if available
-      const response = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message,
-          conversationId: conversationId || "demo",
-          buildingId: buildingContext?.id || "demo-building",
-          buildingContext: buildingContext || null,
-          attachments: uploadedFiles,
-          context: {
-            buildingName: buildingContext?.name,
-            organizationId: buildingContext?.organizationId,
-            metadata: buildingContext?.metadata,
-          },
-        }),
+      const data = await apiClient.post("/api/ai/chat", {
+        message,
+        conversationId: conversationId || "demo",
+        buildingId: buildingContext?.id || "demo-building",
+        buildingContext: buildingContext || null,
+        attachments: uploadedFiles,
+        context: {
+          buildingName: buildingContext?.name,
+          organizationId: buildingContext?.organizationId,
+          metadata: buildingContext?.metadata,
+        },
       });
-
-      if (!response.ok) throw new Error("Failed to get response");
-
-      const data = await response.json();
+      
+      if (!data) throw new Error("Failed to get response");
 
       // Add assistant response
       const assistantMessage: Message = {
