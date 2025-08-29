@@ -50,7 +50,7 @@ import { logger } from '@/lib/logger';
  *       403:
  *         description: Forbidden - requires admin role
  */
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = createClient();
     

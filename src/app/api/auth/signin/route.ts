@@ -12,7 +12,7 @@ const signInSchema = z.object({
   password: z.string(),
 });
 
-async function signInHandler((_request: NextRequest) {
+async function signInHandler(_request: NextRequest) {
   try {
     const body = await request.json();
 

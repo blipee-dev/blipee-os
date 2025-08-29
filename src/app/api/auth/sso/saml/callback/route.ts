@@ -3,7 +3,7 @@ import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SSOProvider } from "@/types/sso";
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Get SAML response from form data
     const formData = await request.formData();
@@ -80,7 +80,7 @@ export async function POST((_request: NextRequest) {
   }
 }
 
-export async function GET(_(_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   // Some IdPs may use GET for the callback
   return NextResponse.json(
     { _error: "Method not allowed. Please use POST." },

@@ -8,7 +8,7 @@ interface RouteParams {
   };
 }
 
-export async function POST(_(_request: NextRequest, { params }: RouteParams) {
+export async function POST(_request: NextRequest, { params }: RouteParams) {
   try {
     const supabase = await createServerSupabaseClient();
     

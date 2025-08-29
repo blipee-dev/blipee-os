@@ -3,7 +3,7 @@ import { readReplicaManager } from '@/lib/database/read-replica';
 import { queryRouter } from '@/lib/database/query-router';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-export async function GET(_(_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get read replica statistics
     const replicaStats = readReplicaManager.getStatistics();

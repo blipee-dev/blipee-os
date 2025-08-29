@@ -4,12 +4,12 @@ import { createMonitoredHandler } from '@/lib/monitoring/middleware';
 import { requireAuth } from '@/lib/auth/middleware';
 
 export const DELETE = createMonitoredHandler(async (
-  (_request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) => {
   try {
     // Check authentication
-    const authResult = await requireAuth(request, ['account_owner']);
+    const authResult = await requireAuth(_request, ['account_owner']);
     if (!authResult.authenticated) {
       return NextResponse.json(
         { _error: 'Unauthorized' },

@@ -5,7 +5,7 @@ import { auditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Rate limiting
     const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
@@ -115,7 +115,7 @@ export async function POST((_request: NextRequest) {
   }
 }
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get current user
     const user = await getCurrentUser(request);

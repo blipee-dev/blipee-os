@@ -1,5 +1,7 @@
+"use client";
+
 import { motion } from "framer-motion";
-import { } from "lucide-react";
+import { Sparkles, ArrowRight } from "lucide-react";
 
 interface SuggestedQueriesProps {
   queries: string[];

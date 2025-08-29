@@ -3,7 +3,7 @@ import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SSOProvider } from "@/types/sso";
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     
@@ -94,7 +94,7 @@ export async function GET((_request: NextRequest) {
   }
 }
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   // Some OIDC providers may use POST
   const formData = await request.formData();
   const code = formData.get("code") as string;

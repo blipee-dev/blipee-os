@@ -13,7 +13,7 @@ import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-log
  * GET /api/conversations/[conversationId]/history - Get conversation history
  */
 export async function GET(
-  (_request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { conversationId: string } }
 ) {
   try {
@@ -132,7 +132,7 @@ export async function GET(
  * DELETE /api/conversations/[conversationId]/history - Clear conversation history
  */
 export async function DELETE(
-  (_request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { conversationId: string } }
 ) {
   try {

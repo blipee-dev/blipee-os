@@ -7,7 +7,7 @@ const setupSchema = z.object({
   method: z.enum(['totp']),
 });
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createClient();
     

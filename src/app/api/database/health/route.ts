@@ -12,7 +12,7 @@ import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-log
 /**
  * GET /api/database/health - Get database health status
  */
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -136,7 +136,7 @@ export async function GET((_request: NextRequest) {
 /**
  * POST /api/database/health - Execute specific health actions
  */
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = createClient();
     

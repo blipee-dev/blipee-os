@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { } from "lucide-react";
+import { Building2, ChevronDown, Users, Check, CreditCard } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import type { Organization } from "@/types/auth";
 

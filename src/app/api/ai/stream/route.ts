@@ -14,7 +14,7 @@ import { metrics } from '@/lib/monitoring/metrics';
 /**
  * POST /api/ai/stream - Start a new streaming session
  */
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const startTime = Date.now();
   
   try {
@@ -155,7 +155,7 @@ export async function POST((_request: NextRequest) {
 /**
  * GET /api/ai/stream - Get streaming service status
  */
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -202,7 +202,7 @@ export async function GET((_request: NextRequest) {
 /**
  * DELETE /api/ai/stream - End a streaming session
  */
-export async function DELETE((_request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     const supabase = createClient();
     

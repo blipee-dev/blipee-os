@@ -23,7 +23,7 @@ const verifyRecoverySchema = z.object({
   }).optional(),
 });
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const body = await request.json();
     

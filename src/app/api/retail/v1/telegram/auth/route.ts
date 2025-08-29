@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Mock Telegram authentication
 // In production, this would validate against your actual user database
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const telegramUserId = searchParams.get('telegram_user_id');

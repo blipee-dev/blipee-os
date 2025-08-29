@@ -3,7 +3,7 @@ import { gdprService } from '@/lib/compliance/service';
 import { requireAuth } from '@/lib/auth/session';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const user = await requireAuth(request);
     const searchParams = request.nextUrl.searchParams;
@@ -39,7 +39,7 @@ export async function GET((_request: NextRequest) {
   }
 }
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const user = await requireAuth(request);
     const body = await request.json();
@@ -59,7 +59,7 @@ export async function POST((_request: NextRequest) {
       scope
     );
 
-    return NextResponse.json({ (_request: exportRequest }, { status: 201 });
+    return NextResponse.json({ request: exportRequest }, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message === 'Authentication required') {
       return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });

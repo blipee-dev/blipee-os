@@ -11,7 +11,7 @@ const verifySchema = z.object({
   rememberDevice: z.boolean().optional(),
 });
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Validate request
     const body = await request.json();

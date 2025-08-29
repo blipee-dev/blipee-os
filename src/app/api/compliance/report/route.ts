@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/middleware';
 import { ComplianceFramework } from '@/lib/compliance/types';
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication - only admins can generate compliance reports
     const authResult = await requireAuth(request, ['account_owner', 'admin']);

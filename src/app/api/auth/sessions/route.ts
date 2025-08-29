@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 /**
  * GET /api/auth/sessions - Get all active sessions for current user
  */
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get current session
     const sessionData = await sessionManager.getSession(request);
@@ -52,7 +52,7 @@ export async function GET((_request: NextRequest) {
 /**
  * DELETE /api/auth/sessions - Terminate a specific session or all sessions
  */
-export async function DELETE((_request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     // Get current session
     const sessionData = await sessionManager.getSession(request);

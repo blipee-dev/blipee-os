@@ -4,7 +4,7 @@ import { sessionManager } from "@/lib/session/manager";
 
 export const dynamic = 'force-dynamic';
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Create response first
     const response = NextResponse.json({

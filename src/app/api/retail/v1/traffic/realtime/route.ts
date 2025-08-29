@@ -23,7 +23,7 @@ const generateMockTraffic = (loja: string) => {
   };
 };
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const loja = searchParams.get('loja');

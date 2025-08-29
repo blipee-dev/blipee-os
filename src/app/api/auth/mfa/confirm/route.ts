@@ -8,7 +8,7 @@ const confirmSchema = z.object({
   code: z.string().length(6),
 });
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createClient();
     

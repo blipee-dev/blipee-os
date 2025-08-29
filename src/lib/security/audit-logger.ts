@@ -99,6 +99,11 @@ export class SecurityAuditLogger {
   private flushInterval: NodeJS.Timeout | null = null;
   
   private constructor() {
+    // Skip initialization during build
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      return;
+    }
+    
     // Initialize Supabase client for audit logs
     if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       this.supabase = createClient(
@@ -141,6 +146,11 @@ export class SecurityAuditLogger {
     details?: Record<string, any>;
     metadata?: SecurityAuditLog['metadata'];
   }): Promise<void> {
+    // Skip during build
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      return;
+    }
+    
     const logEntry: SecurityAuditLog = {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
