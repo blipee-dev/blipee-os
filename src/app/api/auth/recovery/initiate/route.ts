@@ -19,7 +19,7 @@ const initiateRecoverySchema = z.object({
   adminUserId: z.string().uuid().optional(),
 });
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const body = await request.json();
     

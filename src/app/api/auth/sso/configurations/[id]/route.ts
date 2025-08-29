@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 // import { UserRole } from "@/types/auth"; // Unused after fixing role checks
 
 export async function GET(
-  _(_request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -46,7 +46,7 @@ export async function GET(
     }
     
     return NextResponse.json({ configuration });
-  } catch (_error: any) {
+  } catch (error: any) {
     console.error("Failed to get SSO configuration:", error);
     return NextResponse.json(
       { _error: error.message || "Failed to get configuration" },
@@ -56,7 +56,7 @@ export async function GET(
 }
 
 export async function PUT(
-  (_request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -97,13 +97,13 @@ export async function PUT(
     }
     
     // Get update data
-    const updates = await request.json();
+    const updates = await _request.json();
     
     // Update configuration
     const configuration = await ssoService.updateConfiguration(params.id, updates);
     
     return NextResponse.json({ configuration });
-  } catch (_error: any) {
+  } catch (error: any) {
     console.error("Failed to update SSO configuration:", error);
     return NextResponse.json(
       { _error: error.message || "Failed to update configuration" },
@@ -113,7 +113,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _(_request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -157,7 +157,7 @@ export async function DELETE(
     await ssoService.deleteConfiguration(params.id);
     
     return NextResponse.json({ success: true }, { status: 200 });
-  } catch (_error: any) {
+  } catch (error: any) {
     console.error("Failed to delete SSO configuration:", error);
     return NextResponse.json(
       { _error: error.message || "Failed to delete configuration" },

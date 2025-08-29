@@ -14,8 +14,8 @@ const createBuildingSchema = z.object({
 });
 
 export async function GET(
-  (_request: NextRequest,
-  { params }: { params: { id: string } },
+  _request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await authService.getSession();
@@ -44,8 +44,8 @@ export async function GET(
 }
 
 export async function POST(
-  (_request: NextRequest,
-  { params }: { params: { id: string } },
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await authService.getSession();

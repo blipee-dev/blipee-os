@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -70,7 +70,7 @@ export async function POST((_request: NextRequest) {
   }
 }
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // This endpoint can be used to check if SSO is available for a domain
     const searchParams = request.nextUrl.searchParams;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { } from "lucide-react";
+import { Clock, Sparkles, CheckCircle, ChevronRight } from "lucide-react";
 import {
   OnboardingOrchestrator,
   ONBOARDING_STEPS,

@@ -5,7 +5,7 @@ import { AuditEventType, AuditEventSeverity, AuditLogQuery } from '@/lib/audit/t
 
 export const dynamic = 'force-dynamic';
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication and permissions
     const sessionCookie = request.cookies.get('blipee-session');

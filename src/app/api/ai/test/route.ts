@@ -12,7 +12,7 @@ import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-log
 /**
  * GET /api/ai/test - Get available test suites
  */
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -73,7 +73,7 @@ export async function GET((_request: NextRequest) {
 /**
  * POST /api/ai/test - Run AI conversation tests
  */
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -200,7 +200,7 @@ export async function POST((_request: NextRequest) {
 /**
  * PUT /api/ai/test - Create or update custom test suite
  */
-export async function PUT((_request: NextRequest) {
+export async function PUT(_request: NextRequest) {
   try {
     const supabase = createClient();
     

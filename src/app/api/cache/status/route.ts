@@ -102,7 +102,7 @@ export async function GET() {
   }
 }
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = createClient();
     

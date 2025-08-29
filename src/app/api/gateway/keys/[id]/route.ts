@@ -8,7 +8,7 @@ interface RouteParams {
   };
 }
 
-export async function GET(_(_request: NextRequest, { params }: RouteParams) {
+export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -57,7 +57,7 @@ export async function GET(_(_request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function PUT((_request: NextRequest, { params }: RouteParams) {
+export async function PUT(_request: NextRequest, { params }: RouteParams) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -112,7 +112,7 @@ export async function PUT((_request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE((_request: NextRequest, { params }: RouteParams) {
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
     const supabase = await createServerSupabaseClient();
     

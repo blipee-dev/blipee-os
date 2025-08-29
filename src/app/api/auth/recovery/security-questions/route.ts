@@ -13,7 +13,7 @@ const securityQuestionsSchema = z.object({
   })).min(3).max(5),
 });
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Check authentication
     const sessionCookie = request.cookies.get('blipee-session');
@@ -76,7 +76,7 @@ export async function POST((_request: NextRequest) {
   }
 }
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
     const sessionCookie = request.cookies.get('blipee-session');

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { } from "lucide-react";
+import { AlertCircle, Mail, Lock, EyeOff, Eye, Loader2, Building2 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { MFAVerification } from "@/components/auth/mfa/MFAVerification";

@@ -19,7 +19,7 @@ function getSupabase() {
   return supabase;
 }
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const contentType = request.headers.get("content-type") || "";
 

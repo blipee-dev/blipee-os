@@ -34,7 +34,7 @@ interface ConversationInsights {
  * GET /api/conversations/[conversationId]/insights - Get conversation insights
  */
 export async function GET(
-  (_request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { conversationId: string } }
 ) {
   try {
@@ -47,7 +47,7 @@ export async function GET(
     }
 
     const { conversationId } = params;
-    const searchParams = request.nextUrl.searchParams;
+    const searchParams = _request.nextUrl.searchParams;
     const timeframe = searchParams.get('timeframe') || '30d';
 
     // Get conversation to verify access

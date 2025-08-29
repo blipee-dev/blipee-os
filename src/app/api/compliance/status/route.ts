@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { complianceService } from '@/lib/compliance/service';
 import { requireAuth } from '@/lib/auth/session';
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const user = await requireAuth(request);
 

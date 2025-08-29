@@ -4,7 +4,7 @@ import { sessionManager } from "@/lib/session/manager";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // First check Redis session
     const sessionData = await sessionManager.getSession(request);

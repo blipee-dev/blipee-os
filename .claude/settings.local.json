@@ -142,7 +142,17 @@
       "Bash(cp:*)",
       "Bash(git log:*)",
       "Bash(test:*)",
-      "Bash(/Users/pedro/Documents/blipee/blipee-os/fix-unused-bulk.sh)"
+      "Bash(/Users/pedro/Documents/blipee/blipee-os/fix-unused-bulk.sh)",
+      "Bash(/Users/pedro/Documents/blipee/blipee-os/fix-function-syntax.sh:*)",
+      "Bash(./fix-route-params.sh:*)",
+      "Bash(/Users/pedro/Documents/blipee/blipee-os/fix-final-syntax.sh)",
+      "Bash(./fix-all-params.sh:*)",
+      "Bash(./fix-all-route-params.sh:*)",
+      "Bash(./fix-icon-imports.sh:*)",
+      "Bash(./fix-use-client.sh)",
+      "Bash(./fix-duplicate-imports.sh)",
+      "Bash(./verify-phase3.sh:*)",
+      "Bash(NEXT_PHASE=phase-production-build npm run build)"
     ],
     "deny": []
   }

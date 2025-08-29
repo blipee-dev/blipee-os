@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { webAuthnService } from '@/lib/auth/webauthn/service';
 import { createClient } from '@/lib/supabase/server';
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = createClient();
     

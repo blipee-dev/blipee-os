@@ -4,7 +4,7 @@ import { indexOptimizer } from '@/lib/database/index-optimizer';
 import { queryAnalyzer } from '@/lib/database/query-analyzer';
 import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-logger';
 
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -111,7 +111,7 @@ export async function GET((_request: NextRequest) {
   }
 }
 
-export async function POST((_request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = createClient();
     

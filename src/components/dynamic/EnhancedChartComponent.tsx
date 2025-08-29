@@ -27,7 +27,7 @@ import {
 } from "recharts";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 interface EnhancedChartComponentProps {
   title?: string;

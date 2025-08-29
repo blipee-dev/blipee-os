@@ -14,7 +14,7 @@ import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-log
  * GET /api/conversations/[conversationId]/preferences - Get conversation preferences
  */
 export async function GET(
-  (_request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { conversationId: string } }
 ) {
   try {
@@ -91,7 +91,7 @@ export async function GET(
  * PUT /api/conversations/[conversationId]/preferences - Update conversation preferences
  */
 export async function PUT(
-  (_request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { conversationId: string } }
 ) {
   try {
@@ -104,7 +104,7 @@ export async function PUT(
     }
 
     const { conversationId } = params;
-    const body = await request.json();
+    const body = await _request.json();
     const preferences: UserPreferences = body.preferences;
 
     // Validate preferences
@@ -157,8 +157,8 @@ export async function PUT(
     await securityAuditLogger.log({
       eventType: SecurityEventType.SETTINGS_CHANGED,
       _userId: user.id,
-      ipAddress: request.ip || 'unknown',
-      userAgent: request.headers.get('user-agent') || 'unknown',
+      ipAddress: _request.headers.get('x-forwarded-for') || 'unknown',
+      userAgent: _request.headers.get('user-agent') || 'unknown',
       resource: `/api/conversations/${conversationId}/preferences`,
       action: 'update_preferences',
       result: 'success',

@@ -12,7 +12,7 @@ import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-log
 /**
  * GET /api/ai/cache - Get cache statistics
  */
-export async function GET((_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -104,7 +104,7 @@ export async function GET((_request: NextRequest) {
 /**
  * DELETE /api/ai/cache - Clear AI response cache
  */
-export async function DELETE((_request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     const supabase = createClient();
     

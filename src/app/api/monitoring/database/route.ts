@@ -4,7 +4,7 @@ import { dbMonitor } from '@/lib/database/monitoring';
 import { getConnectionPoolStats } from '@/lib/supabase/server-pooled';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-export async function GET(_(_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get connection pool health
     const poolHealth = await checkPoolHealth();
