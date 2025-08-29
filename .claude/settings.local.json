@@ -154,7 +154,8 @@
       "Bash(./verify-phase3.sh:*)",
       "Bash(NEXT_PHASE=phase-production-build npm run build)",
       "Bash(git fetch:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(git branch:*)"
     ],
     "deny": []
   }

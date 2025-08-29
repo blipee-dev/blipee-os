@@ -113,9 +113,10 @@ export class HyperparameterOptimizer {
     for (const [param, values] of Object.entries(searchSpace)) {
       if (Array.isArray(values)) {
         params[param] = values[Math.floor(Math.random() * values.length)];
-      } else if (typeof values === 'object' && 'min' in values && 'max' in values) {
+      } else if (typeof values === 'object' && values !== null && 'min' in values && 'max' in values) {
         // Continuous parameter
-        params[param] = values.min + Math.random() * (values.max - values.min);
+        const range = values as { min: number; max: number };
+        params[param] = range.min + Math.random() * (range.max - range.min);
       }
     }
     
@@ -270,7 +271,7 @@ export class HyperparameterOptimizer {
     }
     
     // Calculate variance in scores when parameter changes
-    for (const param of allParams) {
+    for (const param of Array.from(allParams)) {
       const scoresByValue: Map<any, number[]> = new Map();
       
       for (const trial of this.trials) {
