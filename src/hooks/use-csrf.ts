@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 
 const CSRF_COOKIE_NAME = '_csrf';
 const CSRF_HEADER_NAME = 'X-CSRF-Token';

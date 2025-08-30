@@ -214,7 +214,7 @@ export class OrganizationService {
    * Remove user from organization
    */
   async removeUser(organizationId: string, userId: string): Promise<boolean> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from("organization_members")
       .delete()
       .eq("organization_id", organizationId)
@@ -277,7 +277,7 @@ export class OrganizationService {
     organizationId: string,
     userId: string,
   ): Promise<boolean> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from("organization_members")
       .update({
         invitation_status: "accepted" as InvitationStatus,
@@ -382,7 +382,7 @@ export class OrganizationService {
     buildingId: string,
     userId: string,
   ): Promise<boolean> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from("building_assignments")
       .delete()
       .eq("building_id", buildingId)

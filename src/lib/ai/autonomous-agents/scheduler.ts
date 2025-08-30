@@ -308,7 +308,7 @@ export class TaskScheduler {
     taskId: string,
     updates: Partial<ScheduledTask>
   ): Promise<void> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from('agent_scheduled_tasks')
       .update({
         task_type: updates.taskType,
@@ -321,7 +321,7 @@ export class TaskScheduler {
       .eq('id', taskId);
       
     if (error) {
-      throw new Error(`Failed to update scheduled task: ${error.message}`);
+      throw new Error(`Failed to update scheduled task: ${.message}`);
     }
     
     // Reschedule if needed
@@ -352,13 +352,13 @@ export class TaskScheduler {
   
   // Delete scheduled task
   async deleteScheduledTask(taskId: string): Promise<void> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from('agent_scheduled_tasks')
       .delete()
       .eq('id', taskId);
       
     if (error) {
-      throw new Error(`Failed to delete scheduled task: ${error.message}`);
+      throw new Error(`Failed to delete scheduled task: ${.message}`);
     }
     
     // Clear any scheduled jobs

@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { webAuthnService } from '@/lib/auth/webauthn/service';
 import { createClient } from '@/lib/supabase/server';
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
     
     const body = await request.json();
     const { userEmail, allowCredentials = [], userVerification = 'preferred' } = body;
 
-    let _userId: string | undefined;
+    let userId: string | undefined;
 
     // If user email is provided, get the user ID
     if (userEmail) {
@@ -40,7 +40,7 @@ export async function POST(_request: NextRequest) {
       options,
     });
   } catch (error) {
-    console.error('WebAuthn authentication options _error:', error);
+    console.error('Error:', error);
     return NextResponse.json(
       { 
         _error: 'Failed to generate authentication options',

@@ -320,10 +320,10 @@ describe('Stream B Production Integration Tests', () => {
           temperature: 25 + Math.random() * 10,
           humidity: 50 + Math.random() * 20
         });
-        requests.push(request);
+        requests.push(_request);
       }
 
-      const results = await Promise.all(requests);
+      const results = await Promise.all(_request);
       const endTime = Date.now();
 
       expect(results.length).toBe(concurrentRequests);
@@ -454,7 +454,7 @@ describe('Stream B Production Integration Tests', () => {
           successCount++;
         } catch (error) {
           failureCount++;
-          expect(error.message).toContain('Model failure');
+          expect(.message).toContain('Model failure');
         }
       }
 
@@ -484,7 +484,7 @@ describe('Stream B Production Integration Tests', () => {
           200 + Math.random() * 300, // High latency
           0.5 + Math.random() * 0.5
         );
-        stressRequests.push(request);
+        stressRequests.push(_request);
       }
 
       await Promise.all(stressRequests);

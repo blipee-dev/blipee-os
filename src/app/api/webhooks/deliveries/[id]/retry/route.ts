@@ -13,10 +13,10 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, _error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -31,7 +31,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 
     if (!member) {
       return NextResponse.json(
-        { _error: 'No organization found' },
+        { error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -39,7 +39,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     // Check if user has permissions
     if (!['account_owner', 'admin', 'sustainability_manager'].includes(member.role)) {
       return NextResponse.json(
-        { _error: 'Insufficient permissions' },
+        { error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -54,7 +54,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Failed to retry webhook delivery:', error);
     return NextResponse.json(
-      { _error: 'Failed to retry webhook delivery' },
+      { error: 'Failed to retry webhook delivery' },
       { status: 500 }
     );
   }

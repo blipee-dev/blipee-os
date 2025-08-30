@@ -280,7 +280,7 @@ export class GDPRComplianceService {
    * Cancel deletion request
    */
   async cancelDeletionRequest(userId: string, requestId: string): Promise<void> {
-    const { error: _error } = await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from('data_deletion_requests')
       .update({
         status: 'cancelled',

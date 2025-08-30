@@ -145,7 +145,7 @@ export class AuditService {
    */
   private async storeInSupabase(events: AuditEvent[]): Promise<void> {
     const supabase = createClient();
-    const { error: _error } = await supabase
+    const { error } = await supabase
       .from('audit_logs')
       .insert(events.map(event => ({
         id: event.id,
@@ -517,7 +517,7 @@ export class AuditService {
       event.context.organizationId || '',
       event.result,
       event.errorDetails?.code || '',
-      event.errorDetails?.message || '',
+      event.errorDetails?error.message || '',
     ]);
 
     return [

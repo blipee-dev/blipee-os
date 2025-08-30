@@ -112,19 +112,19 @@ export class AccountRecoveryService {
       // Process based on method
       switch (recoveryRequest.method) {
         case RecoveryMethod.EMAIL:
-          return await this.initiateEmailRecovery(request, user, recoveryRequest);
+          return await this.initiateEmailRecovery(_request, user, recoveryRequest);
 
         case RecoveryMethod.SMS:
-          return await this.initiateSMSRecovery(request, user, recoveryRequest);
+          return await this.initiateSMSRecovery(_request, user, recoveryRequest);
 
         case RecoveryMethod.SECURITY_QUESTIONS:
-          return await this.initiateSecurityQuestionRecovery(request, user, recoveryRequest);
+          return await this.initiateSecurityQuestionRecovery(_request, user, recoveryRequest);
 
         case RecoveryMethod.BACKUP_CODES:
-          return await this.initiateBackupCodeRecovery(request, user, recoveryRequest);
+          return await this.initiateBackupCodeRecovery(_request, user, recoveryRequest);
 
         case RecoveryMethod.ADMIN_OVERRIDE:
-          return await this.initiateAdminOverride(request, user, recoveryRequest);
+          return await this.initiateAdminOverride(_request, user, recoveryRequest);
 
         default:
           return {
@@ -268,7 +268,7 @@ export class AccountRecoveryService {
         JSON.stringify(securityQuestions)
       );
 
-      const { error: _error } = await this.supabase
+      const { error } = await this.supabase
         .from('user_profiles')
         .update({
           metadata: {
@@ -577,10 +577,10 @@ export class AccountRecoveryService {
       maxAttempts: this.config.maxAttempts,
       currentAttempts: 0,
       metadata: {
-        ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0] || 
-                   request.headers.get('x-real-ip') || 
-                   request.ip,
-        userAgent: request.headers.get('user-agent') || undefined,
+        ipAddress: _request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                   _request.headers.get('x-real-ip') || 
+                   _request.ip,
+        userAgent: _request.headers.get('user-agent') || undefined,
         ...metadata,
       },
       createdAt: new Date(),

@@ -50,7 +50,7 @@ export class WebhookService {
       .single();
 
     if (error) {
-      throw new Error(`Failed to create webhook endpoint: ${error.message}`);
+      throw new Error(`Failed to create webhook endpoint: ${.message}`);
     }
 
     return endpoint;
@@ -69,7 +69,7 @@ export class WebhookService {
       .order('created_at', { ascending: false });
 
     if (error) {
-      throw new Error(`Failed to get webhook endpoints: ${error.message}`);
+      throw new Error(`Failed to get webhook endpoints: ${.message}`);
     }
 
     return (endpoints || []).map(endpoint => ({
@@ -95,7 +95,7 @@ export class WebhookService {
       if (error.code === 'PGRST116') {
         return null; // Not found
       }
-      throw new Error(`Failed to get webhook endpoint: ${error.message}`);
+      throw new Error(`Failed to get webhook endpoint: ${.message}`);
     }
 
     return endpoint ? {
@@ -126,7 +126,7 @@ export class WebhookService {
       .single();
 
     if (error) {
-      throw new Error(`Failed to update webhook endpoint: ${error.message}`);
+      throw new Error(`Failed to update webhook endpoint: ${.message}`);
     }
 
     return {
@@ -148,7 +148,7 @@ export class WebhookService {
       .eq('organization_id', organizationId);
 
     if (error) {
-      throw new Error(`Failed to delete webhook endpoint: ${error.message}`);
+      throw new Error(`Failed to delete webhook endpoint: ${.message}`);
     }
   }
 
@@ -300,7 +300,7 @@ export class WebhookService {
       .range(offset, offset + limit - 1);
 
     if (error) {
-      throw new Error(`Failed to get delivery logs: ${error.message}`);
+      throw new Error(`Failed to get delivery logs: ${.message}`);
     }
 
     return {
@@ -327,7 +327,7 @@ export class WebhookService {
       .single();
 
     if (error) {
-      throw new Error(`Failed to get delivery for retry: ${error.message}`);
+      throw new Error(`Failed to get delivery for retry: ${.message}`);
     }
 
     if (!delivery || !delivery.webhook_endpoints) {

@@ -166,10 +166,10 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
 
   // Check cache for similar queries (skip if attachments present)
   if (!attachments || attachments.length === 0) {
-    const cacheContext = { organizationId, buildingId, userId };
+    const _cacheContext = { organizationId, buildingId, userId };
     
     // Try advanced caching with semantic similarity
-    const cachedResponse = await aiCacheManager.get(message, cacheContext);
+    const cachedResponse = await aiCacheManager.get(message, _cacheContext);
     
     if (cachedResponse) {
       console.log(`🚀 Returning cached AI response (${cachedResponse.cacheType})`);
@@ -224,8 +224,8 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
       };
 
       // Cache the response
-      const cacheContext = { organizationId, buildingId, userId };
-      await aiCacheManager.set(message, response, cacheContext);
+      const _cacheContext = { organizationId, buildingId, userId };
+      await aiCacheManager.set(message, response, _cacheContext);
 
       const endTime = Date.now();
       return NextResponse.json({
@@ -378,12 +378,12 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
 
       // Cache the response using advanced strategies
       if (!attachments || attachments.length === 0) {
-        const cacheContext = { organizationId, buildingId, userId };
+        const _cacheContext = { organizationId, buildingId, userId };
         await aiCacheManager.set(message, {
           message: response.message,
           suggestions: response.suggestions,
           components: response.components || [],
-        }, cacheContext);
+        }, _cacheContext);
       }
 
       return NextResponse.json(response);
@@ -447,19 +447,18 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
 
     // Cache the fallback response using basic strategy
     if (!attachments || attachments.length === 0) {
-      const cacheContext = { organizationId, buildingId, userId };
       // Use basic cache for fallback responses
       await aiCache.cacheResponse(
         message, 
         {
-          content: response.message || '',
+          content: responseerror.message || '',
           provider: 'demo',
           model: 'fallback',
           timestamp: new Date().toISOString(),
           cached: false,
-          message: response.message,
-          suggestions: response.suggestions,
-          components: response.components
+          message: responseerror.message || undefined,
+          suggestions: response.suggestions || undefined,
+          components: response.components || undefined
         },
         'demo',
         { ttl: 300 }

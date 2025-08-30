@@ -274,7 +274,7 @@ describe('POST /api/auth/signin', () => {
       );
 
       const start = performance.now();
-      const responses = await Promise.all(requests);
+      const responses = await Promise.all(request);
       const end = performance.now();
 
       // All requests should succeed

@@ -4,14 +4,14 @@ import { indexOptimizer } from '@/lib/database/index-optimizer';
 import { queryAnalyzer } from '@/lib/database/query-analyzer';
 import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-logger';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has admin role
@@ -22,7 +22,7 @@ export async function GET(_request: NextRequest) {
       .single();
 
     if (!member || !['account_owner', 'sustainability_manager'].includes(member.role)) {
-      return NextResponse.json({ _error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -44,7 +44,7 @@ export async function GET(_request: NextRequest) {
         // Log security audit
         await securityAuditLogger.log({
           eventType: SecurityEventType.DATABASE_REPAIR,
-          _userId: user.id,
+          userId: user.id,
           action: 'database_optimization',
           resource: 'indexes',
           result: 'success',
@@ -64,7 +64,7 @@ export async function GET(_request: NextRequest) {
         // Log security audit
         await securityAuditLogger.log({
           eventType: SecurityEventType.DATABASE_REPAIR,
-          _userId: user.id,
+          userId: user.id,
           action: 'create_core_indexes',
           resource: 'indexes',
           result: 'success',
@@ -84,7 +84,7 @@ export async function GET(_request: NextRequest) {
         // Get table statistics
         const tableName = searchParams.get('table');
         if (!tableName) {
-          return NextResponse.json({ _error: 'Table name required' }, { status: 400 });
+          return NextResponse.json({ error: 'Table name required' }, { status: 400 });
         }
         result = await queryAnalyzer.getTableStatistics(tableName);
         break;
@@ -103,22 +103,22 @@ export async function GET(_request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Database optimization _error:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { _error: 'Failed to perform database optimization' },
+      { error: 'Failed to perform database optimization' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has admin role
@@ -129,7 +129,7 @@ export async function POST(_request: NextRequest) {
       .single();
 
     if (!member || member.role !== 'account_owner') {
-      return NextResponse.json({ _error: 'Only account owners can modify indexes' }, { status: 403 });
+      return NextResponse.json({ error: 'Only account owners can modify indexes' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -141,7 +141,7 @@ export async function POST(_request: NextRequest) {
       case 'create':
         // Create a specific index
         if (!index) {
-          return NextResponse.json({ _error: 'Index definition required' }, { status: 400 });
+          return NextResponse.json({ error: 'Index definition required' }, { status: 400 });
         }
         result = await indexOptimizer.createIndex(index);
         break;
@@ -149,7 +149,7 @@ export async function POST(_request: NextRequest) {
       case 'drop':
         // Drop a specific index
         if (!index?.name) {
-          return NextResponse.json({ _error: 'Index name required' }, { status: 400 });
+          return NextResponse.json({ error: 'Index name required' }, { status: 400 });
         }
         result = await indexOptimizer.dropIndex(index.name, true);
         break;
@@ -157,7 +157,7 @@ export async function POST(_request: NextRequest) {
       case 'rebuild':
         // Rebuild a specific index
         if (!index?.name) {
-          return NextResponse.json({ _error: 'Index name required' }, { status: 400 });
+          return NextResponse.json({ error: 'Index name required' }, { status: 400 });
         }
         result = await indexOptimizer.rebuildIndex(index.name);
         break;
@@ -166,7 +166,7 @@ export async function POST(_request: NextRequest) {
         // Analyze a specific query
         const { query, params } = body;
         if (!query) {
-          return NextResponse.json({ _error: 'Query required' }, { status: 400 });
+          return NextResponse.json({ error: 'Query required' }, { status: 400 });
         }
         result = await queryAnalyzer.analyzeQuery(query, params);
         break;
@@ -181,7 +181,7 @@ export async function POST(_request: NextRequest) {
     if (['create', 'drop', 'rebuild'].includes(action)) {
       await securityAuditLogger.log({
         eventType: SecurityEventType.DATABASE_REPAIR,
-        _userId: user.id,
+        userId: user.id,
         action: `index_${action}`,
         resource: 'indexes',
         result: 'success',
@@ -202,9 +202,9 @@ export async function POST(_request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Database optimization _error:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { _error: 'Failed to perform database operation' },
+      { error: 'Failed to perform database operation' },
       { status: 500 }
     );
   }

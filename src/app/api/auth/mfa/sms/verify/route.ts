@@ -5,7 +5,7 @@ import { auditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Rate limiting
     const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
@@ -16,7 +16,7 @@ export async function POST(_request: NextRequest) {
 
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { _error: 'Too many verification attempts. Please try again later.' },
+        { error: 'Too many verification attempts. Please try again later.' },
         { status: 429 }
       );
     }
@@ -25,7 +25,7 @@ export async function POST(_request: NextRequest) {
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json(
-        { _error: 'Authentication required' },
+        { error: 'Authentication required' },
         { status: 401 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(_request: NextRequest) {
 
     if (!codeId || !code) {
       return NextResponse.json(
-        { _error: 'Code ID and verification code are required' },
+        { error: 'Code ID and verification code are required' },
         { status: 400 }
       );
     }
@@ -44,7 +44,7 @@ export async function POST(_request: NextRequest) {
     // Validate code format (6 digits)
     if (!/^\d{6}$/.test(code)) {
       return NextResponse.json(
-        { _error: 'Invalid verification code format' },
+        { error: 'Invalid verification code format' },
         { status: 400 }
       );
     }
@@ -71,7 +71,7 @@ export async function POST(_request: NextRequest) {
       });
 
       return NextResponse.json(
-        { _error: result.message },
+        { error: result.message },
         { status: 400 }
       );
     }
@@ -101,10 +101,10 @@ export async function POST(_request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('SMS verify _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json(
-      { _error: 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

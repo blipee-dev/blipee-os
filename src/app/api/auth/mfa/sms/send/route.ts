@@ -5,7 +5,7 @@ import { auditService } from '@/lib/audit/service';
 import { AuditEventType, AuditEventSeverity } from '@/lib/audit/types';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Rate limiting
     const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
@@ -16,7 +16,7 @@ export async function POST(_request: NextRequest) {
 
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { _error: 'Too many SMS requests. Please try again later.' },
+        { error: 'Too many SMS requests. Please try again later.' },
         { status: 429 }
       );
     }
@@ -25,7 +25,7 @@ export async function POST(_request: NextRequest) {
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json(
-        { _error: 'Authentication required' },
+        { error: 'Authentication required' },
         { status: 401 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(_request: NextRequest) {
 
     if (!phoneNumber) {
       return NextResponse.json(
-        { _error: 'Phone number is required' },
+        { error: 'Phone number is required' },
         { status: 400 }
       );
     }
@@ -45,7 +45,7 @@ export async function POST(_request: NextRequest) {
     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
     if (!phoneRegex.test(phoneNumber.replace(/\s+/g, ''))) {
       return NextResponse.json(
-        { _error: 'Invalid phone number format' },
+        { error: 'Invalid phone number format' },
         { status: 400 }
       );
     }
@@ -76,7 +76,7 @@ export async function POST(_request: NextRequest) {
       });
 
       return NextResponse.json(
-        { _error: result.message },
+        { error: result.message },
         { status: 400 }
       );
     }
@@ -106,10 +106,10 @@ export async function POST(_request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('SMS send _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json(
-      { _error: 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

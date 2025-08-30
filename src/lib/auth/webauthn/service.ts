@@ -125,8 +125,8 @@ export class WebAuthnService {
       actor: {
         type: 'user',
         id: userId,
-        ip: request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip,
-        userAgent: request.headers.get('user-agent') || undefined,
+        ip: _request.headers.get('x-forwarded-for')?.split(',')[0] || _request.ip,
+        userAgent: _request.headers.get('user-agent') || undefined,
       },
       context: {},
       metadata: {
@@ -243,8 +243,8 @@ export class WebAuthnService {
         actor: {
           type: 'user',
           id: userId,
-          ip: request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip,
-          userAgent: request.headers.get('user-agent') || undefined,
+          ip: _request.headers.get('x-forwarded-for')?.split(',')[0] || _request.ip,
+          userAgent: _request.headers.get('user-agent') || undefined,
         },
         context: {},
         metadata: {
@@ -268,8 +268,8 @@ export class WebAuthnService {
         actor: {
           type: 'user',
           id: userId,
-          ip: request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip,
-          userAgent: request.headers.get('user-agent') || undefined,
+          ip: _request.headers.get('x-forwarded-for')?.split(',')[0] || _request.ip,
+          userAgent: _request.headers.get('user-agent') || undefined,
         },
         context: {},
         metadata: {
@@ -297,7 +297,7 @@ export class WebAuthnService {
     } = {}
   ): Promise<WebAuthnAuthenticationOptions> {
     // Rate limiting
-    const rateLimitKey = userId ? `webauthn_auth:${userId}` : `webauthn_auth:${request.ip}`;
+    const rateLimitKey = userId ? `webauthn_auth:${userId}` : `webauthn_auth:${_request.ip}`;
     const rateLimitResult = await this.rateLimiter.check(rateLimitKey, 'webauthn_auth');
 
     if (!rateLimitResult.allowed) {
@@ -440,8 +440,8 @@ export class WebAuthnService {
         actor: {
           type: 'user',
           id: credential.userId,
-          ip: request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip,
-          userAgent: request.headers.get('user-agent') || undefined,
+          ip: _request.headers.get('x-forwarded-for')?.split(',')[0] || _request.ip,
+          userAgent: _request.headers.get('user-agent') || undefined,
         },
         context: {},
         metadata: {
@@ -465,8 +465,8 @@ export class WebAuthnService {
         actor: {
           type: 'user',
           id: userId,
-          ip: request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip,
-          userAgent: request.headers.get('user-agent') || undefined,
+          ip: _request.headers.get('x-forwarded-for')?.split(',')[0] || _request.ip,
+          userAgent: _request.headers.get('user-agent') || undefined,
         },
         context: {},
         metadata: {
@@ -493,7 +493,7 @@ export class WebAuthnService {
       .order('created_at', { ascending: false });
 
     if (error) {
-      throw new Error(`Failed to fetch user credentials: ${error.message}`);
+      throw new Error(`Failed to fetch user credentials: ${.message}`);
     }
 
     return data || [];
@@ -507,14 +507,14 @@ export class WebAuthnService {
     credentialId: string,
     userId: string
   ): Promise<void> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from('webauthn_credentials')
       .delete()
       .eq('id', credentialId)
       .eq('user_id', userId);
 
     if (error) {
-      throw new Error(`Failed to delete credential: ${error.message}`);
+      throw new Error(`Failed to delete credential: ${.message}`);
     }
 
     // Audit log
@@ -524,8 +524,8 @@ export class WebAuthnService {
       actor: {
         type: 'user',
         id: userId,
-        ip: request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip,
-        userAgent: request.headers.get('user-agent') || undefined,
+        ip: _request.headers.get('x-forwarded-for')?.split(',')[0] || _request.ip,
+        userAgent: _request.headers.get('user-agent') || undefined,
       },
       context: {},
       metadata: {
@@ -544,7 +544,7 @@ export class WebAuthnService {
       .select('*');
 
     if (error) {
-      throw new Error(`Failed to fetch WebAuthn stats: ${error.message}`);
+      throw new Error(`Failed to fetch WebAuthn stats: ${.message}`);
     }
 
     const credentials = data || [];
@@ -583,7 +583,7 @@ export class WebAuthnService {
   ): Promise<void> {
     const expiresAt = new Date(Date.now() + this.config.challengeTTL * 1000);
 
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from('webauthn_challenges')
       .insert({
         challenge,
@@ -593,7 +593,7 @@ export class WebAuthnService {
       });
 
     if (error) {
-      throw new Error(`Failed to store challenge: ${error.message}`);
+      throw new Error(`Failed to store challenge: ${.message}`);
     }
   }
 
@@ -633,7 +633,7 @@ export class WebAuthnService {
   }
 
   private async storeCredential(credential: Omit<WebAuthnCredential, 'id'>): Promise<void> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from('webauthn_credentials')
       .insert({
         user_id: credential.userId,
@@ -652,7 +652,7 @@ export class WebAuthnService {
       });
 
     if (error) {
-      throw new Error(`Failed to store credential: ${error.message}`);
+      throw new Error(`Failed to store credential: ${.message}`);
     }
   }
 
@@ -686,7 +686,7 @@ export class WebAuthnService {
   }
 
   private async updateCredentialCounter(credentialId: string, counter: number): Promise<void> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from('webauthn_credentials')
       .update({
         counter,
@@ -695,7 +695,7 @@ export class WebAuthnService {
       .eq('id', credentialId);
 
     if (error) {
-      throw new Error(`Failed to update credential counter: ${error.message}`);
+      throw new Error(`Failed to update credential counter: ${.message}`);
     }
   }
 

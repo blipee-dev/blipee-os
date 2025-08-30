@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { subDays,  format, startOfHour, subHours } from 'date-fns';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, _error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -25,7 +25,7 @@ export async function GET(_request: NextRequest) {
 
     if (!member) {
       return NextResponse.json(
-        { _error: 'No organization found' },
+        { error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -169,7 +169,7 @@ export async function GET(_request: NextRequest) {
   } catch (error) {
     console.error('Failed to load usage metrics:', error);
     return NextResponse.json(
-      { _error: 'Failed to load usage metrics' },
+      { error: 'Failed to load usage metrics' },
       { status: 500 }
     );
   }

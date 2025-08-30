@@ -156,7 +156,17 @@
       "Bash(git fetch:*)",
       "Bash(git merge:*)",
       "Bash(git branch:*)",
-      "WebFetch(domain:www.globalreporting.org)"
+      "WebFetch(domain:www.globalreporting.org)",
+      "Bash(gh pr merge:*)",
+      "Bash(./fix-request-aggressive.sh:*)",
+      "Bash(clear)",
+      "Bash(./fix-syntax-errors.sh:*)",
+      "Bash(./fix-userid-naming.sh:*)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://quovvwrwyfkzhgqdeham.supabase.co SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgyOTIyMiwiZXhwIjoyMDY3NDA1MjIyfQ.3Tua91dJQ9obteac_y9aSD6IEGMO04rkg7Z8sM88yOI npx tsx scripts/test-connection-pooling.ts)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://quovvwrwyfkzhgqdeham.supabase.co SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgyOTIyMiwiZXhwIjoyMDY3NDA1MjIyfQ.3Tua91dJQ9obteac_y9aSD6IEGMO04rkg7Z8sM88yOI SUPABASE_DB_PASSWORD=mbqgYe0wjtlEnxkE npx tsx scripts/test-connection-pooling.ts)",
+      "Bash(tsx scripts/test-performance-suite.ts:*)",
+      "Bash(npx next build:*)",
+      "Bash(timeout 60 npx next build:*)"
     ],
     "deny": []
   }

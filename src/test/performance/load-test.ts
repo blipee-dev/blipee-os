@@ -114,7 +114,7 @@ export class LoadTester {
       }
     }
 
-    await Promise.all(requests);
+    await Promise.all(_request);
   }
 
   private async makeRequest(config: LoadTestConfig): Promise<void> {

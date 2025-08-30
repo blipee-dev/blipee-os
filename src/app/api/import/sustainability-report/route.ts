@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
     if (!file || !organizationId || !userId) {
       return NextResponse.json(
-        { _error: "Missing required fields" },
+        { error: "Missing required fields" },
         { status: 400 },
       );
     }
@@ -59,10 +59,10 @@ export async function POST(req: NextRequest) {
         inserted: result.inserted,
       },
     });
-  } catch (_error: any) {
+  } catch (error: any) {
     console.error("Error importing report:", error);
     return NextResponse.json(
-      { _error: error.message || "Failed to import report" },
+      { error: errorerror.message || "Failed to import report" },
       { status: 500 },
     );
   }

@@ -12,7 +12,7 @@ const signInSchema = z.object({
   password: z.string(),
 });
 
-async function signInHandler(_request: NextRequest) {
+async function signInHandler(request: NextRequest) {
   try {
     const body = await request.json();
 
@@ -64,8 +64,8 @@ async function signInHandler(_request: NextRequest) {
     }
 
     return response;
-  } catch (_error: any) {
-    console.error("Signin _error:", error);
+  } catch (error: any) {
+    console.error('Error:', error);
 
     // Log authentication failure
     const body = await request.clone().json().catch(() => ({}));
@@ -92,7 +92,7 @@ async function signInHandler(_request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: error.message || "Failed to sign in",
+        _error: errorerror.message || "Failed to sign in",
       },
       { status: 401 },
     );

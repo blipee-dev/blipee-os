@@ -30,10 +30,10 @@ export async function GET(
       success: true,
       data: organization,
     });
-  } catch (_error: any) {
-    console.error("Get organization _error:", error);
+  } catch (error: any) {
+    console.error('Error:', error);
     return NextResponse.json(
-      { success: false, _error: error.message || "Failed to get organization" },
+      { success: false, _error: errorerror.message || "Failed to get organization" },
       { status: 500 },
     );
   }
@@ -70,12 +70,12 @@ export async function PATCH(
       success: true,
       data: organization,
     });
-  } catch (_error: any) {
-    console.error("Update organization _error:", error);
+  } catch (error: any) {
+    console.error('Error:', error);
     return NextResponse.json(
       {
         success: false,
-        _error: error.message || "Failed to update organization",
+        _error: errorerror.message || "Failed to update organization",
       },
       { status: 500 },
     );

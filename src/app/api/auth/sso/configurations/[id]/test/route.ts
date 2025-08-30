@@ -14,7 +14,7 @@ export async function POST(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { _error: "Unauthorized" },
+        { error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -24,7 +24,7 @@ export async function POST(
     
     if (!configuration) {
       return NextResponse.json(
-        { _error: "Configuration not found" },
+        { error: "Configuration not found" },
         { status: 404 }
       );
     }
@@ -40,7 +40,7 @@ export async function POST(
     
     if (!membership || membership.role !== 'account_owner') {
       return NextResponse.json(
-        { _error: "Only subscription owners can test SSO configurations" },
+        { error: "Only subscription owners can test SSO configurations" },
         { status: 403 }
       );
     }
@@ -49,10 +49,10 @@ export async function POST(
     const result = await ssoService.testConfiguration(params.id);
     
     return NextResponse.json(result);
-  } catch (_error: any) {
+  } catch (error: any) {
     console.error("Failed to test SSO configuration:", error);
     return NextResponse.json(
-      { _error: error.message || "Failed to test configuration" },
+      { error: errorerror.message || "Failed to test configuration" },
       { status: 500 }
     );
   }

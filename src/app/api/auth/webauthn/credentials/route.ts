@@ -7,9 +7,9 @@ export async function GET(_request: NextRequest) {
     const supabase = createClient();
     
     // Get authenticated user
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user's credentials
@@ -29,7 +29,7 @@ export async function GET(_request: NextRequest) {
       })),
     });
   } catch (error) {
-    console.error('WebAuthn credentials fetch _error:', error);
+    console.error('WebAuthn error:', error);
     return NextResponse.json(
       { 
         _error: 'Failed to fetch credentials',
@@ -40,21 +40,21 @@ export async function GET(_request: NextRequest) {
   }
 }
 
-export async function DELETE(_request: NextRequest) {
+export async function DELETE(request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Get authenticated user
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const credentialId = searchParams.get('id');
 
     if (!credentialId) {
-      return NextResponse.json({ _error: 'Credential ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Credential ID is required' }, { status: 400 });
     }
 
     // Delete credential
@@ -65,7 +65,7 @@ export async function DELETE(_request: NextRequest) {
       message: 'WebAuthn credential deleted successfully',
     });
   } catch (error) {
-    console.error('WebAuthn credential deletion _error:', error);
+    console.error('WebAuthn error:', error);
     return NextResponse.json(
       { 
         _error: 'Failed to delete credential',

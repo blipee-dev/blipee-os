@@ -14,7 +14,7 @@ export async function GET(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { _error: "Unauthorized" },
+        { error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -24,7 +24,7 @@ export async function GET(
     
     if (!configuration) {
       return NextResponse.json(
-        { _error: "Configuration not found" },
+        { error: "Configuration not found" },
         { status: 404 }
       );
     }
@@ -40,7 +40,7 @@ export async function GET(
     
     if (!membership || !["subscription_owner", "organization_admin"].includes(membership.role)) {
       return NextResponse.json(
-        { _error: "Forbidden" },
+        { error: "Forbidden" },
         { status: 403 }
       );
     }
@@ -49,14 +49,14 @@ export async function GET(
   } catch (error: any) {
     console.error("Failed to get SSO configuration:", error);
     return NextResponse.json(
-      { _error: error.message || "Failed to get configuration" },
+      { error: errorerror.message || "Failed to get configuration" },
       { status: 500 }
     );
   }
 }
 
 export async function PUT(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -66,7 +66,7 @@ export async function PUT(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { _error: "Unauthorized" },
+        { error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -75,7 +75,7 @@ export async function PUT(
     const existing = await ssoService.getConfiguration(params.id);
     if (!existing) {
       return NextResponse.json(
-        { _error: "Configuration not found" },
+        { error: "Configuration not found" },
         { status: 404 }
       );
     }
@@ -91,13 +91,13 @@ export async function PUT(
     
     if (!membership || membership.role !== 'account_owner') {
       return NextResponse.json(
-        { _error: "Only subscription owners can update SSO configurations" },
+        { error: "Only subscription owners can update SSO configurations" },
         { status: 403 }
       );
     }
     
     // Get update data
-    const updates = await _request.json();
+    const updates = await request.json();
     
     // Update configuration
     const configuration = await ssoService.updateConfiguration(params.id, updates);
@@ -106,7 +106,7 @@ export async function PUT(
   } catch (error: any) {
     console.error("Failed to update SSO configuration:", error);
     return NextResponse.json(
-      { _error: error.message || "Failed to update configuration" },
+      { error: errorerror.message || "Failed to update configuration" },
       { status: 500 }
     );
   }
@@ -123,7 +123,7 @@ export async function DELETE(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { _error: "Unauthorized" },
+        { error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -132,7 +132,7 @@ export async function DELETE(
     const existing = await ssoService.getConfiguration(params.id);
     if (!existing) {
       return NextResponse.json(
-        { _error: "Configuration not found" },
+        { error: "Configuration not found" },
         { status: 404 }
       );
     }
@@ -148,7 +148,7 @@ export async function DELETE(
     
     if (!membership || membership.role !== 'account_owner') {
       return NextResponse.json(
-        { _error: "Only subscription owners can delete SSO configurations" },
+        { error: "Only subscription owners can delete SSO configurations" },
         { status: 403 }
       );
     }
@@ -160,7 +160,7 @@ export async function DELETE(
   } catch (error: any) {
     console.error("Failed to delete SSO configuration:", error);
     return NextResponse.json(
-      { _error: error.message || "Failed to delete configuration" },
+      { error: errorerror.message || "Failed to delete configuration" },
       { status: 500 }
     );
   }

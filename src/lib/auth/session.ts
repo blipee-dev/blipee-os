@@ -46,7 +46,7 @@ export async function getSession(request: NextRequest) {
  * Require authentication - throws if not authenticated
  */
 export async function requireAuth(request: NextRequest): Promise<User> {
-  const user = await getCurrentUser(request);
+  const user = await getCurrentUser(_request);
   
   if (!user) {
     throw new Error('Authentication required');

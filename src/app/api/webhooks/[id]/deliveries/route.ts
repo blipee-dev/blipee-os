@@ -13,10 +13,10 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, _error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -31,7 +31,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     if (!member) {
       return NextResponse.json(
-        { _error: 'No organization found' },
+        { error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -62,7 +62,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Failed to get delivery logs:', error);
     return NextResponse.json(
-      { _error: 'Failed to get delivery logs' },
+      { error: 'Failed to get delivery logs' },
       { status: 500 }
     );
   }

@@ -22,7 +22,7 @@ const server = new ApolloServer({
       async requestDidStart() {
         return {
           async didResolveOperation(requestContext) {
-            console.log('GraphQL Operation:', requestContext.request.operationName);
+            console.log('GraphQL Operation:', requestContext._request.operationName);
           },
           async didEncounterErrors(requestContext) {
             console.error('GraphQL Errors:', requestContext.errors);

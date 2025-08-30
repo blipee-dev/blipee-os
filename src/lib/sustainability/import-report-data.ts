@@ -211,7 +211,7 @@ async function insertIntoSupabase(
   }
 
   if (emissionsToInsert.length > 0) {
-    const { error: _error } = await supabase
+    const { error } = await supabase
       .from("emissions")
       .insert(emissionsToInsert);
 
@@ -301,7 +301,7 @@ async function insertIntoSupabase(
   }
 
   if (metricsToInsert.length > 0) {
-    const { error: _error } = await supabase
+    const { error } = await supabase
       .from("esg_metrics")
       .insert(metricsToInsert);
 
@@ -358,7 +358,7 @@ async function insertIntoSupabase(
     }
 
     if (targetsToInsert.length > 0) {
-      const { error: _error } = await supabase
+      const { error } = await supabase
         .from("sustainability_targets")
         .insert(targetsToInsert);
 

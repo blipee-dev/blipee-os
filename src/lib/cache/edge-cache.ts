@@ -19,7 +19,7 @@ export class EdgeCache {
 
   // Generate cache key based on request
   private getCacheKey(request: NextRequest, varyOn: string[] = []): string {
-    const url = new URL(request.url);
+    const url = new URL(_request.url);
     const parts = [
       url.pathname,
       url.search,
@@ -27,7 +27,7 @@ export class EdgeCache {
 
     // Add vary headers
     varyOn.forEach(header => {
-      const value = request.headers.get(header);
+      const value = _request.headers.get(header);
       if (value) {
         parts.push(`${header}:${value}`);
       }
@@ -68,18 +68,18 @@ export class EdgeCache {
   // Check if request should be cached
   shouldCache(request: NextRequest): boolean {
     // Only cache GET requests
-    if (request.method !== 'GET') {
+    if (_request.method !== 'GET') {
       return false;
     }
 
     // Don't cache authenticated requests
-    if (request.headers.get('authorization')) {
+    if (_request.headers.get('authorization')) {
       return false;
     }
 
     // Don't cache requests with cookies (unless specifically allowed)
-    if (request.headers.get('cookie')) {
-      const cookies = request.headers.get('cookie') || '';
+    if (_request.headers.get('cookie')) {
+      const cookies = _request.headers.get('cookie') || '';
       // Allow caching if only has analytics cookies
       if (!cookies.includes('session') && !cookies.includes('auth')) {
         return true;
@@ -97,7 +97,7 @@ export class EdgeCache {
       handler: () => Promise<NextResponse>
     ): Promise<NextResponse> => {
       // Check if request should be cached
-      if (!this.shouldCache(request)) {
+      if (!this.shouldCache(_request)) {
         return handler();
       }
 
@@ -115,7 +115,7 @@ export class EdgeCache {
     handler: () => Promise<any>,
     options: EdgeCacheOptions = {}
   ): Promise<NextResponse> {
-    const cacheKey = this.getCacheKey(request, options.varyOn);
+    const cacheKey = this.getCacheKey(_request, options.varyOn);
     
     try {
       // Execute handler

@@ -303,7 +303,7 @@ describe('POST /api/ai/chat', () => {
       );
 
       const start = performance.now();
-      const responses = await Promise.all(requests);
+      const responses = await Promise.all(request);
       const duration = performance.now() - start;
 
       // All should succeed
@@ -329,7 +329,7 @@ describe('POST /api/ai/chat', () => {
         }))
       );
 
-      await Promise.all(requests);
+      await Promise.all(request);
 
       // Should use queue for load management
       expect(queueSpy).toHaveBeenCalled();

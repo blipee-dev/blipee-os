@@ -13,17 +13,17 @@ const securityQuestionsSchema = z.object({
   })).min(3).max(5),
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Check authentication
     const sessionCookie = request.cookies.get('blipee-session');
     if (!sessionCookie) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const validation = await sessionManager.validateSession(request);
     if (!validation.valid || !validation.session) {
-      return NextResponse.json({ _error: 'Invalid session' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -52,8 +52,8 @@ export async function POST(_request: NextRequest) {
       success: result.success,
       message: result.message,
     });
-  } catch (_error: any) {
-    console.error('Security questions setup _error:', error);
+  } catch (error: any) {
+    console.error('Error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -69,24 +69,24 @@ export async function POST(_request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: error.message || 'Failed to setup security questions',
+        _error: errorerror.message || 'Failed to setup security questions',
       },
       { status: 500 }
     );
   }
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Check authentication
     const sessionCookie = request.cookies.get('blipee-session');
     if (!sessionCookie) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const validation = await sessionManager.validateSession(request);
     if (!validation.valid || !validation.session) {
-      return NextResponse.json({ _error: 'Invalid session' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
 
     // Get user's recovery options
@@ -122,12 +122,12 @@ export async function GET(_request: NextRequest) {
         securityQuestionsCount: recoveryOptions.security_questions_count,
       },
     });
-  } catch (_error: any) {
-    console.error('Get recovery options _error:', error);
+  } catch (error: any) {
+    console.error('Error:', error);
     return NextResponse.json(
       {
         success: false,
-        _error: error.message || 'Failed to get recovery options',
+        _error: errorerror.message || 'Failed to get recovery options',
       },
       { status: 500 }
     );

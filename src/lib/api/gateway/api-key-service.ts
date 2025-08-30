@@ -156,7 +156,7 @@ export class APIKeyService {
       },
     ];
 
-    const { error: _error } = await supabase
+    const { error } = await supabase
       .from('api_quotas')
       .insert(defaultQuotas);
 
@@ -324,7 +324,7 @@ export class APIKeyService {
   ): Promise<void> {
     const supabase = await this.getSupabase();
     
-    const { error: _error } = await supabase.rpc('track_api_usage', {
+    const { error } = await supabase.rpc('track_api_usage', {
       p_api_key_id: apiKeyId,
       p_endpoint: usage.endpoint,
       p_method: usage.method,

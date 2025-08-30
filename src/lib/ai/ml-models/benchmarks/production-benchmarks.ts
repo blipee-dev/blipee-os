@@ -832,10 +832,10 @@ export class ProductionBenchmarkSuite {
         success: false,
         metrics: {},
         details: { error: error.message },
-        recommendations: [`Fix error: ${error.message}`]
+        recommendations: [`Fix error: ${.message}`]
       };
 
-      console.log(`    ❌ ${testName} failed: ${error.message}`);
+      console.log(`    ❌ ${testName} failed: ${.message}`);
     }
 
     this.results.push(result);

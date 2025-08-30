@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { webAuthnService } from '@/lib/auth/webauthn/service';
 import { createClient } from '@/lib/supabase/server';
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -10,10 +10,10 @@ export async function POST(_request: NextRequest) {
     const { authenticationResponse, userEmail } = body;
 
     if (!authenticationResponse || typeof authenticationResponse !== 'object') {
-      return NextResponse.json({ _error: 'Authentication response is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Authentication response is required' }, { status: 400 });
     }
 
-    let _userId: string | undefined;
+    let userId: string | undefined;
 
     // If user email is provided, get the user ID
     if (userEmail) {
@@ -54,7 +54,7 @@ export async function POST(_request: NextRequest) {
       message: 'WebAuthn authentication verified successfully',
     });
   } catch (error) {
-    console.error('WebAuthn authentication verification _error:', error);
+    console.error('Error:', error);
     return NextResponse.json(
       { 
         _error: 'Failed to verify authentication',

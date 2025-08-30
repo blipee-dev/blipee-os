@@ -285,7 +285,7 @@ export class AuthService {
   async signInWithProvider(provider: "google" | "azure"): Promise<void> {
     const supabase = await this.getSupabase();
     
-    const { error: _error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: provider as any, // Type assertion for now
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
@@ -362,7 +362,7 @@ export class AuthService {
   async signOut(): Promise<void> {
     const supabase = await this.getSupabase();
     
-    const { error: _error } = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
     if (error) throw error;
   }
 
@@ -372,7 +372,7 @@ export class AuthService {
   async resetPassword(email: string): Promise<void> {
     const supabase = await this.getSupabase();
     
-    const { error: _error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     });
 
@@ -385,7 +385,7 @@ export class AuthService {
   async updatePassword(newPassword: string): Promise<void> {
     const supabase = await this.getSupabase();
     
-    const { error: _error } = await supabase.auth.updateUser({
+    const { error } = await supabase.auth.updateUser({
       password: newPassword,
     });
 

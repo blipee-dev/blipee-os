@@ -96,7 +96,7 @@ export async function middleware(request: NextRequest) {
 
   // Apply CSRF protection first for API routes
   if (path.startsWith('/api/')) {
-    const csrfResponse = await csrfMiddleware(request);
+    const csrfResponse = await csrfMiddleware(_request);
     if (csrfResponse) {
       // Log CSRF violation
       await securityAuditLogger.log({
@@ -118,7 +118,7 @@ export async function middleware(request: NextRequest) {
   const ddosCheck = ddosProtection.check(ip);
   if (ddosCheck.blocked) {
     // Record rate limit exceeded
-    recordMetric('http_requests_total', 1, { method, path, status: '429' });
+    recordMetric('httprequests_total', 1, { method, path, status: '429' });
     recordMetric('rate_limit_exceeded_total', 1, { method, path, ip });
     
     // Log security event
@@ -187,7 +187,7 @@ export async function middleware(request: NextRequest) {
         }
       } else {
         // Validate session security
-        const sessionValidation = await secureSessionManager.validateSession(request);
+        const sessionValidation = await secureSessionManager.validateSession(_request);
         
         if (!sessionValidation.session) {
           // Invalid session, redirect to signin
@@ -225,8 +225,8 @@ export async function middleware(request: NextRequest) {
 
   // Record metrics for this request
   const duration = Date.now() - startTime;
-  recordMetric('http_requests_total', 1, { method, path, status: statusCode.toString() });
-  recordMetric('http_request_duration_ms', duration, { method, path });
+  recordMetric('httprequests_total', 1, { method, path, status: statusCode.toString() });
+  recordMetric('httprequest_duration_ms', duration, { method, path });
 
   // Record authentication events
   if (path.startsWith('/api/auth/')) {

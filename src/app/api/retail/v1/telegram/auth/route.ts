@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Mock Telegram authentication
 // In production, this would validate against your actual user database
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const telegramUserId = searchParams.get('telegram_user_id');
@@ -10,7 +10,7 @@ export async function GET(_request: NextRequest) {
 
     if (!telegramUserId || !chatId) {
       return NextResponse.json(
-        { _error: 'Missing required parameters: telegram_user_id, chat_id' },
+        { error: 'Missing required parameters: telegram_user_id, chat_id' },
         { status: 400 }
       );
     }
@@ -35,7 +35,7 @@ export async function GET(_request: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { _error: 'Authentication failed' },
+      { error: 'Authentication failed' },
       { status: 500 }
     );
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCSRF } from '@/hooks/use-csrf';
+import { useCSRF } from '../../hooks/use-csrf';
 
 export interface APIClientOptions extends RequestInit {
   skipCSRF?: boolean;

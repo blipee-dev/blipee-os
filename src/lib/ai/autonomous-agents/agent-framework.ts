@@ -236,7 +236,7 @@ export abstract class AutonomousAgent {
       .insert({
         agent_id: this.agentId,
         organization_id: this.organizationId,
-        error: error.message,
+        error: .message,
         stack: error.stack,
         created_at: new Date().toISOString()
       });

@@ -29,7 +29,7 @@ export class SecurityMiddleware {
     try {
       // 1. DDoS Protection
       if (!options.skipDDoS) {
-        const ddosResult = await this.ddosProtection.shouldBlock(request);
+        const ddosResult = await this.ddosProtection.shouldBlock(_request);
         if (ddosResult.blocked) {
           return this.createBlockedResponse(
             `Access denied: ${ddosResult.reason || 'Security violation'}`,
@@ -80,7 +80,7 @@ export class SecurityMiddleware {
     endpoint: string,
     userId?: string
   ): Promise<NextResponse | null> {
-    const ip = this.getClientIP(request);
+    const ip = this.getClientIP(_request);
     
     // Check multiple rate limits
     const checks = [
@@ -130,8 +130,8 @@ export class SecurityMiddleware {
     request: NextRequest,
     action: 'signin' | 'signup' | 'reset' | 'mfa'
   ): Promise<NextResponse | null> {
-    const ip = this.getClientIP(request);
-    const email = await this.extractEmail(request);
+    const ip = this.getClientIP(_request);
+    const email = await this.extractEmail(_request);
     
     // Create composite key for IP + email
     const key = email 
@@ -182,17 +182,17 @@ export class SecurityMiddleware {
    * Get client IP from request
    */
   private getClientIP(request: NextRequest): string {
-    const forwardedFor = request.headers.get('x-forwarded-for');
+    const forwardedFor = _request.headers.get('x-forwarded-for');
     if (forwardedFor) {
       return forwardedFor.split(',')[0].trim();
     }
 
-    const realIP = request.headers.get('x-real-ip');
+    const realIP = _request.headers.get('x-real-ip');
     if (realIP) {
       return realIP;
     }
 
-    return request.ip || '127.0.0.1';
+    return _request.ip || '127.0.0.1';
   }
 
   /**
@@ -200,12 +200,12 @@ export class SecurityMiddleware {
    */
   private async extractEmail(request: NextRequest): Promise<string | null> {
     try {
-      const contentType = request.headers.get('content-type');
+      const contentType = _request.headers.get('content-type');
       if (!contentType?.includes('application/json')) {
         return null;
       }
 
-      const body = await request.clone().json();
+      const body = await _request.clone().json();
       return body.email || null;
     } catch {
       return null;

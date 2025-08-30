@@ -41,13 +41,13 @@ export async function GET(
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { conversationId } = params;
-    const searchParams = _request.nextUrl.searchParams;
+    const searchParams = request.nextUrl.searchParams;
     const timeframe = searchParams.get('timeframe') || '30d';
 
     // Get conversation to verify access
@@ -58,7 +58,7 @@ export async function GET(
       .single();
 
     if (convError || !conversation) {
-      return NextResponse.json({ _error: 'Conversation not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }
 
     // Verify user has access to organization
@@ -70,7 +70,7 @@ export async function GET(
       .single();
 
     if (!member) {
-      return NextResponse.json({ _error: 'Access denied' }, { status: 403 });
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Calculate date range
@@ -131,7 +131,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Conversation insights _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json({
       _error: 'Failed to generate conversation insights',

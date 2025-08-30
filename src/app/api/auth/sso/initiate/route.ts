@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -10,7 +10,7 @@ export async function POST(_request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { _error: "Unauthorized" },
+        { error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -20,7 +20,7 @@ export async function POST(_request: NextRequest) {
     
     if (!email) {
       return NextResponse.json(
-        { _error: "Email is required" },
+        { error: "Email is required" },
         { status: 400 }
       );
     }
@@ -29,7 +29,7 @@ export async function POST(_request: NextRequest) {
     const domain = email.split("@")[1]?.toLowerCase();
     if (!domain) {
       return NextResponse.json(
-        { _error: "Invalid email format" },
+        { error: "Invalid email format" },
         { status: 400 }
       );
     }
@@ -39,7 +39,7 @@ export async function POST(_request: NextRequest) {
     
     if (!ssoConfig) {
       return NextResponse.json(
-        { _error: "SSO not configured for this domain" },
+        { error: "SSO not configured for this domain" },
         { status: 404 }
       );
     }
@@ -61,16 +61,16 @@ export async function POST(_request: NextRequest) {
       requestId,
       provider: ssoConfig.provider,
     });
-  } catch (_error: any) {
+  } catch (error: any) {
     console.error("Failed to initiate SSO:", error);
     return NextResponse.json(
-      { _error: error.message || "Failed to initiate SSO" },
+      { error: errorerror.message || "Failed to initiate SSO" },
       { status: 500 }
     );
   }
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // This endpoint can be used to check if SSO is available for a domain
     const searchParams = request.nextUrl.searchParams;
@@ -78,7 +78,7 @@ export async function GET(_request: NextRequest) {
     
     if (!email) {
       return NextResponse.json(
-        { _error: "Email is required" },
+        { error: "Email is required" },
         { status: 400 }
       );
     }
@@ -87,7 +87,7 @@ export async function GET(_request: NextRequest) {
     const domain = email.split("@")[1]?.toLowerCase();
     if (!domain) {
       return NextResponse.json(
-        { _error: "Invalid email format" },
+        { error: "Invalid email format" },
         { status: 400 }
       );
     }
@@ -99,10 +99,10 @@ export async function GET(_request: NextRequest) {
       available: !!ssoConfig,
       provider: ssoConfig?.provider,
     });
-  } catch (_error: any) {
+  } catch (error: any) {
     console.error("Failed to check SSO availability:", error);
     return NextResponse.json(
-      { _error: error.message || "Failed to check SSO availability" },
+      { error: errorerror.message || "Failed to check SSO availability" },
       { status: 500 }
     );
   }

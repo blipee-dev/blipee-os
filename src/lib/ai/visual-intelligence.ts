@@ -16,7 +16,7 @@ export class VisualIntelligence {
     interactions: Interaction[];
   }> {
     // Understand what visualization is needed
-    const intent = await this.understandVisualizationIntent(request);
+    const intent = await this.understandVisualizationIntent(_request);
 
     // Generate the perfect visualization
     const component = await this.createDynamicComponent(intent, context);
@@ -45,7 +45,7 @@ export class VisualIntelligence {
     shareableLink: string;
   }> {
     // Parse report requirements
-    const requirements = await this.parseReportRequirements(request);
+    const requirements = await this.parseReportRequirements(_request);
 
     // Generate report sections with AI
     const sections = await this.generateReportSections(requirements, context);
@@ -113,12 +113,12 @@ export class VisualIntelligence {
       type = "forecast";
 
     // Extract metrics
-    const metrics = this.extractMetrics(request);
+    const metrics = this.extractMetrics(_request);
 
     // Extract other parameters
-    const timeframe = this.extractTimeframe(request);
-    const comparison = this.extractComparison(request);
-    const grouping = this.extractGrouping(request);
+    const timeframe = this.extractTimeframe(_request);
+    const comparison = this.extractComparison(_request);
+    const grouping = this.extractGrouping(_request);
 
     return { type, metrics, timeframe, comparison, grouping };
   }

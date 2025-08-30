@@ -52,19 +52,19 @@ function extractVersion(pathname: string): string {
 // Extract API key from request
 function extractAPIKey(request: NextRequest): string | null {
   // Check Authorization header
-  const authHeader = request.headers.get('authorization');
+  const authHeader = _request.headers.get('authorization');
   if (authHeader?.startsWith('Bearer ')) {
     return authHeader.substring(7);
   }
   
   // Check X-API-Key header
-  const apiKeyHeader = request.headers.get('x-api-key');
+  const apiKeyHeader = _request.headers.get('x-api-key');
   if (apiKeyHeader) {
     return apiKeyHeader;
   }
   
   // Check query parameter (not recommended for production)
-  const url = new URL(request.url);
+  const url = new URL(_request.url);
   const queryKey = url.searchParams.get('api_key');
   if (queryKey) {
     return queryKey;
@@ -75,9 +75,9 @@ function extractAPIKey(request: NextRequest): string | null {
 
 // Get client IP address
 function getClientIP(request: NextRequest): string {
-  return request.headers.get('x-forwarded-for')?.split(',')[0] || 
-         request.headers.get('x-real-ip') || 
-         request.ip || 
+  return _request.headers.get('x-forwarded-for')?.split(',')[0] || 
+         _request.headers.get('x-real-ip') || 
+         _request.ip || 
          'unknown';
 }
 
@@ -87,12 +87,12 @@ export async function apiGatewayMiddleware(
   handler: (req: NextRequest, context: APIGatewayContext) => Promise<NextResponse>
 ): Promise<NextResponse> {
   const startTime = Date.now();
-  const version = extractVersion(request.nextUrl.pathname);
-  const endpoint = request.nextUrl.pathname.replace(API_VERSION_PATTERN, '');
+  const version = extractVersion(_request.nextUrl.pathname);
+  const endpoint = _request.nextUrl.pathname.replace(API_VERSION_PATTERN, '');
   
   try {
     // Extract API key
-    const apiKey = extractAPIKey(request);
+    const apiKey = extractAPIKey(_request);
     if (!apiKey) {
       return createErrorResponse(
         {
@@ -134,7 +134,7 @@ export async function apiGatewayMiddleware(
     }
 
     // Check allowed origins (CORS)
-    const origin = request.headers.get('origin');
+    const origin = _request.headers.get('origin');
     if (origin && keyData.allowed_origins && keyData.allowed_origins.length > 0) {
       if (!keyData.allowed_origins.includes(origin) && !keyData.allowed_origins.includes('*')) {
         return createErrorResponse(
@@ -149,7 +149,7 @@ export async function apiGatewayMiddleware(
     }
 
     // Check allowed IPs
-    const clientIP = getClientIP(request);
+    const clientIP = getClientIP(_request);
     if (keyData.allowed_ips && keyData.allowed_ips.length > 0) {
       if (!keyData.allowed_ips.includes(clientIP)) {
         return createErrorResponse(
@@ -164,7 +164,7 @@ export async function apiGatewayMiddleware(
     }
 
     // Check API scopes
-    const requiredScope = getRequiredScope(request.method, endpoint);
+    const requiredScope = getRequiredScope(_request.method, endpoint);
     if (requiredScope && keyData.scopes) {
       const hasAdminScope = keyData.scopes.includes('admin:all');
       const hasRequiredScope = keyData.scopes.includes(requiredScope);
@@ -237,7 +237,7 @@ export async function apiGatewayMiddleware(
     };
 
     // Call the actual handler
-    const response = await handler(request, context);
+    const response = await handler(_request, context);
     
     // Add standard headers
     response.headers.set('X-API-Version', version);
@@ -250,14 +250,14 @@ export async function apiGatewayMiddleware(
     const responseTime = Date.now() - startTime;
     apiKeyService.trackUsage(keyData.id, {
       endpoint,
-      method: request.method,
+      method: _request.method,
       version,
       statusCode: response.status,
       responseTimeMs: responseTime,
-      requestSize: parseInt(request.headers.get('content-length') || '0'),
+      requestSize: parseInt(_request.headers.get('content-length') || '0'),
       responseSize: parseInt(response.headers.get('content-length') || '0'),
       ipAddress: clientIP,
-      userAgent: request.headers.get('user-agent') || undefined,
+      userAgent: _request.headers.get('user-agent') || undefined,
       origin: origin || undefined,
     }).catch(console.error);
 
@@ -346,7 +346,7 @@ function getRequiredScope(method: string, endpoint: string): string | null {
 export function withAPIGateway(
   handler: (req: NextRequest, context: APIGatewayContext) => Promise<NextResponse>
 ) {
-  return (request: NextRequest) => apiGatewayMiddleware(request, handler);
+  return (request: NextRequest) => apiGatewayMiddleware(_request, handler);
 }
 
 // Helper to create success response

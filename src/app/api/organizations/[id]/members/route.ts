@@ -28,10 +28,10 @@ export async function GET(
       success: true,
       data: members,
     });
-  } catch (_error: any) {
-    console.error("Get members _error:", error);
+  } catch (error: any) {
+    console.error('Error:', error);
     return NextResponse.json(
-      { success: false, _error: error.message || "Failed to get members" },
+      { success: false, _error: errorerror.message || "Failed to get members" },
       { status: 500 },
     );
   }
@@ -72,8 +72,8 @@ export async function POST(
       success: true,
       data: member,
     });
-  } catch (_error: any) {
-    console.error("Invite user _error:", error);
+  } catch (error: any) {
+    console.error('Error:', error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -87,7 +87,7 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { success: false, _error: error.message || "Failed to invite user" },
+      { success: false, _error: errorerror.message || "Failed to invite user" },
       { status: 500 },
     );
   }

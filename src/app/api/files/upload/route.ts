@@ -45,13 +45,13 @@ export const POST = withAuth(withErrorHandler(async (req: NextRequest, _userId: 
     const validated = uploadSchema.parse({ conversationId, organizationId });
 
     if (!file) {
-      return NextResponse.json({ _error: "No file provided" }, { status: 400 });
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     // Security: Validate file type
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { _error: "Invalid file type. Allowed types: PDF, CSV, PNG, JPG, XLSX" },
+        { error: "Invalid file type. Allowed types: PDF, CSV, PNG, JPG, XLSX" },
         { status: 400 }
       );
     }
@@ -60,7 +60,7 @@ export const POST = withAuth(withErrorHandler(async (req: NextRequest, _userId: 
     const fileExt = path.extname(file.name).toLowerCase();
     if (!ALLOWED_EXTENSIONS.includes(fileExt)) {
       return NextResponse.json(
-        { _error: "Invalid file extension" },
+        { error: "Invalid file extension" },
         { status: 400 }
       );
     }
@@ -68,7 +68,7 @@ export const POST = withAuth(withErrorHandler(async (req: NextRequest, _userId: 
     // Security: Validate file size
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { _error: "File size exceeds 10MB limit" },
+        { error: "File size exceeds 10MB limit" },
         { status: 400 }
       );
     }
@@ -87,7 +87,7 @@ export const POST = withAuth(withErrorHandler(async (req: NextRequest, _userId: 
     // Security: Basic file content validation (magic bytes)
     if (!validateFileContent(buffer, file.type)) {
       return NextResponse.json(
-        { _error: "File content does not match file type" },
+        { error: "File content does not match file type" },
         { status: 400 }
       );
     }
@@ -104,9 +104,9 @@ export const POST = withAuth(withErrorHandler(async (req: NextRequest, _userId: 
       });
 
     if (uploadError) {
-      console.error("Upload _error:", uploadError);
+      console.error("Upload error:", uploadError);
       return NextResponse.json(
-        { _error: "Failed to upload file" },
+        { error: "Failed to upload file" },
         { status: 500 }
       );
     }
@@ -128,7 +128,7 @@ export const POST = withAuth(withErrorHandler(async (req: NextRequest, _userId: 
         extractedData = await parser.parseSpreadsheet(buffer);
       }
     } catch (parseError) {
-      console.error("Parse _error:", parseError);
+      console.error("Parse error:", parseError);
       // Continue even if parsing fails
     }
 
@@ -152,11 +152,11 @@ export const POST = withAuth(withErrorHandler(async (req: NextRequest, _userId: 
       .single();
 
     if (dbError) {
-      console.error("Database _error:", dbError);
+      console.error("Database error:", dbError);
       // Clean up uploaded file
       await supabase.storage.from("uploads").remove([securePath]);
       return NextResponse.json(
-        { _error: "Failed to save file metadata" },
+        { error: "Failed to save file metadata" },
         { status: 500 }
       );
     }
@@ -211,7 +211,7 @@ export const GET = withAuth(withErrorHandler(async (req: NextRequest, _userId: s
     
     if (!fileId || !z.string().uuid().safeParse(fileId).success) {
       return NextResponse.json(
-        { _error: "Valid file ID required" },
+        { error: "Valid file ID required" },
         { status: 400 }
       );
     }
@@ -228,7 +228,7 @@ export const GET = withAuth(withErrorHandler(async (req: NextRequest, _userId: s
 
     if (error || !file) {
       return NextResponse.json(
-        { _error: "File not found" },
+        { error: "File not found" },
         { status: 404 }
       );
     }

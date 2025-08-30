@@ -278,7 +278,7 @@ export class SupplierNetwork {
       .single();
 
     if (error) {
-      throw new Error(`Failed to create supplier node: ${error.message}`);
+      throw new Error(`Failed to create supplier node: ${.message}`);
     }
 
     return node;
@@ -324,7 +324,7 @@ export class SupplierNetwork {
       .single();
 
     if (error) {
-      throw new Error(`Failed to create supplier edge: ${error.message}`);
+      throw new Error(`Failed to create supplier edge: ${.message}`);
     }
 
     return edge;

@@ -11,7 +11,7 @@ describe('error-handler', () => {
   describe('ApiError', () => {
     it('should create basic API error', () => {
       const error = new ApiError('Something went wrong', 500);
-      expect(error.message).toBe('Something went wrong');
+      expect(.message).toBe('Something went wrong');
       expect(error.statusCode).toBe(500);
       expect(error.name).toBe('ApiError');
     });
@@ -25,7 +25,7 @@ describe('error-handler', () => {
   describe('ValidationError', () => {
     it('should create validation error with 400 status', () => {
       const error = new ValidationError('Invalid input');
-      expect(error.message).toBe('Invalid input');
+      expect(.message).toBe('Invalid input');
       expect(error.statusCode).toBe(400);
     });
 
@@ -39,7 +39,7 @@ describe('error-handler', () => {
   describe('NotFoundError', () => {
     it('should create not found error with 404 status', () => {
       const error = new NotFoundError('Resource not found');
-      expect(error.message).toBe('Resource not found');
+      expect(.message).toBe('Resource not found');
       expect(error.statusCode).toBe(404);
     });
   });
@@ -47,7 +47,7 @@ describe('error-handler', () => {
   describe('UnauthorizedError', () => {
     it('should create unauthorized error with 401 status', () => {
       const error = new UnauthorizedError('Please login');
-      expect(error.message).toBe('Please login');
+      expect(.message).toBe('Please login');
       expect(error.statusCode).toBe(401);
     });
   });
@@ -55,7 +55,7 @@ describe('error-handler', () => {
   describe('ForbiddenError', () => {
     it('should create forbidden error with 403 status', () => {
       const error = new ForbiddenError('Access denied');
-      expect(error.message).toBe('Access denied');
+      expect(.message).toBe('Access denied');
       expect(error.statusCode).toBe(403);
     });
   });

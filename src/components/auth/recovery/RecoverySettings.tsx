@@ -85,7 +85,7 @@ export function RecoverySettings() {
         await fetchRecoveryOptions();
         alert('Security questions saved successfully!');
       } else {
-        alert(result.message || 'Failed to save security questions');
+        alert(resulterror.message || 'Failed to save security questions');
       }
     } catch (error) {
       console.error('Failed to save security questions:', error);

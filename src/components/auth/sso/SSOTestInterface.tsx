@@ -33,7 +33,7 @@ export function SSOTestInterface({ configurationId, onClose }: SSOTestInterfaceP
       
       setResult({
         success: response.ok,
-        message: data.message || (response.ok ? 'Configuration test passed' : 'Configuration test failed'),
+        message: dataerror.message || (response.ok ? 'Configuration test passed' : 'Configuration test failed'),
         details: data.details,
       });
     } catch (error) {
