@@ -20,9 +20,9 @@ export async function GET(
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { conversationId } = params;
@@ -39,7 +39,7 @@ export async function GET(
       .single();
 
     if (convError || !conversation) {
-      return NextResponse.json({ _error: 'Conversation not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }
 
     // Verify user has access to organization
@@ -53,7 +53,7 @@ export async function GET(
     if (!member) {
       await securityAuditLogger.log({
         eventType: SecurityEventType.UNAUTHORIZED_ACCESS,
-        _userId: user.id,
+        userId: user.id,
         ipAddress: request.ip || 'unknown',
         userAgent: request.headers.get('user-agent') || 'unknown',
         resource: `/api/conversations/${conversationId}/history`,
@@ -62,7 +62,7 @@ export async function GET(
         details: { conversationId }
       });
       
-      return NextResponse.json({ _error: 'Access denied' }, { status: 403 });
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Get messages
@@ -92,7 +92,7 @@ export async function GET(
     // Log successful access
     await securityAuditLogger.log({
       eventType: SecurityEventType.CONVERSATION_ACCESSED,
-      _userId: user.id,
+      userId: user.id,
       ipAddress: request.ip || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
       resource: `/api/conversations/${conversationId}/history`,
@@ -119,7 +119,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Conversation history _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json({
       _error: 'Failed to retrieve conversation history',
@@ -139,9 +139,9 @@ export async function DELETE(
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { conversationId } = params;
@@ -154,7 +154,7 @@ export async function DELETE(
       .single();
 
     if (convError || !conversation) {
-      return NextResponse.json({ _error: 'Conversation not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }
 
     // Verify user has admin access to organization
@@ -166,14 +166,14 @@ export async function DELETE(
       .single();
 
     if (!member || !['account_owner', 'sustainability_manager'].includes(member.role)) {
-      return NextResponse.json({ _error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
     // Clear conversation memory
     await conversationMemory.clearMemory(conversationId);
 
     // Delete messages
-    const { _error: deleteError } = await supabase
+    const { error: deleteError } = await supabase
       .from('conversation_messages')
       .delete()
       .eq('conversation_id', conversationId);
@@ -185,7 +185,7 @@ export async function DELETE(
     // Log the action
     await securityAuditLogger.log({
       eventType: SecurityEventType.DATA_DELETION,
-      _userId: user.id,
+      userId: user.id,
       ipAddress: request.ip || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
       resource: `/api/conversations/${conversationId}/history`,
@@ -201,7 +201,7 @@ export async function DELETE(
     });
 
   } catch (error) {
-    console.error('Clear history _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json({
       _error: 'Failed to clear conversation history',

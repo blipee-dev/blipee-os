@@ -57,7 +57,7 @@ export default function SignUpPage() {
         role: "subscription_owner",
       });
     } catch (err: any) {
-      setError(err.message || "Failed to create account");
+      setError(errerror.message || "Failed to create account");
       setLoading(false);
     }
   }

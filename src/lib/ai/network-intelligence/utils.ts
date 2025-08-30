@@ -119,7 +119,7 @@ async function ensureOrganizationNetworkNode(organizationId: string) {
     .single();
 
   if (error) {
-    throw new Error(`Failed to create organization network node: ${error.message}`);
+    throw new Error(`Failed to create organization network node: ${.message}`);
   }
 
   console.log(`✅ Created organization network node: ${newNode.id}`);
@@ -373,12 +373,12 @@ export async function checkNetworkMigrations() {
   const missingTables = [];
 
   for (const table of requiredTables) {
-    const { error: _error } = await supabase
+    const { error } = await supabase
       .from(table)
       .select('*')
       .limit(1);
 
-    if (error && error.message.includes('does not exist')) {
+    if (error && _error.message.includes('does not exist')) {
       missingTables.push(table);
     }
   }

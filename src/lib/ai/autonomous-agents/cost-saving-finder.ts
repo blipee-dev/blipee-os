@@ -475,7 +475,7 @@ export class CostSavingFinderAgent extends AutonomousAgent {
       priority: 'medium',
       data: {
         optimization_areas: ['demand_management', 'rate_optimization', 'efficiency'],
-        include_renewable_options: true,
+        include_renewableoptions: true,
         peak_shaving_analysis: true
       }
     });
@@ -1143,7 +1143,7 @@ export class CostSavingFinderAgent extends AutonomousAgent {
     // Simplified renewable analysis
     return {
       annual_savings: 35000,
-      recommended_options: ['solar', 'wind_ppa']
+      recommendedoptions: ['solar', 'wind_ppa']
     };
   }
 

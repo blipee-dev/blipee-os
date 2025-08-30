@@ -5,17 +5,17 @@ import { sessionManager } from '@/lib/session/manager';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Check if user has permission to view security stats
     const sessionCookie = request.cookies.get('blipee-session');
     if (!sessionCookie) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const validation = await sessionManager.validateSession(request, ['security:view']);
     if (!validation.valid) {
-      return NextResponse.json({ _error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Get DDoS stats
@@ -42,9 +42,9 @@ export async function GET(_request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Security stats _error:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { _error: 'Failed to fetch security stats' },
+      { error: 'Failed to fetch security stats' },
       { status: 500 }
     );
   }

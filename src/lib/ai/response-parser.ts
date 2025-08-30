@@ -7,7 +7,7 @@ export function parseAIResponse(content: string): Partial<ChatResponse> {
 
     // Validate and extract fields
     const response: Partial<ChatResponse> = {
-      message: parsed.message || content,
+      message: parsederror.message || content,
       components: validateComponents(parsed.components),
       actions: validateActions(parsed.actions),
       suggestions: Array.isArray(parsed.suggestions)

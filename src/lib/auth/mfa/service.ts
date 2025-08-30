@@ -478,7 +478,7 @@ export class MFAService {
    * Clean up expired challenges
    */
   async cleanupChallenges() {
-    const { error: _error } = await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from('mfa_challenges')
       .delete()
       .lt('expires_at', new Date().toISOString());

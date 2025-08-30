@@ -103,12 +103,12 @@ export const assertRateLimited = async (
 ) => {
   // Make requests up to the limit
   for (let i = 0; i < limit; i++) {
-    const response = await handler(request, context);
+    const response = await handler(_request, context);
     expect(response.status).toBeLessThan(429);
   }
   
   // Next request should be rate limited
-  const response = await handler(request, context);
+  const response = await handler(_request, context);
   expect(response.status).toBe(429);
   const data = await response.json();
   expect(data.error).toContain('Rate limit exceeded');
@@ -120,7 +120,7 @@ export const assertValidation = async (
   context: any = {},
   expectedErrors: string[]
 ) => {
-  const response = await handler(request, context);
+  const response = await handler(_request, context);
   expect(response.status).toBe(400);
   const data = await response.json();
   
@@ -149,7 +149,7 @@ export const testSqlInjection = async (
       body: { [paramName]: payload },
     });
     
-    const response = await handler(request, context);
+    const response = await handler(_request, context);
     expect(response.status).not.toBe(500); // Should not cause server error
     
     // Verify no data was actually deleted/modified
@@ -177,7 +177,7 @@ export const testXssProtection = async (
       body: { [paramName]: payload },
     });
     
-    const response = await handler(request, context);
+    const response = await handler(_request, context);
     const data = await response.json();
     
     // Verify payload is escaped or rejected
@@ -196,7 +196,7 @@ export const measureResponseTime = async (
   maxTimeMs: number = 500
 ) => {
   const start = performance.now();
-  await handler(request, context);
+  await handler(_request, context);
   const end = performance.now();
   
   const responseTime = end - start;
@@ -214,7 +214,7 @@ export const testConcurrentRequests = async (
     measureResponseTime(handler, request, context, 1000)
   );
   
-  const responseTimes = await Promise.all(requests);
+  const responseTimes = await Promise.all(_request);
   const avgResponseTime = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
   
   expect(avgResponseTime).toBeLessThan(500); // Average should be under 500ms

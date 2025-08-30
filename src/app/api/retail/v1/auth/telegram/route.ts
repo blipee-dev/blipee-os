@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { telegram_user_id, telegram_username, chat_id } = body;
 
     if (!telegram_user_id || !chat_id) {
       return NextResponse.json(
-        { _error: 'telegram_user_id and chat_id are required' },
+        { error: 'telegram_user_id and chat_id are required' },
         { status: 400 }
       );
     }
@@ -33,7 +33,7 @@ export async function POST(_request: NextRequest) {
     return NextResponse.json(authResult);
   } catch (error) {
     return NextResponse.json(
-      { _error: 'Authentication failed' },
+      { error: 'Authentication failed' },
       { status: 500 }
     );
   }

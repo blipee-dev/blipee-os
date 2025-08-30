@@ -8,7 +8,7 @@ const completeStepSchema = z.object({
   data: z.record(z.any()),
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const session = await authService.getSession();
     if (!session) {
@@ -31,8 +31,8 @@ export async function POST(_request: NextRequest) {
       success: true,
       data: result,
     });
-  } catch (_error: any) {
-    console.error("Complete step _error:", error);
+  } catch (error: any) {
+    console.error('Error:', error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -46,7 +46,7 @@ export async function POST(_request: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: false, _error: error.message || "Failed to complete step" },
+      { success: false, _error: errorerror.message || "Failed to complete step" },
       { status: 500 },
     );
   }

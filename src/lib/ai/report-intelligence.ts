@@ -18,7 +18,7 @@ export class ReportIntelligence {
     distribution: DistributionOptions;
   }> {
     // Understand report requirements
-    const requirements = await this.parseReportRequest(request);
+    const requirements = await this.parseReportRequest(_request);
 
     // Generate report structure
     const structure = await this.designReportStructure(requirements, context);
@@ -499,10 +499,10 @@ export class ReportIntelligence {
       format = "excel";
 
     // Extract period
-    const period = this.extractPeriod(request);
+    const period = this.extractPeriod(_request);
 
     // Determine audience
-    const audience = this.determineAudience(request);
+    const audience = this.determineAudience(_request);
 
     return { type, format, period, audience };
   }

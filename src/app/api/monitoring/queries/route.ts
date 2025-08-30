@@ -63,7 +63,7 @@ const patternsSchema = z.object({
  *       403:
  *         description: Forbidden - requires admin role
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -71,7 +71,7 @@ export async function GET(_request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -85,7 +85,7 @@ export async function GET(_request: NextRequest) {
     
     if (!member || member.role !== 'account_owner') {
       return NextResponse.json(
-        { _error: 'Forbidden - admin access required' },
+        { error: 'Forbidden - admin access required' },
         { status: 403 }
       );
     }
@@ -149,7 +149,7 @@ export async function GET(_request: NextRequest) {
       
       default:
         return NextResponse.json(
-          { _error: 'Invalid type parameter' },
+          { error: 'Invalid type parameter' },
           { status: 400 }
         );
     }
@@ -158,13 +158,13 @@ export async function GET(_request: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { _error: 'Invalid parameters', details: error.errors },
+        { error: 'Invalid parameters', details: error.errors },
         { status: 400 }
       );
     }
     
     return NextResponse.json(
-      { _error: 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -205,7 +205,7 @@ export async function GET(_request: NextRequest) {
  *       403:
  *         description: Forbidden - requires admin role
  */
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -213,7 +213,7 @@ export async function POST(_request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -227,7 +227,7 @@ export async function POST(_request: NextRequest) {
     
     if (!member || member.role !== 'account_owner') {
       return NextResponse.json(
-        { _error: 'Forbidden - admin access required' },
+        { error: 'Forbidden - admin access required' },
         { status: 403 }
       );
     }
@@ -250,14 +250,14 @@ export async function POST(_request: NextRequest) {
       
       default:
         return NextResponse.json(
-          { _error: 'Invalid action. Use "start" or "stop"' },
+          { error: 'Invalid action. Use "start" or "stop"' },
           { status: 400 }
         );
     }
   } catch (error) {
     logger.error('Error controlling query monitoring', error);
     return NextResponse.json(
-      { _error: 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

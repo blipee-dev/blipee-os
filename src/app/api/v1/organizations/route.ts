@@ -41,7 +41,7 @@ export const POST = withAPIGateway(async (_request: NextRequest, context: APIGat
   // Validate required fields
   if (!body.name) {
     return createSuccessResponse(
-      { _error: 'Name is required' },
+      { error: 'Name is required' },
       context.version
     );
   }

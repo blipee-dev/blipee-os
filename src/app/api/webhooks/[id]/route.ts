@@ -15,10 +15,10 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, _error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -33,7 +33,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     if (!member) {
       return NextResponse.json(
-        { _error: 'No organization found' },
+        { error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -43,7 +43,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     
     if (!webhook) {
       return NextResponse.json(
-        { _error: 'Webhook not found' },
+        { error: 'Webhook not found' },
         { status: 404 }
       );
     }
@@ -52,7 +52,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Failed to get webhook:', error);
     return NextResponse.json(
-      { _error: 'Failed to get webhook' },
+      { error: 'Failed to get webhook' },
       { status: 500 }
     );
   }
@@ -63,10 +63,10 @@ export async function PUT(_request: NextRequest, { params }: RouteParams) {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, _error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -81,7 +81,7 @@ export async function PUT(_request: NextRequest, { params }: RouteParams) {
 
     if (!member) {
       return NextResponse.json(
-        { _error: 'No organization found' },
+        { error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -89,7 +89,7 @@ export async function PUT(_request: NextRequest, { params }: RouteParams) {
     // Check if user has permissions
     if (!['account_owner', 'admin', 'sustainability_manager'].includes(member.role)) {
       return NextResponse.json(
-        { _error: 'Insufficient permissions' },
+        { error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -102,7 +102,7 @@ export async function PUT(_request: NextRequest, { params }: RouteParams) {
       const urlValidation = webhookVerifier.validateWebhookUrl(data.url);
       if (!urlValidation.valid) {
         return NextResponse.json(
-          { _error: 'Invalid webhook URL', details: urlValidation.errors },
+          { error: 'Invalid webhook URL', details: urlValidation.errors },
           { status: 400 }
         );
       }
@@ -112,7 +112,7 @@ export async function PUT(_request: NextRequest, { params }: RouteParams) {
       const eventValidation = webhookVerifier.validateEventTypes(data.events);
       if (!eventValidation.valid) {
         return NextResponse.json(
-          { _error: 'Invalid event types', details: eventValidation.errors },
+          { error: 'Invalid event types', details: eventValidation.errors },
           { status: 400 }
         );
       }
@@ -122,7 +122,7 @@ export async function PUT(_request: NextRequest, { params }: RouteParams) {
       const headerValidation = webhookVerifier.validateHeaders(data.headers);
       if (!headerValidation.valid) {
         return NextResponse.json(
-          { _error: 'Invalid headers', details: headerValidation.errors },
+          { error: 'Invalid headers', details: headerValidation.errors },
           { status: 400 }
         );
       }
@@ -142,7 +142,7 @@ export async function PUT(_request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Failed to update webhook:', error);
     return NextResponse.json(
-      { _error: 'Failed to update webhook' },
+      { error: 'Failed to update webhook' },
       { status: 500 }
     );
   }
@@ -153,10 +153,10 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, _error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -171,7 +171,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     if (!member) {
       return NextResponse.json(
-        { _error: 'No organization found' },
+        { error: 'No organization found' },
         { status: 404 }
       );
     }
@@ -179,7 +179,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     // Check if user has permissions
     if (!['account_owner', 'admin', 'sustainability_manager'].includes(member.role)) {
       return NextResponse.json(
-        { _error: 'Insufficient permissions' },
+        { error: 'Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -194,7 +194,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Failed to delete webhook:', error);
     return NextResponse.json(
-      { _error: 'Failed to delete webhook' },
+      { error: 'Failed to delete webhook' },
       { status: 500 }
     );
   }

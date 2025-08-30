@@ -14,13 +14,13 @@ export class AuditLogger {
   private getActorFromRequest(request: NextRequest) {
     return {
       type: 'user' as const,
-      id: request.headers.get('x-user-id') || undefined,
+      id: _request.headers.get('x-user-id') || undefined,
       email: undefined, // Would need to look up from user service
-      ip: request.headers.get('x-forwarded-for')?.split(',')[0] || 
-          request.headers.get('x-real-ip') || 
-          request.ip || 
+      ip: _request.headers.get('x-forwarded-for')?.split(',')[0] || 
+          _request.headers.get('x-real-ip') || 
+          _request.ip || 
           undefined,
-      userAgent: request.headers.get('user-agent') || undefined,
+      userAgent: _request.headers.get('user-agent') || undefined,
     };
   }
 
@@ -29,11 +29,11 @@ export class AuditLogger {
    */
   private getContextFromRequest(request: NextRequest) {
     return {
-      organizationId: request.headers.get('x-organization-id') || undefined,
-      buildingId: request.headers.get('x-building-id') || undefined,
-      sessionId: request.cookies.get('blipee-session')?.value || undefined,
-      requestId: request.headers.get('x-request-id') || undefined,
-      apiKeyId: request.headers.get('x-api-key-id') || undefined,
+      organizationId: _request.headers.get('x-organization-id') || undefined,
+      buildingId: _request.headers.get('x-building-id') || undefined,
+      sessionId: _request.cookies.get('blipee-session')?.value || undefined,
+      requestId: _request.headers.get('x-request-id') || undefined,
+      apiKeyId: _request.headers.get('x-api-key-id') || undefined,
     };
   }
 
@@ -50,11 +50,11 @@ export class AuditLogger {
       type: AuditEventType.AUTH_LOGIN_SUCCESS,
       severity: AuditEventSeverity.INFO,
       actor: {
-        ...this.getActorFromRequest(request),
+        ...this.getActorFromRequest(_request),
         id: userId,
         email,
       },
-      context: this.getContextFromRequest(request),
+      context: this.getContextFromRequest(_request),
       metadata: {
         authMethod: method,
       },
@@ -75,10 +75,10 @@ export class AuditLogger {
       type: AuditEventType.AUTH_LOGIN_FAILED,
       severity: AuditEventSeverity.WARNING,
       actor: {
-        ...this.getActorFromRequest(request),
+        ...this.getActorFromRequest(_request),
         email,
       },
-      context: this.getContextFromRequest(request),
+      context: this.getContextFromRequest(_request),
       metadata: {
         attemptedEmail: email,
       },
@@ -103,10 +103,10 @@ export class AuditLogger {
       type: success ? AuditEventType.AUTH_MFA_VERIFIED : AuditEventType.AUTH_MFA_FAILED,
       severity: success ? AuditEventSeverity.INFO : AuditEventSeverity.WARNING,
       actor: {
-        ...this.getActorFromRequest(request),
+        ...this.getActorFromRequest(_request),
         id: userId,
       },
-      context: this.getContextFromRequest(request),
+      context: this.getContextFromRequest(_request),
       metadata: {
         mfaMethod: method,
       },
@@ -127,12 +127,12 @@ export class AuditLogger {
     await this.auditService.log({
       type: AuditEventType.DATA_ACCESSED,
       severity: AuditEventSeverity.INFO,
-      actor: this.getActorFromRequest(request),
+      actor: this.getActorFromRequest(_request),
       target: {
         type: resource,
         id: resourceId,
       },
-      context: this.getContextFromRequest(request),
+      context: this.getContextFromRequest(_request),
       metadata: {
         action,
       },
@@ -159,8 +159,8 @@ export class AuditLogger {
     await this.auditService.log({
       type: typeMap[eventType],
       severity,
-      actor: this.getActorFromRequest(request),
-      context: this.getContextFromRequest(request),
+      actor: this.getActorFromRequest(_request),
+      context: this.getContextFromRequest(_request),
       metadata: details,
       result: 'failure',
     });
@@ -186,12 +186,12 @@ export class AuditLogger {
     await this.auditService.log({
       type: typeMap[action],
       severity: AuditEventSeverity.INFO,
-      actor: this.getActorFromRequest(request),
+      actor: this.getActorFromRequest(_request),
       target: {
         type: 'user',
         id: targetUserId,
       },
-      context: this.getContextFromRequest(request),
+      context: this.getContextFromRequest(_request),
       metadata: {},
       changes,
       result: 'success',
@@ -219,13 +219,13 @@ export class AuditLogger {
     await this.auditService.log({
       type: typeMap[action],
       severity: AuditEventSeverity.INFO,
-      actor: this.getActorFromRequest(request),
+      actor: this.getActorFromRequest(_request),
       target: {
         type: 'organization',
         id: orgId,
         name: orgName,
       },
-      context: this.getContextFromRequest(request),
+      context: this.getContextFromRequest(_request),
       metadata: metadata || {},
       result: 'success',
     });
@@ -251,20 +251,20 @@ export class AuditLogger {
     await this.auditService.log({
       type: statusCode >= 400 ? AuditEventType.API_REQUEST_FAILED : AuditEventType.DATA_ACCESSED,
       severity,
-      actor: this.getActorFromRequest(request),
-      context: this.getContextFromRequest(request),
+      actor: this.getActorFromRequest(_request),
+      context: this.getContextFromRequest(_request),
       metadata: {
         endpoint,
         method,
         statusCode,
         responseTime,
-        path: request.nextUrl.pathname,
-        query: Object.fromEntries(request.nextUrl.searchParams),
+        path: _request.nextUrl.pathname,
+        query: Object.fromEntries(_request.nextUrl.searchParams),
       },
       result: statusCode < 400 ? 'success' : 'failure',
       errorDetails: error ? {
         code: error.name,
-        message: error.message,
+        message: .message,
         stackTrace: process.env['NODE_ENV'] === 'development' ? error.stack : undefined,
       } : undefined,
     });
@@ -289,13 +289,13 @@ export class AuditLogger {
       },
       metadata: {
         errorName: error.name,
-        errorMessage: error.message,
+        errorMessage: .message,
         ...context,
       },
       result: 'failure',
       errorDetails: {
         code: error.name,
-        message: error.message,
+        message: .message,
         stackTrace: process.env['NODE_ENV'] === 'development' ? error.stack : undefined,
       },
     });

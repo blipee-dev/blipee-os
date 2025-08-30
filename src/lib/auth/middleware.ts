@@ -19,8 +19,8 @@ export async function requireAuth(
 ): Promise<AuthResult> {
   try {
     // Get session from cookies or headers
-    const sessionId = request.cookies.get('blipee-session')?.value ||
-                     request.headers.get('x-session-id');
+    const sessionId = _request.cookies.get('blipee-session')?.value ||
+                     _request.headers.get('x-session-id');
     
     if (!sessionId) {
       return {

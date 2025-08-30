@@ -57,7 +57,7 @@ export class SOC2ComplianceService {
       approvedBy: 'system',
     };
 
-    const { error: _error } = await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from('security_policies')
       .insert({
         id: policy.id,
@@ -200,7 +200,7 @@ export class SOC2ComplianceService {
       requirement.lastVerified = new Date();
 
       // Update policy
-      const { error: _error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('security_policies')
         .update({
           requirements,
@@ -283,7 +283,7 @@ export class SOC2ComplianceService {
       };
 
       // Store report
-      const { error: _error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('compliance_reports')
         .insert({
           id: report.id,
@@ -449,7 +449,7 @@ export class SOC2ComplianceService {
       updatedAt: new Date(),
     };
 
-    const { error: _error } = await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from('data_retention_policies')
       .insert({
         id: policy.id,

@@ -430,7 +430,7 @@ describe('Stream B Week 3-4: Advanced Models', () => {
         options: { includeExplanation: true }
       };
 
-      const response = await integration.predict(request);
+      const response = await integration.predict(_request);
 
       expect(response).toBeDefined();
       expect(response.type).toBe('emissions');
@@ -460,7 +460,7 @@ describe('Stream B Week 3-4: Advanced Models', () => {
         }
       };
 
-      const response = await integration.predict(request);
+      const response = await integration.predict(_request);
 
       expect(response).toBeDefined();
       expect(response.type).toBe('optimization');
@@ -505,7 +505,7 @@ describe('Stream B Week 3-4: Advanced Models', () => {
         }
       };
 
-      const response = await integration.predict(request);
+      const response = await integration.predict(_request);
 
       expect(response).toBeDefined();
       expect(response.type).toBe('multi_model');
@@ -547,7 +547,7 @@ describe('Stream B Week 3-4: Advanced Models', () => {
         }
       ];
 
-      const responses = await integration.batchPredict(requests);
+      const responses = await integration.batchPredict(_request);
 
       expect(responses).toBeDefined();
       expect(Array.isArray(responses)).toBe(true);
@@ -593,7 +593,7 @@ describe('Stream B Week 3-4: Advanced Models', () => {
         data: {}
       };
 
-      await expect(integration.predict(request)).rejects.toThrow();
+      await expect(integration.predict(_request)).rejects.toThrow();
     });
   });
 

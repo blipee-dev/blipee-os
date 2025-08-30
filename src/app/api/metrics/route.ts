@@ -50,7 +50,7 @@ import { logger } from '@/lib/logger';
  *       403:
  *         description: Forbidden - requires admin role
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -58,7 +58,7 @@ export async function GET(_request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -72,7 +72,7 @@ export async function GET(_request: NextRequest) {
     
     if (!member || member.role !== 'account_owner') {
       return NextResponse.json(
-        { _error: 'Forbidden - admin access required' },
+        { error: 'Forbidden - admin access required' },
         { status: 403 }
       );
     }
@@ -108,7 +108,7 @@ export async function GET(_request: NextRequest) {
   } catch (error) {
     logger.error('Error fetching metrics', error);
     return NextResponse.json(
-      { _error: 'Failed to fetch metrics' },
+      { error: 'Failed to fetch metrics' },
       { status: 500 }
     );
   }

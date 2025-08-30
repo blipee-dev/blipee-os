@@ -68,7 +68,9 @@
     "test:session-security": "tsx scripts/test-session-security.ts",
     "test:security:all": "tsx scripts/security-test-suite.ts",
     "db:optimize": "tsx scripts/optimize-database.ts",
-    "test:redis": "tsx scripts/test-redis.ts"
+    "test:redis": "tsx scripts/test-redis.ts",
+    "docs:generate": "tsx scripts/generate-api-docs.ts",
+    "docs:serve": "cd docs/api && python3 -m http.server 8080"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.60.0",
@@ -148,6 +150,9 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
+    "@babel/parser": "^7.28.3",
+    "@babel/traverse": "^7.28.3",
+    "@babel/types": "^7.28.2",
     "@cypress/code-coverage": "^3.14.5",
     "@jest/globals": "^30.0.4",
     "@swc/core": "^1.12.11",

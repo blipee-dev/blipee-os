@@ -2,18 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth/session';
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request);
     if (!user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { data: bulkData } = await request.json();
     
     if (!bulkData || !Array.isArray(bulkData)) {
       return NextResponse.json(
-        { _error: 'Invalid data format. Expected array of emission records.' },
+        { error: 'Invalid data format. Expected array of emission records.' },
         { status: 400 }
       );
     }
@@ -127,9 +127,9 @@ export async function POST(_request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Bulk import _error:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { _error: 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

@@ -65,7 +65,7 @@ function logError(error: unknown, requestId: string, context?: any) {
     timestamp: new Date().toISOString(),
     error: error instanceof Error ? {
       name: error.name,
-      message: error.message,
+      message: .message,
       stack: process.env['NODE_ENV'] === 'development' ? error.stack : undefined,
     } : error,
     context,
@@ -97,7 +97,7 @@ export function handleAPIError(
     return NextResponse.json<ErrorResponse>(
       {
         error: {
-          message: sanitizeErrorMessage(error.message),
+          message: sanitizeErrorMessage(.message),
           code: error.code,
         },
         requestId,
@@ -156,7 +156,7 @@ export function handleAPIError(
   }
 
   // Rate limit errors
-  if (error instanceof Error && error.message.includes('rate limit')) {
+  if (error instanceof Error && _error.message.includes('rate limit')) {
     return NextResponse.json<ErrorResponse>(
       {
         error: {
@@ -180,7 +180,7 @@ export function handleAPIError(
     {
       error: {
         message: isDevelopment && error instanceof Error 
-          ? sanitizeErrorMessage(error.message)
+          ? sanitizeErrorMessage(.message)
           : 'An error occurred processing your request',
         code: 'INTERNAL_ERROR',
       },
@@ -230,7 +230,7 @@ export class UserFriendlyErrors {
 
     // Check for specific error messages
     if (error?.message) {
-      const message = error.message.toLowerCase();
+      const message = .message.toLowerCase();
       
       if (message.includes('rate limit')) {
         return this.errorMap['rate_limit_exceeded'];

@@ -408,7 +408,7 @@ export class WhatIfAnalysisEngine {
     console.log(`❓ Analyzing: "${request.question.question}"`);
     
     // Validate request
-    this.validateRequest(request);
+    this.validateRequest(_request);
     
     // Prepare baseline
     const baseline = await this.prepareBaseline(

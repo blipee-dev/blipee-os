@@ -74,7 +74,7 @@ export class DDoSProtection {
     reason?: string;
     score?: number;
   }> {
-    const ip = this.getClientIP(request);
+    const ip = this.getClientIP(_request);
     
     // Check whitelist
     if (this.whitelist.has(ip)) {
@@ -89,10 +89,10 @@ export class DDoSProtection {
     // Check various protection mechanisms
     const checks = await Promise.all([
       this.checkConnectionLimit(ip),
-      this.checkRequestPattern(request),
-      this.checkGeoBlocking(request),
-      this.checkUserAgent(request),
-      this.checkRequestSize(request),
+      this.checkRequestPattern(_request),
+      this.checkGeoBlocking(_request),
+      this.checkUserAgent(_request),
+      this.checkRequestSize(_request),
       this.checkBehavior(ip, request),
     ]);
 
@@ -167,8 +167,8 @@ export class DDoSProtection {
     reason?: string;
     score: number;
   } {
-    const url = request.url;
-    const body = request.body;
+    const url = _request.url;
+    const body = _request.body;
     
     // Check URL
     for (const pattern of this.config.suspiciousPatterns) {
@@ -203,7 +203,7 @@ export class DDoSProtection {
   }> {
     // This would typically use a GeoIP service
     // For now, we'll use CloudFlare headers if available
-    const country = request.headers.get('cf-ipcountry');
+    const country = _request.headers.get('cf-ipcountry');
     
     if (!country) {
       return { blocked: false, score: 0 };
@@ -236,7 +236,7 @@ export class DDoSProtection {
     reason?: string;
     score: number;
   } {
-    const userAgent = request.headers.get('user-agent') || '';
+    const userAgent = _request.headers.get('user-agent') || '';
     
     // Check for missing user agent (suspicious)
     if (!userAgent) {
@@ -287,7 +287,7 @@ export class DDoSProtection {
     reason?: string;
     score: number;
   } {
-    const contentLength = request.headers.get('content-length');
+    const contentLength = _request.headers.get('content-length');
     
     if (!contentLength) {
       return { blocked: false, score: 0 };
@@ -393,18 +393,18 @@ export class DDoSProtection {
    */
   private getClientIP(request: NextRequest): string {
     // Check various headers for real IP
-    const forwardedFor = request.headers.get('x-forwarded-for');
+    const forwardedFor = _request.headers.get('x-forwarded-for');
     if (forwardedFor) {
       return forwardedFor.split(',')[0].trim();
     }
 
-    const realIP = request.headers.get('x-real-ip');
+    const realIP = _request.headers.get('x-real-ip');
     if (realIP) {
       return realIP;
     }
 
     // Fallback to remote address
-    return request.ip || '127.0.0.1';
+    return _request.ip || '127.0.0.1';
   }
 
   /**

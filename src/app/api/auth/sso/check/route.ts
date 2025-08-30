@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const domain = searchParams.get('domain');
 
     if (!domain) {
       return NextResponse.json(
-        { _error: 'Domain parameter is required' },
+        { error: 'Domain parameter is required' },
         { status: 400 }
       );
     }
@@ -24,7 +24,7 @@ export async function GET(_request: NextRequest) {
     if (error && error.code !== 'PGRST116') {
       console.error('Error checking SSO configuration:', error);
       return NextResponse.json(
-        { _error: 'Failed to check SSO configuration' },
+        { error: 'Failed to check SSO configuration' },
         { status: 500 }
       );
     }
@@ -34,9 +34,9 @@ export async function GET(_request: NextRequest) {
       domain,
     });
   } catch (error) {
-    console.error('SSO check _error:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { _error: 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

@@ -8,7 +8,7 @@ const startOnboardingSchema = z.object({
   role: z.string(),
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const session = await authService.getSession();
     if (!session) {
@@ -30,8 +30,8 @@ export async function POST(_request: NextRequest) {
       success: true,
       data: flow,
     });
-  } catch (_error: any) {
-    console.error("Start onboarding _error:", error);
+  } catch (error: any) {
+    console.error('Error:', error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -45,7 +45,7 @@ export async function POST(_request: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: false, _error: error.message || "Failed to start onboarding" },
+      { success: false, _error: errorerror.message || "Failed to start onboarding" },
       { status: 500 },
     );
   }

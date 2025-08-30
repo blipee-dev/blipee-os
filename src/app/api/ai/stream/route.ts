@@ -14,16 +14,16 @@ import { metrics } from '@/lib/monitoring/metrics';
 /**
  * POST /api/ai/stream - Start a new streaming session
  */
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   const startTime = Date.now();
   
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Parse request body
@@ -54,7 +54,7 @@ export async function POST(_request: NextRequest) {
     if (!member) {
       await securityAuditLogger.log({
         eventType: SecurityEventType.UNAUTHORIZED_ACCESS,
-        _userId: user.id,
+        userId: user.id,
         ipAddress: request.ip || 'unknown',
         userAgent: request.headers.get('user-agent') || 'unknown',
         resource: `/api/ai/stream`,
@@ -63,7 +63,7 @@ export async function POST(_request: NextRequest) {
         details: { organizationId, conversationId }
       });
       
-      return NextResponse.json({ _error: 'Access denied' }, { status: 403 });
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Build conversation context
@@ -71,7 +71,7 @@ export async function POST(_request: NextRequest) {
       conversationId,
       organizationId,
       buildingId,
-      _userId: user.id,
+      userId: user.id,
       messageHistory,
       preferences
     };
@@ -88,7 +88,7 @@ export async function POST(_request: NextRequest) {
       includeTyping: true,
       maxTokens: 2000
     }).catch(error => {
-      console.error('Background streaming _error:', error);
+      console.error('Streaming error:', error);
     });
 
     // Set up SSE headers
@@ -127,7 +127,7 @@ export async function POST(_request: NextRequest) {
     // Log successful streaming session creation
     await securityAuditLogger.log({
       eventType: SecurityEventType.AI_STREAM_STARTED,
-      _userId: user.id,
+      userId: user.id,
       ipAddress: request.ip || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
       resource: `/api/ai/stream`,
@@ -139,7 +139,7 @@ export async function POST(_request: NextRequest) {
     return new Response(readable, { headers });
 
   } catch (error) {
-    console.error('Streaming API _error:', error);
+    console.error('Error:', error);
     
     metrics.incrementCounter('ai_stream_errors', 1, {
       error_type: 'setup_failed'
@@ -155,14 +155,14 @@ export async function POST(_request: NextRequest) {
 /**
  * GET /api/ai/stream - Get streaming service status
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -190,7 +190,7 @@ export async function GET(_request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Streaming status _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json({
       _error: 'Failed to get streaming status',
@@ -202,14 +202,14 @@ export async function GET(_request: NextRequest) {
 /**
  * DELETE /api/ai/stream - End a streaming session
  */
-export async function DELETE(_request: NextRequest) {
+export async function DELETE(request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -240,7 +240,7 @@ export async function DELETE(_request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Streaming cleanup _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json({
       _error: 'Failed to cleanup streaming session',

@@ -16,7 +16,7 @@ export const runtime = 'nodejs';
 /**
  * GET /api/database/health - Get database health status
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -38,8 +38,8 @@ export async function GET(_request: NextRequest) {
       await securityAuditLogger.log({
         eventType: SecurityEventType.UNAUTHORIZED_ACCESS,
         userId: user.id,
-        ipAddress: _request.headers.get("x-forwarded-for") || 'unknown',
-        userAgent: _request.headers.get('user-agent') || 'unknown',
+        ipAddress: request.headers.get("x-forwarded-for") || 'unknown',
+        userAgent: request.headers.get('user-agent') || 'unknown',
         resource: '/api/database/health',
         action: 'schema_validation',
         result: 'failure',
@@ -49,7 +49,7 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'Admin privileges required' }, { status: 403 });
     }
 
-    const searchParams = _request.nextUrl.searchParams;
+    const searchParams = request.nextUrl.searchParams;
     const action = searchParams.get('action') || 'status';
 
     let result;
@@ -89,8 +89,8 @@ export async function GET(_request: NextRequest) {
         await securityAuditLogger.log({
           eventType: SecurityEventType.DATABASE_REPAIR,
           userId: user.id,
-          ipAddress: _request.headers.get("x-forwarded-for") || 'unknown',
-          userAgent: _request.headers.get('user-agent') || 'unknown',
+          ipAddress: request.headers.get("x-forwarded-for") || 'unknown',
+          userAgent: request.headers.get('user-agent') || 'unknown',
           resource: '/api/database/health',
           action: 'auto_repair',
           result: 'success',
@@ -112,8 +112,8 @@ export async function GET(_request: NextRequest) {
     await securityAuditLogger.log({
       eventType: SecurityEventType.DATABASE_HEALTH_CHECK,
       userId: user.id,
-      ipAddress: _request.headers.get("x-forwarded-for") || 'unknown',
-      userAgent: _request.headers.get('user-agent') || 'unknown',
+      ipAddress: request.headers.get("x-forwarded-for") || 'unknown',
+      userAgent: request.headers.get('user-agent') || 'unknown',
       resource: '/api/database/health',
       action: action,
       result: 'success',
@@ -132,7 +132,7 @@ export async function GET(_request: NextRequest) {
     
     return NextResponse.json({
       error: 'Database health check failed',
-      details: _error instanceof Error ? _error.message : 'Unknown error'
+      details: _error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
@@ -140,7 +140,7 @@ export async function GET(_request: NextRequest) {
 /**
  * POST /api/database/health - Execute specific health actions
  */
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -163,7 +163,7 @@ export async function POST(_request: NextRequest) {
       }, { status: 403 });
     }
 
-    const body = await _request.json();
+    const body = await request.json();
     const { action, options = {} } = body;
 
     let result;
@@ -195,8 +195,8 @@ export async function POST(_request: NextRequest) {
     await securityAuditLogger.log({
       eventType: SecurityEventType.DATABASE_ADMIN_ACTION,
       userId: user.id,
-      ipAddress: _request.headers.get("x-forwarded-for") || 'unknown',
-      userAgent: _request.headers.get('user-agent') || 'unknown',
+      ipAddress: request.headers.get("x-forwarded-for") || 'unknown',
+      userAgent: request.headers.get('user-agent') || 'unknown',
       resource: '/api/database/health',
       action: action,
       result: 'success',
@@ -215,7 +215,7 @@ export async function POST(_request: NextRequest) {
     
     return NextResponse.json({
       error: 'Database admin action failed',
-      details: _error instanceof Error ? _error.message : 'Unknown error'
+      details: _error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
@@ -324,22 +324,22 @@ function generateRecommendations(checks: Record<string, boolean>): string[] {
 /**
  * Helper functions for specific repair actions
  */
-async function createMissingTables(_options: any) {
+async function createMissingTables(options: any) {
   // Implementation would create missing tables based on validation results
   return { message: 'Missing tables creation not yet implemented' };
 }
 
-async function fixEnumIssues(_options: any) {
+async function fixEnumIssues(options: any) {
   // Implementation would fix enum-related issues
   return { message: 'Enum fixes not yet implemented' };
 }
 
-async function rebuildIndexes(_options: any) {
+async function rebuildIndexes(options: any) {
   // Implementation would rebuild database indexes
   return { message: 'Index rebuilding not yet implemented' };
 }
 
-async function updateRLSPolicies(_options: any) {
+async function updateRLSPolicies(options: any) {
   // Implementation would update RLS policies
   return { message: 'RLS policy updates not yet implemented' };
 }

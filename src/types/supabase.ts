@@ -8324,7 +8324,7 @@ export type Database = {
           table_name: string
         }[]
       }
-      get_user_recovery_options: {
+      get_user_recoveryoptions: {
         Args: { p_user_id: string }
         Returns: {
           backup_codes_enabled: boolean

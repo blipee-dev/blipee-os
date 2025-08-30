@@ -318,9 +318,9 @@ export function createWebhookEndpointExample() {
 import { WebhookVerifier } from '@/lib/webhooks/webhook-verifier';
 
 export async function POST(_request: Request) {
-  const payload = await request.text();
-  const signature = request.headers.get('X-Blipee-Signature');
-  const eventType = request.headers.get('X-Blipee-Event');
+  const payload = await _request.text();
+  const signature = _request.headers.get('X-Blipee-Signature');
+  const eventType = _request.headers.get('X-Blipee-Event');
   
   // Verify the webhook signature
   const isValid = WebhookVerifier.verifySignature(
@@ -385,8 +385,8 @@ export function integrateWebhooksInAPIRoute() {
 import { eventPublisher } from '@/lib/webhooks/event-publisher';
 import { WebhookEventType } from '@/types/webhooks';
 
-export async function POST(_request: NextRequest) {
-  const data = await request.json();
+export async function POST(request: NextRequest) {
+  const data = await _request.json();
   
   // Create building logic...
   const building = await createBuilding(data);

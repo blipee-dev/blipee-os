@@ -87,7 +87,7 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json(healthReport, { status: statusCode });
     
   } catch (error) {
-    console.error('Database monitoring _error:', error);
+    console.error('Error:', error);
     return NextResponse.json(
       {
         status: 'error',

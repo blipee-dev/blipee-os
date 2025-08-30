@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
     if (!file || !organizationId) {
       return NextResponse.json(
-        { _error: "Missing required fields" },
+        { error: "Missing required fields" },
         { status: 400 },
       );
     }
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error processing sustainability report:");
     return NextResponse.json(
-      { _error: "Failed to process report" },
+      { error: "Failed to process report" },
       { status: 500 },
     );
   }
@@ -270,7 +270,7 @@ async function processExtractedData(
     }
 
     if (metricsToInsert.length > 0) {
-      const { _error: _error } = await supabase
+      const { error } = await supabase
         .from("esg_metrics")
         .insert(metricsToInsert);
 

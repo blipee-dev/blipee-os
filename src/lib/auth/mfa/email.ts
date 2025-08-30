@@ -641,7 +641,7 @@ If you have questions, please contact our support team.
       }
 
       // Save verified email
-      const { error: _error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('user_emails')
         .insert({
           user_id: userId,

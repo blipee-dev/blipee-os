@@ -93,7 +93,7 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json(report, { status: statusCode });
     
   } catch (error) {
-    console.error('Read replica monitoring _error:', error);
+    console.error('Error:', error);
     return NextResponse.json(
       {
         status: 'error',

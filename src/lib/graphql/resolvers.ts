@@ -110,7 +110,7 @@ async function getUserOrganizationMembership(supabase: any, userId: string, orga
   
   const { data, error } = await query;
   if (error) {
-    throw new Error(`Failed to get organization membership: ${error.message}`);
+    throw new Error(`Failed to get organization membership: ${.message}`);
   }
   
   return organizationId ? data?.[0] : data;
@@ -138,7 +138,7 @@ export const resolvers = {
         .eq('organization_members.invitation_status', 'accepted');
       
       if (error) {
-        throw new Error(`Failed to fetch organizations: ${error.message}`);
+        throw new Error(`Failed to fetch organizations: ${.message}`);
       }
       
       return organizations;
@@ -157,7 +157,7 @@ export const resolvers = {
         .single();
       
       if (error) {
-        throw new Error(`Failed to fetch organization: ${error.message}`);
+        throw new Error(`Failed to fetch organization: ${.message}`);
       }
       
       return organization;
@@ -177,7 +177,7 @@ export const resolvers = {
         .order('created_at', { ascending: false });
       
       if (error) {
-        throw new Error(`Failed to fetch buildings: ${error.message}`);
+        throw new Error(`Failed to fetch buildings: ${.message}`);
       }
       
       return buildings;
@@ -194,7 +194,7 @@ export const resolvers = {
         .single();
       
       if (error) {
-        throw new Error(`Failed to fetch building: ${error.message}`);
+        throw new Error(`Failed to fetch building: ${.message}`);
       }
       
       await getUserOrganizationMembership(supabase, user.id, building.organization_id);
@@ -214,7 +214,7 @@ export const resolvers = {
         .single();
       
       if (error) {
-        throw new Error(`Failed to fetch user data: ${error.message}`);
+        throw new Error(`Failed to fetch user data: ${.message}`);
       }
       
       return userData;
@@ -236,7 +236,7 @@ export const resolvers = {
         .eq('organization_members.invitation_status', 'accepted');
       
       if (error) {
-        throw new Error(`Failed to fetch users: ${error.message}`);
+        throw new Error(`Failed to fetch users: ${.message}`);
       }
       
       return users;
@@ -259,7 +259,7 @@ export const resolvers = {
         .order('created_at', { ascending: false });
       
       if (error) {
-        throw new Error(`Failed to fetch API keys: ${error.message}`);
+        throw new Error(`Failed to fetch API keys: ${.message}`);
       }
       
       return apiKeys;
@@ -276,7 +276,7 @@ export const resolvers = {
         .rpc('get_api_usage_stats', { org_id: args.organizationId });
       
       if (error) {
-        throw new Error(`Failed to fetch API usage stats: ${error.message}`);
+        throw new Error(`Failed to fetch API usage stats: ${.message}`);
       }
       
       return stats;
@@ -356,7 +356,7 @@ export const resolvers = {
         .single();
       
       if (error) {
-        throw new Error(`Failed to create building: ${error.message}`);
+        throw new Error(`Failed to create building: ${.message}`);
       }
       
       // Publish subscription update
@@ -396,7 +396,7 @@ export const resolvers = {
         .single();
       
       if (error) {
-        throw new Error(`Failed to update building: ${error.message}`);
+        throw new Error(`Failed to update building: ${.message}`);
       }
       
       // Publish subscription update
@@ -430,7 +430,7 @@ export const resolvers = {
       });
       
       if (error) {
-        throw new Error(`Failed to create API key: ${error.message}`);
+        throw new Error(`Failed to create API key: ${.message}`);
       }
       
       return apiKey;
@@ -517,7 +517,7 @@ export const resolvers = {
         .eq('invitation_status', 'accepted');
       
       if (error) {
-        throw new Error(`Failed to fetch organization members: ${error.message}`);
+        throw new Error(`Failed to fetch organization members: ${.message}`);
       }
       
       return members;
@@ -531,7 +531,7 @@ export const resolvers = {
         .eq('organization_id', parent.id);
       
       if (error) {
-        throw new Error(`Failed to fetch organization buildings: ${error.message}`);
+        throw new Error(`Failed to fetch organization buildings: ${.message}`);
       }
       
       return buildings;
@@ -545,7 +545,7 @@ export const resolvers = {
         .eq('organization_id', parent.id);
       
       if (error) {
-        throw new Error(`Failed to fetch organization API keys: ${error.message}`);
+        throw new Error(`Failed to fetch organization API keys: ${.message}`);
       }
       
       return apiKeys;
@@ -562,7 +562,7 @@ export const resolvers = {
         .single();
       
       if (error) {
-        throw new Error(`Failed to fetch building organization: ${error.message}`);
+        throw new Error(`Failed to fetch building organization: ${.message}`);
       }
       
       return organization;
@@ -579,7 +579,7 @@ export const resolvers = {
         .single();
       
       if (error) {
-        throw new Error(`Failed to fetch API key organization: ${error.message}`);
+        throw new Error(`Failed to fetch API key organization: ${.message}`);
       }
       
       return organization;
@@ -595,7 +595,7 @@ export const resolvers = {
         .limit(100);
       
       if (error) {
-        throw new Error(`Failed to fetch API key usage: ${error.message}`);
+        throw new Error(`Failed to fetch API key usage: ${.message}`);
       }
       
       return usage;
@@ -612,7 +612,7 @@ export const resolvers = {
         .single();
       
       if (error) {
-        throw new Error(`Failed to fetch webhook organization: ${error.message}`);
+        throw new Error(`Failed to fetch webhook organization: ${.message}`);
       }
       
       return organization;

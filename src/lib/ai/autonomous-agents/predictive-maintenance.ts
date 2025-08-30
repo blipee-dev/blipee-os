@@ -176,7 +176,7 @@ export interface RequiredResource {
   resource_id: string;
   quantity: number;
   availability_confirmed: boolean;
-  alternative_options: string[];
+  alternativeoptions: string[];
 }
 
 export interface WorkOrder {

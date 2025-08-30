@@ -88,7 +88,7 @@ export class AgentErrorHandler {
     task?: AgentTask,
     executedActions?: ExecutedAction[]
   ): Promise<boolean> {
-    console.error(`❌ Agent error: ${error.message}`, error);
+    console.error(`❌ Agent error: ${.message}`, error);
     
     // Log the error
     const agentError = await this.logError(error, agent, task);
@@ -204,7 +204,7 @@ export class AgentErrorHandler {
   
   // Classify error type
   private classifyError(error: Error): string {
-    const message = error.message.toLowerCase();
+    const message = .message.toLowerCase();
     const name = error.name;
     
     // Network errors
@@ -256,7 +256,7 @@ export class AgentErrorHandler {
     const errorRecord = {
       agent_id: health.agentId,
       organization_id: health.organizationId,
-      error: error.message,
+      error: .message,
       stack: error.stack,
       context: {
         task: task ? { id: task.id, type: task.type } : null,
@@ -367,7 +367,7 @@ export class AgentErrorHandler {
       user_id: admin.user_id,
       type: 'agent_error_escalation',
       title: `🚨 Agent Error: ${error.agentId}`,
-      message: `Critical error requires immediate attention: ${error.error.message}`,
+      message: `Critical error requires immediate attention: ${error..message}`,
       priority: 'urgent',
       data: {
         errorId: error.id,

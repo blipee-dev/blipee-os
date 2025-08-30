@@ -26,7 +26,7 @@ export async function requireAuth(
     // Attach session to request
     request.session = session;
 
-    return handler(request);
+    return handler(_request);
   } catch (error: any) {
     console.error("Auth middleware error:", error);
     return NextResponse.json(
@@ -73,7 +73,7 @@ export function requirePermission(
       // Attach session to request
       request.session = session;
 
-      return handler(request);
+      return handler(_request);
     } catch (error: any) {
       console.error("Permission middleware error:", error);
       return NextResponse.json(
@@ -128,7 +128,7 @@ export function requireOrgMembership(organizationId?: string) {
       // Attach session to request
       request.session = session;
 
-      return handler(request);
+      return handler(_request);
     } catch (error: any) {
       console.error("Org membership middleware error:", error);
       return NextResponse.json(
@@ -183,7 +183,7 @@ export function requireBuildingAccess(buildingId?: string) {
       // Attach session to request
       request.session = session;
 
-      return handler(request);
+      return handler(_request);
     } catch (error: any) {
       console.error("Building access middleware error:", error);
       return NextResponse.json(

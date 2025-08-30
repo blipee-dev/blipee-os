@@ -6,7 +6,7 @@ describe('Retail Middleware', () => {
   describe('withRetailAuth', () => {
     it('should allow access with valid permissions', async () => {
       const _request = new NextRequest('http://localhost:3000/api/retail/test');
-      const result = await withRetailAuth(request, RETAIL_PERMISSIONS.READ);
+      const result = await withRetailAuth_request, RETAIL_PERMISSIONS.READ);
 
       expect(result).toBeNull(); // Null means continue
       expect((request as any).retailContext).toBeDefined();
@@ -14,9 +14,9 @@ describe('Retail Middleware', () => {
 
     it('should include user context in request', async () => {
       const _request = new NextRequest('http://localhost:3000/api/retail/test');
-      await withRetailAuth(request, RETAIL_PERMISSIONS.READ);
+      await withRetailAuth_request, RETAIL_PERMISSIONS.READ);
 
-      const context = getRetailContext(request);
+      const context = getRetailContext(_request);
       expect(context.user.email).toBe('demo@blipee.ai');
       expect(context.user.roles).toContain('retail_manager');
       expect(context.organization.type).toBe('retail');
@@ -26,7 +26,7 @@ describe('Retail Middleware', () => {
       const _request = new NextRequest('http://localhost:3000/api/retail/test');
       
       // Mock user has retail_manager role, which includes analytics permission
-      const result = await withRetailAuth(request, RETAIL_PERMISSIONS.ANALYTICS);
+      const result = await withRetailAuth_request, RETAIL_PERMISSIONS.ANALYTICS);
       expect(result).toBeNull();
     });
   });
@@ -34,9 +34,9 @@ describe('Retail Middleware', () => {
   describe('getRetailContext', () => {
     it('should retrieve context from request', async () => {
       const _request = new NextRequest('http://localhost:3000/api/retail/test');
-      await withRetailAuth(request);
+      await withRetailAuth(_request);
 
-      const context = getRetailContext(request);
+      const context = getRetailContext(_request);
       expect(context).toBeDefined();
       expect(context.user).toBeDefined();
       expect(context.organization).toBeDefined();
@@ -53,7 +53,7 @@ describe('Retail Middleware', () => {
       const protectedHandler = withRetailPermission(RETAIL_PERMISSIONS.READ, mockHandler);
       const _request = new NextRequest('http://localhost:3000/api/retail/test');
 
-      const response = await protectedHandler(request);
+      const response = await protectedHandler(_request);
       const data = await response.json();
 
       expect(mockHandler).toHaveBeenCalled();
@@ -71,7 +71,7 @@ describe('Retail Middleware', () => {
       const protectedHandler = withRetailPermission(RETAIL_PERMISSIONS.ANALYTICS, mockHandler);
       const _request = new NextRequest('http://localhost:3000/api/retail/test');
 
-      await protectedHandler(request);
+      await protectedHandler(_request);
 
       expect(capturedContext).toBeDefined();
       expect(capturedContext.user.email).toBe('demo@blipee.ai');
@@ -80,9 +80,9 @@ describe('Retail Middleware', () => {
 
     it('should include correct permissions in context', async () => {
       const _request = new NextRequest('http://localhost:3000/api/retail/test');
-      await withRetailAuth(request);
+      await withRetailAuth(_request);
 
-      const context = getRetailContext(request);
+      const context = getRetailContext(_request);
       
       // retail_manager should have these permissions
       expect(context.permissions).toContain('retail:read');

@@ -358,7 +358,7 @@ export class ModelIntegration {
    */
   async batchPredict(requests: PredictionRequest[]): Promise<PredictionResponse[]> {
     // Group requests by type for efficient batch processing
-    const groupedRequests = this.groupRequestsByType(requests);
+    const groupedRequests = this.groupRequestsByType(_request);
     const results: PredictionResponse[] = [];
     
     for (const [type, typeRequests] of Object.entries(groupedRequests)) {
@@ -374,7 +374,7 @@ export class ModelIntegration {
     }
     
     // Restore original order
-    return this.restoreOriginalOrder(requests, results);
+    return this.restoreOriginalOrder(_request, results);
   }
 
   /**
@@ -719,7 +719,7 @@ export class ModelIntegration {
   private groupRequestsByType(requests: PredictionRequest[]): Record<string, PredictionRequest[]> {
     return requests.reduce((groups, request) => {
       if (!groups[request.type]) groups[request.type] = [];
-      groups[request.type].push(request);
+      groups[request.type].push(_request);
       return groups;
     }, {} as Record<string, PredictionRequest[]>);
   }

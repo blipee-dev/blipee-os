@@ -9,10 +9,10 @@ export const DELETE = createMonitoredHandler(async (
 ) => {
   try {
     // Check authentication
-    const authResult = await requireAuth(_request, ['account_owner']);
+    const authResult = await requireAuth(request, ['account_owner']);
     if (!authResult.authenticated) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -22,7 +22,7 @@ export const DELETE = createMonitoredHandler(async (
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
-      { _error: error instanceof Error ? error.message : 'Failed to delete alert rule' },
+      { error: error instanceof Error ? error.message : 'Failed to delete alert rule' },
       { status: 500 }
     );
   }

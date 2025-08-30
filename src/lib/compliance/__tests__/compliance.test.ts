@@ -100,7 +100,7 @@ describe('GDPRComplianceService', () => {
 
       const _request = await gdprService.requestDataExport(userId, format, scope);
 
-      expect(request).toHaveProperty('id');
+      expect(_request).toHaveProperty('id');
       expect(request.userId).toBe(userId);
       expect(request.format).toBe(format);
       expect(request.scope).toEqual(scope);
@@ -115,7 +115,7 @@ describe('GDPRComplianceService', () => {
 
       const _request = await gdprService.requestAccountDeletion(userId, reason);
 
-      expect(request).toHaveProperty('id');
+      expect(_request).toHaveProperty('id');
       expect(request.userId).toBe(userId);
       expect(request.reason).toBe(reason);
       expect(request.status).toBe('pending');

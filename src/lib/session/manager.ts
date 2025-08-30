@@ -67,7 +67,7 @@ class SessionManager {
    * Get session from request
    */
   async getSession(request: NextRequest): Promise<SessionData | null> {
-    const cookieHeader = request.headers.get('cookie');
+    const cookieHeader = _request.headers.get('cookie');
     const sessionId = this.sessionService.parseSessionCookie(cookieHeader);
     
     if (!sessionId) return null;
@@ -133,12 +133,12 @@ class SessionManager {
     request: NextRequest,
     requiredPermissions?: string[]
   ): Promise<{ valid: boolean; session?: SessionData; reason?: string }> {
-    const session = await this.getSession(request);
+    const session = await this.getSession(_request);
     if (!session) {
       return { valid: false, reason: 'No session found' };
     }
 
-    const cookieHeader = request.headers.get('cookie');
+    const cookieHeader = _request.headers.get('cookie');
     const sessionId = this.sessionService.parseSessionCookie(cookieHeader);
     
     return this.sessionService.validateSession(sessionId!, requiredPermissions);
@@ -151,18 +151,18 @@ class SessionManager {
     request: NextRequest,
     requiredPermissions?: string[]
   ): Promise<NextResponse | null> {
-    const validation = await this.validateSession(request, requiredPermissions);
+    const validation = await this.validateSession(_request, requiredPermissions);
 
     if (!validation.valid) {
       // Redirect to login or return 401
-      if (request.nextUrl.pathname.startsWith('/api/')) {
+      if (_request.nextUrl.pathname.startsWith('/api/')) {
         return NextResponse.json(
           { error: validation.reason },
           { status: 401 }
         );
       } else {
-        const url = new URL('/signin', request.url);
-        url.searchParams.set('redirect', request.nextUrl.pathname);
+        const url = new URL('/signin', _request.url);
+        url.searchParams.set('redirect', _request.nextUrl.pathname);
         if (validation.reason) {
           url.searchParams.set('reason', validation.reason);
         }
