@@ -60,7 +60,7 @@ describe('Performance Test Suite', () => {
           },
         });
 
-        await chatHandler(request);
+        await chatHandler(_request);
 
         const duration = performance.now() - start;
         responseTimes.push(duration);
@@ -90,10 +90,10 @@ describe('Performance Test Suite', () => {
             password: 'TestPassword123!',
           }),
         }));
-        requests.push(request);
+        requests.push(_request);
       }
 
-      const responses = await Promise.all(requests);
+      const responses = await Promise.all(_request);
       const totalTime = performance.now() - start;
 
       // All requests should complete
@@ -137,7 +137,7 @@ describe('Performance Test Suite', () => {
       }
 
       const start = performance.now();
-      const responses = await Promise.all(requests);
+      const responses = await Promise.all(_request);
       const totalTime = performance.now() - start;
 
       expect(responses.length).toBe(authRequests + chatRequests);
@@ -199,7 +199,7 @@ describe('Performance Test Suite', () => {
         );
       }
 
-      await Promise.all(requests);
+      await Promise.all(_request);
 
       // Force garbage collection if available
       if (global.gc) {

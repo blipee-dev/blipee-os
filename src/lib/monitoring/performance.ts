@@ -37,8 +37,8 @@ export class PerformanceMonitor {
     const responseTime = endTime - startTime;
 
     const metrics: PerformanceMetrics = {
-      endpoint: new URL(request.url).pathname,
-      method: request.method,
+      endpoint: new URL(_request.url).pathname,
+      method: _request.method,
       statusCode: response.status,
       responseTime,
       timestamp: endTime,
@@ -203,8 +203,8 @@ export async function withPerformanceTracking(
   const monitor = await getPerformanceMonitor();
   
   try {
-    const response = await handler(request);
-    await monitor.trackRequest(request, response, startTime);
+    const response = await handler(_request);
+    await monitor.trackRequest(_request, response, startTime);
     
     // Add performance headers
     response.headers.set('X-Response-Time', `${Date.now() - startTime}ms`);
@@ -216,7 +216,7 @@ export async function withPerformanceTracking(
       { error: 'Internal Server Error' },
       { status: 500 }
     );
-    await monitor.trackRequest(request, errorResponse, startTime);
+    await monitor.trackRequest(_request, errorResponse, startTime);
     throw error;
   }
 }

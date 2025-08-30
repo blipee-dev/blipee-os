@@ -202,7 +202,7 @@ export class AgentPermissionSystem {
     
     const { data, error } = await this.supabase
       .from('agent_approvals')
-      .insert(request)
+      .insert(_request)
       .select()
       .single();
       
@@ -231,7 +231,7 @@ export class AgentPermissionSystem {
     decidedBy: string,
     notes?: string
   ): Promise<void> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from('agent_approvals')
       .update({
         status: decision,
@@ -243,7 +243,7 @@ export class AgentPermissionSystem {
       .eq('status', 'pending'); // Only update if still pending
       
     if (error) {
-      throw new Error(`Failed to process approval: ${error.message}`);
+      throw new Error(`Failed to process approval: ${.message}`);
     }
   }
   

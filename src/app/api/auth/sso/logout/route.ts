@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
     response.cookies.delete('sso_session');
     return response;
   } catch (error) {
-    console.error('SSO logout _error:', error);
+    console.error('Error:', error);
     
     // Fallback to regular logout on error
     const supabase = await createServerSupabaseClient();

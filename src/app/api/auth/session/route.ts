@@ -4,7 +4,7 @@ import { sessionManager } from "@/lib/session/manager";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // First check Redis session
     const sessionData = await sessionManager.getSession(request);
@@ -43,13 +43,13 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: session,
     });
-  } catch (_error: any) {
-    console.error("Session _error:", error);
+  } catch (error: any) {
+    console.error('Error:', error);
 
     return NextResponse.json(
       {
         success: false,
-        _error: error.message || "Failed to get session",
+        _error: errorerror.message || "Failed to get session",
       },
       { status: 500 },
     );

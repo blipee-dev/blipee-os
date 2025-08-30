@@ -447,7 +447,7 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       } catch (error) {
         // If the optimization framework properly catches errors,
         // this test validates that behavior as well
-        expect(error.message).toContain('Training failed');
+        expect(.message).toContain('Training failed');
         console.log('   ✅ Error handling working correctly (error caught as expected)');
       }
     }, 15000);

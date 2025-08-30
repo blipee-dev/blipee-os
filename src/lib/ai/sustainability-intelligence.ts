@@ -335,7 +335,7 @@ interface ReportingCapability {
       key_findings: string[];
       recommendations: string[];
     };
-    format_options: ("pdf" | "email" | "presentation")[];
+    formatoptions: ("pdf" | "email" | "presentation")[];
   }>;
 
   // Dynamic visualization generation

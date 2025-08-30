@@ -463,7 +463,7 @@ export class ModelScaler {
           break;
       }
     } catch (error) {
-      console.error(`Scaling ${direction} failed for ${modelName}:`, error.message);
+      console.error(`Scaling ${direction} failed for ${modelName}:`, .message);
     }
   }
 }

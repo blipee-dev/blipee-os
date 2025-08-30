@@ -23,7 +23,7 @@ const verifyRecoverySchema = z.object({
   }).optional(),
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
@@ -68,8 +68,8 @@ export async function POST(_request: NextRequest) {
       message: result.message,
       _userId: result.userId,
     });
-  } catch (_error: any) {
-    console.error('Recovery verification _error:', error);
+  } catch (error: any) {
+    console.error('Recovery verification error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -85,7 +85,7 @@ export async function POST(_request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: error.message || 'Failed to verify recovery',
+        _error: errorerror.message || 'Failed to verify recovery',
       },
       { status: 500 }
     );

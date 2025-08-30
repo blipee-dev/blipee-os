@@ -21,9 +21,9 @@ export async function GET(
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { conversationId } = params;
@@ -36,7 +36,7 @@ export async function GET(
       .single();
 
     if (convError || !conversation) {
-      return NextResponse.json({ _error: 'Conversation not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }
 
     // Verify user has access to organization
@@ -48,7 +48,7 @@ export async function GET(
       .single();
 
     if (!member) {
-      return NextResponse.json({ _error: 'Access denied' }, { status: 403 });
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Retrieve conversation memory
@@ -78,7 +78,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Get preferences _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json({
       _error: 'Failed to retrieve preferences',
@@ -98,18 +98,18 @@ export async function PUT(
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { conversationId } = params;
-    const body = await _request.json();
+    const body = await request.json();
     const preferences: UserPreferences = body.preferences;
 
     // Validate preferences
     if (!preferences || typeof preferences !== 'object') {
-      return NextResponse.json({ _error: 'Invalid preferences format' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid preferences format' }, { status: 400 });
     }
 
     const validCommunicationStyles = ['formal', 'casual', 'technical'];
@@ -135,7 +135,7 @@ export async function PUT(
       .single();
 
     if (convError || !conversation) {
-      return NextResponse.json({ _error: 'Conversation not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }
 
     // Verify user has access to organization
@@ -147,7 +147,7 @@ export async function PUT(
       .single();
 
     if (!member) {
-      return NextResponse.json({ _error: 'Access denied' }, { status: 403 });
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Update preferences in conversation memory
@@ -156,9 +156,9 @@ export async function PUT(
     // Log the update
     await securityAuditLogger.log({
       eventType: SecurityEventType.SETTINGS_CHANGED,
-      _userId: user.id,
-      ipAddress: _request.headers.get('x-forwarded-for') || 'unknown',
-      userAgent: _request.headers.get('user-agent') || 'unknown',
+      userId: user.id,
+      ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+      userAgent: request.headers.get('user-agent') || 'unknown',
       resource: `/api/conversations/${conversationId}/preferences`,
       action: 'update_preferences',
       result: 'success',
@@ -173,7 +173,7 @@ export async function PUT(
     });
 
   } catch (error) {
-    console.error('Update preferences _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json({
       _error: 'Failed to update preferences',

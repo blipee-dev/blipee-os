@@ -18,7 +18,7 @@ describe('OWASP Top 10 Security Tests', () => {
         userId: 'user-a-id',
       });
 
-      const response = await fetch(request);
+      const response = await fetch(_request);
       expect(response.status).toBe(403);
     });
 
@@ -29,7 +29,7 @@ describe('OWASP Top 10 Security Tests', () => {
         userId: 'regular-user-id',
       });
 
-      const response = await fetch(request);
+      const response = await fetch(_request);
       expect(response.status).toBe(403);
     });
 
@@ -40,7 +40,7 @@ describe('OWASP Top 10 Security Tests', () => {
         userId: 'user-from-org-a',
       });
 
-      const response = await fetch(request);
+      const response = await fetch(_request);
       expect(response.status).toBe(403);
     });
 
@@ -58,7 +58,7 @@ describe('OWASP Top 10 Security Tests', () => {
           method: 'GET',
         });
 
-        const response = await fetch(request);
+        const response = await fetch(_request);
         expect([403, 404]).toContain(response.status);
       }
     });
@@ -100,7 +100,7 @@ describe('OWASP Top 10 Security Tests', () => {
         body: sensitiveData,
       });
 
-      await fetch(request);
+      await fetch(_request);
 
       // Verify encryption was called for sensitive fields
       expect(encryptionSpy).toHaveBeenCalledWith(
@@ -120,7 +120,7 @@ describe('OWASP Top 10 Security Tests', () => {
         }),
       });
 
-      const response = await signInHandler(request);
+      const response = await signInHandler(_request);
       
       if (process.env['NODE_ENV'] === 'production') {
         expect(response.status).toBe(403);
@@ -139,7 +139,7 @@ describe('OWASP Top 10 Security Tests', () => {
         body: { sensitive: 'data' },
       });
 
-      const response = await fetch(request);
+      const response = await fetch(_request);
       expect(response.status).toBe(500);
       
       // Should not leak cryptographic details
@@ -164,7 +164,7 @@ describe('OWASP Top 10 Security Tests', () => {
           body: { query: payload },
         });
 
-        const response = await fetch(request);
+        const response = await fetch(_request);
         
         // Should not cause server error
         expect(response.status).not.toBe(500);
@@ -192,7 +192,7 @@ describe('OWASP Top 10 Security Tests', () => {
           body: { filter: payload },
         });
 
-        const response = await fetch(request);
+        const response = await fetch(_request);
         expect(response.status).toBe(400); // Should reject invalid filters
       }
     });
@@ -211,7 +211,7 @@ describe('OWASP Top 10 Security Tests', () => {
           body: { filename: payload },
         });
 
-        const response = await fetch(request);
+        const response = await fetch(_request);
         
         // Should validate filenames
         expect(response.status).toBe(400);
@@ -233,7 +233,7 @@ describe('OWASP Top 10 Security Tests', () => {
           body: { username: payload },
         });
 
-        const response = await fetch(request);
+        const response = await fetch(_request);
         expect([400, 404]).toContain(response.status);
       }
     });
@@ -246,7 +246,7 @@ describe('OWASP Top 10 Security Tests', () => {
         body: { email: 'test@example.com' },
       });
 
-      await fetch(request);
+      await fetch(_request);
 
       // Verify parameterized queries are used
       expect(dbSpy).toHaveBeenCalled();
@@ -356,7 +356,7 @@ describe('OWASP Top 10 Security Tests', () => {
         body: { causeError: true },
       });
 
-      const response = await fetch(request);
+      const response = await fetch(_request);
       const data = await response.json();
 
       // Should not expose stack traces or internal details
@@ -674,7 +674,7 @@ describe('OWASP Top 10 Security Tests', () => {
           body: { url },
         });
 
-        const response = await fetch(request);
+        const response = await fetch(_request);
         expect(response.status).toBe(400);
         
         const data = await response.json();
@@ -688,7 +688,7 @@ describe('OWASP Top 10 Security Tests', () => {
         body: { url: 'https://random-domain.com/api/data' },
       });
 
-      const response = await fetch(request);
+      const response = await fetch(_request);
       expect(response.status).toBe(403);
       
       const data = await response.json();
@@ -702,7 +702,7 @@ describe('OWASP Top 10 Security Tests', () => {
         body: { url: 'https://rebind.domain.com/data' },
       });
 
-      const response = await fetch(request);
+      const response = await fetch(_request);
       
       // Should validate resolved IP isn't internal
       if (response.status === 200) {

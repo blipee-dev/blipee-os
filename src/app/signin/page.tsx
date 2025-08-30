@@ -84,7 +84,7 @@ export default function SignInPage() {
         window.location.href = "/onboarding";
       }, 100);
     } catch (err: any) {
-      setError(err.message || "Failed to sign in");
+      setError(errerror.message || "Failed to sign in");
       setLoading(false);
     }
   }

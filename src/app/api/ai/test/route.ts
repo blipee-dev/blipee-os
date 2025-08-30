@@ -12,14 +12,14 @@ import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-log
 /**
  * GET /api/ai/test - Get available test suites
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -41,14 +41,14 @@ export async function GET(_request: NextRequest) {
       case 'details':
         const suiteId = searchParams.get('suiteId');
         if (!suiteId) {
-          return NextResponse.json({ _error: 'Suite ID required' }, { status: 400 });
+          return NextResponse.json({ error: 'Suite ID required' }, { status: 400 });
         }
         
         const suite = conversationTestFramework.getTestSuites()
           .find(s => s.id === suiteId);
           
         if (!suite) {
-          return NextResponse.json({ _error: 'Suite not found' }, { status: 404 });
+          return NextResponse.json({ error: 'Suite not found' }, { status: 404 });
         }
         
         return NextResponse.json({
@@ -57,11 +57,11 @@ export async function GET(_request: NextRequest) {
         });
 
       default:
-        return NextResponse.json({ _error: 'Invalid action' }, { status: 400 });
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
   } catch (error) {
-    console.error('AI test _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json({
       _error: 'Failed to get test information',
@@ -73,14 +73,14 @@ export async function GET(_request: NextRequest) {
 /**
  * POST /api/ai/test - Run AI conversation tests
  */
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -101,7 +101,7 @@ export async function POST(_request: NextRequest) {
       .single();
 
     if (!member || !['account_owner', 'sustainability_manager'].includes(member.role)) {
-      return NextResponse.json({ _error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
     // Run tests
@@ -113,12 +113,12 @@ export async function POST(_request: NextRequest) {
         .find(s => s.id === suiteId);
         
       if (!suite) {
-        return NextResponse.json({ _error: 'Suite not found' }, { status: 404 });
+        return NextResponse.json({ error: 'Suite not found' }, { status: 404 });
       }
       
       const scenario = suite.scenarios.find(s => s.id === scenarioId);
       if (!scenario) {
-        return NextResponse.json({ _error: 'Scenario not found' }, { status: 404 });
+        return NextResponse.json({ error: 'Scenario not found' }, { status: 404 });
       }
       
       const result = await conversationTestFramework.runScenario(
@@ -138,7 +138,7 @@ export async function POST(_request: NextRequest) {
     const report = conversationTestFramework.generateReport(results);
 
     // Store test results in database
-    const { _error: insertError } = await supabase
+    const { error: insertError } = await supabase
       .from('ai_test_results')
       .insert({
         organization_id: organizationId,
@@ -158,7 +158,7 @@ export async function POST(_request: NextRequest) {
     // Log test execution
     await securityAuditLogger.log({
       eventType: SecurityEventType.AI_TEST_RUN,
-      _userId: user.id,
+      userId: user.id,
       ipAddress: request.ip || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
       resource: '/api/ai/test',
@@ -188,7 +188,7 @@ export async function POST(_request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Run test _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json({
       _error: 'Failed to run tests',
@@ -200,14 +200,14 @@ export async function POST(_request: NextRequest) {
 /**
  * PUT /api/ai/test - Create or update custom test suite
  */
-export async function PUT(_request: NextRequest) {
+export async function PUT(request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -229,7 +229,7 @@ export async function PUT(_request: NextRequest) {
       .single();
 
     if (!member) {
-      return NextResponse.json({ _error: 'Account owner access required' }, { status: 403 });
+      return NextResponse.json({ error: 'Account owner access required' }, { status: 403 });
     }
 
     // Add organization-specific prefix to suite ID
@@ -246,7 +246,7 @@ export async function PUT(_request: NextRequest) {
     conversationTestFramework.addTestSuite(customSuite);
 
     // Store in database for persistence
-    const { _error: upsertError } = await supabase
+    const { error: upsertError } = await supabase
       .from('ai_test_suites')
       .upsert({
         id: customSuite.id,
@@ -263,7 +263,7 @@ export async function PUT(_request: NextRequest) {
     // Log the action
     await securityAuditLogger.log({
       eventType: SecurityEventType.SETTINGS_CHANGED,
-      _userId: user.id,
+      userId: user.id,
       ipAddress: request.ip || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
       resource: '/api/ai/test',
@@ -287,7 +287,7 @@ export async function PUT(_request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Create test suite _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json({
       _error: 'Failed to create test suite',

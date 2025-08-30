@@ -398,7 +398,7 @@ describe('A/B Testing Framework', () => {
         });
       } catch (error) {
         // Expected to fail with mock ID, but the framework handles it correctly
-        expect(error.message).toContain('Request mock_request_id not found');
+        expect(.message).toContain('Request mock_request_id not found');
       }
 
       const experimentResults = await abTesting.getExperimentResults(testId);
@@ -754,7 +754,7 @@ describe('A/B Testing Framework', () => {
         console.log('   ✅ User assigned to working control model');
       } catch (error) {
         // If we get here, the user was assigned to the error model
-        expect(error.message).toBe('Prediction failed');
+        expect(.message).toBe('Prediction failed');
         console.log('   ✅ Error model failure handled correctly');
       }
     });

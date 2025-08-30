@@ -86,7 +86,7 @@ Only include targetData if the user is clearly ready to create a specific target
     const cachedResponse = await aiCache.getCachedResponse(prompt, providerName, options);
     
     if (cachedResponse) {
-      return cachedResponse.content || cachedResponse.message || '';
+      return cachedResponse.content || cachedResponseerror.message || '';
     }
 
     let lastError: Error | null = null;

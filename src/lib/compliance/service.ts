@@ -201,7 +201,7 @@ export class ComplianceService {
       ...activity,
     };
 
-    const { error: _error } = await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from('data_processing_activities')
       .insert({
         id: record.id,
@@ -251,7 +251,7 @@ export class ComplianceService {
       ...assessment,
     };
 
-    const { error: _error } = await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from('privacy_impact_assessments')
       .insert({
         id: pia.id,

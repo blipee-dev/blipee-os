@@ -18,11 +18,11 @@ export interface RequestMetrics {
 export function createMonitoringMiddleware() {
   return async (request: NextRequest, response: NextResponse) => {
     const startTime = Date.now();
-    const method = request.method;
-    const path = new URL(request.url).pathname;
-    const userAgent = request.headers.get('user-agent') || undefined;
-    const ip = request.headers.get('x-forwarded-for') || 
-               request.headers.get('x-real-ip') || 
+    const method = _request.method;
+    const path = new URL(_request.url).pathname;
+    const userAgent = _request.headers.get('user-agent') || undefined;
+    const ip = _request.headers.get('x-forwarded-for') || 
+               _request.headers.get('x-real-ip') || 
                'unknown';
 
     let requestSize = 0;
@@ -32,7 +32,7 @@ export function createMonitoringMiddleware() {
 
     try {
       // Calculate request size
-      const contentLength = request.headers.get('content-length');
+      const contentLength = _request.headers.get('content-length');
       if (contentLength) {
         requestSize = parseInt(contentLength, 10);
       }
@@ -49,7 +49,7 @@ export function createMonitoringMiddleware() {
 
       // Extract user ID if available (from auth context)
       try {
-        const authHeader = request.headers.get('authorization');
+        const authHeader = _request.headers.get('authorization');
         if (authHeader) {
           // This would be extracted from JWT or session
           // For now, we'll leave it undefined

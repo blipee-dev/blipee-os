@@ -606,7 +606,7 @@ export class AutonomousNegotiationEngine {
     request: NegotiationRequest
   ): Promise<NegotiationSession> {
     // Analyze context and parties
-    const context = await this.analyzeContext(request);
+    const context = await this.analyzeContext(_request);
     const parties = await this.profileParties(request.parties);
     
     // Develop negotiation strategy
@@ -672,9 +672,9 @@ export class AutonomousNegotiationEngine {
       existingRelationship: await this.assessRelationship(request.parties),
       marketConditions: await this.analyzeMarket(request.domain),
       urgency: request.urgency,
-      stakes: await this.assessStakes(request),
-      alternatives: await this.identifyAlternatives(request),
-      precedents: await this.findPrecedents(request)
+      stakes: await this.assessStakes(_request),
+      alternatives: await this.identifyAlternatives(_request),
+      precedents: await this.findPrecedents(_request)
     };
   }
   

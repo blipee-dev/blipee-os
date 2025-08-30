@@ -196,7 +196,7 @@ describe('Production Benchmarking Suite', () => {
         await testFunction();
       } catch (error) {
         errorCaught = true;
-        resultError = error.message;
+        resultError = .message;
       }
 
       expect(errorCaught).toBe(true);

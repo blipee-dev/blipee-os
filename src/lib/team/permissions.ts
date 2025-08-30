@@ -93,7 +93,7 @@ export class TeamManagementService {
     customPermissions?: string[],
   ): Promise<boolean> {
     try {
-      const { error: _error } = await supabase
+      const { error } = await supabase
         .from("team_members")
         .update({
           role: newRole,
@@ -116,7 +116,7 @@ export class TeamManagementService {
     memberId: string,
   ): Promise<boolean> {
     try {
-      const { error: _error } = await supabase
+      const { error } = await supabase
         .from("team_members")
         .update({
           status: "inactive",

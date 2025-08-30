@@ -19,7 +19,7 @@ const initiateRecoverySchema = z.object({
   adminUserId: z.string().uuid().optional(),
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
@@ -52,8 +52,8 @@ export async function POST(_request: NextRequest) {
       message: result.message,
       requiresVerification: result.requiresVerification,
     });
-  } catch (_error: any) {
-    console.error('Recovery initiation _error:', error);
+  } catch (error: any) {
+    console.error('Recovery initiation error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -69,7 +69,7 @@ export async function POST(_request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: error.message || 'Failed to initiate recovery',
+        _error: errorerror.message || 'Failed to initiate recovery',
       },
       { status: 500 }
     );

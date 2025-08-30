@@ -10,7 +10,7 @@ export async function POST(_request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -26,10 +26,10 @@ export async function POST(_request: NextRequest) {
       message: 'MFA disabled successfully'
     });
   } catch (error) {
-    console.error('MFA disable _error:', error);
+    console.error('Error:', error);
     
     return NextResponse.json(
-      { _error: 'Failed to disable MFA' },
+      { error: 'Failed to disable MFA' },
       { status: 500 }
     );
   }

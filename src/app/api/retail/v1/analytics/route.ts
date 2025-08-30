@@ -58,7 +58,7 @@ async function handleGetAnalytics(_request: NextRequest, context: any) {
 
     if (!loja || !startDate || !endDate) {
       return NextResponse.json(
-        { _error: 'Missing required parameters: loja, start_date, end_date' },
+        { error: 'Missing required parameters: loja, start_date, end_date' },
         { status: 400 }
       );
     }
@@ -77,7 +77,7 @@ async function handleGetAnalytics(_request: NextRequest, context: any) {
     });
   } catch (error) {
     return NextResponse.json(
-      { _error: 'Failed to fetch analytics' },
+      { error: 'Failed to fetch analytics' },
       { status: 500 }
     );
   }
@@ -93,7 +93,7 @@ async function handlePostAnalytics(_request: NextRequest, context: any) {
 
     if (!loja || !start_date || !end_date) {
       return NextResponse.json(
-        { _error: 'Missing required parameters: loja, start_date, end_date' },
+        { error: 'Missing required parameters: loja, start_date, end_date' },
         { status: 400 }
       );
     }
@@ -112,7 +112,7 @@ async function handlePostAnalytics(_request: NextRequest, context: any) {
     });
   } catch (error) {
     return NextResponse.json(
-      { _error: 'Failed to fetch analytics' },
+      { error: 'Failed to fetch analytics' },
       { status: 500 }
     );
   }

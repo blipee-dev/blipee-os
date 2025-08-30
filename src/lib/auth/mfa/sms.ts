@@ -467,7 +467,7 @@ export class SMSMFAService {
       const encryptedPhone = await encryptionService.encrypt(verification.phoneNumber);
 
       // Save verified phone number
-      const { error: _error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('user_phone_numbers')
         .insert({
           user_id: userId,

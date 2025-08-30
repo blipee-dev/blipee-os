@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { webAuthnService } from '@/lib/auth/webauthn/service';
 import { createClient } from '@/lib/supabase/server';
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
     
     // Get authenticated user
-    const { data: { user }, _error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ _error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -20,7 +20,7 @@ export async function POST(_request: NextRequest) {
     } = body;
 
     if (!credentialName || typeof credentialName !== 'string') {
-      return NextResponse.json({ _error: 'Credential name is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Credential name is required' }, { status: 400 });
     }
 
     // Get user profile for display name
@@ -49,7 +49,7 @@ export async function POST(_request: NextRequest) {
       options,
     });
   } catch (error) {
-    console.error('WebAuthn registration options _error:', error);
+    console.error('Error:', error);
     return NextResponse.json(
       { 
         _error: 'Failed to generate registration options',

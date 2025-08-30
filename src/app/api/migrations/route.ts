@@ -68,7 +68,7 @@ export async function GET() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -82,7 +82,7 @@ export async function GET() {
     
     if (!member || member.role !== 'account_owner') {
       return NextResponse.json(
-        { _error: 'Forbidden - admin access required' },
+        { error: 'Forbidden - admin access required' },
         { status: 403 }
       );
     }
@@ -95,7 +95,7 @@ export async function GET() {
   } catch (error) {
     logger.error('Error getting migration status', error);
     return NextResponse.json(
-      { _error: 'Failed to get migration status' },
+      { error: 'Failed to get migration status' },
       { status: 500 }
     );
   }
@@ -148,7 +148,7 @@ export async function GET() {
  *       403:
  *         description: Forbidden - requires admin role
  */
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
     
@@ -156,7 +156,7 @@ export async function POST(_request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -170,7 +170,7 @@ export async function POST(_request: NextRequest) {
     
     if (!member || member.role !== 'account_owner') {
       return NextResponse.json(
-        { _error: 'Forbidden - admin access required' },
+        { error: 'Forbidden - admin access required' },
         { status: 403 }
       );
     }
@@ -198,7 +198,7 @@ export async function POST(_request: NextRequest) {
       
       default:
         return NextResponse.json(
-          { _error: 'Invalid action. Use "run" or "validate"' },
+          { error: 'Invalid action. Use "run" or "validate"' },
           { status: 400 }
         );
     }
@@ -206,7 +206,7 @@ export async function POST(_request: NextRequest) {
   } catch (error) {
     logger.error('Error performing migration action', error);
     return NextResponse.json(
-      { _error: 'Failed to perform migration action' },
+      { error: 'Failed to perform migration action' },
       { status: 500 }
     );
   }

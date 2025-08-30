@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/middleware';
 import { ComplianceFramework } from '@/lib/compliance/types';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Check authentication - only admins can generate compliance reports
     const authResult = await requireAuth(request, ['account_owner', 'admin']);
     if (!authResult.authenticated) {
       return NextResponse.json(
-        { _error: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -20,7 +20,7 @@ export async function GET(_request: NextRequest) {
 
     if (!framework || !Object.values(ComplianceFramework).includes(framework)) {
       return NextResponse.json(
-        { _error: 'Valid framework is required' },
+        { error: 'Valid framework is required' },
         { status: 400 }
       );
     }
@@ -41,7 +41,7 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json({ report });
   } catch (error) {
     return NextResponse.json(
-      { _error: error instanceof Error ? error.message : 'Failed to generate report' },
+      { error: error instanceof Error ? error.message : 'Failed to generate report' },
       { status: 500 }
     );
   }

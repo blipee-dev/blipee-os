@@ -222,7 +222,7 @@ export class AgentManager {
     config: AgentConfig,
     agentType: string
   ): Promise<void> {
-    const { error: _error } = await this.supabase
+    const { error } = await this.supabase
       .from('agent_configs')
       .upsert({
         organization_id: organizationId,

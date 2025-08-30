@@ -34,10 +34,10 @@ export async function GET(
       success: true,
       data: buildings,
     });
-  } catch (_error: any) {
-    console.error("Get buildings _error:", error);
+  } catch (error: any) {
+    console.error('Error:', error);
     return NextResponse.json(
-      { success: false, _error: error.message || "Failed to get buildings" },
+      { success: false, _error: errorerror.message || "Failed to get buildings" },
       { status: 500 },
     );
   }
@@ -86,8 +86,8 @@ export async function POST(
       success: true,
       data: building,
     });
-  } catch (_error: any) {
-    console.error("Create building _error:", error);
+  } catch (error: any) {
+    console.error('Error:', error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -101,7 +101,7 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { success: false, _error: error.message || "Failed to create building" },
+      { success: false, _error: errorerror.message || "Failed to create building" },
       { status: 500 },
     );
   }

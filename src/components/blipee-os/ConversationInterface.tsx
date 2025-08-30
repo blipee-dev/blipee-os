@@ -181,7 +181,7 @@ export function ConversationInterface({
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: aiResponse.message || "I'm processing your request...",
+        content: aiResponseerror.message || "I'm processing your request...",
         components: aiResponse.components,
         suggestions: aiResponse.suggestions,
         timestamp: new Date(),

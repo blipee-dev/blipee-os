@@ -199,7 +199,7 @@ export const POST = withAuth(withErrorHandler(async (_request: NextRequest, _use
       
     default:
       return NextResponse.json(
-        { _error: 'Invalid action' },
+        { error: 'Invalid action' },
         { status: 400 }
       );
   }

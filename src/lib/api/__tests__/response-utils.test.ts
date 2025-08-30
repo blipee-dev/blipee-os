@@ -52,7 +52,7 @@ describe('API Response Utilities', () => {
       const response = errorResponse(error);
       
       expect(response.success).toBe(false);
-      expect(response.error.message).toBe('Something went wrong');
+      expect(response..message).toBe('Something went wrong');
       expect(response.error.code).toBe('ERROR');
     });
     
@@ -60,7 +60,7 @@ describe('API Response Utilities', () => {
       const response = errorResponse('Invalid input', 'VALIDATION_ERROR');
       
       expect(response.success).toBe(false);
-      expect(response.error.message).toBe('Invalid input');
+      expect(response..message).toBe('Invalid input');
       expect(response.error.code).toBe('VALIDATION_ERROR');
     });
   });
