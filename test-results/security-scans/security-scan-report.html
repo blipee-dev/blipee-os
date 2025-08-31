@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Automated Security Scan Report - blipee-os</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f8f9fa; }
+        .header { background: linear-gradient(135deg, #6f42c1 0%, #dc3545 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .critical { border-left: 5px solid #dc3545; }
+        .high { border-left: 5px solid #fd7e14; }
+        .medium { border-left: 5px solid #ffc107; }
+        .low { border-left: 5px solid #6c757d; }
+        .vulnerability { margin: 10px 0; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #ccc; }
+        .vuln-header { font-weight: bold; font-size: 16px; margin-bottom: 10px; }
+        .vuln-details { color: #666; margin: 5px 0; font-size: 14px; }
+        .scan-type { background: #e9ecef; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛡️ Automated Security Scan Report</h1>
+        <p>blipee-os Security Assessment - 2025-08-31T01:45:58.639Z</p>
+    </div>
+    
+    <div class="summary">
+        <div class="card">
+            <h3>Total Issues</h3>
+            <h2>205</h2>
+        </div>
+        <div class="card critical">
+            <h3>Critical</h3>
+            <h2>120</h2>
+        </div>
+        <div class="card high">
+            <h3>High</h3>
+            <h2>2</h2>
+        </div>
+        <div class="card medium">
+            <h3>Medium</h3>
+            <h2>1</h2>
+        </div>
+        <div class="card low">
+            <h3>Low</h3>
+            <h2>82</h2>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>🚨 Vulnerabilities by Scan Type</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Scan Type</th>
+                    <th>Severity</th>
+                    <th>Vulnerability</th>
+                    <th>Location</th>
+                    <th>Recommendation</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 19</small></td>
+                        <td><code>src/__tests__/e2e/complete-user-journey.test.ts:19</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 35</small></td>
+                        <td><code>src/__tests__/e2e/complete-user-journey.test.ts:35</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 45</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:45</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 70</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:70</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 92</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:92</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 121</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:121</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 134</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:134</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 157</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:157</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 184</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:184</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 201</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:201</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 224</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:224</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 251</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:251</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 271</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:271</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 301</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:301</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 338</small></td>
+                        <td><code>src/app/api/auth/__tests__/signin.test.ts:338</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 36</small></td>
+                        <td><code>src/app/api/auth/signin/__tests__/route-real.test.ts:36</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 57</small></td>
+                        <td><code>src/app/api/auth/signin/__tests__/route-real.test.ts:57</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 42</small></td>
+                        <td><code>src/app/api/auth/signin/__tests__/route.test.ts:42</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 64</small></td>
+                        <td><code>src/app/api/auth/signin/__tests__/route.test.ts:64</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 77</small></td>
+                        <td><code>src/app/api/auth/signin/__tests__/route.test.ts:77</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 97</small></td>
+                        <td><code>src/app/api/auth/signin/__tests__/route.test.ts:97</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 40</small></td>
+                        <td><code>src/app/api/auth/signup/__tests__/route-real.test.ts:40</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 57</small></td>
+                        <td><code>src/app/api/auth/signup/__tests__/route-real.test.ts:57</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 71</small></td>
+                        <td><code>src/app/api/auth/signup/__tests__/route-real.test.ts:71</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 90</small></td>
+                        <td><code>src/app/api/auth/signup/__tests__/route-real.test.ts:90</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 38</small></td>
+                        <td><code>src/app/api/auth/signup/__tests__/route.test.ts:38</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 57</small></td>
+                        <td><code>src/app/api/auth/signup/__tests__/route.test.ts:57</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 78</small></td>
+                        <td><code>src/app/api/auth/signup/__tests__/route.test.ts:78</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 97</small></td>
+                        <td><code>src/app/api/auth/signup/__tests__/route.test.ts:97</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 151</small></td>
+                        <td><code>src/app/api/metrics/route.ts:151</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 124</small></td>
+                        <td><code>src/app/signin/page.tsx:124</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 25</small></td>
+                        <td><code>src/app/signup/page.tsx:25</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 70</small></td>
+                        <td><code>src/contexts/AuthContext.tsx:70</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 12</small></td>
+                        <td><code>src/lib/ai/__tests__/e2e/ai-conversation-flow.test.ts:12</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 16</small></td>
+                        <td><code>src/lib/ai/__tests__/e2e/ai-conversation-flow.test.ts:16</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 30</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:30</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 46</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:46</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 54</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:54</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 56</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:56</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 119</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:119</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 148</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:148</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 164</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:164</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 166</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:166</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 181</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:181</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 234</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:234</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 277</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:277</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 304</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:304</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 343</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:343</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 345</small></td>
+                        <td><code>src/lib/ai/__tests__/service.test.ts:345</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 328</small></td>
+                        <td><code>src/lib/ai/ml-models/config/production-config.ts:328</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 463</small></td>
+                        <td><code>src/lib/ai/ml-models/config/production-config.ts:463</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 467</small></td>
+                        <td><code>src/lib/ai/ml-models/config/production-config.ts:467</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 473</small></td>
+                        <td><code>src/lib/ai/ml-models/config/production-config.ts:473</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 50</small></td>
+                        <td><code>src/lib/ai/providers/__tests__/anthropic.test.ts:50</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 32</small></td>
+                        <td><code>src/lib/ai/providers/__tests__/deepseek.test.ts:32</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 31</small></td>
+                        <td><code>src/lib/ai/providers/__tests__/openai.test.ts:31</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 43</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service-real.test.ts:43</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 75</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service-real.test.ts:75</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 42</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service.test.ts:42</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 50</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service.test.ts:50</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 67</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service.test.ts:67</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 77</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service.test.ts:77</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 100</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service.test.ts:100</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 116</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service.test.ts:116</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 133</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service.test.ts:133</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 197</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service.test.ts:197</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 282</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service.test.ts:282</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 291</small></td>
+                        <td><code>src/lib/auth/__tests__/auth-service.test.ts:291</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 35</small></td>
+                        <td><code>src/lib/auth/__tests__/auth.test.ts:35</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 50</small></td>
+                        <td><code>src/lib/auth/__tests__/auth.test.ts:50</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 176</small></td>
+                        <td><code>src/lib/auth/__tests__/auth.test.ts:176</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 208</small></td>
+                        <td><code>src/lib/auth/__tests__/auth.test.ts:208</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 218</small></td>
+                        <td><code>src/lib/auth/__tests__/auth.test.ts:218</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 31</small></td>
+                        <td><code>src/lib/auth/__tests__/complete-auth-flow.test.ts:31</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 49</small></td>
+                        <td><code>src/lib/auth/__tests__/complete-auth-flow.test.ts:49</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 60</small></td>
+                        <td><code>src/lib/auth/__tests__/complete-auth-flow.test.ts:60</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 180</small></td>
+                        <td><code>src/lib/auth/__tests__/complete-auth-flow.test.ts:180</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 214</small></td>
+                        <td><code>src/lib/auth/__tests__/complete-auth-flow.test.ts:214</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 220</small></td>
+                        <td><code>src/lib/auth/__tests__/complete-auth-flow.test.ts:220</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 689</small></td>
+                        <td><code>src/lib/auth/mfa/email.ts:689</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 363</small></td>
+                        <td><code>src/lib/auth/mfa/service-old.ts:363</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 370</small></td>
+                        <td><code>src/lib/auth/mfa/service-old.ts:370</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 594</small></td>
+                        <td><code>src/lib/auth/mfa/service.ts:594</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 613</small></td>
+                        <td><code>src/lib/auth/mfa/service.ts:613</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 562</small></td>
+                        <td><code>src/lib/auth/sso/saml.ts:562</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 24</small></td>
+                        <td><code>src/lib/auth/webauthn/service.ts:24</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 25</small></td>
+                        <td><code>src/lib/cache/redis.ts:25</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 28</small></td>
+                        <td><code>src/lib/cache/redis.ts:28</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 951</small></td>
+                        <td><code>src/lib/data/external-apis.ts:951</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 954</small></td>
+                        <td><code>src/lib/data/external-apis.ts:954</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 957</small></td>
+                        <td><code>src/lib/data/external-apis.ts:957</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 53</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:53</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 64</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:64</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 89</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:89</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 93</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:93</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 95</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:95</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 97</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:97</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 101</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:101</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 104</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:104</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 107</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:107</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 109</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:109</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 111</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:111</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 113</small></td>
+                        <td><code>src/lib/database/connection-pool.ts:113</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 72</small></td>
+                        <td><code>src/lib/database/scheduled-backup.ts:72</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 62</small></td>
+                        <td><code>src/lib/docs/api-doc-generator.ts:62</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 319</small></td>
+                        <td><code>src/lib/docs/simple-api-docs.ts:319</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 379</small></td>
+                        <td><code>src/lib/docs/simple-api-docs.ts:379</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 320</small></td>
+                        <td><code>src/lib/graphql/resolvers.ts:320</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 235</small></td>
+                        <td><code>src/lib/logging/__tests__/database-logger.test.ts:235</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 238</small></td>
+                        <td><code>src/lib/logging/__tests__/database-logger.test.ts:238</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 146</small></td>
+                        <td><code>src/lib/logging/__tests__/structured-logger.test.ts:146</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 163</small></td>
+                        <td><code>src/lib/logging/__tests__/structured-logger.test.ts:163</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 178</small></td>
+                        <td><code>src/lib/logging/__tests__/structured-logger.test.ts:178</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 147</small></td>
+                        <td><code>src/lib/logging/__tests__/structured-logger.test.ts:147</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 164</small></td>
+                        <td><code>src/lib/logging/__tests__/structured-logger.test.ts:164</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 36</small></td>
+                        <td><code>src/lib/logging/config.ts:36</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 42</small></td>
+                        <td><code>src/lib/logging/config.ts:42</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 49</small></td>
+                        <td><code>src/lib/logging/config.ts:49</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 64</small></td>
+                        <td><code>src/lib/logging/config.ts:64</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 110</small></td>
+                        <td><code>src/lib/logging/config.ts:110</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 113</small></td>
+                        <td><code>src/lib/logging/structured-logger.ts:113</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 451</small></td>
+                        <td><code>src/lib/logging/structured-logger.ts:451</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 150</small></td>
+                        <td><code>src/lib/monitoring/health.ts:150</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 26</small></td>
+                        <td><code>src/lib/monitoring/telemetry.ts:26</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 118</small></td>
+                        <td><code>src/lib/performance/performance-test-suite.ts:118</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 486</small></td>
+                        <td><code>src/lib/performance/performance-test-suite.ts:486</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 680</small></td>
+                        <td><code>src/lib/performance/performance-test-suite.ts:680</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 41</small></td>
+                        <td><code>src/lib/security/audit-logger.ts:41</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 8</small></td>
+                        <td><code>src/lib/security/csrf.ts:8</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 86</small></td>
+                        <td><code>src/lib/security/encryption/factory.ts:86</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 94</small></td>
+                        <td><code>src/lib/security/encryption/factory.ts:94</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 104</small></td>
+                        <td><code>src/lib/security/encryption/factory.ts:104</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 107</small></td>
+                        <td><code>src/lib/security/encryption/factory.ts:107</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 115</small></td>
+                        <td><code>src/lib/security/encryption/factory.ts:115</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 117</small></td>
+                        <td><code>src/lib/security/encryption/factory.ts:117</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 71</small></td>
+                        <td><code>src/lib/security/rate-limit/service.ts:71</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 15</small></td>
+                        <td><code>src/lib/session/manager.ts:15</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 21</small></td>
+                        <td><code>src/lib/session/manager.ts:21</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 24</small></td>
+                        <td><code>src/lib/session/secure-manager.ts:24</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 49</small></td>
+                        <td><code>src/lib/session/service.ts:49</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 30</small></td>
+                        <td><code>src/lib/tracing/instrumentation.ts:30</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 32</small></td>
+                        <td><code>src/lib/tracing/instrumentation.ts:32</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 43</small></td>
+                        <td><code>src/lib/tracing/instrumentation.ts:43</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 51</small></td>
+                        <td><code>src/lib/tracing/instrumentation.ts:51</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 138</small></td>
+                        <td><code>src/lib/tracing/instrumentation.ts:138</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 140</small></td>
+                        <td><code>src/lib/tracing/instrumentation.ts:140</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 192</small></td>
+                        <td><code>src/lib/tracing/tracer.ts:192</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 194</small></td>
+                        <td><code>src/lib/tracing/tracer.ts:194</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 146</small></td>
+                        <td><code>src/lib/validation/__tests__/schemas-real.test.ts:146</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 141</small></td>
+                        <td><code>src/lib/validation/__tests__/schemas.test.ts:141</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 156</small></td>
+                        <td><code>src/lib/validation/__tests__/schemas.test.ts:156</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 169</small></td>
+                        <td><code>src/lib/validation/__tests__/schemas.test.ts:169</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 191</small></td>
+                        <td><code>src/lib/validation/__tests__/schemas.test.ts:191</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 204</small></td>
+                        <td><code>src/lib/validation/__tests__/schemas.test.ts:204</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 213</small></td>
+                        <td><code>src/lib/validation/__tests__/schemas.test.ts:213</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 225</small></td>
+                        <td><code>src/lib/validation/__tests__/schemas.test.ts:225</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 233</small></td>
+                        <td><code>src/lib/validation/__tests__/schemas.test.ts:233</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 252</small></td>
+                        <td><code>src/lib/validation/__tests__/schemas.test.ts:252</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 314</small></td>
+                        <td><code>src/lib/webhooks/webhook-verifier.ts:314</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 22</small></td>
+                        <td><code>src/test/e2e/accessibility/accessibility-tests.test.ts:22</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 11</small></td>
+                        <td><code>src/test/e2e/accessibility/accessibility-tests.test.ts:11</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 97</small></td>
+                        <td><code>src/test/e2e/global-setup.ts:97</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 104</small></td>
+                        <td><code>src/test/e2e/global-setup.ts:104</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 111</small></td>
+                        <td><code>src/test/e2e/global-setup.ts:111</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 118</small></td>
+                        <td><code>src/test/e2e/global-setup.ts:118</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 127</small></td>
+                        <td><code>src/test/e2e/global-setup.ts:127</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 173</small></td>
+                        <td><code>src/test/e2e/global-setup.ts:173</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 219</small></td>
+                        <td><code>src/test/e2e/global-setup.ts:219</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 83</small></td>
+                        <td><code>src/test/e2e/global-teardown.ts:83</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 161</small></td>
+                        <td><code>src/test/e2e/global-teardown.ts:161</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 179</small></td>
+                        <td><code>src/test/e2e/global-teardown.ts:179</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 21</small></td>
+                        <td><code>src/test/e2e/performance/performance-tests.test.ts:21</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 10</small></td>
+                        <td><code>src/test/e2e/performance/performance-tests.test.ts:10</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 357</small></td>
+                        <td><code>src/test/e2e/test-suite-runner.ts:357</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 21</small></td>
+                        <td><code>src/test/e2e/user-journeys/ai-conversation-journey.test.ts:21</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 10</small></td>
+                        <td><code>src/test/e2e/user-journeys/ai-conversation-journey.test.ts:10</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 21</small></td>
+                        <td><code>src/test/e2e/user-journeys/authentication-journey.test.ts:21</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 10</small></td>
+                        <td><code>src/test/e2e/user-journeys/authentication-journey.test.ts:10</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 21</small></td>
+                        <td><code>src/test/e2e/user-journeys/sustainability-management-journey.test.ts:21</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 10</small></td>
+                        <td><code>src/test/e2e/user-journeys/sustainability-management-journey.test.ts:10</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 95</small></td>
+                        <td><code>src/test/performance/load-testing-suite.ts:95</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 327</small></td>
+                        <td><code>src/test/performance/performance-benchmark-suite.ts:327</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 32</small></td>
+                        <td><code>src/test/performance/performance.test.ts:32</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 90</small></td>
+                        <td><code>src/test/performance/performance.test.ts:90</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 122</small></td>
+                        <td><code>src/test/performance/performance.test.ts:122</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 974</small></td>
+                        <td><code>src/test/phase-gate/phase-gate-review.ts:974</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="high">HIGH</td>
+                        <td><strong>Code Injection</strong><br><small>Use of eval() function detected at line 177</small></td>
+                        <td><code>src/test/security/automated-security-scan.ts:177</code></td>
+                        <td>Avoid eval() function. Use safer alternatives like JSON.parse()</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="high">HIGH</td>
+                        <td><strong>Code Injection</strong><br><small>Use of eval() function detected at line 515</small></td>
+                        <td><code>src/test/security/automated-security-scan.ts:515</code></td>
+                        <td>Avoid eval() function. Use safer alternatives like JSON.parse()</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="medium">MEDIUM</td>
+                        <td><strong>XSS Risk</strong><br><small>Use of document.write() detected at line 189</small></td>
+                        <td><code>src/test/security/automated-security-scan.ts:189</code></td>
+                        <td>Use textContent instead of innerHTML, or sanitize input properly</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 648</small></td>
+                        <td><code>src/test/security/automated-security-scan.ts:648</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 76</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:76</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 119</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:119</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 293</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:293</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 303</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:303</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 318</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:318</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 462</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:462</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 476</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:476</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 478</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:478</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 599</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:599</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 624</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:624</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 644</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:644</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Secrets</strong><br><small>Hardcoded API key detected at line 95</small></td>
+                        <td><code>src/test/security/owasp-top-10.test.ts:95</code></td>
+                        <td>Store secrets in environment variables or secret manager</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 16</small></td>
+                        <td><code>src/test/security/security-tests.test.ts:16</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="critical">CRITICAL</td>
+                        <td><strong>Hardcoded Credentials</strong><br><small>Hardcoded password detected at line 20</small></td>
+                        <td><code>src/test/security/security-tests.test.ts:20</code></td>
+                        <td>Use environment variables or secure secret management</td>
+                    </tr>
+                
+                    <tr>
+                        <td><span class="scan-type">Static Code Analysis</span></td>
+                        <td class="low">LOW</td>
+                        <td><strong>Environment Variable Fallback</strong><br><small>Fallback value for environment variable at line 10</small></td>
+                        <td><code>src/test/security/security-tests.test.ts:10</code></td>
+                        <td>Ensure fallback values are not sensitive</td>
+                    </tr>
+                
+            </tbody>
+        </table>
+        
+        
+    </div>
+</body>
+</html>

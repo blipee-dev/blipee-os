@@ -105,7 +105,7 @@ export function monitoringMiddleware() {
     res.on('error', async (error: Error) => {
       await recordError(
         'http_response_error',
-        .message,
+        error.message,
         {
           method,
           path,

@@ -37,7 +37,7 @@ export class OIDCService {
         } catch (error: any) {
           return {
             success: false,
-            error: `Failed to fetch discovery document: ${.message}`,
+            error: `Failed to fetch discovery document: ${error.message}`,
           };
         }
       } else {
@@ -104,7 +104,7 @@ export class OIDCService {
       return url.toString();
     } catch (error: any) {
       console.error("Failed to generate OIDC authentication request:", error);
-      throw new Error(`Failed to generate OIDC request: ${.message}`);
+      throw new Error(`Failed to generate OIDC request: ${error.message}`);
     }
   }
 
@@ -232,7 +232,7 @@ export class OIDCService {
       
       return await response.json();
     } catch (error: any) {
-      throw new Error(`Failed to fetch discovery document: ${.message}`);
+      throw new Error(`Failed to fetch discovery document: ${error.message}`);
     }
   }
 
@@ -291,7 +291,7 @@ export class OIDCService {
         scope: tokens.scope,
       };
     } catch (error: any) {
-      throw new Error(`Failed to exchange code for tokens: ${.message}`);
+      throw new Error(`Failed to exchange code for tokens: ${error.message}`);
     }
   }
 
@@ -363,7 +363,7 @@ export class OIDCService {
       
       return await response.json();
     } catch (error: any) {
-      throw new Error(`Failed to fetch user info: ${.message}`);
+      throw new Error(`Failed to fetch user info: ${error.message}`);
     }
   }
 
@@ -465,7 +465,7 @@ export class OIDCService {
         scope: tokens.scope,
       };
     } catch (error: any) {
-      throw new Error(`Failed to refresh token: ${.message}`);
+      throw new Error(`Failed to refresh token: ${error.message}`);
     }
   }
 }

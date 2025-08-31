@@ -321,7 +321,7 @@ export class TaskScheduler {
       .eq('id', taskId);
       
     if (error) {
-      throw new Error(`Failed to update scheduled task: ${.message}`);
+      throw new Error(`Failed to update scheduled task: ${error.message}`);
     }
     
     // Reschedule if needed
@@ -358,7 +358,7 @@ export class TaskScheduler {
       .eq('id', taskId);
       
     if (error) {
-      throw new Error(`Failed to delete scheduled task: ${.message}`);
+      throw new Error(`Failed to delete scheduled task: ${error.message}`);
     }
     
     // Clear any scheduled jobs

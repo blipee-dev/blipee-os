@@ -126,7 +126,7 @@ export class HyperparameterOptimizer {
         });
         results.push(result);
       } catch (error) {
-        console.warn(`   Failed to optimize ${model.getModelName()}:`, .message);
+        console.warn(`   Failed to optimize ${model.getModelName()}:`, error.message);
       }
     }
     
@@ -288,7 +288,7 @@ export class HyperparameterOptimizer {
       return score;
       
     } catch (error) {
-      console.warn(`   Evaluation failed for parameters:`, parameters, .message);
+      console.warn(`   Evaluation failed for parameters:`, parameters, error.message);
       return -Infinity; // Return worst possible score for failed evaluations
     }
   }

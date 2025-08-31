@@ -142,7 +142,7 @@ async function executeMiddleware(
 
   // Apply CSRF protection first for API routes
   if (path.startsWith('/api/')) {
-    const csrfResponse = await csrfMiddleware(_request);
+    const csrfResponse = await csrfMiddleware(request);
     if (csrfResponse) {
       // Log CSRF violation
       await securityAuditLogger.log({
@@ -233,7 +233,7 @@ async function executeMiddleware(
         }
       } else {
         // Validate session security
-        const sessionValidation = await secureSessionManager.validateSession(_request);
+        const sessionValidation = await secureSessionManager.validateSession(request);
         
         if (!sessionValidation.session) {
           // Invalid session, redirect to signin
