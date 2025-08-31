@@ -125,8 +125,8 @@ export class WebAuthnService {
       actor: {
         type: 'user',
         id: userId,
-        ip: _request.headers.get('x-forwarded-for')?.split(',')[0] || _request.ip,
-        userAgent: _request.headers.get('user-agent') || undefined,
+        ip: request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip,
+        userAgent: request.headers.get('user-agent') || undefined,
       },
       context: {},
       metadata: {
@@ -297,7 +297,7 @@ export class WebAuthnService {
     } = {}
   ): Promise<WebAuthnAuthenticationOptions> {
     // Rate limiting
-    const rateLimitKey = userId ? `webauthn_auth:${userId}` : `webauthn_auth:${_request.ip}`;
+    const rateLimitKey = userId ? `webauthn_auth:${userId}` : `webauthn_auth:${request.ip}`;
     const rateLimitResult = await this.rateLimiter.check(rateLimitKey, 'webauthn_auth');
 
     if (!rateLimitResult.allowed) {
@@ -493,7 +493,7 @@ export class WebAuthnService {
       .order('created_at', { ascending: false });
 
     if (error) {
-      throw new Error(`Failed to fetch user credentials: ${.message}`);
+      throw new Error(`Failed to fetch user credentials: ${error.message}`);
     }
 
     return data || [];
@@ -514,7 +514,7 @@ export class WebAuthnService {
       .eq('user_id', userId);
 
     if (error) {
-      throw new Error(`Failed to delete credential: ${.message}`);
+      throw new Error(`Failed to delete credential: ${error.message}`);
     }
 
     // Audit log
@@ -524,8 +524,8 @@ export class WebAuthnService {
       actor: {
         type: 'user',
         id: userId,
-        ip: _request.headers.get('x-forwarded-for')?.split(',')[0] || _request.ip,
-        userAgent: _request.headers.get('user-agent') || undefined,
+        ip: request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip,
+        userAgent: request.headers.get('user-agent') || undefined,
       },
       context: {},
       metadata: {
@@ -544,7 +544,7 @@ export class WebAuthnService {
       .select('*');
 
     if (error) {
-      throw new Error(`Failed to fetch WebAuthn stats: ${.message}`);
+      throw new Error(`Failed to fetch WebAuthn stats: ${error.message}`);
     }
 
     const credentials = data || [];
@@ -593,7 +593,7 @@ export class WebAuthnService {
       });
 
     if (error) {
-      throw new Error(`Failed to store challenge: ${.message}`);
+      throw new Error(`Failed to store challenge: ${error.message}`);
     }
   }
 
@@ -652,7 +652,7 @@ export class WebAuthnService {
       });
 
     if (error) {
-      throw new Error(`Failed to store credential: ${.message}`);
+      throw new Error(`Failed to store credential: ${error.message}`);
     }
   }
 
@@ -695,7 +695,7 @@ export class WebAuthnService {
       .eq('id', credentialId);
 
     if (error) {
-      throw new Error(`Failed to update credential counter: ${.message}`);
+      throw new Error(`Failed to update credential counter: ${error.message}`);
     }
   }
 

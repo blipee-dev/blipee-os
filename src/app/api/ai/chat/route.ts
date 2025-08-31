@@ -451,12 +451,12 @@ export const POST = withAuth(withErrorHandler(async (request: NextRequest, userI
       await aiCache.cacheResponse(
         message, 
         {
-          content: responseerror.message || '',
+          content: response.message || '',
           provider: 'demo',
           model: 'fallback',
           timestamp: new Date().toISOString(),
           cached: false,
-          message: responseerror.message || undefined,
+          message: response.message || undefined,
           suggestions: response.suggestions || undefined,
           components: response.components || undefined
         },

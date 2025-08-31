@@ -70,7 +70,7 @@ export class SAMLService {
         } catch (error: any) {
           return {
             success: false,
-            error: `Failed to fetch metadata: ${.message}`,
+            error: `Failed to fetch metadata: ${error.message}`,
           };
         }
       }
@@ -82,7 +82,7 @@ export class SAMLService {
         } catch (error: any) {
           return {
             success: false,
-            error: `Invalid certificate: ${.message}`,
+            error: `Invalid certificate: ${error.message}`,
           };
         }
       }
@@ -142,7 +142,7 @@ export class SAMLService {
       return url.toString();
     } catch (error: any) {
       console.error("Failed to generate SAML authentication request:", error);
-      throw new Error(`Failed to generate SAML request: ${.message}`);
+      throw new Error(`Failed to generate SAML request: ${error.message}`);
     }
   }
 
@@ -305,7 +305,7 @@ export class SAMLService {
       };
     } catch (error: any) {
       console.error("Failed to parse SAML metadata:", error);
-      throw new Error(`Invalid SAML metadata: ${.message}`);
+      throw new Error(`Invalid SAML metadata: ${error.message}`);
     }
   }
 
@@ -322,7 +322,7 @@ export class SAMLService {
       const metadata = await response.text();
       return this.parseMetadata(metadata);
     } catch (error: any) {
-      throw new Error(`Failed to fetch metadata: ${.message}`);
+      throw new Error(`Failed to fetch metadata: ${error.message}`);
     }
   }
 
@@ -550,7 +550,7 @@ export class SAMLService {
       // TODO: Add more certificate validation
       // Could use node-forge or similar library for deeper validation
     } catch (error: any) {
-      throw new Error(`Invalid certificate format: ${.message}`);
+      throw new Error(`Invalid certificate format: ${error.message}`);
     }
   }
 

@@ -1,0 +1,17 @@
+Benchmark,Category,Mean,P95,P99,Min,Max,StdDev,Performance,Target,Passed
+Health Check API,api,400.00,400.00,400.00,400.00,400.00,0.00,critical,50,false
+Authentication API,api,12.97,14.76,14.76,11.92,14.76,0.81,excellent,200,true
+Organizations List API,api,1200.00,1200.00,1200.00,1200.00,1200.00,0.00,critical,150,false
+Emissions Data API,api,2400.00,2400.00,2400.00,2400.00,2400.00,0.00,critical,300,false
+AI Chat Response,ai,838.03,1362.25,1362.25,507.42,1362.25,347.97,excellent,2000,true
+Document Processing,ai,1989.92,2779.33,2779.33,1369.69,2779.33,463.67,excellent,5000,true
+Context Engine,ai,47.53,70.18,70.18,27.19,70.18,14.96,excellent,100,true
+Simple Query,database,16.98,23.40,23.40,5.74,23.40,5.93,good,25,true
+Complex Join Query,database,75.77,112.12,112.12,45.26,112.12,18.02,good,100,true
+Bulk Insert,database,405.45,578.22,578.22,214.49,578.22,107.48,good,500,true
+Memory Allocation,memory,0.00,0.00,0.00,0.00,0.00,0.00,excellent,10,true
+Memory Leak Detection,memory,10.48,17.47,17.47,0.03,17.47,5.23,excellent,50,true
+File System Operations,system,0.20,0.27,0.27,0.16,0.27,0.03,excellent,20,true
+JSON Processing,system,10.75,11.95,11.95,10.11,11.95,0.47,excellent,50,true
+HTTP Request Processing,network,3.71,6.25,6.25,2.29,6.25,1.40,good,5,true
+WebSocket Connection,network,109.23,146.15,146.15,70.97,146.15,24.86,acceptable,100,true

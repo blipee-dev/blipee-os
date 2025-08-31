@@ -150,7 +150,7 @@ export class AutoMLPipeline {
         console.log(`     ✅ Score: ${result.bestScore.toFixed(4)} (${result.improvements.relativeImprovement.toFixed(1)}% improvement)`);
         
       } catch (error) {
-        console.warn(`     ❌ Failed: ${.message}`);
+        console.warn(`     ❌ Failed: ${error.message}`);
       }
       
       // Check time limit

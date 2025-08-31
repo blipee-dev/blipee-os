@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: errorerror.message || 'Failed to initiate recovery',
+        _error: error.message || 'Failed to initiate recovery',
       },
       { status: 500 }
     );
