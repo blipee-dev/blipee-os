@@ -102,7 +102,7 @@ export abstract class BaseModel {
       
       console.log(`Model saved to ${path}`);
     } catch (error) {
-      throw new Error(`Failed to save model: ${.message}`);
+      throw new Error(`Failed to save model: ${error.message}`);
     }
   }
 
@@ -124,7 +124,7 @@ export abstract class BaseModel {
       
       console.log(`Model loaded from ${path}`);
     } catch (error) {
-      throw new Error(`Failed to load model: ${.message}`);
+      throw new Error(`Failed to load model: ${error.message}`);
     }
   }
 

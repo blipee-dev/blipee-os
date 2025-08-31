@@ -1,0 +1,725 @@
+{
+  "timestamp": "2025-08-31T00:57:19.671Z",
+  "summary": {
+    "totalBenchmarks": 16,
+    "passedBenchmarks": 13,
+    "failedBenchmarks": 3,
+    "excellentResults": 8,
+    "goodResults": 4,
+    "acceptableResults": 1,
+    "poorResults": 0,
+    "criticalResults": 3,
+    "overallScore": 72
+  },
+  "results": [
+    {
+      "benchmark": {
+        "name": "Health Check API",
+        "category": "api",
+        "description": "Basic health check endpoint response time",
+        "target": 50,
+        "threshold": {
+          "excellent": 20,
+          "good": 50,
+          "acceptable": 100,
+          "poor": 200
+        }
+      },
+      "measurements": [
+        400,
+        400,
+        400,
+        400,
+        400,
+        400,
+        400,
+        400,
+        400,
+        400
+      ],
+      "statistics": {
+        "min": 400,
+        "max": 400,
+        "mean": 400,
+        "median": 400,
+        "p95": 400,
+        "p99": 400,
+        "standardDeviation": 0
+      },
+      "performance": "critical",
+      "passed": false,
+      "timestamp": "2025-08-31T00:56:32.306Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 19
+      }
+    },
+    {
+      "benchmark": {
+        "name": "Authentication API",
+        "category": "api",
+        "description": "User authentication endpoint performance",
+        "target": 200,
+        "threshold": {
+          "excellent": 100,
+          "good": 200,
+          "acceptable": 500,
+          "poor": 1000
+        }
+      },
+      "measurements": [
+        13.884042000000022,
+        12.688959000000068,
+        12.339791999999989,
+        12.75970899999993,
+        12.740541000000007,
+        13.088166000000001,
+        14.755042000000003,
+        13.332667000000015,
+        11.924750000000131,
+        12.137500000000045
+      ],
+      "statistics": {
+        "min": 11.924750000000131,
+        "max": 14.755042000000003,
+        "mean": 12.965116800000022,
+        "median": 12.75970899999993,
+        "p95": 14.755042000000003,
+        "p99": 14.755042000000003,
+        "standardDeviation": 0.8078195056048918
+      },
+      "performance": "excellent",
+      "passed": true,
+      "timestamp": "2025-08-31T00:56:32.481Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 19
+      }
+    },
+    {
+      "benchmark": {
+        "name": "Organizations List API",
+        "category": "api",
+        "description": "Organizations listing with pagination",
+        "target": 150,
+        "threshold": {
+          "excellent": 75,
+          "good": 150,
+          "acceptable": 300,
+          "poor": 600
+        }
+      },
+      "measurements": [
+        1200,
+        1200,
+        1200,
+        1200,
+        1200,
+        1200,
+        1200,
+        1200,
+        1200,
+        1200
+      ],
+      "statistics": {
+        "min": 1200,
+        "max": 1200,
+        "mean": 1200,
+        "median": 1200,
+        "p95": 1200,
+        "p99": 1200,
+        "standardDeviation": 0
+      },
+      "performance": "critical",
+      "passed": false,
+      "timestamp": "2025-08-31T00:56:32.648Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 19
+      }
+    },
+    {
+      "benchmark": {
+        "name": "Emissions Data API",
+        "category": "api",
+        "description": "Emissions data retrieval and processing",
+        "target": 300,
+        "threshold": {
+          "excellent": 150,
+          "good": 300,
+          "acceptable": 600,
+          "poor": 1200
+        }
+      },
+      "measurements": [
+        2400,
+        2400,
+        2400,
+        2400,
+        2400,
+        2400,
+        2400,
+        2400,
+        2400,
+        2400
+      ],
+      "statistics": {
+        "min": 2400,
+        "max": 2400,
+        "mean": 2400,
+        "median": 2400,
+        "p95": 2400,
+        "p99": 2400,
+        "standardDeviation": 0
+      },
+      "performance": "critical",
+      "passed": false,
+      "timestamp": "2025-08-31T00:56:32.811Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 19
+      }
+    },
+    {
+      "benchmark": {
+        "name": "AI Chat Response",
+        "category": "ai",
+        "description": "AI-powered chat response generation",
+        "target": 2000,
+        "threshold": {
+          "excellent": 1000,
+          "good": 2000,
+          "acceptable": 5000,
+          "poor": 10000
+        }
+      },
+      "measurements": [
+        1120.40625,
+        1187.4384579999996,
+        544.4784159999999,
+        556.5146249999998,
+        560.6805830000003,
+        527.4459999999999,
+        1345.2994589999998,
+        668.3604999999989,
+        507.420666,
+        1362.2525839999998
+      ],
+      "statistics": {
+        "min": 507.420666,
+        "max": 1362.2525839999998,
+        "mean": 838.0297540999998,
+        "median": 668.3604999999989,
+        "p95": 1362.2525839999998,
+        "p99": 1362.2525839999998,
+        "standardDeviation": 347.97314101089734
+      },
+      "performance": "excellent",
+      "passed": true,
+      "timestamp": "2025-08-31T00:56:44.332Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 19
+      }
+    },
+    {
+      "benchmark": {
+        "name": "Document Processing",
+        "category": "ai",
+        "description": "AI document analysis and extraction",
+        "target": 5000,
+        "threshold": {
+          "excellent": 2500,
+          "good": 5000,
+          "acceptable": 10000,
+          "poor": 20000
+        }
+      },
+      "measurements": [
+        2046.9233750000021,
+        1861.3998749999992,
+        1914.143458999999,
+        2558.1650420000005,
+        1571.2138330000016,
+        2779.329791,
+        1369.6879169999993,
+        2517.252333999997,
+        1859.7076250000027,
+        1421.3631249999962
+      ],
+      "statistics": {
+        "min": 1369.6879169999993,
+        "max": 2779.329791,
+        "mean": 1989.9186375999998,
+        "median": 1914.143458999999,
+        "p95": 2779.329791,
+        "p99": 2779.329791,
+        "standardDeviation": 463.66727311555655
+      },
+      "performance": "excellent",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:10.907Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 19
+      }
+    },
+    {
+      "benchmark": {
+        "name": "Context Engine",
+        "category": "ai",
+        "description": "Building context generation for AI",
+        "target": 100,
+        "threshold": {
+          "excellent": 50,
+          "good": 100,
+          "acceptable": 200,
+          "poor": 400
+        }
+      },
+      "measurements": [
+        70.18233300000429,
+        35.417458000003535,
+        28.162041000003228,
+        27.189582999999402,
+        64.47308300000441,
+        55.42329099999915,
+        41.491000000001804,
+        66.58933300000353,
+        43.727208000003884,
+        42.60225000000355
+      ],
+      "statistics": {
+        "min": 27.189582999999402,
+        "max": 70.18233300000429,
+        "mean": 47.52575800000268,
+        "median": 43.727208000003884,
+        "p95": 70.18233300000429,
+        "p99": 70.18233300000429,
+        "standardDeviation": 14.955052091106197
+      },
+      "performance": "excellent",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:11.518Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 19
+      }
+    },
+    {
+      "benchmark": {
+        "name": "Simple Query",
+        "category": "database",
+        "description": "Basic SELECT query performance",
+        "target": 25,
+        "threshold": {
+          "excellent": 10,
+          "good": 25,
+          "acceptable": 50,
+          "poor": 100
+        }
+      },
+      "measurements": [
+        11.187042000005022,
+        20.21366699999635,
+        21.677416999998968,
+        17.25274999999965,
+        5.7358339999991586,
+        23.395750000003318,
+        8.23937499999738,
+        20.416750000003958,
+        21.284958000003826,
+        20.358875000005355
+      ],
+      "statistics": {
+        "min": 5.7358339999991586,
+        "max": 23.395750000003318,
+        "mean": 16.976241800001297,
+        "median": 20.358875000005355,
+        "p95": 23.395750000003318,
+        "p99": 23.395750000003318,
+        "standardDeviation": 5.93217746825777
+      },
+      "performance": "good",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:11.748Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 19
+      }
+    },
+    {
+      "benchmark": {
+        "name": "Complex Join Query",
+        "category": "database",
+        "description": "Multi-table JOIN query performance",
+        "target": 100,
+        "threshold": {
+          "excellent": 50,
+          "good": 100,
+          "acceptable": 200,
+          "poor": 400
+        }
+      },
+      "measurements": [
+        79.30491600000096,
+        92.22149999999965,
+        79.28195899999992,
+        67.9343330000047,
+        45.26204200000211,
+        56.94129199999588,
+        61.183209000002535,
+        82.67450000000099,
+        80.76550000000134,
+        112.12008399999468
+      ],
+      "statistics": {
+        "min": 45.26204200000211,
+        "max": 112.12008399999468,
+        "mean": 75.76893350000027,
+        "median": 79.30491600000096,
+        "p95": 112.12008399999468,
+        "p99": 112.12008399999468,
+        "standardDeviation": 18.02460809731707
+      },
+      "performance": "good",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:12.771Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 19
+      }
+    },
+    {
+      "benchmark": {
+        "name": "Bulk Insert",
+        "category": "database",
+        "description": "Bulk data insertion performance",
+        "target": 500,
+        "threshold": {
+          "excellent": 250,
+          "good": 500,
+          "acceptable": 1000,
+          "poor": 2000
+        }
+      },
+      "measurements": [
+        448.3117920000004,
+        519.1502089999994,
+        380.3093329999974,
+        444.32904199999757,
+        356.23479199999565,
+        449.3388750000013,
+        239.39620899999863,
+        424.74945899999875,
+        214.49075000000448,
+        578.2208749999991
+      ],
+      "statistics": {
+        "min": 214.49075000000448,
+        "max": 578.2208749999991,
+        "mean": 405.45313359999926,
+        "median": 444.32904199999757,
+        "p95": 578.2208749999991,
+        "p99": 578.2208749999991,
+        "standardDeviation": 107.47949328368796
+      },
+      "performance": "good",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:18.091Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 19
+      }
+    },
+    {
+      "benchmark": {
+        "name": "Memory Allocation",
+        "category": "memory",
+        "description": "Large object allocation and deallocation",
+        "target": 10,
+        "threshold": {
+          "excellent": 5,
+          "good": 10,
+          "acceptable": 20,
+          "poor": 40
+        }
+      },
+      "measurements": [
+        0.00418853759765625,
+        0.00414276123046875,
+        0.0006256103515625,
+        0.00029754638671875,
+        0.00072479248046875,
+        0.00072479248046875,
+        0.00072479248046875,
+        0.00072479248046875,
+        0.00072479248046875,
+        0.00072479248046875
+      ],
+      "statistics": {
+        "min": 0.00029754638671875,
+        "max": 0.00418853759765625,
+        "mean": 0.001360321044921875,
+        "median": 0.00072479248046875,
+        "p95": 0.00418853759765625,
+        "p99": 0.00418853759765625,
+        "standardDeviation": 0.0014083128689952856
+      },
+      "performance": "excellent",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:18.124Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 31
+      }
+    },
+    {
+      "benchmark": {
+        "name": "Memory Leak Detection",
+        "category": "memory",
+        "description": "Memory usage after operations",
+        "target": 50,
+        "threshold": {
+          "excellent": 25,
+          "good": 50,
+          "acceptable": 100,
+          "poor": 200
+        }
+      },
+      "measurements": [
+        0.02632904052734375,
+        8.714675903320312,
+        8.748695373535156,
+        17.4666748046875,
+        8.715667724609375,
+        8.748695373535156,
+        17.465682983398438,
+        8.714820861816406,
+        8.748695373535156,
+        17.436187744140625
+      ],
+      "statistics": {
+        "min": 0.02632904052734375,
+        "max": 17.4666748046875,
+        "mean": 10.478612518310547,
+        "median": 8.748695373535156,
+        "p95": 17.4666748046875,
+        "p99": 17.4666748046875,
+        "standardDeviation": 5.230855559501091
+      },
+      "performance": "excellent",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:18.156Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 80
+      }
+    },
+    {
+      "benchmark": {
+        "name": "File System Operations",
+        "category": "system",
+        "description": "File read/write operations",
+        "target": 20,
+        "threshold": {
+          "excellent": 10,
+          "good": 20,
+          "acceptable": 50,
+          "poor": 100
+        }
+      },
+      "measurements": [
+        0.27012500000273576,
+        0.21545800000603776,
+        0.2062080000032438,
+        0.21762499999749707,
+        0.20116699999925913,
+        0.18491600000561448,
+        0.1693329999980051,
+        0.17570799999521114,
+        0.17120799999975134,
+        0.1587920000019949
+      ],
+      "statistics": {
+        "min": 0.1587920000019949,
+        "max": 0.27012500000273576,
+        "mean": 0.19705400000093504,
+        "median": 0.20116699999925913,
+        "p95": 0.27012500000273576,
+        "p99": 0.27012500000273576,
+        "standardDeviation": 0.031153474516675203
+      },
+      "performance": "excellent",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:18.160Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 80
+      }
+    },
+    {
+      "benchmark": {
+        "name": "JSON Processing",
+        "category": "system",
+        "description": "Large JSON parsing and serialization",
+        "target": 50,
+        "threshold": {
+          "excellent": 25,
+          "good": 50,
+          "acceptable": 100,
+          "poor": 200
+        }
+      },
+      "measurements": [
+        10.477749999998196,
+        10.114833999999973,
+        10.702250000002095,
+        10.74441599999409,
+        10.468291999997746,
+        10.444041999995534,
+        10.67674999999872,
+        10.852374999994936,
+        11.04237500000454,
+        11.94745900000271
+      ],
+      "statistics": {
+        "min": 10.114833999999973,
+        "max": 11.94745900000271,
+        "mean": 10.747054299998855,
+        "median": 10.702250000002095,
+        "p95": 11.94745900000271,
+        "p99": 11.94745900000271,
+        "standardDeviation": 0.46775928399115835
+      },
+      "performance": "excellent",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:18.300Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 81
+      }
+    },
+    {
+      "benchmark": {
+        "name": "HTTP Request Processing",
+        "category": "network",
+        "description": "HTTP request processing overhead",
+        "target": 5,
+        "threshold": {
+          "excellent": 2,
+          "good": 5,
+          "acceptable": 10,
+          "poor": 20
+        }
+      },
+      "measurements": [
+        6.249291000000085,
+        2.2960840000014286,
+        2.2886250000010477,
+        3.4178329999995185,
+        4.541791999996349,
+        2.346624999998312,
+        2.305459000002884,
+        4.535541999997804,
+        5.675999999999476,
+        3.4105839999974705
+      ],
+      "statistics": {
+        "min": 2.2886250000010477,
+        "max": 6.249291000000085,
+        "mean": 3.7067834999994376,
+        "median": 3.4178329999995185,
+        "p95": 6.249291000000085,
+        "p99": 6.249291000000085,
+        "standardDeviation": 1.404010416731244
+      },
+      "performance": "good",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:18.349Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 77
+      }
+    },
+    {
+      "benchmark": {
+        "name": "WebSocket Connection",
+        "category": "network",
+        "description": "WebSocket connection establishment",
+        "target": 100,
+        "threshold": {
+          "excellent": 50,
+          "good": 100,
+          "acceptable": 200,
+          "poor": 400
+        }
+      },
+      "measurements": [
+        101.50408299999981,
+        116.38208299999678,
+        121.49354099999618,
+        70.97262500000215,
+        144.5274999999965,
+        96.85200000000623,
+        123.04554199999984,
+        99.77770800000144,
+        146.14529200000106,
+        71.62712500000634
+      ],
+      "statistics": {
+        "min": 70.97262500000215,
+        "max": 146.14529200000106,
+        "mean": 109.23274990000064,
+        "median": 116.38208299999678,
+        "p95": 146.14529200000106,
+        "p99": 146.14529200000106,
+        "standardDeviation": 24.86145932085719
+      },
+      "performance": "acceptable",
+      "passed": true,
+      "timestamp": "2025-08-31T00:57:19.665Z",
+      "environment": {
+        "nodeVersion": "v24.7.0",
+        "platform": "darwin",
+        "arch": "arm64",
+        "memory": 77
+      }
+    }
+  ],
+  "regressions": [],
+  "recommendations": [
+    "🔴 3 critical performance issues require immediate attention",
+    "🔌 API performance issues detected - consider caching, database optimization, or connection pooling"
+  ]
+}

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Performance Benchmark Report - blipee-os</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f8f9fa; }
+        .header { background: linear-gradient(135deg, #007bff 0%, #28a745 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .score { font-size: 3em; font-weight: bold; color: #ffc107; text-align: center; }
+        .excellent { color: #28a745; }
+        .good { color: #007bff; }
+        .acceptable { color: #ffc107; }
+        .poor { color: #fd7e14; }
+        .critical { color: #dc3545; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .regression { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 5px 0; }
+        .chart { width: 100%; height: 300px; background: white; border-radius: 8px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚡ Performance Benchmark Report</h1>
+        <p>blipee-os Performance Analysis - 8/31/2025, 1:57:19 AM</p>
+    </div>
+    
+    <div class="summary">
+        <div class="card">
+            <h3>Overall Score</h3>
+            <div class="score">72</div>
+        </div>
+        <div class="card">
+            <h3>Benchmarks</h3>
+            <h2>16</h2>
+            <p>13 passed, 3 failed</p>
+        </div>
+        <div class="card excellent">
+            <h3>Excellent</h3>
+            <h2>8</h2>
+        </div>
+        <div class="card good">
+            <h3>Good</h3>
+            <h2>4</h2>
+        </div>
+        <div class="card acceptable">
+            <h3>Acceptable</h3>
+            <h2>1</h2>
+        </div>
+        <div class="card poor">
+            <h3>Poor</h3>
+            <h2>0</h2>
+        </div>
+        <div class="card critical">
+            <h3>Critical</h3>
+            <h2>3</h2>
+        </div>
+    </div>
+
+    
+    
+    <div class="card">
+        <h2>📊 Benchmark Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Benchmark</th>
+                    <th>Category</th>
+                    <th>Mean (ms)</th>
+                    <th>P95 (ms)</th>
+                    <th>P99 (ms)</th>
+                    <th>Performance</th>
+                    <th>Target (ms)</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                    <tr>
+                        <td>Health Check API</td>
+                        <td>api</td>
+                        <td>400.00</td>
+                        <td>400.00</td>
+                        <td>400.00</td>
+                        <td class="critical">CRITICAL</td>
+                        <td>50</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Authentication API</td>
+                        <td>api</td>
+                        <td>12.97</td>
+                        <td>14.76</td>
+                        <td>14.76</td>
+                        <td class="excellent">EXCELLENT</td>
+                        <td>200</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Organizations List API</td>
+                        <td>api</td>
+                        <td>1200.00</td>
+                        <td>1200.00</td>
+                        <td>1200.00</td>
+                        <td class="critical">CRITICAL</td>
+                        <td>150</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Emissions Data API</td>
+                        <td>api</td>
+                        <td>2400.00</td>
+                        <td>2400.00</td>
+                        <td>2400.00</td>
+                        <td class="critical">CRITICAL</td>
+                        <td>300</td>
+                    </tr>
+                
+                    <tr>
+                        <td>AI Chat Response</td>
+                        <td>ai</td>
+                        <td>838.03</td>
+                        <td>1362.25</td>
+                        <td>1362.25</td>
+                        <td class="excellent">EXCELLENT</td>
+                        <td>2000</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Document Processing</td>
+                        <td>ai</td>
+                        <td>1989.92</td>
+                        <td>2779.33</td>
+                        <td>2779.33</td>
+                        <td class="excellent">EXCELLENT</td>
+                        <td>5000</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Context Engine</td>
+                        <td>ai</td>
+                        <td>47.53</td>
+                        <td>70.18</td>
+                        <td>70.18</td>
+                        <td class="excellent">EXCELLENT</td>
+                        <td>100</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Simple Query</td>
+                        <td>database</td>
+                        <td>16.98</td>
+                        <td>23.40</td>
+                        <td>23.40</td>
+                        <td class="good">GOOD</td>
+                        <td>25</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Complex Join Query</td>
+                        <td>database</td>
+                        <td>75.77</td>
+                        <td>112.12</td>
+                        <td>112.12</td>
+                        <td class="good">GOOD</td>
+                        <td>100</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Bulk Insert</td>
+                        <td>database</td>
+                        <td>405.45</td>
+                        <td>578.22</td>
+                        <td>578.22</td>
+                        <td class="good">GOOD</td>
+                        <td>500</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Memory Allocation</td>
+                        <td>memory</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                        <td class="excellent">EXCELLENT</td>
+                        <td>10</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Memory Leak Detection</td>
+                        <td>memory</td>
+                        <td>10.48</td>
+                        <td>17.47</td>
+                        <td>17.47</td>
+                        <td class="excellent">EXCELLENT</td>
+                        <td>50</td>
+                    </tr>
+                
+                    <tr>
+                        <td>File System Operations</td>
+                        <td>system</td>
+                        <td>0.20</td>
+                        <td>0.27</td>
+                        <td>0.27</td>
+                        <td class="excellent">EXCELLENT</td>
+                        <td>20</td>
+                    </tr>
+                
+                    <tr>
+                        <td>JSON Processing</td>
+                        <td>system</td>
+                        <td>10.75</td>
+                        <td>11.95</td>
+                        <td>11.95</td>
+                        <td class="excellent">EXCELLENT</td>
+                        <td>50</td>
+                    </tr>
+                
+                    <tr>
+                        <td>HTTP Request Processing</td>
+                        <td>network</td>
+                        <td>3.71</td>
+                        <td>6.25</td>
+                        <td>6.25</td>
+                        <td class="good">GOOD</td>
+                        <td>5</td>
+                    </tr>
+                
+                    <tr>
+                        <td>WebSocket Connection</td>
+                        <td>network</td>
+                        <td>109.23</td>
+                        <td>146.15</td>
+                        <td>146.15</td>
+                        <td class="acceptable">ACCEPTABLE</td>
+                        <td>100</td>
+                    </tr>
+                
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="card">
+        <h2>💡 Recommendations</h2>
+        <ul>
+            <li>🔴 3 critical performance issues require immediate attention</li><li>🔌 API performance issues detected - consider caching, database optimization, or connection pooling</li>
+        </ul>
+    </div>
+</body>
+</html>

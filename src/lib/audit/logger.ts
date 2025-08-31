@@ -264,7 +264,7 @@ export class AuditLogger {
       result: statusCode < 400 ? 'success' : 'failure',
       errorDetails: error ? {
         code: error.name,
-        message: .message,
+        message: error.message,
         stackTrace: process.env['NODE_ENV'] === 'development' ? error.stack : undefined,
       } : undefined,
     });
@@ -289,13 +289,13 @@ export class AuditLogger {
       },
       metadata: {
         errorName: error.name,
-        errorMessage: .message,
+        errorMessage: error.message,
         ...context,
       },
       result: 'failure',
       errorDetails: {
         code: error.name,
-        message: .message,
+        message: error.message,
         stackTrace: process.env['NODE_ENV'] === 'development' ? error.stack : undefined,
       },
     });

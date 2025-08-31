@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        _error: errorerror.message || 'Failed to fetch audit summary' 
+        _error: error.message || 'Failed to fetch audit summary' 
       },
       { status: 500 }
     );

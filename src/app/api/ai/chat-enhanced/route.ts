@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Enhanced chat API error:", error);
     return NextResponse.json(
-      { error: errorerror.message || "Failed to process request" },
+      { error: error.message || "Failed to process request" },
       { status: 500 },
     );
   }

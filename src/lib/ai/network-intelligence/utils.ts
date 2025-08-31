@@ -119,7 +119,7 @@ async function ensureOrganizationNetworkNode(organizationId: string) {
     .single();
 
   if (error) {
-    throw new Error(`Failed to create organization network node: ${.message}`);
+    throw new Error(`Failed to create organization network node: ${error.message}`);
   }
 
   console.log(`✅ Created organization network node: ${newNode.id}`);

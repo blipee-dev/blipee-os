@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: errorerror.message || 'Failed to setup security questions',
+        _error: error.message || 'Failed to setup security questions',
       },
       { status: 500 }
     );

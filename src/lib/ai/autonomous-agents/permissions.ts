@@ -243,7 +243,7 @@ export class AgentPermissionSystem {
       .eq('status', 'pending'); // Only update if still pending
       
     if (error) {
-      throw new Error(`Failed to process approval: ${.message}`);
+      throw new Error(`Failed to process approval: ${error.message}`);
     }
   }
   

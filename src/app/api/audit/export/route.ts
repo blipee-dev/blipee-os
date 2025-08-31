@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        _error: errorerror.message || 'Failed to export audit logs' 
+        _error: error.message || 'Failed to export audit logs' 
       },
       { status: 500 }
     );
