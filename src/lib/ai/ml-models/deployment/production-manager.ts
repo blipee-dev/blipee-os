@@ -267,10 +267,10 @@ export class ProductionMLManager {
       return true;
 
     } catch (error) {
-      console.error(`   ❌ Deployment failed: ${.message}`);
+      console.error(`   ❌ Deployment failed: ${error.message}`);
       
       if (deploymentPlan.rollbackOnFailure) {
-        await this.rollbackDeployment(deploymentPlan.modelId, `Deployment failed: ${.message}`);
+        await this.rollbackDeployment(deploymentPlan.modelId, `Deployment failed: ${error.message}`);
       }
       
       return false;

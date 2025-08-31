@@ -1,0 +1,1863 @@
+{
+  "timestamp": "2025-08-31T01:45:58.639Z",
+  "scanConfig": {
+    "outputDir": "test-results/security-scans",
+    "silent": false,
+    "baseURL": "http://localhost:3000",
+    "scanDepth": "medium"
+  },
+  "summary": {
+    "totalVulnerabilities": 205,
+    "criticalIssues": 120,
+    "highIssues": 2,
+    "mediumIssues": 1,
+    "lowIssues": 82
+  },
+  "vulnerabilities": [
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 19",
+      "location": "src/__tests__/e2e/complete-user-journey.test.ts:19",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.524Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 35",
+      "location": "src/__tests__/e2e/complete-user-journey.test.ts:35",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.525Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 45",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:45",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.526Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 70",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:70",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.526Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 92",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:92",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.526Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 121",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:121",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.526Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 134",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:134",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.526Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 157",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:157",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.526Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 184",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:184",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.526Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 201",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:201",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.526Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 224",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:224",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.526Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 251",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:251",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.527Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 271",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:271",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.527Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 301",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:301",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.527Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 338",
+      "location": "src/app/api/auth/__tests__/signin.test.ts:338",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.527Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 36",
+      "location": "src/app/api/auth/signin/__tests__/route-real.test.ts:36",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 57",
+      "location": "src/app/api/auth/signin/__tests__/route-real.test.ts:57",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 42",
+      "location": "src/app/api/auth/signin/__tests__/route.test.ts:42",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 64",
+      "location": "src/app/api/auth/signin/__tests__/route.test.ts:64",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 77",
+      "location": "src/app/api/auth/signin/__tests__/route.test.ts:77",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 97",
+      "location": "src/app/api/auth/signin/__tests__/route.test.ts:97",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 40",
+      "location": "src/app/api/auth/signup/__tests__/route-real.test.ts:40",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 57",
+      "location": "src/app/api/auth/signup/__tests__/route-real.test.ts:57",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 71",
+      "location": "src/app/api/auth/signup/__tests__/route-real.test.ts:71",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 90",
+      "location": "src/app/api/auth/signup/__tests__/route-real.test.ts:90",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 38",
+      "location": "src/app/api/auth/signup/__tests__/route.test.ts:38",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 57",
+      "location": "src/app/api/auth/signup/__tests__/route.test.ts:57",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 78",
+      "location": "src/app/api/auth/signup/__tests__/route.test.ts:78",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 97",
+      "location": "src/app/api/auth/signup/__tests__/route.test.ts:97",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.528Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 151",
+      "location": "src/app/api/metrics/route.ts:151",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.531Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 124",
+      "location": "src/app/signin/page.tsx:124",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.535Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 25",
+      "location": "src/app/signup/page.tsx:25",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.536Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 70",
+      "location": "src/contexts/AuthContext.tsx:70",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.541Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 12",
+      "location": "src/lib/ai/__tests__/e2e/ai-conversation-flow.test.ts:12",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.544Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 16",
+      "location": "src/lib/ai/__tests__/e2e/ai-conversation-flow.test.ts:16",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.544Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 30",
+      "location": "src/lib/ai/__tests__/service.test.ts:30",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 46",
+      "location": "src/lib/ai/__tests__/service.test.ts:46",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 54",
+      "location": "src/lib/ai/__tests__/service.test.ts:54",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 56",
+      "location": "src/lib/ai/__tests__/service.test.ts:56",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 119",
+      "location": "src/lib/ai/__tests__/service.test.ts:119",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 148",
+      "location": "src/lib/ai/__tests__/service.test.ts:148",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 164",
+      "location": "src/lib/ai/__tests__/service.test.ts:164",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 166",
+      "location": "src/lib/ai/__tests__/service.test.ts:166",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 181",
+      "location": "src/lib/ai/__tests__/service.test.ts:181",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 234",
+      "location": "src/lib/ai/__tests__/service.test.ts:234",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 277",
+      "location": "src/lib/ai/__tests__/service.test.ts:277",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 304",
+      "location": "src/lib/ai/__tests__/service.test.ts:304",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 343",
+      "location": "src/lib/ai/__tests__/service.test.ts:343",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 345",
+      "location": "src/lib/ai/__tests__/service.test.ts:345",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.546Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 328",
+      "location": "src/lib/ai/ml-models/config/production-config.ts:328",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.564Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 463",
+      "location": "src/lib/ai/ml-models/config/production-config.ts:463",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.564Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 467",
+      "location": "src/lib/ai/ml-models/config/production-config.ts:467",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.564Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 473",
+      "location": "src/lib/ai/ml-models/config/production-config.ts:473",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.564Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 50",
+      "location": "src/lib/ai/providers/__tests__/anthropic.test.ts:50",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.571Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 32",
+      "location": "src/lib/ai/providers/__tests__/deepseek.test.ts:32",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.571Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 31",
+      "location": "src/lib/ai/providers/__tests__/openai.test.ts:31",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.571Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 43",
+      "location": "src/lib/auth/__tests__/auth-service-real.test.ts:43",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 75",
+      "location": "src/lib/auth/__tests__/auth-service-real.test.ts:75",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 42",
+      "location": "src/lib/auth/__tests__/auth-service.test.ts:42",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 50",
+      "location": "src/lib/auth/__tests__/auth-service.test.ts:50",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 67",
+      "location": "src/lib/auth/__tests__/auth-service.test.ts:67",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 77",
+      "location": "src/lib/auth/__tests__/auth-service.test.ts:77",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 100",
+      "location": "src/lib/auth/__tests__/auth-service.test.ts:100",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 116",
+      "location": "src/lib/auth/__tests__/auth-service.test.ts:116",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 133",
+      "location": "src/lib/auth/__tests__/auth-service.test.ts:133",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 197",
+      "location": "src/lib/auth/__tests__/auth-service.test.ts:197",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 282",
+      "location": "src/lib/auth/__tests__/auth-service.test.ts:282",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 291",
+      "location": "src/lib/auth/__tests__/auth-service.test.ts:291",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 35",
+      "location": "src/lib/auth/__tests__/auth.test.ts:35",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 50",
+      "location": "src/lib/auth/__tests__/auth.test.ts:50",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 176",
+      "location": "src/lib/auth/__tests__/auth.test.ts:176",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 208",
+      "location": "src/lib/auth/__tests__/auth.test.ts:208",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 218",
+      "location": "src/lib/auth/__tests__/auth.test.ts:218",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 31",
+      "location": "src/lib/auth/__tests__/complete-auth-flow.test.ts:31",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 49",
+      "location": "src/lib/auth/__tests__/complete-auth-flow.test.ts:49",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 60",
+      "location": "src/lib/auth/__tests__/complete-auth-flow.test.ts:60",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 180",
+      "location": "src/lib/auth/__tests__/complete-auth-flow.test.ts:180",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 214",
+      "location": "src/lib/auth/__tests__/complete-auth-flow.test.ts:214",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 220",
+      "location": "src/lib/auth/__tests__/complete-auth-flow.test.ts:220",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.575Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 689",
+      "location": "src/lib/auth/mfa/email.ts:689",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.578Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 363",
+      "location": "src/lib/auth/mfa/service-old.ts:363",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.578Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 370",
+      "location": "src/lib/auth/mfa/service-old.ts:370",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.578Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 594",
+      "location": "src/lib/auth/mfa/service.ts:594",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.578Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 613",
+      "location": "src/lib/auth/mfa/service.ts:613",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.578Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 562",
+      "location": "src/lib/auth/sso/saml.ts:562",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.579Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 24",
+      "location": "src/lib/auth/webauthn/service.ts:24",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.580Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 25",
+      "location": "src/lib/cache/redis.ts:25",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.582Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 28",
+      "location": "src/lib/cache/redis.ts:28",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.582Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 951",
+      "location": "src/lib/data/external-apis.ts:951",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.585Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 954",
+      "location": "src/lib/data/external-apis.ts:954",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.585Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 957",
+      "location": "src/lib/data/external-apis.ts:957",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.585Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 53",
+      "location": "src/lib/database/connection-pool.ts:53",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 64",
+      "location": "src/lib/database/connection-pool.ts:64",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 89",
+      "location": "src/lib/database/connection-pool.ts:89",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 93",
+      "location": "src/lib/database/connection-pool.ts:93",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 95",
+      "location": "src/lib/database/connection-pool.ts:95",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 97",
+      "location": "src/lib/database/connection-pool.ts:97",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 101",
+      "location": "src/lib/database/connection-pool.ts:101",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 104",
+      "location": "src/lib/database/connection-pool.ts:104",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 107",
+      "location": "src/lib/database/connection-pool.ts:107",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 109",
+      "location": "src/lib/database/connection-pool.ts:109",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 111",
+      "location": "src/lib/database/connection-pool.ts:111",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 113",
+      "location": "src/lib/database/connection-pool.ts:113",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.586Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 72",
+      "location": "src/lib/database/scheduled-backup.ts:72",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.587Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 62",
+      "location": "src/lib/docs/api-doc-generator.ts:62",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.588Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 319",
+      "location": "src/lib/docs/simple-api-docs.ts:319",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.588Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 379",
+      "location": "src/lib/docs/simple-api-docs.ts:379",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.588Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 320",
+      "location": "src/lib/graphql/resolvers.ts:320",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.589Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 235",
+      "location": "src/lib/logging/__tests__/database-logger.test.ts:235",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.590Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 238",
+      "location": "src/lib/logging/__tests__/database-logger.test.ts:238",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.590Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 146",
+      "location": "src/lib/logging/__tests__/structured-logger.test.ts:146",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.590Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 163",
+      "location": "src/lib/logging/__tests__/structured-logger.test.ts:163",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.590Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 178",
+      "location": "src/lib/logging/__tests__/structured-logger.test.ts:178",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.590Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 147",
+      "location": "src/lib/logging/__tests__/structured-logger.test.ts:147",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.591Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 164",
+      "location": "src/lib/logging/__tests__/structured-logger.test.ts:164",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.591Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 36",
+      "location": "src/lib/logging/config.ts:36",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.591Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 42",
+      "location": "src/lib/logging/config.ts:42",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.591Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 49",
+      "location": "src/lib/logging/config.ts:49",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.591Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 64",
+      "location": "src/lib/logging/config.ts:64",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.591Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 110",
+      "location": "src/lib/logging/config.ts:110",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.591Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 113",
+      "location": "src/lib/logging/structured-logger.ts:113",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.591Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 451",
+      "location": "src/lib/logging/structured-logger.ts:451",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.591Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 150",
+      "location": "src/lib/monitoring/health.ts:150",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.592Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 26",
+      "location": "src/lib/monitoring/telemetry.ts:26",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.593Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 118",
+      "location": "src/lib/performance/performance-test-suite.ts:118",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.595Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 486",
+      "location": "src/lib/performance/performance-test-suite.ts:486",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.595Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 680",
+      "location": "src/lib/performance/performance-test-suite.ts:680",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.595Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 41",
+      "location": "src/lib/security/audit-logger.ts:41",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.597Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 8",
+      "location": "src/lib/security/csrf.ts:8",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.597Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 86",
+      "location": "src/lib/security/encryption/factory.ts:86",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.598Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 94",
+      "location": "src/lib/security/encryption/factory.ts:94",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.598Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 104",
+      "location": "src/lib/security/encryption/factory.ts:104",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.598Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 107",
+      "location": "src/lib/security/encryption/factory.ts:107",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.598Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 115",
+      "location": "src/lib/security/encryption/factory.ts:115",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.598Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 117",
+      "location": "src/lib/security/encryption/factory.ts:117",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.598Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 71",
+      "location": "src/lib/security/rate-limit/service.ts:71",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.599Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 15",
+      "location": "src/lib/session/manager.ts:15",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.599Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 21",
+      "location": "src/lib/session/manager.ts:21",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.599Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 24",
+      "location": "src/lib/session/secure-manager.ts:24",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.599Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 49",
+      "location": "src/lib/session/service.ts:49",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.599Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 30",
+      "location": "src/lib/tracing/instrumentation.ts:30",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.601Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 32",
+      "location": "src/lib/tracing/instrumentation.ts:32",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.601Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 43",
+      "location": "src/lib/tracing/instrumentation.ts:43",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.601Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 51",
+      "location": "src/lib/tracing/instrumentation.ts:51",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.601Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 138",
+      "location": "src/lib/tracing/instrumentation.ts:138",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.601Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 140",
+      "location": "src/lib/tracing/instrumentation.ts:140",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.601Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 192",
+      "location": "src/lib/tracing/tracer.ts:192",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.601Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 194",
+      "location": "src/lib/tracing/tracer.ts:194",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.601Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 146",
+      "location": "src/lib/validation/__tests__/schemas-real.test.ts:146",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.602Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 141",
+      "location": "src/lib/validation/__tests__/schemas.test.ts:141",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.602Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 156",
+      "location": "src/lib/validation/__tests__/schemas.test.ts:156",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.602Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 169",
+      "location": "src/lib/validation/__tests__/schemas.test.ts:169",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.602Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 191",
+      "location": "src/lib/validation/__tests__/schemas.test.ts:191",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.602Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 204",
+      "location": "src/lib/validation/__tests__/schemas.test.ts:204",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.602Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 213",
+      "location": "src/lib/validation/__tests__/schemas.test.ts:213",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.602Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 225",
+      "location": "src/lib/validation/__tests__/schemas.test.ts:225",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.602Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 233",
+      "location": "src/lib/validation/__tests__/schemas.test.ts:233",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.602Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 252",
+      "location": "src/lib/validation/__tests__/schemas.test.ts:252",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.602Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 314",
+      "location": "src/lib/webhooks/webhook-verifier.ts:314",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.603Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 22",
+      "location": "src/test/e2e/accessibility/accessibility-tests.test.ts:22",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 11",
+      "location": "src/test/e2e/accessibility/accessibility-tests.test.ts:11",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 97",
+      "location": "src/test/e2e/global-setup.ts:97",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 104",
+      "location": "src/test/e2e/global-setup.ts:104",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 111",
+      "location": "src/test/e2e/global-setup.ts:111",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 118",
+      "location": "src/test/e2e/global-setup.ts:118",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 127",
+      "location": "src/test/e2e/global-setup.ts:127",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 173",
+      "location": "src/test/e2e/global-setup.ts:173",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 219",
+      "location": "src/test/e2e/global-setup.ts:219",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 83",
+      "location": "src/test/e2e/global-teardown.ts:83",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 161",
+      "location": "src/test/e2e/global-teardown.ts:161",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 179",
+      "location": "src/test/e2e/global-teardown.ts:179",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 21",
+      "location": "src/test/e2e/performance/performance-tests.test.ts:21",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 10",
+      "location": "src/test/e2e/performance/performance-tests.test.ts:10",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.604Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 357",
+      "location": "src/test/e2e/test-suite-runner.ts:357",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.605Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 21",
+      "location": "src/test/e2e/user-journeys/ai-conversation-journey.test.ts:21",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.605Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 10",
+      "location": "src/test/e2e/user-journeys/ai-conversation-journey.test.ts:10",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.605Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 21",
+      "location": "src/test/e2e/user-journeys/authentication-journey.test.ts:21",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.605Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 10",
+      "location": "src/test/e2e/user-journeys/authentication-journey.test.ts:10",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.605Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 21",
+      "location": "src/test/e2e/user-journeys/sustainability-management-journey.test.ts:21",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.605Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 10",
+      "location": "src/test/e2e/user-journeys/sustainability-management-journey.test.ts:10",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.605Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 95",
+      "location": "src/test/performance/load-testing-suite.ts:95",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.607Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 327",
+      "location": "src/test/performance/performance-benchmark-suite.ts:327",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.607Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 32",
+      "location": "src/test/performance/performance.test.ts:32",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.607Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 90",
+      "location": "src/test/performance/performance.test.ts:90",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.607Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 122",
+      "location": "src/test/performance/performance.test.ts:122",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.607Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 974",
+      "location": "src/test/phase-gate/phase-gate-review.ts:974",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.607Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "high",
+      "vulnerability": "Code Injection",
+      "description": "Use of eval() function detected at line 177",
+      "location": "src/test/security/automated-security-scan.ts:177",
+      "recommendation": "Avoid eval() function. Use safer alternatives like JSON.parse()",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "high",
+      "vulnerability": "Code Injection",
+      "description": "Use of eval() function detected at line 515",
+      "location": "src/test/security/automated-security-scan.ts:515",
+      "recommendation": "Avoid eval() function. Use safer alternatives like JSON.parse()",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "medium",
+      "vulnerability": "XSS Risk",
+      "description": "Use of document.write() detected at line 189",
+      "location": "src/test/security/automated-security-scan.ts:189",
+      "recommendation": "Use textContent instead of innerHTML, or sanitize input properly",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 648",
+      "location": "src/test/security/automated-security-scan.ts:648",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 76",
+      "location": "src/test/security/owasp-top-10.test.ts:76",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 119",
+      "location": "src/test/security/owasp-top-10.test.ts:119",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 293",
+      "location": "src/test/security/owasp-top-10.test.ts:293",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 303",
+      "location": "src/test/security/owasp-top-10.test.ts:303",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 318",
+      "location": "src/test/security/owasp-top-10.test.ts:318",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 462",
+      "location": "src/test/security/owasp-top-10.test.ts:462",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 476",
+      "location": "src/test/security/owasp-top-10.test.ts:476",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 478",
+      "location": "src/test/security/owasp-top-10.test.ts:478",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 599",
+      "location": "src/test/security/owasp-top-10.test.ts:599",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 624",
+      "location": "src/test/security/owasp-top-10.test.ts:624",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 644",
+      "location": "src/test/security/owasp-top-10.test.ts:644",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Secrets",
+      "description": "Hardcoded API key detected at line 95",
+      "location": "src/test/security/owasp-top-10.test.ts:95",
+      "recommendation": "Store secrets in environment variables or secret manager",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 16",
+      "location": "src/test/security/security-tests.test.ts:16",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "critical",
+      "vulnerability": "Hardcoded Credentials",
+      "description": "Hardcoded password detected at line 20",
+      "location": "src/test/security/security-tests.test.ts:20",
+      "recommendation": "Use environment variables or secure secret management",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    },
+    {
+      "scanType": "Static Code Analysis",
+      "severity": "low",
+      "vulnerability": "Environment Variable Fallback",
+      "description": "Fallback value for environment variable at line 10",
+      "location": "src/test/security/security-tests.test.ts:10",
+      "recommendation": "Ensure fallback values are not sensitive",
+      "timestamp": "2025-08-31T01:45:58.608Z"
+    }
+  ]
+}

@@ -517,7 +517,7 @@ export class AuditService {
       event.context.organizationId || '',
       event.result,
       event.errorDetails?.code || '',
-      event.errorDetails?error.message || '',
+      event.errorDetails?.message || '',
     ]);
 
     return [

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import { TestClient } from '@/test/utils/test-client';
 import { TestDatabase } from '@/test/utils/test-database';
+import { TEST_CREDENTIALS } from '@/test/constants';
 
 describe('Complete E2E User Journey', () => {
   let client: TestClient;
@@ -16,7 +17,7 @@ describe('Complete E2E User Journey', () => {
     // 1. User signs up
     const signupRes = await client.post('/api/auth/signup', {
       email: 'newuser@example.com',
-      password: 'SecurePass123!',
+      password: TEST_CREDENTIALS.password,
       fullName: 'New User',
       organizationName: 'Test Company'
     });
