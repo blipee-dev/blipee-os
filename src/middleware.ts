@@ -4,6 +4,9 @@ import { csrfMiddleware, setCSRFCookie } from './lib/security/csrf';
 import { applySecurityHeaders } from './lib/security/headers';
 import { secureSessionManager } from './lib/session/secure-manager';
 import { securityAuditLogger, SecurityEventType } from './lib/security/audit-logger';
+import { loggingMiddleware } from './middleware/logging';
+import { tracingMiddleware } from './middleware/tracing';
+import { logger } from './lib/logging';
 
 // Simple metrics collection for Edge Runtime
 const recordMetric = (name: string, value: number, labels?: Record<string, string>) => {
@@ -93,6 +96,49 @@ export async function middleware(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
              request.headers.get('x-real-ip') || 
              '127.0.0.1';
+
+  // Apply tracing first (wraps everything in a trace context)
+  try {
+    return await tracingMiddleware(request).then(async (tracingResponse) => {
+      // If tracing returned early, return that response
+      if (tracingResponse !== NextResponse.next()) {
+        return tracingResponse;
+      }
+
+      // Apply structured logging
+      try {
+        const loggingResponse = await loggingMiddleware(request);
+        if (loggingResponse.status !== 200 && loggingResponse !== NextResponse.next()) {
+          return loggingResponse;
+        }
+      } catch (error) {
+        logger.error('Logging middleware error', error as Error, {
+          path,
+          method
+        });
+        // Continue even if logging fails
+      }
+
+      // Continue with the rest of the middleware logic
+      return executeMiddleware(request, path, method, ip, startTime);
+    });
+  } catch (error) {
+    logger.error('Tracing middleware error', error as Error, {
+      path,
+      method
+    });
+    // Continue without tracing
+    return executeMiddleware(request, path, method, ip, startTime);
+  }
+}
+
+async function executeMiddleware(
+  request: NextRequest,
+  path: string,
+  method: string,
+  ip: string,
+  startTime: number
+): Promise<NextResponse> {
 
   // Apply CSRF protection first for API routes
   if (path.startsWith('/api/')) {
