@@ -887,7 +887,7 @@ Checklist:
     - [ ] Budget reviewed
   
   Quality:
-    - [ ] Code review complete
+    - [ ] Code review completeave the 
     - [ ] No critical bugs
     - [ ] Technical debt logged
     - [ ] Knowledge transfer done
