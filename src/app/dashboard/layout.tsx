@@ -8,28 +8,37 @@ import { BuildingProvider, useBuilding } from "@/contexts/BuildingContext";
 import { Loader2, LogOut, Settings, User, Sun, Moon, Home } from "lucide-react";
 import Link from "next/link";
 import type { Building } from "@/types/auth";
-import { AnimatedBackground } from "@/components/effects/AnimatedBackground";
+// Removed AnimatedBackground import - using simple dark/light background like features page
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const { session, loading } = useRequireAuth();
   const { building: currentBuilding, setBuilding: setCurrentBuilding } =
     useBuilding();
-  const [isLightMode, setIsLightMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   useEffect(() => {
-    const savedMode = localStorage.getItem("lightMode");
-    setIsLightMode(savedMode === "true");
+    // Check system preference and localStorage
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === "dark");
+      document.documentElement.classList.toggle("dark", savedTheme === "dark");
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setIsDarkMode(prefersDark);
+      document.documentElement.classList.toggle("dark", prefersDark);
+    }
   }, []);
 
-  const toggleLightMode = () => {
-    const newMode = !isLightMode;
-    setIsLightMode(newMode);
-    localStorage.setItem("lightMode", newMode.toString());
+  const toggleTheme = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    localStorage.setItem("theme", newMode ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", newMode);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
         <Loader2 className="w-12 h-12 animate-spin text-purple-500" />
       </div>
     );
@@ -45,11 +54,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className={`min-h-screen bg-white dark:bg-black transition-colors duration-300 ${isLightMode ? "light-mode" : ""}`}>
-      <AnimatedBackground />
-      
+    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
       {/* Top Navigation */}
-      <nav className="backdrop-blur-xl bg-white/[0.03] light-mode:bg-white/70 border-b border-white/[0.05] light-mode:border-gray-200/50 sticky top-0 z-50">
+      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Left side */}
@@ -85,54 +92,76 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <OrganizationSwitcher />
 
               <div className="flex items-center space-x-2">
-                {/* Light/Dark Mode Toggle */}
-                <button
-                  onClick={toggleLightMode}
-                  className="p-2.5 rounded-xl bg-white/[0.05] light-mode:bg-gray-100 border border-white/[0.05] light-mode:border-gray-200 hover:bg-white/[0.1] light-mode:hover:bg-gray-200 transition-all"
-                  aria-label="Toggle light mode"
-                >
-                  {isLightMode ? (
-                    <Moon className="w-5 h-5 text-gray-600" />
-                  ) : (
-                    <Sun className="w-5 h-5 text-yellow-400" />
-                  )}
-                </button>
+                {/* Theme Toggle Button - matching features page style */}
+                <div className="w-10 h-10 rounded-full p-[1px] bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500">
+                  <button
+                    onClick={toggleTheme}
+                    className="w-full h-full rounded-full bg-white/95 dark:bg-black/95 hover:bg-white/90 dark:hover:bg-black/90 transition-all flex items-center justify-center"
+                    aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                  >
+                    {isDarkMode ? (
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                          <linearGradient id="sunGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                            <stop offset="50%" stopColor="rgb(147, 51, 234)" />
+                            <stop offset="100%" stopColor="rgb(59, 130, 246)" />
+                          </linearGradient>
+                        </defs>
+                        <circle cx="12" cy="12" r="4" stroke="url(#sunGradient)" strokeWidth="2" strokeLinecap="round"/>
+                        <path d="M12 2v4M12 18v4M22 12h-4M6 12H2" stroke="url(#sunGradient)" strokeWidth="2" strokeLinecap="round"/>
+                        <path d="M19.07 4.93l-2.83 2.83M7.76 16.24l-2.83 2.83M19.07 19.07l-2.83-2.83M7.76 7.76L4.93 4.93" stroke="url(#sunGradient)" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                          <linearGradient id="moonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                            <stop offset="50%" stopColor="rgb(147, 51, 234)" />
+                            <stop offset="100%" stopColor="rgb(59, 130, 246)" />
+                          </linearGradient>
+                        </defs>
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="url(#moonGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </button>
+                </div>
 
-                <button className="p-2.5 rounded-xl bg-white/[0.05] light-mode:bg-gray-100 border border-white/[0.05] light-mode:border-gray-200 hover:bg-white/[0.1] light-mode:hover:bg-gray-200 transition-all">
-                  <Settings className="w-5 h-5 text-white/70 light-mode:text-gray-600" />
+                <button className="p-2.5 rounded-xl bg-gray-100 dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.05] hover:bg-gray-200 dark:hover:bg-white/[0.1] transition-all">
+                  <Settings className="w-5 h-5 text-gray-600 dark:text-white/70" />
                 </button>
 
                 <div className="relative group">
-                  <button className="flex items-center p-2.5 rounded-xl bg-white/[0.05] light-mode:bg-gray-100 border border-white/[0.05] light-mode:border-gray-200 hover:bg-white/[0.1] light-mode:hover:bg-gray-200 transition-all">
-                    <User className="w-5 h-5 text-white/70 light-mode:text-gray-600" />
+                  <button className="flex items-center p-2.5 rounded-xl bg-gray-100 dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.05] hover:bg-gray-200 dark:hover:bg-white/[0.1] transition-all">
+                    <User className="w-5 h-5 text-gray-600 dark:text-white/70" />
                   </button>
 
                   {/* User dropdown */}
-                  <div className="absolute right-0 mt-2 w-48 backdrop-blur-xl bg-white/[0.1] light-mode:bg-white/90 rounded-xl border border-white/[0.1] light-mode:border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-2xl">
-                    <div className="p-3 border-b border-white/[0.1] light-mode:border-gray-200">
-                      <p className="text-sm font-medium text-white light-mode:text-gray-900">
+                  <div className="absolute right-0 mt-2 w-48 backdrop-blur-xl bg-white/90 dark:bg-white/[0.1] rounded-xl border border-gray-200 dark:border-white/[0.1] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-2xl">
+                    <div className="p-3 border-b border-gray-200 dark:border-white/[0.1]">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {session.user.full_name || session.user.email}
                       </p>
-                      <p className="text-xs text-white/60 light-mode:text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-white/60">
                         {session.user.email}
                       </p>
                     </div>
                     <div className="py-1">
                       <Link
                         href="/settings/profile"
-                        className="block px-4 py-2 text-sm text-white/80 light-mode:text-gray-700 hover:bg-white/[0.1] light-mode:hover:bg-gray-100"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-white/80 hover:bg-gray-100 dark:hover:bg-white/[0.1]"
                       >
                         Profile Settings
                       </Link>
                       <Link
                         href="/settings/security"
-                        className="block px-4 py-2 text-sm text-white/80 light-mode:text-gray-700 hover:bg-white/[0.1] light-mode:hover:bg-gray-100"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-white/80 hover:bg-gray-100 dark:hover:bg-white/[0.1]"
                       >
                         Security Settings
                       </Link>
                       <button
                         onClick={handleSignOut}
-                        className="w-full text-left px-4 py-2 text-sm text-white/80 light-mode:text-gray-700 hover:bg-white/[0.1] light-mode:hover:bg-gray-100 flex items-center"
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-white/80 hover:bg-gray-100 dark:hover:bg-white/[0.1] flex items-center"
                       >
                         <LogOut className="w-4 h-4 mr-2" />
                         Sign out
