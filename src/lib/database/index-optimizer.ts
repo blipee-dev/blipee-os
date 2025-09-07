@@ -27,10 +27,13 @@ export interface IndexStatus {
  * Index optimizer for database performance
  */
 export class IndexOptimizer {
-  private supabase: SupabaseClient<Database>;
+  private supabase: SupabaseClient<Database> | null = null;
 
-  constructor() {
-    this.supabase = getPooledAdminClient();
+  private getSupabase(): SupabaseClient<Database> {
+    if (!this.supabase) {
+      this.supabase = getPooledAdminClient();
+    }
+    return this.supabase;
   }
 
   /**
@@ -219,7 +222,7 @@ export class IndexOptimizer {
       }
       
       // Execute the index creation
-      const { error } = await this.supabase.rpc('execute_sql', { 
+      const { error } = await this.getSupabase().rpc('execute_sql', { 
         sql_query: sql 
       });
       
@@ -230,7 +233,7 @@ export class IndexOptimizer {
       
       // Add comment if provided
       if (index.comment) {
-        await this.supabase.rpc('execute_sql', {
+        await this.getSupabase().rpc('execute_sql', {
           sql_query: `COMMENT ON INDEX ${index.name} IS '${index.comment}'`
         });
       }
@@ -251,7 +254,7 @@ export class IndexOptimizer {
     try {
       const sql = `DROP INDEX ${ifExists ? 'IF EXISTS' : ''} ${indexName}`;
       
-      const { error } = await this.supabase.rpc('execute_sql', { 
+      const { error } = await this.getSupabase().rpc('execute_sql', { 
         sql_query: sql 
       });
       
@@ -274,7 +277,7 @@ export class IndexOptimizer {
    */
   async getIndexStats(indexName?: string): Promise<IndexStatus[]> {
     try {
-      const { data, error } = await this.supabase.rpc('get_index_stats', {
+      const { data, error } = await this.getSupabase().rpc('get_index_stats', {
         index_name: indexName
       });
       
@@ -303,7 +306,7 @@ export class IndexOptimizer {
     try {
       const sql = `REINDEX INDEX ${indexName}`;
       
-      const { error } = await this.supabase.rpc('execute_sql', { 
+      const { error } = await this.getSupabase().rpc('execute_sql', { 
         sql_query: sql 
       });
       
@@ -467,5 +470,24 @@ export class IndexOptimizer {
   }
 }
 
-// Export singleton instance
-export const indexOptimizer = new IndexOptimizer();
+// Export singleton instance with lazy initialization
+let _indexOptimizer: IndexOptimizer | null = null;
+
+export function getIndexOptimizer(): IndexOptimizer {
+  if (!_indexOptimizer) {
+    _indexOptimizer = new IndexOptimizer();
+  }
+  return _indexOptimizer;
+}
+
+// For backward compatibility
+export const indexOptimizer = {
+  analyzeIndexUsage: (...args: any[]) => getIndexOptimizer().analyzeIndexUsage(...args),
+  recommendIndexes: (...args: any[]) => getIndexOptimizer().recommendIndexes(...args),
+  createIndex: (...args: any[]) => getIndexOptimizer().createIndex(...args),
+  dropIndex: (...args: any[]) => getIndexOptimizer().dropIndex(...args),
+  getIndexStatistics: (...args: any[]) => getIndexOptimizer().getIndexStatistics(...args),
+  rebuildIndex: (...args: any[]) => getIndexOptimizer().rebuildIndex(...args),
+  checkIndexHealth: (...args: any[]) => getIndexOptimizer().checkIndexHealth(...args),
+  autoOptimize: (...args: any[]) => getIndexOptimizer().autoOptimize(...args)
+};
