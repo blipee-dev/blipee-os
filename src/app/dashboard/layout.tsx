@@ -5,10 +5,10 @@ import { useRequireAuth } from "@/lib/auth/context";
 import { OrganizationSwitcher } from "@/components/OrganizationSwitcher";
 import { BuildingSelector } from "@/components/BuildingSelector";
 import { BuildingProvider, useBuilding } from "@/contexts/BuildingContext";
-import { Loader2, LogOut, Settings, User, Sun, Moon } from "lucide-react";
+import { Loader2, LogOut, Settings, User, Sun, Moon, Home } from "lucide-react";
 import Link from "next/link";
 import type { Building } from "@/types/auth";
-import { AmbientBackground } from "@/components/effects/AmbientBackground";
+import { AnimatedBackground } from "@/components/effects/AnimatedBackground";
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const { session, loading } = useRequireAuth();
@@ -29,7 +29,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <Loader2 className="w-12 h-12 animate-spin text-purple-500" />
       </div>
     );
@@ -45,8 +45,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isLightMode ? "light-mode" : ""}`}>
-      <AmbientBackground />
+    <div className={`min-h-screen bg-white dark:bg-black transition-colors duration-300 ${isLightMode ? "light-mode" : ""}`}>
+      <AnimatedBackground />
       
       {/* Top Navigation */}
       <nav className="backdrop-blur-xl bg-white/[0.03] light-mode:bg-white/70 border-b border-white/[0.05] light-mode:border-gray-200/50 sticky top-0 z-50">
@@ -55,8 +55,20 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             {/* Left side */}
             <div className="flex items-center space-x-6">
               <Link href="/dashboard" className="flex items-center group">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl mr-3 group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all" />
-                <span className="text-xl font-bold text-white light-mode:text-gray-900">
+                <div className="w-10 h-10 p-0.5 rounded-xl mr-3" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+                  <div className="w-full h-full bg-white/95 dark:bg-black/95 rounded-[10px] flex items-center justify-center group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all">
+                    <Home className="w-6 h-6" stroke="url(#dashboardHomeGradient)" fill="none" strokeWidth="2" />
+                    <svg width="0" height="0">
+                      <defs>
+                        <linearGradient id="dashboardHomeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                          <stop offset="100%" stopColor="rgb(147, 51, 234)" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                </div>
+                <span className="text-xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
                   blipee
                 </span>
               </Link>
