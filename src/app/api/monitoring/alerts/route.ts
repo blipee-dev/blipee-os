@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
         );
     }
   } catch (error) {
-    console.error('Error handling alert (_request:', error);
+    console.error('Error handling alert request:', error);
     return NextResponse.json(
       { error: 'Failed to process alert request' },
       { status: 500 }

@@ -754,14 +754,107 @@ export class IntegrationMarketplaceManager {
     webhook.deliveryStats.total++;
   }
 
+
   /**
-   * Get installed integrations for organization
+   * Get available integrations with filtering
    */
-  getInstalledIntegrations(organizationId: string): InstalledIntegration[] {
+  async getAvailableIntegrations(options: {
+    category?: IntegrationCategory;
+    featured?: boolean;
+    limit?: number;
+    offset?: number;
+  }): Promise<Integration[]> {
     this.ensureInitialized();
-    return Array.from(this.installedIntegrations.values())
+    let integrations = Array.from(this.integrations.values());
+    
+    if (options.category) {
+      integrations = integrations.filter(i => i.category === options.category);
+    }
+    
+    if (options.featured) {
+      integrations = integrations.filter(i => i.metadata.rating >= 4.5);
+    }
+    
+    // Apply pagination
+    const limit = options.limit || 20;
+    const offset = options.offset || 0;
+    
+    return integrations
+      .sort((a, b) => b.metadata.installCount - a.metadata.installCount)
+      .slice(offset, offset + limit);
+  }
+
+  /**
+   * Search integrations with advanced filtering
+   */
+  async searchIntegrations(options: {
+    query: string;
+    category?: IntegrationCategory;
+    features?: string[];
+    tags?: string[];
+    limit?: number;
+  }): Promise<Integration[]> {
+    this.ensureInitialized();
+    const searchTerm = options.query.toLowerCase();
+    let integrations = Array.from(this.integrations.values());
+
+    if (options.category) {
+      integrations = integrations.filter(i => i.category === options.category);
+    }
+
+    // Filter by search term
+    integrations = integrations.filter(integration => 
+      integration.name.toLowerCase().includes(searchTerm) ||
+      integration.description.toLowerCase().includes(searchTerm) ||
+      integration.metadata.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+      integration.features.some(feature => feature.toLowerCase().includes(searchTerm))
+    );
+
+    // Filter by features if provided
+    if (options.features && options.features.length > 0) {
+      integrations = integrations.filter(integration =>
+        options.features!.some(feature =>
+          integration.features.some(f => f.toLowerCase().includes(feature.toLowerCase()))
+        )
+      );
+    }
+
+    // Filter by tags if provided
+    if (options.tags && options.tags.length > 0) {
+      integrations = integrations.filter(integration =>
+        options.tags!.some(tag =>
+          integration.metadata.tags.some(t => t.toLowerCase().includes(tag.toLowerCase()))
+        )
+      );
+    }
+
+    // Apply limit
+    const limit = options.limit || 50;
+    
+    return integrations
+      .sort((a, b) => b.metadata.rating - a.metadata.rating)
+      .slice(0, limit);
+  }
+
+  /**
+   * Get installed integrations for an organization with pagination
+   */
+  async getInstalledIntegrations(
+    organizationId: string,
+    options?: { limit?: number; offset?: number }
+  ): Promise<InstalledIntegration[]> {
+    this.ensureInitialized();
+    const allInstalled = Array.from(this.installedIntegrations.values())
       .filter(installed => installed.organizationId === organizationId)
       .sort((a, b) => b.installedAt.getTime() - a.installedAt.getTime());
+    
+    if (options) {
+      const limit = options.limit || 20;
+      const offset = options.offset || 0;
+      return allInstalled.slice(offset, offset + limit);
+    }
+    
+    return allInstalled;
   }
 
   /**
