@@ -180,9 +180,18 @@ export class IntegrationMarketplaceManager {
     }
   };
 
+  private initialized = false;
+
   constructor() {
-    this.initializeIntegrations();
-    this.startWebhookProcessor();
+    // Defer initialization to first use
+  }
+
+  private ensureInitialized(): void {
+    if (!this.initialized) {
+      this.initializeIntegrations();
+      this.startWebhookProcessor();
+      this.initialized = true;
+    }
   }
 
   /**
@@ -468,6 +477,7 @@ export class IntegrationMarketplaceManager {
    * Get all integrations
    */
   getIntegrations(category?: IntegrationCategory, featured?: boolean): Integration[] {
+    this.ensureInitialized();
     let integrations = Array.from(this.integrations.values());
     
     if (category) {
@@ -485,6 +495,7 @@ export class IntegrationMarketplaceManager {
    * Get integration by ID
    */
   getIntegration(id: string): Integration | null {
+    this.ensureInitialized();
     return this.integrations.get(id) || null;
   }
 
@@ -492,6 +503,7 @@ export class IntegrationMarketplaceManager {
    * Search integrations
    */
   searchIntegrations(query: string, category?: IntegrationCategory): Integration[] {
+    this.ensureInitialized();
     const searchTerm = query.toLowerCase();
     let integrations = Array.from(this.integrations.values());
 
@@ -746,6 +758,7 @@ export class IntegrationMarketplaceManager {
    * Get installed integrations for organization
    */
   getInstalledIntegrations(organizationId: string): InstalledIntegration[] {
+    this.ensureInitialized();
     return Array.from(this.installedIntegrations.values())
       .filter(installed => installed.organizationId === organizationId)
       .sort((a, b) => b.installedAt.getTime() - a.installedAt.getTime());
@@ -755,6 +768,7 @@ export class IntegrationMarketplaceManager {
    * Get marketplace analytics
    */
   getAnalytics(): MarketplaceAnalytics {
+    this.ensureInitialized();
     // Update real-time stats
     this.analytics.totalInstalls = Array.from(this.installedIntegrations.values()).length;
     
@@ -812,9 +826,23 @@ export class IntegrationMarketplaceManager {
 }
 
 /**
- * Global integration marketplace manager instance
+ * Global integration marketplace manager instance - lazy initialized
  */
-export const integrationMarketplace = new IntegrationMarketplaceManager();
+let _integrationMarketplace: IntegrationMarketplaceManager | null = null;
+
+function getIntegrationMarketplace(): IntegrationMarketplaceManager {
+  if (!_integrationMarketplace) {
+    _integrationMarketplace = new IntegrationMarketplaceManager();
+  }
+  return _integrationMarketplace;
+}
+
+export const integrationMarketplace = new Proxy({} as IntegrationMarketplaceManager, {
+  get(target, prop) {
+    const instance = getIntegrationMarketplace();
+    return (instance as any)[prop];
+  }
+});
 
 /**
  * Alias for backward compatibility
