@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { AuthProvider } from "@/lib/auth/context";
 import { initializeModuleSystem } from "@/lib/modules";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 function ModuleSystemInitializer() {
   useEffect(() => {
@@ -15,9 +16,11 @@ function ModuleSystemInitializer() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <ModuleSystemInitializer />
-      {children}
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ModuleSystemInitializer />
+        {children}
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

@@ -13,79 +13,54 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
-      {/* Subtle gradient overlay */}
-      <div className="fixed inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-      
-      {/* Animated orbs for depth - subtle and elegant */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[40%] -right-[20%] w-[600px] h-[600px] rounded-full bg-purple-500/10 blur-3xl" />
-        <div className="absolute -bottom-[40%] -left-[20%] w-[600px] h-[600px] rounded-full bg-pink-500/10 blur-3xl" />
-      </div>
-
-      {/* Simple, clean header */}
-      <div className="relative z-10">
-        <div className="flex items-center justify-between p-6 sm:p-8">
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className="p-2 rounded-lg bg-white/5 backdrop-blur border border-white/10 group-hover:bg-white/10 transition-colors">
-              <ArrowLeft className="w-4 h-4 text-white/70" />
-            </div>
-            <span className="text-white/70 text-sm hidden sm:block">Back</span>
-          </Link>
-          
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Home className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-white font-semibold hidden sm:block">blipee</span>
-          </Link>
-        </div>
-      </div>
-
+    <main className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
       {/* Main content */}
-      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-88px)] px-6 pb-12">
+      <div className="relative z-10 flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
+          className="w-full max-w-sm sm:max-w-md"
         >
-          {/* Clean card with glass effect */}
-          <div className="relative">
-            {/* Glow effect behind card */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 blur-xl rounded-3xl" />
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 sm:p-10"
-            >
-              {/* Title section */}
-              <div className="text-center mb-8">
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                  {title}
-                </h2>
-                {subtitle && (
-                  <p className="text-sm sm:text-base text-white/60">
-                    {subtitle}
-                  </p>
-                )}
-              </div>
+          {/* Clean card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl p-6 sm:p-8 lg:p-10"
+          >
+            {/* Logo section */}
+            <header className="text-center mb-6 sm:mb-8">
+              <Link href="/" className="inline-flex items-center justify-center mb-6 group focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg" aria-label="Go to homepage">
+                <div className="w-12 h-12 p-0.5 rounded-xl transition-transform group-hover:scale-105" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+                  <div className="w-full h-full bg-white/95 dark:bg-black/95 rounded-[10px] flex items-center justify-center">
+                    <Home className="w-7 h-7" stroke="url(#authCardGradient)" fill="none" strokeWidth="2" />
+                    <svg width="0" height="0">
+                      <defs>
+                        <linearGradient id="authCardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                          <stop offset="100%" stopColor="rgb(147, 51, 234)" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                </div>
+                <span className="ml-2 sm:ml-3 text-xl sm:text-2xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent" aria-label="blipee logo">
+                  blipee
+                </span>
+              </Link>
+              {subtitle && (
+                <h1 className="text-sm sm:text-base text-gray-700 dark:text-gray-300" role="heading" aria-level="1">
+                  {subtitle}
+                </h1>
+              )}
+            </header>
 
-              {/* Form content */}
-              {children}
-            </motion.div>
-          </div>
-
-          {/* Footer text */}
-          <div className="text-center mt-8">
-            <p className="text-xs text-white/40">
-              Protected by enterprise-grade security
-            </p>
-          </div>
+            {/* Form content */}
+            {children}
+          </motion.div>
         </motion.div>
       </div>
-    </div>
+    </main>
   );
 }

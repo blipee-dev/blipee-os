@@ -57,7 +57,7 @@ export default function SignUpPage() {
         role: "subscription_owner",
       });
     } catch (err: any) {
-      setError(errerror.message || "Failed to create account");
+      setError(err.message || "Failed to create account");
       setLoading(false);
     }
   }
@@ -94,15 +94,18 @@ export default function SignUpPage() {
 
   return (
     <AuthLayout
-      title="Join the sustainability revolution"
-      subtitle="Start tracking emissions in 7 minutes • No credit card required"
+      title=""
+      subtitle="Join thousands of teams building a sustainable future"
     >
+
       {/* Error Message */}
       {error && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+          className="mb-4 p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg sm:rounded-xl"
+          role="alert"
+          aria-live="polite"
         >
           <div className="flex items-start">
             <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2 flex-shrink-0" />
@@ -111,18 +114,18 @@ export default function SignUpPage() {
         </motion.div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5" noValidate>
         {/* Full Name */}
         <div>
           <label
             htmlFor="fullName"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-white/70 mb-1.5 sm:mb-2"
           >
-            Full name
+            Name
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <User className="h-5 w-5 text-gray-400" />
+              <User className="h-4 w-4 text-gray-400 dark:text-white/40" />
             </div>
             <input
               id="fullName"
@@ -130,8 +133,10 @@ export default function SignUpPage() {
               value={formData.fullName}
               onChange={(e) => handleChange("fullName", e.target.value)}
               required
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              placeholder="John Doe"
+              className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-white/10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-white/10 transition-all backdrop-blur focus:outline-none"
+              aria-label="Full name"
+              aria-required="true"
+              placeholder="Enter your full name"
             />
           </div>
         </div>
@@ -140,13 +145,13 @@ export default function SignUpPage() {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-white/70 mb-1.5 sm:mb-2"
           >
-            Work email
+            Email
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail className="h-5 w-5 text-gray-400" />
+              <Mail className="h-4 w-4 text-gray-400 dark:text-white/40" />
             </div>
             <input
               id="email"
@@ -154,8 +159,10 @@ export default function SignUpPage() {
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
               required
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              placeholder="john@company.com"
+              className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-white/10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-white/10 transition-all backdrop-blur focus:outline-none"
+              aria-label="Email address"
+              aria-required="true"
+              placeholder="name@company.com"
             />
           </div>
         </div>
@@ -164,13 +171,13 @@ export default function SignUpPage() {
         <div>
           <label
             htmlFor="companyName"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-white/70 mb-1.5 sm:mb-2"
           >
-            Company name
+            Company
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Briefcase className="h-5 w-5 text-gray-400" />
+              <Briefcase className="h-4 w-4 text-gray-400 dark:text-white/40" />
             </div>
             <input
               id="companyName"
@@ -178,8 +185,10 @@ export default function SignUpPage() {
               value={formData.companyName}
               onChange={(e) => handleChange("companyName", e.target.value)}
               required
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              placeholder="Acme Corporation"
+              className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-white/10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-white/10 transition-all backdrop-blur focus:outline-none"
+              aria-label="Company name"
+              aria-required="true"
+              placeholder="Your company name"
             />
           </div>
         </div>
@@ -188,13 +197,13 @@ export default function SignUpPage() {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-white/70 mb-1.5 sm:mb-2"
           >
             Password
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock className="h-5 w-5 text-gray-400" />
+              <Lock className="h-4 w-4 text-gray-400 dark:text-white/40" />
             </div>
             <input
               id="password"
@@ -202,13 +211,16 @@ export default function SignUpPage() {
               value={formData.password}
               onChange={(e) => handleChange("password", e.target.value)}
               required
-              className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              className="block w-full pl-9 sm:pl-10 pr-12 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-white/10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-white/10 transition-all backdrop-blur focus:outline-none"
+              aria-label="Password"
+              aria-required="true"
               placeholder="••••••••"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded"
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
                 <EyeOff className="h-5 w-5" />
@@ -250,11 +262,11 @@ export default function SignUpPage() {
             id="terms"
             type="checkbox"
             required
-            className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded mt-0.5"
+            className="h-4 w-4 text-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 border-gray-300 dark:border-white/20 rounded accent-purple-600 mt-0.5"
           />
           <label
             htmlFor="terms"
-            className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+            className="ml-2 block text-xs text-gray-700 dark:text-white/60"
           >
             I agree to the{" "}
             <Link
@@ -277,7 +289,8 @@ export default function SignUpPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-[1.02] active:scale-[0.98] font-medium shadow-lg"
+          className="w-full flex items-center justify-center px-4 py-2.5 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm sm:text-base rounded-lg sm:rounded-xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-[1.01] active:scale-[0.99] font-semibold shadow-xl shadow-purple-500/25"
+          aria-label="Create your account"
         >
           {loading ? (
             <>
@@ -285,7 +298,7 @@ export default function SignUpPage() {
               Creating account...
             </>
           ) : (
-            "Start your sustainability journey"
+            "Create account"
           )}
         </button>
       </form>
@@ -294,10 +307,10 @@ export default function SignUpPage() {
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+            <div className="w-full border-t border-gray-200 dark:border-white/10" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">
+            <span className="px-3 bg-white dark:bg-gray-900 text-gray-500 dark:text-white/40 text-xs">
               Or continue with
             </span>
           </div>
@@ -309,7 +322,7 @@ export default function SignUpPage() {
             type="button"
             onClick={() => handleSocialSignUp("google")}
             disabled={loading}
-            className="w-full inline-flex justify-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-white/5 text-sm font-medium text-gray-700 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all backdrop-blur"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -336,7 +349,7 @@ export default function SignUpPage() {
             type="button"
             onClick={() => handleSocialSignUp("azure")}
             disabled={loading}
-            className="w-full inline-flex justify-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-white/5 text-sm font-medium text-gray-700 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all backdrop-blur"
           >
             <svg className="w-5 h-5" viewBox="0 0 23 23">
               <path fill="#f35325" d="M1 1h10v10H1z" />
@@ -349,37 +362,13 @@ export default function SignUpPage() {
         </div>
       </div>
 
-      {/* Benefits */}
-      <div className="mt-6 pt-6 border-t border-gray-200">
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Your 30-day trial includes:
-        </p>
-        <div className="space-y-2">
-          {[
-            "Complete emissions tracking (Scope 1, 2, 3)",
-            "AI-powered sustainability insights",
-            "Document parsing & automation",
-            "Science-based target setting",
-            "Unlimited team members",
-          ].map((benefit, index) => (
-            <div
-              key={index}
-              className="flex items-center text-sm text-gray-600 dark:text-gray-400"
-            >
-              <Check className="w-4 h-4 text-purple-500 mr-2" />
-              {benefit}
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Sign In Link */}
       <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-xs text-gray-700 dark:text-white/40">
           Already have an account?{" "}
           <Link
             href="/signin"
-            className="font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+            className="font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
           >
             Sign in
           </Link>
