@@ -52,16 +52,16 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           before:absolute before:inset-0 before:rounded-full
           ${
             isUser
-              ? "before:bg-gradient-to-br before:from-purple-500/20 before:to-pink-500/20 shadow-[0_0_20px_rgba(139,92,246,0.3)] light-mode:shadow-[0_0_16px_rgba(103,80,164,0.2)]"
-              : "before:bg-gradient-to-br before:from-blue-500/20 before:to-cyan-500/20 shadow-[0_0_20px_rgba(14,165,233,0.3)] light-mode:shadow-[0_0_16px_rgba(0,128,255,0.2)]"
+              ? "before:bg-gradient-to-br before:from-purple-500/20 before:to-pink-500/20 shadow-[0_0_20px_rgba(139,92,246,0.3)] dark:shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+              : "before:bg-gradient-to-br before:from-blue-500/20 before:to-cyan-500/20 shadow-[0_0_20px_rgba(14,165,233,0.3)] dark:shadow-[0_0_20px_rgba(14,165,233,0.3)]"
           }
         `}
         >
           <div className="relative z-10 flex items-center justify-center">
             {isUser ? (
-              <User className="w-5 h-5 text-white/90 light-mode:text-gray-700" />
+              <User className="w-5 h-5 text-gray-700 dark:text-white/90" />
             ) : (
-              <Building2 className="w-5 h-5 text-white/90 light-mode:text-gray-700" />
+              <Building2 className="w-5 h-5 text-gray-700 dark:text-white/90" />
             )}
           </div>
         </div>
@@ -79,47 +79,37 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           <div
             className={`
             relative px-4 py-3 rounded-2xl
-            backdrop-blur-xl bg-white/[0.02] 
-            border border-white/[0.05]
-            shadow-[0_8px_32px_rgba(0,0,0,0.12)]
             transition-all duration-300 ease-out
-            hover:shadow-[0_8px_40px_rgba(0,0,0,0.2)]
-            hover:border-white/[0.1]
-            
-            light-mode:bg-white/70
-            light-mode:border-gray-200/50
-            light-mode:shadow-[0_4px_16px_rgba(0,0,0,0.06)]
-            light-mode:hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)]
-            light-mode:hover:border-gray-300/50
             
             ${
               isUser
-                ? "bg-gradient-to-br from-purple-500/10 to-pink-500/10 light-mode:from-purple-500/5 light-mode:to-pink-500/5"
-                : "hover:bg-white/[0.04] light-mode:hover:bg-white/80"
+                ? "bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20 border border-purple-500/20 dark:border-purple-500/30"
+                : "bg-gray-100 dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.1] hover:bg-gray-200 dark:hover:bg-white/[0.08]"
             }
           `}
           >
             {/* Gradient accent for user messages */}
             {isUser && (
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 light-mode:from-purple-500/10 light-mode:to-pink-500/10" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             )}
 
             {/* AI sparkle indicator */}
             {!isUser && (
-              <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-blue-400/60 light-mode:text-blue-500/70" />
+              <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-blue-500/70 dark:text-blue-400/60" />
             )}
 
             <div
               className={`
               relative z-10
-              ${isUser ? "text-white/95 light-mode:text-gray-800" : "text-white/90 light-mode:text-gray-700"}
+              ${isUser ? "text-gray-800 dark:text-white/95" : "text-gray-700 dark:text-white/90"}
             `}
             >
               <ReactMarkdown
-                className="prose prose-sm prose-invert max-w-none 
+                className="prose prose-sm max-w-none 
                   prose-p:mb-2 prose-p:last:mb-0
-                  prose-strong:text-purple-400
-                  prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:bg-white/10 prose-code:text-purple-300"
+                  prose-strong:text-purple-600 dark:prose-strong:text-purple-400
+                  prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:bg-purple-100 dark:prose-code:bg-white/10 prose-code:text-purple-700 dark:prose-code:text-purple-300
+                  dark:prose-invert"
               >
                 {sanitizeUserInput(message.content)}
               </ReactMarkdown>
@@ -133,13 +123,13 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                   return (
                     <div
                       key={file.id}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.05] light-mode:bg-gray-100/50 light-mode:border-gray-200"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100/50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05]"
                     >
-                      <Icon className="w-4 h-4 text-white/60 light-mode:text-gray-600" />
-                      <span className="text-sm text-white/80 light-mode:text-gray-700 flex-1">
+                      <Icon className="w-4 h-4 text-gray-600 dark:text-white/60" />
+                      <span className="text-sm text-gray-700 dark:text-white/80 flex-1">
                         {file.name}
                       </span>
-                      <span className="text-xs text-white/40 light-mode:text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-white/40">
                         ({(file.size / 1024).toFixed(1)} KB)
                       </span>
                       {file.url && (
@@ -149,7 +139,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                           className="p-1 hover:bg-white/[0.05] rounded transition-colors"
                           title="Download file"
                         >
-                          <Download className="w-3 h-3 text-white/60 light-mode:text-gray-600" />
+                          <Download className="w-3 h-3 text-gray-600 dark:text-white/60" />
                         </a>
                       )}
                     </div>
@@ -166,7 +156,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-xs text-white/40 light-mode:text-gray-500 mt-2 font-light"
+            className="text-xs text-gray-500 dark:text-white/40 mt-2 font-light"
           >
             {timeString}
           </motion.p>
