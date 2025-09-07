@@ -79,12 +79,15 @@ export default function SignInPage() {
         localStorage.removeItem("lastEmail");
       }
       
-      // Manual redirect as fallback
-      setTimeout(() => {
-        window.location.href = "/onboarding";
-      }, 100);
+      // Skip onboarding for demo users, go straight to dashboard
+      if (email.includes("demo") || email.includes("@blipee.com")) {
+        router.push("/dashboard");
+      } else {
+        // Use Next.js router for navigation
+        router.push("/onboarding");
+      }
     } catch (err: any) {
-      setError(errerror.message || "Failed to sign in");
+      setError(err.message || "Failed to sign in");
       setLoading(false);
     }
   }
@@ -141,6 +144,9 @@ export default function SignInPage() {
 
       // Then sign in
       await signIn(demoEmail, demoPassword);
+      
+      // Demo accounts go straight to dashboard
+      router.push("/dashboard");
     } catch (err: any) {
       setError("Demo sign in failed. Please try manual signup.");
       setLoading(false);
@@ -149,7 +155,7 @@ export default function SignInPage() {
 
   async function handleMFASuccess() {
     // Redirect to the appropriate page after successful MFA
-    window.location.href = "/dashboard";
+    router.push("/dashboard");
   }
 
   // Show MFA verification if required
@@ -182,27 +188,27 @@ export default function SignInPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+          className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-xl"
         >
-          <div className="flex items-start">
-            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2 flex-shrink-0" />
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <div className="flex items-center">
+            <AlertCircle className="w-4 h-4 text-red-400 mr-2 flex-shrink-0" />
+            <p className="text-sm text-red-400">{error}</p>
           </div>
         </motion.div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Email Input */}
-        <div>
+        <div className="space-y-1">
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-xs font-medium text-white/70 mb-2"
           >
             Email address
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail className="h-5 w-5 text-gray-400" />
+              <Mail className="h-4 w-4 text-white/40" />
             </div>
             <input
               id="email"
@@ -211,23 +217,23 @@ export default function SignInPage() {
               onChange={(e) => handleEmailChange(e.target.value)}
               required
               disabled={checkingSSO}
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-50"
+              className="block w-full pl-10 pr-3 py-3 text-sm border border-white/10 rounded-xl bg-white/5 text-white placeholder-white/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white/10 transition-all disabled:opacity-50 backdrop-blur"
               placeholder="you@company.com"
             />
           </div>
         </div>
 
         {/* Password Input */}
-        <div>
+        <div className="space-y-1">
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-xs font-medium text-white/70 mb-2"
           >
             Password
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock className="h-5 w-5 text-gray-400" />
+              <Lock className="h-4 w-4 text-white/40" />
             </div>
             <input
               id="password"
@@ -235,7 +241,7 @@ export default function SignInPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              className="block w-full pl-10 pr-12 py-3 text-sm border border-white/10 rounded-xl bg-white/5 text-white placeholder-white/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white/10 transition-all backdrop-blur"
               placeholder="••••••••"
             />
             <button
@@ -280,14 +286,14 @@ export default function SignInPage() {
             />
             <label
               htmlFor="remember-me"
-              className="ml-2 block text-sm text-gray-700"
+              className="ml-2 block text-xs text-white/60"
             >
               Remember me
             </label>
           </div>
           <Link
             href="/forgot-password"
-            className="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium"
+            className="text-xs text-purple-400 hover:text-purple-300 font-medium transition-colors"
           >
             Forgot password?
           </Link>
@@ -297,7 +303,7 @@ export default function SignInPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-[1.02] active:scale-[0.98] font-medium shadow-lg"
+          className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm rounded-xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-[1.01] active:scale-[0.99] font-semibold shadow-xl shadow-purple-500/25"
         >
           {loading ? (
             <>
@@ -314,7 +320,7 @@ export default function SignInPage() {
           type="button"
           onClick={handleDemoSignIn}
           disabled={loading}
-          className="w-full flex items-center justify-center px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+          className="w-full flex items-center justify-center px-4 py-3 border border-white/10 text-white/70 text-sm rounded-xl hover:bg-white/5 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium backdrop-blur"
         >
           Try Demo Account
         </button>
@@ -324,10 +330,10 @@ export default function SignInPage() {
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+            <div className="w-full border-t border-white/10" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">
+            <span className="px-3 bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 text-white/40 text-xs">
               Or continue with
             </span>
           </div>
@@ -350,20 +356,20 @@ export default function SignInPage() {
               }
             }}
             disabled={loading || checkingSSO}
-            className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+            className="w-full flex items-center justify-center px-4 py-2.5 border border-white/10 text-white/60 text-sm rounded-xl hover:bg-white/5 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium backdrop-blur"
           >
-            <Building2 className="w-5 h-5 mr-2" />
+            <Building2 className="w-4 h-4 mr-2" />
             Sign in with Enterprise SSO
           </button>
         </div>
 
         {/* Social Sign In */}
-        <div className="mt-6 grid grid-cols-2 gap-3">
+        <div className="mt-6 flex flex-col sm:grid sm:grid-cols-2 gap-3">
           <button
             type="button"
             onClick={() => handleSocialLogin("google")}
             disabled={loading}
-            className="w-full inline-flex justify-center py-3 px-4 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full inline-flex items-center justify-center py-2.5 px-4 border border-white/10 rounded-xl bg-white/5 text-sm font-medium text-white/70 hover:bg-white/10 hover:border-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all backdrop-blur"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -390,7 +396,7 @@ export default function SignInPage() {
             type="button"
             onClick={() => handleSocialLogin("azure")}
             disabled={loading}
-            className="w-full inline-flex justify-center py-3 px-4 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full inline-flex items-center justify-center py-2.5 px-4 border border-white/10 rounded-xl bg-white/5 text-sm font-medium text-white/70 hover:bg-white/10 hover:border-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all backdrop-blur"
           >
             <svg className="w-5 h-5" viewBox="0 0 23 23">
               <path fill="#f35325" d="M1 1h10v10H1z" />
@@ -405,11 +411,11 @@ export default function SignInPage() {
 
       {/* Sign Up Link */}
       <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
+        <p className="text-xs text-white/40">
           Don&apos;t have an account?{" "}
           <Link
             href="/signup"
-            className="font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+            className="font-semibold text-purple-400 hover:text-purple-300 transition-colors"
           >
             Start your sustainability journey
           </Link>

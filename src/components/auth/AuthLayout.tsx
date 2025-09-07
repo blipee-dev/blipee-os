@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Home } from "lucide-react";
+import { Home, ArrowLeft } from "lucide-react";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -11,107 +11,79 @@ interface AuthLayoutProps {
   subtitle?: string;
 }
 
-// Animated background component (same as landing page)
-function AnimatedBackground() {
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-      <div className="absolute top-40 left-40 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-      <div className="absolute bottom-40 right-40 w-80 h-80 bg-violet-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-6000"></div>
-    </div>
-  );
-}
-
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      {/* Navigation (same as landing page) */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Home className="w-6 h-6 text-white" />
-              </div>
-              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                blipee OS
-              </span>
-            </Link>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
+      {/* Subtle gradient overlay */}
+      <div className="fixed inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+      
+      {/* Animated orbs for depth - subtle and elegant */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[40%] -right-[20%] w-[600px] h-[600px] rounded-full bg-purple-500/10 blur-3xl" />
+        <div className="absolute -bottom-[40%] -left-[20%] w-[600px] h-[600px] rounded-full bg-pink-500/10 blur-3xl" />
+      </div>
 
-            <div className="hidden md:flex items-center space-x-8">
-              <Link
-                href="/#features"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                Features
-              </Link>
-              <Link
-                href="/#industries"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                Industries
-              </Link>
-              <Link
-                href="/#ai"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                AI Technology
-              </Link>
-              <Link
-                href="/#about"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                About
-              </Link>
+      {/* Simple, clean header */}
+      <div className="relative z-10">
+        <div className="flex items-center justify-between p-6 sm:p-8">
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="p-2 rounded-lg bg-white/5 backdrop-blur border border-white/10 group-hover:bg-white/10 transition-colors">
+              <ArrowLeft className="w-4 h-4 text-white/70" />
             </div>
-
-            <div className="flex items-center gap-4">
-              <Link href="/signin">
-                <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium">
-                  Sign In
-                </button>
-              </Link>
-              <Link href="/signup">
-                <button className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all">
-                  Get Started
-                </button>
-              </Link>
+            <span className="text-white/70 text-sm hidden sm:block">Back</span>
+          </Link>
+          
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <Home className="w-4 h-4 text-white" />
             </div>
-          </div>
+            <span className="text-white font-semibold hidden sm:block">blipee</span>
+          </Link>
         </div>
-      </nav>
+      </div>
 
-      {/* Main content with background */}
-      <div className="relative min-h-screen flex items-center justify-center px-4 pt-20">
-        <AnimatedBackground />
-
+      {/* Main content */}
+      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-88px)] px-6 pb-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative w-full max-w-md"
+          className="w-full max-w-md"
         >
-          {/* Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl shadow-2xl rounded-2xl px-8 py-8 border border-white/20 dark:border-gray-700/20"
-          >
-            <div className="mb-6">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {title}
-              </h2>
-              {subtitle && (
-                <p className="mt-2 text-base text-gray-600 dark:text-gray-400">
-                  {subtitle}
-                </p>
-              )}
-            </div>
+          {/* Clean card with glass effect */}
+          <div className="relative">
+            {/* Glow effect behind card */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 blur-xl rounded-3xl" />
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 sm:p-10"
+            >
+              {/* Title section */}
+              <div className="text-center mb-8">
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                  {title}
+                </h2>
+                {subtitle && (
+                  <p className="text-sm sm:text-base text-white/60">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
 
-            {children}
-          </motion.div>
+              {/* Form content */}
+              {children}
+            </motion.div>
+          </div>
+
+          {/* Footer text */}
+          <div className="text-center mt-8">
+            <p className="text-xs text-white/40">
+              Protected by enterprise-grade security
+            </p>
+          </div>
         </motion.div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -22,18 +22,15 @@ import {
   Heart,
   GraduationCap,
   Banknote,
+  Menu,
+  X,
+  Mail,
+  MessageCircle,
+  HelpCircle,
+  Phone,
+  Sun,
+  Moon,
 } from "lucide-react";
-
-// Animated background component
-function AnimatedBackground() {
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-      <div className="absolute top-40 left-40 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-    </div>
-  );
-}
 
 // GRI Standard component
 function GRIStandard({
@@ -53,27 +50,27 @@ function GRIStandard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20"
+      className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-6 hover:bg-white/[0.05] transition-all duration-300"
     >
       <div className="flex items-center mb-4">
         <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-4">
           <Shield className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+          <h3 className="text-lg font-bold text-white">
             {standard}
           </h3>
-          <p className="text-purple-600 font-medium">{title}</p>
+          <p className="text-purple-400 font-medium">{title}</p>
         </div>
       </div>
-      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+      <p className="text-gray-300 text-sm mb-4">
         {description}
       </p>
       <div className="space-y-1">
         {coverage.map((item, index) => (
           <div key={index} className="flex items-start">
-            <CheckCircle className="w-4 h-4 text-purple-500 mr-2 mt-0.5 flex-shrink-0" />
-            <span className="text-xs text-gray-600 dark:text-gray-300">
+            <CheckCircle className="w-4 h-4 text-purple-400 mr-2 mt-0.5 flex-shrink-0" />
+            <span className="text-xs text-gray-300">
               {item}
             </span>
           </div>
@@ -84,6 +81,18 @@ function GRIStandard({
 }
 
 export default function IndustriesPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Redirect to light version when theme changes
+  React.useEffect(() => {
+    if (!isDarkMode) {
+      window.location.href = '/industries-light';
+    }
+  }, [isDarkMode]);
+
   const industryCategories = [
     {
       icon: Factory,
@@ -242,66 +251,102 @@ export default function IndustriesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20">
             <Link href="/" className="flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Home className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+                <div className="w-full h-full bg-black/95 rounded-[10px] flex items-center justify-center">
+                  <Home className="w-5 h-5 sm:w-6 sm:h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" />
+                  <svg width="0" height="0">
+                    <defs>
+                      <linearGradient id="homeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                        <stop offset="100%" stopColor="rgb(147, 51, 234)" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
               </div>
-              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                blipee OS
+              <span className="ml-2 text-lg sm:text-xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                blipee
               </span>
             </Link>
 
-            <div className="hidden md:flex items-center space-x-8">
-              <Link
-                href="/features"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                Features
-              </Link>
-              <Link
-                href="/industries"
-                className="text-gray-900 dark:text-white font-medium"
-              >
-                Industries
-              </Link>
-              <Link
-                href="/ai-technology"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                AI Technology
-              </Link>
-              <Link
-                href="/about"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                About
-              </Link>
-            </div>
-
+            {/* Theme Toggle, Auth Button and Menu */}
             <div className="flex items-center gap-4">
+              {/* Theme Toggle Button */}
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className="px-3 py-2.5 rounded-full bg-transparent hover:bg-white/[0.05] transition-colors"
+                aria-label="Toggle theme"
+              >
+                {isDarkMode ? (
+                  <Sun className="w-5 h-5 text-yellow-400" />
+                ) : (
+                  <Moon className="w-5 h-5 text-purple-400" />
+                )}
+              </button>
+              
               <Link href="/signin">
-                <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium">
+                <button className="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all">
                   Sign In
                 </button>
               </Link>
-              <Link href="/signup">
-                <button className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all">
-                  Get Started
-                </button>
-              </Link>
+              
+              {/* Menu button for all screen sizes */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 flex items-center justify-center"
+              >
+                {isMenuOpen ? (
+                <X className="w-6 h-6 text-white" stroke="url(#xGradient)" />
+              ) : (
+                <div className="w-6 h-6 relative">
+                  <div className="w-6 h-0.5 rounded-full absolute top-1.5" 
+                       style={{background: 'linear-gradient(to right, rgb(236, 72, 153), rgb(147, 51, 234))'}}></div>
+                  <div className="w-6 h-0.5 rounded-full absolute top-3" 
+                       style={{background: 'linear-gradient(to right, rgb(236, 72, 153), rgb(147, 51, 234))'}}></div>
+                  <div className="w-6 h-0.5 rounded-full absolute top-4.5" 
+                       style={{background: 'linear-gradient(to right, rgb(236, 72, 153), rgb(147, 51, 234))'}}></div>
+                </div>
+              )}
+              </button>
+              <svg width="0" height="0">
+                <defs>
+                  <linearGradient id="xGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                    <stop offset="100%" stopColor="rgb(147, 51, 234)" />
+                  </linearGradient>
+                </defs>
+              </svg>
             </div>
+
           </div>
+
+          {/* Navigation Menu - shows on all screen sizes */}
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="absolute right-0 top-full mt-2 w-full md:w-64 bg-black/90 backdrop-blur-xl border border-white/[0.05] rounded-lg py-4 shadow-2xl"
+            >
+              <div className="flex flex-col space-y-1">
+                <Link href="/features" className="text-gray-300 hover:text-white px-4 py-2 hover:bg-white/[0.05] transition-colors">Features</Link>
+                <Link href="/industries" className="text-white font-medium px-4 py-2 hover:bg-white/[0.05] transition-colors">Industries</Link>
+                <Link href="/ai-technology" className="text-gray-300 hover:text-white px-4 py-2 hover:bg-white/[0.05] transition-colors">AI Technology</Link>
+                <Link href="/about" className="text-gray-300 hover:text-white px-4 py-2 hover:bg-white/[0.05] transition-colors">About</Link>
+              </div>
+            </motion.div>
+          )}
         </div>
       </nav>
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4">
-        <AnimatedBackground />
         <div className="relative max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -309,9 +354,9 @@ export default function IndustriesPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full mb-8">
+            <div className="inline-flex items-center px-4 py-2 bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-full mb-8">
               <Globe className="w-4 h-4 text-pink-400 mr-2" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-medium text-gray-300">
                 Every Industry. Every Organization. Every Goal.
               </span>
             </div>
@@ -320,12 +365,12 @@ export default function IndustriesPage() {
                 Universal Sustainability
               </span>
               <br />
-              <span className="text-gray-900 dark:text-white">
+              <span className="text-white">
                 For Every Industry
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
-              blipee OS works with any organization, in any industry, of any
+            <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto">
+              <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">blipee</span> works with any organization, in any industry, of any
               size. From startups to Fortune 500s, from manufacturing to
               services, we make sustainability simple and achievable for
               everyone.
@@ -335,7 +380,7 @@ export default function IndustriesPage() {
       </section>
 
       {/* Universal Message */}
-      <section className="py-16 px-4 bg-gray-50 dark:bg-gray-800">
+      <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -348,39 +393,39 @@ export default function IndustriesPage() {
                 Your Industry Is Covered
               </span>
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Sustainability challenges are universal. Whether you&apos;re
+            <p className="text-xl text-gray-300 mb-8">
+              Sustainability challenges are universal. Whether you're
               tracking emissions, managing energy, reducing waste, or reporting
-              ESG metrics, blipee OS adapts to your specific industry
+              ESG metrics, <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">blipee</span> adapts to your specific industry
               requirements and regulations.
             </p>
             <div className="grid md:grid-cols-3 gap-6 text-left">
-              <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-                <Target className="w-8 h-8 text-purple-600 mb-4" />
-                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
+              <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-6 hover:bg-white/[0.05] transition-all duration-300">
+                <Target className="w-8 h-8 text-purple-400 mb-4" />
+                <h3 className="font-semibold mb-2 text-white">
                   Any Sector
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
+                <p className="text-sm text-gray-300">
                   From heavy industry to digital services, our AI understands
                   your unique sustainability challenges.
                 </p>
               </div>
-              <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-                <Shield className="w-8 h-8 text-purple-600 mb-4" />
-                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
+              <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-6 hover:bg-white/[0.05] transition-all duration-300">
+                <Shield className="w-8 h-8 text-purple-400 mb-4" />
+                <h3 className="font-semibold mb-2 text-white">
                   Any Standard
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
+                <p className="text-sm text-gray-300">
                   GRI, SASB, TCFD, EU Taxonomy - we support all major
                   sustainability frameworks and regulations.
                 </p>
               </div>
-              <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-                <Users className="w-8 h-8 text-purple-600 mb-4" />
-                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
+              <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-6 hover:bg-white/[0.05] transition-all duration-300">
+                <Users className="w-8 h-8 text-purple-400 mb-4" />
+                <h3 className="font-semibold mb-2 text-white">
                   Any Size
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
+                <p className="text-sm text-gray-300">
                   From small businesses to multinational corporations, our
                   platform scales with your needs.
                 </p>
@@ -391,7 +436,7 @@ export default function IndustriesPage() {
       </section>
 
       {/* Industry Categories */}
-      <section className="py-20 px-4 bg-white dark:bg-gray-900">
+      <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -405,8 +450,8 @@ export default function IndustriesPage() {
                 How We Organize Industries
               </span>
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              These are just examples. If your industry isn&apos;t listed, we
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              These are just examples. If your industry isn't listed, we
               still work with you. Our AI adapts to any sustainability
               challenge.
             </p>
@@ -420,7 +465,7 @@ export default function IndustriesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-white/20"
+                className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-8 hover:bg-white/[0.05] transition-all duration-300"
               >
                 <div className="flex items-center mb-6">
                   <div
@@ -429,10 +474,10 @@ export default function IndustriesPage() {
                     <category.icon className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <h3 className="text-2xl font-bold text-white">
                       {category.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
+                    <p className="text-gray-300">
                       {category.description}
                     </p>
                   </div>
@@ -440,8 +485,8 @@ export default function IndustriesPage() {
                 <div className="grid grid-cols-2 gap-2">
                   {category.examples.map((example, exampleIndex) => (
                     <div key={exampleIndex} className="flex items-center">
-                      <CheckCircle className="w-4 h-4 text-purple-500 mr-2 flex-shrink-0" />
-                      <span className="text-sm text-gray-600 dark:text-gray-300">
+                      <CheckCircle className="w-4 h-4 text-purple-400 mr-2 flex-shrink-0" />
+                      <span className="text-sm text-gray-300">
                         {example}
                       </span>
                     </div>
@@ -454,7 +499,7 @@ export default function IndustriesPage() {
       </section>
 
       {/* GRI Standards Section */}
-      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
+      <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -468,7 +513,7 @@ export default function IndustriesPage() {
                 GRI Sector Standards
               </span>
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Full compliance with Global Reporting Initiative sector-specific
               standards. Our AI knows the exact requirements for your industry.
             </p>
@@ -487,93 +532,20 @@ export default function IndustriesPage() {
             transition={{ duration: 0.6 }}
             className="text-center mt-12"
           >
-            <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8">
-              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+            <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-8 hover:bg-white/[0.05] transition-all duration-300">
+              <h3 className="text-xl font-bold mb-4 text-white">
                 Beyond GRI Standards
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-gray-300">
                 We also support SASB, TCFD, EU Taxonomy, SEC Climate Rules, IFRS
-                S1/S2, and emerging regulations worldwide. If there&apos;s a
-                sustainability standard, we&apos;ve got you covered.
+                S1/S2, and emerging regulations worldwide. If there's a
+                sustainability standard, we've got you covered.
               </p>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Global Impact */}
-      <section className="py-20 px-4 bg-white dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Proven Across Industries
-              </span>
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              Organizations in every sector are achieving their sustainability
-              goals
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-4 gap-8">
-            {[
-              {
-                icon: Users,
-                value: "10,000+",
-                label: "Organizations",
-                description: "Across every industry",
-              },
-              {
-                icon: TrendingDown,
-                value: "2.5M",
-                label: "Tons CO₂ Saved",
-                description: "Monthly impact",
-              },
-              {
-                icon: Award,
-                value: "150+",
-                label: "Countries",
-                description: "Global coverage",
-              },
-              {
-                icon: BarChart3,
-                value: "40%",
-                label: "Average Reduction",
-                description: "In first year",
-              },
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <stat.icon className="w-8 h-8 text-purple-600" />
-                </div>
-                <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-lg font-semibold text-purple-600 mb-1">
-                  {stat.label}
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  {stat.description}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600">
@@ -584,35 +556,199 @@ export default function IndustriesPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Ready for Any Industry Challenge?
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              Ready to Transform Your Sustainability?
             </h2>
-            <p className="text-xl text-white/90 mb-8">
-              Don&apos;t see your exact industry? No problem. blipee OS adapts
-              to any sustainability challenge, anywhere.
+            <p className="text-base sm:text-lg lg:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+              Access your AI-powered sustainability platform and start making 
+              data-driven decisions today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/signup">
+              <Link href="/signin">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl transition-all flex items-center justify-center"
+                  className="w-full sm:w-auto min-w-[180px] px-6 py-3 bg-white text-gray-900 rounded-lg font-medium shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all flex items-center justify-center"
                 >
-                  Start Your Journey
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  Sign In to Dashboard
+                  <ArrowRight className="ml-2 w-4 h-4" />
                 </motion.button>
               </Link>
               <motion.button
+                onClick={() => setIsContactModalOpen(true)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-white/20 backdrop-blur-sm border-2 border-white text-white rounded-full font-semibold text-lg shadow-lg hover:bg-white/30 transition-all"
+                className="w-full sm:w-auto min-w-[180px] px-6 py-3 bg-transparent border-2 border-white text-white rounded-lg font-medium hover:bg-white/10 transition-all flex items-center justify-center"
               >
-                Discuss Your Industry
+                Request Access
               </motion.button>
             </div>
+            <p className="mt-6 text-white/70 text-sm">
+              Your AI sustainability team is waiting for you
+            </p>
           </motion.div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-black text-white px-4 sm:px-6 lg:px-8 py-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col items-center gap-8">
+            {/* Logo */}
+            <Link href="/" className="flex items-center">
+              <div className="w-10 h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+                <div className="w-full h-full bg-black/95 rounded-[10px] flex items-center justify-center">
+                  <Home className="w-6 h-6" stroke="url(#footerHomeGradient)" fill="none" strokeWidth="2" />
+                  <svg width="0" height="0">
+                    <defs>
+                      <linearGradient id="footerHomeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                        <stop offset="100%" stopColor="rgb(147, 51, 234)" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+              </div>
+              <span className="ml-3 text-xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                blipee
+              </span>
+            </Link>
+            
+            <div className="flex flex-col items-center gap-4 text-sm text-gray-400">
+              <div className="flex flex-wrap justify-center gap-6">
+                <Link href="/features" className="hover:text-white transition-colors">Features</Link>
+                <Link href="/industries" className="hover:text-white transition-colors">Industries</Link>
+                <Link href="/ai-technology" className="hover:text-white transition-colors">AI Technology</Link>
+                <Link href="/about" className="hover:text-white transition-colors">About</Link>
+                <button onClick={() => setIsContactModalOpen(true)} className="hover:text-white transition-colors">Contact</button>
+                <button onClick={() => setIsSupportModalOpen(true)} className="hover:text-white transition-colors">Support</button>
+              </div>
+              <div className="flex flex-wrap justify-center gap-6 border-t border-gray-700 pt-4">
+                <Link href="/terms-of-use" className="hover:text-white transition-colors">Terms</Link>
+                <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
+                <Link href="/cookie-policy" className="hover:text-white transition-colors">Cookies</Link>
+                <Link href="/security-policy" className="hover:text-white transition-colors">Security</Link>
+                <Link href="/data-processing-agreement" className="hover:text-white transition-colors">DPA</Link>
+              </div>
+            </div>
+            
+            {/* Copyright */}
+            <p className="text-sm text-gray-400">
+              © 2025 blipee. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Contact Modal */}
+      {isContactModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsContactModalOpen(false)} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-black border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+          >
+            <button
+              onClick={() => setIsContactModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <h3 className="text-2xl font-bold text-white mb-4">Schedule a Demo</h3>
+            <p className="text-gray-400 mb-6">
+              Get in touch with our team to see blipee in action
+            </p>
+            
+            <form className="space-y-4">
+              <input
+                type="text"
+                placeholder="Your Name"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <input
+                type="email"
+                placeholder="Email Address"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Company"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <textarea
+                placeholder="Tell us about your sustainability goals"
+                rows={4}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none resize-none"
+              />
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
+              >
+                Send Request
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Support Modal */}
+      {isSupportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsSupportModalOpen(false)} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-black border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+          >
+            <button
+              onClick={() => setIsSupportModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <h3 className="text-2xl font-bold text-white mb-4">Get Support</h3>
+            <p className="text-gray-400 mb-6">
+              Our team is here to help you succeed with blipee
+            </p>
+            
+            <form className="space-y-4">
+              <input
+                type="text"
+                placeholder="Your Name"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <input
+                type="email"
+                placeholder="Email Address"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <select
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              >
+                <option value="" className="bg-black">Select Issue Type</option>
+                <option value="technical" className="bg-black">Technical Issue</option>
+                <option value="billing" className="bg-black">Billing Question</option>
+                <option value="feature" className="bg-black">Feature Request</option>
+                <option value="other" className="bg-black">Other</option>
+              </select>
+              <textarea
+                placeholder="Describe your issue or question"
+                rows={4}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none resize-none"
+              />
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
+              >
+                Submit Request
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

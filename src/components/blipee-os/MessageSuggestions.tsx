@@ -29,7 +29,7 @@ export function MessageSuggestions({
             whileTap={{ scale: 0.98 }}
             onClick={() => onSelect(suggestion)}
             className={`
-              group relative px-4 py-2 rounded-xl text-sm
+              group relative px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm
               backdrop-blur-xl bg-white/[0.02] 
               border border-white/[0.05]
               shadow-[0_4px_16px_rgba(0,0,0,0.08)]

@@ -41,6 +41,9 @@ const publicRoutes = [
   '/features',
   '/industries',
   '/ai-technology',
+  '/features-light',
+  '/industries-light',
+  '/ai-technology-light',
 ];
 
 // Simple DDoS protection for Edge Runtime

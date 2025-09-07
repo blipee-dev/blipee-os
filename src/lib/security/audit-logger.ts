@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 /**
  * Security event types for audit logging
@@ -53,6 +53,9 @@ export enum SecurityEventType {
   AI_TEST_RUN = 'AI_TEST_RUN',
   CONVERSATION_ACCESSED = 'CONVERSATION_ACCESSED',
   DATABASE_ADMIN_ACTION = 'DATABASE_ADMIN_ACTION',
+  MAINTENANCE = 'MAINTENANCE',
+  SYSTEM_MAINTENANCE = 'SYSTEM_MAINTENANCE',
+  AI_PROCESSING = 'AI_PROCESSING',
 }
 
 /**
