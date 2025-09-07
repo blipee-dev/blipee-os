@@ -4,18 +4,16 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MessageBubble } from "./MessageBubble";
 import { InputArea } from "./InputArea";
-import { SuggestedQueries } from "./SuggestedQueries";
 import { MessageSuggestions } from "./MessageSuggestions";
 import { DynamicUIRenderer } from "./DynamicUIRenderer";
 import { ConversationalOnboarding } from "@/components/onboarding/ConversationalOnboarding";
-import { AmbientBackground } from "@/components/effects/AmbientBackground";
-import { NavRail } from "@/components/navigation/NavRail";
 import { Message, UIComponent } from "@/types/conversation";
 import { conversationService } from "@/lib/conversations/service";
 import { jsonToMessages } from "@/lib/conversations/utils";
 import { proactiveInsightEngine } from "@/lib/ai/proactive-insights";
 import { useAPIClient } from "@/lib/api/client";
 import { useCSRF } from "@/hooks/use-csrf";
+import { Menu, Plus, X } from "lucide-react";
 
 interface BuildingContext {
   id: string;
@@ -38,12 +36,13 @@ export function ConversationInterface({
   buildingContext,
 }: ConversationInterfaceProps = {}) {
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [userId] = useState("demo-user"); // TODO: Get from auth context
+  const [userId] = useState("demo-user");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const apiClient = useAPIClient();
   const { headers: csrfHeaders } = useCSRF();
@@ -56,7 +55,7 @@ export function ConversationInterface({
     scrollToBottom();
   }, [messages]);
 
-  // Initialize conversation with proactive AI insights
+  // Initialize conversation
   useEffect(() => {
     const initConversation = async () => {
       setIsInitializing(true);
@@ -65,7 +64,6 @@ export function ConversationInterface({
       if (id) {
         setConversationId(id);
 
-        // Load existing messages if any
         const conversation = await conversationService.getConversation(id);
         if (conversation && (conversation as any).messages) {
           const existingMessages = jsonToMessages((conversation as any).messages);
@@ -76,7 +74,7 @@ export function ConversationInterface({
           }
         }
 
-        // No existing messages - generate proactive welcome
+        // No existing messages - generate welcome
         console.log("🧠 Generating proactive AI insights...");
         try {
           const welcomeInsights =
@@ -92,22 +90,19 @@ export function ConversationInterface({
           };
 
           setMessages([welcomeMessage]);
-
-          // Save the intelligent welcome message
           await conversationService.addMessages(id, [welcomeMessage]);
         } catch (error) {
           console.error("Failed to generate welcome insights:", error);
-          // Enhanced welcome message with menu tree navigation
           const fallbackMessage: Message = {
             id: "1",
             role: "assistant",
-            content: "👋 Welcome to **Blipee AI** - Your Building Intelligence Platform!\n\nI can help you manage your building's sustainability, energy, and operations. Choose a category below to explore:",
+            content: "How can I help you with your building's sustainability and operations today?",
             suggestions: [
-              "📊 Analytics & Reports",
-              "⚡ Energy Management",
-              "🌱 Sustainability & ESG",
-              "🏢 Building Operations",
-              "📈 View Demo Data"
+              "Show energy usage trends",
+              "Analyze carbon emissions",
+              "Building performance report",
+              "Sustainability recommendations",
+              "Cost saving opportunities"
             ],
             timestamp: new Date(),
           };
@@ -143,13 +138,12 @@ export function ConversationInterface({
     setInput("");
     setIsLoading(true);
 
-    // Save user message to Supabase
     if (conversationId) {
       await conversationService.addMessages(conversationId, [userMessage]);
     }
 
     try {
-      // If there are files, upload them first
+      // Upload files if any
       let uploadedFiles = [];
       if (files && files.length > 0) {
         for (const file of files) {
@@ -179,7 +173,7 @@ export function ConversationInterface({
         }
       }
 
-      // Include building context if available
+      // Get AI response
       const data = await apiClient.post("/api/ai/chat", {
         message,
         conversationId: conversationId || "demo",
@@ -195,31 +189,27 @@ export function ConversationInterface({
       
       if (!data) throw new Error("Failed to get response");
 
-      // Add assistant response
       const aiResponse = data as any;
       const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: Date.now().toString(),
         role: "assistant",
-        content: aiResponse.message || "I'm processing your request...",
+        content: aiResponse.content || "I'll help you with that.",
         components: aiResponse.components,
         suggestions: aiResponse.suggestions,
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, assistantMessage]);
 
-      // Save assistant message to Supabase
+      setMessages((prev) => [...prev, assistantMessage]);
+      
       if (conversationId) {
-        await conversationService.addMessages(conversationId, [
-          assistantMessage,
-        ]);
+        await conversationService.addMessages(conversationId, [assistantMessage]);
       }
     } catch (error) {
       console.error("Error:", error);
-      // Add error message
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: Date.now().toString(),
         role: "assistant",
-        content: `I'm currently in demo mode. In the full version, I'll be able to connect to your building systems and provide real-time insights!`,
+        content: "I encountered an error. Please try again or rephrase your question.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -228,159 +218,179 @@ export function ConversationInterface({
     }
   };
 
-  const suggestedQueries = [
-    "Show me current energy usage",
-    "What's the temperature in the main office?",
-    "Generate last month's sustainability report",
-    "Find energy saving opportunities",
-  ];
+  const startNewChat = () => {
+    setMessages([{
+      id: "1",
+      role: "assistant",
+      content: "How can I help you today?",
+      timestamp: new Date(),
+    }]);
+  };
 
   return (
-    <>
-      <AmbientBackground />
-      <NavRail />
+    <div className="flex h-screen bg-white dark:bg-gray-900">
+      {/* Sidebar for desktop */}
+      <div className={`
+        fixed inset-y-0 left-0 z-40 w-64 bg-gray-100 dark:bg-gray-950 
+        transform transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:relative lg:translate-x-0
+      `}>
+        <div className="flex flex-col h-full">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+            <button
+              onClick={startNewChat}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 
+                bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 
+                border border-gray-300 dark:border-gray-700 rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New chat</span>
+            </button>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="space-y-2">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                Today
+              </div>
+              <div className="space-y-1">
+                <button className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 
+                  hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors truncate">
+                  Current conversation
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile close button */}
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors lg:hidden"
+            >
+              <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {buildingContext?.name || "Blipee"}
+            </h1>
+          </div>
+          <button
+            onClick={startNewChat}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors lg:hidden"
+          >
+            <Plus className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          </button>
+        </header>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="pb-32">
+            {messages.length === 0 && !isInitializing && (
+              <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                  How can I help you today?
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
+                  {[
+                    "Show energy usage trends",
+                    "Analyze carbon emissions",
+                    "Building performance report",
+                    "Cost saving opportunities"
+                  ].map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => handleSend(suggestion)}
+                      className="p-3 text-sm text-left text-gray-700 dark:text-gray-300 
+                        bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 
+                        border border-gray-200 dark:border-gray-700 rounded-lg transition-colors"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {messages.map((message) => (
+              <div key={message.id}>
+                <MessageBubble message={message} />
+                {message.components && (
+                  <div className="max-w-3xl mx-auto px-4 mt-4">
+                    <DynamicUIRenderer components={message.components} />
+                  </div>
+                )}
+                {message.role === "assistant" &&
+                  message.suggestions &&
+                  message.suggestions.length > 0 && (
+                    <div className="max-w-3xl mx-auto px-4 mt-2">
+                      <MessageSuggestions
+                        suggestions={message.suggestions}
+                        onSelect={handleSend}
+                      />
+                    </div>
+                  )}
+              </div>
+            ))}
+            
+            {isLoading && (
+              <div className="max-w-3xl mx-auto px-4 py-6">
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                    <div className="w-5 h-5 text-white animate-pulse">✨</div>
+                  </div>
+                  <div className="flex gap-1 items-center">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
+
+        {/* Input area */}
+        <div className="fixed bottom-0 left-0 right-0 lg:left-64">
+          <InputArea
+            value={input}
+            onChange={setInput}
+            onSend={handleSend}
+            disabled={isLoading}
+            placeholder="Message Blipee..."
+          />
+        </div>
+      </div>
+
       {showOnboarding && (
         <ConversationalOnboarding
           userId={userId}
           onComplete={() => setShowOnboarding(false)}
         />
       )}
-
-      <div className="flex flex-col h-screen relative md:ml-20 overflow-hidden">
-        {/* Premium Header with Glass Effect */}
-        <div className="relative border-b border-white/[0.05] backdrop-blur-xl bg-white/[0.02]">
-          {/* Gradient accent line */}
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
-
-          <div className="p-3 sm:p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <h1 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-                  {buildingContext ? buildingContext.name : "Blipee OS"}
-                </h1>
-                <p className="text-xs sm:text-sm text-white/50 font-light">
-                  {buildingContext
-                    ? `AI Assistant for ${buildingContext.name}`
-                    : "Your building&apos;s conversational AI"}
-                </p>
-              </div>
-
-              {/* Status indicator and Controls */}
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-                <button
-                  onClick={() => {
-                    // Clear visible messages but keep conversation ID
-                    setMessages([{
-                      id: "1",
-                      role: "assistant",
-                      content: "👋 Welcome back! How can I help you today?",
-                      suggestions: [
-                        "📊 Analytics & Reports",
-                        "⚡ Energy Management",
-                        "🌱 Sustainability & ESG",
-                        "🏢 Building Operations",
-                        "📈 View Demo Data"
-                      ],
-                      timestamp: new Date(),
-                    }]);
-                  }}
-                  className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full backdrop-blur-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.05] transition-colors text-xs text-white/60"
-                  title="Clear conversation view"
-                >
-                  Clear
-                </button>
-                <button
-                  onClick={() => {
-                    if (confirm("Reset chat history and start fresh?")) {
-                      localStorage.removeItem('demo_conversation_id');
-                      localStorage.removeItem('demo-conversation');
-                      window.location.reload();
-                    }
-                  }}
-                  className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full backdrop-blur-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.05] transition-colors text-xs text-white/60"
-                  title="Reset entire chat session"
-                >
-                  Reset
-                </button>
-                <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full backdrop-blur-xl bg-white/[0.02] border border-white/[0.05]">
-                  <div className="w-2 h-2 rounded-full bg-green-400" />
-                  <span className="text-xs text-white/60">Connected</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Messages Container with subtle glass effect */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 relative">
-          {/* Subtle background pattern */}
-          <div
-            className="absolute inset-0 opacity-[0.02] pointer-events-none"
-            style={{
-              backgroundImage: `radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 50%)`,
-            }}
-          />
-          {messages.map((message) => (
-            <div key={message.id}>
-              <MessageBubble message={message} />
-              {message.components && (
-                <div className="mt-4">
-                  <DynamicUIRenderer components={message.components} />
-                </div>
-              )}
-              {message.role === "assistant" &&
-                message.suggestions &&
-                message.suggestions.length > 0 && (
-                  <div className="mt-2 ml-14">
-                    <MessageSuggestions
-                      suggestions={message.suggestions}
-                      onSelect={handleSend}
-                    />
-                  </div>
-                )}
-            </div>
-          ))}
-          {(isLoading || isInitializing) && (
-            <div className="flex items-center gap-3 px-4">
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-purple-400 opacity-75 animate-[pulse_1.4s_ease-in-out_infinite]" />
-                <div className="w-2 h-2 rounded-full bg-purple-400 opacity-75 animate-[pulse_1.4s_ease-in-out_0.2s_infinite]" />
-                <div className="w-2 h-2 rounded-full bg-purple-400 opacity-75 animate-[pulse_1.4s_ease-in-out_0.4s_infinite]" />
-              </div>
-              <span className="text-xs text-white/40 font-light">
-                {isInitializing
-                  ? "Blipee is analyzing your building..."
-                  : "Blipee is thinking..."}
-              </span>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Suggested Queries */}
-        {messages.length === 1 && (
-          <div className="px-4 pb-2">
-            <SuggestedQueries
-              queries={suggestedQueries}
-              onSelect={handleSend}
-            />
-          </div>
-        )}
-
-        {/* Input Area */}
-        <InputArea
-          value={input}
-          onChange={setInput}
-          onSend={handleSend}
-          disabled={isLoading}
-          placeholder={
-            isLoading
-              ? "Blipee is thinking..."
-              : "Ask me anything about your building..."
-          }
-        />
-      </div>
-    </>
+    </div>
   );
 }
