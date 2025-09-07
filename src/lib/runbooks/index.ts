@@ -14,14 +14,6 @@ export { runbook, Steps } from './runbook-builder';
 // Pre-built runbooks
 export * from './runbook-library';
 
-// Quick access exports
-export {
-  Runbook,
-  RunbookStep,
-  StepType,
-  ExecutionState
-} from './runbook-engine';
-
 export {
   RunbookBuilder
 } from './runbook-builder';

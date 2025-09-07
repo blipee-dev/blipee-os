@@ -51,7 +51,10 @@
       "Bash(done)",
       "Bash(src/app/privacy-policy/page.tsx)",
       "Bash(do)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(git rm:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

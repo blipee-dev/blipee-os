@@ -264,10 +264,10 @@ export default function CookiePolicyPage() {
                   Most browsers allow you to manage cookie settings in their preferences:
                 </p>
                 <ul className="list-disc list-inside text-gray-600 space-y-2 ml-4 mb-4">
-                  <li><strong>Chrome:</strong> Settings > Privacy and security > Cookies and other site data</li>
-                  <li><strong>Firefox:</strong> Preferences > Privacy & Security > Cookies and Site Data</li>
-                  <li><strong>Safari:</strong> Preferences > Privacy > Cookies and website data</li>
-                  <li><strong>Edge:</strong> Settings > Cookies and site permissions</li>
+                  <li><strong>Chrome:</strong> Settings &gt; Privacy and security &gt; Cookies and other site data</li>
+                  <li><strong>Firefox:</strong> Preferences &gt; Privacy &amp; Security &gt; Cookies and Site Data</li>
+                  <li><strong>Safari:</strong> Preferences &gt; Privacy &gt; Cookies and website data</li>
+                  <li><strong>Edge:</strong> Settings &gt; Cookies and site permissions</li>
                 </ul>
 
                 <h3 className="text-xl font-medium text-gray-900 mb-3">Our Cookie Preference Center</h3>
