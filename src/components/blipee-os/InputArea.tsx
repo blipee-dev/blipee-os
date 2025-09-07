@@ -3,12 +3,12 @@
 import { useState, KeyboardEvent, useRef, useEffect, useCallback } from "react";
 import {
   Send,
-  Sparkles,
   Paperclip,
   X,
   FileText,
   Image,
   FileSpreadsheet,
+  ArrowUp,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { VoiceInput } from "@/components/voice/VoiceInput";
@@ -34,9 +34,8 @@ export function InputArea({
   onChange,
   onSend,
   disabled,
-  placeholder = "Type your message...",
+  placeholder = "Message blipee...",
 }: InputAreaProps) {
-  const [isFocused, setIsFocused] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +50,7 @@ export function InputArea({
   const handleSend = () => {
     if ((value.trim() || attachedFiles.length > 0) && !disabled) {
       onSend(value, attachedFiles.length > 0 ? attachedFiles : undefined);
-      setAttachedFiles([]); // Clear files after sending
+      setAttachedFiles([]);
     }
   };
 
@@ -67,7 +66,6 @@ export function InputArea({
       }));
       setAttachedFiles((prev) => [...prev, ...newFiles]);
 
-      // Reset input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -92,7 +90,6 @@ export function InputArea({
 
   const handleVoiceTranscript = (transcript: string) => {
     onChange(transcript);
-    // Auto-send after voice input
     if (transcript.trim()) {
       setTimeout(() => onSend(transcript), 100);
     }
@@ -103,190 +100,126 @@ export function InputArea({
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height =
-        Math.min(textareaRef.current.scrollHeight, 120) + "px";
+        Math.min(textareaRef.current.scrollHeight, 200) + "px";
     }
   }, [value]);
 
   return (
-    <div className="relative border-t border-gray-200 dark:border-white/[0.05] bg-gradient-to-t from-white/50 to-transparent dark:from-black/50 dark:to-transparent backdrop-blur-xl">
-      {/* Gradient accent line */}
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/30 to-transparent dark:via-purple-500/50" />
-
-      <div className="p-3 sm:p-4">
+    <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div className="max-w-3xl mx-auto">
         {/* Attached files display */}
         <AnimatePresence>
           {attachedFiles.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="max-w-4xl mx-auto mb-3 flex flex-wrap gap-2"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="px-4 pt-3 pb-1"
             >
-              {attachedFiles.map((file) => {
-                const Icon = getFileIcon(file.type);
-                return (
-                  <motion.div
-                    key={file.id}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100/50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05]"
-                  >
-                    <Icon className="w-4 h-4 text-gray-600 dark:text-white/60" />
-                    <span className="text-sm text-gray-700 dark:text-white/80">
-                      {file.name}
-                    </span>
-                    <span className="text-xs text-gray-500 dark:text-white/40">
-                      ({(file.size / 1024).toFixed(1)} KB)
-                    </span>
-                    <button
-                      onClick={() => removeFile(file.id)}
-                      className="ml-1 p-1 hover:bg-white/[0.05] rounded transition-colors"
+              <div className="flex flex-wrap gap-2">
+                {attachedFiles.map((file) => {
+                  const Icon = getFileIcon(file.type);
+                  return (
+                    <motion.div
+                      key={file.id}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.8, opacity: 0 }}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full 
+                        bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
                     >
-                      <X className="w-3 h-3 text-gray-600 dark:text-white/60" />
-                    </button>
-                  </motion.div>
-                );
-              })}
+                      <Icon className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 max-w-[150px] truncate">
+                        {file.name}
+                      </span>
+                      <button
+                        onClick={() => removeFile(file.id)}
+                        className="ml-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full p-0.5 transition-colors"
+                      >
+                        <X className="w-3 h-3 text-gray-500" />
+                      </button>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="flex items-end gap-2 sm:gap-3 max-w-4xl mx-auto">
-          {/* Voice input button */}
-          <VoiceInput
-            onTranscript={handleVoiceTranscript}
-            disabled={disabled || false}
-          />
+        <div className="p-4">
+          <div className="relative flex items-end">
+            {/* Main input container */}
+            <div className="flex-1 relative">
+              <div className="relative flex items-end rounded-3xl border border-gray-300 dark:border-gray-700 
+                bg-white dark:bg-gray-800 shadow-sm focus-within:border-gray-400 dark:focus-within:border-gray-600 
+                transition-colors">
+                
+                {/* Attachment button */}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={disabled}
+                  className="absolute left-2 bottom-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 
+                    rounded-lg transition-colors disabled:opacity-50"
+                  title="Attach files"
+                >
+                  <Paperclip className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                </button>
 
-          {/* File attachment button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => fileInputRef.current?.click()}
-            disabled={disabled}
-            className="p-2 sm:p-3 rounded-xl bg-gray-100/50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.05] hover:border-gray-300 dark:hover:border-white/[0.1] transition-all duration-300"
-            title="Attach files"
-          >
-            <Paperclip className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-white/60" />
-          </motion.button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.csv"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.csv"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
+                {/* Textarea */}
+                <textarea
+                  ref={textareaRef}
+                  value={value}
+                  onChange={(e) => onChange(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  disabled={disabled}
+                  placeholder={placeholder}
+                  rows={1}
+                  className="flex-1 bg-transparent px-12 py-3 text-gray-900 dark:text-gray-100 
+                    placeholder-gray-500 dark:placeholder-gray-400 resize-none focus:outline-none 
+                    disabled:opacity-50 disabled:cursor-not-allowed text-[15px] leading-relaxed"
+                  style={{ minHeight: "24px", maxHeight: "200px" }}
+                />
 
-          {/* Input area with premium glass design */}
-          <div
-            className={`
-            flex-1 relative group transition-all duration-300
-            ${isFocused ? "scale-[1.01]" : ""}
-          `}
-          >
-            {/* Gradient glow effect on focus */}
-            <div
-              className={`
-              absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 dark:from-purple-500/20 dark:to-blue-500/20
-              opacity-0 blur-xl transition-opacity duration-500
-              ${isFocused ? "opacity-100" : ""}
-            `}
-            />
+                {/* Voice input button */}
+                <div className="absolute right-12 bottom-2">
+                  <VoiceInput
+                    onTranscript={handleVoiceTranscript}
+                    disabled={disabled || false}
+                  />
+                </div>
 
-            <div
-              className={`
-              relative rounded-2xl backdrop-blur-xl bg-white/70 dark:bg-white/[0.02]
-              border transition-all duration-300
-              ${
-                isFocused
-                  ? "border-purple-300/50 shadow-[0_4px_20px_rgba(103,80,164,0.1)] dark:border-white/[0.15] dark:shadow-[0_8px_40px_rgba(139,92,246,0.15)]"
-                  : "border-gray-200 shadow-[0_4px_16px_rgba(0,0,0,0.06)] dark:border-white/[0.05] dark:shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
-              }
-            `}
-            >
-              <textarea
-                ref={textareaRef}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                onKeyPress={handleKeyPress}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                disabled={disabled}
-                placeholder={placeholder}
-                rows={1}
-                className="w-full px-3 sm:px-5 py-2 sm:py-3 bg-transparent text-gray-800 dark:text-white/90 placeholder-gray-400 dark:placeholder-white/30
-                         resize-none focus:outline-none transition-colors duration-300
-                         disabled:opacity-50 disabled:cursor-not-allowed
-                         selection:bg-purple-200/50 dark:selection:bg-purple-500/30 text-sm sm:text-base"
-                style={{ minHeight: "40px", maxHeight: "120px" }}
-              />
-
-              {/* Character count indicator */}
-              <AnimatePresence>
-                {value.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute bottom-2 right-3 text-xs text-gray-500 dark:text-white/30"
-                  >
-                    {value.length}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                {/* Send button */}
+                <button
+                  onClick={handleSend}
+                  disabled={disabled || (!value.trim() && attachedFiles.length === 0)}
+                  className={`absolute right-2 bottom-2 p-2 rounded-lg transition-all
+                    ${
+                      disabled || (!value.trim() && attachedFiles.length === 0)
+                        ? "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                        : "bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900"
+                    }
+                  `}
+                  title="Send message"
+                >
+                  <ArrowUp className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Send button with gradient effect */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleSend}
-            disabled={disabled || (!value.trim() && attachedFiles.length === 0)}
-            className={`
-              relative p-3 rounded-xl transition-all duration-300
-              overflow-hidden group
-              ${
-                disabled || (!value.trim() && attachedFiles.length === 0)
-                  ? "opacity-50 cursor-not-allowed bg-gray-100/50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.05]"
-                  : "bg-gradient-to-br from-purple-500/10 to-blue-500/10 dark:from-purple-500/20 dark:to-blue-500/20 border border-purple-400/30 dark:border-purple-500/30 hover:border-purple-500/50 dark:hover:border-purple-500/50 shadow-[0_4px_16px_rgba(103,80,164,0.15)] dark:shadow-[0_8px_32px_rgba(139,92,246,0.2)]"
-              }
-            `}
-            title="Send message"
-          >
-            {/* Animated gradient background */}
-            <div
-              className={`
-              absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 dark:from-purple-500/30 dark:to-blue-500/30
-              opacity-0 group-hover:opacity-100 transition-opacity duration-300
-              ${disabled || (!value.trim() && attachedFiles.length === 0) ? "hidden" : ""}
-            `}
-            />
-
-            {/* Sparkle effect on hover */}
-            <Sparkles
-              className={`
-              absolute top-1 right-1 w-3 h-3 text-purple-400/70 dark:text-purple-300/60
-              opacity-0 group-hover:opacity-100 transition-all duration-300
-              group-hover:animate-pulse
-              ${disabled || (!value.trim() && attachedFiles.length === 0) ? "hidden" : ""}
-            `}
-            />
-
-            <Send
-              className={`
-              w-5 h-5 relative z-10 transition-all duration-300
-              ${
-                disabled || (!value.trim() && attachedFiles.length === 0)
-                  ? "text-gray-400 dark:text-white/30"
-                  : "text-gray-700 dark:text-white/80 group-hover:text-gray-900 dark:group-hover:text-white group-hover:transform group-hover:translate-x-0.5"
-              }
-            `}
-            />
-          </motion.button>
+          {/* Helper text */}
+          <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">
+            Press Enter to send, Shift + Enter for new line
+          </p>
         </div>
       </div>
     </div>
