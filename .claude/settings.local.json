@@ -54,7 +54,8 @@
       "Bash(echo:*)",
       "Bash(git rm:*)",
       "Bash(git ls-tree:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
