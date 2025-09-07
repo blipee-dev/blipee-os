@@ -64,12 +64,12 @@ export function NavRail() {
         >
           {mounted ? (
             isDarkMode ? (
-              <Sun className="w-6 h-6" />
+              <Sun className="w-8 h-8" />
             ) : (
-              <Moon className="w-6 h-6" />
+              <Moon className="w-8 h-8" />
             )
           ) : (
-            <Sun className="w-6 h-6" />
+            <Sun className="w-8 h-8" />
           )}
         </button>
       </div>
@@ -154,8 +154,8 @@ export function NavRail() {
         }
 
         .theme-toggle {
-          width: 56px;
-          height: 56px;
+          width: 72px;
+          height: 72px;
           background: rgba(255, 255, 255, 0.05);
           backdrop-filter: blur(10px);
           -webkit-backdrop-filter: blur(10px);
@@ -248,14 +248,14 @@ export function NavRail() {
         }
 
         :global(.light-mode) .theme-toggle {
-          background: rgba(0, 0, 0, 0.04);
-          border-color: rgba(0, 0, 0, 0.08);
-          color: rgba(0, 0, 0, 0.8);
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.9);
         }
 
         :global(.light-mode) .theme-toggle:hover {
-          background: rgba(0, 0, 0, 0.08);
-          border-color: rgba(0, 0, 0, 0.16);
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.2);
         }
       `}</style>
     </nav>
