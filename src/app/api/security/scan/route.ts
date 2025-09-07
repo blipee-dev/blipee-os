@@ -513,7 +513,7 @@ async function scanSystemConfiguration(organizationId: string): Promise<any[]> {
     const criticalEnvVars = [
       'JWT_SECRET',
       'ENCRYPTION_SECRET',
-      'SUPABASE_SERVICE_ROLE_KEY'
+      'SUPABASE_SERVICE_KEY'
     ];
 
     criticalEnvVars.forEach(envVar => {
