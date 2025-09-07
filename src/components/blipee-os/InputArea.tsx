@@ -112,7 +112,7 @@ export function InputArea({
       {/* Gradient accent line */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent light-mode:via-purple-500/30" />
 
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         {/* Attached files display */}
         <AnimatePresence>
           {attachedFiles.length > 0 && (
@@ -152,7 +152,7 @@ export function InputArea({
           )}
         </AnimatePresence>
 
-        <div className="flex items-end gap-3 max-w-4xl mx-auto">
+        <div className="flex items-end gap-2 sm:gap-3 max-w-4xl mx-auto">
           {/* Voice input button */}
           <VoiceInput
             onTranscript={handleVoiceTranscript}
@@ -165,10 +165,10 @@ export function InputArea({
             whileTap={{ scale: 0.95 }}
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled}
-            className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] light-mode:bg-gray-100/50 light-mode:border-gray-200 light-mode:hover:border-gray-300 transition-all duration-300"
+            className="p-2 sm:p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] light-mode:bg-gray-100/50 light-mode:border-gray-200 light-mode:hover:border-gray-300 transition-all duration-300"
             title="Attach files"
           >
-            <Paperclip className="w-5 h-5 text-white/60 light-mode:text-gray-600" />
+            <Paperclip className="w-4 h-4 sm:w-5 sm:h-5 text-white/60 light-mode:text-gray-600" />
           </motion.button>
 
           <input
@@ -217,11 +217,11 @@ export function InputArea({
                 disabled={disabled}
                 placeholder={placeholder}
                 rows={1}
-                className="w-full px-5 py-3 bg-transparent text-white/90 light-mode:text-gray-800 placeholder-white/30 light-mode:placeholder-gray-400
+                className="w-full px-3 sm:px-5 py-2 sm:py-3 bg-transparent text-white/90 light-mode:text-gray-800 placeholder-white/30 light-mode:placeholder-gray-400
                          resize-none focus:outline-none transition-colors duration-300
                          disabled:opacity-50 disabled:cursor-not-allowed
-                         selection:bg-purple-500/30 light-mode:selection:bg-purple-200/50"
-                style={{ minHeight: "48px", maxHeight: "120px" }}
+                         selection:bg-purple-500/30 light-mode:selection:bg-purple-200/50 text-sm sm:text-base"
+                style={{ minHeight: "40px", maxHeight: "120px" }}
               />
 
               {/* Character count indicator */}

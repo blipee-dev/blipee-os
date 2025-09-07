@@ -2057,59 +2057,6 @@ export type Database = {
           },
         ]
       }
-      conversation_memories: {
-        Row: {
-          created_at: string
-          entities: Json | null
-          id: string
-          key_topics: string[] | null
-          metadata: Json | null
-          organization_id: string
-          preferences: Json | null
-          sentiment: Json | null
-          summary: string
-          title: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          entities?: Json | null
-          id?: string
-          key_topics?: string[] | null
-          metadata?: Json | null
-          organization_id: string
-          preferences?: Json | null
-          sentiment?: Json | null
-          summary: string
-          title?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          entities?: Json | null
-          id?: string
-          key_topics?: string[] | null
-          metadata?: Json | null
-          organization_id?: string
-          preferences?: Json | null
-          sentiment?: Json | null
-          summary?: string
-          title?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conversation_memories_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       conversations: {
         Row: {
           context_entities: string[] | null

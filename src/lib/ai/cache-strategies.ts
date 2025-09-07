@@ -1,5 +1,5 @@
-import { getCacheService } from '@/lib/cache/cache-service';
-import { getAICache } from '@/lib/cache/ai-cache';
+import { cacheService } from '@/lib/cache';
+import { getAICache } from '@/lib/cache';
 import crypto from 'crypto';
 
 export interface CacheStrategy {

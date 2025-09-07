@@ -1,168 +1,87 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
 import {
   Heart,
-
   Globe,
   Users,
   Sparkles,
   Home,
   ArrowRight,
-
   Zap,
   Shield,
   CheckCircle,
   Lightbulb,
   Rocket,
-} from "lucide-react";
+  Brain,
+  Target,
+  Mail,
+  MapPin,
+  Menu,
+  X,
+} from 'lucide-react';
 
-// Animated background component
-function AnimatedBackground() {
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-      <div className="absolute top-40 left-40 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-    </div>
-  );
-}
 
-// Team member component
-function TeamMember({
-  name,
-  role,
-  bio,
-  gradient,
-}: {
-  name: string;
-  role: string;
-  bio: string;
-  gradient: string;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6 }}
-      className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-white/20 text-center"
-    >
-      <div
-        className={`w-20 h-20 bg-gradient-to-r ${gradient} rounded-full flex items-center justify-center mx-auto mb-4`}
-      >
-        <Users className="w-10 h-10 text-white" />
-      </div>
-      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-        {name}
-      </h3>
-      <p className="text-purple-600 font-medium mb-4">{role}</p>
-      <p className="text-gray-600 dark:text-gray-300 text-sm">{bio}</p>
-    </motion.div>
-  );
-}
 
 export default function AboutPage() {
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const values = [
     {
-      icon: Heart,
-      title: "Purpose-Driven",
-      description:
-        "Every line of code, every feature, every decision is driven by our mission to heal the planet.",
-      gradient: "from-pink-500 to-red-500",
+      title: "Relentless Innovation",
+      description: "We believe in pushing boundaries and challenging the status quo. Every day we ask: how can we make sustainability management 10x better, not just incrementally improved?"
     },
     {
-      icon: Lightbulb,
-      title: "Innovation First",
-      description:
-        "We believe breakthrough technology is the key to solving humanity's greatest challenge.",
-      gradient: "from-yellow-500 to-orange-500",
+      title: "Customer Obsession",
+      description: "Our customers' success is our success. We listen deeply, iterate rapidly, and won't rest until sustainability teams feel empowered rather than overwhelmed by their tools"
     },
     {
-      icon: Users,
-      title: "Human-Centered",
-      description:
-        "Technology should serve humans, not the other way around. We make complexity simple.",
-      gradient: "from-blue-500 to-indigo-500",
+      title: "Transparency & Trust",
+      description: "We build with openness—transparent about our AI decisions, our data usage, and our company progress. Trust is earned through consistent actions, not promises"
     },
     {
-      icon: Shield,
-      title: "Trust & Transparency",
-      description:
-        "Your data, your impact, your journey - we believe in complete transparency and trust.",
-      gradient: "from-purple-500 to-pink-500",
+      title: "Global Impact Mindset",
+      description: "Every feature we build, every decision we make is evaluated through the lens of global environmental impact. We're not just building software; we're fighting climate change"
     },
+    {
+      title: "Quality Over Speed",
+      description: "We move fast but never compromise on quality. Our AI must be reliable, our data accurate, and our insights actionable—because sustainability decisions matter too much to get wrong"
+    },
+    {
+      title: "Diverse Perspectives",
+      description: "The climate crisis affects everyone differently. We build an inclusive team with varied backgrounds because diverse perspectives lead to better solutions for a global challenge"
+    }
   ];
 
-  const milestones = [
-    {
-      year: "2024",
-      title: "The Vision Born",
-      description:
-        "Founded with a simple belief: sustainability management should feel like magic, not torture.",
-      icon: Rocket,
-    },
-    {
-      year: "2024",
-      title: "First AI Breakthrough",
-      description:
-        "Developed the world's first conversational AI specifically for sustainability management.",
-      icon: Sparkles,
-    },
-    {
-      year: "2024",
-      title: "Multi-Brain Architecture",
-      description:
-        "Launched revolutionary 12-brain AI system that transforms how organizations approach sustainability.",
-      icon: Zap,
-    },
-    {
-      year: "2025",
-      title: "Global Impact",
-      description:
-        "Helping 10,000+ organizations across 50+ countries achieve their sustainability goals faster.",
-      icon: Globe,
-    },
-  ];
-
-  const team = [
-    {
-      name: "AI Sustainability Visionaries",
-      role: "Founding Team",
-      bio: "A passionate collective of AI engineers, sustainability experts, and design leaders united by the mission to heal our planet through technology.",
-      gradient: "from-pink-500 to-purple-500",
-    },
-    {
-      name: "Product Innovation Team",
-      role: "Engineering & Design",
-      bio: "Former engineers from Tesla, Google, and leading climate tech companies building the future of sustainability management.",
-      gradient: "from-purple-500 to-indigo-500",
-    },
-    {
-      name: "Sustainability Experts",
-      role: "Domain Knowledge",
-      bio: "Climate scientists, ESG consultants, and sustainability practitioners ensuring our AI truly understands the complexities of environmental impact.",
-      gradient: "from-indigo-500 to-blue-500",
-    },
-  ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-black text-white">
+      <svg width="0" height="0">
+        <defs>
+          <linearGradient id="homeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+            <stop offset="100%" stopColor="rgb(147, 51, 234)" />
+          </linearGradient>
+        </defs>
+      </svg>
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20">
             <Link href="/" className="flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Home className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+                <div className="w-full h-full bg-black rounded-[10px] flex items-center justify-center">
+                  <Home className="w-5 h-5 sm:w-6 sm:h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" />
+                </div>
               </div>
-              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                blipee OS
+              <span className="ml-2 text-lg sm:text-xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                blipee
               </span>
             </Link>
-
             <div className="hidden md:flex items-center space-x-8">
               <Link
                 href="/features"
@@ -189,355 +108,370 @@ export default function AboutPage() {
                 About
               </Link>
             </div>
-
-            <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-4">
               <Link href="/signin">
                 <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium">
                   Sign In
                 </button>
               </Link>
               <Link href="/signup">
-                <button className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all">
+                <button className="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all">
                   Get Started
                 </button>
               </Link>
             </div>
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-white/10"
+            >
+              {mobileMenuOpen ? 
+                <X className="w-6 h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" /> : 
+                <div 
+                  className="w-6 h-6"
+                  style={{
+                    background: 'linear-gradient(to right, rgb(236, 72, 153), rgb(147, 51, 234))',
+                    mask: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cline x1=\'4\' x2=\'20\' y1=\'6\' y2=\'6\'/%3E%3Cline x1=\'4\' x2=\'20\' y1=\'12\' y2=\'12\'/%3E%3Cline x1=\'4\' x2=\'20\' y1=\'18\' y2=\'18\'/%3E%3C/svg%3E") center / contain no-repeat',
+                    WebkitMask: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cline x1=\'4\' x2=\'20\' y1=\'6\' y2=\'6\'/%3E%3Cline x1=\'4\' x2=\'20\' y1=\'12\' y2=\'12\'/%3E%3Cline x1=\'4\' x2=\'20\' y1=\'18\' y2=\'18\'/%3E%3C/svg%3E") center / contain no-repeat'
+                  }}
+                />
+              }
+            </button>
           </div>
         </div>
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="md:hidden bg-black border-t border-white/10"
+          >
+            <div className="px-4 py-4 space-y-3">
+              <Link href="/features" className="block text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-2">
+                Features
+              </Link>
+              <Link href="/industries" className="block text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-2">
+                Industries
+              </Link>
+              <Link href="/ai-technology" className="block text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-2">
+                AI Technology
+              </Link>
+              <Link href="/about" className="block text-gray-900 dark:text-white font-medium py-2">
+                About
+              </Link>
+              <div className="pt-3 border-t border-gray-200 dark:border-gray-800 space-y-3">
+                <Link href="/signin" className="block">
+                  <button className="w-full px-6 py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all">
+                    Sign In
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4">
-        <AnimatedBackground />
-        <div className="relative max-w-7xl mx-auto">
+      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
           >
-            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full mb-8">
-              <Heart className="w-4 h-4 text-pink-400 mr-2" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Born from love for our planet
-              </span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                We Believe
-              </span>
-              <br />
-              <span className="text-gray-900 dark:text-white">
-                Technology Can Heal Earth
-              </span>
+            <h1 className="text-4xl lg:text-5xl font-bold mb-6 text-white">
+              About <span className="font-normal bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">blipee</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
-              blipee OS was born from a simple belief: saving the planet
-              shouldn&apos;t feel like work. It should feel like magic.
-              We&apos;re building AI that makes sustainability so intuitive, so
-              powerful, so joyful, that every organization can achieve their
-              environmental goals faster than ever imagined.
+            <p className="text-xl text-white mb-8 max-w-3xl mx-auto">
+              We're building the world's first Autonomous Sustainability Intelligence platform that transforms traditional 
+              dashboard-based ESG management into conversational AI that works 24/7 as your digital sustainability team. 
+              Our mission is to create not just software, but AI employees that autonomously manage, optimize, and improve 
+              sustainability performance across any industry.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Vision Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl font-bold text-white mb-8">Our Vision</h2>
+            <p className="text-lg text-white max-w-3xl mx-auto leading-relaxed">
+              A world where every organization has access to intelligent, autonomous sustainability management—where 
+              environmental stewardship is not a burden but an empowering, data-driven advantage. We envision a future 
+              where AI employees work alongside human teams to make sustainability decisions in real-time, turning 
+              compliance into competitive advantage and environmental responsibility into business growth.
             </p>
           </motion.div>
         </div>
       </section>
 
       {/* Mission Section */}
-      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  Our Mission
-                </span>
-              </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-                To democratize sustainability management through AI that feels
-                like having the world&apos;s smartest environmental scientist as
-                your personal assistant - available 24/7, speaking your
-                language, understanding your business.
-              </p>
-              <div className="space-y-4">
-                {[
-                  "Make sustainability accessible to every organization",
-                  "Transform complexity into conversation",
-                  "Accelerate global climate action through technology",
-                  "Prove that profit and planet can thrive together",
-                ].map((item, index) => (
-                  <div key={index} className="flex items-start">
-                    <CheckCircle className="w-6 h-6 text-purple-500 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700 dark:text-gray-300">
-                      {item}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="relative"
-            >
-              <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8 shadow-2xl">
-                <div className="text-center">
-                  <div className="text-5xl font-bold text-purple-600 mb-2">
-                    2.5M
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Tons of CO₂ saved monthly by our users
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                        10,000+
-                      </div>
-                      <div className="text-sm text-gray-500">Organizations</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                        50+
-                      </div>
-                      <div className="text-sm text-gray-500">Countries</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl font-bold text-white mb-8">Our Mission</h2>
+            <p className="text-lg text-white max-w-3xl mx-auto leading-relaxed">
+              To democratize sustainability intelligence by building AI systems that eliminate the complexity, cost, and 
+              expertise barriers that prevent organizations from achieving their environmental goals. We exist to make 
+              sustainability management accessible to every organization—from startups to enterprises—by providing 
+              autonomous AI employees that understand, predict, and optimize environmental performance without requiring 
+              specialized knowledge or massive resources.
+            </p>
+          </motion.div>
         </div>
       </section>
 
       {/* Values Section */}
-      <section className="py-20 px-4 bg-white dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            viewport={{ once: true }}
+            className="text-center mb-12"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Our Values
-              </span>
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              The principles that guide everything we build
-            </p>
+            <h2 className="text-3xl font-bold mb-4 text-white">Our Values</h2>
+            <p className="text-white text-lg">The principles that guide how we work, make decisions, and build our culture</p>
           </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {values.map((value, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div
-                  className={`w-16 h-16 bg-gradient-to-r ${value.gradient} rounded-2xl flex items-center justify-center mx-auto mb-6`}
-                >
-                  <value.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
-                  {value.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {value.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Journey Timeline */}
-      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Our Journey
-              </span>
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              From vision to global impact
-            </p>
-          </motion.div>
-
-          <div className="space-y-8">
-            {milestones.map((milestone, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="flex items-center gap-8"
+                className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-6 hover:bg-white/[0.05] transition-all duration-300"
               >
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl flex items-center justify-center">
-                    <milestone.icon className="w-8 h-8 text-purple-600" />
-                  </div>
-                </div>
-                <div className="flex-1 bg-white/80 dark:bg-gray-700/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-white/20">
-                  <div className="flex items-center gap-4 mb-2">
-                    <span className="text-2xl font-bold text-purple-600">
-                      {milestone.year}
-                    </span>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                      {milestone.title}
-                    </h3>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {milestone.description}
-                  </p>
-                </div>
+                <h3 className="text-xl font-semibold mb-4 bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">{value.title}</h3>
+                <p className="text-gray-300 leading-relaxed">{value.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-20 px-4 bg-white dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto">
+
+
+      {/* Contact Modal */}
+      {showContactModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowContactModal(false)}></div>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Our Team
-              </span>
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              Passionate humans building the future of sustainability
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {team.map((member, index) => (
-              <TeamMember key={index} {...member} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Impact Stats */}
-      <section className="py-20 px-4 bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Impact by the Numbers
-            </h2>
-            <p className="text-xl text-white/90">
-              Every conversation, every insight, every action counts
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-4 gap-8">
-            {[
-              { value: "2.5M", label: "Tons CO₂ Saved", suffix: "monthly" },
-              { value: "10,000+", label: "Organizations", suffix: "worldwide" },
-              {
-                value: "99.2%",
-                label: "Success Rate",
-                suffix: "target achievement",
-              },
-              {
-                value: "40%",
-                label: "Average Reduction",
-                suffix: "first year",
-              },
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="text-center text-white"
+            <h3 className="text-2xl font-bold mb-6 text-gray-900">General Inquiry</h3>
+            <form className="space-y-4">
+              <input
+                type="text"
+                placeholder="Your Name"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <input
+                type="email"
+                placeholder="Your Email"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Company"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <select className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:border-purple-500 focus:outline-none">
+                <option value="">Inquiry Type</option>
+                <option value="general">General Information</option>
+                <option value="research">Research Partnership</option>
+                <option value="institutional">Institutional Use</option>
+                <option value="press">Press Inquiry</option>
+              </select>
+              <textarea
+                placeholder="Please describe your inquiry"
+                rows={4}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:outline-none resize-none"
+              />
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
               >
-                <div className="text-4xl md:text-5xl font-bold mb-2">
-                  {stat.value}
+                Submit Inquiry
+              </button>
+            </form>
+            <button
+              onClick={() => setShowContactModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          </motion.div>
+        </div>
+      )}
+      {/* Simple Footer */}
+      <footer className="bg-black text-white px-4 sm:px-6 lg:px-8 py-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+            {/* Logo */}
+            <div className="flex items-center">
+              <div className="w-10 h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+                <div className="w-full h-full bg-black rounded-[10px] flex items-center justify-center">
+                  <Home className="w-6 h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" />
                 </div>
-                <div className="text-xl font-semibold mb-1">{stat.label}</div>
-                <div className="text-white/70">{stat.suffix}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Join Our Mission
+              </div>
+              <span className="ml-3 text-xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                blipee
               </span>
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Together, we can make sustainability management feel like magic
-              and accelerate the world&apos;s transition to a sustainable
-              future.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/signup">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl transition-all flex items-center justify-center"
-                >
-                  Start Your Journey
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </motion.button>
-              </Link>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-600 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all"
-              >
-                Join Our Team
-              </motion.button>
             </div>
+            {/* Links */}
+            <div className="flex flex-col md:flex-row gap-4 text-sm text-gray-400">
+              <div className="flex flex-wrap gap-6">
+                <Link href="#features" className="hover:text-white transition-colors">Features</Link>
+                <Link href="#use-cases" className="hover:text-white transition-colors">Industries</Link>
+                <Link href="#ai-capabilities" className="hover:text-white transition-colors">AI Technology</Link>
+                <Link href="/about" className="hover:text-white transition-colors">About</Link>
+                <button onClick={() => setShowSupportModal(true)} className="hover:text-white transition-colors">Support</button>
+                <button onClick={() => setShowContactModal(true)} className="hover:text-white transition-colors">Contact</button>
+              </div>
+              <div className="flex flex-wrap gap-6 border-t md:border-t-0 md:border-l border-gray-800 pt-4 md:pt-0 md:pl-6">
+                <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
+                <Link href="/terms-of-use" className="hover:text-white transition-colors">Terms</Link>
+                <Link href="/cookie-policy" className="hover:text-white transition-colors">Cookies</Link>
+                <Link href="/security-policy" className="hover:text-white transition-colors">Security</Link>
+                <Link href="/data-processing-agreement" className="hover:text-white transition-colors">DPA</Link>
+              </div>
+            </div>
+            {/* Copyright */}
+            <p className="text-sm text-gray-400">
+              © 2025 blipee. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Contact Modal */}
+      {showContactModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowContactModal(false)} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-black border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+          >
+            <button
+              onClick={() => setShowContactModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <h3 className="text-2xl font-bold text-white mb-4">Schedule a Demo</h3>
+            <p className="text-gray-400 mb-6">
+              Get in touch with our team to see blipee in action
+            </p>
+            
+            <form className="space-y-4">
+              <input
+                type="text"
+                placeholder="Your Name"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <input
+                type="email"
+                placeholder="Email Address"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Company"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <textarea
+                placeholder="Tell us about your sustainability goals"
+                rows={4}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none resize-none"
+              />
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
+              >
+                Send Request
+              </button>
+            </form>
           </motion.div>
         </div>
-      </section>
+      )}
+
+      {/* Support Modal */}
+      {showSupportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSupportModal(false)} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-black border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+          >
+            <button
+              onClick={() => setShowSupportModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <h3 className="text-2xl font-bold text-white mb-4">Get Support</h3>
+            <p className="text-gray-400 mb-6">
+              Our team is here to help you succeed with blipee
+            </p>
+            
+            <form className="space-y-4">
+              <input
+                type="text"
+                placeholder="Your Name"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <input
+                type="email"
+                placeholder="Email Address"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              />
+              <select
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+              >
+                <option value="" className="bg-gray-900">Select Issue Type</option>
+                <option value="technical" className="bg-gray-900">Technical Issue</option>
+                <option value="billing" className="bg-gray-900">Billing Question</option>
+                <option value="feature" className="bg-gray-900">Feature Request</option>
+                <option value="other" className="bg-gray-900">Other</option>
+              </select>
+              <textarea
+                placeholder="Describe your issue or question"
+                rows={4}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none resize-none"
+              />
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
+              >
+                Submit Request
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

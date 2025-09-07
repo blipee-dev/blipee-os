@@ -35,7 +35,7 @@ export function NavRail() {
   };
 
   return (
-    <nav className="nav-rail" aria-label="Main navigation">
+    <nav className="hidden md:flex nav-rail" aria-label="Main navigation">
       {/* Logo */}
       <div className="nav-logo-container">
         <div
@@ -44,7 +44,7 @@ export function NavRail() {
           tabIndex={0}
           aria-label="blipee OS Home"
         >
-          <Home className="w-8 h-8 text-white" />
+          <Home className="w-6 h-6 md:w-8 md:h-8 text-white" />
         </div>
       </div>
 

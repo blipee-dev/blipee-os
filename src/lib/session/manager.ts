@@ -67,7 +67,7 @@ class SessionManager {
    * Get session from request
    */
   async getSession(request: NextRequest): Promise<SessionData | null> {
-    const cookieHeader = _request.headers.get('cookie');
+    const cookieHeader = request.headers.get('cookie');
     const sessionId = this.sessionService.parseSessionCookie(cookieHeader);
     
     if (!sessionId) return null;
@@ -138,7 +138,7 @@ class SessionManager {
       return { valid: false, reason: 'No session found' };
     }
 
-    const cookieHeader = _request.headers.get('cookie');
+    const cookieHeader = request.headers.get('cookie');
     const sessionId = this.sessionService.parseSessionCookie(cookieHeader);
     
     return this.sessionService.validateSession(sessionId!, requiredPermissions);

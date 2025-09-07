@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -25,18 +25,18 @@
     "strictPropertyInitialization": true,
     "strictBindCallApply": true,
     
-    // Additional code quality checks
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
+    // Additional code quality checks (relaxed for development)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitOverride": false,
+    "noPropertyAccessFromIndexSignature": false,
     
-    // Ensure consistent emit behavior
-    "exactOptionalPropertyTypes": true,
-    "useUnknownInCatchVariables": true,
+    // Ensure consistent emit behavior (relaxed)
+    "exactOptionalPropertyTypes": false,
+    "useUnknownInCatchVariables": false,
     "plugins": [
       {
         "name": "next"

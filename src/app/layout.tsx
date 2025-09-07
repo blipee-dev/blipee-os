@@ -6,9 +6,18 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "blipee OS - Conversational AI for Sustainability",
+  title: "blipee - Conversational AI for Sustainability",
   description:
     "Revolutionary sustainability management through conversational AI. Transform how you achieve environmental goals with AI that speaks your language.",
+  icons: {
+    icon: [
+      { url: '/favicon-black-white.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '32x32' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/favicon-black-white.svg',
+  },
+  manifest: '/site.webmanifest',
 };
 
 export default function RootLayout({

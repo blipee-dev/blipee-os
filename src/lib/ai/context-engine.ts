@@ -362,6 +362,37 @@ Remember: You are not just answering questions - you are actively managing this 
   }
 
   /**
+   * Get network intelligence data
+   */
+  private async getNetworkIntelligence(organizationId: string, userMessage: string): Promise<any> {
+    return {
+      peerComparison: {
+        rank: 15,
+        total: 100,
+        percentile: 85,
+        leaders: [
+          { name: "Tech Corp A", score: 95 },
+          { name: "Green Building B", score: 92 }
+        ]
+      },
+      industryBenchmarks: {
+        energyIntensity: { value: 5.2, benchmark: 6.5, status: "above average" },
+        waterUsage: { value: 12.3, benchmark: 15.0, status: "good" },
+        wasteRecycling: { value: 78, benchmark: 65, status: "excellent" }
+      },
+      regulatoryUpdates: [
+        "New carbon reporting requirements effective Q3 2024",
+        "Energy efficiency standards updated for commercial buildings"
+      ],
+      supplyChainInsights: {
+        riskLevel: "moderate",
+        hotspots: ["Tier 2 suppliers in Southeast Asia"],
+        recommendations: ["Diversify supplier base", "Implement supplier audits"]
+      }
+    };
+  }
+
+  /**
    * Get environmental and external factors
    */
   private async getEnvironmentalFactors(): Promise<EnvironmentalFactors> {
@@ -652,6 +683,40 @@ Remember: You are not just answering questions - you are actively managing this 
         notifications: ["Fire alarm testing - expect brief alarms"],
       },
     ];
+  }
+
+  private async getNetworkIntelligence(
+    organizationId: string,
+    userMessage: string,
+  ): Promise<any> {
+    // Network intelligence would fetch real data in production
+    return {
+      peerComparison: {
+        rank: 15,
+        total: 100,
+        percentile: 85,
+      },
+      industryBenchmarks: {
+        energyIntensity: {
+          value: 5.2,
+          benchmark: 6.5,
+          unit: "kWh/sqft",
+        },
+        carbonIntensity: {
+          value: 0.42,
+          benchmark: 0.55,
+          unit: "kgCO2/sqft",
+        },
+      },
+      regulatoryUpdates: [
+        "New carbon reporting requirements effective Q2 2025",
+        "Updated energy efficiency standards published",
+      ],
+      supplyChainInsights: {
+        riskLevel: "moderate",
+        keyRisks: ["Energy price volatility", "Supply chain disruptions"],
+      },
+    };
   }
 
   private async analyzeUserIntent(
