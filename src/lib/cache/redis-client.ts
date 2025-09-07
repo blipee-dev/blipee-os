@@ -100,7 +100,7 @@ export class RedisClient {
           },
           maxRetriesPerRequest: 3,
           enableOfflineQueue: true,
-          lazyConnect: false,
+          lazyConnect: true, // Changed to true to prevent automatic connection
         });
 
       }
@@ -113,7 +113,10 @@ export class RedisClient {
         });
 
         this.client.on('error', (err) => {
-          console.error('Redis error:', err);
+          // Suppress error logging during build
+          if (process.env.NODE_ENV !== 'production' || !err.message.includes('ECONNREFUSED')) {
+            console.error('Redis error:', err);
+          }
           this.isConnected = false;
         });
 
@@ -123,7 +126,12 @@ export class RedisClient {
         });
       }
 
-      // Wait for connection
+      // Connect and wait for connection (only for ioredis with lazyConnect)
+      if (!this.isUpstash && this.client instanceof Redis) {
+        await (this.client as Redis).connect();
+      }
+      
+      // Test connection
       await (this.client as any).ping();
       this.isConnected = true;
 
@@ -171,5 +179,19 @@ export class RedisClient {
   }
 }
 
-// Export singleton instance
-export const redisClient = new RedisClient();
+// Lazy-initialized singleton instance
+let _redisClient: RedisClient | null = null;
+
+export const getRedisClient = (): RedisClient => {
+  if (!_redisClient) {
+    _redisClient = new RedisClient();
+  }
+  return _redisClient;
+};
+
+// Export for backward compatibility (but now returns the lazy-initialized instance)
+export const redisClient = new Proxy({} as RedisClient, {
+  get(target, prop) {
+    return getRedisClient()[prop as keyof RedisClient];
+  }
+});
