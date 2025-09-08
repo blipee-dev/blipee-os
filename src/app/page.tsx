@@ -190,7 +190,7 @@ function FeaturesSection() {
               className={index === features.length - 1 && features.length % 2 !== 0 ? "sm:col-span-2 lg:col-span-1" : ""}
               role="listitem"
             >
-              <article className="bg-black/[0.02] dark:bg-white/[0.02] backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg sm:shadow-xl border border-black/[0.05] dark:border-white/[0.05] hover:shadow-2xl transition-all group h-full focus-within:ring-2 focus-within:ring-purple-500 focus-within:ring-offset-2">
+              <article className="bg-white dark:bg-[#212121] rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg sm:shadow-xl border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all group h-full">
                 <div
                   className={`w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r ${feature.gradient} rounded-lg sm:rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform`}
                   aria-hidden="true"
@@ -285,7 +285,7 @@ function UseCasesSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               className="group"
             >
-              <div className="h-full bg-black/[0.02] dark:bg-white/[0.02] backdrop-blur-sm rounded-xl p-4 border border-black/[0.05] dark:border-white/[0.05] hover:border-black/[0.1] dark:hover:border-white/[0.1] transition-all">
+              <div className="h-full bg-white dark:bg-[#212121] rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-3">
                   <div
@@ -305,7 +305,7 @@ function UseCasesSection() {
                 <div className="space-y-2.5">
                   {/* User Message */}
                   <div className="flex justify-end">
-                    <div className="max-w-[85%] bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-xl border border-purple-500/30 rounded-xl rounded-tr-sm px-3.5 py-2">
+                    <div className="max-w-[85%] bg-[#616161] dark:bg-[#616161] border border-gray-600 dark:border-gray-600 rounded-xl rounded-tr-sm px-3.5 py-2">
                       <p className="text-sm text-gray-700 dark:text-gray-300">
                         {useCase.query}
                       </p>
@@ -316,7 +316,7 @@ function UseCasesSection() {
                   <div className="flex justify-start">
                     <div className="max-w-[85%]">
                       <div className={`bg-gradient-to-r ${useCase.gradient} p-[1px] rounded-xl rounded-tl-sm`}>
-                        <div className="bg-white/90 dark:bg-black/90 backdrop-blur-xl rounded-xl rounded-tl-sm px-3.5 py-2">
+                        <div className="bg-white dark:bg-[#212121] rounded-xl rounded-tl-sm px-3.5 py-2">
                           <p className="text-sm text-gray-700 dark:text-gray-300 leading-snug">
                             {useCase.response}
                           </p>
