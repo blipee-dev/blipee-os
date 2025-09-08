@@ -102,39 +102,90 @@ export function ConversationInterface({
           }
         }
 
-        // No existing messages - generate welcome
-        console.log("🧠 Generating proactive AI insights...");
-        try {
-          const welcomeInsights =
-            await proactiveInsightEngine.generateWelcomeInsights();
-
+        // Check if user is new and needs onboarding
+        const isNewUser = !session?.current_organization;
+        
+        if (isNewUser) {
+          // Show welcome onboarding message
           const welcomeMessage: Message = {
             id: "1",
             role: "assistant",
-            content: welcomeInsights.message,
-            components: welcomeInsights.components,
-            suggestions: welcomeInsights.suggestions,
+            content: "Welcome to blipee, there! 🌱\n\nI'm your AI sustainability assistant, and I'm excited to help you build a more sustainable future. I noticed you're just getting started, so let me guide you through the setup process.\n\n**Great news!** If you already have your data in spreadsheets or previous sustainability reports, you can simply drag and drop them into this chat, and I'll extract all the relevant information automatically.\n\n**I can handle:**\n• Excel/CSV files with energy consumption data\n• PDF sustainability reports  \n• Utility bills (electricity, gas, water)\n• Carbon footprint calculations\n• ESG reports\n\nJust drop your files here, or let's set things up step by step!",
+            suggestions: [
+              "📁 I have my data in a spreadsheet",
+              "📄 Upload my sustainability reports", 
+              "📊 Import data from Excel",
+              "❓ What formats do you accept?",
+              "🏢 Set up step by step"
+            ],
+            components: [{
+              type: "quick-start-upload",
+              props: {
+                title: "Quick Start with Your Existing Data",
+                description: "Already have your data? Perfect! I can import it automatically.",
+                supportedFormats: [
+                  { type: "xlsx", label: "Excel/CSV Files", description: "Energy consumption, emissions data" },
+                  { type: "pdf", label: "Sustainability Reports", description: "PDF reports, ESG documents" },
+                  { type: "image", label: "Utility Bills", description: "Electricity, gas, water bills" },
+                  { type: "other", label: "Building Data", description: "Floor plans, equipment lists" }
+                ]
+              },
+              layout: { width: "100%", position: "inline" }
+            }, {
+              type: "setup-checklist",
+              props: {
+                title: "Or Set Up Step by Step",
+                steps: [
+                  { id: "building", title: "Add Your First Building", description: "Tell me about your building or facility", completed: false },
+                  { id: "meters", title: "Connect Energy Meters", description: "Link your utility accounts or smart meters", completed: false },
+                  { id: "bills", title: "Upload Recent Bills", description: "Share your electricity, gas, or water bills", completed: false },
+                  { id: "baseline", title: "Establish Baseline", description: "Set your emissions baseline and targets", completed: false }
+                ],
+                completedCount: 0,
+                totalCount: 4
+              },
+              layout: { width: "100%", position: "inline" }
+            }],
             timestamp: new Date(),
           };
 
           setMessages([welcomeMessage]);
           await conversationService.addMessages(id, [welcomeMessage]);
-        } catch (error) {
-          console.error("Failed to generate welcome insights:", error);
-          const fallbackMessage: Message = {
-            id: "1",
-            role: "assistant",
-            content: "How can I help you with your building's sustainability and operations today?",
-            suggestions: [
-              "Show energy usage trends",
-              "Analyze carbon emissions",
-              "Building performance report",
-              "Sustainability recommendations",
-              "Cost saving opportunities"
-            ],
-            timestamp: new Date(),
-          };
-          setMessages([fallbackMessage]);
+        } else {
+          // Show regular welcome for existing users
+          console.log("🧠 Generating proactive AI insights...");
+          try {
+            const welcomeInsights =
+              await proactiveInsightEngine.generateWelcomeInsights();
+
+            const welcomeMessage: Message = {
+              id: "1",
+              role: "assistant",
+              content: welcomeInsights.message,
+              components: welcomeInsights.components,
+              suggestions: welcomeInsights.suggestions,
+              timestamp: new Date(),
+            };
+
+            setMessages([welcomeMessage]);
+            await conversationService.addMessages(id, [welcomeMessage]);
+          } catch (error) {
+            console.error("Failed to generate welcome insights:", error);
+            const fallbackMessage: Message = {
+              id: "1",
+              role: "assistant",
+              content: "How can I help you with your building's sustainability and operations today?",
+              suggestions: [
+                "Show energy usage trends",
+                "Analyze carbon emissions", 
+                "Building performance report",
+                "Sustainability recommendations",
+                "Cost saving opportunities"
+              ],
+              timestamp: new Date(),
+            };
+            setMessages([fallbackMessage]);
+          }
         }
       }
 
