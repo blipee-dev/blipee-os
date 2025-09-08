@@ -124,7 +124,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
             id="name"
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-            className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-transparent"
             placeholder="e.g., Okta Production"
             required
           />
@@ -139,7 +139,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
             id="domain"
             value={formData.domain}
             onChange={(e) => setFormData(prev => ({ ...prev, domain: e.target.value }))}
-            className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-transparent"
             placeholder="e.g., company.com"
             required
           />
@@ -198,7 +198,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
                 ...prev,
                 samlConfig: { ...prev.samlConfig, entityId: e.target.value }
               }))}
-              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-transparent"
               placeholder="https://idp.example.com/saml"
               required
             />
@@ -216,7 +216,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
                 ...prev,
                 samlConfig: { ...prev.samlConfig, ssoUrl: e.target.value }
               }))}
-              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-transparent"
               placeholder="https://idp.example.com/sso/saml"
               required
             />
@@ -233,7 +233,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
                 ...prev,
                 samlConfig: { ...prev.samlConfig, certificate: e.target.value }
               }))}
-              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-xs"
+              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-transparent font-mono text-xs"
               rows={6}
               placeholder="-----BEGIN CERTIFICATE-----&#10;MIIDxT...&#10;-----END CERTIFICATE-----"
               required
@@ -258,7 +258,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
                 ...prev,
                 oidcConfig: { ...prev.oidcConfig, clientId: e.target.value }
               }))}
-              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-transparent"
               required
             />
           </div>
@@ -275,7 +275,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
                 ...prev,
                 oidcConfig: { ...prev.oidcConfig, clientSecret: e.target.value }
               }))}
-              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-transparent"
               required={!configuration}
             />
             {configuration && (
@@ -297,7 +297,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
                 ...prev,
                 oidcConfig: { ...prev.oidcConfig, issuer: e.target.value }
               }))}
-              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-transparent"
               placeholder="https://idp.example.com"
               required
             />
@@ -318,7 +318,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
               type="checkbox"
               checked={formData.enabled}
               onChange={(e) => setFormData(prev => ({ ...prev, enabled: e.target.checked }))}
-              className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
+              className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded"
             />
             <span className="text-sm text-gray-700 dark:text-gray-300">
               Enable this SSO configuration
@@ -330,7 +330,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
               type="checkbox"
               checked={formData.autoProvision}
               onChange={(e) => setFormData(prev => ({ ...prev, autoProvision: e.target.checked }))}
-              className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
+              className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded"
             />
             <span className="text-sm text-gray-700 dark:text-gray-300">
               Automatically create users on first login
@@ -346,7 +346,7 @@ export function SSOConfigurationForm({ configuration, onComplete, onCancel }: SS
             id="defaultRole"
             value={formData.defaultRole}
             onChange={(e) => setFormData(prev => ({ ...prev, defaultRole: e.target.value }))}
-            className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-transparent"
           >
             <option value="viewer">Viewer</option>
             <option value="analyst">Analyst</option>
