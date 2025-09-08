@@ -648,7 +648,7 @@ function CTAAndFooterSection() {
             {/* Logo */}
             <Link href="/" className="flex items-center">
               <div className="w-10 h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
-                <div className="w-full h-full bg-white/95 dark:bg-[#212121] rounded-[10px] flex items-center justify-center">
+                <div className="w-full h-full bg-white/95 dark:bg-[#111111] rounded-[10px] flex items-center justify-center">
                   <Home className="w-6 h-6" stroke="url(#footerHomeGradient)" fill="none" strokeWidth="2" />
                   <svg width="0" height="0">
                     <defs>
@@ -714,7 +714,7 @@ export default function LandingPage() {
           <div className="flex items-center justify-between h-16 sm:h-20">
             <Link href="/" className="flex items-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg" aria-label="Go to homepage">
               <div className="w-8 h-8 sm:w-10 sm:h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
-                <div className="w-full h-full bg-white/95 dark:bg-[#212121] rounded-[10px] flex items-center justify-center">
+                <div className="w-full h-full bg-white/95 dark:bg-[#111111] rounded-[10px] flex items-center justify-center">
                   <Home className="w-5 h-5 sm:w-6 sm:h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" aria-hidden="true" />
                   <svg width="0" height="0" aria-hidden="true">
                     <defs>
@@ -737,7 +737,7 @@ export default function LandingPage() {
               <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-[1px] bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500">
                 <button
                   onClick={toggleTheme}
-                  className="w-full h-full rounded-full bg-white/95 dark:bg-black/95 hover:bg-white/90 dark:hover:bg-black/90 transition-all flex items-center justify-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                  className="w-full h-full rounded-full bg-white/95 dark:bg-[#111111] hover:bg-white/90 dark:hover:bg-[#111111]/90 transition-all flex items-center justify-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
                   aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
                 >
                 {isDarkMode ? (
