@@ -44,10 +44,10 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className={`group ${isUser ? "bg-transparent" : "bg-gray-50 dark:bg-gray-900/50"}`}
+      className={`group ${isUser ? "bg-transparent" : "bg-gray-50 dark:bg-[#212121]"}`}
     >
       <div className="max-w-3xl mx-auto px-4 py-6">
-        <div className="flex gap-3">
+        <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}>
           {/* Avatar - Clean and simple */}
           <div className="flex-shrink-0">
             <div
@@ -70,7 +70,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
           {/* Message content */}
           <div className="flex-1 overflow-hidden">
-            <div className="prose prose-sm max-w-none">
+            <div className={`prose prose-sm max-w-none ${
+              isUser 
+                ? "bg-gray-100 dark:bg-[#616161] rounded-2xl px-4 py-3 max-w-[80%] ml-auto" 
+                : ""
+            }`}>
               <ReactMarkdown
                 className="text-gray-900 dark:text-gray-100 leading-relaxed
                   [&>*:first-child]:mt-0 [&>*:last-child]:mb-0

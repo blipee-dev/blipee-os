@@ -13,7 +13,8 @@ import { jsonToMessages } from "@/lib/conversations/utils";
 import { proactiveInsightEngine } from "@/lib/ai/proactive-insights";
 import { useAPIClient } from "@/lib/api/client";
 import { useCSRF } from "@/hooks/use-csrf";
-import { Menu, Plus, X } from "lucide-react";
+import { useAuth } from "@/lib/auth/context";
+import { Menu, Plus, X, Home, Settings, LogOut, User, Building2 } from "lucide-react";
 
 interface BuildingContext {
   id: string;
@@ -43,9 +44,36 @@ export function ConversationInterface({
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const apiClient = useAPIClient();
   const { headers: csrfHeaders } = useCSRF();
+  const { session } = useAuth();
+
+  useEffect(() => {
+    // Check system preference and localStorage
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === "dark");
+      document.documentElement.classList.toggle("dark", savedTheme === "dark");
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setIsDarkMode(prefersDark);
+      document.documentElement.classList.toggle("dark", prefersDark);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    localStorage.setItem("theme", newMode ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", newMode);
+  };
+
+  const handleSignOut = async () => {
+    await fetch("/api/auth/signout", { method: "POST" });
+    window.location.href = "/signin";
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -228,16 +256,38 @@ export function ConversationInterface({
   };
 
   return (
-    <div className="flex h-screen bg-white dark:bg-gray-900">
-      {/* Sidebar for desktop */}
+    <div className="flex h-screen bg-white dark:bg-[#212121]">
+      {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-40 w-64 bg-gray-100 dark:bg-gray-950 
+        fixed inset-y-0 left-0 z-40 w-64 bg-gray-100 dark:bg-[#111111] 
         transform transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:relative lg:translate-x-0
       `}>
         <div className="flex flex-col h-full">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+          {/* Logo and New Chat */}
+          <div className="p-4 space-y-3">
+            {/* Logo */}
+            <div className="flex items-center gap-3 px-2">
+              <div className="w-8 h-8 p-0.5 rounded-lg" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+                <div className="w-full h-full bg-white/95 dark:bg-black/95 rounded-[6px] flex items-center justify-center">
+                  <Home className="w-5 h-5" stroke="url(#sidebarHomeGradient)" fill="none" strokeWidth="2" />
+                  <svg width="0" height="0">
+                    <defs>
+                      <linearGradient id="sidebarHomeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                        <stop offset="100%" stopColor="rgb(147, 51, 234)" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+              </div>
+              <span className="text-lg font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                blipee
+              </span>
+            </div>
+
+            {/* New Chat Button */}
             <button
               onClick={startNewChat}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 
@@ -248,7 +298,10 @@ export function ConversationInterface({
               <span>New chat</span>
             </button>
           </div>
+
+          <div className="border-t border-gray-200 dark:border-gray-800" />
           
+          {/* Chat History */}
           <div className="flex-1 overflow-y-auto p-4">
             <div className="space-y-2">
               <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
@@ -261,6 +314,85 @@ export function ConversationInterface({
                 </button>
               </div>
             </div>
+          </div>
+
+          <div className="border-t border-gray-200 dark:border-gray-800" />
+
+          {/* Bottom section with user menu */}
+          <div className="p-4 space-y-2">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 
+                hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <div className="w-8 h-8 rounded-full p-[1px] bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500">
+                <div className="w-full h-full rounded-full bg-white/95 dark:bg-black/95 flex items-center justify-center">
+                  {isDarkMode ? (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="sunGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                          <stop offset="50%" stopColor="rgb(147, 51, 234)" />
+                          <stop offset="100%" stopColor="rgb(59, 130, 246)" />
+                        </linearGradient>
+                      </defs>
+                      <circle cx="12" cy="12" r="4" stroke="url(#sunGradient)" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M12 2v4M12 18v4M22 12h-4M6 12H2" stroke="url(#sunGradient)" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M19.07 4.93l-2.83 2.83M7.76 16.24l-2.83 2.83M19.07 19.07l-2.83-2.83M7.76 7.76L4.93 4.93" stroke="url(#sunGradient)" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="moonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                          <stop offset="50%" stopColor="rgb(147, 51, 234)" />
+                          <stop offset="100%" stopColor="rgb(59, 130, 246)" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="url(#moonGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span>{isDarkMode ? "Dark mode" : "Light mode"}</span>
+            </button>
+
+            {/* Settings */}
+            <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 
+              hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors">
+              <Settings className="w-5 h-5" />
+              <span>Settings</span>
+            </button>
+
+            {/* User Profile */}
+            {session && (
+              <div className="relative group">
+                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 
+                  hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center">
+                    <User className="w-5 h-5 text-white dark:text-gray-900" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="font-medium truncate">{session.user.full_name || session.user.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{session.user.email}</p>
+                  </div>
+                </button>
+
+                {/* Dropdown menu */}
+                <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 
+                  rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 
+                      hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign out</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Mobile close button */}
@@ -283,22 +415,20 @@ export function ConversationInterface({
 
       {/* Main content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors lg:hidden"
-            >
-              <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {buildingContext?.name || "Blipee"}
-            </h1>
-          </div>
+        {/* Simple header for mobile */}
+        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 lg:hidden">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          </button>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Blipee
+          </h1>
           <button
             onClick={startNewChat}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors lg:hidden"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <Plus className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
@@ -323,8 +453,8 @@ export function ConversationInterface({
                       key={suggestion}
                       onClick={() => handleSend(suggestion)}
                       className="p-3 text-sm text-left text-gray-700 dark:text-gray-300 
-                        bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 
-                        border border-gray-200 dark:border-gray-700 rounded-lg transition-colors"
+                        bg-gray-50 dark:bg-[#757575] hover:bg-gray-100 dark:hover:bg-gray-600 
+                        border border-gray-200 dark:border-gray-600 rounded-lg transition-colors"
                     >
                       {suggestion}
                     </button>

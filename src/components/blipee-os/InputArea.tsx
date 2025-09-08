@@ -105,7 +105,7 @@ export function InputArea({
   }, [value]);
 
   return (
-    <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+    <div className="bg-white dark:bg-[#212121]">
       <div className="max-w-3xl mx-auto">
         {/* Attached files display */}
         <AnimatePresence>
@@ -150,15 +150,15 @@ export function InputArea({
           <div className="relative flex items-end">
             {/* Main input container */}
             <div className="flex-1 relative">
-              <div className="relative flex items-end rounded-3xl border border-gray-300 dark:border-gray-700 
-                bg-white dark:bg-gray-800 shadow-sm focus-within:border-gray-400 dark:focus-within:border-gray-600 
+              <div className="relative flex items-center rounded-3xl border border-gray-300 dark:border-gray-700 
+                bg-gray-50 dark:bg-[#616161] shadow-sm focus-within:border-gray-400 dark:focus-within:border-gray-600 
                 transition-colors">
                 
                 {/* Attachment button */}
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={disabled}
-                  className="absolute left-2 bottom-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 
                     rounded-lg transition-colors disabled:opacity-50"
                   title="Attach files"
                 >
@@ -190,7 +190,7 @@ export function InputArea({
                 />
 
                 {/* Voice input button */}
-                <div className="absolute right-12 bottom-2">
+                <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
                   <VoiceInput
                     onTranscript={handleVoiceTranscript}
                     disabled={disabled || false}
@@ -201,11 +201,11 @@ export function InputArea({
                 <button
                   onClick={handleSend}
                   disabled={disabled || (!value.trim() && attachedFiles.length === 0)}
-                  className={`absolute right-2 bottom-2 p-2 rounded-lg transition-all
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-all
                     ${
                       disabled || (!value.trim() && attachedFiles.length === 0)
-                        ? "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
-                        : "bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900"
+                        ? "bg-[#616161] text-gray-400 cursor-not-allowed opacity-50"
+                        : "bg-[#616161] hover:bg-gray-500 text-white"
                     }
                   `}
                   title="Send message"
