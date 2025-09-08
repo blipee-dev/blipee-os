@@ -33,7 +33,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
             <header className="text-center mb-6 sm:mb-8">
               <Link href="/" className="inline-flex items-center justify-center mb-6 group focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg" aria-label="Go to homepage">
                 <div className="w-12 h-12 p-0.5 rounded-xl transition-transform group-hover:scale-105" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
-                  <div className="w-full h-full bg-white/95 dark:bg-black/95 rounded-[10px] flex items-center justify-center">
+                  <div className="w-full h-full bg-white/95 dark:bg-[#212121] rounded-[10px] flex items-center justify-center">
                     <Home className="w-7 h-7" stroke="url(#authCardGradient)" fill="none" strokeWidth="2" />
                     <svg width="0" height="0">
                       <defs>
