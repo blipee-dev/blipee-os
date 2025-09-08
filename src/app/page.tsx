@@ -158,7 +158,7 @@ function FeaturesSection() {
   ];
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-black">
+    <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#111111]">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -442,7 +442,7 @@ function CTAAndFooterSection() {
   const [showSupportModal, setShowSupportModal] = useState(false);
 
   return (
-    <div className="bg-white dark:bg-black">
+    <div className="bg-white dark:bg-[#111111]">
       {/* CTA Section */}
       <div className="relative overflow-hidden py-20 lg:py-24 bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
@@ -497,7 +497,7 @@ function CTAAndFooterSection() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="relative bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+              className="relative bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-2xl p-8 max-w-md w-full shadow-2xl"
             >
               <button
                 onClick={() => setShowContactModal(false)}
@@ -570,7 +570,7 @@ function CTAAndFooterSection() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="relative bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+              className="relative bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-2xl p-8 max-w-md w-full shadow-2xl"
             >
               <button
                 onClick={() => setShowSupportModal(false)}
@@ -613,11 +613,11 @@ function CTAAndFooterSection() {
                     id="support-issue-type"
                     className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   >
-                    <option value="" className="bg-white dark:bg-black">Select Issue Type</option>
-                    <option value="technical" className="bg-white dark:bg-black">Technical Issue</option>
-                    <option value="billing" className="bg-white dark:bg-black">Billing Question</option>
-                    <option value="feature" className="bg-white dark:bg-black">Feature Request</option>
-                    <option value="other" className="bg-white dark:bg-black">Other</option>
+                    <option value="" className="bg-white dark:bg-[#212121]">Select Issue Type</option>
+                    <option value="technical" className="bg-white dark:bg-[#212121]">Technical Issue</option>
+                    <option value="billing" className="bg-white dark:bg-[#212121]">Billing Question</option>
+                    <option value="feature" className="bg-white dark:bg-[#212121]">Feature Request</option>
+                    <option value="other" className="bg-white dark:bg-[#212121]">Other</option>
                   </select>
                 </div>
                 <div>
@@ -642,7 +642,7 @@ function CTAAndFooterSection() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-black text-gray-900 dark:text-white px-4 sm:px-6 lg:px-8 py-10">
+      <footer className="bg-white dark:bg-[#111111] text-gray-900 dark:text-white px-4 sm:px-6 lg:px-8 py-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col items-center gap-8">
             {/* Logo */}
@@ -699,7 +699,7 @@ export default function LandingPage() {
   const { isDarkMode, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-[#111111] transition-colors duration-300">
       {/* Skip Navigation */}
       <a 
         href="#main-content" 
