@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useTheme } from "@/providers/ThemeProvider";
+import Tooltip from "@/components/ui/Tooltip";
 import {
   Home,
   Sparkles,
@@ -712,34 +713,37 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#111111]/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
-            <Link href="/" className="flex items-center rounded-lg" aria-label="Go to homepage">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
-                <div className="w-full h-full bg-white/95 dark:bg-[#111111] rounded-[10px] flex items-center justify-center">
-                  <Home className="w-5 h-5 sm:w-6 sm:h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" aria-hidden="true" />
-                  <svg width="0" height="0" aria-hidden="true">
-                    <defs>
-                      <linearGradient id="homeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="rgb(236, 72, 153)" />
-                        <stop offset="100%" stopColor="rgb(147, 51, 234)" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
+            <Tooltip content="Go to homepage" position="bottom">
+              <Link href="/" className="flex items-center rounded-lg" aria-label="Go to homepage">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+                  <div className="w-full h-full bg-white/95 dark:bg-[#111111] rounded-[10px] flex items-center justify-center">
+                    <Home className="w-5 h-5 sm:w-6 sm:h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" aria-hidden="true" />
+                    <svg width="0" height="0" aria-hidden="true">
+                      <defs>
+                        <linearGradient id="homeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                          <stop offset="100%" stopColor="rgb(147, 51, 234)" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
                 </div>
-              </div>
-              <span className="ml-2 text-lg sm:text-xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                blipee
-              </span>
-            </Link>
+                <span className="ml-2 text-lg sm:text-xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  blipee
+                </span>
+              </Link>
+            </Tooltip>
 
             {/* Theme Toggle, Auth Button and Menu */}
             <div className="flex items-center gap-2 sm:gap-4">
               {/* Theme Toggle Button */}
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-[1px] bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500">
-                <button
-                  onClick={toggleTheme}
-                  className="w-full h-full rounded-full bg-white/95 dark:bg-[#111111] hover:bg-white/90 dark:hover:bg-[#111111]/90 transition-all flex items-center justify-center"
-                  aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-                >
+              <Tooltip content={isDarkMode ? "Switch to light mode" : "Switch to dark mode"} position="bottom">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-[1px] bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500">
+                  <button
+                    onClick={toggleTheme}
+                    className="w-full h-full rounded-full bg-white/95 dark:bg-[#111111] hover:bg-white/90 dark:hover:bg-[#111111]/90 transition-all flex items-center justify-center"
+                    aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                  >
                 {isDarkMode ? (
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -765,8 +769,9 @@ export default function LandingPage() {
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="url(#moonGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 )}
-                </button>
-              </div>
+                  </button>
+                </div>
+              </Tooltip>
               
               <Link href="/signin">
                 <button className="px-4 py-2 sm:px-6 sm:py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all text-sm sm:text-base min-h-[44px]">
@@ -775,12 +780,13 @@ export default function LandingPage() {
               </Link>
               
               {/* Menu button for all screen sizes */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 flex items-center justify-center rounded-lg min-h-[44px] min-w-[44px]"
-                aria-expanded={mobileMenuOpen}
-                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              >
+              <Tooltip content={mobileMenuOpen ? "Close menu" : "Open menu"} position="bottom">
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="p-2 flex items-center justify-center rounded-lg min-h-[44px] min-w-[44px]"
+                  aria-expanded={mobileMenuOpen}
+                  aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                >
                 {mobileMenuOpen ? (
                   <X className="w-6 h-6 text-gray-900 dark:text-white" stroke="url(#xGradient)" />
                 ) : (
@@ -793,7 +799,8 @@ export default function LandingPage() {
                          style={{background: 'linear-gradient(to right, rgb(236, 72, 153), rgb(147, 51, 234))'}}></div>
                   </div>
                 )}
-              </button>
+                </button>
+              </Tooltip>
               <svg width="0" height="0">
                 <defs>
                   <linearGradient id="xGradient" x1="0%" y1="0%" x2="100%" y2="100%">
