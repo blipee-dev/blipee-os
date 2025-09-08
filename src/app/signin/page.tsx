@@ -210,7 +210,7 @@ export default function SignInPage() {
             Email
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500 pointer-events-none z-10" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60 dark:text-white/60 pointer-events-none z-10" />
             <input
               id="email"
               type="email"
@@ -238,7 +238,7 @@ export default function SignInPage() {
             Password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500 pointer-events-none z-10" />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60 dark:text-white/60 pointer-events-none z-10" />
             <input
               id="password"
               type={showPassword ? "text" : "password"}
