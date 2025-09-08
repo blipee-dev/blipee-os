@@ -112,9 +112,7 @@ export default function ForgotPasswordPage() {
             Email
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail className="h-4 w-4 text-gray-400 dark:text-white/40" />
-            </div>
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60 dark:text-white/60 pointer-events-none z-10" />
             <input
               id="email"
               name="email"
@@ -123,7 +121,7 @@ export default function ForgotPasswordPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-white/10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-white/10 transition-all backdrop-blur focus:outline-none"
+              className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-gray-600 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-[#616161] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-[#757575] transition-all focus:outline-none"
             aria-label="Email address"
             aria-required="true"
               placeholder="name@company.com"
