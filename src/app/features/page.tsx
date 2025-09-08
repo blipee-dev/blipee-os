@@ -210,7 +210,7 @@ export default function FeaturesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white">
+    <div className="min-h-screen bg-white dark:bg-[#111111] text-gray-900 dark:text-white">
       {/* Skip Navigation */}
       <a 
         href="#main-content" 
@@ -429,7 +429,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-black text-gray-900 dark:text-white px-4 sm:px-6 lg:px-8 py-10">
+      <footer className="bg-white dark:bg-[#111111] text-gray-900 dark:text-white px-4 sm:px-6 lg:px-8 py-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col items-center gap-8">
             {/* Logo */}
@@ -485,7 +485,7 @@ export default function FeaturesPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+            className="relative bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-2xl p-8 max-w-md w-full shadow-2xl"
           >
             <button
               onClick={() => setIsContactModalOpen(false)}
@@ -538,7 +538,7 @@ export default function FeaturesPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+            className="relative bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-2xl p-8 max-w-md w-full shadow-2xl"
           >
             <button
               onClick={() => setIsSupportModalOpen(false)}
@@ -566,11 +566,11 @@ export default function FeaturesPage() {
               <select
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
               >
-                <option value="" className="bg-white dark:bg-black">Select Issue Type</option>
-                <option value="technical" className="bg-white dark:bg-black">Technical Issue</option>
-                <option value="billing" className="bg-white dark:bg-black">Billing Question</option>
-                <option value="feature" className="bg-white dark:bg-black">Feature Request</option>
-                <option value="other" className="bg-white dark:bg-black">Other</option>
+                <option value="" className="bg-white dark:bg-[#212121]">Select Issue Type</option>
+                <option value="technical" className="bg-white dark:bg-[#212121]">Technical Issue</option>
+                <option value="billing" className="bg-white dark:bg-[#212121]">Billing Question</option>
+                <option value="feature" className="bg-white dark:bg-[#212121]">Feature Request</option>
+                <option value="other" className="bg-white dark:bg-[#212121]">Other</option>
               </select>
               <textarea
                 placeholder="Describe your issue or question"
