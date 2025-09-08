@@ -342,7 +342,7 @@ export async function DELETE(request: NextRequest) {
       userId: user.id,
       action: 'cancel_ai_request',
       resource: 'ai_request_queue',
-      result: 'attempted',
+      result: 'success',
       details: { requestId, currentStatus: status.status },
       ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown'

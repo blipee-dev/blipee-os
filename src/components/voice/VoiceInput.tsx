@@ -79,15 +79,14 @@ export function VoiceInput({ onTranscript, disabled }: VoiceInputProps) {
         onClick={toggleListening}
         disabled={disabled}
         className={`
-          relative p-3 rounded-full transition-all duration-300
+          relative p-2 rounded-full transition-all
           ${
             isListening
-              ? "bg-gradient-to-r from-red-500 to-pink-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]"
-              : "bg-white/[0.05] backdrop-blur-xl border border-white/[0.1] hover:bg-white/[0.08] hover:border-white/[0.2]"
+              ? "bg-gradient-to-r from-red-500 to-pink-500 shadow-[0_0_20px_rgba(239,68,68,0.5)] text-white"
+              : disabled 
+                ? "bg-[#616161] text-gray-400 cursor-not-allowed opacity-50"
+                : "bg-[#616161] hover:bg-gray-500 text-white cursor-pointer"
           }
-          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-          light-mode:bg-black/[0.05] light-mode:border-black/[0.1] 
-          light-mode:hover:bg-black/[0.08] light-mode:hover:border-black/[0.2]
         `}
         aria-label={isListening ? "Stop voice input" : "Start voice input"}
       >

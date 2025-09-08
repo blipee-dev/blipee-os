@@ -47,17 +47,17 @@ export function SetupChecklist({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white/[0.03] backdrop-blur-xl rounded-2xl p-6 border border-white/[0.05]"
+      className="bg-white dark:bg-[#212121] rounded-2xl p-6 border border-gray-200 dark:border-gray-700 my-4"
     >
-      <h3 className="text-xl font-semibold text-white mb-4">{title}</h3>
+      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{title}</h3>
       
       {/* Progress Bar */}
       <div className="mb-6">
-        <div className="flex justify-between text-sm text-gray-400 mb-2">
+        <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
           <span>{completedCount} of {totalCount} completed</span>
           <span>{Math.round(progress)}%</span>
         </div>
-        <div className="w-full bg-white/[0.05] rounded-full h-2 overflow-hidden">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
@@ -76,10 +76,10 @@ export function SetupChecklist({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
             className={`
-              flex items-center justify-between p-4 rounded-xl
+              flex items-center justify-between p-4 rounded-lg
               ${step.status === 'completed' 
-                ? 'bg-green-500/[0.1] border border-green-500/[0.2]' 
-                : 'bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.05]'
+                ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' 
+                : 'bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
               }
               transition-all cursor-pointer
             `}
@@ -89,8 +89,8 @@ export function SetupChecklist({
               <div className={`
                 w-10 h-10 rounded-lg flex items-center justify-center
                 ${step.status === 'completed' 
-                  ? 'bg-green-500/[0.2] text-green-400' 
-                  : 'bg-white/[0.05] text-gray-400'
+                  ? 'bg-green-100 dark:bg-green-800/50 text-green-600 dark:text-green-400' 
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                 }
               `}>
                 {step.status === 'completed' ? (
@@ -103,11 +103,11 @@ export function SetupChecklist({
               <div>
                 <h4 className={`
                   font-medium
-                  ${step.status === 'completed' ? 'text-green-400' : 'text-white'}
+                  ${step.status === 'completed' ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}
                 `}>
                   {step.title}
                 </h4>
-                <p className="text-sm text-gray-400 mt-0.5">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
                   {step.description}
                 </p>
               </div>
@@ -115,10 +115,10 @@ export function SetupChecklist({
 
             <button
               className={`
-                px-4 py-2 rounded-lg text-sm font-medium transition-all
+                px-3 py-1.5 rounded-lg text-sm font-medium transition-all
                 ${step.status === 'completed' 
-                  ? 'bg-green-500/[0.2] text-green-400 cursor-default' 
-                  : 'bg-purple-500/[0.2] text-purple-400 hover:bg-purple-500/[0.3]'
+                  ? 'bg-green-100 dark:bg-green-800/50 text-green-600 dark:text-green-400 cursor-default' 
+                  : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50'
                 }
               `}
               onClick={(e) => {

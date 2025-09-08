@@ -3,12 +3,12 @@
 import { useState, KeyboardEvent, useRef, useEffect, useCallback } from "react";
 import {
   Send,
-  Sparkles,
   Paperclip,
   X,
   FileText,
   Image,
   FileSpreadsheet,
+  ArrowUp,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { VoiceInput } from "@/components/voice/VoiceInput";
@@ -34,9 +34,8 @@ export function InputArea({
   onChange,
   onSend,
   disabled,
-  placeholder = "Type your message...",
+  placeholder = "Message blipee...",
 }: InputAreaProps) {
-  const [isFocused, setIsFocused] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +50,7 @@ export function InputArea({
   const handleSend = () => {
     if ((value.trim() || attachedFiles.length > 0) && !disabled) {
       onSend(value, attachedFiles.length > 0 ? attachedFiles : undefined);
-      setAttachedFiles([]); // Clear files after sending
+      setAttachedFiles([]);
     }
   };
 
@@ -67,7 +66,6 @@ export function InputArea({
       }));
       setAttachedFiles((prev) => [...prev, ...newFiles]);
 
-      // Reset input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -92,7 +90,6 @@ export function InputArea({
 
   const handleVoiceTranscript = (transcript: string) => {
     onChange(transcript);
-    // Auto-send after voice input
     if (transcript.trim()) {
       setTimeout(() => onSend(transcript), 100);
     }
@@ -103,190 +100,126 @@ export function InputArea({
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height =
-        Math.min(textareaRef.current.scrollHeight, 120) + "px";
+        Math.min(textareaRef.current.scrollHeight, 200) + "px";
     }
   }, [value]);
 
   return (
-    <div className="relative border-t border-white/[0.05] light-mode:border-gray-200 bg-gradient-to-t from-black/50 to-transparent light-mode:from-white/50 light-mode:to-transparent backdrop-blur-xl">
-      {/* Gradient accent line */}
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent light-mode:via-purple-500/30" />
-
-      <div className="p-4">
+    <div className="bg-white dark:bg-[#212121]">
+      <div className="max-w-3xl mx-auto">
         {/* Attached files display */}
         <AnimatePresence>
           {attachedFiles.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="max-w-4xl mx-auto mb-3 flex flex-wrap gap-2"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="px-4 pt-3 pb-1"
             >
-              {attachedFiles.map((file) => {
-                const Icon = getFileIcon(file.type);
-                return (
-                  <motion.div
-                    key={file.id}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.05] light-mode:bg-gray-100/50 light-mode:border-gray-200"
-                  >
-                    <Icon className="w-4 h-4 text-white/60 light-mode:text-gray-600" />
-                    <span className="text-sm text-white/80 light-mode:text-gray-700">
-                      {file.name}
-                    </span>
-                    <span className="text-xs text-white/40 light-mode:text-gray-500">
-                      ({(file.size / 1024).toFixed(1)} KB)
-                    </span>
-                    <button
-                      onClick={() => removeFile(file.id)}
-                      className="ml-1 p-1 hover:bg-white/[0.05] rounded transition-colors"
+              <div className="flex flex-wrap gap-2">
+                {attachedFiles.map((file) => {
+                  const Icon = getFileIcon(file.type);
+                  return (
+                    <motion.div
+                      key={file.id}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.8, opacity: 0 }}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full 
+                        bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
                     >
-                      <X className="w-3 h-3 text-white/60 light-mode:text-gray-600" />
-                    </button>
-                  </motion.div>
-                );
-              })}
+                      <Icon className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 max-w-[150px] truncate">
+                        {file.name}
+                      </span>
+                      <button
+                        onClick={() => removeFile(file.id)}
+                        className="ml-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full p-0.5 transition-colors"
+                      >
+                        <X className="w-3 h-3 text-gray-500" />
+                      </button>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="flex items-end gap-3 max-w-4xl mx-auto">
-          {/* Voice input button */}
-          <VoiceInput
-            onTranscript={handleVoiceTranscript}
-            disabled={disabled || false}
-          />
+        <div className="p-4">
+          <div className="relative flex items-end">
+            {/* Main input container */}
+            <div className="flex-1 relative">
+              <div className="relative flex items-center rounded-3xl border border-gray-300 dark:border-gray-700 
+                bg-gray-50 dark:bg-[#616161] shadow-sm focus-within:border-gray-400 dark:focus-within:border-gray-600 
+                transition-colors">
+                
+                {/* Attachment button */}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={disabled}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 
+                    rounded-lg transition-colors disabled:opacity-50"
+                  title="Attach files"
+                >
+                  <Paperclip className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                </button>
 
-          {/* File attachment button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => fileInputRef.current?.click()}
-            disabled={disabled}
-            className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] light-mode:bg-gray-100/50 light-mode:border-gray-200 light-mode:hover:border-gray-300 transition-all duration-300"
-            title="Attach files"
-          >
-            <Paperclip className="w-5 h-5 text-white/60 light-mode:text-gray-600" />
-          </motion.button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.csv"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.csv"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
+                {/* Textarea */}
+                <textarea
+                  ref={textareaRef}
+                  value={value}
+                  onChange={(e) => onChange(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  disabled={disabled}
+                  placeholder={placeholder}
+                  rows={1}
+                  className="flex-1 bg-transparent px-12 py-3 text-gray-900 dark:text-gray-100 
+                    placeholder-gray-500 dark:placeholder-gray-400 resize-none focus:outline-none 
+                    disabled:opacity-50 disabled:cursor-not-allowed text-[15px] leading-relaxed"
+                  style={{ minHeight: "24px", maxHeight: "200px" }}
+                />
 
-          {/* Input area with premium glass design */}
-          <div
-            className={`
-            flex-1 relative group transition-all duration-300
-            ${isFocused ? "scale-[1.01]" : ""}
-          `}
-          >
-            {/* Gradient glow effect on focus */}
-            <div
-              className={`
-              absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 light-mode:from-purple-500/10 light-mode:to-blue-500/10
-              opacity-0 blur-xl transition-opacity duration-500
-              ${isFocused ? "opacity-100" : ""}
-            `}
-            />
+                {/* Voice input button */}
+                <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+                  <VoiceInput
+                    onTranscript={handleVoiceTranscript}
+                    disabled={disabled || false}
+                  />
+                </div>
 
-            <div
-              className={`
-              relative rounded-2xl backdrop-blur-xl bg-white/[0.02] light-mode:bg-white/70
-              border transition-all duration-300
-              ${
-                isFocused
-                  ? "border-white/[0.15] shadow-[0_8px_40px_rgba(139,92,246,0.15)] light-mode:border-purple-300/50 light-mode:shadow-[0_4px_20px_rgba(103,80,164,0.1)]"
-                  : "border-white/[0.05] shadow-[0_8px_32px_rgba(0,0,0,0.12)] light-mode:border-gray-200 light-mode:shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
-              }
-            `}
-            >
-              <textarea
-                ref={textareaRef}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                onKeyPress={handleKeyPress}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                disabled={disabled}
-                placeholder={placeholder}
-                rows={1}
-                className="w-full px-5 py-3 bg-transparent text-white/90 light-mode:text-gray-800 placeholder-white/30 light-mode:placeholder-gray-400
-                         resize-none focus:outline-none transition-colors duration-300
-                         disabled:opacity-50 disabled:cursor-not-allowed
-                         selection:bg-purple-500/30 light-mode:selection:bg-purple-200/50"
-                style={{ minHeight: "48px", maxHeight: "120px" }}
-              />
-
-              {/* Character count indicator */}
-              <AnimatePresence>
-                {value.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute bottom-2 right-3 text-xs text-white/30 light-mode:text-gray-500"
-                  >
-                    {value.length}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                {/* Send button */}
+                <button
+                  onClick={handleSend}
+                  disabled={disabled || (!value.trim() && attachedFiles.length === 0)}
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-all
+                    ${
+                      disabled || (!value.trim() && attachedFiles.length === 0)
+                        ? "bg-[#616161] text-gray-400 cursor-not-allowed opacity-50"
+                        : "bg-[#616161] hover:bg-gray-500 text-white"
+                    }
+                  `}
+                  title="Send message"
+                >
+                  <ArrowUp className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Send button with gradient effect */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleSend}
-            disabled={disabled || (!value.trim() && attachedFiles.length === 0)}
-            className={`
-              relative p-3 rounded-xl transition-all duration-300
-              overflow-hidden group
-              ${
-                disabled || (!value.trim() && attachedFiles.length === 0)
-                  ? "opacity-50 cursor-not-allowed bg-white/[0.02] border border-white/[0.05] light-mode:bg-gray-100/50 light-mode:border-gray-200"
-                  : "bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 hover:border-purple-500/50 shadow-[0_8px_32px_rgba(139,92,246,0.2)] light-mode:from-purple-500/10 light-mode:to-blue-500/10 light-mode:border-purple-400/30 light-mode:hover:border-purple-500/50 light-mode:shadow-[0_4px_16px_rgba(103,80,164,0.15)]"
-              }
-            `}
-            title="Send message"
-          >
-            {/* Animated gradient background */}
-            <div
-              className={`
-              absolute inset-0 bg-gradient-to-br from-purple-500/30 to-blue-500/30 light-mode:from-purple-500/20 light-mode:to-blue-500/20
-              opacity-0 group-hover:opacity-100 transition-opacity duration-300
-              ${disabled || (!value.trim() && attachedFiles.length === 0) ? "hidden" : ""}
-            `}
-            />
-
-            {/* Sparkle effect on hover */}
-            <Sparkles
-              className={`
-              absolute top-1 right-1 w-3 h-3 text-purple-300/60 light-mode:text-purple-400/70
-              opacity-0 group-hover:opacity-100 transition-all duration-300
-              group-hover:animate-pulse
-              ${disabled || (!value.trim() && attachedFiles.length === 0) ? "hidden" : ""}
-            `}
-            />
-
-            <Send
-              className={`
-              w-5 h-5 relative z-10 transition-all duration-300
-              ${
-                disabled || (!value.trim() && attachedFiles.length === 0)
-                  ? "text-white/30 light-mode:text-gray-400"
-                  : "text-white/80 group-hover:text-white group-hover:transform group-hover:translate-x-0.5 light-mode:text-gray-700 light-mode:group-hover:text-gray-900"
-              }
-            `}
-            />
-          </motion.button>
+          {/* Helper text */}
+          <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">
+            Press Enter to send, Shift + Enter for new line
+          </p>
         </div>
       </div>
     </div>

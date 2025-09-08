@@ -13,8 +13,9 @@ const signInSchema = z.object({
 });
 
 async function signInHandler(request: NextRequest) {
+  let body: any;
   try {
-    const body = await request.json();
+    body = await request.json();
 
     // Validate input
     const validated = signInSchema.parse(body);
@@ -68,8 +69,7 @@ async function signInHandler(request: NextRequest) {
     console.error('Error:', error);
 
     // Log authentication failure
-    const body = await request.clone().json().catch(() => ({}));
-    if (body.email) {
+    if (body?.email) {
       await auditLogger.logAuthFailure(
         request,
         body.email,
@@ -92,7 +92,7 @@ async function signInHandler(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: errorerror.message || "Failed to sign in",
+        _error: error.message || "Failed to sign in",
       },
       { status: 401 },
     );

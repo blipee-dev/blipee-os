@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { NextRequest } from 'next/server';
 
 /**
@@ -10,11 +10,11 @@ import { NextRequest } from 'next/server';
  */
 export function generateDeviceFingerprint(request: NextRequest): string {
   const components = [
-    _request.headers.get('user-agent') || 'unknown',
-    _request.headers.get('accept-language') || 'unknown',
-    _request.headers.get('accept-encoding') || 'unknown',
-    _request.headers.get('sec-ch-ua') || 'unknown',
-    _request.headers.get('sec-ch-ua-platform') || 'unknown',
+    request.headers.get('user-agent') || 'unknown',
+    request.headers.get('accept-language') || 'unknown',
+    request.headers.get('accept-encoding') || 'unknown',
+    request.headers.get('sec-ch-ua') || 'unknown',
+    request.headers.get('sec-ch-ua-platform') || 'unknown',
   ];
 
   const fingerprintData = components.join('|');
@@ -29,10 +29,10 @@ export function generateDeviceFingerprint(request: NextRequest): string {
  * Get client IP address from request
  */
 export function getClientIP(request: NextRequest): string {
-  return _request.headers.get('x-forwarded-for')?.split(',')[0] || 
-         _request.headers.get('x-real-ip') || 
-         _request.headers.get('cf-connecting-ip') || // Cloudflare
-         _request.headers.get('x-vercel-forwarded-for') || // Vercel
+  return request.headers.get('x-forwarded-for')?.split(',')[0] || 
+         request.headers.get('x-real-ip') || 
+         request.headers.get('cf-connecting-ip') || // Cloudflare
+         request.headers.get('x-vercel-forwarded-for') || // Vercel
          '127.0.0.1';
 }
 
@@ -136,7 +136,7 @@ export function validateSessionSecurity(
   
   // Validate IP address if enforcement is enabled
   if (SESSION_SECURITY.ENFORCE_IP_BINDING) {
-    const currentIP = getClientIP(_request);
+    const currentIP = getClientIP(request);
     if (session.ipAddress !== currentIP) {
       return { valid: false, reason: 'IP address mismatch' };
     }
@@ -144,7 +144,7 @@ export function validateSessionSecurity(
   
   // Validate device fingerprint if enforcement is enabled
   if (SESSION_SECURITY.ENFORCE_FINGERPRINT) {
-    const currentFingerprint = generateDeviceFingerprint(_request);
+    const currentFingerprint = generateDeviceFingerprint(request);
     if (session.deviceFingerprint !== currentFingerprint) {
       return { valid: false, reason: 'Device fingerprint mismatch' };
     }
@@ -176,11 +176,11 @@ export function createSecureSession(
     lastActivity: now,
     rotatedAt: now,
     expiresAt: now + SESSION_SECURITY.MAX_LIFETIME,
-    ipAddress: getClientIP(_request),
-    deviceFingerprint: generateDeviceFingerprint(_request),
-    userAgent: _request.headers.get('user-agent') || 'unknown',
+    ipAddress: getClientIP(request),
+    deviceFingerprint: generateDeviceFingerprint(request),
+    userAgent: request.headers.get('user-agent') || 'unknown',
     
-    isSecure: _request.nextUrl.protocol === 'https:',
+    isSecure: request.nextUrl.protocol === 'https:',
     isMfaVerified: options.isMfaVerified || false,
     isHighRisk: false,
     
@@ -208,9 +208,9 @@ export function rotateSession(
     id: newSessionId,
     rotatedAt: now,
     lastActivity: now,
-    ipAddress: getClientIP(_request),
-    deviceFingerprint: generateDeviceFingerprint(_request),
-    userAgent: _request.headers.get('user-agent') || session.userAgent,
+    ipAddress: getClientIP(request),
+    deviceFingerprint: generateDeviceFingerprint(request),
+    userAgent: request.headers.get('user-agent') || session.userAgent,
     rotationCount: session.rotationCount + 1,
     previousSessionId: session.id,
   };
@@ -226,18 +226,18 @@ export function detectHighRiskBehavior(
   // Check for suspicious patterns
   const checks = [
     // Rapid IP address changes
-    session.ipAddress !== getClientIP(_request) && 
+    session.ipAddress !== getClientIP(request) && 
     SESSION_SECURITY.ENFORCE_IP_BINDING === false,
     
     // Frequent rotation
     session.rotationCount > 10,
     
     // User agent mismatch
-    session.userAgent !== _request.headers.get('user-agent'),
+    session.userAgent !== request.headers.get('user-agent'),
     
     // Accessing from Tor exit nodes or VPNs (simplified check)
-    getClientIP(_request).includes('tor') || 
-    _request.headers.get('x-forwarded-for')?.split(',').length > 3,
+    getClientIP(request).includes('tor') || 
+    request.headers.get('x-forwarded-for')?.split(',').length > 3,
   ];
   
   return checks.filter(Boolean).length >= 2;

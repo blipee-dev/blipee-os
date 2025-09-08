@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ status });
   } catch (error) {
-    if (error instanceof Error && _error.message === 'Authentication required') {
+    if (error instanceof Error && error.message === 'Authentication required') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

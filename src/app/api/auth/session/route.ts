@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: errorerror.message || "Failed to get session",
+        _error: error.message || "Failed to get session",
       },
       { status: 500 },
     );
