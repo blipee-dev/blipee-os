@@ -35,12 +35,24 @@ const publicRoutes = [
   '/auth/callback',
   '/api/auth/signin',
   '/api/auth/signup',
+  '/api/auth/signout',
+  '/api/auth/session',  // Session check should be allowed without auth
   '/api/auth/reset-password',
+  '/api/auth/oauth',
   '/api/health',
+  '/api/version',
   '/about',
   '/features',
   '/industries',
   '/ai-technology',
+  '/features-light',
+  '/industries-light',
+  '/ai-technology-light',
+  '/privacy-policy',
+  '/terms-of-use',
+  '/cookie-policy',
+  '/security-policy',
+  '/data-processing-agreement',
 ];
 
 // Simple DDoS protection for Edge Runtime
@@ -140,8 +152,20 @@ async function executeMiddleware(
   startTime: number
 ): Promise<NextResponse> {
 
-  // Apply CSRF protection first for API routes
-  if (path.startsWith('/api/')) {
+  // Apply CSRF protection for API routes (except auth endpoints)
+  // Auth endpoints need to work without CSRF tokens for initial authentication
+  const csrfExemptPaths = [
+    '/api/auth/signin',
+    '/api/auth/signup',
+    '/api/auth/signout',
+    '/api/auth/session',
+    '/api/auth/reset-password',
+    '/api/auth/oauth',
+    '/api/health',
+    '/api/version'
+  ];
+  
+  if (path.startsWith('/api/') && !csrfExemptPaths.some(exempt => path.startsWith(exempt))) {
     const csrfResponse = await csrfMiddleware(request);
     if (csrfResponse) {
       // Log CSRF violation

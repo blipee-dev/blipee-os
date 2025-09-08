@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Black background with rounded corners -->
+  <rect width="32" height="32" rx="8" ry="8" fill="#000000" />
+  <!-- Lucide Home icon in white, adjusted vertical centering -->
+  <g transform="translate(16, 17)">
+    <path d="M -8 -5 l 8 -6 l 8 6 v 10 a 1.5 1.5 0 0 1 -1.5 1.5 H -6.5 a 1.5 1.5 0 0 1 -1.5 -1.5 z" 
+          fill="none" 
+          stroke="white" 
+          stroke-width="1.5" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+    <polyline points="-3.5 6.5 -3.5 0 3.5 0 3.5 6.5" 
+              fill="none" 
+              stroke="white" 
+              stroke-width="1.5" 
+              stroke-linecap="round" 
+              stroke-linejoin="round"/>
+  </g>
+</svg>

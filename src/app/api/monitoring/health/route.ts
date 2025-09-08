@@ -15,7 +15,7 @@ export const GET = createMonitoredHandler(async (_request: NextRequest) => {
     return NextResponse.json(
       {
         status: 'unhealthy',
-        _error: error instanceof Error ? error.message : 'Health check failed',
+        error: error instanceof Error ? error.message : 'Health check failed',
       },
       { status: 503 }
     );

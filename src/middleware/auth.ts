@@ -211,3 +211,6 @@ async function checkBuildingAccess(
   // For now, return true if user has building view permission
   return authService.hasPermission(session, "buildings", "view");
 }
+
+// Backward compatibility export
+export const withAuth = requireAuth;

@@ -9,12 +9,12 @@ export async function withMonitoring(
   handler: (req: NextRequest) => Promise<NextResponse>
 ): Promise<NextResponse> {
   const startTime = Date.now();
-  const method = _request.method;
-  const path = _request.nextUrl.pathname;
+  const method = request.method;
+  const path = request.nextUrl.pathname;
   
   try {
     // Execute the handler
-    const response = await handler(_request);
+    const response = await handler(request);
     
     // Record metrics
     const responseTime = Date.now() - startTime;
@@ -69,7 +69,7 @@ export function createMonitoredHandler<T extends any[]>(
   handler: (req: NextRequest, ...args: T) => Promise<NextResponse>
 ) {
   return async (req: NextRequest, ...args: T) => {
-    return withMonitoring(req, async (_request) => handler(_request, ...args));
+    return withMonitoring(req, async (request) => handler(request, ...args));
   };
 }
 

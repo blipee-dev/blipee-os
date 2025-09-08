@@ -1,12 +1,13 @@
 import { Message } from "@/types/conversation";
 import {
-  Building2,
   User,
   Sparkles,
   FileText,
   Image,
   FileSpreadsheet,
   Download,
+  Copy,
+  Check,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -19,11 +20,13 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === "user";
-  const [timeString, setTimeString] = useState("");
+  const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    setTimeString(message.timestamp.toLocaleTimeString());
-  }, [message.timestamp]);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(message.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const getFileIcon = (type: string) => {
     if (type.startsWith("image/")) return Image;
@@ -38,94 +41,61 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className={`group ${isUser ? "bg-transparent" : "bg-gray-50 dark:bg-[#212121]"}`}
     >
-      {/* Avatar with gradient glow */}
-      <div className="relative flex-shrink-0">
-        <div
-          className={`
-          w-10 h-10 rounded-full flex items-center justify-center
-          backdrop-blur-xl relative overflow-hidden
-          before:absolute before:inset-0 before:rounded-full
-          ${
-            isUser
-              ? "before:bg-gradient-to-br before:from-purple-500/20 before:to-pink-500/20 shadow-[0_0_20px_rgba(139,92,246,0.3)] light-mode:shadow-[0_0_16px_rgba(103,80,164,0.2)]"
-              : "before:bg-gradient-to-br before:from-blue-500/20 before:to-cyan-500/20 shadow-[0_0_20px_rgba(14,165,233,0.3)] light-mode:shadow-[0_0_16px_rgba(0,128,255,0.2)]"
-          }
-        `}
-        >
-          <div className="relative z-10 flex items-center justify-center">
-            {isUser ? (
-              <User className="w-5 h-5 text-white/90 light-mode:text-gray-700" />
-            ) : (
-              <Building2 className="w-5 h-5 text-white/90 light-mode:text-gray-700" />
-            )}
-          </div>
-        </div>
-        {/* Removed animated ring to prevent constant blinking */}
-      </div>
-
-      <div className={`flex-1 max-w-[80%] ${isUser ? "text-right" : ""}`}>
-        {/* Glass morphism message bubble */}
-        <div
-          className={`
-          inline-block relative group
-          ${isUser ? "" : "text-left"}
-        `}
-        >
-          <div
-            className={`
-            relative px-4 py-3 rounded-2xl
-            backdrop-blur-xl bg-white/[0.02] 
-            border border-white/[0.05]
-            shadow-[0_8px_32px_rgba(0,0,0,0.12)]
-            transition-all duration-300 ease-out
-            hover:shadow-[0_8px_40px_rgba(0,0,0,0.2)]
-            hover:border-white/[0.1]
-            
-            light-mode:bg-white/70
-            light-mode:border-gray-200/50
-            light-mode:shadow-[0_4px_16px_rgba(0,0,0,0.06)]
-            light-mode:hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)]
-            light-mode:hover:border-gray-300/50
-            
-            ${
-              isUser
-                ? "bg-gradient-to-br from-purple-500/10 to-pink-500/10 light-mode:from-purple-500/5 light-mode:to-pink-500/5"
-                : "hover:bg-white/[0.04] light-mode:hover:bg-white/80"
-            }
-          `}
-          >
-            {/* Gradient accent for user messages */}
-            {isUser && (
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 light-mode:from-purple-500/10 light-mode:to-pink-500/10" />
-            )}
-
-            {/* AI sparkle indicator */}
-            {!isUser && (
-              <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-blue-400/60 light-mode:text-blue-500/70" />
-            )}
-
+      <div className="max-w-3xl mx-auto px-4 py-6">
+        <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}>
+          {/* Avatar - Clean and simple */}
+          <div className="flex-shrink-0">
             <div
               className={`
-              relative z-10
-              ${isUser ? "text-white/95 light-mode:text-gray-800" : "text-white/90 light-mode:text-gray-700"}
-            `}
+                w-8 h-8 rounded-full flex items-center justify-center
+                ${
+                  isUser
+                    ? "bg-gray-900 dark:bg-white"
+                    : "bg-gradient-to-br from-purple-500 to-pink-500"
+                }
+              `}
             >
+              {isUser ? (
+                <User className="w-5 h-5 text-white dark:text-gray-900" />
+              ) : (
+                <Sparkles className="w-5 h-5 text-white" />
+              )}
+            </div>
+          </div>
+
+          {/* Message content */}
+          <div className="flex-1 overflow-hidden">
+            <div className={`prose prose-sm max-w-none ${
+              isUser 
+                ? "bg-gray-100 dark:bg-[#616161] rounded-2xl px-4 py-3 max-w-[80%] ml-auto" 
+                : ""
+            }`}>
               <ReactMarkdown
-                className="prose prose-sm prose-invert max-w-none 
-                  prose-p:mb-2 prose-p:last:mb-0
-                  prose-strong:text-purple-400
-                  prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:bg-white/10 prose-code:text-purple-300"
+                className="text-gray-900 dark:text-gray-100 leading-relaxed
+                  [&>*:first-child]:mt-0 [&>*:last-child]:mb-0
+                  prose-p:my-3
+                  prose-headings:font-semibold prose-headings:mt-6 prose-headings:mb-3
+                  prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
+                  prose-strong:font-semibold prose-strong:text-gray-900 dark:prose-strong:text-white
+                  prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:bg-gray-100 dark:prose-code:bg-gray-800 
+                  prose-code:text-gray-800 dark:prose-code:text-gray-200 prose-code:font-mono prose-code:text-sm
+                  prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:text-gray-100
+                  prose-ul:my-3 prose-ol:my-3 prose-li:my-1
+                  prose-blockquote:border-l-4 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-600
+                  prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300
+                  prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:underline prose-a:font-normal
+                  prose-hr:border-gray-200 dark:prose-hr:border-gray-700"
               >
                 {sanitizeUserInput(message.content)}
               </ReactMarkdown>
             </div>
 
-            {/* Attached files */}
+            {/* Attached files - Clean cards */}
             {message.attachments && message.attachments.length > 0 && (
               <div className="mt-3 space-y-2">
                 {message.attachments.map((file) => {
@@ -133,23 +103,24 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                   return (
                     <div
                       key={file.id}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.05] light-mode:bg-gray-100/50 light-mode:border-gray-200"
+                      className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 
+                        bg-white dark:bg-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
-                      <Icon className="w-4 h-4 text-white/60 light-mode:text-gray-600" />
-                      <span className="text-sm text-white/80 light-mode:text-gray-700 flex-1">
+                      <Icon className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 flex-1 truncate">
                         {file.name}
                       </span>
-                      <span className="text-xs text-white/40 light-mode:text-gray-500">
-                        ({(file.size / 1024).toFixed(1)} KB)
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {(file.size / 1024).toFixed(1)} KB
                       </span>
                       {file.url && (
                         <a
                           href={file.url}
                           download={file.name}
-                          className="p-1 hover:bg-white/[0.05] rounded transition-colors"
+                          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                           title="Download file"
                         >
-                          <Download className="w-3 h-3 text-white/60 light-mode:text-gray-600" />
+                          <Download className="w-3.5 h-3.5 text-gray-500" />
                         </a>
                       )}
                     </div>
@@ -157,20 +128,31 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 })}
               </div>
             )}
+
+            {/* Copy button for assistant messages */}
+            {!isUser && (
+              <div className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={handleCopy}
+                  className="flex items-center gap-1.5 px-2 py-1 text-xs text-gray-500 hover:text-gray-700 
+                    dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Timestamp with subtle animation */}
-        {timeString && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-xs text-white/40 light-mode:text-gray-500 mt-2 font-light"
-          >
-            {timeString}
-          </motion.p>
-        )}
       </div>
     </motion.div>
   );

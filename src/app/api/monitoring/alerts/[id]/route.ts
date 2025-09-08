@@ -4,7 +4,7 @@ import { createMonitoredHandler } from '@/lib/monitoring/middleware';
 import { requireAuth } from '@/lib/auth/middleware';
 
 export const DELETE = createMonitoredHandler(async (
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) => {
   try {

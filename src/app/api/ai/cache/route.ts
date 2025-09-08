@@ -70,9 +70,13 @@ export async function GET(request: NextRequest) {
           legacy: legacyStats,
           semantic: semanticStats,
           combined: {
-            totalEntries: legacyStats.totalEntries + semanticStats.totalEntries,
-            hitRate: (legacyStats.hitRate + semanticStats.hitRate) / 2,
-            totalCostSavings: semanticStats.costSavings.estimatedDollarsSaved
+            totalCached: (legacyStats.totalCached || 0) + (semanticStats.totalCached || 0),
+            cacheSize: (legacyStats.cacheSize || 0) + (semanticStats.cacheSize || 0),
+            hitRate: ((legacyStats.hitRate || 0) + (semanticStats.hitRate || 0)) / 2,
+            avgResponseTime: ((legacyStats.avgResponseTime || 0) + (semanticStats.avgResponseTime || 0)) / 2,
+            topQueries: [...(legacyStats.topQueries || []), ...(semanticStats.topQueries || [])],
+            totalEntries: (legacyStats.totalEntries || 0) + (semanticStats.totalEntries || 0),
+            totalCostSavings: semanticStats.costSavings?.estimatedDollarsSaved || 0
           }
         };
         break;

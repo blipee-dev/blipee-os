@@ -47,32 +47,32 @@ export default function ForgotPasswordPage() {
   if (success) {
     return (
       <AuthLayout
-        title="Check your email"
-        subtitle="We've sent you a password reset link"
+        title=""
+        subtitle="Password reset link sent"
       >
+
         <div className="text-center">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="mx-auto w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4"
+            className="mx-auto w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mb-4"
           >
-            <CheckCircle className="w-8 h-8 text-purple-600" />
+            <CheckCircle className="w-8 h-8 text-purple-600 dark:text-purple-400" />
           </motion.div>
 
-          <p className="text-gray-600 mb-6">
-            We&apos;ve sent a password reset link to <strong>{email}</strong>.
-            Please check your email and follow the instructions.
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-6">
+            We sent a password reset link to <strong>{email}</strong>
           </p>
 
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-xs text-gray-700 dark:text-gray-400 mb-6">
             Didn&apos;t receive the email? Check your spam folder or{" "}
             <button
               onClick={() => {
                 setSuccess(false);
                 setError("");
               }}
-              className="text-purple-600 hover:text-purple-700 font-medium"
+              className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors"
             >
               try again
             </button>
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
 
           <Link
             href="/signin"
-            className="inline-flex items-center text-sm text-purple-600 hover:text-purple-700 font-medium"
+            className="inline-flex items-center text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to sign in
@@ -92,12 +92,13 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthLayout
-      title="Forgot your password?"
-      subtitle="No worries, we'll send you reset instructions"
+      title=""
+      subtitle="We'll help you get back into your account"
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6" noValidate>
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm flex items-start">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-3 sm:px-4 py-3 rounded-lg sm:rounded-xl text-sm flex items-start" role="alert" aria-live="polite">
             <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -106,13 +107,13 @@ export default function ForgotPasswordPage() {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-white/70 mb-1.5 sm:mb-2"
           >
-            Email address
+            Email
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail className="h-5 w-5 text-gray-400" />
+              <Mail className="h-4 w-4 text-gray-400 dark:text-white/40" />
             </div>
             <input
               id="email"
@@ -122,19 +123,19 @@ export default function ForgotPasswordPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              placeholder="you@example.com"
+              className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-white/10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-white/10 transition-all backdrop-blur focus:outline-none"
+            aria-label="Email address"
+            aria-required="true"
+              placeholder="name@company.com"
             />
           </div>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Enter the email address associated with your account
-          </p>
         </div>
 
         <button
           type="submit"
           disabled={loading || !email}
-          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full flex items-center justify-center px-4 py-2.5 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm sm:text-base rounded-lg sm:rounded-xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-[1.01] active:scale-[0.99] font-semibold shadow-xl shadow-purple-500/25"
+          aria-label="Send password reset link"
         >
           {loading ? (
             <>
@@ -142,14 +143,14 @@ export default function ForgotPasswordPage() {
               Sending...
             </>
           ) : (
-            "Send reset instructions"
+            "Send reset link"
           )}
         </button>
 
         <div className="text-center">
           <Link
             href="/signin"
-            className="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium inline-flex items-center"
+            className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium inline-flex items-center transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 rounded px-1"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to sign in

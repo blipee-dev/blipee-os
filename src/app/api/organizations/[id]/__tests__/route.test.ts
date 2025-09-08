@@ -46,7 +46,7 @@ describe('Organization API', () => {
       });
 
       const _request = new NextRequest('http://localhost:3000/api/organizations/org123');
-      const response = await GETrequest, { params: { id: 'org123' } });
+      const response = await GET(_request, { params: { id: 'org123' } });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -65,7 +65,7 @@ describe('Organization API', () => {
       });
 
       const _request = new NextRequest('http://localhost:3000/api/organizations/org123');
-      const response = await GETrequest, { params: { id: 'org123' } });
+      const response = await GET(_request, { params: { id: 'org123' } });
 
       expect(response.status).toBe(404);
     });
@@ -91,7 +91,7 @@ describe('Organization API', () => {
         })
       });
 
-      const response = await PATCHrequest, { params: { id: 'org123' } });
+      const response = await PATCH(_request, { params: { id: 'org123' } });
       expect(response.status).toBe(200);
     });
   });

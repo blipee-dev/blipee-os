@@ -426,8 +426,23 @@ export class ComplianceService {
   }
 }
 
-// Export singleton instance
-export const complianceService = new ComplianceService();
+// Export singleton instance with lazy initialization
+let _complianceService: ComplianceService | null = null;
+
+export function getComplianceService(): ComplianceService {
+  if (!_complianceService) {
+    _complianceService = new ComplianceService();
+  }
+  return _complianceService;
+}
+
+// For backward compatibility
+export const complianceService = new Proxy({} as ComplianceService, {
+  get(target, prop) {
+    const service = getComplianceService();
+    return (service as any)[prop];
+  }
+});
 
 // Re-export sub-services
 export { gdprService, soc2Service };
