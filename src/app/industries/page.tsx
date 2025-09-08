@@ -245,7 +245,7 @@ export default function IndustriesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white">
+    <div className="min-h-screen bg-white dark:bg-[#111111] text-gray-900 dark:text-white">
       {/* Skip Navigation */}
       <a 
         href="#main-content" 
@@ -255,12 +255,12 @@ export default function IndustriesPage() {
       </a>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10" role="navigation" aria-label="Main navigation">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#111111]/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
             <Link href="/" className="flex items-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg" aria-label="Go to homepage">
               <div className="w-8 h-8 sm:w-10 sm:h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
-                <div className="w-full h-full bg-white/95 dark:bg-black/95 rounded-[10px] flex items-center justify-center">
+                <div className="w-full h-full bg-white/95 dark:bg-[#111111]/95 rounded-[10px] flex items-center justify-center">
                   <Home className="w-5 h-5 sm:w-6 sm:h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" aria-hidden="true" />
                   <svg width="0" height="0">
                     <defs>
@@ -283,7 +283,7 @@ export default function IndustriesPage() {
               <div className="w-11 h-11 rounded-full p-[1px] bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500">
                 <button
                   onClick={toggleTheme}
-                  className="w-full h-full rounded-full bg-white/95 dark:bg-black/95 hover:bg-white/90 dark:hover:bg-black/90 transition-all flex items-center justify-center"
+                  className="w-full h-full rounded-full bg-white/95 dark:bg-[#111111]/95 hover:bg-white/90 dark:hover:bg-black/90 transition-all flex items-center justify-center"
                   aria-label="Toggle theme"
                 >
                 {isDarkMode ? (
@@ -356,7 +356,7 @@ export default function IndustriesPage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white/90 dark:bg-black/90 backdrop-blur-xl border border-gray-200/50 dark:border-white/[0.05] rounded-lg py-4 shadow-2xl"
+              className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white/90 dark:bg-[#111111]/90 backdrop-blur-xl border border-gray-200/50 dark:border-white/[0.05] rounded-lg py-4 shadow-2xl"
             >
               <div className="flex flex-col space-y-1">
                 <Link href="/features" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">Features</Link>
@@ -638,13 +638,13 @@ export default function IndustriesPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-black text-gray-900 dark:text-white px-4 sm:px-6 lg:px-8 py-10">
+      <footer className="bg-white dark:bg-[#111111] text-gray-900 dark:text-white px-4 sm:px-6 lg:px-8 py-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col items-center gap-8">
             {/* Logo */}
             <Link href="/" className="flex items-center">
               <div className="w-10 h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
-                <div className="w-full h-full bg-white/95 dark:bg-black/95 rounded-[10px] flex items-center justify-center">
+                <div className="w-full h-full bg-white/95 dark:bg-[#111111]/95 rounded-[10px] flex items-center justify-center">
                   <Home className="w-6 h-6" stroke="url(#footerHomeGradient)" fill="none" strokeWidth="2" />
                   <svg width="0" height="0">
                     <defs>
@@ -695,7 +695,7 @@ export default function IndustriesPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+            className="relative bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
           >
             <button
               onClick={() => setIsContactModalOpen(false)}
@@ -748,7 +748,7 @@ export default function IndustriesPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+            className="relative bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
           >
             <button
               onClick={() => setIsSupportModalOpen(false)}
@@ -776,11 +776,11 @@ export default function IndustriesPage() {
               <select
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
               >
-                <option value="" className="bg-white dark:bg-black">Select Issue Type</option>
-                <option value="technical" className="bg-white dark:bg-black">Technical Issue</option>
-                <option value="billing" className="bg-white dark:bg-black">Billing Question</option>
-                <option value="feature" className="bg-white dark:bg-black">Feature Request</option>
-                <option value="other" className="bg-white dark:bg-black">Other</option>
+                <option value="" className="bg-white dark:bg-[#111111]">Select Issue Type</option>
+                <option value="technical" className="bg-white dark:bg-[#111111]">Technical Issue</option>
+                <option value="billing" className="bg-white dark:bg-[#111111]">Billing Question</option>
+                <option value="feature" className="bg-white dark:bg-[#111111]">Feature Request</option>
+                <option value="other" className="bg-white dark:bg-[#111111]">Other</option>
               </select>
               <textarea
                 placeholder="Describe your issue or question"

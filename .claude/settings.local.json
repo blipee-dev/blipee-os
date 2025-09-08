@@ -68,7 +68,13 @@
       "Bash(git pull:*)",
       "Bash(git restore:*)",
       "Bash(git merge:*)",
-      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_ghlbA8/**)"
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_ghlbA8/**)",
+      "Bash(if [ -f \"/Users/pedro/Documents/blipee/blipee-os/src/app/$page/page.tsx\" ])",
+      "Bash(then)",
+      "Bash(fi)",
+      "Bash(ls:*)",
+      "Bash(file=\"/Users/pedro/Documents/blipee/blipee-os/src/app/$page/page.tsx\")",
+      "Bash(if [ -f \"$file\" ])"
     ],
     "deny": [],
     "ask": []
