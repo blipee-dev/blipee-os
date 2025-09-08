@@ -301,7 +301,7 @@ export function RecoverySettings() {
                     <select
                       value={qa.question}
                       onChange={(e) => updateSecurityQuestion(index, 'question', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-transparent"
                     >
                       <option value="">Select a question...</option>
                       {COMMON_SECURITY_QUESTIONS.map((question, qIndex) => (
@@ -316,7 +316,7 @@ export function RecoverySettings() {
                       placeholder="Your answer..."
                       value={qa.answer}
                       onChange={(e) => updateSecurityQuestion(index, 'answer', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:border-transparent"
                     />
                   </div>
                 ))}

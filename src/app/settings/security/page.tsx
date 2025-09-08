@@ -262,13 +262,13 @@ export default function SecuritySettingsPage() {
               </p>
             </div>
             <div className="space-y-3">
-              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all">
+              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none transition-all">
                 Change Password
               </button>
-              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all">
+              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none transition-all">
                 Manage Trusted Devices
               </button>
-              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all">
+              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none transition-all">
                 View Login History
               </button>
             </div>

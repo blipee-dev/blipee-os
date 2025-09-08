@@ -520,7 +520,7 @@ function CTAAndFooterSection() {
                     placeholder="Your Name"
                     required
                     aria-required="true"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   />
                 </div>
                 <div>
@@ -531,7 +531,7 @@ function CTAAndFooterSection() {
                     placeholder="Email Address"
                     required
                     aria-required="true"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   />
                 </div>
                 <div>
@@ -540,7 +540,7 @@ function CTAAndFooterSection() {
                     id="contact-company"
                     type="text"
                     placeholder="Company"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   />
                 </div>
                 <div>
@@ -549,12 +549,12 @@ function CTAAndFooterSection() {
                     id="contact-message"
                     placeholder="Tell us about your sustainability goals"
                     rows={4}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none resize-none"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none resize-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[48px]"
+                  className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all min-h-[48px]"
                 >
                   Send Request
                 </button>
@@ -593,7 +593,7 @@ function CTAAndFooterSection() {
                     placeholder="Your Name"
                     required
                     aria-required="true"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   />
                 </div>
                 <div>
@@ -604,14 +604,14 @@ function CTAAndFooterSection() {
                     placeholder="Email Address"
                     required
                     aria-required="true"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   />
                 </div>
                 <div>
                   <label htmlFor="support-issue-type" className="sr-only">Issue Type</label>
                   <select
                     id="support-issue-type"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:border-purple-500 focus:outline-none min-h-[48px]"
                   >
                     <option value="" className="bg-white dark:bg-[#212121]">Select Issue Type</option>
                     <option value="technical" className="bg-white dark:bg-[#212121]">Technical Issue</option>
@@ -626,12 +626,12 @@ function CTAAndFooterSection() {
                     id="support-description"
                     placeholder="Describe your issue or question"
                     rows={4}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none resize-none"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none resize-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[48px]"
+                  className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all min-h-[48px]"
                 >
                   Submit Request
                 </button>
@@ -703,7 +703,7 @@ export default function LandingPage() {
       {/* Skip Navigation */}
       <a 
         href="#main-content" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 px-4 py-2 bg-purple-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 px-4 py-2 bg-purple-600 text-white rounded-lg"
       >
         Skip to main content
       </a>
@@ -712,7 +712,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#111111]/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
-            <Link href="/" className="flex items-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg" aria-label="Go to homepage">
+            <Link href="/" className="flex items-center rounded-lg" aria-label="Go to homepage">
               <div className="w-8 h-8 sm:w-10 sm:h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
                 <div className="w-full h-full bg-white/95 dark:bg-[#111111] rounded-[10px] flex items-center justify-center">
                   <Home className="w-5 h-5 sm:w-6 sm:h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" aria-hidden="true" />
@@ -737,7 +737,7 @@ export default function LandingPage() {
               <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-[1px] bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500">
                 <button
                   onClick={toggleTheme}
-                  className="w-full h-full rounded-full bg-white/95 dark:bg-[#111111] hover:bg-white/90 dark:hover:bg-[#111111]/90 transition-all flex items-center justify-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                  className="w-full h-full rounded-full bg-white/95 dark:bg-[#111111] hover:bg-white/90 dark:hover:bg-[#111111]/90 transition-all flex items-center justify-center"
                   aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
                 >
                 {isDarkMode ? (
@@ -769,7 +769,7 @@ export default function LandingPage() {
               </div>
               
               <Link href="/signin">
-                <button className="px-4 py-2 sm:px-6 sm:py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 text-sm sm:text-base min-h-[44px]">
+                <button className="px-4 py-2 sm:px-6 sm:py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all text-sm sm:text-base min-h-[44px]">
                   Sign In
                 </button>
               </Link>
@@ -777,7 +777,7 @@ export default function LandingPage() {
               {/* Menu button for all screen sizes */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 flex items-center justify-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg min-h-[44px] min-w-[44px]"
+                className="p-2 flex items-center justify-center rounded-lg min-h-[44px] min-w-[44px]"
                 aria-expanded={mobileMenuOpen}
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               >

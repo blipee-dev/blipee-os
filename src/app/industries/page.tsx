@@ -249,7 +249,7 @@ export default function IndustriesPage() {
       {/* Skip Navigation */}
       <a 
         href="#main-content" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 px-4 py-2 bg-purple-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 px-4 py-2 bg-purple-600 text-white rounded-lg"
       >
         Skip to main content
       </a>
@@ -258,7 +258,7 @@ export default function IndustriesPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#111111]/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
-            <Link href="/" className="flex items-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg" aria-label="Go to homepage">
+            <Link href="/" className="flex items-center rounded-lg" aria-label="Go to homepage">
               <div className="w-8 h-8 sm:w-10 sm:h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
                 <div className="w-full h-full bg-white/95 dark:bg-[#111111]/95 rounded-[10px] flex items-center justify-center">
                   <Home className="w-5 h-5 sm:w-6 sm:h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" aria-hidden="true" />

@@ -282,7 +282,7 @@ export default function OrganizationSettingsPage() {
             id="items-per-page"
             value={itemsPerPage[activeTab]}
             onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-            className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500"
+            className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg"
           >
             <option value={5}>5</option>
             <option value={10}>10</option>
@@ -453,7 +453,7 @@ export default function OrganizationSettingsPage() {
                 placeholder={`Search ${activeTab}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-transparent transition-all text-sm"
               />
             </Tooltip>
           </div>
