@@ -13,7 +13,7 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
-    <main className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
+    <main className="min-h-screen bg-white dark:bg-[#111111] transition-colors duration-300">
       {/* Main content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
@@ -27,7 +27,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl p-6 sm:p-8 lg:p-10"
+            className="bg-white dark:bg-[#212121] rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl p-6 sm:p-8 lg:p-10"
           >
             {/* Logo section */}
             <header className="text-center mb-6 sm:mb-8">
