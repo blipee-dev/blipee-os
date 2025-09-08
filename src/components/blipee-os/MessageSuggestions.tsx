@@ -21,8 +21,8 @@ export function MessageSuggestions({
           transition={{ delay: index * 0.05 }}
           onClick={() => onSelect(suggestion)}
           className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 
-            bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 
-            border border-gray-200 dark:border-gray-700 rounded-lg 
+            bg-white dark:bg-[#757575] hover:bg-gray-50 dark:hover:bg-gray-600 
+            border border-gray-200 dark:border-gray-600 rounded-lg 
             transition-colors"
         >
           {suggestion}
