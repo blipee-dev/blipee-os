@@ -12,8 +12,14 @@ class ModuleRegistry implements ModuleAPI {
       throw new Error(`Invalid module registration: ${module.id}`);
     }
 
-    // Check for conflicts
-    if (this.modules.has(module.id)) {
+    // Check if already registered
+    const alreadyRegistered = this.modules.has(module.id);
+    
+    if (alreadyRegistered) {
+      if (process.env.NODE_ENV === 'development') {
+        // Silent skip - this is expected in React StrictMode
+        return;
+      }
       console.warn(`Module ${module.id} is already registered. Updating.`);
     }
 
@@ -25,8 +31,8 @@ class ModuleRegistry implements ModuleAPI {
       this.activeModules.add(module.id);
     }
 
-    // Initialize services if provided
-    if (registration.initializeServices) {
+    // Initialize services if provided (only for new registrations)
+    if (registration.initializeServices && !alreadyRegistered) {
       registration.initializeServices().catch(error => {
         console.error(`Failed to initialize services for module ${module.id}:`, error);
       });

@@ -9,6 +9,18 @@ import { useAuth } from "@/lib/auth/context";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { MFAVerification } from "@/components/auth/mfa/MFAVerification";
 import { useSSOAuth } from "@/hooks/useSSOAuth";
+import dynamic from 'next/dynamic';
+
+// Preload the ConversationInterface component
+const preloadConversationInterface = () => {
+  const LazyConversationInterface = dynamic(
+    () => import('@/components/blipee-os/ConversationInterface').then(mod => mod.ConversationInterface),
+    { ssr: true }
+  );
+  if ('preload' in LazyConversationInterface && typeof LazyConversationInterface.preload === 'function') {
+    LazyConversationInterface.preload();
+  }
+};
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -37,6 +49,11 @@ export default function SignInPage() {
   // Check for SSO when email changes
   const handleEmailChange = async (value: string) => {
     setEmail(value);
+    
+    // Preload ConversationInterface when user starts typing (likely to sign in)
+    if (value.length === 1) {
+      preloadConversationInterface();
+    }
     
     // Check if SSO is required for this email domain
     if (value.includes('@') && value.split('@')[1]) {

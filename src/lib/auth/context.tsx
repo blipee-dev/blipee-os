@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await response.json();
         setSession(data.data);
       }
+      // 401 is expected when not authenticated - no need to log
     } catch (err) {
       console.error("Failed to load session:", err);
     } finally {

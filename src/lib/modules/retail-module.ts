@@ -41,13 +41,8 @@ async function initializeRetailServices(): Promise<void> {
   console.log('🛍️ Initializing Retail Intelligence services...');
   
   try {
-    // Test API health
-    const response = await fetch('/api/retail/v1/health');
-    if (!response.ok) {
-      throw new Error(`Health check failed: ${response.status}`);
-    }
-
-    console.log('✅ Retail Intelligence API is healthy');
+    // Skip health check during module initialization to avoid circular dependency
+    // Health checks can be performed after the server is fully started
     
     // Initialize any background services here
     // Example: WebSocket connections, data sync, etc.
