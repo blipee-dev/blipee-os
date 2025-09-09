@@ -273,6 +273,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
       }
 
       setSuccess(true);
+      console.log('Organization created successfully, calling onSuccess callback');
       setTimeout(() => {
         onSuccess?.();
         onClose();

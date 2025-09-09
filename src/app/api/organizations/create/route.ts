@@ -105,18 +105,26 @@ export async function POST(request: NextRequest) {
     }
     
     // Add current user as account owner
-    const { error: userOrgError } = await supabase
+    const { data: userOrgData, error: userOrgError } = await supabase
       .from('user_organizations')
       .insert({
         user_id: user.id,
         organization_id: org.id,
         role: 'account_owner'
-      });
+      })
+      .select()
+      .single();
     
     if (userOrgError) {
       console.error('Error adding user to organization:', userOrgError);
-      // Don't fail the whole operation if this fails
+      // Return error so user knows something went wrong
+      return NextResponse.json(
+        { error: `Organization created but failed to add user: ${userOrgError.message}` },
+        { status: 400 }
+      );
     }
+    
+    console.log('Successfully added user to organization:', userOrgData);
     
     return NextResponse.json({ 
       success: true, 
