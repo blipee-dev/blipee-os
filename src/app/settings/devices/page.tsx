@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+// Force recompilation
 import { redirect } from 'next/navigation';
 import DevicesClient from './DevicesClient';
 

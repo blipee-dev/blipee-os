@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Supabase Cookies</title>
+</head>
+<body>
+    <h1>Clearing Malformed Supabase Cookies...</h1>
+    <div id="status"></div>
+    <script>
+        // Clear all Supabase-related cookies
+        const cookies = document.cookie.split(';');
+        let cleared = [];
+        
+        cookies.forEach(cookie => {
+            const [name] = cookie.trim().split('=');
+            if (name && (name.includes('sb-') || name.includes('supabase') || name.includes('auth-token'))) {
+                // Clear cookie for all possible paths and domains
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=localhost;`;
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.localhost;`;
+                cleared.push(name);
+            }
+        });
+        
+        const statusEl = document.getElementById('status');
+        if (cleared.length > 0) {
+            statusEl.innerHTML = `<p>Cleared ${cleared.length} cookies:</p><ul>${cleared.map(c => `<li>${c}</li>`).join('')}</ul>`;
+        } else {
+            statusEl.innerHTML = '<p>No Supabase cookies found to clear.</p>';
+        }
+        
+        statusEl.innerHTML += '<p><a href="/">Return to app</a></p>';
+        
+        // Also clear localStorage
+        Object.keys(localStorage).forEach(key => {
+            if (key.includes('supabase') || key.includes('sb-')) {
+                localStorage.removeItem(key);
+                console.log('Removed localStorage:', key);
+            }
+        });
+        
+        // Clear sessionStorage
+        Object.keys(sessionStorage).forEach(key => {
+            if (key.includes('supabase') || key.includes('sb-')) {
+                sessionStorage.removeItem(key);
+                console.log('Removed sessionStorage:', key);
+            }
+        });
+    </script>
+</body>
+</html>
