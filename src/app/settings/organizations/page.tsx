@@ -206,7 +206,8 @@ export default function OrganizationSettingsPage() {
   // Pagination Component
   const PaginationControls = () => {
     return (
-      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-4 p-3 sm:p-4 border-t border-gray-200 dark:border-white/[0.05] bg-gray-50 dark:bg-[#111111] rounded-b-lg mt-auto">
+      <div className="mt-auto border-t border-gray-200 dark:border-white/[0.05] bg-gray-50 dark:bg-[#111111] rounded-b-lg p-3 sm:p-4">
+        <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <label htmlFor="items-per-page" className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
@@ -307,6 +308,7 @@ export default function OrganizationSettingsPage() {
           </div>
         )}
       </nav>
+      </div>
     );
   };
 
@@ -369,7 +371,7 @@ export default function OrganizationSettingsPage() {
         </div>
 
         {/* Table Content */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] min-h-[700px] flex flex-col">
+        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] h-[700px] flex flex-col">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
@@ -385,19 +387,21 @@ export default function OrganizationSettingsPage() {
               </button>
             </div>
           ) : filteredOrganizations.length === 0 ? (
-            <div className="text-center py-12">
-              <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">No organizations found</p>
-              <button 
-                onClick={handleAdd}
-                className="mt-4 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:opacity-90"
-              >
-                Create Your First Organization
-              </button>
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No organizations found</p>
+                <button 
+                  onClick={handleAdd}
+                  className="mt-4 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:opacity-90"
+                >
+                  Create Your First Organization
+                </button>
+              </div>
             </div>
           ) : (
-            <div className="flex flex-col h-full justify-between">
-              <div className="overflow-x-auto">
+            <div className="flex flex-col h-full">
+              <div className="flex-1 overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-[#111111] border-b border-gray-200 dark:border-white/[0.05]">
                     <tr>
