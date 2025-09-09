@@ -459,7 +459,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                         value={formData.slug}
                         onChange={handleChange}
                         required
-                        pattern="^[a-z0-9-]+$"
+                        pattern="[a-z0-9-]+"
                         className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                       />
                     </div>

@@ -115,6 +115,7 @@ ALTER TABLE devices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_users ENABLE ROW LEVEL SECURITY;
 
 -- Organizations policies
+DROP POLICY IF EXISTS "Users can view their organizations" ON organizations;
 CREATE POLICY "Users can view their organizations" ON organizations
   FOR SELECT USING (
     id IN (
@@ -123,6 +124,7 @@ CREATE POLICY "Users can view their organizations" ON organizations
     )
   );
 
+DROP POLICY IF EXISTS "Account owners can update their organizations" ON organizations;
 CREATE POLICY "Account owners can update their organizations" ON organizations
   FOR UPDATE USING (
     id IN (
@@ -131,10 +133,12 @@ CREATE POLICY "Account owners can update their organizations" ON organizations
     )
   );
 
+DROP POLICY IF EXISTS "Account owners can insert organizations" ON organizations;
 CREATE POLICY "Account owners can insert organizations" ON organizations
   FOR INSERT WITH CHECK (true); -- Anyone can create an org, they become the owner
 
 -- Sites policies
+DROP POLICY IF EXISTS "Users can view sites in their organizations" ON sites;
 CREATE POLICY "Users can view sites in their organizations" ON sites
   FOR SELECT USING (
     organization_id IN (
@@ -143,6 +147,7 @@ CREATE POLICY "Users can view sites in their organizations" ON sites
     )
   );
 
+DROP POLICY IF EXISTS "Managers can manage sites" ON sites;
 CREATE POLICY "Managers can manage sites" ON sites
   FOR ALL USING (
     organization_id IN (
@@ -152,6 +157,7 @@ CREATE POLICY "Managers can manage sites" ON sites
   );
 
 -- Devices policies
+DROP POLICY IF EXISTS "Users can view devices in their organizations" ON devices;
 CREATE POLICY "Users can view devices in their organizations" ON devices
   FOR SELECT USING (
     site_id IN (
@@ -162,6 +168,7 @@ CREATE POLICY "Users can view devices in their organizations" ON devices
     )
   );
 
+DROP POLICY IF EXISTS "Managers can manage devices" ON devices;
 CREATE POLICY "Managers can manage devices" ON devices
   FOR ALL USING (
     site_id IN (
@@ -173,6 +180,7 @@ CREATE POLICY "Managers can manage devices" ON devices
   );
 
 -- App users policies
+DROP POLICY IF EXISTS "Users can view users in their organizations" ON app_users;
 CREATE POLICY "Users can view users in their organizations" ON app_users
   FOR SELECT USING (
     organization_id IN (
@@ -181,6 +189,7 @@ CREATE POLICY "Users can view users in their organizations" ON app_users
     )
   );
 
+DROP POLICY IF EXISTS "Admins can manage users" ON app_users;
 CREATE POLICY "Admins can manage users" ON app_users
   FOR ALL USING (
     organization_id IN (
