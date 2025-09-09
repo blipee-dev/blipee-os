@@ -17,7 +17,7 @@ const recordMetric = (name: string, value: number, labels?: Record<string, strin
 
 // Routes that require authentication
 const protectedRoutes = [
-  '/dashboard',
+  '/blipee-ai',
   '/settings',
   '/api/ai',
   '/api/organizations',

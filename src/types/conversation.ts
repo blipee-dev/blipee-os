@@ -12,6 +12,12 @@ export interface Message {
     size: number;
     url?: string;
   }>;
+  artifact?: {
+    type: "code" | "document" | "chart" | "table";
+    title: string;
+    language?: string;
+    content: string;
+  };
 }
 
 export interface UIComponent {
