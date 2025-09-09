@@ -248,21 +248,20 @@ async function joinNetworkIntelligence(req: NextRequest, context: any) {
         consented_by: user.id
       });
 
-    // Log joining event
-    await supabase
-      .from('audit_logs')
-      .insert({
-        organization_id: user.organizationId,
-        user_id: user.id,
-        action: 'network_joined',
-        resource_type: 'network_intelligence',
-        resource_id: anonymousId,
-        metadata: {
-          industry,
-          size_category: sizeCategory,
-          geographic_region: geographicRegion
-        }
-      });
+    // Log joining event (with error handling for RLS policy)
+    const { safeAuditLog } = await import('@/lib/utils/audit-helpers');
+    await safeAuditLog({
+      organization_id: user.organizationId,
+      user_id: user.id,
+      action: 'network_joined',
+      resource_type: 'network_intelligence',
+      resource_id: anonymousId,
+      metadata: {
+        industry,
+        size_category: sizeCategory,
+        geographic_region: geographicRegion
+      }
+    });
 
     // Get initial network insights
     console.log('🔍 Generating welcome insights...');

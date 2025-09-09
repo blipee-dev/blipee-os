@@ -94,7 +94,16 @@ export class RateLimitService {
           password: this.config.redis.password,
           tls: this.config.redis.tls ? {} : undefined,
           keyPrefix: this.config.redis.keyPrefix,
+          maxRetriesPerRequest: 3, // Limit retries to prevent flooding
+          enableReadyCheck: true,
+          connectTimeout: 5000, // 5 second connection timeout
+          commandTimeout: 5000, // 5 second command timeout
           retryStrategy: (times) => {
+            // In development, limit retries to avoid log flooding
+            if (process.env.NODE_ENV !== 'production' && times > 5) {
+              console.log('Redis rate limiting not available, using in-memory');
+              return null; // Stop retrying
+            }
             const delay = Math.min(times * 50, 2000);
             return delay;
           },
