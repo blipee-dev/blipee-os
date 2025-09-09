@@ -88,7 +88,7 @@ export default function CookiePolicyPage() {
                       type="checkbox"
                       checked={cookieSettings.essential}
                       disabled
-                      className="w-5 h-5 text-pink-600 bg-gray-800 border-gray-600 rounded focus:ring-pink-500 focus:ring-2"
+                      className="w-5 h-5 text-pink-600 bg-gray-800 border-gray-600 rounded focus:ring-pink-500"
                     />
                     <span className="ml-2 text-gray-400 text-sm">Always Active</span>
                   </div>

@@ -1,6 +1,7 @@
 import { Message } from "@/types/conversation";
 import {
   User,
+  Home,
   Sparkles,
   FileText,
   Image,
@@ -63,7 +64,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               {isUser ? (
                 <User className="w-5 h-5 text-white dark:text-gray-900" />
               ) : (
-                <Sparkles className="w-5 h-5 text-white" />
+                <Home className="w-5 h-5 text-white" />
               )}
             </div>
           </div>
