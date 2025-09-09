@@ -206,7 +206,7 @@ export default function OrganizationSettingsPage() {
   // Pagination Component
   const PaginationControls = () => {
     return (
-      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-4 p-3 sm:p-4 border-t border-gray-200 dark:border-white/[0.05] bg-gray-50 dark:bg-[#111111] rounded-b-lg flex-shrink-0">
+      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-4 p-3 sm:p-4 border-t border-gray-200 dark:border-white/[0.05] bg-gray-50 dark:bg-[#111111] rounded-b-lg mt-auto">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <label htmlFor="items-per-page" className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
@@ -396,8 +396,8 @@ export default function OrganizationSettingsPage() {
               </button>
             </div>
           ) : (
-            <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-x-auto rounded-t-lg">
+            <div className="flex flex-col h-full justify-between">
+              <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-[#111111] border-b border-gray-200 dark:border-white/[0.05]">
                     <tr>
