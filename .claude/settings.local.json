@@ -81,7 +81,15 @@
       "Read(//Users/pedro/Downloads/**)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_mSvuVC/**)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_sL3oIf/**)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(open http://localhost:3000/blipee-ai)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_1g8Qcp/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_8t9EWD/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_LVkV8m/**)",
+      "Bash(npx supabase:*)",
+      "WebSearch",
+      "Bash(open http://localhost:3000/settings/organizations)",
+      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/api/admin/organization-invitations/route.ts)"
     ],
     "deny": [],
     "ask": []

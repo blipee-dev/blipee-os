@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
       success: true,
       data: session,
     });
-  } catch (error: any) {
-    console.error('Error:', error);
+  } catch (error) {
+    console.error('Session retrieval error:', error);
 
     return NextResponse.json(
       {

@@ -28,69 +28,71 @@ export default function DashboardPage() {
 
   return (
     <div className="h-full relative">
-      {/* Quick stats banner - only show for users with data */}
+      {/* Quick stats banner - responsive for mobile */}
       {!isNewUser && (
         <div className="absolute top-0 left-0 right-0 z-10 backdrop-blur-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-500/[0.05] dark:to-emerald-500/[0.05] border-b border-green-200/50 dark:border-white/[0.05]">
-        <div className="px-6 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-green-100 dark:bg-green-500/[0.1] rounded-lg flex items-center justify-center">
-                  <TrendingDown className="w-5 h-5 text-green-600 dark:text-green-400" />
+          <div className="px-3 sm:px-6 py-2 sm:py-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              {/* Stats - Stack on mobile, horizontal on desktop */}
+              <div className="flex flex-wrap items-center gap-3 sm:gap-6 w-full sm:w-auto">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 dark:bg-green-500/[0.1] rounded-lg flex items-center justify-center">
+                    <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white/60">
+                      Monthly Reduction
+                    </p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
+                      -12.3%
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-600 dark:text-white/60">
-                    Monthly Reduction
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    -12.3%
-                  </p>
+
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-100 dark:bg-emerald-500/[0.1] rounded-lg flex items-center justify-center">
+                    <Target className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white/60">
+                      Target Progress
+                    </p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
+                      67%
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-teal-100 dark:bg-teal-500/[0.1] rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 dark:text-teal-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white/60">
+                      Reports Ready
+                    </p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
+                      3 new
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-500/[0.1] rounded-lg flex items-center justify-center">
-                  <Target className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600 dark:text-white/60">
-                    Target Progress
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    67%
-                  </p>
-                </div>
+              {/* Platform Badge - Hidden on mobile, shown on sm+ */}
+              <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-white/50">
+                <Leaf className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 dark:text-green-400" />
+                <span className="hidden md:inline">Sustainability First Platform</span>
               </div>
-
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-teal-100 dark:bg-teal-500/[0.1] rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600 dark:text-white/60">
-                    Reports Ready
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    3 new
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/50">
-              <Leaf className="w-4 h-4 text-green-500 dark:text-green-400" />
-              <span>Sustainability First Platform</span>
             </div>
           </div>
         </div>
-      </div>
       )}
 
       {/* Main conversation interface with padding for stats banner */}
-      <div className={`h-full ${!isNewUser ? 'pt-16' : ''}`}>
+      <div className={`h-full ${!isNewUser ? 'pt-12 sm:pt-16' : ''}`}>
         <Suspense fallback={
           <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-purple-500" />
           </div>
         }>
           <LazyConversationInterface buildingContext={sustainabilityContext} />
