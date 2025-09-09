@@ -193,19 +193,18 @@ async function handleOAuthCallback(req: NextRequest, context: any) {
       }
 
       // Log successful OAuth completion
-      await supabase
-        .from('audit_logs')
-        .insert({
-          organization_id: organizationId,
-          user_id: userId,
-          action: 'integration_oauth_completed',
-          resource_type: 'integration',
-          resource_id: installation.id,
-          metadata: {
-            integration_id: integrationId,
-            connection_test_passed: connectionTest.success
-          }
-        });
+      const { safeAuditLog } = await import('@/lib/utils/audit-helpers');
+      await safeAuditLog({
+        organization_id: organizationId,
+        user_id: userId,
+        action: 'integration_oauth_completed',
+        resource_type: 'integration',
+        resource_id: installation.id,
+        metadata: {
+          integration_id: integrationId,
+          connection_test_passed: connectionTest.success
+        }
+      });
 
       // Redirect to success page
       const successPage = new URL('/integrations/oauth-success', req.url);
@@ -217,18 +216,17 @@ async function handleOAuthCallback(req: NextRequest, context: any) {
       console.error('OAuth token exchange failed:', tokenError);
       
       // Log failed OAuth attempt
-      await supabase
-        .from('audit_logs')
-        .insert({
-          organization_id: organizationId,
-          user_id: userId,
-          action: 'integration_oauth_failed',
-          resource_type: 'integration',
-          resource_id: integrationId,
-          metadata: {
-            error: tokenError instanceof Error ? tokenError.message : 'Unknown error'
-          }
-        });
+      const { safeAuditLog } = await import('@/lib/utils/audit-helpers');
+      await safeAuditLog({
+        organization_id: organizationId,
+        user_id: userId,
+        action: 'integration_oauth_failed',
+        resource_type: 'integration',
+        resource_id: integrationId,
+        metadata: {
+          error: tokenError instanceof Error ? tokenError.message : 'Unknown error'
+        }
+      });
 
       const errorPage = new URL('/integrations/oauth-error', req.url);
       errorPage.searchParams.set('error', 'token_exchange_failed');
