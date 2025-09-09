@@ -108,12 +108,6 @@ export function MobileNavigation({ onNewChat }: MobileNavigationProps) {
               >
                 <div className={`relative ${isActive ? "text-purple-500" : "text-gray-500 dark:text-gray-400"}`}>
                   <Icon className="w-6 h-6" />
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-purple-500 rounded-full"
-                    />
-                  )}
                 </div>
                 <span className={`text-[10px] mt-1 ${
                   isActive ? "text-purple-500 font-medium" : "text-gray-500 dark:text-gray-400"
