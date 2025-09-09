@@ -31,8 +31,17 @@ export const sustainabilityModule = {
 import { moduleRegistry } from './registry';
 import { retailModuleRegistration } from './retail-module';
 
+// Track initialization state
+let isInitialized = false;
+
 // Initialize module system
 export function initializeModuleSystem() {
+  // Prevent double initialization in React StrictMode
+  if (isInitialized) {
+    console.log('📦 Module system already initialized');
+    return;
+  }
+  
   console.log('🚀 Initializing Module System...');
   
   // Register core sustainability module
@@ -46,6 +55,7 @@ export function initializeModuleSystem() {
   // Register retail module
   moduleRegistry.register(retailModuleRegistration);
 
+  isInitialized = true;
   console.log('✅ Module system initialized');
   console.log('📦 Active modules:', moduleRegistry.getActiveModules().map(m => m.name));
 }

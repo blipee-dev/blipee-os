@@ -80,7 +80,22 @@ export class SessionService {
           password: this.config.redis.password,
           tls: this.config.redis.tls ? {} : undefined,
           keyPrefix: this.config.redis.keyPrefix,
+          maxRetriesPerRequest: 3, // Limit retries per request to prevent flooding
+          enableReadyCheck: true,
+          connectTimeout: 5000, // 5 second connection timeout
+          commandTimeout: 5000, // 5 second command timeout
           retryStrategy: (times) => {
+            // In development, limit retries to avoid log flooding
+            if (process.env.NODE_ENV !== 'production' && times > 5) {
+              console.log('Redis not available after 5 attempts, using in-memory sessions');
+              return null; // Stop retrying
+            }
+            // In production, keep retrying with exponential backoff
+            if (times > 10) {
+              // After 10 attempts, retry every 30 seconds
+              return 30000;
+            }
+            // Exponential backoff: 50ms, 100ms, 200ms, 400ms, 800ms, 1600ms, 2000ms...
             const delay = Math.min(times * 50, 2000);
             return delay;
           },
@@ -94,8 +109,13 @@ export class SessionService {
           },
         });
 
-        // Test connection
-        await this.redis.ping();
+        // Test connection with timeout
+        await Promise.race([
+          this.redis.ping(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Redis connection timeout')), 5000)
+          )
+        ]);
         console.log('Redis session store connected');
       }
     } catch (error) {
