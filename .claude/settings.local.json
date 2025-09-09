@@ -92,7 +92,8 @@
       "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/api/admin/organization-invitations/route.ts)",
       "Bash(gh pr create:*)",
       "Bash(gh pr view:*)",
-      "Bash(gh pr comment:*)"
+      "Bash(gh pr comment:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_Hls8Ge/**)"
     ],
     "deny": [],
     "ask": []

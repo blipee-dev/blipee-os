@@ -312,9 +312,9 @@ export default function OrganizationSettingsPage() {
 
   return (
     <SettingsLayout pageTitle="Organizations">
-      <div className="p-4 sm:p-6">
+      <div className="flex flex-col h-full p-4 sm:p-6">
         {/* Header - Hidden on mobile */}
-        <header className="hidden md:block mb-6">
+        <header className="hidden md:block mb-6 flex-shrink-0">
           <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
             Organization Management
           </h1>
@@ -324,7 +324,7 @@ export default function OrganizationSettingsPage() {
         </header>
 
         {/* Search Bar with Actions - New Design */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6 flex-shrink-0">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#757575]" />
             <input
@@ -369,7 +369,7 @@ export default function OrganizationSettingsPage() {
         </div>
 
         {/* Table Content */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] overflow-hidden">
+        <div className="flex-1 bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] overflow-hidden flex flex-col min-h-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
@@ -397,7 +397,7 @@ export default function OrganizationSettingsPage() {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              <div className="flex-1 overflow-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-[#111111] border-b border-gray-200 dark:border-white/[0.05]">
                     <tr>
