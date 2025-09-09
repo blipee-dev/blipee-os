@@ -35,6 +35,7 @@ export default function OrganizationSettingsPage() {
 
   // Fetch organizations from database
   const fetchOrganizations = async () => {
+    console.log('Fetching organizations...');
     try {
       setLoading(true);
       setError(null);
@@ -109,12 +110,14 @@ export default function OrganizationSettingsPage() {
         org.users = usersCount || 0;
       }
 
+      console.log('Setting organizations state with:', orgs);
       setOrganizations(orgs);
     } catch (err) {
       console.error('Error fetching organizations:', err);
       setError('Failed to load organizations');
     } finally {
       setLoading(false);
+      console.log('Fetch complete, loading set to false');
     }
   };
 
@@ -193,10 +196,11 @@ export default function OrganizationSettingsPage() {
     setModalMode("create");
   };
 
-  const handleModalSuccess = () => {
+  const handleModalSuccess = async () => {
+    console.log('Modal success callback triggered, refreshing organizations...');
     handleModalClose();
-    // Refresh data
-    fetchOrganizations();
+    // Refresh data immediately
+    await fetchOrganizations();
   };
 
   // Pagination Component

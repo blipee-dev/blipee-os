@@ -274,10 +274,16 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
 
       setSuccess(true);
       console.log('Organization created successfully, calling onSuccess callback');
+      
+      // Call onSuccess immediately to refresh the list
+      if (onSuccess) {
+        await onSuccess();
+      }
+      
+      // Then close the modal after a short delay to show success message
       setTimeout(() => {
-        onSuccess?.();
         onClose();
-      }, 2000);
+      }, 1500);
 
     } catch (err: any) {
       console.error("Error creating organization:", err);
