@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { GradientButton } from '@/components/premium/GradientButton';
+import { CustomDropdown } from '@/components/ui/CustomDropdown';
 import { 
   ArrowLeft, 
   Clock, 
@@ -412,15 +413,15 @@ export default function WebhookDetailPage() {
             </div>
             
             {/* Status Filter */}
-            <select
+            <CustomDropdown
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as 'all' | 'success' | 'failed')}
-              className="px-3 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:border-purple-500 focus:outline-none text-sm"
-            >
-              <option value="all">All Status</option>
-              <option value="success">Success</option>
-              <option value="failed">Failed</option>
-            </select>
+              onChange={(value) => setFilterStatus(value as 'all' | 'success' | 'failed')}
+              options={[
+                { value: "all", label: "All Status" },
+                { value: "success", label: "Success" },
+                { value: "failed", label: "Failed" }
+              ]}
+            />
             
             <button
               onClick={loadDeliveries}

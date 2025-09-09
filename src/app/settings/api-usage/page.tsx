@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { Activity, TrendingUp, Clock, AlertTriangle, Calendar, BarChart3, Zap, Globe } from 'lucide-react';
+import { CustomDropdown } from '@/components/ui/CustomDropdown';
 import { motion } from 'framer-motion';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import {
@@ -168,35 +169,28 @@ export default function APIUsagePage() {
             
             <div className="flex items-center gap-4">
               {/* API Key Filter */}
-              <select
+              <CustomDropdown
                 value={selectedKey}
-                onChange={(e) => setSelectedKey(e.target.value)}
-                className="px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:border-purple-500 focus:outline-none"
-              >
-                <option value="all">All API Keys</option>
-                {apiKeys.map((key) => (
-                  <option key={key.id} value={key.id}>
-                    {key.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => setSelectedKey(value as string)}
+                options={[
+                  { value: "all", label: "All API Keys" },
+                  ...apiKeys.map((key) => ({
+                    value: key.id,
+                    label: key.name
+                  }))
+                ]}
+              />
               
               {/* Time Range Selector */}
-              <div className="flex gap-2">
-                {(['24h', '7d', '30d'] as const).map((range) => (
-                  <button
-                    key={range}
-                    onClick={() => setTimeRange(range)}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
-                      timeRange === range
-                        ? 'bg-purple-500/20 text-purple-400 border border-purple-500/50'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                    }`}
-                  >
-                    {range === '24h' ? '24 Hours' : range === '7d' ? '7 Days' : '30 Days'}
-                  </button>
-                ))}
-              </div>
+              <CustomDropdown
+                value={timeRange}
+                onChange={(value) => setTimeRange(value as '24h' | '7d' | '30d')}
+                options={[
+                  { value: "24h", label: "24 Hours" },
+                  { value: "7d", label: "7 Days" },
+                  { value: "30d", label: "30 Days" }
+                ]}
+              />
             </div>
           </div>
         </GlassCard>

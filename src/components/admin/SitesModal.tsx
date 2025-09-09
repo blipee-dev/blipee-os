@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MapPin, Building2, Wifi, AlertCircle, CheckCircle, Plus, Trash2 } from "lucide-react";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
 
 interface SitesModalProps {
   isOpen: boolean;
@@ -195,20 +196,20 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Site Type
                     </label>
-                    <select
+                    <CustomDropdown
                       value={formData.type}
-                      onChange={(e) => setFormData({...formData, type: e.target.value})}
-                      readOnly={mode === 'view'}
-                      className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="office">Office</option>
-                      <option value="warehouse">Warehouse</option>
-                      <option value="retail">Retail</option>
-                      <option value="industrial">Industrial</option>
-                      <option value="healthcare">Healthcare</option>
-                      <option value="manufacturing">Manufacturing</option>
-                      <option value="datacenter">Data Center</option>
-                    </select>
+                      onChange={(value) => setFormData({...formData, type: value as string})}
+                      options={[
+                        { value: "office", label: "Office" },
+                        { value: "warehouse", label: "Warehouse" },
+                        { value: "retail", label: "Retail" },
+                        { value: "industrial", label: "Industrial" },
+                        { value: "healthcare", label: "Healthcare" },
+                        { value: "manufacturing", label: "Manufacturing" },
+                        { value: "datacenter", label: "Data Center" }
+                      ]}
+                      className="w-full"
+                    />
                   </div>
                   
                   <div>
