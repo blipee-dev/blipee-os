@@ -69,7 +69,7 @@ function SSOErrorContent() {
         <div className="space-y-3">
           <button
             onClick={() => router.push('/signin')}
-            className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transform transition-all hover:scale-[1.02] active:scale-[0.98] font-medium shadow-lg"
+            className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 focus:outline-none transform transition-all hover:scale-[1.02] active:scale-[0.98] font-medium shadow-lg"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Sign In

@@ -210,9 +210,7 @@ export default function SignInPage() {
             Email
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail className="h-4 w-4 text-gray-400 dark:text-white/40" />
-            </div>
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60 dark:text-white/60 pointer-events-none z-10" />
             <input
               id="email"
               type="email"
@@ -221,7 +219,7 @@ export default function SignInPage() {
               required
               disabled={checkingSSO}
               autoComplete="email"
-              className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-white/10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-white/10 transition-all disabled:opacity-50 backdrop-blur focus:outline-none"
+              className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-gray-600 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-[#616161] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-[#757575] transition-all disabled:opacity-50 focus:outline-none"
               aria-label="Email address"
               aria-required="true"
               aria-invalid={error ? "true" : "false"}
@@ -240,9 +238,7 @@ export default function SignInPage() {
             Password
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock className="h-4 w-4 text-gray-400 dark:text-white/40" />
-            </div>
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60 dark:text-white/60 pointer-events-none z-10" />
             <input
               id="password"
               type={showPassword ? "text" : "password"}
@@ -250,7 +246,7 @@ export default function SignInPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
-              className="block w-full pl-9 sm:pl-10 pr-12 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-white/10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-white/10 transition-all backdrop-blur focus:outline-none"
+              className="block w-full pl-9 sm:pl-10 pr-12 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-gray-600 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-[#616161] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-[#757575] transition-all focus:outline-none"
               aria-label="Password"
               aria-required="true"
               placeholder="••••••••"
@@ -258,7 +254,7 @@ export default function SignInPage() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-600 focus:outline-none rounded"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
@@ -294,7 +290,7 @@ export default function SignInPage() {
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 text-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 border-gray-300 rounded accent-purple-600"
+              className="h-4 w-4 text-purple-600 border-gray-300 rounded accent-purple-600"
             />
             <label
               htmlFor="remember-me"
@@ -305,7 +301,7 @@ export default function SignInPage() {
           </div>
           <Link
             href="/forgot-password"
-            className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 rounded px-1"
+            className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors focus:outline-none rounded px-1"
           >
             Forgot password?
           </Link>
@@ -315,7 +311,7 @@ export default function SignInPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center px-4 py-2.5 sm:py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm sm:text-base rounded-lg sm:rounded-xl hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-[1.01] active:scale-[0.99] font-semibold shadow-xl shadow-purple-500/25"
+          className="w-full flex items-center justify-center px-4 py-2.5 sm:py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm sm:text-base rounded-lg sm:rounded-xl hover:from-pink-600 hover:to-purple-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-[1.01] active:scale-[0.99] font-semibold shadow-xl shadow-purple-500/25"
           aria-label="Sign in to your account"
         >
           {loading ? (

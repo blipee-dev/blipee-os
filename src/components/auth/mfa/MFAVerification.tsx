@@ -83,7 +83,7 @@ export function MFAVerification({ challengeId, onSuccess, onCancel }: MFAVerific
             placeholder="000000"
             value={code}
             onChange={(e) => handleCodeChange(e.target.value)}
-            className="block w-full px-4 py-4 text-center text-3xl font-mono tracking-widest border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            className="block w-full px-4 py-4 text-center text-3xl font-mono tracking-widest border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-transparent transition-all"
             maxLength={6}
             autoFocus
             disabled={loading}
@@ -97,7 +97,7 @@ export function MFAVerification({ challengeId, onSuccess, onCancel }: MFAVerific
             checked={rememberDevice}
             onChange={(e) => setRememberDevice(e.target.checked)}
             disabled={loading}
-            className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded accent-purple-600"
+            className="h-4 w-4 text-purple-600 border-gray-300 rounded accent-purple-600"
           />
           <label
             htmlFor="remember"
@@ -111,7 +111,7 @@ export function MFAVerification({ challengeId, onSuccess, onCancel }: MFAVerific
           <button
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>

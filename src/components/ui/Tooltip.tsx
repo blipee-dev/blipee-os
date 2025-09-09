@@ -121,23 +121,6 @@ export default function Tooltip({
     }
   };
 
-  const getArrowStyles = () => {
-    const baseStyles = "absolute w-2 h-2 bg-gray-900 dark:bg-gray-800 transform rotate-45";
-    
-    switch (position) {
-      case "top":
-        return `${baseStyles} -bottom-1 left-1/2 -translate-x-1/2`;
-      case "bottom":
-        return `${baseStyles} -top-1 left-1/2 -translate-x-1/2`;
-      case "left":
-        return `${baseStyles} -right-1 top-1/2 -translate-y-1/2`;
-      case "right":
-        return `${baseStyles} -left-1 top-1/2 -translate-y-1/2`;
-      default:
-        return baseStyles;
-    }
-  };
-
   return (
     <>
       <div
@@ -162,9 +145,8 @@ export default function Tooltip({
             style={getTooltipStyles()}
             className={className}
           >
-            <div className="relative px-2 py-1.5 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded-lg shadow-lg whitespace-nowrap max-w-xs">
+            <div className="relative px-2 py-1.5 bg-[#212121] dark:bg-[#212121] text-white text-xs rounded-lg shadow-lg whitespace-nowrap max-w-xs">
               {content}
-              <div className={getArrowStyles()} />
             </div>
           </motion.div>
         )}

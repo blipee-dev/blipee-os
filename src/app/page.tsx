@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useTheme } from "@/providers/ThemeProvider";
+import Tooltip from "@/components/ui/Tooltip";
 import {
   Home,
   Sparkles,
@@ -158,7 +159,7 @@ function FeaturesSection() {
   ];
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-black">
+    <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#111111]">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -189,7 +190,7 @@ function FeaturesSection() {
               className={index === features.length - 1 && features.length % 2 !== 0 ? "sm:col-span-2 lg:col-span-1" : ""}
               role="listitem"
             >
-              <article className="bg-black/[0.02] dark:bg-white/[0.02] backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg sm:shadow-xl border border-black/[0.05] dark:border-white/[0.05] hover:shadow-2xl transition-all group h-full focus-within:ring-2 focus-within:ring-purple-500 focus-within:ring-offset-2">
+              <article className="bg-white dark:bg-[#212121] rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg sm:shadow-xl border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all group h-full">
                 <div
                   className={`w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r ${feature.gradient} rounded-lg sm:rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform`}
                   aria-hidden="true"
@@ -284,7 +285,7 @@ function UseCasesSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               className="group"
             >
-              <div className="h-full bg-black/[0.02] dark:bg-white/[0.02] backdrop-blur-sm rounded-xl p-4 border border-black/[0.05] dark:border-white/[0.05] hover:border-black/[0.1] dark:hover:border-white/[0.1] transition-all">
+              <div className="h-full bg-white dark:bg-[#212121] rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-3">
                   <div
@@ -304,7 +305,7 @@ function UseCasesSection() {
                 <div className="space-y-2.5">
                   {/* User Message */}
                   <div className="flex justify-end">
-                    <div className="max-w-[85%] bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-xl border border-purple-500/30 rounded-xl rounded-tr-sm px-3.5 py-2">
+                    <div className="max-w-[85%] bg-[#616161] dark:bg-[#616161] border border-gray-600 dark:border-gray-600 rounded-xl rounded-tr-sm px-3.5 py-2">
                       <p className="text-sm text-gray-700 dark:text-gray-300">
                         {useCase.query}
                       </p>
@@ -315,7 +316,7 @@ function UseCasesSection() {
                   <div className="flex justify-start">
                     <div className="max-w-[85%]">
                       <div className={`bg-gradient-to-r ${useCase.gradient} p-[1px] rounded-xl rounded-tl-sm`}>
-                        <div className="bg-white/90 dark:bg-black/90 backdrop-blur-xl rounded-xl rounded-tl-sm px-3.5 py-2">
+                        <div className="bg-white dark:bg-[#212121] rounded-xl rounded-tl-sm px-3.5 py-2">
                           <p className="text-sm text-gray-700 dark:text-gray-300 leading-snug">
                             {useCase.response}
                           </p>
@@ -442,7 +443,7 @@ function CTAAndFooterSection() {
   const [showSupportModal, setShowSupportModal] = useState(false);
 
   return (
-    <div className="bg-white dark:bg-black">
+    <div className="bg-white dark:bg-[#111111]">
       {/* CTA Section */}
       <div className="relative overflow-hidden py-20 lg:py-24 bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
@@ -497,7 +498,7 @@ function CTAAndFooterSection() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="relative bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+              className="relative bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-2xl p-8 max-w-md w-full shadow-2xl"
             >
               <button
                 onClick={() => setShowContactModal(false)}
@@ -520,7 +521,7 @@ function CTAAndFooterSection() {
                     placeholder="Your Name"
                     required
                     aria-required="true"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   />
                 </div>
                 <div>
@@ -531,7 +532,7 @@ function CTAAndFooterSection() {
                     placeholder="Email Address"
                     required
                     aria-required="true"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   />
                 </div>
                 <div>
@@ -540,7 +541,7 @@ function CTAAndFooterSection() {
                     id="contact-company"
                     type="text"
                     placeholder="Company"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   />
                 </div>
                 <div>
@@ -549,12 +550,12 @@ function CTAAndFooterSection() {
                     id="contact-message"
                     placeholder="Tell us about your sustainability goals"
                     rows={4}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none resize-none"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none resize-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[48px]"
+                  className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all min-h-[48px]"
                 >
                   Send Request
                 </button>
@@ -570,7 +571,7 @@ function CTAAndFooterSection() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="relative bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+              className="relative bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-2xl p-8 max-w-md w-full shadow-2xl"
             >
               <button
                 onClick={() => setShowSupportModal(false)}
@@ -593,7 +594,7 @@ function CTAAndFooterSection() {
                     placeholder="Your Name"
                     required
                     aria-required="true"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   />
                 </div>
                 <div>
@@ -604,20 +605,20 @@ function CTAAndFooterSection() {
                     placeholder="Email Address"
                     required
                     aria-required="true"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none min-h-[48px]"
                   />
                 </div>
                 <div>
                   <label htmlFor="support-issue-type" className="sr-only">Issue Type</label>
                   <select
                     id="support-issue-type"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none min-h-[48px]"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:border-purple-500 focus:outline-none min-h-[48px]"
                   >
-                    <option value="" className="bg-white dark:bg-black">Select Issue Type</option>
-                    <option value="technical" className="bg-white dark:bg-black">Technical Issue</option>
-                    <option value="billing" className="bg-white dark:bg-black">Billing Question</option>
-                    <option value="feature" className="bg-white dark:bg-black">Feature Request</option>
-                    <option value="other" className="bg-white dark:bg-black">Other</option>
+                    <option value="" className="bg-white dark:bg-[#212121]">Select Issue Type</option>
+                    <option value="technical" className="bg-white dark:bg-[#212121]">Technical Issue</option>
+                    <option value="billing" className="bg-white dark:bg-[#212121]">Billing Question</option>
+                    <option value="feature" className="bg-white dark:bg-[#212121]">Feature Request</option>
+                    <option value="other" className="bg-white dark:bg-[#212121]">Other</option>
                   </select>
                 </div>
                 <div>
@@ -626,12 +627,12 @@ function CTAAndFooterSection() {
                     id="support-description"
                     placeholder="Describe your issue or question"
                     rows={4}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:border-purple-500 focus:outline-none resize-none"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none resize-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[48px]"
+                  className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all min-h-[48px]"
                 >
                   Submit Request
                 </button>
@@ -642,13 +643,13 @@ function CTAAndFooterSection() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-black text-gray-900 dark:text-white px-4 sm:px-6 lg:px-8 py-10">
+      <footer className="bg-white dark:bg-[#111111] text-gray-900 dark:text-white px-4 sm:px-6 lg:px-8 py-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col items-center gap-8">
             {/* Logo */}
             <Link href="/" className="flex items-center">
               <div className="w-10 h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
-                <div className="w-full h-full bg-white/95 dark:bg-black/95 rounded-[10px] flex items-center justify-center">
+                <div className="w-full h-full bg-white/95 dark:bg-[#111111] rounded-[10px] flex items-center justify-center">
                   <Home className="w-6 h-6" stroke="url(#footerHomeGradient)" fill="none" strokeWidth="2" />
                   <svg width="0" height="0">
                     <defs>
@@ -699,47 +700,50 @@ export default function LandingPage() {
   const { isDarkMode, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-[#111111] transition-colors duration-300">
       {/* Skip Navigation */}
       <a 
         href="#main-content" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 px-4 py-2 bg-purple-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 px-4 py-2 bg-purple-600 text-white rounded-lg"
       >
         Skip to main content
       </a>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-white/10" role="navigation" aria-label="Main navigation">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#111111]/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
-            <Link href="/" className="flex items-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg" aria-label="Go to homepage">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
-                <div className="w-full h-full bg-white/95 dark:bg-black/95 rounded-[10px] flex items-center justify-center">
-                  <Home className="w-5 h-5 sm:w-6 sm:h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" aria-hidden="true" />
-                  <svg width="0" height="0" aria-hidden="true">
-                    <defs>
-                      <linearGradient id="homeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="rgb(236, 72, 153)" />
-                        <stop offset="100%" stopColor="rgb(147, 51, 234)" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
+            <Tooltip content="Go to homepage" position="bottom">
+              <Link href="/" className="flex items-center rounded-lg" aria-label="Go to homepage">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+                  <div className="w-full h-full bg-white/95 dark:bg-[#111111] rounded-[10px] flex items-center justify-center">
+                    <Home className="w-5 h-5 sm:w-6 sm:h-6" stroke="url(#homeGradient)" fill="none" strokeWidth="2" aria-hidden="true" />
+                    <svg width="0" height="0" aria-hidden="true">
+                      <defs>
+                        <linearGradient id="homeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="rgb(236, 72, 153)" />
+                          <stop offset="100%" stopColor="rgb(147, 51, 234)" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
                 </div>
-              </div>
-              <span className="ml-2 text-lg sm:text-xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                blipee
-              </span>
-            </Link>
+                <span className="ml-2 text-lg sm:text-xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  blipee
+                </span>
+              </Link>
+            </Tooltip>
 
             {/* Theme Toggle, Auth Button and Menu */}
             <div className="flex items-center gap-2 sm:gap-4">
               {/* Theme Toggle Button */}
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-[1px] bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500">
-                <button
-                  onClick={toggleTheme}
-                  className="w-full h-full rounded-full bg-white/95 dark:bg-black/95 hover:bg-white/90 dark:hover:bg-black/90 transition-all flex items-center justify-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-                  aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-                >
+              <Tooltip content={isDarkMode ? "Switch to light mode" : "Switch to dark mode"} position="bottom">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-[1px] bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500">
+                  <button
+                    onClick={toggleTheme}
+                    className="w-full h-full rounded-full bg-white/95 dark:bg-[#111111] hover:bg-white/90 dark:hover:bg-[#111111]/90 transition-all flex items-center justify-center"
+                    aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                  >
                 {isDarkMode ? (
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -765,22 +769,24 @@ export default function LandingPage() {
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="url(#moonGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 )}
-                </button>
-              </div>
+                  </button>
+                </div>
+              </Tooltip>
               
               <Link href="/signin">
-                <button className="px-4 py-2 sm:px-6 sm:py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 text-sm sm:text-base min-h-[44px]">
+                <button className="px-4 py-2 sm:px-6 sm:py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all text-sm sm:text-base min-h-[44px]">
                   Sign In
                 </button>
               </Link>
               
               {/* Menu button for all screen sizes */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 flex items-center justify-center focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg min-h-[44px] min-w-[44px]"
-                aria-expanded={mobileMenuOpen}
-                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              >
+              <Tooltip content={mobileMenuOpen ? "Close menu" : "Open menu"} position="bottom">
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="p-2 flex items-center justify-center rounded-lg min-h-[44px] min-w-[44px]"
+                  aria-expanded={mobileMenuOpen}
+                  aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                >
                 {mobileMenuOpen ? (
                   <X className="w-6 h-6 text-gray-900 dark:text-white" stroke="url(#xGradient)" />
                 ) : (
@@ -793,7 +799,8 @@ export default function LandingPage() {
                          style={{background: 'linear-gradient(to right, rgb(236, 72, 153), rgb(147, 51, 234))'}}></div>
                   </div>
                 )}
-              </button>
+                </button>
+              </Tooltip>
               <svg width="0" height="0">
                 <defs>
                   <linearGradient id="xGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -812,7 +819,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white/90 dark:bg-black/90 backdrop-blur-xl border border-gray-200/50 dark:border-white/[0.05] rounded-lg py-4 shadow-2xl"
+            className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white/90 dark:bg-[#111111]/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700 rounded-lg py-4 shadow-2xl"
           >
             <div className="flex flex-col space-y-1">
               <Link href="/features" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">Features</Link>
