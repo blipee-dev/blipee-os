@@ -29,7 +29,7 @@ export function AnalyticsOverview({ storeId }: AnalyticsOverviewProps) {
     if (storeId) {
       fetchAnalytics();
     }
-  }, [storeId, dateRange]);
+  }, [storeId, dateRange, fetchAnalytics]);
 
   const getDateRange = () => {
     const end = new Date();

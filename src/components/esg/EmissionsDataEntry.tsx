@@ -71,7 +71,7 @@ export function EmissionsDataEntry({ organizationId, onSuccess }: Props) {
   useEffect(() => {
     loadFacilities();
     loadEmissionSources();
-  }, [organizationId]);
+  }, [organizationId, loadFacilities, loadEmissionSources]);
 
   const loadFacilities = async () => {
     try {
@@ -141,7 +141,7 @@ export function EmissionsDataEntry({ organizationId, onSuccess }: Props) {
     if (formData.activity_value > 0 && formData.emission_factor > 0) {
       calculateEmissions();
     }
-  }, [formData.activity_value, formData.emission_factor]);
+  }, [formData.activity_value, formData.emission_factor, calculateEmissions]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
