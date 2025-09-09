@@ -81,7 +81,7 @@ export default function SignInPage() {
       
       // Skip onboarding for demo users, go straight to dashboard
       if (email.includes("demo") || email.includes("@blipee.com")) {
-        router.push("/dashboard");
+        router.push("/blipee-ai");
       } else {
         // Use Next.js router for navigation
         router.push("/onboarding");
@@ -146,7 +146,7 @@ export default function SignInPage() {
       await signIn(demoEmail, demoPassword);
       
       // Demo accounts go straight to dashboard
-      router.push("/dashboard");
+      router.push("/blipee-ai");
     } catch (err: any) {
       setError("Demo sign in failed. Please try manual signup.");
       setLoading(false);
@@ -155,7 +155,7 @@ export default function SignInPage() {
 
   async function handleMFASuccess() {
     // Redirect to the appropriate page after successful MFA
-    router.push("/dashboard");
+    router.push("/blipee-ai");
   }
 
   // Show MFA verification if required

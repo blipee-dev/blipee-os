@@ -57,7 +57,7 @@ function FeatureCategory({
       transition={{ duration: 0.6, delay: index * 0.1 }}
       className="relative"
     >
-      <article className="bg-black/[0.02] dark:bg-white/[0.02] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all duration-300 focus-within:ring-2 focus-within:ring-purple-500 focus-within:ring-offset-2">
+      <article className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 hover:shadow-lg transition-all duration-300">
         {/* Header */}
         <header className="flex flex-col sm:flex-row items-start mb-6 sm:mb-8">
           <div
@@ -220,7 +220,7 @@ export default function FeaturesPage() {
       </a>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10" role="navigation" aria-label="Main navigation">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#111111]/95 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
             <Link href="/" className="flex items-center rounded-lg" aria-label="Go to homepage">
@@ -322,13 +322,13 @@ export default function FeaturesPage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white/90 dark:bg-black/90 backdrop-blur-xl border border-gray-200/50 dark:border-white/[0.05] rounded-lg py-4 shadow-2xl"
+              className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white/90 dark:bg-[#111111]/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700 rounded-lg py-4 shadow-2xl"
             >
               <div className="flex flex-col space-y-1">
-                <Link href="/features" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">Features</Link>
-                <Link href="/industries" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">Industries</Link>
-                <Link href="/ai-technology" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">AI Technology</Link>
-                <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">About</Link>
+                <Link href="/features" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">Features</Link>
+                <Link href="/industries" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">Industries</Link>
+                <Link href="/ai-technology" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">AI Technology</Link>
+                <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">About</Link>
               </div>
             </motion.div>
           )}
@@ -346,7 +346,7 @@ export default function FeaturesPage() {
               transition={{ duration: 0.6 }}
               className="text-center mb-12 sm:mb-16"
             >
-            <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-full mb-6 sm:mb-8" role="note" aria-label="Product highlight">
+            <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-full mb-6 sm:mb-8" role="note" aria-label="Product highlight">
               <Sparkles className="w-4 h-4 text-pink-400 mr-2" aria-hidden="true" />
               <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 Every feature designed for impact
