@@ -20,14 +20,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white">
-      {/* Main Content - No navigation needed since it's in ConversationInterface sidebar */}
-      <main className="flex-1">
-        {children}
-      </main>
-    </div>
-  );
+  return <>{children}</>;
 }
 
 export default function DashboardLayout({

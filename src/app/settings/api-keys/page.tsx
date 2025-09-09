@@ -103,7 +103,7 @@ export default function APIKeysPage() {
               <div className="p-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl">
                 <Key className="h-8 w-8 text-purple-400" />
               </div>
-              <div>
+              <div className="hidden md:block">
                 <h1 className="text-3xl font-bold text-white">API Keys</h1>
                 <p className="mt-1 text-gray-400">
                   Manage API keys for programmatic access to your data

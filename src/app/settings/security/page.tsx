@@ -109,9 +109,10 @@ export default function SecuritySettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
+        className="hidden md:block"
       >
         <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Security Settings</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-[#616161] dark:text-[#757575] mt-2">
           Manage your account security and authentication settings
         </p>
       </motion.div>
@@ -129,7 +130,7 @@ export default function SecuritySettingsPage() {
                 <Shield className="h-5 w-5 text-purple-500" />
                 Two-Factor Authentication
               </h2>
-              <p className="mt-1 text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-[#616161] dark:text-[#757575]">
                 Add an extra layer of security to your account
               </p>
             </div>
@@ -138,10 +139,10 @@ export default function SecuritySettingsPage() {
               <>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <label htmlFor="mfa-toggle" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label htmlFor="mfa-toggle" className="text-sm font-medium text-[#616161] dark:text-[#757575]">
                       Enable Two-Factor Authentication
                     </label>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-[#616161] dark:text-[#757575]">
                       Use an authenticator app to generate verification codes
                     </p>
                   </div>
@@ -152,7 +153,7 @@ export default function SecuritySettingsPage() {
                     className={`relative inline-flex h-8 w-14 items-center rounded-full transition-all ${
                       mfaEnabled
                         ? "bg-gradient-to-r from-purple-500 to-pink-500"
-                        : "bg-gray-300 dark:bg-gray-700"
+                        : "bg-gray-300 dark:bg-[#616161]"
                     } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     <span
@@ -235,7 +236,7 @@ export default function SecuritySettingsPage() {
                 <Key className="h-5 w-5 text-blue-500" />
                 WebAuthn / FIDO2 Security Keys
               </h2>
-              <p className="mt-1 text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-[#616161] dark:text-[#757575]">
                 Manage hardware security keys and biometric authentication
               </p>
             </div>
@@ -257,18 +258,18 @@ export default function SecuritySettingsPage() {
                 <Key className="h-5 w-5 text-purple-500" />
                 Password & Authentication
               </h2>
-              <p className="mt-1 text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-[#616161] dark:text-[#757575]">
                 Manage your password and authentication methods
               </p>
             </div>
             <div className="space-y-3">
-              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none transition-all">
+              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-white/[0.05] rounded-lg bg-transparent text-[#616161] dark:text-[#757575] font-medium hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:outline-none transition-all">
                 Change Password
               </button>
-              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none transition-all">
+              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-white/[0.05] rounded-lg bg-transparent text-[#616161] dark:text-[#757575] font-medium hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:outline-none transition-all">
                 Manage Trusted Devices
               </button>
-              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none transition-all">
+              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-white/[0.05] rounded-lg bg-transparent text-[#616161] dark:text-[#757575] font-medium hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:outline-none transition-all">
                 View Login History
               </button>
             </div>
@@ -304,17 +305,17 @@ export default function SecuritySettingsPage() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
               </div>
             ) : sessions.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400">No active sessions found</p>
+              <p className="text-sm text-[#616161] dark:text-[#757575]">No active sessions found</p>
             ) : (
               <div className="space-y-3">
                 {sessions.map((session) => (
                   <div
                     key={session.sessionId}
-                    className="flex items-start justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700"
+                    className="flex items-start justify-between p-4 rounded-lg bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05]"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Monitor className="h-4 w-4 text-gray-400" />
+                        <Monitor className="h-4 w-4 text-[#757575]" />
                         <span className="text-sm font-medium text-gray-900 dark:text-white">
                           {session.device}
                           {session.current && (
@@ -324,7 +325,7 @@ export default function SecuritySettingsPage() {
                           )}
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-4 text-xs text-[#616161] dark:text-[#757575]">
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
                           {session.ipAddress}
@@ -401,21 +402,21 @@ export default function SecuritySettingsPage() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-green-600 dark:text-green-400">✓</span>
-                <span className="text-gray-700 dark:text-gray-300">Use a strong, unique password for your account</span>
+                <span className="text-[#616161] dark:text-[#757575]">Use a strong, unique password for your account</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className={mfaEnabled ? "text-green-600 dark:text-green-400" : "text-orange-600 dark:text-orange-400"}>
                   {mfaEnabled ? "✓" : "!"}
                 </span>
-                <span className="text-gray-700 dark:text-gray-300">Enable two-factor authentication</span>
+                <span className="text-[#616161] dark:text-[#757575]">Enable two-factor authentication</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-green-600 dark:text-green-400">✓</span>
-                <span className="text-gray-700 dark:text-gray-300">Review login activity regularly</span>
+                <span className="text-[#616161] dark:text-[#757575]">Review login activity regularly</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-green-600 dark:text-green-400">✓</span>
-                <span className="text-gray-700 dark:text-gray-300">Keep your email address up to date</span>
+                <span className="text-[#616161] dark:text-[#757575]">Keep your email address up to date</span>
               </li>
             </ul>
           </div>

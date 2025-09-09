@@ -10,9 +10,11 @@ import { logger } from './lib/logging';
 
 // Simple metrics collection for Edge Runtime
 const recordMetric = (name: string, value: number, labels?: Record<string, string>) => {
-  // In Edge Runtime, we'll just log the metrics
+  // In Edge Runtime, we'll just log the metrics in development
   // The actual metrics collection will happen in the API routes
-  console.log(`[METRIC] ${name}:`, value, labels);
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[METRIC] ${name}:`, value, labels);
+  }
 };
 
 // Routes that require authentication

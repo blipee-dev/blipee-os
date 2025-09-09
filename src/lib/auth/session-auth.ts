@@ -74,7 +74,7 @@ export class SessionAuthService {
    * Get current session
    */
   async getSession(request: NextRequest): Promise<Session | null> {
-    const sessionData = await sessionManager.getSession(_request);
+    const sessionData = await sessionManager.getSession(request);
     if (!sessionData) return null;
 
     // Convert session data to auth session format
@@ -87,7 +87,7 @@ export class SessionAuthService {
    * Sign out and destroy session
    */
   async signOut(request: NextRequest, response: NextResponse): Promise<void> {
-    const cookieHeader = _request.headers.get('cookie');
+    const cookieHeader = request.headers.get('cookie');
     const sessionId = sessionManager['sessionService'].parseSessionCookie(cookieHeader);
     
     if (sessionId) {

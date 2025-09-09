@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { AuthProvider } from "@/lib/auth/context";
 import { initializeModuleSystem } from "@/lib/modules";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 
 function ModuleSystemInitializer() {
   useEffect(() => {
@@ -18,8 +19,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <ModuleSystemInitializer />
-        {children}
+        <SettingsProvider>
+          <ModuleSystemInitializer />
+          {children}
+        </SettingsProvider>
       </AuthProvider>
     </ThemeProvider>
   );

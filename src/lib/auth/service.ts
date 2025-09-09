@@ -211,26 +211,29 @@ export class AuthService {
     if (authError) throw authError;
     if (!authData.user) throw new Error("Authentication failed");
 
-    // Check if user has MFA enabled
-    const { data: mfaConfig } = await supabase
-      .from("user_mfa_config")
-      .select("*")
-      .eq("user_id", authData.user.id)
-      .eq("enabled", true)
-      .single();
+    // Parallelize MFA config and profile fetching for faster signin
+    const [mfaResult, profileResult] = await Promise.all([
+      supabase
+        .from("user_mfa_config")
+        .select("*")
+        .eq("user_id", authData.user.id)
+        .eq("enabled", true)
+        .single(),
+      supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("id", authData.user.id)
+        .single()
+    ]);
+
+    const mfaConfig = mfaResult.data;
+    const profile = profileResult.data;
 
     // If MFA is enabled, create a challenge and require verification
     if (mfaConfig) {
       const { MFAService } = await import('@/lib/auth/mfa/service');
       const mfaService = new MFAService();
       const challenge = await mfaService.createChallenge(authData.user.id);
-
-      // Return partial auth response with MFA requirement
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("id", authData.user.id)
-        .single();
 
       if (!profile) throw new Error("User profile not found");
 
@@ -307,24 +310,27 @@ export class AuthService {
 
     if (!user) return null;
 
-    // Get user profile
-    const { data: profile } = await supabase
-      .from("user_profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
+    // Parallelize profile and memberships fetching for faster session loading
+    const [profileResult, membershipsResult] = await Promise.all([
+      supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single(),
+      supabase
+        .from("organization_members")
+        .select(
+          `
+          *,
+          organization:organizations(*)
+        `,
+        )
+        .eq("user_id", user.id)
+        .eq("invitation_status", "accepted")
+    ]);
 
-    // Get user's organizations
-    const { data: memberships } = await supabase
-      .from("organization_members")
-      .select(
-        `
-        *,
-        organization:organizations(*)
-      `,
-      )
-      .eq("user_id", user.id)
-      .eq("invitation_status", "accepted");
+    const profile = profileResult.data;
+    const memberships = membershipsResult.data;
 
     // Return session even if no organizations
     if (!memberships || memberships.length === 0) {
