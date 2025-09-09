@@ -207,17 +207,23 @@ export default function OrganizationSettingsPage() {
   const PaginationControls = () => {
     return (
       <div className="mt-auto border-t border-gray-200 dark:border-white/[0.05] bg-gray-50 dark:bg-[#111111] rounded-b-lg p-3 sm:p-4">
-        <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+        <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <div className="flex items-center gap-2">
-            <label htmlFor="items-per-page" className="text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
+            <label htmlFor="items-per-page" className="hidden sm:block text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
               Items per page:
             </label>
             <select
               id="items-per-page"
               value={itemsPerPage}
               onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-2 py-1 text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 focus:ring-purple-500"
+              className="appearance-none cursor-pointer px-3 py-1.5 pr-8 text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors hover:border-gray-400 dark:hover:border-white/[0.1]"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+                backgroundPosition: 'right 0.5rem center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '1.5em 1.5em'
+              }}
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
