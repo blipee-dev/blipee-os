@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import OrganizationModal from "@/components/admin/OrganizationModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClient } from "@/lib/supabase/client";
 
@@ -210,20 +211,20 @@ export default function OrganizationSettingsPage() {
         <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <div className="flex items-center gap-2">
-            <label htmlFor="items-per-page" className="hidden sm:block text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
+            <label className="hidden sm:block text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
               Items per page:
             </label>
-            <select
-              id="items-per-page"
+            <CustomDropdown
               value={itemsPerPage}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="cursor-pointer px-3 py-1.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors hover:border-gray-400 dark:hover:border-white/[0.1]"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
+              onChange={handleItemsPerPageChange}
+              options={[
+                { value: 5, label: "5" },
+                { value: 10, label: "10" },
+                { value: 20, label: "20" },
+                { value: 50, label: "50" }
+              ]}
+              className="w-16"
+            />
           </div>
           
           <div className="text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
