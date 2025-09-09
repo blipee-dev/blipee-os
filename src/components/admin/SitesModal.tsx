@@ -285,7 +285,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                                 value={floor.floor}
                                 onChange={(e) => updateFloorDetail(index, 'floor', e.target.value)}
                                 readOnly={mode === 'view'}
-                                className="w-full px-2 py-1 text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded"
+                                className="w-full px-2 py-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                               />
                             </div>
                             <div>
@@ -295,7 +295,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                                 value={floor.area_sqm}
                                 onChange={(e) => updateFloorDetail(index, 'area_sqm', e.target.value)}
                                 readOnly={mode === 'view'}
-                                className="w-full px-2 py-1 text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded"
+                                className="w-full px-2 py-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                               />
                             </div>
                             <div>
@@ -305,7 +305,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                                 value={floor.employees}
                                 onChange={(e) => updateFloorDetail(index, 'employees', e.target.value)}
                                 readOnly={mode === 'view'}
-                                className="w-full px-2 py-1 text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded"
+                                className="w-full px-2 py-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                               />
                             </div>
                           </div>
