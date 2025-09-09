@@ -114,19 +114,18 @@ async function installIntegration(req: NextRequest, context: any) {
     );
 
     // Log installation event
-    await supabase
-      .from('audit_logs')
-      .insert({
-        organization_id: profile.organization_id,
-        user_id: user.id,
-        action: 'integration_installed',
-        resource_type: 'integration',
-        resource_id: integration.id,
-        metadata: {
-          integration_name: installation.integration.name,
-          integration_version: installation.integration.version
-        }
-      });
+    const { safeAuditLog } = await import('@/lib/utils/audit-helpers');
+    await safeAuditLog({
+      organization_id: profile.organization_id,
+      user_id: user.id,
+      action: 'integration_installed',
+      resource_type: 'integration',
+      resource_id: integration.id,
+      metadata: {
+        integration_name: installation.integration.name,
+        integration_version: installation.integration.version
+      }
+    });
 
     return NextResponse.json({
       success: true,
@@ -197,18 +196,17 @@ async function uninstallIntegration(req: NextRequest, context: any) {
     );
 
     // Log uninstallation event
-    await supabase
-      .from('audit_logs')
-      .insert({
-        organization_id: profile.organization_id,
-        user_id: user.id,
-        action: 'integration_uninstalled',
-        resource_type: 'integration',
-        resource_id: installationId,
-        metadata: {
-          integration_name: result.integrationName
-        }
-      });
+    const { safeAuditLog } = await import('@/lib/utils/audit-helpers');
+    await safeAuditLog({
+      organization_id: profile.organization_id,
+      user_id: user.id,
+      action: 'integration_uninstalled',
+      resource_type: 'integration',
+      resource_id: installationId,
+      metadata: {
+        integration_name: result.integrationName
+      }
+    });
 
     return NextResponse.json({
       success: true,
@@ -319,18 +317,17 @@ async function updateIntegrationConfig(req: NextRequest, context: any) {
     );
 
     // Log configuration update event
-    await supabase
-      .from('audit_logs')
-      .insert({
-        organization_id: profile.organization_id,
-        user_id: user.id,
-        action: 'integration_config_updated',
-        resource_type: 'integration',
-        resource_id: installationId,
-        metadata: {
-          integration_name: updatedInstallation.integration.name
-        }
-      });
+    const { safeAuditLog } = await import('@/lib/utils/audit-helpers');
+    await safeAuditLog({
+      organization_id: profile.organization_id,
+      user_id: user.id,
+      action: 'integration_config_updated',
+      resource_type: 'integration',
+      resource_id: installationId,
+      metadata: {
+        integration_name: updatedInstallation.integration.name
+      }
+    });
 
     return NextResponse.json({
       success: true,
