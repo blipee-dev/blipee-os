@@ -6,24 +6,19 @@
   "regions": ["iad1", "dub1", "sin1"],
   "functions": {
     "src/app/api/ai/chat/route.ts": {
-      "maxDuration": 60,
-      "memory": 1024
+      "maxDuration": 60
     },
     "src/app/api/monitoring/metrics/route.ts": {
-      "maxDuration": 30,
-      "memory": 512
+      "maxDuration": 30
     },
     "src/app/api/retail/v1/*/route.ts": {
-      "maxDuration": 30,
-      "memory": 512
+      "maxDuration": 30
     },
     "src/app/api/region/health/route.ts": {
-      "maxDuration": 10,
-      "memory": 256
+      "maxDuration": 10
     },
     "src/app/api/region/failover/route.ts": {
-      "maxDuration": 30,
-      "memory": 512
+      "maxDuration": 30
     }
   },
   "headers": [

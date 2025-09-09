@@ -1,0 +1,352 @@
+{
+  "navigation": {
+    "features": "Features",
+    "industries": "Industries",
+    "aiTechnology": "AI Technology",
+    "about": "About",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "dashboard": "Dashboard",
+    "menu": "Menu",
+    "toggleTheme": "Toggle theme",
+    "toggleLanguage": "Change language"
+  },
+  "hero": {
+    "title": "The AI Behind",
+    "subtitle": "blipee",
+    "tagline": "World's First Conversational Sustainability AI",
+    "headline1": "Sustainability Intelligence",
+    "headline2": "Through Conversation",
+    "description": "Not just another ESG platform. blipee is your autonomous AI team that works 24/7 to manage, optimize, and improve your sustainability performance.",
+    "mainDescription": "Where AI meets sustainability with a touch of magic ✨ The revolution isn't coming—it's here, and it speaks your language. Welcome to the future where saving the planet feels like chatting with your smartest friend.",
+    "cta": {
+      "getStarted": "Get Started",
+      "startSetup": "Start 7-Minute Setup",
+      "seeInAction": "See AI in Action",
+      "learnMore": "Learn More",
+      "requestDemo": "Request Demo",
+      "watchDemo": "Watch Demo"
+    },
+    "badges": {
+      "aiPowered": "AI-Powered",
+      "realTime": "Real-Time Analytics",
+      "enterprise": "Enterprise Ready",
+      "secure": "Bank-Level Security"
+    }
+  },
+  "landing": {
+    "stats": {
+      "emissions": "Emissions Reduced",
+      "companies": "Companies Trust Us",
+      "savings": "Average Cost Savings",
+      "uptime": "System Uptime"
+    },
+    "features": {
+      "title": "Why Leading Companies Choose",
+      "conversational": {
+        "title": "Talk, Don't Click",
+        "description": "No dashboards. No complex interfaces. Just conversation."
+      },
+      "instant": {
+        "title": "Instant Intelligence",
+        "description": "Get answers in seconds, not hours. Real-time insights at your fingertips."
+      },
+      "comprehensive": {
+        "title": "Complete Coverage",
+        "description": "From carbon tracking to ESG reporting, we've got you covered."
+      }
+    },
+    "testimonials": {
+      "title": "Loved by Sustainability Leaders",
+      "cta": "Join thousands of companies transforming their sustainability"
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing",
+      "subtitle": "Choose the plan that fits your journey",
+      "starter": {
+        "name": "Starter",
+        "price": "$299",
+        "period": "/month",
+        "description": "Perfect for small teams getting started",
+        "features": [
+          "Up to 10 users",
+          "Basic emissions tracking",
+          "Monthly reports",
+          "Email support"
+        ]
+      },
+      "professional": {
+        "name": "Professional",
+        "price": "$999",
+        "period": "/month",
+        "description": "For growing organizations",
+        "features": [
+          "Up to 50 users",
+          "Advanced analytics",
+          "Custom reports",
+          "API access",
+          "Priority support"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Custom",
+        "period": "pricing",
+        "description": "For large organizations",
+        "features": [
+          "Unlimited users",
+          "White-label options",
+          "Dedicated success manager",
+          "Custom integrations",
+          "24/7 phone support"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "How quickly can I get started?",
+      "a1": "Our 7-minute setup gets you running immediately. No complex implementation needed.",
+      "q2": "Do I need technical expertise?",
+      "a2": "Not at all! blipee is designed for everyone. If you can chat, you can use blipee.",
+      "q3": "Is my data secure?",
+      "a3": "Absolutely. We use bank-level encryption and are SOC 2 Type II certified.",
+      "q4": "Can I integrate with existing systems?",
+      "a4": "Yes! We integrate with all major ERP, IoT, and business systems."
+    }
+  },
+  "features": {
+    "title": "Features that Transform",
+    "subtitle": "Your Sustainability Operations",
+    "description": "Everything you need to revolutionize how your organization manages sustainability",
+    "conversationalAI": {
+      "title": "Conversational AI Interface",
+      "description": "Natural language interaction with your sustainability data",
+      "features": [
+        "Ask questions in plain language",
+        "Get instant insights and analysis",
+        "No training required",
+        "Context-aware responses",
+        "Multi-turn conversations",
+        "Voice input support"
+      ]
+    },
+    "realTimeAnalytics": {
+      "title": "Real-Time Analytics",
+      "description": "Live monitoring and instant insights for your operations",
+      "features": [
+        "Live emissions tracking",
+        "Energy consumption monitoring",
+        "Waste stream analysis",
+        "Water usage tracking",
+        "Supply chain visibility",
+        "Instant alerts and notifications"
+      ]
+    },
+    "complianceAutomation": {
+      "title": "Compliance & Reporting",
+      "description": "Automated compliance tracking and report generation",
+      "features": [
+        "GRI Standards compliance",
+        "TCFD reporting",
+        "CDP questionnaires",
+        "EU CSRD compliance",
+        "SEC climate disclosures",
+        "Custom report builder"
+      ]
+    },
+    "intelligentInsights": {
+      "title": "Intelligent Insights",
+      "description": "AI-powered recommendations and predictive analytics",
+      "features": [
+        "Predictive emissions modeling",
+        "Cost optimization suggestions",
+        "Risk assessment and mitigation",
+        "Performance benchmarking",
+        "Trend analysis and forecasting",
+        "Automated action plans"
+      ]
+    },
+    "integration": {
+      "title": "Enterprise Integration",
+      "description": "Seamlessly connect with your existing systems",
+      "features": [
+        "ERP system integration",
+        "IoT sensor connectivity",
+        "Building management systems",
+        "Supply chain platforms",
+        "Financial systems",
+        "Custom API access"
+      ]
+    },
+    "security": {
+      "title": "Security & Privacy",
+      "description": "Enterprise-grade security for your sensitive data",
+      "features": [
+        "End-to-end encryption",
+        "SOC 2 Type II compliance",
+        "GDPR compliant",
+        "Role-based access control",
+        "Audit logging",
+        "Data residency options"
+      ]
+    }
+  },
+  "industries": {
+    "title": "Universal Sustainability",
+    "subtitle": "Intelligence for Every Industry",
+    "description": "blipee works with any organization, in any industry, of any size. From startups to Fortune 500s, from manufacturing to technology.",
+    "yourIndustry": "Your Industry Is Covered",
+    "industryDescription": "Whether you're tracking emissions, managing energy, reducing waste, or reporting ESG metrics, blipee adapts to your specific industry requirements and regulations.",
+    "howWeOrganize": "How We Organize Industries",
+    "howWeOrganizeDescription": "We follow the Global Reporting Initiative (GRI) Sector Standards, the world's most widely used sustainability reporting framework.",
+    "griStandards": "GRI Sector Standards",
+    "griDescription": "We support all 17 GRI Sector Standards, providing industry-specific sustainability intelligence",
+    "standards": {
+      "oil_gas": {
+        "title": "Oil and Gas",
+        "description": "Comprehensive emissions tracking, methane monitoring, and decommissioning management",
+        "coverage": ["Upstream operations", "Midstream transport", "Downstream refining", "Decommissioning"]
+      },
+      "coal": {
+        "title": "Coal",
+        "description": "Mine rehabilitation, water management, and just transition planning",
+        "coverage": ["Mining operations", "Processing", "Rehabilitation", "Community impact"]
+      },
+      "agriculture": {
+        "title": "Agriculture, Aquaculture and Fishing",
+        "description": "Sustainable farming practices, supply chain traceability, and biodiversity impact",
+        "coverage": ["Crop production", "Livestock", "Aquaculture", "Supply chain"]
+      },
+      "manufacturing": {
+        "title": "Manufacturing",
+        "description": "Circular economy, waste reduction, and supply chain sustainability",
+        "coverage": ["Raw materials", "Production", "Waste management", "Product lifecycle"]
+      }
+    }
+  },
+  "aiTechnology": {
+    "title": "The AI Behind",
+    "subtitle": "blipee's Intelligence",
+    "description": "Built on cutting-edge AI technology from the world's leading providers",
+    "multiBrain": {
+      "title": "Multi-Brain Architecture",
+      "description": "We don't rely on a single AI. blipee orchestrates multiple AI models to give you the best possible intelligence."
+    },
+    "providers": {
+      "title": "Best-in-Class AI Providers",
+      "deepseek": {
+        "name": "DeepSeek",
+        "description": "Advanced reasoning and analytical capabilities"
+      },
+      "openai": {
+        "name": "OpenAI GPT-4",
+        "description": "Industry-leading language understanding"
+      },
+      "anthropic": {
+        "name": "Anthropic Claude",
+        "description": "Safe and reliable AI assistance"
+      }
+    },
+    "capabilities": {
+      "nlp": "Natural Language Processing",
+      "contextual": "Contextual Understanding",
+      "multimodal": "Multimodal Analysis",
+      "realtime": "Real-time Processing",
+      "predictive": "Predictive Analytics",
+      "continuous": "Continuous Learning"
+    }
+  },
+  "cta": {
+    "title": "Ready to Transform Your Sustainability?",
+    "description": "Access your AI-powered sustainability platform and start making data-driven decisions today.",
+    "signInToDashboard": "Sign In to Dashboard",
+    "requestAccess": "Request Access",
+    "waitingMessage": "Your AI sustainability team is waiting for you"
+  },
+  "footer": {
+    "tagline": "Your AI-powered sustainability intelligence platform",
+    "quickLinks": "Quick Links",
+    "legal": "Legal",
+    "support": "Support",
+    "followUs": "Follow Us",
+    "contact": {
+      "title": "Contact",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address"
+    },
+    "links": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy",
+      "security": "Security",
+      "dataProcessing": "Data Processing Agreement",
+      "documentation": "Documentation",
+      "apiDocs": "API Documentation",
+      "helpCenter": "Help Center",
+      "community": "Community"
+    },
+    "copyright": "© 2024 blipee. All rights reserved."
+  },
+  "modals": {
+    "contact": {
+      "title": "Schedule a Demo",
+      "description": "Get in touch with our team to see blipee in action",
+      "form": {
+        "name": "Your Name",
+        "email": "Email Address",
+        "company": "Company",
+        "message": "Tell us about your sustainability goals",
+        "submit": "Send Request"
+      }
+    },
+    "support": {
+      "title": "Get Support",
+      "description": "Our team is here to help you succeed with blipee",
+      "form": {
+        "name": "Your Name",
+        "email": "Email Address",
+        "issueType": "Select Issue Type",
+        "issueTypes": {
+          "technical": "Technical Issue",
+          "billing": "Billing Question",
+          "feature": "Feature Request",
+          "other": "Other"
+        },
+        "message": "Describe your issue or question",
+        "submit": "Submit Request"
+      }
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "export": "Export",
+    "import": "Import",
+    "download": "Download",
+    "upload": "Upload",
+    "refresh": "Refresh",
+    "settings": "Settings",
+    "help": "Help",
+    "logout": "Logout",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "language": "Language",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System"
+  }
+}
