@@ -210,14 +210,14 @@ export default function OrganizationSettingsPage() {
         <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <label htmlFor="items-per-page" className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
+            <label htmlFor="items-per-page" className="text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
               Items per page:
             </label>
             <select
               id="items-per-page"
               value={itemsPerPage}
               onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 focus:ring-purple-500"
+              className="px-2 py-1 text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 focus:ring-purple-500"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -226,7 +226,7 @@ export default function OrganizationSettingsPage() {
             </select>
           </div>
           
-          <div className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
+          <div className="text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
             Showing {Math.min(startIndex + 1, totalItems)}-{Math.min(endIndex, totalItems)} of {totalItems}
           </div>
         </div>
@@ -236,7 +236,7 @@ export default function OrganizationSettingsPage() {
             <button
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="First page"
             >
               <ChevronsLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -245,7 +245,7 @@ export default function OrganizationSettingsPage() {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="Previous page"
             >
               <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -276,7 +276,7 @@ export default function OrganizationSettingsPage() {
                       px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg transition-colors
                       ${currentPage === pageNum
                         ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
-                        : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-[#616161] dark:text-[#757575]"
+                        : "hover:bg-gray-200 dark:hover:bg-white/[0.05] text-gray-700 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white"
                       }
                     `}
                     aria-label={`Page ${pageNum}`}
@@ -291,7 +291,7 @@ export default function OrganizationSettingsPage() {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="Next page"
             >
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -300,7 +300,7 @@ export default function OrganizationSettingsPage() {
             <button
               onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="Last page"
             >
               <ChevronsRight className="w-3 h-3 sm:w-4 sm:h-4" />
