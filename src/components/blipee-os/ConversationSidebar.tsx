@@ -17,8 +17,14 @@ import {
   Check,
   Pin,
   Edit3,
+  Sun,
+  Moon,
+  Settings,
+  User,
 } from "lucide-react";
 import { format, isToday, isYesterday, isThisWeek, isThisMonth } from "date-fns";
+import { useTheme } from "@/providers/ThemeProvider";
+import { useRouter } from "next/navigation";
 
 interface Conversation {
   id: string;
@@ -60,6 +66,8 @@ export function ConversationSidebar({
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { isDarkMode, toggleTheme } = useTheme();
+  const router = useRouter();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -202,29 +210,48 @@ export function ConversationSidebar({
           )}
         </div>
 
-        {/* Collapsed Recent Conversations */}
+        {/* Empty space when collapsed - no conversation icons */}
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
-          {conversations.slice(0, 10).map((conv) => (
-            <button
-              key={conv.id}
-              onClick={() => onSelectConversation(conv.id)}
-              className={`w-full p-2 flex items-center justify-center rounded-lg transition-all ${
-                currentConversationId === conv.id
-                  ? "bg-gray-100 dark:bg-[#757575] text-gray-900 dark:text-white"
-                  : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-gray-600 dark:text-gray-400"
-              }`}
-              title={conv.title}
-            >
-              <MessageSquare className="w-4 h-4" />
-            </button>
-          ))}
+          {/* No conversation icons shown when collapsed */}
         </div>
 
-        {/* Expand Button */}
-        <div className="p-3 border-t border-gray-200 dark:border-white/[0.05]">
+        {/* Bottom buttons for collapsed sidebar */}
+        <div className="p-3 border-t border-gray-200 dark:border-white/[0.05] space-y-1">
+          {/* Profile Button */}
+          <button
+            onClick={() => router.push('/profile')}
+            className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+            title="Profile"
+          >
+            <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          </button>
+
+          {/* Settings Button */}
+          <button
+            onClick={() => router.push('/settings/organizations')}
+            className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          </button>
+
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+            title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {isDarkMode ? (
+              <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            ) : (
+              <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            )}
+          </button>
+
+          {/* Expand Button */}
           <button
             onClick={onToggleCollapse}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+            className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
             title="Expand sidebar"
           >
             <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -548,11 +575,48 @@ export function ConversationSidebar({
         </div>
       </div>
 
-      {/* Collapse Button */}
-      <div className="p-3 border-t border-gray-200 dark:border-white/[0.05]">
+      {/* Bottom buttons for expanded sidebar */}
+      <div className="p-3 border-t border-gray-200 dark:border-white/[0.05] space-y-2">
+        {/* Profile Button */}
+        <button
+          onClick={() => router.push('/profile')}
+          className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+        >
+          <User className="w-4 h-4" />
+          Profile
+        </button>
+
+        {/* Settings Button */}
+        <button
+          onClick={() => router.push('/settings/organizations')}
+          className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+        >
+          <Settings className="w-4 h-4" />
+          Settings
+        </button>
+
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+        >
+          {isDarkMode ? (
+            <>
+              <Sun className="w-4 h-4" />
+              Light mode
+            </>
+          ) : (
+            <>
+              <Moon className="w-4 h-4" />
+              Dark mode
+            </>
+          )}
+        </button>
+
+        {/* Collapse Button */}
         <button
           onClick={onToggleCollapse}
-          className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+          className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
         >
           <ChevronLeft className="w-4 h-4" />
           Collapse sidebar

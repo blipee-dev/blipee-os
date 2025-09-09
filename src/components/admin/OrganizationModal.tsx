@@ -12,7 +12,9 @@ import {
   MapPin,
   Briefcase,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  Loader2
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -20,14 +22,26 @@ interface OrganizationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  mode?: 'create' | 'edit' | 'view';
+  data?: any;
 }
 
-export default function OrganizationModal({ isOpen, onClose, onSuccess }: OrganizationModalProps) {
+export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = 'create', data }: OrganizationModalProps) {
   const [loading, setLoading] = useState(false);
+  const [lookupLoading, setLookupLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
   const supabase = createClient();
+  
+  // For debugging - check if user is authenticated
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('Current user:', user);
+    };
+    checkAuth();
+  }, []);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -51,8 +65,141 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess }: Organi
     compliance_frameworks: ["GRI", "CDP", "TCFD", "EU_CSRD"]
   });
 
+  // Update form data when data prop changes
+  React.useEffect(() => {
+    if (data && mode === 'edit') {
+      setFormData({
+        name: data.name || "",
+        legal_name: data.legal_name || "",
+        slug: data.slug || "",
+        industry_primary: data.industry || data.industry_primary || "",
+        industry_secondary: data.industry_secondary || "",
+        company_size: data.company_size || "11-50",
+        website: data.website || "",
+        primary_contact_email: data.primary_contact_email || "",
+        primary_contact_phone: data.primary_contact_phone || "",
+        headquarters_address: data.headquarters_address || {
+          street: "",
+          city: "",
+          postal_code: "",
+          country: ""
+        },
+        subscription_tier: data.subscription_tier || "enterprise",
+        subscription_status: data.subscription_status || "active",
+        enabled_features: data.enabled_features || ["ai_chat", "emissions_tracking", "reporting", "analytics"],
+        compliance_frameworks: data.compliance_frameworks || ["GRI", "CDP", "TCFD", "EU_CSRD"]
+      });
+    } else if (mode === 'create') {
+      // Reset form for create mode
+      setFormData({
+        name: "",
+        legal_name: "",
+        slug: "",
+        industry_primary: "",
+        industry_secondary: "",
+        company_size: "11-50",
+        website: "",
+        primary_contact_email: "",
+        primary_contact_phone: "",
+        headquarters_address: {
+          street: "",
+          city: "",
+          postal_code: "",
+          country: ""
+        },
+        subscription_tier: "enterprise" as const,
+        subscription_status: "active" as const,
+        enabled_features: ["ai_chat", "emissions_tracking", "reporting", "analytics"],
+        compliance_frameworks: ["GRI", "CDP", "TCFD", "EU_CSRD"]
+      });
+    }
+  }, [data, mode]);
+
+  const handleAILookup = async () => {
+    if (!formData.name.trim()) {
+      setError("Please enter an organization name first");
+      return;
+    }
+
+    setLookupLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/ai/lookup-organization', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ organizationName: formData.name }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to lookup organization');
+      }
+
+      const orgData = await response.json();
+
+      // Handle headquarters address
+      let headquartersAddress = {
+        street: "",
+        city: "",
+        postal_code: "",
+        country: ""
+      };
+
+      if (orgData.headquarters_address) {
+        if (typeof orgData.headquarters_address === 'object') {
+          headquartersAddress = {
+            street: orgData.headquarters_address.street || "",
+            city: orgData.headquarters_address.city || "",
+            postal_code: orgData.headquarters_address.postal_code || "",
+            country: orgData.headquarters_address.country || ""
+          };
+        } else if (typeof orgData.headquarters_address === 'string') {
+          // Fallback: Parse address string into components
+          const addressParts = orgData.headquarters_address.split(',').map(s => s.trim());
+          if (addressParts.length >= 4) {
+            headquartersAddress = {
+              street: addressParts[0] || "",
+              city: addressParts[1] || "",
+              postal_code: addressParts[2] || "",
+              country: addressParts[3] || ""
+            };
+          }
+        }
+      }
+
+      // Update form with AI-fetched data
+      setFormData(prev => ({
+        ...prev,
+        name: orgData.name || prev.name,
+        legal_name: orgData.legal_name || prev.legal_name,
+        slug: orgData.slug || prev.slug,
+        industry_primary: orgData.industry_primary || prev.industry_primary,
+        industry_secondary: orgData.industry_secondary || prev.industry_secondary,
+        company_size: orgData.company_size || prev.company_size,
+        website: orgData.website || prev.website,
+        primary_contact_email: orgData.primary_contact_email || prev.primary_contact_email,
+        primary_contact_phone: orgData.primary_contact_phone || prev.primary_contact_phone,
+        headquarters_address: headquartersAddress
+      }));
+
+      // Show success message using the existing success state
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+
+    } catch (err) {
+      console.error('AI Lookup error:', err);
+      setError('Failed to lookup organization. Please try again or enter details manually.');
+    } finally {
+      setLookupLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (mode === 'view') return;
+    
     setLoading(true);
     setError(null);
 
@@ -64,45 +211,66 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess }: Organi
         throw new Error("User not authenticated");
       }
 
-      // Create organization
-      const { data: org, error: orgError } = await supabase
-        .from("organizations")
-        .insert({
-          name: formData.name,
-          legal_name: formData.legal_name,
-          slug: formData.slug,
-          industry_primary: formData.industry_primary,
-          industry_secondary: formData.industry_secondary,
-          company_size: formData.company_size,
-          website: formData.website,
-          primary_contact_email: formData.primary_contact_email,
-          primary_contact_phone: formData.primary_contact_phone,
-          headquarters_address: formData.headquarters_address,
-          subscription_tier: formData.subscription_tier,
-          subscription_status: formData.subscription_status,
-          enabled_features: formData.enabled_features,
-          compliance_frameworks: formData.compliance_frameworks,
-          settings: {
-            ai_enabled: true,
-            auto_tracking: true,
-            reporting_frequency: "monthly"
-          }
-        })
-        .select()
-        .single();
+      if (mode === 'edit' && data?.id) {
+        // Update existing organization
+        const { error: orgError } = await supabase
+          .from("organizations")
+          .update({
+            name: formData.name,
+            legal_name: formData.legal_name,
+            slug: formData.slug,
+            industry_primary: formData.industry_primary,
+            industry_secondary: formData.industry_secondary,
+            company_size: formData.company_size,
+            website: formData.website,
+            primary_contact_email: formData.primary_contact_email,
+            primary_contact_phone: formData.primary_contact_phone,
+            headquarters_address: formData.headquarters_address,
+            subscription_tier: formData.subscription_tier,
+            subscription_status: formData.subscription_status,
+            enabled_features: formData.enabled_features,
+            compliance_frameworks: formData.compliance_frameworks,
+          })
+          .eq('id', data.id);
 
-      if (orgError) throw orgError;
-
-      // Add current user as admin
-      const { error: userOrgError } = await supabase
-        .from("user_organizations")
-        .insert({
-          user_id: user.id,
-          organization_id: org.id,
-          role: "account_owner"
+        if (orgError) throw orgError;
+        
+      } else {
+        // Create new organization via API to handle RLS properly
+        const response = await fetch('/api/organizations/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            legal_name: formData.legal_name,
+            slug: formData.slug,
+            industry_primary: formData.industry_primary,
+            industry_secondary: formData.industry_secondary,
+            company_size: formData.company_size,
+            website: formData.website,
+            primary_contact_email: formData.primary_contact_email,
+            primary_contact_phone: formData.primary_contact_phone,
+            headquarters_address: formData.headquarters_address,
+            subscription_tier: formData.subscription_tier,
+            subscription_status: formData.subscription_status,
+            enabled_features: formData.enabled_features,
+            compliance_frameworks: formData.compliance_frameworks,
+            settings: {
+              ai_enabled: true,
+              auto_tracking: true,
+              reporting_frequency: "monthly"
+            }
+          }),
         });
 
-      if (userOrgError) throw userOrgError;
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to create organization');
+        }
+      }
 
       setSuccess(true);
       setTimeout(() => {
@@ -167,7 +335,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess }: Organi
                       <Building2 className="w-6 h-6 text-white" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                      Add New Organization
+                      {mode === 'edit' ? 'Edit Organization' : mode === 'view' ? 'View Organization' : 'Add New Organization'}
                     </h2>
                   </div>
                   <button
@@ -189,7 +357,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess }: Organi
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                     <p className="text-green-800 dark:text-green-300 font-medium">
-                      Organization created successfully!
+                      Organization {mode === 'edit' ? 'updated' : 'created'} successfully!
                     </p>
                   </div>
                 </motion.div>
@@ -209,6 +377,20 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess }: Organi
                 </motion.div>
               )}
 
+              {/* AI Lookup Success Message */}
+              {success && mode === 'create' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mx-6 mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <p className="text-green-800 dark:text-green-300">✨ Organization details filled by AI!</p>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Form */}
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 {/* Basic Information */}
@@ -223,14 +405,32 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess }: Organi
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Organization Name *
                       </label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          required
+                          readOnly={mode === 'view'}
+                          className="w-full px-4 py-2 pr-12 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-60 disabled:cursor-not-allowed"
+                        />
+                        {mode === 'create' && (
+                          <button
+                            type="button"
+                            onClick={handleAILookup}
+                            disabled={lookupLoading || !formData.name.trim()}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="AI Lookup - Auto-fill organization details"
+                          >
+                            {lookupLoading ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4" />
+                            )}
+                          </button>
+                        )}
+                      </div>
                     </div>
                     
                     <div>
@@ -242,7 +442,8 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess }: Organi
                         name="legal_name"
                         value={formData.legal_name}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        readOnly={mode === 'view'}
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-60 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -258,7 +459,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess }: Organi
                         value={formData.slug}
                         onChange={handleChange}
                         required
-                        pattern="[a-z0-9-]+"
+                        pattern="^[a-z0-9-]+$"
                         className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                       />
                     </div>
@@ -431,10 +632,14 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess }: Organi
                   </button>
                   <button
                     type="submit"
-                    disabled={loading || success}
+                    disabled={loading || success || mode === 'view'}
                     className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? "Creating..." : success ? "Created!" : "Create Organization"}
+                    {loading ? (mode === 'edit' ? "Updating..." : "Creating...") : 
+                     success ? (mode === 'edit' ? "Updated!" : "Created!") : 
+                     mode === 'edit' ? "Update" : 
+                     mode === 'view' ? "View Only" : 
+                     "Create"}
                   </button>
                 </div>
               </form>

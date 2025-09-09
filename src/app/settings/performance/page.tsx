@@ -150,7 +150,7 @@ export default function PerformancePage() {
       >
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
+          <div className="hidden md:block">
             <h1 className="text-3xl font-bold text-white flex items-center gap-3">
               <Activity className="h-8 w-8 text-purple-500" />
               Performance Monitoring

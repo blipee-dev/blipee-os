@@ -8,9 +8,11 @@ interface UsersModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  mode?: 'create' | 'edit' | 'view';
+  data?: any;
 }
 
-export default function UsersModal({ isOpen, onClose, onSuccess }: UsersModalProps) {
+export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create', data }: UsersModalProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -21,6 +23,31 @@ export default function UsersModal({ isOpen, onClose, onSuccess }: UsersModalPro
     phone: "",
     sendInvite: true
   });
+
+  // Update form data when data prop changes
+  React.useEffect(() => {
+    if (data && mode === 'edit') {
+      setFormData({
+        name: data.name || "",
+        email: data.email || "",
+        role: data.role?.toLowerCase() || "user",
+        organization: data.organization || "PLMJ",
+        department: data.department || "",
+        phone: data.phone || "",
+        sendInvite: false // Don't send invite when editing
+      });
+    } else if (mode === 'create') {
+      setFormData({
+        name: "",
+        email: "",
+        role: "user",
+        organization: "PLMJ",
+        department: "",
+        phone: "",
+        sendInvite: true
+      });
+    }
+  }, [data, mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,7 +181,10 @@ export default function UsersModal({ isOpen, onClose, onSuccess }: UsersModalPro
                     disabled={loading}
                     className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50"
                   >
-                    {loading ? "Adding..." : "Add User"}
+                    {loading ? (mode === 'edit' ? "Updating..." : "Creating...") : 
+                     mode === 'edit' ? "Update" : 
+                     mode === 'view' ? "View Only" : 
+                     "Create"}
                   </button>
                 </div>
               </form>
