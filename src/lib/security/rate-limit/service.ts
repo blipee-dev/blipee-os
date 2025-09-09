@@ -84,6 +84,9 @@ export class RateLimitService {
   private async initializeRedis() {
     try {
       if (this.config.redis && typeof window === 'undefined') {
+        const start = Date.now();
+        console.log('Initializing Redis rate limiter...');
+        
         // Only load Redis on server side
         const ioredis = await import('ioredis');
         const Redis = ioredis.default || ioredis.Redis;
@@ -99,8 +102,9 @@ export class RateLimitService {
           connectTimeout: 5000, // 5 second connection timeout
           commandTimeout: 5000, // 5 second command timeout
           retryStrategy: (times) => {
+            console.log(`Redis retry attempt ${times}/3`);
             // In development, limit retries to avoid log flooding
-            if (process.env.NODE_ENV !== 'production' && times > 5) {
+            if (process.env.NODE_ENV !== 'production' && times > 3) {
               console.log('Redis rate limiting not available, using in-memory');
               return null; // Stop retrying
             }
@@ -111,7 +115,8 @@ export class RateLimitService {
 
         // Test connection
         await this.redis.ping();
-        console.log('Redis rate limiter connected');
+        const duration = Date.now() - start;
+        console.log(`Redis rate limiter connected in ${duration}ms`);
       }
     } catch (error) {
       console.error('Failed to connect to Redis for rate limiting, using in-memory:', error);
@@ -127,6 +132,7 @@ export class RateLimitService {
     rule: string | RateLimitRule,
     consume: number = 1
   ): Promise<RateLimitResult> {
+    const start = Date.now();
     const limitRule = typeof rule === 'string' ? this.config.limits[rule] : rule;
     if (!limitRule) {
       throw new Error(`Rate limit rule not found: ${rule}`);
@@ -134,11 +140,19 @@ export class RateLimitService {
 
     const identifier = this.hashKey(key);
     
+    let result: RateLimitResult;
     if (this.redis) {
-      return this.checkRedis(identifier, limitRule, consume);
+      result = await this.checkRedis(identifier, limitRule, consume);
     } else {
-      return this.checkInMemory(identifier, limitRule, consume);
+      result = this.checkInMemory(identifier, limitRule, consume);
     }
+    
+    const duration = Date.now() - start;
+    if (duration > 100) {
+      console.warn(`Slow rate limit check: ${duration}ms for rule ${rule}`);
+    }
+    
+    return result;
   }
 
   /**
