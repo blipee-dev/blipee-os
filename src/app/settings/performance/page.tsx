@@ -87,7 +87,7 @@ export default function PerformancePage() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [timeRange, autoRefresh, user, fetchMetrics]);
+  }, [timeRange, autoRefresh, fetchMetrics]);
 
   const handleClearCache = async () => {
     try {

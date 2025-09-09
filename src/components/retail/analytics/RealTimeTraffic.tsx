@@ -32,7 +32,7 @@ export function RealTimeTraffic({ storeId }: RealTimeTrafficProps) {
       const interval = setInterval(fetchTrafficData, 30000);
       return () => clearInterval(interval);
     }
-  }, [storeId]);
+  }, [storeId, fetchTrafficData]);
 
   const fetchTrafficData = async () => {
     try {
