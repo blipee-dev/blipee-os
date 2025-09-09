@@ -17,11 +17,28 @@ export async function POST(request: NextRequest) {
     
     const orgData = await request.json();
     
+    // Generate a unique slug
+    let slug = orgData.slug || orgData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    
+    // Check if slug exists and make it unique if needed
+    const { data: existingOrg } = await supabase
+      .from('organizations')
+      .select('slug')
+      .eq('slug', slug)
+      .single();
+    
+    if (existingOrg) {
+      // Add a random suffix to make it unique
+      const suffix = Math.random().toString(36).substring(2, 8);
+      slug = `${slug}-${suffix}`;
+    }
+    
     // First, try to create the organization
     const { data: org, error: orgError } = await supabase
       .from('organizations')
       .insert({
         ...orgData,
+        slug,
         created_by: user.id // Track who created it
       })
       .select()
@@ -37,7 +54,7 @@ export async function POST(request: NextRequest) {
           .from('organizations')
           .insert({
             name: orgData.name,
-            slug: orgData.slug || orgData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+            slug,
             created_by: user.id
           })
           .select()

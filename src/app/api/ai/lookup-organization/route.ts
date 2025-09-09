@@ -217,9 +217,9 @@ export async function POST(request: NextRequest) {
       primary_contact_phone: organizationData.primary_contact_phone || organizationData.phone || '',
       headquarters_address: organizationData.headquarters_address,
       description: organizationData.description || '',
-      // Add name and slug
+      // Add name and slug (with unique suffix to avoid conflicts)
       name: organizationName,
-      slug: organizationName.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+      slug: organizationName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 8)
     };
 
     console.log('Returning organization data:', finalData);
