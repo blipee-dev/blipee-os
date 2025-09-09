@@ -24,9 +24,9 @@ export function SettingsLayout({ children, pageTitle = "Settings" }: SettingsLay
       showSidebar={false}
       pageTitle={pageTitle}
     >
-      <div className="bg-white dark:bg-[#212121] min-h-screen flex flex-col">
+      <div className="bg-white dark:bg-[#212121] min-h-screen">
         {/* Content */}
-        <div className="relative flex-1 flex flex-col">
+        <div className="relative h-full">
           {children}
         </div>
 
