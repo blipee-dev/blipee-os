@@ -29,8 +29,8 @@ export default function OnboardingPage() {
     // Save onboarding configuration
     console.log("Onboarding complete:", config);
 
-    // Navigate to dashboard
-    router.push("/dashboard");
+    // Navigate to blipee-ai
+    router.push("/blipee-ai");
   };
 
   if (!userId) return null;

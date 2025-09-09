@@ -53,7 +53,7 @@ function TechnologyCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6 sm:p-8 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all duration-300 group"
+      className="bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6 sm:p-8 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all duration-300 group"
     >
       <div
         className={`w-14 h-14 bg-gradient-to-r ${gradient} rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform`}
@@ -360,10 +360,10 @@ export default function AITechnologyPage() {
               className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white/90 dark:bg-[#111111]/90 backdrop-blur-xl border border-gray-200/50 dark:border-white/[0.05] rounded-lg py-4 shadow-2xl"
             >
               <div className="flex flex-col space-y-1">
-                <Link href="/features" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">Features</Link>
-                <Link href="/industries" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">Industries</Link>
-                <Link href="/ai-technology" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">AI Technology</Link>
-                <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">About</Link>
+                <Link href="/features" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">Features</Link>
+                <Link href="/industries" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">Industries</Link>
+                <Link href="/ai-technology" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">AI Technology</Link>
+                <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">About</Link>
               </div>
             </motion.div>
           )}
@@ -381,7 +381,7 @@ export default function AITechnologyPage() {
               transition={{ duration: 0.6 }}
               className="text-center mb-12 sm:mb-16"
             >
-              <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-full mb-6 sm:mb-8" role="note" aria-label="Product highlight">
+              <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-full mb-6 sm:mb-8" role="note" aria-label="Product highlight">
                 <Cpu className="w-4 h-4 text-pink-400 mr-2" aria-hidden="true" />
                 <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                   Next-Generation AI Technology
@@ -407,7 +407,7 @@ export default function AITechnologyPage() {
       </section>
 
       {/* Multi-Brain Architecture */}
-      <section className="py-16 sm:py-20 lg:py-24 px-4 bg-gray-50/50 dark:bg-white/[0.01]">
+      <section className="py-16 sm:py-20 lg:py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -416,7 +416,7 @@ export default function AITechnologyPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 sm:mb-16"
           >
-            <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-full mb-6 sm:mb-8">
+            <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-full mb-6 sm:mb-8">
               <Brain className="w-4 h-4 text-pink-400 mr-2" />
               <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 Advanced AI Architecture
@@ -482,9 +482,9 @@ export default function AITechnologyPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl p-8 text-center hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all duration-300"
+                className="bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl p-8 text-center hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all duration-300"
               >
-                <div className="w-16 h-16 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <div className="w-16 h-16 bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <Brain className="w-8 h-8 text-purple-400" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">

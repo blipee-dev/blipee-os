@@ -74,7 +74,14 @@
       "Bash(fi)",
       "Bash(ls:*)",
       "Bash(file=\"/Users/pedro/Documents/blipee/blipee-os/src/app/$page/page.tsx\")",
-      "Bash(if [ -f \"$file\" ])"
+      "Bash(if [ -f \"$file\" ])",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_mvEQHO/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_PlBHhl/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_s7NIuQ/**)",
+      "Read(//Users/pedro/Downloads/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_mSvuVC/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_sL3oIf/**)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []

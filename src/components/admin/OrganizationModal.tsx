@@ -14,8 +14,7 @@ import {
   CheckCircle,
   AlertCircle
 } from "lucide-react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Database } from "@/types/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 interface OrganizationModalProps {
   isOpen: boolean;
@@ -28,7 +27,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess }: Organi
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
-  const supabase = createClientComponentClient<Database>();
+  const supabase = createClient();
 
   const [formData, setFormData] = useState({
     name: "",

@@ -40,7 +40,7 @@ export default function AuthCallbackPage() {
           .single();
 
         if (profile && 'onboarding_completed' in profile && profile.onboarding_completed) {
-          router.push("/dashboard");
+          router.push("/blipee-ai");
         } else {
           router.push("/onboarding");
         }
