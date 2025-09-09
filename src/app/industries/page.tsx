@@ -51,7 +51,7 @@ function GRIStandard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all duration-300"
+      className="bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all duration-300"
     >
       <div className="flex items-center mb-4">
         <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-4">
@@ -356,13 +356,13 @@ export default function IndustriesPage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white/90 dark:bg-[#111111]/90 backdrop-blur-xl border border-gray-200/50 dark:border-white/[0.05] rounded-lg py-4 shadow-2xl"
+              className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white/90 dark:bg-[#111111]/90 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700 rounded-lg py-4 shadow-2xl"
             >
               <div className="flex flex-col space-y-1">
-                <Link href="/features" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">Features</Link>
-                <Link href="/industries" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">Industries</Link>
-                <Link href="/ai-technology" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">AI Technology</Link>
-                <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors">About</Link>
+                <Link href="/features" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">Features</Link>
+                <Link href="/industries" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">Industries</Link>
+                <Link href="/ai-technology" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">AI Technology</Link>
+                <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">About</Link>
               </div>
             </motion.div>
           )}
@@ -380,7 +380,7 @@ export default function IndustriesPage() {
               transition={{ duration: 0.6 }}
               className="text-center mb-12 sm:mb-16"
             >
-              <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-full mb-6 sm:mb-8" role="note" aria-label="Product highlight">
+              <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-full mb-6 sm:mb-8" role="note" aria-label="Product highlight">
                 <Globe className="w-4 h-4 text-pink-400 mr-2" aria-hidden="true" />
                 <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                   Every Industry. Every Organization. Every Goal.
@@ -426,7 +426,7 @@ export default function IndustriesPage() {
               requirements and regulations.
             </p>
             <div className="grid md:grid-cols-3 gap-6 text-left">
-              <div className="bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all duration-300">
+              <div className="bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all duration-300">
                 <Target className="w-8 h-8 text-purple-400 mb-4" />
                 <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
                   Any Sector
@@ -436,7 +436,7 @@ export default function IndustriesPage() {
                   your unique sustainability challenges.
                 </p>
               </div>
-              <div className="bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all duration-300">
+              <div className="bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all duration-300">
                 <Shield className="w-8 h-8 text-purple-400 mb-4" />
                 <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
                   Any Standard
@@ -446,7 +446,7 @@ export default function IndustriesPage() {
                   sustainability frameworks and regulations.
                 </p>
               </div>
-              <div className="bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all duration-300">
+              <div className="bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all duration-300">
                 <Users className="w-8 h-8 text-purple-400 mb-4" />
                 <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
                   Any Size
@@ -462,7 +462,7 @@ export default function IndustriesPage() {
       </section>
 
       {/* Industry Categories */}
-      <section className="py-16 sm:py-20 lg:py-24 px-4 bg-gray-50/50 dark:bg-white/[0.01]">
+      <section className="py-16 sm:py-20 lg:py-24 px-4 bg-gray-50/50 dark:bg-[#111111]">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -471,7 +471,7 @@ export default function IndustriesPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 sm:mb-16"
           >
-            <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-full mb-6 sm:mb-8">
+            <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-full mb-6 sm:mb-8">
               <Globe className="w-4 h-4 text-pink-400 mr-2" />
               <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 Industry Intelligence
@@ -497,7 +497,7 @@ export default function IndustriesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6 sm:p-8 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all duration-300"
+                className="bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl p-6 sm:p-8 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all duration-300"
               >
                 <div className="flex items-center mb-6">
                   <div
@@ -540,7 +540,7 @@ export default function IndustriesPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 sm:mb-16"
           >
-            <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-full mb-6 sm:mb-8">
+            <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-full mb-6 sm:mb-8">
               <Shield className="w-4 h-4 text-pink-400 mr-2" />
               <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 Compliance Standards
@@ -579,7 +579,7 @@ export default function IndustriesPage() {
             transition={{ duration: 0.6 }}
             className="text-center mt-12"
           >
-            <div className="bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/[0.05] rounded-2xl p-8 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all duration-300">
+            <div className="bg-white dark:bg-[#212121] backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl p-8 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all duration-300">
               <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
                 Beyond GRI Standards
               </h3>
