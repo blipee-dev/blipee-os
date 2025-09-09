@@ -77,6 +77,8 @@ export default function OrganizationSettingsPage() {
 
       if (userOrgsError) throw userOrgsError;
 
+      console.log('Fetched user organizations:', userOrgs);
+
       // Transform the data to match our component's expectations
       const orgs = userOrgs?.map(uo => ({
         ...uo.organizations,
