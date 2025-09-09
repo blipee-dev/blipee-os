@@ -17,6 +17,7 @@ import {
   Loader2
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
 
 interface OrganizationModalProps {
   isOpen: boolean;
@@ -475,20 +476,20 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Company Size
                       </label>
-                      <select
-                        name="company_size"
+                      <CustomDropdown
                         value={formData.company_size}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      >
-                        <option value="1-10">1-10 employees</option>
-                        <option value="11-50">11-50 employees</option>
-                        <option value="51-200">51-200 employees</option>
-                        <option value="201-500">201-500 employees</option>
-                        <option value="501-1000">501-1000 employees</option>
-                        <option value="1001-5000">1001-5000 employees</option>
-                        <option value="5000+">5000+ employees</option>
-                      </select>
+                        onChange={(value) => handleChange({ target: { name: 'company_size', value } } as any)}
+                        options={[
+                          { value: "1-10", label: "1-10 employees" },
+                          { value: "11-50", label: "11-50 employees" },
+                          { value: "51-200", label: "51-200 employees" },
+                          { value: "201-500", label: "201-500 employees" },
+                          { value: "501-1000", label: "501-1000 employees" },
+                          { value: "1001-5000", label: "1001-5000 employees" },
+                          { value: "5000+", label: "5000+ employees" }
+                        ]}
+                        className="w-full"
+                      />
                     </div>
                   </div>
                 </div>

@@ -20,6 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CustomDropdown } from '@/components/ui/CustomDropdown';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { requireRole } from '@/lib/auth/require-role';
 
@@ -79,7 +80,7 @@ export default function PerformancePage() {
 
   useEffect(() => {
     // Require admin role
-    requireRole(user, ['account_owner', 'sustainability_manager']);
+    requireRole(_user, ['account_owner', 'sustainability_manager']);
     
     fetchMetrics();
     
@@ -171,17 +172,17 @@ export default function PerformancePage() {
               {autoRefresh ? 'Auto-refreshing' : 'Auto-refresh'}
             </Button>
             
-            <select
+            <CustomDropdown
               value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
-            >
-              <option value="1m">Last 1 minute</option>
-              <option value="5m">Last 5 minutes</option>
-              <option value="15m">Last 15 minutes</option>
-              <option value="1h">Last hour</option>
-              <option value="24h">Last 24 hours</option>
-            </select>
+              onChange={(value) => setTimeRange(value as string)}
+              options={[
+                { value: "1m", label: "Last 1 minute" },
+                { value: "5m", label: "Last 5 minutes" },
+                { value: "15m", label: "Last 15 minutes" },
+                { value: "1h", label: "Last hour" },
+                { value: "24h", label: "Last 24 hours" }
+              ]}
+            />
           </div>
         </div>
 
