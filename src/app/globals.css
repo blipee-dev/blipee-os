@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* Safe area padding for iOS devices */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
 :root {
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 10, 10, 10;

@@ -8,9 +8,11 @@ interface DevicesModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  mode?: 'create' | 'edit' | 'view';
+  data?: any;
 }
 
-export default function DevicesModal({ isOpen, onClose, onSuccess }: DevicesModalProps) {
+export default function DevicesModal({ isOpen, onClose, onSuccess, mode = 'create', data }: DevicesModalProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -24,6 +26,37 @@ export default function DevicesModal({ isOpen, onClose, onSuccess }: DevicesModa
     protocol: "modbus",
     dataInterval: "5"
   });
+
+  // Update form data when data prop changes
+  React.useEffect(() => {
+    if (data && mode === 'edit') {
+      setFormData({
+        name: data.name || "",
+        type: data.type || "sensor",
+        site: data.site || "Headquarters",
+        manufacturer: data.manufacturer || "",
+        model: data.model || "",
+        serialNumber: data.serialNumber || "",
+        ipAddress: data.ipAddress || "",
+        macAddress: data.macAddress || "",
+        protocol: data.protocol || "modbus",
+        dataInterval: data.dataInterval || "5"
+      });
+    } else if (mode === 'create') {
+      setFormData({
+        name: "",
+        type: "sensor",
+        site: "Headquarters",
+        manufacturer: "",
+        model: "",
+        serialNumber: "",
+        ipAddress: "",
+        macAddress: "",
+        protocol: "modbus",
+        dataInterval: "5"
+      });
+    }
+  }, [data, mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,7 +211,10 @@ export default function DevicesModal({ isOpen, onClose, onSuccess }: DevicesModa
                     disabled={loading}
                     className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50"
                   >
-                    {loading ? "Adding..." : "Add Device"}
+                    {loading ? (mode === 'edit' ? "Updating..." : "Creating...") : 
+                     mode === 'edit' ? "Update" : 
+                     mode === 'view' ? "View Only" : 
+                     "Create"}
                   </button>
                 </div>
               </form>

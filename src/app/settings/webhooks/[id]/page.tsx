@@ -226,7 +226,7 @@ export default function WebhookDetailPage() {
             <Link href="/settings/webhooks" className="p-2 hover:bg-gray-800 rounded-lg">
               <ArrowLeft className="h-5 w-5 text-gray-400" />
             </Link>
-            <div>
+            <div className="hidden md:block">
               <h1 className="text-2xl font-bold text-white">Webhook Details</h1>
               <p className="text-gray-400 mt-1">{webhook.url}</p>
             </div>

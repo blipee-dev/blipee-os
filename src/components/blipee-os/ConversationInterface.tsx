@@ -10,6 +10,7 @@ import { ConversationSidebar } from "./ConversationSidebar";
 import { ArtifactsPanel, Artifact } from "./ArtifactsPanel";
 import { ArtifactsLibrary } from "./ArtifactsLibrary";
 import { ChatsView } from "./ChatsView";
+import { MobileNavigation } from "./MobileNavigation";
 import { Message, UIComponent } from "@/types/conversation";
 import { conversationService } from "@/lib/conversations/service";
 import { jsonToMessages } from "@/lib/conversations/utils";
@@ -53,7 +54,6 @@ export function ConversationInterface({
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [artifacts, setArtifacts] = useState<Artifact[]>([
     {
       id: "sample1",
@@ -325,7 +325,7 @@ export function ConversationInterface({
     .pop();
 
   return (
-    <div className="flex h-screen bg-white dark:bg-[#212121]">
+    <div className="flex h-screen bg-white dark:bg-[#212121] pb-16 md:pb-0">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <ConversationSidebar
@@ -349,42 +349,6 @@ export function ConversationInterface({
         />
       </div>
 
-      {/* Mobile Sidebar */}
-      {isMobileSidebarOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-            onClick={() => setIsMobileSidebarOpen(false)}
-          />
-          <div className="fixed inset-y-0 left-0 z-40 lg:hidden">
-            <ConversationSidebar
-              currentConversationId={currentConversationId}
-              onNewConversation={() => {
-                createNewConversation();
-                setIsMobileSidebarOpen(false);
-              }}
-              onSelectConversation={(id) => {
-                selectConversation(id);
-                setIsMobileSidebarOpen(false);
-              }}
-              onDeleteConversation={deleteConversation}
-              conversations={conversations}
-              onToggleArtifacts={() => {
-                setShowLibrary(!showLibrary);
-                setShowChats(false);
-                setIsMobileSidebarOpen(false);
-              }}
-              showArtifacts={showLibrary}
-              onToggleChats={() => {
-                setShowChats(!showChats);
-                setShowLibrary(false);
-                setIsMobileSidebarOpen(false);
-              }}
-              showChats={showChats}
-            />
-          </div>
-        </>
-      )}
 
       {/* Main content */}
       <div className="flex-1 flex">
@@ -426,28 +390,10 @@ export function ConversationInterface({
           /* Conversation View */
           <div className="flex-1 flex flex-col">
 
-            {/* Mobile header */}
-            <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 lg:hidden">
-            <button
-              onClick={() => setIsMobileSidebarOpen(true)}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-            >
-              <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              blipee AI
-            </h1>
-            <button
-              onClick={createNewConversation}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-            >
-              <Plus className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-          </header>
 
           {/* Messages area */}
           <div className="flex-1 overflow-y-auto">
-          <div className="pb-32">
+          <div className="pb-32 md:pb-32 mb-16 md:mb-0">
             {messages.length === 0 && (
               <div className="max-w-3xl mx-auto px-4 py-16 text-center">
                 <motion.div
@@ -533,6 +479,9 @@ export function ConversationInterface({
           />
         )}
       </div>
+      
+      {/* Mobile Navigation */}
+      <MobileNavigation onNewChat={createNewConversation} />
     </div>
   );
 }
