@@ -89,7 +89,10 @@
       "Bash(npx supabase:*)",
       "WebSearch",
       "Bash(open http://localhost:3000/settings/organizations)",
-      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/api/admin/organization-invitations/route.ts)"
+      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/api/admin/organization-invitations/route.ts)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr comment:*)"
     ],
     "deny": [],
     "ask": []
