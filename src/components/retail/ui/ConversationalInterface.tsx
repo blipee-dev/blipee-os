@@ -34,7 +34,7 @@ export function ConversationalInterface({ selectedStore }: ConversationalInterfa
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages.length]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

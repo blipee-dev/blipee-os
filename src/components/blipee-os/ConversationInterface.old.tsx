@@ -193,7 +193,7 @@ export function ConversationInterface({
     };
 
     initConversation();
-  }, []);
+  }, [session?.current_organization]);
 
   const handleSend = async (message: string, files?: any[]) => {
     if ((!message.trim() && !files?.length) || isLoading) return;

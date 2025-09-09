@@ -24,7 +24,7 @@ export function QuickInsights({ storeId }: QuickInsightsProps) {
     if (storeId) {
       generateInsights();
     }
-  }, [storeId]);
+  }, [storeId, generateInsights]);
 
   const generateInsights = async () => {
     try {
