@@ -1,0 +1,260 @@
+{
+  "navigation": {
+    "features": "Características",
+    "industries": "Industrias",
+    "aiTechnology": "Tecnología IA",
+    "about": "Acerca de",
+    "signIn": "Iniciar Sesión",
+    "signOut": "Cerrar Sesión",
+    "dashboard": "Panel de Control",
+    "menu": "Menú",
+    "toggleTheme": "Cambiar tema",
+    "toggleLanguage": "Cambiar idioma"
+  },
+  "hero": {
+    "title": "La IA Detrás de",
+    "subtitle": "blipee",
+    "description": "No es solo otra plataforma ESG. blipee es su equipo de IA autónomo que trabaja 24/7 para gestionar, optimizar y mejorar su rendimiento en sostenibilidad.",
+    "cta": {
+      "getStarted": "Comenzar",
+      "learnMore": "Saber Más",
+      "requestDemo": "Solicitar Demostración",
+      "watchDemo": "Ver Demostración"
+    }
+  },
+  "features": {
+    "title": "Características que Transforman",
+    "subtitle": "Sus Operaciones de Sostenibilidad",
+    "description": "Todo lo que necesita para revolucionar cómo su organización gestiona la sostenibilidad",
+    "conversationalAI": {
+      "title": "Interfaz de IA Conversacional",
+      "description": "Interacción en lenguaje natural con sus datos de sostenibilidad",
+      "features": [
+        "Haga preguntas en lenguaje sencillo",
+        "Obtenga perspectivas y análisis instantáneos",
+        "No requiere formación",
+        "Respuestas conscientes del contexto",
+        "Conversaciones de múltiples turnos",
+        "Soporte de entrada de voz"
+      ]
+    },
+    "realTimeAnalytics": {
+      "title": "Análisis en Tiempo Real",
+      "description": "Monitorización en vivo y perspectivas instantáneas para sus operaciones",
+      "features": [
+        "Seguimiento de emisiones en vivo",
+        "Monitorización del consumo de energía",
+        "Análisis de flujos de residuos",
+        "Seguimiento del uso del agua",
+        "Visibilidad de la cadena de suministro",
+        "Alertas y notificaciones instantáneas"
+      ]
+    },
+    "complianceAutomation": {
+      "title": "Cumplimiento e Informes",
+      "description": "Seguimiento automatizado del cumplimiento y generación de informes",
+      "features": [
+        "Cumplimiento de normas GRI",
+        "Informes TCFD",
+        "Cuestionarios CDP",
+        "Cumplimiento CSRD de la UE",
+        "Divulgaciones climáticas SEC",
+        "Constructor de informes personalizado"
+      ]
+    },
+    "intelligentInsights": {
+      "title": "Perspectivas Inteligentes",
+      "description": "Recomendaciones impulsadas por IA y análisis predictivo",
+      "features": [
+        "Modelado predictivo de emisiones",
+        "Sugerencias de optimización de costes",
+        "Evaluación y mitigación de riesgos",
+        "Evaluación comparativa del rendimiento",
+        "Análisis de tendencias y previsión",
+        "Planes de acción automatizados"
+      ]
+    },
+    "integration": {
+      "title": "Integración Empresarial",
+      "description": "Conéctese perfectamente con sus sistemas existentes",
+      "features": [
+        "Integración de sistemas ERP",
+        "Conectividad de sensores IoT",
+        "Sistemas de gestión de edificios",
+        "Plataformas de cadena de suministro",
+        "Sistemas financieros",
+        "Acceso API personalizado"
+      ]
+    },
+    "security": {
+      "title": "Seguridad y Privacidad",
+      "description": "Seguridad de nivel empresarial para sus datos sensibles",
+      "features": [
+        "Cifrado de extremo a extremo",
+        "Cumplimiento SOC 2 Tipo II",
+        "Cumplimiento RGPD",
+        "Control de acceso basado en roles",
+        "Registro de auditoría",
+        "Opciones de residencia de datos"
+      ]
+    }
+  },
+  "industries": {
+    "title": "Sostenibilidad Universal",
+    "subtitle": "Inteligencia para Cada Industria",
+    "description": "blipee funciona con cualquier organización, en cualquier industria, de cualquier tamaño. Desde startups hasta Fortune 500, desde manufactura hasta tecnología.",
+    "yourIndustry": "Su Industria Está Cubierta",
+    "industryDescription": "Ya sea que esté rastreando emisiones, gestionando energía, reduciendo residuos o informando métricas ESG, blipee se adapta a sus requisitos y regulaciones específicas de la industria.",
+    "howWeOrganize": "Cómo Organizamos las Industrias",
+    "howWeOrganizeDescription": "Seguimos los Estándares Sectoriales de la Global Reporting Initiative (GRI), el marco de informes de sostenibilidad más utilizado en el mundo.",
+    "griStandards": "Estándares Sectoriales GRI",
+    "griDescription": "Apoyamos los 17 Estándares Sectoriales GRI, proporcionando inteligencia de sostenibilidad específica de la industria",
+    "standards": {
+      "oil_gas": {
+        "title": "Petróleo y Gas",
+        "description": "Seguimiento integral de emisiones, monitorización de metano y gestión de desmantelamiento",
+        "coverage": ["Operaciones upstream", "Transporte midstream", "Refinación downstream", "Desmantelamiento"]
+      },
+      "coal": {
+        "title": "Carbón",
+        "description": "Rehabilitación de minas, gestión del agua y planificación de transición justa",
+        "coverage": ["Operaciones mineras", "Procesamiento", "Rehabilitación", "Impacto comunitario"]
+      },
+      "agriculture": {
+        "title": "Agricultura, Acuicultura y Pesca",
+        "description": "Prácticas agrícolas sostenibles, trazabilidad de la cadena de suministro e impacto en la biodiversidad",
+        "coverage": ["Producción de cultivos", "Ganadería", "Acuicultura", "Cadena de suministro"]
+      },
+      "manufacturing": {
+        "title": "Manufactura",
+        "description": "Economía circular, reducción de residuos y sostenibilidad de la cadena de suministro",
+        "coverage": ["Materias primas", "Producción", "Gestión de residuos", "Ciclo de vida del producto"]
+      }
+    }
+  },
+  "aiTechnology": {
+    "title": "La IA Detrás",
+    "subtitle": "de la Inteligencia de blipee",
+    "description": "Construido con tecnología de IA de vanguardia de los principales proveedores del mundo",
+    "multiBrain": {
+      "title": "Arquitectura Multi-Cerebro",
+      "description": "No dependemos de una sola IA. blipee orquesta múltiples modelos de IA para darle la mejor inteligencia posible."
+    },
+    "providers": {
+      "title": "Proveedores de IA de Primera Clase",
+      "deepseek": {
+        "name": "DeepSeek",
+        "description": "Capacidades avanzadas de razonamiento y análisis"
+      },
+      "openai": {
+        "name": "OpenAI GPT-4",
+        "description": "Comprensión del lenguaje líder en la industria"
+      },
+      "anthropic": {
+        "name": "Anthropic Claude",
+        "description": "Asistencia de IA segura y fiable"
+      }
+    },
+    "capabilities": {
+      "nlp": "Procesamiento del Lenguaje Natural",
+      "contextual": "Comprensión Contextual",
+      "multimodal": "Análisis Multimodal",
+      "realtime": "Procesamiento en Tiempo Real",
+      "predictive": "Análisis Predictivo",
+      "continuous": "Aprendizaje Continuo"
+    }
+  },
+  "cta": {
+    "title": "¿Listo para Transformar Su Sostenibilidad?",
+    "description": "Acceda a su plataforma de sostenibilidad impulsada por IA y comience a tomar decisiones basadas en datos hoy.",
+    "signInToDashboard": "Entrar al Panel",
+    "requestAccess": "Solicitar Acceso",
+    "waitingMessage": "Su equipo de sostenibilidad IA le está esperando"
+  },
+  "footer": {
+    "tagline": "Su plataforma de inteligencia de sostenibilidad impulsada por IA",
+    "quickLinks": "Enlaces Rápidos",
+    "legal": "Legal",
+    "support": "Soporte",
+    "followUs": "Síguenos",
+    "contact": {
+      "title": "Contacto",
+      "email": "Correo Electrónico",
+      "phone": "Teléfono",
+      "address": "Dirección"
+    },
+    "links": {
+      "privacy": "Política de Privacidad",
+      "terms": "Términos de Servicio",
+      "cookies": "Política de Cookies",
+      "security": "Seguridad",
+      "dataProcessing": "Acuerdo de Procesamiento de Datos",
+      "documentation": "Documentación",
+      "apiDocs": "Documentación API",
+      "helpCenter": "Centro de Ayuda",
+      "community": "Comunidad"
+    },
+    "copyright": "© 2024 blipee. Todos los derechos reservados."
+  },
+  "modals": {
+    "contact": {
+      "title": "Programar una Demostración",
+      "description": "Póngase en contacto con nuestro equipo para ver blipee en acción",
+      "form": {
+        "name": "Su Nombre",
+        "email": "Dirección de Correo Electrónico",
+        "company": "Empresa",
+        "message": "Cuéntenos sobre sus objetivos de sostenibilidad",
+        "submit": "Enviar Solicitud"
+      }
+    },
+    "support": {
+      "title": "Obtener Soporte",
+      "description": "Nuestro equipo está aquí para ayudarle a tener éxito con blipee",
+      "form": {
+        "name": "Su Nombre",
+        "email": "Dirección de Correo Electrónico",
+        "issueType": "Seleccionar Tipo de Problema",
+        "issueTypes": {
+          "technical": "Problema Técnico",
+          "billing": "Pregunta sobre Facturación",
+          "feature": "Solicitud de Característica",
+          "other": "Otro"
+        },
+        "message": "Describa su problema o pregunta",
+        "submit": "Enviar Solicitud"
+      }
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "export": "Exportar",
+    "import": "Importar",
+    "download": "Descargar",
+    "upload": "Subir",
+    "refresh": "Actualizar",
+    "settings": "Configuración",
+    "help": "Ayuda",
+    "logout": "Cerrar Sesión",
+    "profile": "Perfil",
+    "notifications": "Notificaciones",
+    "language": "Idioma",
+    "theme": "Tema",
+    "dark": "Oscuro",
+    "light": "Claro",
+    "system": "Sistema"
+  }
+}
