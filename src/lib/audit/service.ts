@@ -1,5 +1,5 @@
 import { AuditEvent, AuditEventType, AuditEventSeverity, AuditLogQuery, AuditLogSummary } from './types';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 
 // Dynamic imports for server-side only
@@ -144,7 +144,7 @@ export class AuditService {
    * Store events in Supabase
    */
   private async storeInSupabase(events: AuditEvent[]): Promise<void> {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { error } = await supabase
       .from('audit_logs')
       .insert(events.map(event => ({
@@ -248,7 +248,7 @@ export class AuditService {
    * Query Supabase
    */
   private async querySupabase(query: AuditLogQuery): Promise<AuditEvent[]> {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     let supabaseQuery = supabase
       .from('audit_logs')
       .select('*');
@@ -534,7 +534,7 @@ export class AuditService {
     
     switch (this.config.storage) {
       case 'supabase':
-        const supabase = await createClient();
+        const supabase = createAdminClient();
         const { count } = await supabase
           .from('audit_logs')
           .delete()
