@@ -108,7 +108,10 @@
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_zirIlP/**)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_Udp112/**)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_o59yk2/**)",
-      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_j1g7rS/**)"
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_j1g7rS/**)",
+      "Bash(if [ -z \"$SUPABASE_SERVICE_KEY\" ])",
+      "Bash(then echo \"SUPABASE_SERVICE_KEY is not set\")",
+      "Bash(else echo \"SUPABASE_SERVICE_KEY is set\")"
     ],
     "deny": [],
     "ask": []
