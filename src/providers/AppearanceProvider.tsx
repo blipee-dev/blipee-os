@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface AppearanceSettings {
   theme: "light" | "dark" | "system";
-  accentColor: string;
+  accentGradient: string;
   fontSize: "small" | "medium" | "large";
   density: "compact" | "comfortable" | "spacious";
   reduceMotion: boolean;
@@ -23,7 +23,7 @@ interface AppearanceContextType {
 
 const defaultSettings: AppearanceSettings = {
   theme: "system",
-  accentColor: "purple",
+  accentGradient: "from-purple-500 to-pink-500",
   fontSize: "medium",
   density: "comfortable",
   reduceMotion: false,
@@ -33,69 +33,48 @@ const defaultSettings: AppearanceSettings = {
 
 const AppearanceContext = createContext<AppearanceContextType | undefined>(undefined);
 
-// Accent color mapping to Tailwind classes
-const accentColorMap: Record<string, { 
-  primary: string; 
-  gradient: string; 
-  ring: string;
-  bgGradient: string;
-  borderColor: string;
-  textColor: string;
-  hoverBg: string;
+// Gradient configurations with their RGB values
+const gradientConfigs: Record<string, { 
+  from: string;
+  to: string;
+  fromRGB: string;
+  toRGB: string;
 }> = {
-  purple: {
-    primary: "purple-500",
-    gradient: "from-purple-500 to-pink-500",
-    ring: "ring-purple-500",
-    bgGradient: "bg-gradient-to-r from-purple-500 to-pink-500",
-    borderColor: "border-purple-500",
-    textColor: "text-purple-600 dark:text-purple-400",
-    hoverBg: "hover:bg-purple-50 dark:hover:bg-purple-900/20"
+  "from-purple-500 to-pink-500": {
+    from: "#8b5cf6",
+    to: "#ec4899",
+    fromRGB: "139, 92, 246",
+    toRGB: "236, 72, 153"
   },
-  blue: {
-    primary: "blue-500",
-    gradient: "from-blue-500 to-cyan-500",
-    ring: "ring-blue-500",
-    bgGradient: "bg-gradient-to-r from-blue-500 to-cyan-500",
-    borderColor: "border-blue-500",
-    textColor: "text-blue-600 dark:text-blue-400",
-    hoverBg: "hover:bg-blue-50 dark:hover:bg-blue-900/20"
+  "from-blue-500 to-cyan-500": {
+    from: "#3b82f6",
+    to: "#06b6d4",
+    fromRGB: "59, 130, 246",
+    toRGB: "6, 182, 212"
   },
-  green: {
-    primary: "green-500",
-    gradient: "from-green-500 to-emerald-500",
-    ring: "ring-green-500",
-    bgGradient: "bg-gradient-to-r from-green-500 to-emerald-500",
-    borderColor: "border-green-500",
-    textColor: "text-green-600 dark:text-green-400",
-    hoverBg: "hover:bg-green-50 dark:hover:bg-green-900/20"
+  "from-green-500 to-emerald-500": {
+    from: "#10b981",
+    to: "#34d399",
+    fromRGB: "16, 185, 129",
+    toRGB: "52, 211, 153"
   },
-  orange: {
-    primary: "orange-500",
-    gradient: "from-orange-500 to-red-500",
-    ring: "ring-orange-500",
-    bgGradient: "bg-gradient-to-r from-orange-500 to-red-500",
-    borderColor: "border-orange-500",
-    textColor: "text-orange-600 dark:text-orange-400",
-    hoverBg: "hover:bg-orange-50 dark:hover:bg-orange-900/20"
+  "from-orange-500 to-red-500": {
+    from: "#f59e0b",
+    to: "#ef4444",
+    fromRGB: "245, 158, 11",
+    toRGB: "239, 68, 68"
   },
-  pink: {
-    primary: "pink-500",
-    gradient: "from-pink-500 to-rose-500",
-    ring: "ring-pink-500",
-    bgGradient: "bg-gradient-to-r from-pink-500 to-rose-500",
-    borderColor: "border-pink-500",
-    textColor: "text-pink-600 dark:text-pink-400",
-    hoverBg: "hover:bg-pink-50 dark:hover:bg-pink-900/20"
+  "from-pink-500 to-rose-500": {
+    from: "#ec4899",
+    to: "#f43f5e",
+    fromRGB: "236, 72, 153",
+    toRGB: "244, 63, 94"
   },
-  indigo: {
-    primary: "indigo-500",
-    gradient: "from-indigo-500 to-purple-500",
-    ring: "ring-indigo-500",
-    bgGradient: "bg-gradient-to-r from-indigo-500 to-purple-500",
-    borderColor: "border-indigo-500",
-    textColor: "text-indigo-600 dark:text-indigo-400",
-    hoverBg: "hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+  "from-indigo-500 to-purple-500": {
+    from: "#6366f1",
+    to: "#8b5cf6",
+    fromRGB: "99, 102, 241",
+    toRGB: "139, 92, 246"
   },
 };
 
@@ -142,18 +121,13 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     root.style.setProperty("--spacing-scale", density.spacing);
     root.style.setProperty("--padding-base", density.padding);
     
-    // Apply accent color CSS variables with actual RGB values
-    const accentColorRGB = {
-      purple: { primary: "168, 85, 247", secondary: "236, 72, 153" },
-      blue: { primary: "59, 130, 246", secondary: "6, 182, 212" },
-      green: { primary: "34, 197, 94", secondary: "16, 185, 129" },
-      orange: { primary: "249, 115, 22", secondary: "239, 68, 68" },
-      pink: { primary: "236, 72, 153", secondary: "244, 63, 94" },
-      indigo: { primary: "99, 102, 241", secondary: "168, 85, 247" },
-    };
-    const colors = accentColorRGB[settings.accentColor] || accentColorRGB.purple;
-    root.style.setProperty("--accent-primary-rgb", colors.primary);
-    root.style.setProperty("--accent-secondary-rgb", colors.secondary);
+    // Apply accent gradient CSS variables
+    const gradientConfig = gradientConfigs[settings.accentGradient] || gradientConfigs["from-purple-500 to-pink-500"];
+    root.style.setProperty("--accent-primary-rgb", gradientConfig.fromRGB);
+    root.style.setProperty("--accent-secondary-rgb", gradientConfig.toRGB);
+    root.style.setProperty("--accent-gradient", settings.accentGradient);
+    root.style.setProperty("--accent-from", gradientConfig.from);
+    root.style.setProperty("--accent-to", gradientConfig.to);
     
     // Apply reduce motion
     if (settings.reduceMotion) {
@@ -255,8 +229,16 @@ export function useAppearance() {
   return context;
 }
 
-// Helper hook to get accent color classes
-export function useAccentColor() {
+// Helper hook to get accent gradient configuration
+export function useAccentGradient() {
   const { settings } = useAppearance();
-  return accentColorMap[settings.accentColor] || accentColorMap.purple;
+  const config = gradientConfigs[settings.accentGradient] || gradientConfigs["from-purple-500 to-pink-500"];
+  return {
+    gradient: settings.accentGradient,
+    from: config.from,
+    to: config.to,
+    fromRGB: config.fromRGB,
+    toRGB: config.toRGB,
+    bgGradient: `bg-gradient-to-r ${settings.accentGradient}`
+  };
 }

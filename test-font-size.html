@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Font Size Test</title>
+    <style>
+        :root {
+            --font-size-base: 16px;
+            --font-scale: 1;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .test-text {
+            font-size: var(--font-size-base);
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #storage-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Font Size Persistence Test</h1>
+    
+    <div id="storage-info"></div>
+    
+    <div class="controls">
+        <button onclick="setFontSize('small')">Small (14px)</button>
+        <button onclick="setFontSize('medium')">Medium (16px)</button>
+        <button onclick="setFontSize('large')">Large (18px)</button>
+        <button onclick="clearStorage()">Clear Storage</button>
+    </div>
+    
+    <div class="test-text">
+        This text should change size based on the font settings.
+    </div>
+    
+    <script>
+        function updateStorageInfo() {
+            const stored = localStorage.getItem('appearanceSettings');
+            const info = document.getElementById('storage-info');
+            if (stored) {
+                const settings = JSON.parse(stored);
+                info.innerHTML = '<strong>Stored Settings:</strong><br>' + 
+                    'fontSize: ' + (settings.fontSize || 'not set') + '<br>' +
+                    'Full data: <pre>' + JSON.stringify(settings, null, 2) + '</pre>';
+            } else {
+                info.innerHTML = '<strong>No settings stored in localStorage</strong>';
+            }
+        }
+        
+        function setFontSize(size) {
+            // Get existing settings or create new
+            let settings = {};
+            const stored = localStorage.getItem('appearanceSettings');
+            if (stored) {
+                settings = JSON.parse(stored);
+            }
+            
+            // Update fontSize
+            settings.fontSize = size;
+            
+            // Save to localStorage
+            localStorage.setItem('appearanceSettings', JSON.stringify(settings));
+            
+            // Apply to CSS
+            const fontSizeMap = {
+                small: { base: "14px", scale: 0.875 },
+                medium: { base: "16px", scale: 1 },
+                large: { base: "18px", scale: 1.125 }
+            };
+            const fontSize = fontSizeMap[size];
+            document.documentElement.style.setProperty("--font-size-base", fontSize.base);
+            document.documentElement.style.setProperty("--font-scale", fontSize.scale.toString());
+            
+            updateStorageInfo();
+        }
+        
+        function clearStorage() {
+            localStorage.removeItem('appearanceSettings');
+            updateStorageInfo();
+        }
+        
+        // Load settings on page load
+        window.addEventListener('load', () => {
+            updateStorageInfo();
+            const stored = localStorage.getItem('appearanceSettings');
+            if (stored) {
+                const settings = JSON.parse(stored);
+                if (settings.fontSize) {
+                    const fontSizeMap = {
+                        small: { base: "14px", scale: 0.875 },
+                        medium: { base: "16px", scale: 1 },
+                        large: { base: "18px", scale: 1.125 }
+                    };
+                    const fontSize = fontSizeMap[settings.fontSize] || fontSizeMap.medium;
+                    document.documentElement.style.setProperty("--font-size-base", fontSize.base);
+                    document.documentElement.style.setProperty("--font-scale", fontSize.scale.toString());
+                }
+            }
+        });
+    </script>
+</body>
+</html>

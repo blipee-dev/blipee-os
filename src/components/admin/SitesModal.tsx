@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MapPin, Building2, Wifi, AlertCircle, CheckCircle, Plus, Trash2 } from "lucide-react";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
-import { createClient } from "@/lib/supabase/client";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 interface SitesModalProps {
   isOpen: boolean;
@@ -12,15 +12,14 @@ interface SitesModalProps {
   onSuccess?: () => void;
   mode?: 'create' | 'edit' | 'view';
   data?: any;
+  supabase: SupabaseClient;
 }
 
-export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create', data }: SitesModalProps) {
+export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create', data, supabase }: SitesModalProps) {
   const [loading, setLoading] = useState(false);
-  const [showFloorDetails, setShowFloorDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
-  const supabase = createClient();
+  const [showFloorDetails, setShowFloorDetails] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -36,7 +35,8 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
     total_employees: "",
     floors: "",
     timezone: "Europe/Lisbon",
-    floor_details: [] as Array<{ floor: number; area_sqm: number; employees: number }>
+    floor_details: [] as Array<{ floor: number; area_sqm: number; employees: number }>,
+    metadata: {} as any
   });
 
   // Update form data when data prop changes
@@ -60,7 +60,8 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         total_employees: data.total_employees?.toString() || "",
         floors: data.floors?.toString() || "",
         timezone: data.timezone || "Europe/Lisbon",
-        floor_details: data.floor_details || []
+        floor_details: data.floor_details || [],
+        metadata: data.metadata || {}
       });
     } else if (mode === 'create') {
       setShowFloorDetails(false);
@@ -79,7 +80,8 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         total_employees: "",
         floors: "",
         timezone: "Europe/Lisbon",
-        floor_details: []
+        floor_details: [],
+        metadata: {}
       });
     }
   }, [data, mode]);
@@ -120,86 +122,55 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (mode === 'view') return;
-    
     setLoading(true);
     setError(null);
     
     try {
       console.log('Submitting site data:', formData);
       
-      // Get current user
+      // Get current user for organization context
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (authError) {
-        console.error('Auth error:', authError);
-        throw new Error('Authentication failed. Please sign in again.');
+      if (authError || !user) {
+        throw new Error('User not authenticated');
       }
-      
-      if (!user) {
-        throw new Error('User not authenticated. Please sign in.');
-      }
-      
-      console.log('Authenticated user:', user.email);
-      
+
       // Get user's organization
       const { data: userOrgs, error: orgError } = await supabase
         .from('user_organizations')
         .select('organization_id')
         .eq('user_id', user.id)
         .single();
-      
-      if (orgError) {
-        console.error('Organization fetch error:', orgError);
-        // Check if user is super admin
-        const { data: superAdmin } = await supabase
-          .from('super_admins')
-          .select('user_id')
-          .eq('user_id', user.id)
-          .single();
-        
-        if (!superAdmin) {
-          throw new Error('You must be associated with an organization to create sites.');
-        }
-        // Super admins can create sites without an organization
-        console.log('User is super admin, proceeding without organization');
+
+      if (orgError || !userOrgs) {
+        throw new Error('Organization not found');
       }
-      
-      const organizationId = userOrgs?.organization_id || null;
-      
-      // Prepare site data
+
       const siteData = {
-        name: formData.name,
-        location: formData.location,
-        organization_id: organizationId,
-        address: formData.address,
-        type: formData.type,
-        total_area_sqm: formData.total_area_sqm ? parseInt(formData.total_area_sqm) : null,
-        total_employees: formData.total_employees ? parseInt(formData.total_employees) : null,
-        floors: formData.floors ? parseInt(formData.floors) : null,
-        timezone: formData.timezone,
-        metadata: {
-          floor_details: showFloorDetails ? formData.floor_details : []
+        ...formData,
+        organization_id: userOrgs.organization_id,
+        address: {
+          street: formData.address.street || '',
+          city: formData.address.city || '',
+          postal_code: formData.address.postal_code || '',
+          country: formData.address.country || ''
         },
+        metadata: formData.metadata || {},
         status: 'active'
       };
-      
-      console.log('Site data to save:', siteData);
-      
+
       if (mode === 'edit' && data?.id) {
         // Update existing site
         const { error: updateError } = await supabase
           .from('sites')
           .update(siteData)
           .eq('id', data.id);
-        
+
         if (updateError) {
-          console.error('Update error:', updateError);
-          throw updateError;
+          console.error('Error updating site:', updateError);
+          throw new Error(updateError.message);
         }
-        
         console.log('Site updated successfully');
-        setSuccess(true);
       } else {
         // Create new site
         const { data: newSite, error: createError } = await supabase
@@ -207,26 +178,23 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
           .insert(siteData)
           .select()
           .single();
-        
+
         if (createError) {
-          console.error('Create error:', createError);
-          throw createError;
+          console.error('Error creating site:', createError);
+          throw new Error(createError.message);
         }
-        
         console.log('Site created successfully:', newSite);
-        setSuccess(true);
       }
-      
-      // Wait a moment to show success state
+
+      setSuccess(true);
       setTimeout(() => {
         onSuccess?.();
         onClose();
-      }, 1000);
+      }, 1500);
       
     } catch (err: any) {
       console.error('Error submitting site:', err);
-      setError(err.message || 'Failed to save site. Please try again.');
-    } finally {
+      setError(err.message || 'Failed to save site');
       setLoading(false);
     }
   };
@@ -442,21 +410,18 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                   )}
                 </div>
 
-                {/* Error Message */}
+                {/* Error/Success Messages */}
                 {error && (
-                  <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
-                    <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                  <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
+                    <AlertCircle className="w-5 h-5" />
+                    <span className="text-sm">{error}</span>
                   </div>
                 )}
                 
-                {/* Success Message */}
                 {success && (
-                  <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                    <p className="text-sm text-green-600 dark:text-green-400">
-                      Site {mode === 'edit' ? 'updated' : 'created'} successfully!
-                    </p>
+                  <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="text-sm">Site {mode === 'edit' ? 'updated' : 'created'} successfully!</span>
                   </div>
                 )}
 
