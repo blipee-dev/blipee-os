@@ -494,6 +494,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
         onSuccess={handleModalSuccess}
         mode={modalMode}
         data={selectedSite}
+        supabase={supabase}
       />
     </SettingsLayout>
   );

@@ -11,10 +11,31 @@ export function createClient() {
         getAll() {
           if (typeof document !== 'undefined') {
             const cookies = document.cookie.split(';');
-            return cookies.map(cookie => {
-              const [name, value] = cookie.trim().split('=');
-              return { name, value };
+            const validCookies: { name: string; value: string }[] = [];
+            
+            cookies.forEach(cookie => {
+              try {
+                const [name, ...valueParts] = cookie.trim().split('=');
+                const value = valueParts.join('='); // Handle values with = signs
+                
+                if (!name || !value) return;
+                
+                // Skip malformed cookies that start with base64- prefix
+                if (value.startsWith('base64-')) {
+                  // Try to clear this malformed cookie
+                  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                  console.warn(`Cleared malformed cookie: ${name}`);
+                  return;
+                }
+                
+                // Only include valid cookies
+                validCookies.push({ name, value });
+              } catch (e) {
+                console.warn('Error parsing cookie:', e);
+              }
             });
+            
+            return validCookies;
           }
           return [];
         },

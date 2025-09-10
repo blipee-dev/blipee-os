@@ -1,0 +1,776 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { ProfileLayout } from "@/components/profile/ProfileLayout";
+import { motion, AnimatePresence } from "framer-motion";
+import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Bell,
+  Mail,
+  Smartphone,
+  Clock,
+  Calendar,
+  Shield,
+  TrendingUp,
+  Users,
+  FileText,
+  Award,
+  AlertCircle,
+  ChevronRight,
+  Check,
+  X,
+  Loader2
+} from "lucide-react";
+// import { useTranslation } from '@/contexts/TranslationContext';
+
+interface NotificationSettings {
+  channels: {
+    email: boolean;
+    inApp: boolean;
+    push: boolean;
+  };
+  types: {
+    systemUpdates: boolean;
+    securityAlerts: boolean;
+    teamActivity: boolean;
+    sustainabilityReports: boolean;
+    complianceAlerts: boolean;
+    achievements: boolean;
+  };
+  frequency: {
+    reports: "realtime" | "daily" | "weekly" | "monthly" | "never";
+    alerts: "realtime" | "daily" | "weekly" | "monthly" | "never";
+    updates: "realtime" | "daily" | "weekly" | "monthly" | "never";
+  };
+  quietHours: {
+    enabled: boolean;
+    startTime: string;
+    endTime: string;
+    weekendsOff: boolean;
+  };
+  emailPreferences: {
+    marketing: boolean;
+    productUpdates: boolean;
+    newsletter: boolean;
+    tips: boolean;
+  };
+}
+
+const defaultSettings: NotificationSettings = {
+  channels: {
+    email: true,
+    inApp: true,
+    push: false,
+  },
+  types: {
+    systemUpdates: true,
+    securityAlerts: true,
+    teamActivity: true,
+    sustainabilityReports: true,
+    complianceAlerts: true,
+    achievements: true,
+  },
+  frequency: {
+    reports: "weekly",
+    alerts: "realtime",
+    updates: "daily",
+  },
+  quietHours: {
+    enabled: false,
+    startTime: "22:00",
+    endTime: "08:00",
+    weekendsOff: false,
+  },
+  emailPreferences: {
+    marketing: false,
+    productUpdates: true,
+    newsletter: false,
+    tips: true,
+  },
+};
+
+
+// Simple translation fallback - replace with actual i18n later
+const useTranslation = () => ({
+  t: (key: string) => {
+    // Simple key-to-text mapping for notifications
+    const translations: Record<string, string> = {
+      'profile.notifications.title': 'Notifications',
+      'profile.notifications.subtitle': 'Manage how you receive notifications and updates from blipee.',
+      'profile.notifications.loading': 'Loading...',
+      'profile.notifications.realtime': 'Real-time',
+      'profile.notifications.daily': 'Daily',
+      'profile.notifications.weekly': 'Weekly',
+      'profile.notifications.monthly': 'Monthly',
+      'profile.notifications.never': 'Never',
+      'profile.notifications.saveSuccess': 'Notification settings saved successfully!',
+      'profile.notifications.saveError': 'Failed to save settings. Changes saved locally.',
+      'profile.notifications.saving': 'Saving...',
+      'profile.notifications.saveChanges': 'Save Changes',
+      
+      // Channels
+      'profile.notifications.channels.title': 'Notification Channels',
+      'profile.notifications.channels.email.title': 'Email Notifications',
+      'profile.notifications.channels.email.description': 'Receive notifications via email',
+      'profile.notifications.channels.inApp.title': 'In-App Notifications',
+      'profile.notifications.channels.inApp.description': 'Show notifications in the application',
+      'profile.notifications.channels.push.title': 'Push Notifications',
+      'profile.notifications.channels.push.description': 'Browser and mobile push notifications',
+      
+      // Types
+      'profile.notifications.types.title': 'Notification Types',
+      'profile.notifications.types.systemUpdates.title': 'System Updates',
+      'profile.notifications.types.systemUpdates.description': 'New features, maintenance, and system changes',
+      'profile.notifications.types.securityAlerts.title': 'Security Alerts',
+      'profile.notifications.types.securityAlerts.description': 'Important security notifications and login alerts',
+      'profile.notifications.types.teamActivity.title': 'Team Activity',
+      'profile.notifications.types.teamActivity.description': 'Updates from your team and collaborators',
+      'profile.notifications.types.sustainabilityReports.title': 'Sustainability Reports',
+      'profile.notifications.types.sustainabilityReports.description': 'ESG reports, carbon tracking, and sustainability insights',
+      'profile.notifications.types.complianceAlerts.title': 'Compliance Alerts',
+      'profile.notifications.types.complianceAlerts.description': 'Regulatory updates and compliance reminders',
+      'profile.notifications.types.achievements.title': 'Achievements',
+      'profile.notifications.types.achievements.description': 'Celebrate your sustainability milestones',
+      
+      // Frequency
+      'profile.notifications.frequency.title': 'Frequency Settings',
+      'profile.notifications.frequency.reports': 'Sustainability Reports',
+      'profile.notifications.frequency.alerts': 'Security & Compliance Alerts',
+      'profile.notifications.frequency.updates': 'System Updates',
+      
+      // Quiet Hours
+      'profile.notifications.quietHours.title': 'Quiet Hours',
+      'profile.notifications.quietHours.enable': 'Enable Quiet Hours',
+      'profile.notifications.quietHours.enableDescription': 'Pause non-critical notifications during specified hours',
+      'profile.notifications.quietHours.startTime': 'Start Time',
+      'profile.notifications.quietHours.endTime': 'End Time',
+      'profile.notifications.quietHours.weekends': 'Weekend Quiet Mode',
+      'profile.notifications.quietHours.weekendsDescription': 'Disable non-critical notifications on weekends',
+      
+      // Email
+      'profile.notifications.email.title': 'Email Preferences',
+      'profile.notifications.email.marketing.title': 'Marketing Communications',
+      'profile.notifications.email.marketing.description': 'Product announcements and promotional content',
+      'profile.notifications.email.productUpdates.title': 'Product Updates',
+      'profile.notifications.email.productUpdates.description': 'New features and platform improvements',
+      'profile.notifications.email.newsletter.title': 'Newsletter',
+      'profile.notifications.email.newsletter.description': 'Monthly sustainability insights and trends',
+      'profile.notifications.email.tips.title': 'Tips & Best Practices',
+      'profile.notifications.email.tips.description': 'Sustainability tips and optimization suggestions',
+    };
+    return translations[key] || key;
+  }
+});
+
+export default function NotificationsPage() {
+  const { t } = useTranslation();
+  const [settings, setSettings] = useState<NotificationSettings>(defaultSettings);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Define frequency options with translations
+  const frequencyOptions = [
+    { value: "realtime", label: t('profile.notifications.realtime') },
+    { value: "daily", label: t('profile.notifications.daily') },
+    { value: "weekly", label: t('profile.notifications.weekly') },
+    { value: "monthly", label: t('profile.notifications.monthly') },
+    { value: "never", label: t('profile.notifications.never') },
+  ];
+
+  // Load settings from localStorage on mount
+  useEffect(() => {
+    fetchNotificationSettings();
+  }, []);
+
+  // Auto-dismiss toast after 3 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const fetchNotificationSettings = async () => {
+    try {
+      const response = await fetch('/api/profile/notifications');
+      if (response.ok) {
+        const { data } = await response.json();
+        // Deep merge fetched data with defaults to ensure all properties exist
+        const mergedSettings = {
+          channels: { ...defaultSettings.channels, ...(data.channels || {}) },
+          types: { ...defaultSettings.types, ...(data.types || {}) },
+          frequency: { ...defaultSettings.frequency, ...(data.frequency || {}) },
+          quietHours: { ...defaultSettings.quietHours, ...(data.quietHours || {}) },
+          emailPreferences: { ...defaultSettings.emailPreferences, ...(data.emailPreferences || {}) },
+        };
+        setSettings(mergedSettings);
+      } else {
+        // Fallback to localStorage if API fails
+        const stored = localStorage.getItem("notificationSettings");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            const mergedSettings = {
+              channels: { ...defaultSettings.channels, ...(parsed.channels || {}) },
+              types: { ...defaultSettings.types, ...(parsed.types || {}) },
+              frequency: { ...defaultSettings.frequency, ...(parsed.frequency || {}) },
+              quietHours: { ...defaultSettings.quietHours, ...(parsed.quietHours || {}) },
+              emailPreferences: { ...defaultSettings.emailPreferences, ...(parsed.emailPreferences || {}) },
+            };
+            setSettings(mergedSettings);
+          } catch (error) {
+            console.error("Failed to parse notification settings:", error);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch notification settings:", error);
+      // Fallback to localStorage
+      const stored = localStorage.getItem("notificationSettings");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          const mergedSettings = {
+            channels: { ...defaultSettings.channels, ...(parsed.channels || {}) },
+            types: { ...defaultSettings.types, ...(parsed.types || {}) },
+            frequency: { ...defaultSettings.frequency, ...(parsed.frequency || {}) },
+            quietHours: { ...defaultSettings.quietHours, ...(parsed.quietHours || {}) },
+            emailPreferences: { ...defaultSettings.emailPreferences, ...(parsed.emailPreferences || {}) },
+          };
+          setSettings(mergedSettings);
+        } catch (error) {
+          console.error("Failed to parse stored settings:", error);
+        }
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Save settings to database and localStorage
+  const saveSettings = async () => {
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/profile/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(settings),
+      });
+
+      if (response.ok) {
+        // Also save to localStorage as backup
+        localStorage.setItem("notificationSettings", JSON.stringify(settings));
+        setHasChanges(false);
+        setToast({ type: 'success', message: t('profile.notifications.saveSuccess') });
+      } else {
+        // Still save to localStorage as fallback
+        localStorage.setItem("notificationSettings", JSON.stringify(settings));
+        setHasChanges(false);
+        setToast({ type: 'error', message: t('profile.notifications.saveError') });
+      }
+    } catch (error) {
+      // Save to localStorage as fallback
+      localStorage.setItem("notificationSettings", JSON.stringify(settings));
+      setHasChanges(false);
+      setToast({ type: 'error', message: t('profile.notifications.saveError') });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const updateChannel = (channel: keyof typeof settings.channels) => {
+    setSettings(prev => ({
+      ...prev,
+      channels: {
+        ...prev.channels,
+        [channel]: !prev.channels[channel],
+      },
+    }));
+    setHasChanges(true);
+  };
+
+  const updateType = (type: keyof typeof settings.types) => {
+    setSettings(prev => ({
+      ...prev,
+      types: {
+        ...prev.types,
+        [type]: !prev.types[type],
+      },
+    }));
+    setHasChanges(true);
+  };
+
+  const updateFrequency = (
+    category: keyof typeof settings.frequency,
+    value: typeof settings.frequency[keyof typeof settings.frequency]
+  ) => {
+    setSettings(prev => ({
+      ...prev,
+      frequency: {
+        ...prev.frequency,
+        [category]: value,
+      },
+    }));
+    setHasChanges(true);
+  };
+
+  const updateQuietHours = (key: keyof typeof settings.quietHours, value: any) => {
+    setSettings(prev => ({
+      ...prev,
+      quietHours: {
+        ...prev.quietHours,
+        [key]: value,
+      },
+    }));
+    setHasChanges(true);
+  };
+
+  const updateEmailPreference = (pref: keyof typeof settings.emailPreferences) => {
+    setSettings(prev => ({
+      ...prev,
+      emailPreferences: {
+        ...prev.emailPreferences,
+        [pref]: !prev.emailPreferences[pref],
+      },
+    }));
+    setHasChanges(true);
+  };
+
+  if (isLoading) {
+    return (
+      <ProfileLayout pageTitle={t('profile.notifications.title')}>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-gray-500">{t('profile.notifications.loading')}</div>
+        </div>
+      </ProfileLayout>
+    );
+  }
+
+  return (
+    <ProfileLayout pageTitle={t('profile.notifications.title')}>
+      <div className="max-w-4xl mx-auto p-6 space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('profile.notifications.title')}</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            {t('profile.notifications.subtitle')}
+          </p>
+        </div>
+
+        {/* Notification Channels */}
+        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            {t('profile.notifications.channels.title')}
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Mail className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.channels.email.title')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('profile.notifications.channels.email.description')}
+                  </p>
+                </div>
+              </div>
+              <ToggleSwitch
+                enabled={settings.channels.email}
+                onChange={() => updateChannel("email")}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Bell className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.channels.inApp.title')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('profile.notifications.channels.inApp.description')}
+                  </p>
+                </div>
+              </div>
+              <ToggleSwitch
+                enabled={settings.channels.inApp}
+                onChange={() => updateChannel("inApp")}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Smartphone className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.channels.push.title')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('profile.notifications.channels.push.description')}
+                  </p>
+                </div>
+              </div>
+              <ToggleSwitch
+                enabled={settings.channels.push}
+                onChange={() => updateChannel("push")}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Notification Types */}
+        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            {t('profile.notifications.types.title')}
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.systemUpdates.title')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('profile.notifications.types.systemUpdates.description')}
+                  </p>
+                </div>
+              </div>
+              <ToggleSwitch
+                enabled={settings.types.systemUpdates}
+                onChange={() => updateType("systemUpdates")}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Shield className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.securityAlerts.title')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('profile.notifications.types.securityAlerts.description')}
+                  </p>
+                </div>
+              </div>
+              <ToggleSwitch
+                enabled={settings.types.securityAlerts}
+                onChange={() => updateType("securityAlerts")}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.teamActivity.title')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('profile.notifications.types.teamActivity.description')}
+                  </p>
+                </div>
+              </div>
+              <ToggleSwitch
+                enabled={settings.types.teamActivity}
+                onChange={() => updateType("teamActivity")}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.sustainabilityReports.title')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('profile.notifications.types.sustainabilityReports.description')}
+                  </p>
+                </div>
+              </div>
+              <ToggleSwitch
+                enabled={settings.types.sustainabilityReports}
+                onChange={() => updateType("sustainabilityReports")}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.complianceAlerts.title')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('profile.notifications.types.complianceAlerts.description')}
+                  </p>
+                </div>
+              </div>
+              <ToggleSwitch
+                enabled={settings.types.complianceAlerts}
+                onChange={() => updateType("complianceAlerts")}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Award className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.achievements.title')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('profile.notifications.types.achievements.description')}
+                  </p>
+                </div>
+              </div>
+              <ToggleSwitch
+                enabled={settings.types.achievements}
+                onChange={() => updateType("achievements")}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Frequency Settings */}
+        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            {t('profile.notifications.frequency.title')}
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                {t('profile.notifications.frequency.reports')}
+              </label>
+              <Select value={settings.frequency.reports} onValueChange={(value) => updateFrequency("reports", value as any)}>
+                <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05]">
+                  {frequencyOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value} className="text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:bg-gray-50 dark:focus:bg-white/[0.05]">
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                {t('profile.notifications.frequency.alerts')}
+              </label>
+              <Select value={settings.frequency.alerts} onValueChange={(value) => updateFrequency("alerts", value as any)}>
+                <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05]">
+                  {frequencyOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value} className="text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:bg-gray-50 dark:focus:bg-white/[0.05]">
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                {t('profile.notifications.frequency.updates')}
+              </label>
+              <Select value={settings.frequency.updates} onValueChange={(value) => updateFrequency("updates", value as any)}>
+                <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05]">
+                  {frequencyOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value} className="text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:bg-gray-50 dark:focus:bg-white/[0.05]">
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        {/* Quiet Hours */}
+        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            {t('profile.notifications.quietHours.title')}
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.quietHours.enable')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('profile.notifications.quietHours.enableDescription')}
+                  </p>
+                </div>
+              </div>
+              <ToggleSwitch
+                enabled={settings.quietHours.enabled}
+                onChange={() => updateQuietHours("enabled", !settings.quietHours.enabled)}
+              />
+            </div>
+
+            {settings.quietHours.enabled && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                      {t('profile.notifications.quietHours.startTime')}
+                    </label>
+                    <input
+                      type="time"
+                      value={settings.quietHours.startTime}
+                      onChange={(e) => updateQuietHours("startTime", e.target.value)}
+                      className="w-full px-3 py-2 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 accent-ring"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                      {t('profile.notifications.quietHours.endTime')}
+                    </label>
+                    <input
+                      type="time"
+                      value={settings.quietHours.endTime}
+                      onChange={(e) => updateQuietHours("endTime", e.target.value)}
+                      className="w-full px-3 py-2 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 accent-ring"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.quietHours.weekends')}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t('profile.notifications.quietHours.weekendsDescription')}
+                      </p>
+                    </div>
+                  </div>
+                  <ToggleSwitch
+                    enabled={settings.quietHours.weekendsOff}
+                    onChange={() => updateQuietHours("weekendsOff", !settings.quietHours.weekendsOff)}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Email Preferences */}
+        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            {t('profile.notifications.email.title')}
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.email.marketing.title')}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('profile.notifications.email.marketing.description')}
+                </p>
+              </div>
+              <ToggleSwitch
+                enabled={settings.emailPreferences.marketing}
+                onChange={() => updateEmailPreference("marketing")}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.email.productUpdates.title')}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('profile.notifications.email.productUpdates.description')}
+                </p>
+              </div>
+              <ToggleSwitch
+                enabled={settings.emailPreferences.productUpdates}
+                onChange={() => updateEmailPreference("productUpdates")}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.email.newsletter.title')}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('profile.notifications.email.newsletter.description')}
+                </p>
+              </div>
+              <ToggleSwitch
+                enabled={settings.emailPreferences.newsletter}
+                onChange={() => updateEmailPreference("newsletter")}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.email.tips.title')}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('profile.notifications.email.tips.description')}
+                </p>
+              </div>
+              <ToggleSwitch
+                enabled={settings.emailPreferences.tips}
+                onChange={() => updateEmailPreference("tips")}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        {hasChanges && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-6 right-6 z-50"
+          >
+            <button
+              onClick={saveSettings}
+              disabled={isSaving}
+              className="px-6 py-3 accent-gradient text-white rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? (
+                <>
+                  {t('profile.notifications.saving')}
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                </>
+              ) : (
+                <>
+                  {t('profile.notifications.saveChanges')}
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </motion.div>
+        )}
+
+        {/* Toast Notification */}
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed bottom-20 right-6 z-50"
+            >
+              <div className={`px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 ${
+                toast.type === 'success' 
+                  ? 'bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400' 
+                  : 'bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400'
+              }`}>
+                {toast.type === 'success' ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  <X className="w-5 h-5" />
+                )}
+                <span className="font-medium">{toast.message}</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </ProfileLayout>
+  );
+}

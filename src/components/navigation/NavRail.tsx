@@ -1,38 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Home, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/providers/ThemeProvider";
 import { premiumTheme } from "@/lib/design/theme";
 
 export function NavRail() {
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "light") {
-      setIsDarkMode(false);
-      document.documentElement.classList.add("light-mode");
-      document.body.classList.add("light-mode");
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-
-    if (newTheme) {
-      document.documentElement.classList.remove("light-mode");
-      document.body.classList.remove("light-mode");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.add("light-mode");
-      document.body.classList.add("light-mode");
-      localStorage.setItem("theme", "light");
-    }
-  };
+  const { isDarkMode, toggleTheme } = useTheme();
 
   return (
     <nav className="hidden md:flex nav-rail" aria-label="Main navigation">
@@ -56,20 +29,12 @@ export function NavRail() {
         <button
           className="theme-toggle"
           onClick={toggleTheme}
-          aria-label={
-            mounted
-              ? `Switch to ${isDarkMode ? "light" : "dark"} mode`
-              : "Toggle theme"
-          }
+          aria-label={`Switch to ${isDarkMode ? "light" : "dark"} mode`}
         >
-          {mounted ? (
-            isDarkMode ? (
-              <Sun className="w-8 h-8" />
-            ) : (
-              <Moon className="w-8 h-8" />
-            )
-          ) : (
+          {isDarkMode ? (
             <Sun className="w-8 h-8" />
+          ) : (
+            <Moon className="w-8 h-8" />
           )}
         </button>
       </div>

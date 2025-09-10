@@ -19,7 +19,7 @@ import OrganizationModal from "@/components/admin/OrganizationModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
-import { createClient } from "@/lib/supabase/client";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export default function OrganizationSettingsPage() {
   const [showOrgModal, setShowOrgModal] = useState(false);
@@ -32,7 +32,7 @@ export default function OrganizationSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const supabase = createClient();
+  const supabase = createClientComponentClient();
 
   // Fetch organizations from database
   const fetchOrganizations = async () => {
@@ -492,6 +492,7 @@ export default function OrganizationSettingsPage() {
         onSuccess={handleModalSuccess}
         mode={modalMode}
         data={selectedOrganization}
+        supabase={supabase}
       />
     </SettingsLayout>
   );

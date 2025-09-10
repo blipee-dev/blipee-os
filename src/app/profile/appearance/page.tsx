@@ -17,49 +17,167 @@ import {
 } from "lucide-react";
 import { useAppearance } from "@/providers/AppearanceProvider";
 import { AccentButton } from "@/components/ui/AccentButton";
-
-const themeOptions = [
-  { id: "light", label: "Light", icon: Sun, description: "Bright theme for daytime use" },
-  { id: "dark", label: "Dark", icon: Moon, description: "Dark theme for reduced eye strain" },
-  { id: "system", label: "System", icon: Monitor, description: "Automatically match your system settings" },
-];
+import { useTranslations } from "next-intl";
 
 const accentColors = [
-  { id: "purple", label: "Purple", colors: "from-purple-500 to-pink-500" },
-  { id: "blue", label: "Blue", colors: "from-blue-500 to-cyan-500" },
-  { id: "green", label: "Green", colors: "from-green-500 to-emerald-500" },
-  { id: "orange", label: "Orange", colors: "from-orange-500 to-red-500" },
-  { id: "pink", label: "Pink", colors: "from-pink-500 to-rose-500" },
-  { id: "indigo", label: "Indigo", colors: "from-indigo-500 to-purple-500" },
+  { id: "purple", label: "Purple", gradient: "from-purple-500 to-pink-500", from: "#8b5cf6", to: "#ec4899" },
+  { id: "blue", label: "Blue", gradient: "from-blue-500 to-cyan-500", from: "#3b82f6", to: "#06b6d4" },
+  { id: "green", label: "Green", gradient: "from-green-500 to-emerald-500", from: "#10b981", to: "#34d399" },
+  { id: "orange", label: "Orange", gradient: "from-orange-500 to-red-500", from: "#f59e0b", to: "#ef4444" },
+  { id: "pink", label: "Pink", gradient: "from-pink-500 to-rose-500", from: "#ec4899", to: "#f43f5e" },
+  { id: "indigo", label: "Indigo", gradient: "from-indigo-500 to-purple-500", from: "#6366f1", to: "#8b5cf6" },
 ];
 
-const fontSizes = [
-  { id: "small", label: "Small", size: "14px", description: "Compact text for more content" },
-  { id: "medium", label: "Medium", size: "16px", description: "Default text size" },
-  { id: "large", label: "Large", size: "18px", description: "Easier to read" },
-];
-
-const densityOptions = [
-  { id: "compact", label: "Compact", spacing: "Tight spacing", description: "More content visible" },
-  { id: "comfortable", label: "Comfortable", spacing: "Balanced spacing", description: "Optimal readability" },
-  { id: "spacious", label: "Spacious", spacing: "Relaxed spacing", description: "Maximum clarity" },
-];
+interface AppearanceSettings {
+  theme: 'light' | 'dark' | 'system';
+  accentGradient: string;
+  fontSize: 'small' | 'medium' | 'large';
+  interfaceDensity: 'compact' | 'comfortable' | 'spacious';
+  reduceMotion: boolean;
+  highContrast: boolean;
+  autoCollapseSidebar: boolean;
+}
 
 export default function AppearancePage() {
-  const { settings, updateSetting } = useAppearance();
-  const [hasChanges, setHasChanges] = useState(false);
+  const t = useTranslations('profile.appearance');
+  const { settings: globalSettings, updateSetting: updateGlobalSetting } = useAppearance();
 
-  const handleThemeChange = (themeId: string) => {
-    updateSetting('theme', themeId as "light" | "dark" | "system");
+  const fontSizes = [
+    { id: "small", label: t('fontSize.small.title'), size: "14px", description: t('fontSize.small.description') },
+    { id: "medium", label: t('fontSize.medium.title'), size: "16px", description: t('fontSize.medium.description') },
+    { id: "large", label: t('fontSize.large.title'), size: "18px", description: t('fontSize.large.description') },
+  ];
+
+  const densityOptions = [
+    { id: "compact", label: t('interfaceDensity.compact.title'), spacing: "Tight spacing", description: t('interfaceDensity.compact.description') },
+    { id: "comfortable", label: t('interfaceDensity.comfortable.title'), spacing: "Balanced spacing", description: t('interfaceDensity.comfortable.description') },
+    { id: "spacious", label: t('interfaceDensity.spacious.title'), spacing: "Relaxed spacing", description: t('interfaceDensity.spacious.description') },
+  ];
+  const [settings, setSettings] = useState<AppearanceSettings>({
+    theme: 'system',
+    accentGradient: 'from-purple-500 to-pink-500',
+    fontSize: 'medium',
+    interfaceDensity: 'comfortable',
+    reduceMotion: false,
+    highContrast: false,
+    autoCollapseSidebar: true
+  });
+  // Get current accent color details
+  const currentAccent = accentColors.find(c => c.gradient === settings.accentGradient) || accentColors[0];
+
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+
+  // Load settings from API
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await fetch('/api/profile/appearance');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setSettings(data.data);
+          }
+        }
+      } catch (error) {
+        console.log('Loading appearance settings from local storage');
+        // Load from localStorage as fallback
+        const stored = localStorage.getItem('appearance-settings');
+        if (stored) {
+          setSettings(JSON.parse(stored));
+        } else {
+          // If no stored settings, use global settings as initial values
+          setSettings({
+            theme: globalSettings.theme,
+            accentGradient: globalSettings.accentGradient,
+            fontSize: globalSettings.fontSize,
+            interfaceDensity: globalSettings.density as any,
+            reduceMotion: globalSettings.reduceMotion,
+            highContrast: globalSettings.highContrast,
+            autoCollapseSidebar: globalSettings.sidebarAutoCollapse
+          });
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, [globalSettings]);
+
+  // Save settings to API and localStorage
+  const saveSettings = async () => {
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/profile/appearance', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      });
+
+      if (response.ok) {
+        localStorage.setItem('appearance-settings', JSON.stringify(settings));
+        
+        // Update global appearance settings
+        updateGlobalSetting('accentGradient', settings.accentGradient);
+        updateGlobalSetting('theme', settings.theme);
+        updateGlobalSetting('fontSize', settings.fontSize);
+        updateGlobalSetting('density', settings.interfaceDensity as any);
+        updateGlobalSetting('reduceMotion', settings.reduceMotion);
+        updateGlobalSetting('highContrast', settings.highContrast);
+        updateGlobalSetting('sidebarAutoCollapse', settings.autoCollapseSidebar);
+        
+        setHasChanges(false);
+      } else {
+        // If API fails (e.g., not authenticated), still save locally
+        localStorage.setItem('appearance-settings', JSON.stringify(settings));
+        setHasChanges(false);
+      }
+    } catch (error) {
+      console.log('Saving appearance settings to local storage');
+      // Still save to localStorage as fallback
+      localStorage.setItem('appearance-settings', JSON.stringify(settings));
+      setHasChanges(false);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const updateSetting = <K extends keyof AppearanceSettings>(
+    key: K,
+    value: AppearanceSettings[K]
+  ) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
     setHasChanges(true);
   };
 
-  const handleSettingChange = <K extends keyof typeof settings>(
+  const handleThemeChange = (themeId: string) => {
+    updateSetting('theme', themeId as "light" | "dark" | "system");
+    // Apply immediately to global settings
+    updateGlobalSetting('theme', themeId as "light" | "dark" | "system");
+  };
+
+  const handleSettingChange = <K extends keyof AppearanceSettings>(
     key: K,
-    value: typeof settings[K]
+    value: AppearanceSettings[K]
   ) => {
     updateSetting(key, value);
-    setHasChanges(true);
+    
+    // Apply immediately to global settings
+    const globalKeyMap: Record<string, string> = {
+      'fontSize': 'fontSize',
+      'interfaceDensity': 'density',
+      'reduceMotion': 'reduceMotion',
+      'highContrast': 'highContrast',
+      'autoCollapseSidebar': 'sidebarAutoCollapse'
+    };
+    
+    const globalKey = globalKeyMap[key as string];
+    if (globalKey) {
+      updateGlobalSetting(globalKey as any, value as any);
+    }
   };
 
   return (
@@ -67,48 +185,61 @@ export default function AppearancePage() {
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Appearance</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Customize how blipee OS looks and feels
+            {t('subtitle')}
           </p>
         </div>
 
         {/* Theme Selection */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Theme</h2>
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('theme.title')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {themeOptions.map((theme) => {
+            {[
+              { id: "light", icon: Sun, key: "light" },
+              { id: "dark", icon: Moon, key: "dark" },
+              { id: "system", icon: Monitor, key: "system" },
+            ].map((theme) => {
               const Icon = theme.icon;
               return (
                 <button
                   key={theme.id}
                   onClick={() => handleThemeChange(theme.id)}
-                  className={`relative p-4 rounded-lg border-2 transition-all ${
+                  className={`relative p-4 rounded-lg border transition-all ${
                     settings.theme === theme.id
-                      ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                      ? "shadow-lg dark:shadow-xl"
                       : "border-gray-200 dark:border-white/[0.05] hover:border-gray-300 dark:hover:border-white/[0.1]"
                   }`}
+                  style={{
+                    borderWidth: '2px',
+                    borderStyle: 'solid',
+                    borderColor: settings.theme === theme.id ? currentAccent.from : undefined
+                  }}
                 >
                   <div className="flex items-start gap-3">
                     <Icon className={`w-5 h-5 ${
                       settings.theme === theme.id 
-                        ? "text-purple-600 dark:text-purple-400" 
+                        ? ""
                         : "text-gray-600 dark:text-gray-400"
-                    }`} />
+                    }`} 
+                    style={{
+                      color: settings.theme === theme.id ? currentAccent.from : undefined
+                    }}/>
                     <div className="flex-1 text-left">
-                      <p className={`font-medium ${
-                        settings.theme === theme.id
-                          ? "text-purple-900 dark:text-purple-200"
-                          : "text-gray-900 dark:text-white"
-                      }`}>
-                        {theme.label}
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {t(`theme.${theme.key}.title`)}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {theme.description}
+                        {t(`theme.${theme.key}.description`)}
                       </p>
                     </div>
                     {settings.theme === theme.id && (
-                      <Check className="w-4 h-4 text-purple-600 dark:text-purple-400 absolute top-4 right-4" />
+                      <Check className={`w-4 h-4 absolute top-4 right-4`} 
+                        style={{
+                          background: `linear-gradient(135deg, ${currentAccent.from}, ${currentAccent.to})`,
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent'
+                        }} />
                     )}
                   </div>
                 </button>
@@ -119,18 +250,29 @@ export default function AppearancePage() {
 
         {/* Accent Color */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Accent Color</h2>
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('accentColor.title')}</h2>
           <div className="flex flex-wrap gap-3">
             {accentColors.map((color) => (
               <button
                 key={color.id}
-                onClick={() => handleSettingChange('accentColor', color.id)}
-                className={`relative w-12 h-12 rounded-lg bg-gradient-to-br ${color.colors} ${
-                  settings.accentColor === color.id ? "ring-2 ring-offset-2 ring-purple-500 dark:ring-offset-[#111111]" : ""
+                onClick={() => {
+                  setSettings(prev => ({ 
+                    ...prev, 
+                    accentGradient: color.gradient
+                  }));
+                  setHasChanges(true);
+                  // Apply immediately to global settings
+                  updateGlobalSetting('accentGradient', color.gradient);
+                }}
+                className={`relative w-12 h-12 rounded-lg bg-gradient-to-br ${color.gradient} ${
+                  settings.accentGradient === color.gradient ? "ring-2 ring-offset-2 dark:ring-offset-[#111111]" : ""
                 }`}
+                style={{
+                  '--tw-ring-color': settings.accentGradient === color.gradient ? color.from : undefined
+                } as React.CSSProperties}
                 title={color.label}
               >
-                {settings.accentColor === color.id && (
+                {settings.accentGradient === color.gradient && (
                   <Check className="w-5 h-5 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                 )}
               </button>
@@ -140,7 +282,7 @@ export default function AppearancePage() {
 
         {/* Font Size */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Font Size</h2>
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('fontSize.title')}</h2>
           <div className="space-y-3">
             {fontSizes.map((size) => (
               <label
@@ -154,7 +296,10 @@ export default function AppearancePage() {
                     value={size.id}
                     checked={settings.fontSize === size.id}
                     onChange={() => handleSettingChange('fontSize', size.id as any)}
-                    className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                    className="w-4 h-4 focus:ring-2"
+                    style={{
+                      accentColor: currentAccent.from
+                    }}
                   />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white" style={{ fontSize: size.size }}>
@@ -173,7 +318,7 @@ export default function AppearancePage() {
 
         {/* Interface Density */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Interface Density</h2>
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('interfaceDensity.title')}</h2>
           <div className="space-y-3">
             {densityOptions.map((density) => (
               <label
@@ -185,9 +330,12 @@ export default function AppearancePage() {
                     type="radio"
                     name="density"
                     value={density.id}
-                    checked={settings.density === density.id}
-                    onChange={() => handleSettingChange('density', density.id as any)}
-                    className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                    checked={settings.interfaceDensity === density.id}
+                    onChange={() => handleSettingChange('interfaceDensity', density.id as any)}
+                    className="w-4 h-4 focus:ring-2"
+                    style={{
+                      accentColor: currentAccent.from
+                    }}
                   />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">
@@ -206,23 +354,25 @@ export default function AppearancePage() {
 
         {/* Accessibility Options */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Accessibility</h2>
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('accessibility.title')}</h2>
           <div className="space-y-4">
             {/* Reduce Motion */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Zap className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Reduce motion</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('accessibility.reduceMotion.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Minimize animations and transitions
+                    {t('accessibility.reduceMotion.description')}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => handleSettingChange('reduceMotion', !settings.reduceMotion)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.reduceMotion ? "bg-purple-600" : "bg-gray-200 dark:bg-gray-700"
+                  settings.reduceMotion 
+                    ? "bg-gradient-to-r " + currentAccent.gradient
+                    : "bg-gray-200 dark:bg-gray-700"
                 }`}
               >
                 <span
@@ -238,16 +388,18 @@ export default function AppearancePage() {
               <div className="flex items-center gap-3">
                 <Eye className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">High contrast</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('accessibility.highContrast.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Increase color contrast for better visibility
+                    {t('accessibility.highContrast.description')}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => handleSettingChange('highContrast', !settings.highContrast)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.highContrast ? "bg-purple-600" : "bg-gray-200 dark:bg-gray-700"
+                  settings.highContrast 
+                    ? "bg-gradient-to-r " + currentAccent.gradient
+                    : "bg-gray-200 dark:bg-gray-700"
                 }`}
               >
                 <span
@@ -262,23 +414,25 @@ export default function AppearancePage() {
 
         {/* Sidebar Behavior */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Sidebar</h2>
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('sidebar.title')}</h2>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-gray-900 dark:text-white">Auto-collapse sidebar</p>
+              <p className="font-medium text-gray-900 dark:text-white">{t('sidebar.autoCollapse.title')}</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Automatically collapse sidebar on smaller screens
+                {t('sidebar.autoCollapse.description')}
               </p>
             </div>
             <button
-              onClick={() => handleSettingChange('sidebarAutoCollapse', !settings.sidebarAutoCollapse)}
+              onClick={() => handleSettingChange('autoCollapseSidebar', !settings.autoCollapseSidebar)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                settings.sidebarAutoCollapse ? "bg-purple-600" : "bg-gray-200 dark:bg-gray-700"
+                settings.autoCollapseSidebar 
+                  ? "bg-gradient-to-r " + currentAccent.gradient
+                  : "bg-gray-200 dark:bg-gray-700"
               }`}
             >
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  settings.sidebarAutoCollapse ? "translate-x-6" : "translate-x-1"
+                  settings.autoCollapseSidebar ? "translate-x-6" : "translate-x-1"
                 }`}
               />
             </button>
@@ -287,44 +441,74 @@ export default function AppearancePage() {
 
         {/* Preview Section */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Preview</h2>
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('preview.title')}</h2>
           <div className="space-y-4">
             <div className="flex gap-3">
-              <AccentButton size="sm">Small Button</AccentButton>
-              <AccentButton size="md">Medium Button</AccentButton>
-              <AccentButton size="lg">Large Button</AccentButton>
+              <button className={`px-3 py-1.5 text-sm text-white rounded-lg font-medium transition-all hover:opacity-90 bg-gradient-to-r ${currentAccent.gradient}`}>
+                {t('preview.smallButton')}
+              </button>
+              <button className={`px-4 py-2 text-white rounded-lg font-medium transition-all hover:opacity-90 bg-gradient-to-r ${currentAccent.gradient}`}>
+                {t('preview.mediumButton')}
+              </button>
+              <button className={`px-6 py-3 text-lg text-white rounded-lg font-medium transition-all hover:opacity-90 bg-gradient-to-r ${currentAccent.gradient}`}>
+                {t('preview.largeButton')}
+              </button>
             </div>
             <div className="flex gap-3">
-              <AccentButton variant="solid">Solid</AccentButton>
-              <AccentButton variant="outline">Outline</AccentButton>
-              <AccentButton variant="ghost">Ghost</AccentButton>
+              <button className={`px-4 py-2 text-white rounded-lg font-medium transition-all hover:opacity-90 bg-gradient-to-r ${currentAccent.gradient}`}>
+                {t('preview.solid')}
+              </button>
+              <div className={`relative inline-block p-[2px] rounded-lg bg-gradient-to-r ${currentAccent.gradient}`}>
+                <button 
+                  className="px-4 py-2 bg-white dark:bg-[#111111] rounded-[6px] font-medium transition-all hover:bg-transparent hover:text-white"
+                  style={{ color: currentAccent.from }}>
+                  {t('preview.outline')}
+                </button>
+              </div>
+              <button 
+                className="px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-100 dark:hover:bg-white/[0.05]"
+                style={{
+                  color: currentAccent.from
+                }}>
+                {t('preview.ghost')}
+              </button>
             </div>
-            <div className="p-4 rounded-lg border-2 accent-border">
-              <p className="accent-text font-medium">This text uses the accent color</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                The border and text will change based on your selected accent color
-              </p>
+            <div className={`relative p-[2px] rounded-lg bg-gradient-to-r ${currentAccent.gradient}`}>
+              <div className="bg-white dark:bg-[#111111] p-4 rounded-[6px]">
+                <p className="font-medium"
+                  style={{
+                    background: `linear-gradient(135deg, ${currentAccent.from}, ${currentAccent.to})`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}>
+                  {t('preview.accentText')}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {t('preview.borderText')}
+                </p>
+              </div>
             </div>
-            <div className="accent-gradient p-4 rounded-lg text-white">
-              <p className="font-medium">Gradient Background</p>
-              <p className="text-sm opacity-90">This uses your selected accent gradient</p>
+            <div className={`p-4 rounded-lg text-white bg-gradient-to-r ${currentAccent.gradient}`}>
+              <p className="font-medium">{t('preview.gradientBackground')}</p>
+              <p className="text-sm opacity-90">{t('preview.gradientText')}</p>
             </div>
           </div>
         </div>
 
-        {/* Save Button - Uses Dynamic Accent Color */}
+        {/* Save Button */}
         {hasChanges && (
           <div className="flex justify-end">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <AccentButton 
-                onClick={() => setHasChanges(false)}
-                size="md"
+              <button
+                onClick={saveSettings}
+                disabled={isSaving}
+                className={`px-6 py-2 disabled:opacity-50 text-white rounded-lg font-medium transition-all hover:opacity-90 bg-gradient-to-r ${currentAccent.gradient}`}
               >
-                Settings Applied
-              </AccentButton>
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
             </motion.div>
           </div>
         )}

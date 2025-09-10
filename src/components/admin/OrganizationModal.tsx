@@ -16,8 +16,9 @@ import {
   Sparkles,
   Loader2
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
+import { useAuth } from "@/lib/auth/context";
 
 interface OrganizationModalProps {
   isOpen: boolean;
@@ -25,24 +26,23 @@ interface OrganizationModalProps {
   onSuccess?: () => void;
   mode?: 'create' | 'edit' | 'view';
   data?: any;
+  supabase: SupabaseClient;
 }
 
-export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = 'create', data }: OrganizationModalProps) {
+export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = 'create', data, supabase }: OrganizationModalProps) {
   const [loading, setLoading] = useState(false);
   const [lookupLoading, setLookupLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
-  const supabase = createClient();
+  // Use the app's auth context
+  const { user, session } = useAuth();
   
   // For debugging - check if user is authenticated
   React.useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Current user:', user);
-    };
-    checkAuth();
-  }, []);
+    console.log('OrganizationModal - Current user from auth context:', user);
+    console.log('OrganizationModal - Session from auth context:', session);
+  }, [user, session]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -205,11 +205,13 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
     setError(null);
 
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+      // Check if user is authenticated using auth context
+      console.log('handleSubmit - user from context:', user);
+      console.log('handleSubmit - session from context:', session);
       
       if (!user) {
-        throw new Error("User not authenticated");
+        console.error('No user in auth context!');
+        throw new Error("User not authenticated - please refresh and sign in again");
       }
 
       if (mode === 'edit' && data?.id) {

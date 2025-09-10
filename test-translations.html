@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Translations</title>
+</head>
+<body>
+    <h1>Test blipee AI Translations</h1>
+    
+    <h2>Change Language:</h2>
+    <button onclick="setLanguage('en')">English</button>
+    <button onclick="setLanguage('pt')">Portuguese</button>
+    <button onclick="setLanguage('es')">Spanish</button>
+    
+    <h2>Open blipee AI page:</h2>
+    <button onclick="openBlipeeAi()">Open blipee-ai page</button>
+    
+    <script>
+        function setLanguage(lang) {
+            localStorage.setItem('preferred-language', lang);
+            alert(`Language set to ${lang}. Now open the blipee-ai page.`);
+        }
+        
+        function openBlipeeAi() {
+            window.open('http://localhost:3003/blipee-ai', '_blank');
+        }
+    </script>
+</body>
+</html>
