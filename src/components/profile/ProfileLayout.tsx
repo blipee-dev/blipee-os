@@ -3,15 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Building2,
-  Users,
   ChevronLeft,
   ChevronRight,
   Menu,
   X,
-  MapPin,
-  Cpu,
   User,
+  Bell,
+  Shield,
+  Palette,
+  Globe,
   Settings,
   MessageSquare,
   LogOut,
@@ -22,21 +22,23 @@ import { useAuth } from "@/lib/auth/context";
 import { getUserInitials, getUserDisplayName } from "@/lib/utils/user";
 import { useAppearance } from "@/providers/AppearanceProvider";
 
-const settingsNavItems = [
-  { id: "organizations", label: "Organizations", icon: Building2, href: "/settings/organizations" },
-  { id: "sites", label: "Sites", icon: MapPin, href: "/settings/sites" },
-  { id: "devices", label: "Devices", icon: Cpu, href: "/settings/devices" },
-  { id: "users", label: "Users", icon: Users, href: "/settings/users" },
+const profileNavItems = [
+  { id: "profile", label: "Profile", icon: User, href: "/profile" },
+  { id: "notifications", label: "Notifications", icon: Bell, href: "/profile/notifications" },
+  { id: "security", label: "Security", icon: Shield, href: "/profile/security" },
+  { id: "appearance", label: "Appearance", icon: Palette, href: "/profile/appearance" },
+  { id: "language", label: "Language", icon: Globe, href: "/profile/language" },
 ];
 
-export default function SettingsLayout({
-  children,
-}: {
+interface ProfileLayoutProps {
   children: React.ReactNode;
-}) {
+  pageTitle?: string;
+}
+
+export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { settings, updateSetting } = useAppearance();
   const [isCollapsed, setIsCollapsed] = useState(settings.sidebarAutoCollapse);
   const { user, signOut } = useAuth();
@@ -60,11 +62,11 @@ export default function SettingsLayout({
   ) : 'U';
 
   // Get current page title
-  const currentPage = settingsNavItems.find(item => item.href === pathname);
+  const currentPage = profileNavItems.find(item => item.href === pathname);
 
   return (
     <div className="flex h-screen bg-white dark:bg-black relative">
-      {/* Settings Sidebar - Hidden on mobile, shown on md+ */}
+      {/* Profile Sidebar - Hidden on mobile, shown on md+ */}
       <div className={`hidden md:block ${isCollapsed ? 'w-20' : 'w-80'} bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-white/[0.05] flex-shrink-0 transition-all duration-300`}>
         <div className="flex flex-col h-full">
           {/* Logo Header */}
@@ -106,7 +108,7 @@ export default function SettingsLayout({
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto">
             <div className="p-2 space-y-0.5">
-              {settingsNavItems.map((item) => {
+              {profileNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
                 
@@ -156,13 +158,13 @@ export default function SettingsLayout({
                   Chat
                 </button>
                 
-                {/* Profile Button */}
+                {/* Settings Button */}
                 <button
-                  onClick={() => router.push('/profile')}
+                  onClick={() => router.push('/settings/organizations')}
                   className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                 >
-                  <User className="w-4 h-4" />
-                  Profile
+                  <Settings className="w-4 h-4" />
+                  Settings
                 </button>
                 
 
@@ -213,13 +215,13 @@ export default function SettingsLayout({
                   <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
                 
-                {/* Profile Button */}
+                {/* Settings Button */}
                 <button
-                  onClick={() => router.push('/profile')}
+                  onClick={() => router.push('/settings/organizations')}
                   className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title="Profile"
+                  title="Settings"
                 >
-                  <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
                 
 
@@ -253,17 +255,15 @@ export default function SettingsLayout({
         </div>
       </div>
 
-
-
-      {/* Mobile Settings Menu Overlay */}
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
-        {isSettingsMenuOpen && (
+        {isMenuOpen && (
           <>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsSettingsMenuOpen(false)}
+              onClick={() => setIsMenuOpen(false)}
               className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             />
             <motion.div
@@ -292,10 +292,10 @@ export default function SettingsLayout({
                           </svg>
                         </div>
                       </div>
-                      <span className="text-lg font-semibold text-gray-900 dark:text-white">Settings</span>
+                      <span className="text-lg font-semibold text-gray-900 dark:text-white">Profile</span>
                     </div>
                     <button
-                      onClick={() => setIsSettingsMenuOpen(false)}
+                      onClick={() => setIsMenuOpen(false)}
                       className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-all"
                     >
                       <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -306,7 +306,7 @@ export default function SettingsLayout({
                 {/* Navigation */}
                 <nav className="flex-1 overflow-y-auto">
                   <div className="p-2 space-y-0.5">
-                    {settingsNavItems.map((item) => {
+                    {profileNavItems.map((item) => {
                       const Icon = item.icon;
                       const isActive = pathname === item.href;
                       
@@ -315,7 +315,7 @@ export default function SettingsLayout({
                           key={item.id}
                           onClick={() => {
                             router.push(item.href);
-                            setIsSettingsMenuOpen(false);
+                            setIsMenuOpen(false);
                           }}
                           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
                             isActive
@@ -337,7 +337,7 @@ export default function SettingsLayout({
                   <button
                     onClick={() => {
                       router.push('/blipee-ai');
-                      setIsSettingsMenuOpen(false);
+                      setIsMenuOpen(false);
                     }}
                     className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                   >
@@ -345,16 +345,16 @@ export default function SettingsLayout({
                     Back to Chat
                   </button>
                   
-                  {/* Profile Button */}
+                  {/* Settings Button */}
                   <button
                     onClick={() => {
-                      router.push('/profile');
-                      setIsSettingsMenuOpen(false);
+                      router.push('/settings/organizations');
+                      setIsMenuOpen(false);
                     }}
                     className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                   >
-                    <User className="w-4 h-4" />
-                    Profile
+                    <Settings className="w-4 h-4" />
+                    Settings
                   </button>
                   
                 </div>
@@ -376,11 +376,11 @@ export default function SettingsLayout({
               <ChevronLeft className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
             </button>
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {currentPage?.label || 'Settings'}
+              {currentPage?.label || pageTitle}
             </h1>
           </div>
           <button
-            onClick={() => setIsSettingsMenuOpen(true)}
+            onClick={() => setIsMenuOpen(true)}
             className="p-2 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-all"
           >
             <Menu className="w-5 h-5 text-[#616161] dark:text-[#757575]" />

@@ -137,7 +137,7 @@ export default function PerformancePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 accent-border" />
       </div>
     );
   }
@@ -153,7 +153,7 @@ export default function PerformancePage() {
         <div className="flex items-center justify-between">
           <div className="hidden md:block">
             <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-              <Activity className="h-8 w-8 text-purple-500" />
+              <Activity className="h-8 w-8 accent-text" />
               Performance Monitoring
             </h1>
             <p className="mt-1 text-gray-400">

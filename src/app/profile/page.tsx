@@ -1,23 +1,33 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, Phone, Camera, Save, Bell, Shield, Palette, Globe } from "lucide-react";
-import { AppLayout } from "@/components/blipee-os/AppLayout";
+import { User, Mail, Phone, Camera, Save, Bell, Shield, Palette, Globe, LogOut } from "lucide-react";
+import { ProfileLayout } from "@/components/profile/ProfileLayout";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/context";
+import { getUserInitials, getUserDisplayName } from "@/lib/utils/user";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/auth/signout", { method: "POST" });
+      if (response.ok) {
+        router.push("/signin");
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
 
   return (
-    <AppLayout
-      conversations={[]}
-      onNewConversation={() => router.push("/blipee-ai")}
-      onSelectConversation={(id) => console.log("Select conversation", id)}
-      onDeleteConversation={(id) => console.log("Delete conversation", id)}
-      showSidebar={false}
-      pageTitle="Profile"
-    >
+    <ProfileLayout pageTitle="Profile">
       <div className="p-6 bg-white dark:bg-[#212121] min-h-screen">
         <div className="max-w-3xl mx-auto">
           {/* Profile Header - Hidden on mobile */}
@@ -36,11 +46,35 @@ export default function ProfilePage() {
               Profile Picture
             </h2>
             <div className="flex items-center gap-6">
-              <div className="w-24 h-24 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                <User className="w-12 h-12 text-white" />
+              <div className="w-24 h-24 accent-gradient-lr rounded-full flex items-center justify-center">
+                <span className="text-2xl font-semibold text-white">
+                  {getUserInitials(
+                    user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.first_name,
+                    user?.email
+                  )}
+                </span>
               </div>
               <div>
-                <button className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && file.size <= 5 * 1024 * 1024) {
+                      // Handle file upload here
+                      console.log('File selected:', file);
+                      // You can add upload logic here
+                    } else if (file) {
+                      alert('File size must be less than 5MB');
+                    }
+                  }}
+                />
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2 accent-gradient-lr text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
+                >
                   <Camera className="w-4 h-4" />
                   Change Photo
                 </button>
@@ -64,7 +98,7 @@ export default function ProfilePage() {
                 <input
                   type="text"
                   placeholder="John Doe"
-                  className="w-full px-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full px-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:accent-ring"
                 />
               </div>
 
@@ -77,7 +111,7 @@ export default function ProfilePage() {
                   <input
                     type="email"
                     placeholder="john@example.com"
-                    className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:accent-ring"
                   />
                 </div>
               </div>
@@ -91,7 +125,7 @@ export default function ProfilePage() {
                   <input
                     type="tel"
                     placeholder="+1 (555) 123-4567"
-                    className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:accent-ring"
                   />
                 </div>
               </div>
@@ -103,7 +137,7 @@ export default function ProfilePage() {
                 <textarea
                   rows={4}
                   placeholder="Tell us about yourself..."
-                  className="w-full px-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full px-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:accent-ring"
                 />
               </div>
             </div>
@@ -146,6 +180,16 @@ export default function ProfilePage() {
                 </div>
                 <span className="text-sm text-[#616161] dark:text-[#757575]">English</span>
               </button>
+
+              <button 
+                onClick={handleLogout}
+                className="w-full flex items-center justify-between p-3 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <LogOut className="w-5 h-5 text-red-500" />
+                  <span className="text-red-500 dark:text-red-400">Sign Out</span>
+                </div>
+              </button>
             </div>
           </div>
 
@@ -154,7 +198,7 @@ export default function ProfilePage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-opacity"
+              className="px-6 py-2 accent-gradient-lr text-white rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-opacity"
             >
               <Save className="w-4 h-4" />
               Save Changes
@@ -162,6 +206,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </ProfileLayout>
   );
 }

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Theme Test</title>
+</head>
+<body>
+    <h1>System Theme Detection Test</h1>
+    <p id="result"></p>
+    <script>
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const result = document.getElementById('result');
+        result.textContent = 'System prefers: ' + (prefersDark ? 'DARK mode' : 'LIGHT mode');
+        
+        // Also show if dark class is present
+        setTimeout(() => {
+            const hasDarkClass = document.documentElement.classList.contains('dark');
+            result.textContent += '\nHTML has dark class: ' + hasDarkClass;
+        }, 100);
+        
+        // Listen for changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            result.textContent = 'System changed to: ' + (e.matches ? 'DARK mode' : 'LIGHT mode');
+        });
+    </script>
+</body>
+</html>

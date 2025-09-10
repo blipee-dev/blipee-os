@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ConversationSidebar } from "./ConversationSidebar";
 import { MobileNavigation } from "./MobileNavigation";
+import { useAppearance } from "@/providers/AppearanceProvider";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -23,7 +24,20 @@ export function AppLayout({
   showSidebar = true,
   pageTitle,
 }: AppLayoutProps) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const { settings, updateSetting } = useAppearance();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(settings.sidebarAutoCollapse);
+  
+  // Initialize collapsed state on mount and when setting changes
+  useEffect(() => {
+    setIsSidebarCollapsed(settings.sidebarAutoCollapse);
+  }, [settings.sidebarAutoCollapse]);
+  
+  // Handle manual toggle - update both local state and global setting
+  const handleToggleCollapse = () => {
+    const newCollapsedState = !isSidebarCollapsed;
+    setIsSidebarCollapsed(newCollapsedState);
+    updateSetting('sidebarAutoCollapse', newCollapsedState);
+  };
 
   return (
     <div className="flex h-screen bg-white dark:bg-black relative">
@@ -36,7 +50,7 @@ export function AppLayout({
             onSelectConversation={onSelectConversation}
             onDeleteConversation={onDeleteConversation}
             isCollapsed={isSidebarCollapsed}
-            onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            onToggleCollapse={handleToggleCollapse}
           />
         </div>
       )}

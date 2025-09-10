@@ -195,7 +195,7 @@ export default function WebhooksPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 accent-border"></div>
       </div>
     );
   }
@@ -207,7 +207,7 @@ export default function WebhooksPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl">
-              <Webhook className="h-8 w-8 text-purple-400" />
+              <Webhook className="h-8 w-8 accent-text" />
             </div>
             <div className="hidden md:block">
               <h1 className="text-3xl font-bold text-white">Webhooks</h1>
@@ -380,7 +380,7 @@ export default function WebhooksPage() {
                     {webhook.events.slice(0, 5).map((event: any) => (
                       <span
                         key={event}
-                        className="text-xs px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded text-purple-400"
+                        className="text-xs px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded accent-text"
                       >
                         {event}
                       </span>
@@ -523,7 +523,7 @@ function WebhookForm({
           type="url"
           value={formData.url}
           onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-          className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:border-purple-500 focus:outline-none"
+          className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:accent-border focus:outline-none"
           placeholder="https://your-app.com/webhooks"
           required
         />
@@ -536,7 +536,7 @@ function WebhookForm({
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:border-purple-500 focus:outline-none"
+          className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:accent-border focus:outline-none"
           rows={3}
           placeholder="Production webhook for emissions tracking..."
         />
@@ -554,7 +554,7 @@ function WebhookForm({
                 <button
                   type="button"
                   onClick={() => toggleCategoryEvents(events)}
-                  className="text-sm text-purple-400 hover:text-purple-300"
+                  className="text-sm accent-text hover:opacity-80"
                 >
                   {events.every(event => selectedEvents.has(event)) ? 'Deselect All' : 'Select All'}
                 </button>
@@ -569,7 +569,7 @@ function WebhookForm({
                       type="checkbox"
                       checked={selectedEvents.has(event)}
                       onChange={() => toggleEvent(event)}
-                      className="text-purple-500"
+                      className="accent-text"
                     />
                     <span className="text-sm text-gray-300">{event}</span>
                   </label>
@@ -586,7 +586,7 @@ function WebhookForm({
             type="checkbox"
             checked={formData.enabled}
             onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-            className="text-purple-500"
+            className="accent-text"
           />
           <span className="text-sm text-gray-300">Enabled</span>
         </label>

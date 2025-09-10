@@ -18,7 +18,7 @@ export default function BillingSettingsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Current Plan */}
-        <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-6 text-white">
+        <div className="accent-gradient rounded-xl p-6 text-white">
           <h3 className="text-lg font-semibold mb-2">Current Plan</h3>
           <p className="text-3xl font-bold mb-1">Enterprise</p>
           <p className="text-white/80">$299/month</p>
@@ -64,7 +64,7 @@ export default function BillingSettingsPage() {
               </p>
             </div>
           </div>
-          <button className="text-purple-500 hover:text-purple-600 text-sm font-medium">
+          <button className="accent-text hover:opacity-80 text-sm font-medium">
             Update
           </button>
         </div>

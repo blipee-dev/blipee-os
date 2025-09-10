@@ -99,7 +99,16 @@
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_1ZwPju/**)",
       "Bash(open http://localhost:3001/settings/sites)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_8DXLwJ/**)",
-      "Bash(open http://localhost:3000/settings/devices)"
+      "Bash(open http://localhost:3000/settings/devices)",
+      "Bash(open http://localhost:3000/profile)",
+      "Bash(awk:*)",
+      "Bash(open http://localhost:3002/settings/devices)",
+      "Bash(open http://localhost:3002/profile/appearance)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_zcVXzd/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_zirIlP/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_Udp112/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_o59yk2/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_j1g7rS/**)"
     ],
     "deny": [],
     "ask": []

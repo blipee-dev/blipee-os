@@ -86,7 +86,7 @@ export function MobileNavigation({ onNewChat }: MobileNavigationProps) {
                   onClick={item.action}
                   className="relative"
                 >
-                  <div className="w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                  <div className="w-14 h-14 accent-gradient-lr rounded-full flex items-center justify-center shadow-lg">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                 </motion.button>
@@ -106,11 +106,11 @@ export function MobileNavigation({ onNewChat }: MobileNavigationProps) {
                 }}
                 className="flex flex-col items-center justify-center p-2 min-w-[60px]"
               >
-                <div className={`relative ${isActive ? "text-purple-500" : "text-gray-500 dark:text-gray-400"}`}>
+                <div className={`relative ${isActive ? "accent-text" : "text-gray-500 dark:text-gray-400"}`}>
                   <Icon className="w-6 h-6" />
                 </div>
                 <span className={`text-[10px] mt-1 ${
-                  isActive ? "text-purple-500 font-medium" : "text-gray-500 dark:text-gray-400"
+                  isActive ? "accent-text font-medium" : "text-gray-500 dark:text-gray-400"
                 }`}>
                   {item.label}
                 </span>
@@ -125,7 +125,7 @@ export function MobileNavigation({ onNewChat }: MobileNavigationProps) {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={onNewChat}
-        className="hidden md:flex fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
+        className="hidden md:flex fixed bottom-6 right-6 z-50 w-14 h-14 accent-gradient-lr rounded-full items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
       >
         <Plus className="w-6 h-6 text-white" />
       </motion.button>

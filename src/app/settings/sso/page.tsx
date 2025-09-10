@@ -75,7 +75,7 @@ export default function SSOSettingsPage() {
       case 'saml':
         return 'text-blue-500';
       case 'oidc':
-        return 'text-purple-500';
+        return 'accent-text';
       default:
         return 'text-gray-500';
     }
@@ -105,7 +105,7 @@ export default function SSOSettingsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Users className="h-5 w-5 text-purple-500" />
+                  <Users className="h-5 w-5 accent-text" />
                   SSO Configurations
                 </h2>
                 <p className="mt-1 text-sm text-[#616161] dark:text-[#757575]">
@@ -146,7 +146,7 @@ export default function SSOSettingsPage() {
             {/* Loading State */}
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 accent-border"></div>
               </div>
             ) : configurations.length === 0 && !showForm ? (
               <div className="text-center py-12">
@@ -216,7 +216,7 @@ export default function SSOSettingsPage() {
                                     href={config.samlConfig.sso_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="ml-2 text-purple-600 dark:text-purple-400 hover:underline inline-flex items-center gap-1"
+                                    className="ml-2 accent-text hover:underline inline-flex items-center gap-1"
                                   >
                                     View
                                     <ExternalLink className="h-3 w-3" />

@@ -50,7 +50,7 @@ export function CustomDropdown({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-3 py-1.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all hover:border-gray-400 dark:hover:border-white/[0.1]"
+        className="flex items-center justify-between w-full px-3 py-1.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:outline-none focus:ring-2 focus:accent-ring focus:accent-border transition-all hover:border-gray-400 dark:hover:border-white/[0.1]"
       >
         <span className="truncate">
           {selectedOption ? selectedOption.label : placeholder}
@@ -79,7 +79,7 @@ export function CustomDropdown({
                   onClick={() => handleSelect(option.value)}
                   className={`w-full px-3 py-2 text-left text-xs sm:text-sm transition-colors hover:bg-gray-100 dark:hover:bg-white/[0.05] ${
                     value === option.value
-                      ? "bg-gradient-to-r from-pink-500/10 to-purple-600/10 text-purple-600 dark:text-purple-400"
+                      ? "accent-bg accent-text"
                       : "text-gray-700 dark:text-gray-300"
                   }`}
                 >

@@ -127,7 +127,7 @@ export default function APIUsagePage() {
     return (
       <div className="min-h-screen bg-black p-8">
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 accent-border"></div>
         </div>
       </div>
     );
@@ -157,7 +157,7 @@ export default function APIUsagePage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl">
-                <Activity className="h-8 w-8 text-purple-400" />
+                <Activity className="h-8 w-8 accent-text" />
               </div>
               <div className="hidden md:block">
                 <h1 className="text-3xl font-bold text-white">API Usage Analytics</h1>
