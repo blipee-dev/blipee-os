@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: errorerror.message || "Failed to sign out",
+        _error: error.message || "Failed to sign out",
       },
       { status: 500 },
     );

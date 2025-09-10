@@ -99,7 +99,7 @@ export default function ProfileSettingsPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-opacity"
+              className="px-6 py-2 accent-gradient-lr text-white rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-opacity"
             >
               <Save className="w-4 h-4" />
               Save Changes

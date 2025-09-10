@@ -5,6 +5,7 @@ import { AuthProvider } from "@/lib/auth/context";
 import { initializeModuleSystem } from "@/lib/modules";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { AppearanceProvider } from "@/providers/AppearanceProvider";
 
 function ModuleSystemInitializer() {
   useEffect(() => {
@@ -19,10 +20,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <SettingsProvider>
-          <ModuleSystemInitializer />
-          {children}
-        </SettingsProvider>
+        <AppearanceProvider>
+          <SettingsProvider>
+            <ModuleSystemInitializer />
+            {children}
+          </SettingsProvider>
+        </AppearanceProvider>
       </AuthProvider>
     </ThemeProvider>
   );

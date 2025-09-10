@@ -17,6 +17,7 @@ import { jsonToMessages } from "@/lib/conversations/utils";
 import { useAPIClient } from "@/lib/api/client";
 import { useCSRF } from "@/hooks/use-csrf";
 import { useAuth } from "@/lib/auth/context";
+import { useAppearance } from "@/providers/AppearanceProvider";
 import { Menu, Plus, PanelRightOpen, PanelRightClose } from "lucide-react";
 
 interface BuildingContext {
@@ -53,7 +54,20 @@ export function ConversationInterface({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const { settings, updateSetting } = useAppearance();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(settings.sidebarAutoCollapse);
+  
+  // Initialize collapsed state on mount and when setting changes
+  useEffect(() => {
+    setIsSidebarCollapsed(settings.sidebarAutoCollapse);
+  }, [settings.sidebarAutoCollapse]);
+  
+  // Handle manual toggle - update both local state and global setting
+  const handleToggleCollapse = () => {
+    const newCollapsedState = !isSidebarCollapsed;
+    setIsSidebarCollapsed(newCollapsedState);
+    updateSetting('sidebarAutoCollapse', newCollapsedState);
+  };
   const [artifacts, setArtifacts] = useState<Artifact[]>([
     {
       id: "sample1",
@@ -335,7 +349,7 @@ export function ConversationInterface({
           onDeleteConversation={deleteConversation}
           conversations={conversations}
           isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          onToggleCollapse={handleToggleCollapse}
           onToggleArtifacts={() => {
             setShowLibrary(!showLibrary);
             setShowChats(false);
@@ -401,8 +415,15 @@ export function ConversationInterface({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
                 >
-                  <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
-                    How can I help you today?
+                  <h1 className="text-4xl font-bold mb-4">
+                    <span style={{
+                      background: 'linear-gradient(to right, rgb(var(--accent-primary-rgb)), rgb(var(--accent-secondary-rgb)))',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}>
+                      How can I help you today?
+                    </span>
                   </h1>
                   <p className="text-gray-600 dark:text-gray-400 mb-8">
                     Start a conversation about sustainability, energy management, or building operations

@@ -261,7 +261,7 @@ export default function DevicesClient({ initialDevices, sites, userRole }: Devic
                 setModalMode('create');
                 setShowDeviceModal(true);
               }}
-              className="p-2.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg text-white hover:opacity-90 transition-opacity"
+              className="p-2.5 accent-gradient-lr rounded-lg text-white hover:opacity-90 transition-opacity"
               title="Add Device"
             >
               <Plus className="w-4 h-4" />
@@ -285,7 +285,7 @@ export default function DevicesClient({ initialDevices, sites, userRole }: Devic
                     setModalMode('create');
                     setShowDeviceModal(true);
                   }}
-                  className="mt-4 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+                  className="mt-4 px-4 py-2 accent-gradient-lr text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
                 >
                   Add Your First Device
                 </button>
@@ -324,7 +324,7 @@ export default function DevicesClient({ initialDevices, sites, userRole }: Devic
                     <tr key={device.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
                       <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                          <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3">
                             <Cpu className="w-4 h-4 text-white" />
                           </div>
                           <div>
