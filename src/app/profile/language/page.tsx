@@ -19,6 +19,7 @@ import {
   MapPin,
   Settings
 } from "lucide-react";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 interface LanguageSettings {
   displayLanguage: string;
@@ -121,6 +122,8 @@ const reportingStandardOptions = [
 ];
 
 export default function LanguagePage() {
+  useAuthRedirect('/profile/language');
+  
   const t = useTranslations('profile.language');
   const { locale, setLocale } = useLanguage();
   const [localeLoading] = useState(false);

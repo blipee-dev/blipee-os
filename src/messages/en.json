@@ -1361,6 +1361,143 @@
       "submitButton": "Submit Request"
     }
   },
+  "settings": {
+    "organizations": {
+      "title": "Organization Management",
+      "subtitle": "Manage your organizations and their settings",
+      "searchPlaceholder": "Search organizations...",
+      "filter": "Filter",
+      "download": "Download",
+      "upload": "Upload",
+      "addOrganization": "Add Organization",
+      "createFirstOrganization": "Create Your First Organization",
+      "noOrganizationsFound": "No organizations found",
+      "userNotAuthenticated": "User not authenticated",
+      "failedToLoad": "Failed to load organizations",
+      "retry": "Retry",
+      "failedToDelete": "Failed to delete organization",
+      "table": {
+        "organization": "Organization",
+        "industry": "Industry",
+        "subscription": "Subscription",
+        "sites": "Sites",
+        "users": "Users",
+        "status": "Status"
+      },
+      "pagination": {
+        "itemsPerPage": "Items per page:",
+        "showing": "Showing {start}-{end} of {total}",
+        "firstPage": "First page",
+        "previousPage": "Previous page",
+        "nextPage": "Next page",
+        "lastPage": "Last page",
+        "page": "Page {number}"
+      },
+      "modal": {
+        "createTitle": "Add New Organization",
+        "editTitle": "Edit Organization",
+        "viewTitle": "View Organization",
+        "createSuccess": "Organization created successfully!",
+        "updateSuccess": "Organization updated successfully!",
+        "aiLookupSuccess": "✨ Organization details filled by AI!",
+        "aiLookupTooltip": "AI Lookup - Auto-fill organization details",
+        "sections": {
+          "basicInfo": "Basic Information",
+          "contact": "Contact Information",
+          "addresses": "Address Information",
+          "industry": "Industry & Classification",
+          "subscription": "Subscription & Billing",
+          "system": "System & Customization"
+        },
+        "fields": {
+          "name": "Organization Name",
+          "legalName": "Legal Name",
+          "slug": "URL Slug",
+          "companySize": "Company Size",
+          "website": "Website",
+          "logoUrl": "Logo URL",
+          "publicCompany": "Public Company",
+          "stockTicker": "Stock Ticker",
+          "primaryEmail": "Primary Email",
+          "primaryPhone": "Primary Phone",
+          "headquartersAddress": "Headquarters Address",
+          "billingAddress": "Billing Address",
+          "sameAsHeadquarters": "Same as headquarters",
+          "primaryIndustry": "Primary Industry",
+          "secondaryIndustry": "Secondary Industry",
+          "griSector": "GRI Sector",
+          "industryConfidence": "Industry Confidence (%)",
+          "subscriptionTier": "Subscription Tier",
+          "subscriptionStatus": "Subscription Status",
+          "subscriptionSeats": "Subscription Seats",
+          "subscriptionStarted": "Subscription Started",
+          "subscriptionExpires": "Subscription Expires",
+          "dataResidency": "Data Residency Region",
+          "brandColors": "Brand Colors",
+          "primaryColor": "Primary Color",
+          "secondaryColor": "Secondary Color",
+          "accentColor": "Accent Color"
+        },
+        "placeholders": {
+          "streetAddress": "Street Address",
+          "city": "City",
+          "postalCode": "Postal Code",
+          "country": "Country"
+        },
+        "companySizes": {
+          "1-10": "1-10 employees",
+          "11-50": "11-50 employees",
+          "51-200": "51-200 employees",
+          "201-500": "201-500 employees",
+          "501-1000": "501-1000 employees",
+          "1001-5000": "1001-5000 employees",
+          "5000+": "5000+ employees"
+        },
+        "subscriptionTiers": {
+          "starter": "Starter",
+          "professional": "Professional",
+          "enterprise": "Enterprise",
+          "custom": "Custom"
+        },
+        "subscriptionStatuses": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "suspended": "Suspended",
+          "cancelled": "Cancelled",
+          "trialing": "Trial"
+        },
+        "dataResidencyRegions": {
+          "us-east-1": "US East (Virginia)",
+          "us-west-2": "US West (Oregon)",
+          "eu-west-1": "Europe (Ireland)",
+          "ap-southeast-1": "Asia Pacific (Singapore)"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "create": "Create",
+          "update": "Update",
+          "creating": "Creating...",
+          "updating": "Updating...",
+          "created": "Created!",
+          "updated": "Updated!",
+          "viewOnly": "View Only"
+        },
+        "validation": {
+          "nameRequired": "Organization name is required",
+          "slugRequired": "URL slug is required",
+          "slugInvalid": "URL slug can only contain lowercase letters, numbers, and hyphens",
+          "emailInvalid": "Please enter a valid email address",
+          "urlInvalid": "Please enter a valid URL",
+          "phoneInvalid": "Please enter a valid phone number",
+          "seatsMin": "Minimum 1 seat required",
+          "confidenceRange": "Confidence must be between 0 and 100",
+          "stockTickerInvalid": "Stock ticker must be 1-5 uppercase letters",
+          "colorInvalid": "Please enter a valid hex color code",
+          "pleaseFixErrors": "Please fix the errors below before submitting"
+        }
+      }
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",

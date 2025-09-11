@@ -18,6 +18,7 @@ import {
 import { useAppearance } from "@/providers/AppearanceProvider";
 import { AccentButton } from "@/components/ui/AccentButton";
 import { useTranslations } from "@/providers/LanguageProvider";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 const accentColors = [
   { id: "purple", gradient: "from-purple-500 to-pink-500", from: "#8b5cf6", to: "#ec4899" },
@@ -43,6 +44,8 @@ interface AppearanceSettings {
 }
 
 export default function AppearancePage() {
+  useAuthRedirect('/profile/appearance');
+  
   const t = useTranslations('profile.appearance');
   const { settings: globalSettings, updateSetting: updateGlobalSetting } = useAppearance();
 

@@ -7,8 +7,11 @@ import { Key, Plus, Copy, Eye, EyeOff, Trash2, Calendar, Shield, Globe, Hash, Al
 import { motion, AnimatePresence } from 'framer-motion';
 import { APIKey, APIKeyCreate, APIVersion, API_SCOPES } from '@/types/api-gateway';
 import { format } from 'date-fns';
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export default function APIKeysPage() {
+  useAuthRedirect('/settings/api-keys');
+  
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);

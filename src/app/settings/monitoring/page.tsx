@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Activity, AlertTriangle, CheckCircle, Clock, Database, Zap, TrendingUp, Users } from 'lucide-react';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { GradientButton } from '@/components/premium/GradientButton';
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 interface SystemHealth {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -64,6 +65,8 @@ interface Metrics {
 }
 
 export default function MonitoringPage() {
+  useAuthRedirect('/settings/monitoring');
+  
   const [health, setHealth] = useState<SystemHealth | null>(null);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);

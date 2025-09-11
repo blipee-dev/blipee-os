@@ -12,8 +12,11 @@ import { AuditDashboard } from '@/components/audit/AuditDashboard';
 import { RecoverySettings } from '@/components/auth/recovery/RecoverySettings';
 import { RecoveryDashboard } from '@/components/auth/recovery/RecoveryDashboard';
 import WebAuthnDashboard from '@/components/auth/webauthn/WebAuthnDashboard';
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export default function SecuritySettingsPage() {
+  useAuthRedirect('/settings/security');
+  
   const [showMFASetup, setShowMFASetup] = useState(false);
   const [mfaEnabled, setMfaEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
