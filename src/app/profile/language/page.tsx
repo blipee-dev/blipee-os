@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import { locales, localeNames, localeFlags, type Locale } from '@/i18n';
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/providers/LanguageProvider";
 import { useLocale as useLocaleContext } from "@/contexts/LocaleContext";
 import { LanguageSwitchingIndicator } from "@/components/ui/LanguageSwitchingIndicator";
 import {

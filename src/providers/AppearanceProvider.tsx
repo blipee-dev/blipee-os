@@ -76,6 +76,42 @@ const gradientConfigs: Record<string, {
     fromRGB: "99, 102, 241",
     toRGB: "139, 92, 246"
   },
+  "from-teal-500 to-cyan-500": {
+    from: "#14b8a6",
+    to: "#06b6d4",
+    fromRGB: "20, 184, 166",
+    toRGB: "6, 182, 212"
+  },
+  "from-amber-500 to-fuchsia-500": {
+    from: "#f59e0b",
+    to: "#d946ef",
+    fromRGB: "245, 158, 11",
+    toRGB: "217, 70, 239"
+  },
+  "from-blue-500 to-teal-500": {
+    from: "#3b82f6",
+    to: "#14b8a6",
+    fromRGB: "59, 130, 246",
+    toRGB: "20, 184, 166"
+  },
+  "from-red-500 to-yellow-500": {
+    from: "#ef4444",
+    to: "#eab308",
+    fromRGB: "239, 68, 68",
+    toRGB: "234, 179, 8"
+  },
+  "from-slate-500 to-gray-500": {
+    from: "#64748b",
+    to: "#6b7280",
+    fromRGB: "100, 116, 139",
+    toRGB: "107, 114, 128"
+  },
+  "from-lime-500 to-green-500": {
+    from: "#84cc16",
+    to: "#22c55e",
+    fromRGB: "132, 204, 22",
+    toRGB: "34, 197, 94"
+  }
 };
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {

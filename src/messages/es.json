@@ -589,16 +589,32 @@
         "uploadError": "El tamaño del archivo debe ser menor a 5MB",
         "uploadSuccess": "Foto de perfil actualizada con éxito"
       },
+      "roles": {
+        "super_admin": "Super Administrador",
+        "platform_developer": "Desarrollador de Plataforma",
+        "account_owner": "Propietario de Cuenta",
+        "sustainability_manager": "Gerente de Sostenibilidad",
+        "facility_manager": "Gerente de Instalaciones",
+        "analyst": "Analista",
+        "user": "Usuario",
+        "viewer": "Observador"
+      },
       "personalInformation": {
         "title": "Información Personal",
         "fullName": "Nombre Completo",
         "emailAddress": "Dirección de Correo Electrónico",
         "phoneNumber": "Número de Teléfono",
+        "jobTitle": "Título del Trabajo",
+        "department": "Departamento",
+        "location": "Ubicación",
         "bio": "Biografía",
         "placeholders": {
           "fullName": "Juan Pérez",
           "emailAddress": "juan@ejemplo.com",
           "phoneNumber": "+34 123 456 789",
+          "jobTitle": "Ingeniero de Software",
+          "department": "Ingeniería",
+          "location": "Madrid, España",
           "bio": "Cuéntanos sobre ti..."
         }
       },
@@ -629,6 +645,152 @@
         "saving": "Guardando...",
         "saved": "Cambios guardados con éxito"
       }
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "subtitle": "Gestiona cómo recibes notificaciones y actualizaciones de blipee",
+      "loading": "Cargando...",
+      "realtime": "Tiempo real",
+      "daily": "Diario",
+      "weekly": "Semanal",
+      "monthly": "Mensual",
+      "never": "Nunca",
+      "saveSuccess": "¡Configuración de notificaciones guardada con éxito!",
+      "saveError": "Error al guardar la configuración. Cambios guardados localmente.",
+      "saving": "Guardando...",
+      "saveChanges": "Guardar Cambios",
+      "channels": {
+        "title": "Canales de Notificación",
+        "email": {
+          "title": "Notificaciones por Email",
+          "description": "Recibir notificaciones por correo electrónico"
+        },
+        "inApp": {
+          "title": "Notificaciones en la Aplicación",
+          "description": "Mostrar notificaciones en la aplicación"
+        },
+        "push": {
+          "title": "Notificaciones Push",
+          "description": "Notificaciones push en navegador y móvil"
+        }
+      },
+      "types": {
+        "title": "Tipos de Notificaciones",
+        "systemUpdates": {
+          "title": "Actualizaciones del Sistema",
+          "description": "Nuevas funciones, mantenimiento y cambios del sistema"
+        },
+        "securityAlerts": {
+          "title": "Alertas de Seguridad",
+          "description": "Notificaciones importantes de seguridad y alertas de inicio de sesión"
+        },
+        "teamActivity": {
+          "title": "Actividad del Equipo",
+          "description": "Actualizaciones de tu equipo y colaboradores"
+        },
+        "sustainabilityReports": {
+          "title": "Informes de Sostenibilidad",
+          "description": "Informes ESG, seguimiento de carbono e información de sostenibilidad"
+        },
+        "complianceAlerts": {
+          "title": "Alertas de Cumplimiento",
+          "description": "Actualizaciones regulatorias y recordatorios de cumplimiento"
+        },
+        "achievements": {
+          "title": "Logros",
+          "description": "Celebra tus hitos de sostenibilidad"
+        }
+      },
+      "frequency": {
+        "title": "Configuración de Frecuencia",
+        "reports": "Informes de Sostenibilidad",
+        "alerts": "Alertas de Seguridad y Cumplimiento",
+        "updates": "Actualizaciones del Sistema"
+      },
+      "quietHours": {
+        "title": "Horas de Silencio",
+        "enable": "Habilitar Horas de Silencio",
+        "enableDescription": "Pausar notificaciones no críticas durante las horas especificadas",
+        "startTime": "Hora de Inicio",
+        "endTime": "Hora de Finalización",
+        "weekends": "Modo Silencioso de Fin de Semana",
+        "weekendsDescription": "Desactivar notificaciones no críticas los fines de semana"
+      },
+      "email": {
+        "title": "Preferencias de Email",
+        "marketing": {
+          "title": "Comunicaciones de Marketing",
+          "description": "Anuncios de productos y contenido promocional"
+        },
+        "productUpdates": {
+          "title": "Actualizaciones del Producto",
+          "description": "Nuevas funciones y mejoras de la plataforma"
+        },
+        "newsletter": {
+          "title": "Boletín Informativo",
+          "description": "Información mensual sobre sostenibilidad y tendencias"
+        },
+        "tips": {
+          "title": "Consejos y Mejores Prácticas",
+          "description": "Consejos de sostenibilidad y sugerencias de optimización"
+        }
+      }
+    },
+    "security": {
+      "title": "Seguridad",
+      "subtitle": "Gestiona la configuración de seguridad de tu cuenta y monitorea la actividad de inicio de sesión",
+      "loading": "Cargando...",
+      "loadingSettings": "Cargando configuración de seguridad...",
+      "signInRequired": "Por favor, inicia sesión para ver la configuración de seguridad",
+      "settingsSaved": "Configuración de seguridad guardada con éxito",
+      "settingsSaveError": "Error al guardar la configuración de seguridad",
+      "changePassword": "Cambiar Contraseña",
+      "currentPassword": "Contraseña Actual",
+      "newPassword": "Nueva Contraseña",
+      "confirmNewPassword": "Confirmar Nueva Contraseña",
+      "updatePassword": "Actualizar Contraseña",
+      "updating": "Actualizando...",
+      "passwordUpdated": "Contraseña actualizada con éxito",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+      "passwordChangedSuccess": "Contraseña cambiada con éxito",
+      "twoFactorAuth": "Autenticación de Dos Factores",
+      "twoFactorEnabled": "La autenticación de dos factores está habilitada",
+      "twoFactorDisabled": "La autenticación de dos factores está deshabilitada",
+      "twoFactorEnabledDescription": "Tu cuenta está protegida con una capa adicional de seguridad",
+      "twoFactorDisabledDescription": "Añade una capa extra de seguridad para proteger tu cuenta",
+      "enableTwoFactor": "Habilitar Autenticación de Dos Factores",
+      "disableTwoFactor": "Deshabilitar 2FA",
+      "setupTwoFactor": "Configurar Autenticación de Dos Factores",
+      "regenerateBackupCodes": "Regenerar Códigos de Respaldo",
+      "backupCodes": "Códigos de Respaldo",
+      "qrCodePlaceholder": "Escanea este código QR con tu aplicación de autenticación",
+      "enterVerificationCode": "Ingresa el código de verificación",
+      "enableTwoFactorButton": "Verificar y Habilitar",
+      "invalidCode": "Código de verificación inválido",
+      "enable2FAError": "Error al habilitar la autenticación de dos factores",
+      "disable2FAError": "Error al deshabilitar la autenticación de dos factores",
+      "disable2FAConfirmation": "¿Estás seguro de que quieres deshabilitar la autenticación de dos factores?",
+      "securityNotifications": "Notificaciones de Seguridad",
+      "emailNotifications": "Alertas de Seguridad por Email",
+      "emailNotificationsDescription": "Recibe notificaciones de eventos de seguridad por correo electrónico",
+      "loginAlerts": "Alertas de Inicio de Sesión",
+      "loginAlertsDescription": "Recibe notificaciones de intentos de inicio de sesión desde dispositivos no reconocidos",
+      "activeSessions": "Sesiones Activas",
+      "noActiveSessions": "No hay sesiones activas",
+      "current": "Sesión Actual",
+      "signOut": "Cerrar Sesión",
+      "revokeSession": "Revocar Sesión",
+      "revokeSessionConfirmation": "¿Estás seguro de que quieres revocar esta sesión?",
+      "securityActivity": "Actividad de Seguridad",
+      "noSecurityEvents": "No hay eventos de seguridad",
+      "recentLogin": "Inicio de sesión reciente",
+      "accountCreated": "Cuenta creada",
+      "emailVerified": "Email verificado",
+      "locationHidden": "Ubicación oculta por privacidad",
+      "currentLocation": "Ubicación actual",
+      "unknownBrowser": "Navegador Desconocido",
+      "unknownOS": "SO Desconocido"
     },
     "language": {
       "title": "Idioma y Región",
@@ -738,6 +900,20 @@
         "borderText": "El borde y el texto cambiarán según tu color de acento seleccionado",
         "gradientBackground": "Fondo Degradado",
         "gradientText": "Esto usa tu degradado de acento seleccionado"
+      },
+      "saving": "Guardando...",
+      "saveChanges": "Guardar Cambios",
+      "accentColors": {
+        "purple": "Púrpura",
+        "blue": "Azul",
+        "green": "Verde",
+        "orange": "Naranja",
+        "pink": "Rosa",
+        "indigo": "Índigo",
+        "teal": "Verde Azulado",
+        "sunset": "Atardecer",
+        "slate": "Pizarra",
+        "lime": "Lima"
       }
     }
   },

@@ -57,7 +57,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 ${
                   isUser
                     ? "bg-gray-900 dark:bg-white"
-                    : "bg-gradient-to-br from-purple-500 to-pink-500"
+                    : "accent-gradient"
                 }
               `}
             >

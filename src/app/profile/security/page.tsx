@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { createClient } from "@/lib/supabase/client";
-// import { useTranslation } from '@/contexts/TranslationContext';
+import { useTranslations } from "@/providers/LanguageProvider";
 
 interface SecuritySettings {
   twoFactorEnabled: boolean;
@@ -61,90 +61,8 @@ const defaultSettings: SecuritySettings = {
   trustedDevices: [],
 };
 
-// Simple translation fallback - replace with actual i18n later
-const useTranslation = () => ({
-  t: (key: string) => {
-    // Simple key-to-text mapping for security
-    const translations: Record<string, string> = {
-      'profile.security.title': 'Security',
-      'profile.security.subtitle': 'Manage your account security settings and monitor login activity.',
-      'profile.security.loading': 'Loading...',
-      
-      // Two-Factor Authentication
-      'profile.security.twoFactor.title': 'Two-Factor Authentication',
-      'profile.security.twoFactor.subtitle': 'Add an extra layer of security to your account',
-      'profile.security.twoFactor.enable': 'Enable Two-Factor Authentication',
-      'profile.security.twoFactor.enableDescription': 'Protect your account with 2FA using an authenticator app',
-      'profile.security.twoFactor.setup': 'Set up 2FA',
-      'profile.security.twoFactor.disable': 'Disable 2FA',
-      'profile.security.twoFactor.setupTitle': 'Set up Two-Factor Authentication',
-      'profile.security.twoFactor.step1': 'Step 1: Scan QR Code',
-      'profile.security.twoFactor.step1Description': 'Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)',
-      'profile.security.twoFactor.step2': 'Step 2: Enter Verification Code',
-      'profile.security.twoFactor.step2Description': 'Enter the 6-digit code from your authenticator app',
-      'profile.security.twoFactor.verificationCode': 'Verification Code',
-      'profile.security.twoFactor.verify': 'Verify & Enable',
-      'profile.security.twoFactor.cancel': 'Cancel',
-      'profile.security.twoFactor.backupCodes': 'Backup Codes',
-      'profile.security.twoFactor.backupCodesDescription': 'Save these backup codes in a safe place. You can use them to access your account if you lose your authenticator device.',
-      'profile.security.twoFactor.downloadCodes': 'Download Codes',
-      'profile.security.twoFactor.copyCodes': 'Copy Codes',
-      'profile.security.twoFactor.regenerateCodes': 'Generate New Codes',
-      
-      // Password
-      'profile.security.password.title': 'Change Password',
-      'profile.security.password.current': 'Current Password',
-      'profile.security.password.new': 'New Password',
-      'profile.security.password.confirm': 'Confirm New Password',
-      'profile.security.password.update': 'Update Password',
-      'profile.security.password.updating': 'Updating...',
-      'profile.security.password.success': 'Password updated successfully',
-      'profile.security.password.requirements': 'Password Requirements:',
-      'profile.security.password.requirement1': 'At least 8 characters long',
-      'profile.security.password.requirement2': 'Contains uppercase and lowercase letters',
-      'profile.security.password.requirement3': 'Contains at least one number',
-      'profile.security.password.requirement4': 'Contains at least one special character',
-      
-      // Login Notifications
-      'profile.security.notifications.title': 'Login & Security Notifications',
-      'profile.security.notifications.email': 'Email Security Alerts',
-      'profile.security.notifications.emailDescription': 'Get notified of security events via email',
-      'profile.security.notifications.login': 'Login Alerts',
-      'profile.security.notifications.loginDescription': 'Get notified of new login attempts from unrecognized devices',
-      
-      // Active Sessions
-      'profile.security.sessions.title': 'Active Sessions',
-      'profile.security.sessions.subtitle': 'Monitor and manage devices that are currently signed in',
-      'profile.security.sessions.current': 'Current Session',
-      'profile.security.sessions.lastActive': 'Last active',
-      'profile.security.sessions.signOut': 'Sign Out',
-      'profile.security.sessions.signOutAll': 'Sign Out All Other Sessions',
-      
-      // Security Events
-      'profile.security.events.title': 'Security Activity',
-      'profile.security.events.subtitle': 'Recent security events on your account',
-      'profile.security.events.login': 'Account login',
-      'profile.security.events.logout': 'Account logout',
-      'profile.security.events.password_change': 'Password changed',
-      'profile.security.events.2fa_enabled': 'Two-factor authentication enabled',
-      'profile.security.events.2fa_disabled': 'Two-factor authentication disabled',
-      'profile.security.events.suspicious_activity': 'Suspicious activity detected',
-      
-      // Data Management
-      'profile.security.data.title': 'Data & Privacy',
-      'profile.security.data.subtitle': 'Manage your personal data and privacy settings',
-      'profile.security.data.download': 'Download Your Data',
-      'profile.security.data.downloadDescription': 'Get a copy of all your account data',
-      'profile.security.data.delete': 'Delete Account',
-      'profile.security.data.deleteDescription': 'Permanently delete your account and all associated data',
-      'profile.security.data.deleteWarning': 'This action cannot be undone',
-    };
-    return translations[key] || key;
-  }
-});
-
 export default function SecurityPage() {
-  const { t } = useTranslation();
+  const t = useTranslations('profile.security');
   const { user } = useAuth();
   const supabase = createClient();
   const [settings, setSettings] = useState<SecuritySettings>(defaultSettings);
@@ -237,9 +155,9 @@ export default function SecurityPage() {
         events.push({
           id: '1',
           type: 'login',
-          description: t('profile.security.recentLogin'),
+          description: t('recentLogin'),
           timestamp: new Date(user.last_sign_in_at),
-          location: t('profile.security.locationHidden'),
+          location: t('locationHidden'),
           ip: 'IP hidden for privacy',
           success: true
         });
@@ -250,9 +168,9 @@ export default function SecurityPage() {
         events.push({
           id: '2',
           type: 'login',
-          description: t('profile.security.accountCreated'),
+          description: t('accountCreated'),
           timestamp: new Date(user.created_at),
-          location: t('profile.security.locationHidden'),
+          location: t('locationHidden'),
           ip: 'IP hidden for privacy',
           success: true
         });
@@ -263,9 +181,9 @@ export default function SecurityPage() {
         events.push({
           id: '3',
           type: 'login',
-          description: t('profile.security.emailVerified'),
+          description: t('emailVerified'),
           timestamp: new Date(user.email_confirmed_at),
-          location: t('profile.security.locationHidden'),
+          location: t('locationHidden'),
           ip: 'IP hidden for privacy',
           success: true
         });
@@ -288,7 +206,7 @@ export default function SecurityPage() {
         const currentSession: ActiveSession = {
           id: session.session.access_token.substring(0, 8),
           device: getBrowserInfo(),
-          location: t('profile.security.currentLocation'),
+          location: t('currentLocation'),
           lastActive: new Date(),
           current: true,
           ip: 'IP hidden for privacy'
@@ -303,8 +221,8 @@ export default function SecurityPage() {
 
   const getBrowserInfo = () => {
     const ua = navigator.userAgent;
-    let browser = t('profile.security.unknownBrowser');
-    let os = t('profile.security.unknownOS');
+    let browser = t('unknownBrowser');
+    let os = t('unknownOS');
 
     // Detect browser
     if (ua.includes('Chrome')) browser = 'Chrome';
@@ -336,10 +254,10 @@ export default function SecurityPage() {
         // Also save to localStorage as backup
         localStorage.setItem("securitySettings", JSON.stringify(settings));
         setHasChanges(false);
-        setMessage({ type: 'success', text: t('profile.security.settingsSaved') });
+        setMessage({ type: 'success', text: t('settingsSaved') });
         setTimeout(() => setMessage(null), 3000);
       } else {
-        setMessage({ type: 'error', text: t('profile.security.settingsSaveError') });
+        setMessage({ type: 'error', text: t('settingsSaveError') });
         setTimeout(() => setMessage(null), 5000);
       }
     } catch (error) {
@@ -364,13 +282,13 @@ export default function SecurityPage() {
     setPasswordChangeSuccess(false);
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordChangeError(t('profile.security.passwordMismatch'));
+      setPasswordChangeError(t('passwordMismatch'));
       setPasswordChangeLoading(false);
       return;
     }
 
     if (passwordForm.newPassword.length < 8) {
-      setPasswordChangeError(t('profile.security.passwordTooShort'));
+      setPasswordChangeError(t('passwordTooShort'));
       setPasswordChangeLoading(false);
       return;
     }
@@ -392,7 +310,7 @@ export default function SecurityPage() {
       const newEvent: SecurityEvent = {
         id: Date.now().toString(),
         type: 'password_change',
-        description: t('profile.security.passwordChangedSuccess'),
+        description: t('passwordChangedSuccess'),
         timestamp: new Date(),
         location: t('profile.security.currentLocation'),
         ip: 'IP hidden for privacy',
@@ -430,7 +348,7 @@ export default function SecurityPage() {
 
   const handleConfirm2FA = async () => {
     if (verificationCode.length !== 6) {
-      alert(t('profile.security.invalidCode'));
+      alert(t('invalidCode'));
       return;
     }
 
@@ -439,18 +357,19 @@ export default function SecurityPage() {
       updateSetting("twoFactorEnabled", true);
       updateSetting("backupCodes", backupCodes);
       
-      // Save to user profile if it exists, otherwise create it
-      const profileData = {
-        id: user?.id,
-        two_factor_enabled: true,
-        backup_codes: backupCodes
-      };
-
+      // Save to app_users table
       const { error } = await supabase
-        .from('user_profiles')
-        .upsert(profileData, {
-          onConflict: 'id'
-        });
+        .from('app_users')
+        .update({
+          two_factor_enabled: true,
+          security_settings: {
+            ...settings,
+            twoFactorEnabled: true,
+            backupCodes
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('auth_user_id', user.id);
 
       if (error) {
         console.error('Error saving 2FA settings:', error);
@@ -473,26 +392,29 @@ export default function SecurityPage() {
       
     } catch (error) {
       console.error('Error enabling 2FA:', error);
-      alert(t('profile.security.enable2FAError'));
+      alert(t('enable2FAError'));
     }
   };
 
   const handleDisable2FA = async () => {
-    if (confirm(t('profile.security.disable2FAConfirmation'))) {
+    if (confirm(t('disable2FAConfirmation'))) {
       try {
         updateSetting("twoFactorEnabled", false);
         updateSetting("backupCodes", []);
         
-        // Update user profile
+        // Update app_users table
         const { error } = await supabase
-          .from('user_profiles')
-          .upsert({
-            id: user?.id,
+          .from('app_users')
+          .update({
             two_factor_enabled: false,
-            backup_codes: []
-          }, {
-            onConflict: 'id'
-          });
+            security_settings: {
+              ...settings,
+              twoFactorEnabled: false,
+              backupCodes: []
+            },
+            updated_at: new Date().toISOString()
+          })
+          .eq('auth_user_id', user.id);
 
         if (error) {
           console.error('Error saving 2FA settings:', error);
@@ -504,7 +426,7 @@ export default function SecurityPage() {
           type: '2fa_disabled',
           description: 'Two-factor authentication disabled',
           timestamp: new Date(),
-          location: t('profile.security.currentLocation'),
+          location: t('currentLocation'),
           ip: 'IP hidden for privacy',
           success: true
         };
@@ -512,13 +434,13 @@ export default function SecurityPage() {
         
       } catch (error) {
         console.error('Error disabling 2FA:', error);
-        alert(t('profile.security.disable2FAError'));
+        alert(t('disable2FAError'));
       }
     }
   };
 
   const handleRevokeSession = async (sessionId: string) => {
-    if (confirm(t('profile.security.revokeSessionConfirmation'))) {
+    if (confirm(t('revokeSessionConfirmation'))) {
       try {
         // For current session, sign out
         if (sessionId === activeSessions.find(s => s.current)?.id) {
@@ -535,7 +457,7 @@ export default function SecurityPage() {
           type: 'logout',
           description: 'Session revoked',
           timestamp: new Date(),
-          location: t('profile.security.currentLocation'),
+          location: t('currentLocation'),
           ip: 'IP hidden for privacy',
           success: true
         };
@@ -577,9 +499,9 @@ export default function SecurityPage() {
 
   if (isLoading) {
     return (
-      <ProfileLayout pageTitle={t('profile.security.title')}>
+      <ProfileLayout pageTitle={t('title')}>
         <div className="flex items-center justify-center h-full">
-          <div className="text-gray-500">{t('profile.security.loadingSettings')}</div>
+          <div className="text-gray-500">{t('loadingSettings')}</div>
         </div>
       </ProfileLayout>
     );
@@ -587,9 +509,9 @@ export default function SecurityPage() {
 
   if (!user) {
     return (
-      <ProfileLayout pageTitle={t('profile.security.title')}>
+      <ProfileLayout pageTitle={t('title')}>
         <div className="flex items-center justify-center h-full">
-          <div className="text-gray-500">{t('profile.security.signInRequired')}</div>
+          <div className="text-gray-500">{t('signInRequired')}</div>
         </div>
       </ProfileLayout>
     );
@@ -600,9 +522,9 @@ export default function SecurityPage() {
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('profile.security.title')}</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {t('profile.security.subtitle')}
+            {t('subtitle')}
           </p>
         </div>
 
@@ -610,7 +532,7 @@ export default function SecurityPage() {
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Key className="w-5 h-5 accent-text" />
-            {t('profile.security.changePassword')}
+            {t('changePassword')}
           </h2>
 
           {/* Success/Error Messages */}
@@ -618,7 +540,7 @@ export default function SecurityPage() {
             <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                <p className="text-sm text-green-800 dark:text-green-300">{t('profile.security.passwordUpdated')}</p>
+                <p className="text-sm text-green-800 dark:text-green-300">{t('passwordUpdated')}</p>
               </div>
             </div>
           )}
@@ -635,7 +557,7 @@ export default function SecurityPage() {
           <form onSubmit={handlePasswordChange} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                {t('profile.security.currentPassword')}
+                {t('currentPassword')}
               </label>
               <div className="relative">
                 <input
@@ -658,7 +580,7 @@ export default function SecurityPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                  {t('profile.security.newPassword')}
+                  {t('newPassword')}
                 </label>
                 <div className="relative">
                   <input
@@ -681,7 +603,7 @@ export default function SecurityPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                  {t('profile.security.confirmNewPassword')}
+                  {t('confirmNewPassword')}
                 </label>
                 <div className="relative">
                   <input
@@ -708,7 +630,7 @@ export default function SecurityPage() {
               disabled={passwordChangeLoading}
               className="px-4 py-2 accent-gradient text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {passwordChangeLoading ? t('profile.security.updating') : t('profile.security.updatePassword')}
+              {passwordChangeLoading ? t('updating') : t('updatePassword')}
             </button>
           </form>
         </div>
@@ -717,18 +639,18 @@ export default function SecurityPage() {
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Smartphone className="w-5 h-5 accent-text" />
-            {t('profile.security.twoFactorAuth')}
+            {t('twoFactorAuth')}
           </h2>
 
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="font-medium text-gray-900 dark:text-white">
-                {settings.twoFactorEnabled ? t('profile.security.twoFactorEnabled') : t('profile.security.twoFactorDisabled')}
+                {settings.twoFactorEnabled ? t('twoFactorEnabled') : t('twoFactorDisabled')}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 {settings.twoFactorEnabled 
-                  ? t('profile.security.twoFactorEnabledDescription') 
-                  : t('profile.security.twoFactorDisabledDescription')}
+                  ? t('twoFactorEnabledDescription') 
+                  : t('twoFactorDisabledDescription')}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -745,7 +667,7 @@ export default function SecurityPage() {
               onClick={handleEnable2FA}
               className="px-4 py-2 accent-gradient text-white rounded-lg font-medium hover:shadow-lg transition-all"
             >
-              {t('profile.security.enableTwoFactor')}
+              {t('enableTwoFactor')}
             </button>
           ) : (
             <div className="space-y-4">
@@ -754,19 +676,19 @@ export default function SecurityPage() {
                   onClick={handleDisable2FA}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
                 >
-                  {t('profile.security.disableTwoFactor')}
+                  {t('disableTwoFactor')}
                 </button>
                 <button 
                   onClick={handleEnable2FA}
                   className="px-4 py-2 bg-gray-200 dark:bg-white/10 text-gray-900 dark:text-white rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
                 >
-                  {t('profile.security.regenerateBackupCodes')}
+                  {t('regenerateBackupCodes')}
                 </button>
               </div>
               {settings.backupCodes.length > 0 && (
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    {t('profile.security.backupCodes')}
+                    {t('backupCodes')}
                   </p>
                   <div className="grid grid-cols-2 gap-2 text-sm font-mono">
                     {settings.backupCodes.map((code, index) => (
@@ -784,14 +706,14 @@ export default function SecurityPage() {
         {/* Security Notifications */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            {t('profile.security.securityNotifications')}
+            {t('securityNotifications')}
           </h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">{t('profile.security.emailNotifications')}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{t('emailNotifications')}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t('profile.security.emailNotificationsDescription')}
+                  {t('emailNotificationsDescription')}
                 </p>
               </div>
               <ToggleSwitch
@@ -802,9 +724,9 @@ export default function SecurityPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">{t('profile.security.loginAlerts')}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{t('loginAlerts')}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t('profile.security.loginAlertsDescription')}
+                  {t('loginAlertsDescription')}
                 </p>
               </div>
               <ToggleSwitch
@@ -819,10 +741,10 @@ export default function SecurityPage() {
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Monitor className="w-5 h-5 accent-text" />
-            {t('profile.security.activeSessions')}
+            {t('activeSessions')}
           </h2>
           {activeSessions.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400">{t('profile.security.noActiveSessions')}</p>
+            <p className="text-gray-500 dark:text-gray-400">{t('noActiveSessions')}</p>
           ) : (
             <div className="space-y-4">
               {activeSessions.map((session) => (
@@ -834,7 +756,7 @@ export default function SecurityPage() {
                         <p className="font-medium text-gray-900 dark:text-white">{session.device}</p>
                         {session.current && (
                           <span className="px-2 py-1 text-xs bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 rounded">
-                            {t('profile.security.current')}
+                            {t('current')}
                           </span>
                         )}
                       </div>
@@ -853,7 +775,7 @@ export default function SecurityPage() {
                   <button
                     onClick={() => handleRevokeSession(session.id)}
                     className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                    title={session.current ? t('profile.security.signOut') : t('profile.security.revokeSession')}
+                    title={session.current ? t('signOut') : t('revokeSession')}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -868,11 +790,11 @@ export default function SecurityPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium text-gray-900 dark:text-white flex items-center gap-2">
               <Shield className="w-5 h-5 accent-text" />
-              {t('profile.security.securityActivity')}
+              {t('securityActivity')}
             </h2>
           </div>
           {securityEvents.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400">{t('profile.security.noSecurityEvents')}</p>
+            <p className="text-gray-500 dark:text-gray-400">{t('noSecurityEvents')}</p>
           ) : (
             <div className="space-y-3">
               {securityEvents.map((event) => (
@@ -907,7 +829,7 @@ export default function SecurityPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
             <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6 max-w-md w-full mx-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                {t('profile.security.setupTwoFactor')}
+                {t('setupTwoFactor')}
               </h3>
               
               <div className="space-y-4">
@@ -916,13 +838,13 @@ export default function SecurityPage() {
                     <QrCode className="w-24 h-24 text-gray-400" />
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {t('profile.security.qrCodePlaceholder')}
+                    {t('qrCodePlaceholder')}
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                    {t('profile.security.enterVerificationCode')}
+                    {t('enterVerificationCode')}
                   </label>
                   <input
                     type="text"
@@ -942,14 +864,14 @@ export default function SecurityPage() {
                     }}
                     className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                   >
-                    {t('common.cancel')}
+                    Cancel
                   </button>
                   <button
                     onClick={handleConfirm2FA}
                     disabled={verificationCode.length !== 6}
                     className="px-4 py-2 accent-gradient text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {t('profile.security.enableTwoFactorButton')}
+                    {t('enableTwoFactorButton')}
                   </button>
                 </div>
               </div>
@@ -968,7 +890,7 @@ export default function SecurityPage() {
               onClick={saveSettings}
               className="px-6 py-3 accent-gradient text-white rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
             >
-              {t('common.save')} {t('common.changes')}
+              Save Changes
               <CheckCircle className="w-4 h-4" />
             </button>
           </motion.div>

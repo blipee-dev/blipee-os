@@ -15,11 +15,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch user profile from user_profiles table
+    // Fetch user profile from app_users table
     const { data: profile, error: profileError } = await supabase
-      .from('user_profiles')
+      .from('app_users')
       .select('*')
-      .eq('id', user.id)
+      .eq('auth_user_id', user.id)
       .single();
 
     if (profileError && profileError.code !== 'PGRST116') { // PGRST116 = no rows found
@@ -35,11 +35,13 @@ export async function GET(request: NextRequest) {
       id: user.id,
       email: user.email,
       full_name: user.user_metadata?.full_name || '',
+      name: user.user_metadata?.full_name || '',
       phone: user.user_metadata?.phone || '',
       avatar_url: user.user_metadata?.avatar_url || '',
       department: '',
-      job_title: '',
-      display_name: user.user_metadata?.full_name || '',
+      title: '',
+      bio: '',
+      metadata: {},
     };
 
     return NextResponse.json({ 
@@ -75,9 +77,9 @@ export async function PUT(request: NextRequest) {
 
     // Check if profile exists
     const { data: existingProfile } = await supabase
-      .from('user_profiles')
+      .from('app_users')
       .select('id')
-      .eq('id', user.id)
+      .eq('auth_user_id', user.id)
       .single();
 
     let result;
@@ -85,16 +87,18 @@ export async function PUT(request: NextRequest) {
     if (existingProfile) {
       // Update existing profile
       const { data, error } = await supabase
-        .from('user_profiles')
+        .from('app_users')
         .update({
-          full_name: name || '',
+          name: name || '',
           email: email || user.email,
           phone: phone || '',
           department: department || '',
-          job_title: title || '',
+          title: title || '',
+          bio: bio || '',
+          location: location || '',
           updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id)
+        .eq('auth_user_id', user.id)
         .select()
         .single();
 
@@ -109,14 +113,18 @@ export async function PUT(request: NextRequest) {
     } else {
       // Create new profile
       const { data, error } = await supabase
-        .from('user_profiles')
+        .from('app_users')
         .insert({
-          id: user.id,
-          full_name: name || '',
+          auth_user_id: user.id,
+          name: name || user.user_metadata?.full_name || '',
           email: email || user.email,
           phone: phone || '',
           department: department || '',
-          job_title: title || '',
+          title: title || '',
+          bio: bio || '',
+          location: location || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .select()
         .single();

@@ -1,57 +1,52 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authService } from "@/lib/auth/service";
-import { sessionManager } from "@/lib/session/manager";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    // First check Redis session
-    const sessionData = await sessionManager.getSession(request);
+    const supabase = await createServerSupabaseClient();
     
-    if (!sessionData) {
+    // Get the current user session
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error || !user) {
       return NextResponse.json(
         {
           success: false,
-          _error: "Not authenticated",
+          error: "Not authenticated",
         },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
-    // Get full session data from auth service
-    const session = await authService.getSession();
+    // Get user profile from app_users if needed
+    const { data: profile } = await supabase
+      .from('app_users')
+      .select('*')
+      .eq('auth_user_id', user.id)
+      .single();
 
-    if (!session) {
-      // Redis session exists but auth session doesn't - clean up
-      const cookieHeader = request.headers.get('cookie');
-      const sessionId = sessionManager['sessionService'].parseSessionCookie(cookieHeader);
-      if (sessionId) {
-        await sessionManager.deleteSession(sessionId);
-      }
-      
-      return NextResponse.json(
-        {
-          success: false,
-          _error: "Invalid session",
-        },
-        { status: 401 },
-      );
-    }
-
+    // Return session data
     return NextResponse.json({
       success: true,
-      data: session,
+      data: {
+        user: {
+          ...user,
+          profile
+        },
+        expires_at: user.exp ? new Date(user.exp * 1000).toISOString() : null
+      }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Session retrieval error:', error);
 
     return NextResponse.json(
       {
         success: false,
-        _error: error.message || "Failed to get session",
+        error: error.message || "Failed to get session",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
