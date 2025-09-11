@@ -12,6 +12,7 @@
     "lint": "next lint",
     "optimize": "node scripts/optimize-bundle.js",
     "type-check": "tsc --noEmit",
+    "i18n": "node scripts/i18n.mjs",
     "type-check:strict": "bash scripts/strict-typecheck.sh",
     "prebuild": "echo 'Skipping type-check for deployment'",
     "precommit": "npm run type-check:strict && npm run lint",

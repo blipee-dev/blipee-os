@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Users, Mail, Shield, Building2 } from "lucide-react";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
 
 interface UsersModalProps {
   isOpen: boolean;
@@ -129,16 +130,17 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Role *
                     </label>
-                    <select
+                    <CustomDropdown
                       value={formData.role}
-                      onChange={(e) => setFormData({...formData, role: e.target.value})}
-                      className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
-                    >
-                      <option value="user">User</option>
-                      <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
-                      <option value="viewer">Viewer</option>
-                    </select>
+                      onChange={(value) => setFormData({...formData, role: value as string})}
+                      options={[
+                        { value: "user", label: "User" },
+                        { value: "manager", label: "Manager" },
+                        { value: "admin", label: "Admin" },
+                        { value: "viewer", label: "Viewer" }
+                      ]}
+                      className="w-full"
+                    />
                   </div>
                   
                   <div>

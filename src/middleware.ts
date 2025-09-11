@@ -6,6 +6,7 @@ import { secureSessionManager } from './lib/session/secure-manager';
 import { securityAuditLogger, SecurityEventType } from './lib/security/audit-logger';
 import { loggingMiddleware } from './middleware/logging';
 import { tracingMiddleware } from './middleware/tracing';
+// Locale middleware removed - using i18n directly
 import { logger } from './lib/logging';
 
 // Simple metrics collection for Edge Runtime
@@ -132,6 +133,8 @@ export async function middleware(request: NextRequest) {
         });
         // Continue even if logging fails
       }
+
+      // Locale routing removed - using i18n directly in components
 
       // Continue with the rest of the middleware logic
       return executeMiddleware(request, path, method, ip, startTime);

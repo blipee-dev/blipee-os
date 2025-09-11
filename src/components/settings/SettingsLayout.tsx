@@ -26,7 +26,7 @@ export function SettingsLayout({ children, pageTitle = "Settings" }: SettingsLay
     >
       <div className="bg-white dark:bg-[#212121] min-h-screen">
         {/* Content */}
-        <div className="relative">
+        <div className="relative h-full">
           {children}
         </div>
 

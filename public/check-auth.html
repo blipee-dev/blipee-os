@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Auth Status</title>
+</head>
+<body>
+    <h1>Authentication Status Check</h1>
+    <div id="cookies"></div>
+    <div id="storage"></div>
+    <script type="module">
+        // Check all cookies
+        const cookies = document.cookie.split(';');
+        let cookieHtml = '<h2>Cookies:</h2><ul>';
+        cookies.forEach(cookie => {
+            const [name, value] = cookie.trim().split('=');
+            if (name) {
+                cookieHtml += `<li><strong>${name}:</strong> ${value ? value.substring(0, 50) + '...' : 'empty'}</li>`;
+            }
+        });
+        cookieHtml += '</ul>';
+        document.getElementById('cookies').innerHTML = cookieHtml;
+        
+        // Check localStorage
+        let storageHtml = '<h2>LocalStorage (Supabase items):</h2><ul>';
+        Object.keys(localStorage).forEach(key => {
+            if (key.includes('supabase') || key.includes('sb-')) {
+                const value = localStorage.getItem(key);
+                storageHtml += `<li><strong>${key}:</strong> ${value ? value.substring(0, 50) + '...' : 'empty'}</li>`;
+            }
+        });
+        storageHtml += '</ul>';
+        
+        // Check sessionStorage
+        storageHtml += '<h2>SessionStorage (Supabase items):</h2><ul>';
+        Object.keys(sessionStorage).forEach(key => {
+            if (key.includes('supabase') || key.includes('sb-')) {
+                const value = sessionStorage.getItem(key);
+                storageHtml += `<li><strong>${key}:</strong> ${value ? value.substring(0, 50) + '...' : 'empty'}</li>`;
+            }
+        });
+        storageHtml += '</ul>';
+        
+        document.getElementById('storage').innerHTML = storageHtml;
+        
+        // Try to check auth with Supabase
+        import { createBrowserClient } from 'https://cdn.jsdelivr.net/npm/@supabase/ssr@latest/+esm';
+        
+        const supabase = createBrowserClient(
+            'xorutthcnrdvnpqzoajk.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhvcnv0dGhjbnJkdm5wcXpvYWprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQ4NTA0MDQsImV4cCI6MjA0MDQyNjQwNH0.G-5n2lkoGlJLELVxpbI4_c0hVMSHMWqWMmM17PGVZ3E'
+        );
+        
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        const authDiv = document.createElement('div');
+        authDiv.innerHTML = '<h2>Supabase Auth Status:</h2>';
+        if (user) {
+            authDiv.innerHTML += `<p style="color: green;">✅ Authenticated as: ${user.email}</p>`;
+            authDiv.innerHTML += `<pre>${JSON.stringify(user, null, 2)}</pre>`;
+        } else {
+            authDiv.innerHTML += `<p style="color: red;">❌ Not authenticated</p>`;
+            if (error) {
+                authDiv.innerHTML += `<p>Error: ${error.message}</p>`;
+            }
+        }
+        document.body.appendChild(authDiv);
+    </script>
+</body>
+</html>

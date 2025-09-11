@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import DevicesModal from "@/components/admin/DevicesModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
-import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
@@ -224,116 +223,16 @@ export default function DevicesClient({ initialDevices, sites, userRole }: Devic
     }
   };
 
-  // Pagination Component
-  const PaginationControls = () => {
-    return (
-      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 sm:px-6">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label htmlFor="items-per-page" className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
-              Items per page:
-            </label>
-            <select
-              id="items-per-page"
-              value={itemsPerPage}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 focus:ring-purple-500"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
-          </div>
-          
-          <div className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
-            Showing {Math.min(startIndex + 1, totalItems)}-{Math.min(endIndex, totalItems)} of {totalItems}
-          </div>
-        </div>
-
-        {totalPages > 1 && (
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => handlePageChange(1)}
-              disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronsLeft className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-
-            <div className="flex items-center gap-1">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else {
-                  const current = currentPage;
-                  if (current <= 3) {
-                    pageNum = i + 1;
-                  } else if (current >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = current - 2 + i;
-                  }
-                }
-
-                if (pageNum < 1 || pageNum > totalPages) return null;
-
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => handlePageChange(pageNum)}
-                    className={`
-                      px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg transition-colors
-                      ${currentPage === pageNum
-                        ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
-                        : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-[#616161] dark:text-[#757575]"
-                      }
-                    `}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-
-            <button
-              onClick={() => handlePageChange(totalPages)}
-              disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronsRight className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-          </div>
-        )}
-      </nav>
-    );
-  };
-
   return (
-    <SettingsLayout pageTitle="Devices">
-      <header className="hidden md:block p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05]">
+    <div className="h-[700px] flex flex-col">
+      {/* Header */}
+      <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05] bg-gray-50 dark:bg-[#757575]/10">
         <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">Devices Management</h1>
-        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">Manage your devices and equipment</p>
-      </header>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage and monitor all your IoT devices across sites</p>
+      </div>
 
-      <main className="p-4 sm:p-6">
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         {/* Search and Add Button */}
         <div className="flex items-center gap-2 mb-6">
           <div className="flex-1 relative">
@@ -354,20 +253,6 @@ export default function DevicesClient({ initialDevices, sites, userRole }: Devic
             <Filter className="w-4 h-4" />
           </button>
           
-          <button 
-            className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-            title="Download"
-          >
-            <Download className="w-4 h-4" />
-          </button>
-          
-          <button 
-            className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-            title="Upload"
-          >
-            <Upload className="w-4 h-4" />
-          </button>
-          
           {canManage && (
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -376,7 +261,7 @@ export default function DevicesClient({ initialDevices, sites, userRole }: Devic
                 setModalMode('create');
                 setShowDeviceModal(true);
               }}
-              className="p-2.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg text-white hover:opacity-90 transition-opacity"
+              className="p-2.5 accent-gradient-lr rounded-lg text-white hover:opacity-90 transition-opacity"
               title="Add Device"
             >
               <Plus className="w-4 h-4" />
@@ -400,117 +285,115 @@ export default function DevicesClient({ initialDevices, sites, userRole }: Devic
                     setModalMode('create');
                     setShowDeviceModal(true);
                   }}
-                  className="mt-4 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+                  className="mt-4 px-4 py-2 accent-gradient-lr text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
                 >
                   Add Your First Device
                 </button>
               )}
             </div>
           ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-[#212121] border-b border-gray-200 dark:border-white/[0.05]">
-                    <tr>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
-                        Device
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Type
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        Site
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
-                        Details
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        Last Seen
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Status
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
-                        
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-white/[0.05]">
-                    {currentData.map((device) => (
-                      <tr key={device.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                              <Cpu className="w-4 h-4 text-white" />
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-[#212121] border-b border-gray-200 dark:border-white/[0.05]">
+                  <tr>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                      Device
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
+                      Type
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
+                      Site
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
+                      Details
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
+                      Last Seen
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
+                      Status
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                      
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-white/[0.05]">
+                  {currentData.map((device) => (
+                    <tr key={device.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3">
+                            <Cpu className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {device.name}
                             </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                {device.name}
+                            {device.serial_number && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                SN: {device.serial_number}
                               </div>
-                              {device.serial_number && (
-                                <div className="text-xs text-gray-500 dark:text-gray-400">
-                                  SN: {device.serial_number}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575] hidden sm:table-cell">
-                          {device.type}
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden md:table-cell">
-                          {device.sites?.name || '-'}
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {device.manufacturer && device.model && (
-                              <div>{device.manufacturer} {device.model}</div>
-                            )}
-                            {device.ip_address && (
-                              <div>IP: {device.ip_address}</div>
-                            )}
-                            {device.floor && device.zone && (
-                              <div>Floor {device.floor}, {device.zone}</div>
                             )}
                           </div>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575] hidden md:table-cell">
-                          {formatLastSeen(device.last_seen)}
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(device.status)}`}>
-                            {device.status || 'unknown'}
-                          </span>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex items-center justify-end">
-                            <ActionsDropdown
-                              onPin={() => handlePin(device)}
-                              onEdit={canManage ? () => handleEdit(device) : undefined}
-                              onDelete={canManage ? () => handleDelete(device) : undefined}
-                            />
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <PaginationControls />
-            </>
+                        </div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575] hidden sm:table-cell">
+                        {device.type}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden md:table-cell">
+                        {device.sites?.name || '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {device.manufacturer && device.model && (
+                            <div>{device.manufacturer} {device.model}</div>
+                          )}
+                          {device.ip_address && (
+                            <div>IP: {device.ip_address}</div>
+                          )}
+                          {device.floor && device.zone && (
+                            <div>Floor {device.floor}, {device.zone}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575] hidden md:table-cell">
+                        {formatLastSeen(device.last_seen)}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(device.status)}`}>
+                          {device.status || 'unknown'}
+                        </span>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end">
+                          <ActionsDropdown
+                            onPin={() => handlePin(device)}
+                            onEdit={canManage ? () => handleEdit(device) : undefined}
+                            onDelete={canManage ? () => handleDelete(device) : undefined}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* Modal */}
-      <DevicesModal 
-        isOpen={showDeviceModal} 
-        onClose={handleModalClose} 
-        onSuccess={handleModalSuccess}
-        mode={modalMode}
-        data={selectedDevice}
-      />
-    </SettingsLayout>
+      {showDeviceModal && (
+        <DevicesModal
+          mode={modalMode}
+          device={selectedDevice}
+          sites={sites}
+          onClose={handleModalClose}
+          onSuccess={handleModalSuccess}
+        />
+      )}
+    </div>
   );
 }

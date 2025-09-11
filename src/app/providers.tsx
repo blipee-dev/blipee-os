@@ -4,10 +4,16 @@ import { useEffect } from 'react';
 import { AuthProvider } from "@/lib/auth/context";
 import { initializeModuleSystem } from "@/lib/modules";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { AppearanceProvider } from "@/providers/AppearanceProvider";
+import { LanguageProvider } from "@/providers/LanguageProvider";
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { clearMalformedSupabaseCookies } from "@/lib/supabase/clear-cookies";
 
 function ModuleSystemInitializer() {
   useEffect(() => {
+    // Clear any malformed Supabase cookies
+    clearMalformedSupabaseCookies();
+    
     // Initialize the module system on client-side
     initializeModuleSystem();
   }, []);
@@ -17,13 +23,17 @@ function ModuleSystemInitializer() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <SettingsProvider>
-          <ModuleSystemInitializer />
-          {children}
-        </SettingsProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppearanceProvider>
+            <SettingsProvider>
+              <ModuleSystemInitializer />
+              {children}
+            </SettingsProvider>
+          </AppearanceProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }

@@ -193,7 +193,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
   // Pagination Component
   const PaginationControls = () => {
     return (
-      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 sm:px-6">
+      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-white/[0.05]">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <label htmlFor="items-per-page" className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
@@ -203,7 +203,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
               id="items-per-page"
               value={itemsPerPage}
               onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 focus:ring-purple-500"
+              className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 accent-ring"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -260,7 +260,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
                     className={`
                       px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg transition-colors
                       ${currentPage === pageNum
-                        ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
+                        ? "accent-gradient-lr text-white"
                         : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-[#616161] dark:text-[#757575]"
                       }
                     `}
@@ -309,7 +309,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
               placeholder="Search sites..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 accent-ring text-sm"
             />
           </div>
           
@@ -342,7 +342,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
                 setModalMode('create');
                 setShowSiteModal(true);
               }}
-              className="p-2.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg text-white hover:opacity-90 transition-opacity"
+              className="p-2.5 accent-gradient-lr rounded-lg text-white hover:opacity-90 transition-opacity"
               title="Add Site"
             >
               <Plus className="w-4 h-4" />
@@ -350,33 +350,38 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
           )}
         </div>
 
-        {/* Content */}
-        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] overflow-hidden">
+        {/* Table Content */}
+        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] h-[700px] flex flex-col">
           {loading ? (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-              Loading sites...
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="w-8 h-8 border-4 accent-border border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-500 dark:text-gray-400">Loading sites...</p>
+              </div>
             </div>
           ) : currentData.length === 0 ? (
-            <div className="p-8 text-center">
-              <MapPin className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">No sites found</p>
-              {canManage && (
-                <button
-                  onClick={() => {
-                    setModalMode('create');
-                    setShowSiteModal(true);
-                  }}
-                  className="mt-4 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-                >
-                  Add Your First Site
-                </button>
-              )}
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No sites found</p>
+                {canManage && (
+                  <button
+                    onClick={() => {
+                      setModalMode('create');
+                      setShowSiteModal(true);
+                    }}
+                    className="mt-4 px-4 py-2 accent-gradient-lr text-white rounded-lg hover:opacity-90"
+                  >
+                    Add Your First Site
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
-            <>
-              <div className="overflow-x-auto">
+            <div className="flex flex-col h-full">
+              <div className="flex-1 overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-[#212121] border-b border-gray-200 dark:border-white/[0.05]">
+                  <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
                     <tr>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
                         Site
@@ -406,7 +411,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
                       <tr key={site.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                            <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3">
                               <MapPin className="w-4 h-4 text-white" />
                             </div>
                             <div>
@@ -477,7 +482,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
               </div>
 
               <PaginationControls />
-            </>
+            </div>
           )}
         </div>
       </main>
@@ -489,6 +494,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
         onSuccess={handleModalSuccess}
         mode={modalMode}
         data={selectedSite}
+        supabase={supabase}
       />
     </SettingsLayout>
   );

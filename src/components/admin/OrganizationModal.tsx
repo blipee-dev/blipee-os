@@ -16,7 +16,9 @@ import {
   Sparkles,
   Loader2
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
+import { useAuth } from "@/lib/auth/context";
 
 interface OrganizationModalProps {
   isOpen: boolean;
@@ -24,24 +26,23 @@ interface OrganizationModalProps {
   onSuccess?: () => void;
   mode?: 'create' | 'edit' | 'view';
   data?: any;
+  supabase: SupabaseClient;
 }
 
-export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = 'create', data }: OrganizationModalProps) {
+export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = 'create', data, supabase }: OrganizationModalProps) {
   const [loading, setLoading] = useState(false);
   const [lookupLoading, setLookupLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
-  const supabase = createClient();
+  // Use the app's auth context
+  const { user, session } = useAuth();
   
   // For debugging - check if user is authenticated
   React.useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Current user:', user);
-    };
-    checkAuth();
-  }, []);
+    console.log('OrganizationModal - Current user from auth context:', user);
+    console.log('OrganizationModal - Session from auth context:', session);
+  }, [user, session]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -204,11 +205,13 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
     setError(null);
 
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+      // Check if user is authenticated using auth context
+      console.log('handleSubmit - user from context:', user);
+      console.log('handleSubmit - session from context:', session);
       
       if (!user) {
-        throw new Error("User not authenticated");
+        console.error('No user in auth context!');
+        throw new Error("User not authenticated - please refresh and sign in again");
       }
 
       if (mode === 'edit' && data?.id) {
@@ -273,10 +276,17 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
       }
 
       setSuccess(true);
+      console.log('Organization created successfully, calling onSuccess callback');
+      
+      // Call onSuccess immediately to refresh the list
+      if (onSuccess) {
+        await onSuccess();
+      }
+      
+      // Then close the modal after a short delay to show success message
       setTimeout(() => {
-        onSuccess?.();
         onClose();
-      }, 2000);
+      }, 1500);
 
     } catch (err: any) {
       console.error("Error creating organization:", err);
@@ -331,7 +341,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
               <div className="sticky top-0 z-10 bg-white dark:bg-black border-b border-gray-200 dark:border-white/10 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 accent-gradient rounded-xl flex items-center justify-center">
                       <Building2 className="w-6 h-6 text-white" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -396,7 +406,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                 {/* Basic Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                    <Briefcase className="w-5 h-5 text-purple-500" />
+                    <Briefcase className="w-5 h-5 accent-text" />
                     Basic Information
                   </h3>
                   
@@ -420,7 +430,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                             type="button"
                             onClick={handleAILookup}
                             disabled={lookupLoading || !formData.name.trim()}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 accent-text hover:accent-bg-hover rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             title="AI Lookup - Auto-fill organization details"
                           >
                             {lookupLoading ? (
@@ -459,8 +469,8 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                         value={formData.slug}
                         onChange={handleChange}
                         required
-                        pattern="^[a-z0-9-]+$"
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        pattern="[a-z0-9\-]+"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border"
                       />
                     </div>
                     
@@ -468,19 +478,20 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Company Size
                       </label>
-                      <select
-                        name="company_size"
+                      <CustomDropdown
                         value={formData.company_size}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      >
-                        <option value="1-10">1-10 employees</option>
-                        <option value="11-50">11-50 employees</option>
-                        <option value="51-200">51-200 employees</option>
-                        <option value="201-500">201-500 employees</option>
-                        <option value="500-1000">500-1000 employees</option>
-                        <option value="1000+">1000+ employees</option>
-                      </select>
+                        onChange={(value) => handleChange({ target: { name: 'company_size', value } } as any)}
+                        options={[
+                          { value: "1-10", label: "1-10 employees" },
+                          { value: "11-50", label: "11-50 employees" },
+                          { value: "51-200", label: "51-200 employees" },
+                          { value: "201-500", label: "201-500 employees" },
+                          { value: "501-1000", label: "501-1000 employees" },
+                          { value: "1001-5000", label: "1001-5000 employees" },
+                          { value: "5000+", label: "5000+ employees" }
+                        ]}
+                        className="w-full"
+                      />
                     </div>
                   </div>
                 </div>
@@ -488,7 +499,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                 {/* Industry */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                    <Globe className="w-5 h-5 text-purple-500" />
+                    <Globe className="w-5 h-5 accent-text" />
                     Industry
                   </h3>
                   
@@ -502,7 +513,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                         name="industry_primary"
                         value={formData.industry_primary}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border"
                       />
                     </div>
                     
@@ -515,7 +526,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                         name="industry_secondary"
                         value={formData.industry_secondary}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border"
                       />
                     </div>
                   </div>
@@ -524,7 +535,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                 {/* Contact Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                    <Users className="w-5 h-5 text-purple-500" />
+                    <Users className="w-5 h-5 accent-text" />
                     Contact Information
                   </h3>
                   
@@ -539,7 +550,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                         name="primary_contact_email"
                         value={formData.primary_contact_email}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border"
                       />
                     </div>
                     
@@ -553,7 +564,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                         name="primary_contact_phone"
                         value={formData.primary_contact_phone}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border"
                       />
                     </div>
                   </div>
@@ -576,7 +587,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                 {/* Headquarters Address */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-purple-500" />
+                    <MapPin className="w-5 h-5 accent-text" />
                     Headquarters Address
                   </h3>
                   
@@ -597,7 +608,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                         value={formData.headquarters_address.city}
                         onChange={handleChange}
                         placeholder="City"
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border"
                       />
                       
                       <input
@@ -606,7 +617,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                         value={formData.headquarters_address.postal_code}
                         onChange={handleChange}
                         placeholder="Postal Code"
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border"
                       />
                       
                       <input
@@ -615,7 +626,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                         value={formData.headquarters_address.country}
                         onChange={handleChange}
                         placeholder="Country"
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border"
                       />
                     </div>
                   </div>
@@ -633,7 +644,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                   <button
                     type="submit"
                     disabled={loading || success || mode === 'view'}
-                    className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 accent-gradient-lr text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (mode === 'edit' ? "Updating..." : "Creating...") : 
                      success ? (mode === 'edit' ? "Updated!" : "Created!") : 

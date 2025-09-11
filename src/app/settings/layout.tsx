@@ -1,41 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  User,
-  Shield,
-  Key,
-  BarChart3,
-  Link2,
-  Webhook,
-  Database,
   Building2,
   Users,
-  CreditCard,
-  Puzzle,
-  Bell,
   ChevronLeft,
+  ChevronRight,
   Menu,
   X,
+  MapPin,
+  Cpu,
+  User,
+  Settings,
+  MessageSquare,
+  LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ConversationSidebar } from "@/components/blipee-os/ConversationSidebar";
 import { MobileNavigation } from "@/components/blipee-os/MobileNavigation";
+import { useAuth } from "@/lib/auth/context";
+import { getUserInitials, getUserDisplayName } from "@/lib/utils/user";
+import { useAppearance } from "@/providers/AppearanceProvider";
 
 const settingsNavItems = [
-  { id: "profile", label: "Profile", icon: User, href: "/settings/profile" },
-  { id: "security", label: "Security", icon: Shield, href: "/settings/security" },
-  { id: "api-keys", label: "API Keys", icon: Key, href: "/settings/api-keys" },
-  { id: "api-usage", label: "API Usage", icon: BarChart3, href: "/settings/api-usage" },
-  { id: "sso", label: "SSO Configuration", icon: Link2, href: "/settings/sso" },
-  { id: "webhooks", label: "Webhooks", icon: Webhook, href: "/settings/webhooks" },
-  { id: "graphql", label: "GraphQL Playground", icon: Database, href: "/settings/graphql" },
-  { id: "organization", label: "Organization", icon: Building2, href: "/settings/organization" },
-  { id: "team", label: "Team", icon: Users, href: "/settings/team" },
-  { id: "billing", label: "Billing", icon: CreditCard, href: "/settings/billing" },
-  { id: "integrations", label: "Integrations", icon: Puzzle, href: "/settings/integrations" },
-  { id: "notifications", label: "Notifications", icon: Bell, href: "/settings/notifications" },
+  { id: "organizations", label: "Organizations", icon: Building2, href: "/settings/organizations" },
+  { id: "sites", label: "Sites", icon: MapPin, href: "/settings/sites" },
+  { id: "devices", label: "Devices", icon: Cpu, href: "/settings/devices" },
+  { id: "users", label: "Users", icon: Users, href: "/settings/users" },
 ];
 
 export default function SettingsLayout({
@@ -45,65 +36,76 @@ export default function SettingsLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
-
-  // Mock conversations for the sidebar
-  const mockConversations = [
-    {
-      id: "1",
-      title: "Sustainability Analysis",
-      lastMessage: "Let me analyze your carbon footprint...",
-      timestamp: new Date(Date.now() - 1000 * 60 * 30),
-      messageCount: 5,
-    },
-    {
-      id: "2",
-      title: "Energy Optimization",
-      lastMessage: "Based on your usage patterns...",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-      messageCount: 3,
-    },
-  ];
+  const { settings, updateSetting } = useAppearance();
+  const [isCollapsed, setIsCollapsed] = useState(settings.sidebarAutoCollapse);
+  const { user, signOut } = useAuth();
+  
+  // Initialize collapsed state on mount and when setting changes
+  useEffect(() => {
+    setIsCollapsed(settings.sidebarAutoCollapse);
+  }, [settings.sidebarAutoCollapse]);
+  
+  // Handle manual toggle - update both local state and global setting
+  const handleToggleCollapse = () => {
+    const newCollapsedState = !isCollapsed;
+    setIsCollapsed(newCollapsedState);
+    updateSetting('sidebarAutoCollapse', newCollapsedState);
+  };
+  
+  const userDisplayName = user ? getUserDisplayName(user) : 'User';
+  const userInitials = user ? getUserInitials(
+    user?.full_name || (user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.first_name) || null,
+    user?.email
+  ) : 'U';
 
   // Get current page title
   const currentPage = settingsNavItems.find(item => item.href === pathname);
 
   return (
     <div className="flex h-screen bg-white dark:bg-black relative">
-      {/* Chat Sidebar - Hidden on mobile, shown on lg+ */}
-      <div className="hidden lg:block">
-        <ConversationSidebar
-          conversations={mockConversations}
-          onNewConversation={() => router.push('/blipee-ai')}
-          onSelectConversation={(id) => router.push('/blipee-ai')}
-          onDeleteConversation={() => {}}
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        />
-      </div>
-
       {/* Settings Sidebar - Hidden on mobile, shown on md+ */}
-      <div className="hidden md:block w-64 lg:w-80 bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-white/[0.05] flex-shrink-0">
+      <div className={`hidden md:block ${isCollapsed ? 'w-20' : 'w-80'} bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-white/[0.05] flex-shrink-0 transition-all duration-300`}>
         <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="p-4 lg:p-6 border-b border-gray-200 dark:border-white/[0.05]">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.push('/blipee-ai')}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-all"
-                title="Back to chat"
-              >
-                <ChevronLeft className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
-              </button>
-              <h1 className="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white">Settings</h1>
+          {/* Logo Header */}
+          <div className="p-4 border-b border-gray-200 dark:border-white/[0.05]">
+            <div className="flex items-center justify-between">
+              {!isCollapsed && (
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 p-0.5 rounded-xl accent-gradient">
+                    <div className="w-full h-full bg-white/95 dark:bg-[#111111]/95 rounded-[10px] flex items-center justify-center">
+                      <svg className="w-6 h-6 accent-text" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <span className="text-xl font-normal" style={{
+                    background: 'linear-gradient(to right, rgb(var(--accent-primary-rgb)), rgb(var(--accent-secondary-rgb)))',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}>
+                    blipee
+                  </span>
+                </div>
+              )}
+              {isCollapsed && (
+                <div className="w-10 h-10 p-0.5 rounded-xl mx-auto accent-gradient">
+                  <div className="w-full h-full bg-white/95 dark:bg-[#111111]/95 rounded-[10px] flex items-center justify-center">
+                    <svg className="w-6 h-6 accent-text" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-3 lg:p-4">
-            <div className="space-y-1">
+          <nav className="flex-1 overflow-y-auto">
+            <div className="p-2 space-y-0.5">
               {settingsNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
@@ -112,19 +114,142 @@ export default function SettingsLayout({
                   <button
                     key={item.id}
                     onClick={() => router.push(item.href)}
-                    className={`w-full flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 rounded-xl transition-all ${
+                    className={`w-full flex items-center ${isCollapsed ? 'justify-center px-3' : 'gap-3 px-3'} py-2.5 rounded-lg transition-all ${
                       isActive
-                        ? "bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
-                        : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-[#616161] dark:text-[#757575]"
+                        ? "bg-gray-100 dark:bg-white/[0.05] text-gray-900 dark:text-white"
+                        : "hover:bg-gray-50 dark:hover:bg-white/[0.03] text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                     }`}
+                    title={isCollapsed ? item.label : undefined}
                   >
-                    <Icon className="w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0" />
-                    <span className="text-sm font-medium">{item.label}</span>
+                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                   </button>
                 );
               })}
             </div>
           </nav>
+
+          {/* Bottom Section */}
+          <div className="p-3 border-t border-gray-200 dark:border-white/[0.05] space-y-2">
+            {!isCollapsed ? (
+              <>
+                {/* User Profile */}
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-3"
+                >
+                  <div className="w-8 h-8 accent-gradient rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-xs font-medium">{userInitials}</span>
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{userDisplayName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || 'user@example.com'}</p>
+                  </div>
+                </button>
+
+                {/* Chat Button */}
+                <button
+                  onClick={() => router.push('/blipee-ai')}
+                  className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  Chat
+                </button>
+                
+                {/* Profile Button */}
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                >
+                  <User className="w-4 h-4" />
+                  Profile
+                </button>
+                
+
+                {/* Logout Button */}
+                <button
+                  onClick={async () => {
+                    try {
+                      await signOut();
+                      router.push("/signin");
+                    } catch (error) {
+                      console.error("Error during logout:", error);
+                    }
+                  }}
+                  className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign out
+                </button>
+                
+                {/* Collapse Button */}
+                <button
+                  onClick={handleToggleCollapse}
+                  className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Collapse sidebar
+                </button>
+              </>
+            ) : (
+              <div className="space-y-1">
+                {/* User Avatar */}
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  title={userDisplayName}
+                >
+                  <div className="w-8 h-8 accent-gradient-lr rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-medium">{userInitials}</span>
+                  </div>
+                </button>
+
+                {/* Chat Button */}
+                <button
+                  onClick={() => router.push('/blipee-ai')}
+                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  title="Chat"
+                >
+                  <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
+                
+                {/* Profile Button */}
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  title="Profile"
+                >
+                  <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
+                
+
+                {/* Logout Button */}
+                <button
+                  onClick={async () => {
+                    try {
+                      await signOut();
+                      router.push("/signin");
+                    } catch (error) {
+                      console.error("Error during logout:", error);
+                    }
+                  }}
+                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  title="Sign out"
+                >
+                  <LogOut className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
+                
+                {/* Expand Button */}
+                <button
+                  onClick={handleToggleCollapse}
+                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  title="Expand sidebar"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -149,19 +274,38 @@ export default function SettingsLayout({
             >
               <div className="flex flex-col h-full">
                 {/* Header */}
-                <div className="p-4 border-b border-gray-200 dark:border-white/[0.05] flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Settings Menu</h2>
-                  <button
-                    onClick={() => setIsSettingsMenuOpen(false)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-all"
-                  >
-                    <X className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
-                  </button>
+                <div className="p-4 border-b border-gray-200 dark:border-white/[0.05]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+                        <div className="w-full h-full bg-white/95 dark:bg-[#111111]/95 rounded-[10px] flex items-center justify-center">
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                              <linearGradient id="blipeeGradientMobile" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style={{stopColor:'rgb(236, 72, 153)', stopOpacity:1}} />
+                                <stop offset="100%" style={{stopColor:'rgb(147, 51, 234)', stopOpacity:1}} />
+                              </linearGradient>
+                            </defs>
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="url(#blipeeGradientMobile)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M2 17L12 22L22 17" stroke="url(#blipeeGradientMobile)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M2 12L12 17L22 12" stroke="url(#blipeeGradientMobile)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                      </div>
+                      <span className="text-lg font-semibold text-gray-900 dark:text-white">Settings</span>
+                    </div>
+                    <button
+                      onClick={() => setIsSettingsMenuOpen(false)}
+                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-all"
+                    >
+                      <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 overflow-y-auto p-4">
-                  <div className="space-y-1">
+                <nav className="flex-1 overflow-y-auto">
+                  <div className="p-2 space-y-0.5">
                     {settingsNavItems.map((item) => {
                       const Icon = item.icon;
                       const isActive = pathname === item.href;
@@ -173,19 +317,47 @@ export default function SettingsLayout({
                             router.push(item.href);
                             setIsSettingsMenuOpen(false);
                           }}
-                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
                             isActive
-                              ? "bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
-                              : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-[#616161] dark:text-[#757575]"
+                              ? "bg-gray-100 dark:bg-white/[0.05] text-gray-900 dark:text-white"
+                              : "hover:bg-gray-50 dark:hover:bg-white/[0.03] text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                           }`}
                         >
-                          <Icon className="w-5 h-5 flex-shrink-0" />
+                          <Icon className="w-4 h-4 flex-shrink-0" />
                           <span className="text-sm font-medium">{item.label}</span>
                         </button>
                       );
                     })}
                   </div>
                 </nav>
+
+                {/* Bottom Section */}
+                <div className="p-3 border-t border-gray-200 dark:border-white/[0.05] space-y-2">
+                  {/* Back to Chat Button */}
+                  <button
+                    onClick={() => {
+                      router.push('/blipee-ai');
+                      setIsSettingsMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Back to Chat
+                  </button>
+                  
+                  {/* Profile Button */}
+                  <button
+                    onClick={() => {
+                      router.push('/profile');
+                      setIsSettingsMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                  >
+                    <User className="w-4 h-4" />
+                    Profile
+                  </button>
+                  
+                </div>
               </div>
             </motion.div>
           </>
@@ -194,6 +366,27 @@ export default function SettingsLayout({
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden">
+        {/* Mobile Header */}
+        <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/[0.05] bg-white dark:bg-[#111111]">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/blipee-ai')}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-all"
+            >
+              <ChevronLeft className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
+            </button>
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {currentPage?.label || 'Settings'}
+            </h1>
+          </div>
+          <button
+            onClick={() => setIsSettingsMenuOpen(true)}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-all"
+          >
+            <Menu className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
+          </button>
+        </div>
+        
         <div className="h-full overflow-y-auto bg-white dark:bg-[#212121] pb-20 md:pb-0">
           {children}
         </div>

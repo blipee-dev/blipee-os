@@ -101,7 +101,7 @@ export default function APIKeysPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl">
-                <Key className="h-8 w-8 text-purple-400" />
+                <Key className="h-8 w-8 accent-text" />
               </div>
               <div className="hidden md:block">
                 <h1 className="text-3xl font-bold text-white">API Keys</h1>
@@ -196,7 +196,7 @@ export default function APIKeysPage() {
         {/* API Keys List */}
         {loading ? (
           <div className="flex justify-center items-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 accent-border"></div>
           </div>
         ) : apiKeys.length === 0 ? (
           <GlassCard>
@@ -254,7 +254,7 @@ export default function APIKeysPage() {
                         {key.scopes.map((scope) => (
                           <span
                             key={scope}
-                            className="text-xs px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded text-purple-400"
+                            className="text-xs px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded accent-text"
                           >
                             {scope}
                           </span>
@@ -329,7 +329,7 @@ function CreateAPIKeyForm({
           type="text"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:border-purple-500 focus:outline-none"
+          className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:accent-border focus:outline-none"
           placeholder="Production API Key"
           required
         />
@@ -342,7 +342,7 @@ function CreateAPIKeyForm({
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:border-purple-500 focus:outline-none"
+          className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:accent-border focus:outline-none"
           rows={3}
           placeholder="Used for production data ingestion..."
         />
@@ -359,7 +359,7 @@ function CreateAPIKeyForm({
               value={APIVersion.V1}
               checked={formData.version === APIVersion.V1}
               onChange={(e) => setFormData({ ...formData, version: e.target.value as APIVersion })}
-              className="text-purple-500"
+              className="accent-text"
             />
             <span className="text-white">v1 (Stable)</span>
           </label>
@@ -369,7 +369,7 @@ function CreateAPIKeyForm({
               value={APIVersion.V2}
               checked={formData.version === APIVersion.V2}
               onChange={(e) => setFormData({ ...formData, version: e.target.value as APIVersion })}
-              className="text-purple-500"
+              className="accent-text"
             />
             <span className="text-white">v2 (Beta)</span>
           </label>
@@ -390,7 +390,7 @@ function CreateAPIKeyForm({
                 type="checkbox"
                 checked={selectedScopes.has(scope)}
                 onChange={() => toggleScope(scope)}
-                className="mt-1 text-purple-500"
+                className="mt-1 accent-text"
               />
               <div>
                 <div className="text-sm font-medium text-white">{scope}</div>

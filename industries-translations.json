@@ -1,0 +1,201 @@
+{
+  "industries": {
+    "skipToContent": "Skip to main content",
+    "nav": {
+      "signIn": "Sign In"
+    },
+    "hero": {
+      "badge": "Every Industry. Every Organization. Every Goal.",
+      "title1": "Universal Sustainability",
+      "title2": "For Every Industry",
+      "subtitle": "blipee works with any organization, in any industry, of any size. From startups to Fortune 500s, from manufacturing to services, we make sustainability simple and achievable for everyone."
+    },
+    "universal": {
+      "title": "Your Industry Is Covered",
+      "subtitle": "Sustainability challenges are universal. Whether you're tracking emissions, managing energy, reducing waste, or reporting ESG metrics, blipee adapts to your specific industry requirements and regulations.",
+      "anySector": {
+        "title": "Any Sector",
+        "description": "From heavy industry to digital services, our AI understands your unique sustainability challenges."
+      },
+      "anyStandard": {
+        "title": "Any Standard",
+        "description": "GRI, SASB, TCFD, CSRD, EU Taxonomy - we support all major sustainability frameworks and regulations."
+      },
+      "anySize": {
+        "title": "Any Size",
+        "description": "From small businesses to multinational corporations, our platform scales with your needs."
+      }
+    },
+    "industryIntelligence": {
+      "title": "Industry Intelligence",
+      "subtitle": "How We Organize Industries",
+      "note": "These are just examples. If your industry isn't listed, we still work with you. Our AI adapts to any sustainability challenge."
+    },
+    "categories": {
+      "manufacturing": {
+        "title": "Manufacturing & Production",
+        "description": "Any company that produces goods or products",
+        "examples": {
+          "automotive": "Automotive & aerospace",
+          "electronics": "Electronics & technology",
+          "foodBeverage": "Food & beverage production",
+          "chemicals": "Chemicals & pharmaceuticals",
+          "textiles": "Textiles & consumer goods",
+          "machinery": "Heavy machinery & equipment"
+        }
+      },
+      "builtEnvironment": {
+        "title": "Built Environment",
+        "description": "Organizations managing buildings and infrastructure",
+        "examples": {
+          "commercial": "Commercial real estate",
+          "residential": "Residential properties",
+          "educational": "Educational institutions",
+          "healthcare": "Healthcare facilities",
+          "hospitality": "Hospitality & tourism",
+          "airports": "Airports & transportation hubs"
+        }
+      },
+      "energy": {
+        "title": "Energy & Utilities",
+        "description": "Power generation, distribution, and utility services",
+        "examples": {
+          "electric": "Electric utilities",
+          "oilGas": "Oil & gas companies",
+          "renewable": "Renewable energy developers",
+          "water": "Water & wastewater treatment",
+          "district": "District energy systems",
+          "storage": "Energy storage & distribution"
+        }
+      },
+      "services": {
+        "title": "Services & Digital",
+        "description": "Service-based organizations across all sectors",
+        "examples": {
+          "financial": "Financial services & banking",
+          "professional": "Professional services",
+          "technology": "Technology & software",
+          "telecommunications": "Telecommunications",
+          "media": "Media & entertainment",
+          "consulting": "Consulting & advisory"
+        }
+      },
+      "naturalResources": {
+        "title": "Natural Resources",
+        "description": "Organizations working with natural resources",
+        "examples": {
+          "agriculture": "Agriculture & farming",
+          "forestry": "Forestry & paper",
+          "mining": "Mining & extractives",
+          "fisheries": "Fisheries & aquaculture",
+          "waste": "Waste management & recycling",
+          "environmental": "Environmental services"
+        }
+      },
+      "publicSector": {
+        "title": "Public & Social Sector",
+        "description": "Government and public service organizations",
+        "examples": {
+          "government": "Government agencies",
+          "nonprofit": "Non-profit organizations",
+          "healthcare": "Healthcare systems",
+          "educational": "Educational institutions",
+          "social": "Social enterprises",
+          "international": "International organizations"
+        }
+      }
+    },
+    "compliance": {
+      "title": "Compliance Standards",
+      "griTitle": "GRI & CSRD Standards",
+      "griSubtitle": "Full compliance with Global Reporting Initiative sector-specific standards and CSRD (Corporate Sustainability Reporting Directive). Our AI knows the exact requirements for your industry.",
+      "beyondGri": {
+        "title": "Beyond GRI Standards",
+        "description": "We also support SASB, TCFD, CSRD, EU Taxonomy, SEC Climate Rules, IFRS S1/S2, and emerging regulations worldwide. If there's a sustainability standard, we've got you covered."
+      }
+    },
+    "gri": {
+      "gri11": {
+        "title": "Oil and Gas Sector",
+        "description": "Comprehensive sustainability reporting for oil and gas operations",
+        "coverage": {
+          "emissions": "Greenhouse gas emissions management",
+          "biodiversity": "Biodiversity and ecosystem protection",
+          "safety": "Asset integrity and process safety",
+          "indigenous": "Rights of indigenous peoples"
+        }
+      },
+      "gri12": {
+        "title": "Coal Sector",
+        "description": "Sustainability standards for coal mining and processing",
+        "coverage": {
+          "particulate": "Particulate matter emissions",
+          "biodiversity": "Biodiversity impact assessment",
+          "landRights": "Land and resource rights",
+          "closure": "Closure and rehabilitation planning"
+        }
+      },
+      "gri13": {
+        "title": "Agriculture & Food",
+        "description": "Food production and agricultural sustainability reporting",
+        "coverage": {
+          "foodWaste": "Food loss and waste management",
+          "sourcing": "Sustainable sourcing practices",
+          "animalWelfare": "Animal welfare standards",
+          "waterSoil": "Water and soil conservation"
+        }
+      },
+      "gri14": {
+        "title": "Mining Sector",
+        "description": "Mining operations and extractive industry standards",
+        "coverage": {
+          "wasteTailings": "Waste and tailings management",
+          "mineClosure": "Mine closure and rehabilitation",
+          "artisanal": "Artisanal and small-scale mining",
+          "economic": "Economic contribution reporting"
+        }
+      },
+      "gri15": {
+        "title": "Chemicals Sector",
+        "description": "Chemical industry sustainability and safety reporting",
+        "coverage": {
+          "chemicalSafety": "Chemical safety and product stewardship",
+          "processSafety": "Process safety management",
+          "emissions": "Emissions and waste reduction",
+          "supplyChain": "Supply chain transparency"
+        }
+      },
+      "gri16": {
+        "title": "Construction & Real Estate",
+        "description": "Built environment sustainability standards",
+        "coverage": {
+          "sustainable": "Sustainable building practices",
+          "landUse": "Land use and planning",
+          "wasteManagement": "Construction waste management",
+          "energyEfficiency": "Energy efficiency in buildings"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your Sustainability?",
+      "subtitle": "Access your AI-powered sustainability platform and start making data-driven decisions today.",
+      "signInButton": "Sign In to Dashboard",
+      "requestAccessButton": "Request Access",
+      "footer": "Your AI sustainability team is waiting for you"
+    },
+    "footer": {
+      "features": "Features",
+      "industries": "Industries",
+      "aiTechnology": "AI Technology",
+      "about": "About",
+      "contact": "Contact",
+      "support": "Support",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "cookies": "Cookies",
+      "security": "Security",
+      "dpa": "DPA",
+      "copyright": "© 2025 blipee. All rights reserved."
+    }
+  }
+}
