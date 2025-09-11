@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, Phone, Camera, Save, Building, Briefcase, MapPin } from "lucide-react";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 interface ProfileData {
   name: string;
@@ -17,6 +18,8 @@ interface ProfileData {
 }
 
 export default function ProfileSettingsPage() {
+  useAuthRedirect('/settings/profile');
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<ProfileData>({

@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CustomDropdown } from '@/components/ui/CustomDropdown';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { requireRole } from '@/lib/auth/require-role';
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 interface PerformanceMetrics {
   responseTime: {
@@ -58,6 +59,8 @@ interface PerformanceMetrics {
 }
 
 export default function PerformancePage() {
+  useAuthRedirect('/settings/performance');
+  
   const { user: _user } = useAuth();
   const [metrics, setMetrics] = useState<PerformanceMetrics | null>(null);
   const [loading, setLoading] = useState(true);

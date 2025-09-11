@@ -101,12 +101,20 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   }, [settings, isLoaded]);
 
-  // Translation function with dot notation support
-  const t = (key: string): string => {
-    const value = getNestedValue(messages, key);
+  // Translation function with dot notation support and interpolation
+  const t = (key: string, params?: Record<string, any>): string => {
+    let value = getNestedValue(messages, key);
     if (value === key) {
       console.warn(`Translation missing for key: ${key}`);
     }
+    
+    // Handle interpolation
+    if (params && typeof value === 'string') {
+      Object.keys(params).forEach(param => {
+        value = value.replace(new RegExp(`\\{${param}\\}`, 'g'), String(params[param]));
+      });
+    }
+    
     return value;
   };
 
@@ -163,7 +171,7 @@ export function useLanguage() {
 export function useTranslations(section: string) {
   const { t } = useLanguage();
   
-  return (key: string) => t(`${section}.${key}`);
+  return (key: string, params?: Record<string, any>) => t(`${section}.${key}`, params);
 }
 
 // Helper to get locale display info

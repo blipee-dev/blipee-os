@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { AlertCircle, Mail, Lock, EyeOff, Eye, Loader2, Building2 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
@@ -33,8 +33,12 @@ export default function SignInPage() {
   const [challengeId, setChallengeId] = useState("");
   const [checkingSSO, setCheckingSSO] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { signIn } = useAuth();
   const { initiateSSO, checkSSO } = useSSOAuth();
+  
+  // Get redirect URL from query params
+  const redirectParam = searchParams.get('redirect');
 
   // Load remembered email on mount
   useEffect(() => {
@@ -96,12 +100,19 @@ export default function SignInPage() {
         localStorage.removeItem("lastEmail");
       }
       
-      // Skip onboarding for demo users, go straight to dashboard
-      if (email.includes("demo") || email.includes("@blipee.com")) {
-        router.push("/blipee-ai");
+      // Check if there's a redirect parameter in the URL
+      if (redirectParam) {
+        console.log('Sign in successful, redirecting to requested page:', redirectParam);
+        router.push(redirectParam);
       } else {
-        // Use Next.js router for navigation
-        router.push("/onboarding");
+        // Default behavior: Skip onboarding for demo users, go straight to dashboard
+        if (email.includes("demo") || email.includes("@blipee.com")) {
+          console.log('Sign in successful, demo user - redirecting to blipee-ai');
+          router.push("/blipee-ai");
+        } else {
+          console.log('Sign in successful, regular user - redirecting to onboarding');
+          router.push("/onboarding");
+        }
       }
     } catch (err: any) {
       setError(err.message || "Failed to sign in");
@@ -162,7 +173,7 @@ export default function SignInPage() {
       // Then sign in
       await signIn(demoEmail, demoPassword);
       
-      // Demo accounts go straight to dashboard
+      // Demo accounts always go to blipee-ai
       router.push("/blipee-ai");
     } catch (err: any) {
       setError("Demo sign in failed. Please try manual signup.");
@@ -172,7 +183,11 @@ export default function SignInPage() {
 
   async function handleMFASuccess() {
     // Redirect to the appropriate page after successful MFA
-    router.push("/blipee-ai");
+    if (redirectParam) {
+      router.push(redirectParam);
+    } else {
+      router.push("/blipee-ai");
+    }
   }
 
   // Show MFA verification if required

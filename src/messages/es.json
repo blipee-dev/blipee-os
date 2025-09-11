@@ -1365,6 +1365,143 @@
       "submitButton": "Enviar Solicitud"
     }
   },
+  "settings": {
+    "organizations": {
+      "title": "Gestión de Organizaciones",
+      "subtitle": "Gestiona tus organizaciones y sus configuraciones",
+      "searchPlaceholder": "Buscar organizaciones...",
+      "filter": "Filtrar",
+      "download": "Descargar",
+      "upload": "Subir",
+      "addOrganization": "Añadir Organización",
+      "createFirstOrganization": "Crear Tu Primera Organización",
+      "noOrganizationsFound": "No se encontraron organizaciones",
+      "userNotAuthenticated": "Usuario no autenticado",
+      "failedToLoad": "Error al cargar organizaciones",
+      "retry": "Reintentar",
+      "failedToDelete": "Error al eliminar organización",
+      "table": {
+        "organization": "Organización",
+        "industry": "Industria",
+        "subscription": "Suscripción",
+        "sites": "Sitios",
+        "users": "Usuarios",
+        "status": "Estado"
+      },
+      "pagination": {
+        "itemsPerPage": "Elementos por página:",
+        "showing": "Mostrando {start}-{end} de {total}",
+        "firstPage": "Primera página",
+        "previousPage": "Página anterior",
+        "nextPage": "Página siguiente",
+        "lastPage": "Última página",
+        "page": "Página {number}"
+      },
+      "modal": {
+        "createTitle": "Agregar Nueva Organización",
+        "editTitle": "Editar Organización",
+        "viewTitle": "Ver Organización",
+        "createSuccess": "¡Organización creada exitosamente!",
+        "updateSuccess": "¡Organización actualizada exitosamente!",
+        "aiLookupSuccess": "✨ ¡Detalles de organización completados por IA!",
+        "aiLookupTooltip": "Búsqueda IA - Auto-completar detalles de organización",
+        "sections": {
+          "basicInfo": "Información Básica",
+          "contact": "Información de Contacto",
+          "addresses": "Información de Direcciones",
+          "industry": "Industria y Clasificación",
+          "subscription": "Suscripción y Facturación",
+          "system": "Sistema y Personalización"
+        },
+        "fields": {
+          "name": "Nombre de la Organización",
+          "legalName": "Nombre Legal",
+          "slug": "Slug de URL",
+          "companySize": "Tamaño de la Empresa",
+          "website": "Sitio Web",
+          "logoUrl": "URL del Logo",
+          "publicCompany": "Empresa Pública",
+          "stockTicker": "Símbolo Bursátil",
+          "primaryEmail": "Email Principal",
+          "primaryPhone": "Teléfono Principal",
+          "headquartersAddress": "Dirección de Sede Principal",
+          "billingAddress": "Dirección de Facturación",
+          "sameAsHeadquarters": "Igual que la sede principal",
+          "primaryIndustry": "Industria Principal",
+          "secondaryIndustry": "Industria Secundaria",
+          "griSector": "Sector GRI",
+          "industryConfidence": "Confianza de Industria (%)",
+          "subscriptionTier": "Nivel de Suscripción",
+          "subscriptionStatus": "Estado de Suscripción",
+          "subscriptionSeats": "Asientos de Suscripción",
+          "subscriptionStarted": "Suscripción Iniciada",
+          "subscriptionExpires": "Suscripción Expira",
+          "dataResidency": "Región de Residencia de Datos",
+          "brandColors": "Colores de Marca",
+          "primaryColor": "Color Principal",
+          "secondaryColor": "Color Secundario",
+          "accentColor": "Color de Acento"
+        },
+        "placeholders": {
+          "streetAddress": "Dirección",
+          "city": "Ciudad",
+          "postalCode": "Código Postal",
+          "country": "País"
+        },
+        "companySizes": {
+          "1-10": "1-10 empleados",
+          "11-50": "11-50 empleados",
+          "51-200": "51-200 empleados",
+          "201-500": "201-500 empleados",
+          "501-1000": "501-1000 empleados",
+          "1001-5000": "1001-5000 empleados",
+          "5000+": "5000+ empleados"
+        },
+        "subscriptionTiers": {
+          "starter": "Inicial",
+          "professional": "Profesional",
+          "enterprise": "Empresarial",
+          "custom": "Personalizado"
+        },
+        "subscriptionStatuses": {
+          "active": "Activo",
+          "inactive": "Inactivo",
+          "suspended": "Suspendido",
+          "cancelled": "Cancelado",
+          "trialing": "Prueba"
+        },
+        "dataResidencyRegions": {
+          "us-east-1": "EE.UU. Este (Virginia)",
+          "us-west-2": "EE.UU. Oeste (Oregón)",
+          "eu-west-1": "Europa (Irlanda)",
+          "ap-southeast-1": "Asia Pacífico (Singapur)"
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "create": "Crear",
+          "update": "Actualizar",
+          "creating": "Creando...",
+          "updating": "Actualizando...",
+          "created": "¡Creado!",
+          "updated": "¡Actualizado!",
+          "viewOnly": "Solo Vista"
+        },
+        "validation": {
+          "nameRequired": "El nombre de la organización es requerido",
+          "slugRequired": "El slug de URL es requerido",
+          "slugInvalid": "El slug de URL solo puede contener letras minúsculas, números y guiones",
+          "emailInvalid": "Por favor ingrese una dirección de email válida",
+          "urlInvalid": "Por favor ingrese una URL válida",
+          "phoneInvalid": "Por favor ingrese un número de teléfono válido",
+          "seatsMin": "Mínimo 1 asiento requerido",
+          "confidenceRange": "La confianza debe estar entre 0 y 100",
+          "stockTickerInvalid": "El símbolo bursátil debe ser de 1-5 letras mayúsculas",
+          "colorInvalid": "Por favor ingrese un código de color hex válido",
+          "pleaseFixErrors": "Por favor corrija los errores a continuación antes de enviar"
+        }
+      }
+    }
+  },
   "common": {
     "loading": "Cargando...",
     "error": "Error",
@@ -1395,5 +1532,148 @@
     "dark": "Oscuro",
     "light": "Claro",
     "system": "Sistema"
+  },
+  "settings": {
+    "organizations": {
+      "title": "Gestión de Organizaciones",
+      "subtitle": "Gestiona tus organizaciones y su configuración",
+      "searchPlaceholder": "Buscar organizaciones...",
+      "filter": "Filtrar",
+      "download": "Descargar",
+      "upload": "Subir",
+      "addOrganization": "Agregar Organización",
+      "createFirstOrganization": "Crear Tu Primera Organización",
+      "noOrganizationsFound": "No se encontraron organizaciones",
+      "userNotAuthenticated": "Usuario no autenticado",
+      "failedToLoad": "Error al cargar organizaciones",
+      "retry": "Reintentar",
+      "deleteConfirmation": "¿Estás seguro de que quieres eliminar {name}? Esta acción no se puede deshacer.",
+      "failedToDelete": "Error al eliminar organización",
+      "table": {
+        "organization": "Organización",
+        "industry": "Industria",
+        "sites": "Sitios",
+        "users": "Usuarios",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "status": {
+        "active": "Activo",
+        "inactive": "Inactivo",
+        "suspended": "Suspendido"
+      },
+      "pagination": {
+        "itemsPerPage": "Elementos por página:",
+        "showing": "Mostrando {start}-{end} de {total}",
+        "firstPage": "Primera página",
+        "previousPage": "Página anterior",
+        "nextPage": "Página siguiente",
+        "lastPage": "Última página",
+        "page": "Página {number}"
+      },
+      "modal": {
+        "createTitle": "Crear Organización",
+        "editTitle": "Editar Organización",
+        "viewTitle": "Detalles de la Organización",
+        "createSuccess": "Organización creada exitosamente!",
+        "updateSuccess": "Organización actualizada exitosamente!",
+        "aiLookupSuccess": "✨ Detalles de la organización completados por IA!",
+        "aiLookupTooltip": "Búsqueda IA - Autocompletar detalles de la organización",
+        "sections": {
+          "basicInfo": "Información Básica",
+          "contact": "Información de Contacto",
+          "addresses": "Información de Dirección",
+          "industry": "Industria y Clasificación",
+          "subscription": "Suscripción y Facturación",
+          "system": "Sistema y Personalización"
+        },
+        "fields": {
+          "name": "Nombre de la Organización",
+          "legalName": "Nombre Legal",
+          "slug": "URL Slug",
+          "companySize": "Tamaño de la Empresa",
+          "website": "Sitio Web",
+          "logoUrl": "URL del Logo",
+          "publicCompany": "Empresa Pública",
+          "stockTicker": "Código Bursátil",
+          "primaryEmail": "Email Principal",
+          "primaryPhone": "Teléfono Principal",
+          "headquartersAddress": "Dirección de la Sede",
+          "billingAddress": "Dirección de Facturación",
+          "sameAsHeadquarters": "Igual que la sede",
+          "primaryIndustry": "Industria Principal",
+          "secondaryIndustry": "Industria Secundaria",
+          "griSector": "Sector GRI",
+          "industryConfidence": "Confianza de Industria (%)",
+          "subscriptionTier": "Nivel de Suscripción",
+          "subscriptionStatus": "Estado de Suscripción",
+          "subscriptionSeats": "Asientos de Suscripción",
+          "subscriptionStarted": "Suscripción Iniciada",
+          "subscriptionExpires": "Suscripción Expira",
+          "dataResidency": "Región de Residencia de Datos",
+          "brandColors": "Colores de Marca",
+          "primaryColor": "Color Primario",
+          "secondaryColor": "Color Secundario",
+          "accentColor": "Color de Acento"
+        },
+        "placeholders": {
+          "streetAddress": "Dirección",
+          "city": "Ciudad",
+          "postalCode": "Código Postal",
+          "country": "País"
+        },
+        "companySizes": {
+          "1-10": "1-10 empleados",
+          "11-50": "11-50 empleados",
+          "51-200": "51-200 empleados",
+          "201-500": "201-500 empleados",
+          "501-1000": "501-1000 empleados",
+          "1001-5000": "1001-5000 empleados",
+          "5000+": "5000+ empleados"
+        },
+        "subscriptionTiers": {
+          "starter": "Inicial",
+          "professional": "Profesional",
+          "enterprise": "Empresarial",
+          "custom": "Personalizado"
+        },
+        "subscriptionStatuses": {
+          "active": "Activo",
+          "inactive": "Inactivo",
+          "suspended": "Suspendido",
+          "cancelled": "Cancelado",
+          "trialing": "Prueba"
+        },
+        "dataResidencyRegions": {
+          "us-east-1": "EE.UU. Este (Virginia)",
+          "us-west-2": "EE.UU. Oeste (Oregón)",
+          "eu-west-1": "Europa (Irlanda)",
+          "ap-southeast-1": "Asia Pacífico (Singapur)"
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "create": "Crear",
+          "update": "Actualizar",
+          "creating": "Creando...",
+          "updating": "Actualizando...",
+          "created": "Creado!",
+          "updated": "Actualizado!",
+          "viewOnly": "Solo Visualizar"
+        },
+        "validation": {
+          "nameRequired": "El nombre de la organización es requerido",
+          "slugRequired": "URL slug es requerido",
+          "slugInvalid": "URL slug solo puede contener letras minúsculas, números y guiones",
+          "emailInvalid": "Por favor ingresa un email válido",
+          "urlInvalid": "Por favor ingresa una URL válida",
+          "phoneInvalid": "Por favor ingresa un número de teléfono válido",
+          "seatsMin": "Mínimo 1 asiento requerido",
+          "confidenceRange": "La confianza debe estar entre 0 y 100",
+          "stockTickerInvalid": "El código bursátil debe tener 1-5 letras mayúsculas",
+          "colorInvalid": "Por favor ingresa un código de color hex válido",
+          "pleaseFixErrors": "Por favor corrige los errores antes de enviar"
+        }
+      }
+    }
   }
 }

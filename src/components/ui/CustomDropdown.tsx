@@ -50,7 +50,7 @@ export function CustomDropdown({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-3 py-1.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:outline-none focus:ring-2 focus:accent-ring focus:accent-border transition-all hover:border-gray-400 dark:hover:border-white/[0.1]"
+        className="flex items-center justify-between w-20 px-3 py-1.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:outline-none focus:ring-2 focus:accent-ring focus:accent-border transition-all hover:border-gray-400 dark:hover:border-white/[0.1]"
       >
         <span className="truncate">
           {selectedOption ? selectedOption.label : placeholder}
@@ -69,7 +69,7 @@ export function CustomDropdown({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute z-50 w-full mt-1 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg shadow-lg overflow-hidden"
+            className="absolute z-50 w-20 mt-1 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg shadow-lg overflow-hidden"
           >
             <div className="py-1 max-h-60 overflow-auto">
               {options.map((option) => (
@@ -79,7 +79,7 @@ export function CustomDropdown({
                   onClick={() => handleSelect(option.value)}
                   className={`w-full px-3 py-2 text-left text-xs sm:text-sm transition-colors hover:bg-gray-100 dark:hover:bg-white/[0.05] ${
                     value === option.value
-                      ? "accent-bg accent-text"
+                      ? "bg-purple-600 text-white"
                       : "text-gray-700 dark:text-gray-300"
                   }`}
                 >

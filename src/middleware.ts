@@ -36,6 +36,7 @@ const publicRoutes = [
   '/signup',
   '/forgot-password',
   '/auth/callback',
+  '/clear-auth',  // Allow clearing auth without authentication
   '/api/auth/signin',
   '/api/auth/signup',
   '/api/auth/signout',
@@ -104,6 +105,16 @@ if (typeof setInterval !== 'undefined') {
   setInterval(() => ddosProtection.cleanup(), 5 * 60 * 1000);
 }
 
+/**
+ * Clean corrupted cookies from the request
+ * Note: "base64-" prefix is valid for Supabase SSR cookies
+ */
+function cleanCorruptedCookies(request: NextRequest): void {
+  // Currently disabled - "base64-" prefix is valid for Supabase cookies
+  // Keeping function for future use if needed
+  return;
+}
+
 export async function middleware(request: NextRequest) {
   const startTime = Date.now();
   const path = request.nextUrl.pathname;
@@ -111,6 +122,9 @@ export async function middleware(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
              request.headers.get('x-real-ip') || 
              '127.0.0.1';
+  
+  // Clean corrupted cookies from the request
+  cleanCorruptedCookies(request);
 
   // Apply tracing first (wraps everything in a trace context)
   try {
@@ -241,10 +255,15 @@ async function executeMiddleware(
     if (!requiresAuth) {
       response = NextResponse.next();
     } else {
-      // Simple cookie check for Edge runtime
-      const sessionCookie = request.cookies.get('blipee-session');
+      // Check for Supabase auth cookies
+      const authToken = request.cookies.get('sb-auth-token') || 
+                       request.cookies.get('sb-access-token') ||
+                       request.cookies.get('supabase-auth-token');
+      const hasSupabaseCookies = Array.from(request.cookies.getAll()).some(
+        cookie => cookie.name.includes('supabase') || cookie.name.includes('sb-')
+      );
       
-      if (!sessionCookie) {
+      if (!authToken && !hasSupabaseCookies) {
         statusCode = 401;
         
         // For API routes, return 401
