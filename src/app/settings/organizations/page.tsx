@@ -20,8 +20,10 @@ import ActionsDropdown from "@/components/ui/ActionsDropdown";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useTranslations } from "@/providers/LanguageProvider";
 
 export default function OrganizationSettingsPage() {
+  const t = useTranslations('settings.organizations');
   const [showOrgModal, setShowOrgModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [modalMode, setModalMode] = useState<"create" | "edit" | "view">("create");
@@ -41,20 +43,54 @@ export default function OrganizationSettingsPage() {
       setLoading(true);
       setError(null);
 
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get current user - try multiple methods
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error('Error getting user:', userError);
+      }
+      
       if (!user) {
-        setError("User not authenticated");
+        // Try getting session as fallback
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Session check:', session);
+        
+        if (!session?.user) {
+          setError(t('userNotAuthenticated'));
+          return;
+        }
+        // Use session user if available
+        const sessionUser = session.user;
+        console.log('Using session user:', sessionUser.email);
+      }
+      
+      const currentUser = user || (await supabase.auth.getSession()).data.session?.user;
+      if (!currentUser) {
+        setError(t('userNotAuthenticated'));
         return;
       }
+      
+      console.log('Current user ID:', currentUser.id);
+      console.log('Current user email:', currentUser.email);
 
-      // Fetch organizations the user belongs to
-      const { data: userOrgs, error: userOrgsError } = await supabase
-        .from("user_organizations")
-        .select(`
-          organization_id,
-          role,
-          organizations (
+      // Check if user is a super admin
+      const { data: superAdminCheck } = await supabase
+        .from('super_admins')
+        .select('id')
+        .eq('user_id', currentUser.id)
+        .single();
+      
+      const isSuperAdmin = !!superAdminCheck;
+      console.log('Is super admin:', isSuperAdmin);
+
+      let orgs = [];
+
+      if (isSuperAdmin) {
+        // Super admins see ALL organizations
+        console.log('Fetching ALL organizations for super admin...');
+        const { data: allOrgs, error: allOrgsError } = await supabase
+          .from("organizations")
+          .select(`
             id,
             name,
             legal_name,
@@ -73,24 +109,67 @@ export default function OrganizationSettingsPage() {
             settings,
             created_at,
             updated_at
-          )
-        `)
-        .eq('user_id', user.id);
+          `);
+        
+        if (allOrgsError) throw allOrgsError;
+        
+        // Transform to match expected format
+        orgs = allOrgs?.map(org => ({
+          ...org,
+          role: 'super_admin', // Super admins have special role
+          sites: 0, // Will be updated below
+          users: 0, // Will be updated below
+          status: org.subscription_status || 'active',
+          industry: org.industry_primary || ''
+        })) || [];
+        
+        console.log('Fetched all organizations for super admin:', allOrgs);
+      } else {
+        // Regular users only see their organizations through user_access table
+        console.log('Fetching user organizations via user_access...');
+        const { data: userAccess, error: userAccessError } = await supabase
+          .from("user_access")
+          .select(`
+            resource_id,
+            role,
+            organizations!inner (
+              id,
+              name,
+              legal_name,
+              slug,
+              industry_primary,
+              industry_secondary,
+              company_size,
+              website,
+              primary_contact_email,
+              primary_contact_phone,
+              headquarters_address,
+              subscription_tier,
+              subscription_status,
+              enabled_features,
+              compliance_frameworks,
+              settings,
+              created_at,
+              updated_at
+            )
+          `)
+          .eq('user_id', currentUser.id)
+          .eq('resource_type', 'organization');
 
-      if (userOrgsError) throw userOrgsError;
-
-      console.log('Fetched user organizations:', userOrgs);
-
-      // Transform the data to match our component's expectations
-      const orgs = userOrgs?.map(uo => ({
-        ...uo.organizations,
-        role: uo.role,
-        // Add computed fields (these would come from joins in a real app)
-        sites: 0, // We'll update this when we connect sites
-        users: 0, // We'll update this when we connect users
-        status: uo.organizations?.subscription_status || 'active',
-        industry: uo.organizations?.industry_primary || ''
-      })) || [];
+        if (userAccessError) throw userAccessError;
+        
+        console.log('Fetched user access:', userAccess);
+        
+        // Transform the data to match our component's expectations
+        orgs = userAccess?.map(ua => ({
+          ...ua.organizations,
+          role: ua.role, // Using new role values: owner, manager, member, viewer
+          sites: 0, // Will be updated below
+          users: 0, // Will be updated below
+          status: ua.organizations?.subscription_status || 'active',
+          industry: ua.organizations?.industry_primary || ''
+        })) || [];
+      }
 
       // For each organization, fetch counts
       for (const org of orgs) {
@@ -102,11 +181,12 @@ export default function OrganizationSettingsPage() {
         
         org.sites = sitesCount || 0;
 
-        // Count users
+        // Count users in organization
         const { count: usersCount } = await supabase
-          .from('user_organizations')
+          .from('user_access')
           .select('*', { count: 'exact', head: true })
-          .eq('organization_id', org.id);
+          .eq('resource_id', org.id)
+          .eq('resource_type', 'organization');
         
         org.users = usersCount || 0;
       }
@@ -115,7 +195,7 @@ export default function OrganizationSettingsPage() {
       setOrganizations(orgs);
     } catch (err) {
       console.error('Error fetching organizations:', err);
-      setError('Failed to load organizations');
+      setError(t('failedToLoad'));
     } finally {
       setLoading(false);
       console.log('Fetch complete, loading set to false');
@@ -173,7 +253,7 @@ export default function OrganizationSettingsPage() {
   };
 
   const handleDelete = async (org: any) => {
-    if (confirm(`Are you sure you want to delete ${org.name}? This action cannot be undone.`)) {
+    if (confirm(t('deleteConfirmation', { name: org.name }))) {
       try {
         const { error } = await supabase
           .from('organizations')
@@ -186,7 +266,7 @@ export default function OrganizationSettingsPage() {
         await fetchOrganizations();
       } catch (err) {
         console.error('Error deleting organization:', err);
-        alert('Failed to delete organization');
+        alert(t('failedToDelete'));
       }
     }
   };
@@ -212,7 +292,7 @@ export default function OrganizationSettingsPage() {
         <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <div className="flex items-center gap-2">
             <label className="hidden sm:block text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
-              Items per page:
+              {t('pagination.itemsPerPage')}
             </label>
             <CustomDropdown
               value={itemsPerPage}
@@ -228,7 +308,11 @@ export default function OrganizationSettingsPage() {
           </div>
           
           <div className="text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
-            Showing {Math.min(startIndex + 1, totalItems)}-{Math.min(endIndex, totalItems)} of {totalItems}
+            {t('pagination.showing', { 
+              start: Math.min(startIndex + 1, totalItems), 
+              end: Math.min(endIndex, totalItems), 
+              total: totalItems 
+            })}
           </div>
         </div>
 
@@ -238,7 +322,7 @@ export default function OrganizationSettingsPage() {
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
               className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              aria-label="First page"
+              aria-label={t('pagination.firstPage')}
             >
               <ChevronsLeft className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
@@ -247,7 +331,7 @@ export default function OrganizationSettingsPage() {
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              aria-label="Previous page"
+              aria-label={t('pagination.previousPage')}
             >
               <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
@@ -280,7 +364,7 @@ export default function OrganizationSettingsPage() {
                         : "hover:bg-gray-200 dark:hover:bg-white/[0.05] text-gray-700 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white"
                       }
                     `}
-                    aria-label={`Page ${pageNum}`}
+                    aria-label={t('pagination.page', { number: pageNum })}
                     aria-current={currentPage === pageNum ? "page" : undefined}
                   >
                     {pageNum}
@@ -293,7 +377,7 @@ export default function OrganizationSettingsPage() {
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              aria-label="Next page"
+              aria-label={t('pagination.nextPage')}
             >
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
@@ -302,7 +386,7 @@ export default function OrganizationSettingsPage() {
               onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
               className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              aria-label="Last page"
+              aria-label={t('pagination.lastPage')}
             >
               <ChevronsRight className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
@@ -319,10 +403,10 @@ export default function OrganizationSettingsPage() {
         {/* Header - Hidden on mobile */}
         <header className="hidden md:block mb-6">
           <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
-            Organization Management
+            {t('title')}
           </h1>
           <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">
-            Manage your organizations and their settings
+            {t('subtitle')}
           </p>
         </header>
 
@@ -332,7 +416,7 @@ export default function OrganizationSettingsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#757575]" />
             <input
               type="text"
-              placeholder="Search organizations..."
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 accent-ring text-sm"
@@ -341,21 +425,21 @@ export default function OrganizationSettingsPage() {
           
           <button 
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-            title="Filter"
+            title={t('filter')}
           >
             <Filter className="w-4 h-4" />
           </button>
           
           <button 
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-            title="Download"
+            title={t('download')}
           >
             <Download className="w-4 h-4" />
           </button>
           
           <button 
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-            title="Upload"
+            title={t('upload')}
           >
             <Upload className="w-4 h-4" />
           </button>
@@ -365,7 +449,7 @@ export default function OrganizationSettingsPage() {
             whileTap={{ scale: 0.98 }}
             onClick={handleAdd}
             className="p-2.5 accent-gradient-lr rounded-lg text-white hover:opacity-90 transition-opacity"
-            title="Add Organization"
+            title={t('addOrganization')}
           >
             <Plus className="w-4 h-4" />
           </motion.button>
@@ -384,19 +468,19 @@ export default function OrganizationSettingsPage() {
                 onClick={fetchOrganizations}
                 className="mt-4 px-4 py-2 accent-bg text-white rounded-lg hover:opacity-80"
               >
-                Retry
+                {t('retry')}
               </button>
             </div>
           ) : filteredOrganizations.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">No organizations found</p>
+                <p className="text-gray-500 dark:text-gray-400">{t('noOrganizationsFound')}</p>
                 <button 
                   onClick={handleAdd}
                   className="mt-4 px-4 py-2 accent-gradient-lr text-white rounded-lg hover:opacity-90"
                 >
-                  Create Your First Organization
+                  {t('createFirstOrganization')}
                 </button>
               </div>
             </div>
@@ -407,19 +491,19 @@ export default function OrganizationSettingsPage() {
                   <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
                     <tr>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
-                        Organization
+                        {t('table.organization')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Industry
+                        {t('table.industry')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Sites
+                        {t('table.sites')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Users
+                        {t('table.users')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Status
+                        {t('table.status')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
                         
@@ -459,7 +543,7 @@ export default function OrganizationSettingsPage() {
                               ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
                               : 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-400'
                           }`}>
-                            {org.status}
+                            {t(`status.${org.status}`)}
                           </span>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

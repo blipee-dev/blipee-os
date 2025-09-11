@@ -79,13 +79,14 @@ export async function POST(request: NextRequest) {
           console.error('Update error:', updateError);
         }
         
-        // Add user as owner
+        // Add user as owner in new user_access table
         const { error: memberError } = await supabase
-          .from('user_organizations')
+          .from('user_access')
           .insert({
             user_id: user.id,
-            organization_id: simpleOrg.id,
-            role: 'account_owner'
+            resource_type: 'organization',
+            resource_id: simpleOrg.id,
+            role: 'owner'
           });
           
         if (memberError) {
@@ -104,27 +105,27 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Add current user as account owner
-    const { data: userOrgData, error: userOrgError } = await supabase
-      .from('user_organizations')
+    // Add current user as owner in new user_access table
+    const { data: userAccessData, error: userAccessError } = await supabase
+      .from('user_access')
       .insert({
         user_id: user.id,
-        organization_id: org.id,
-        role: 'account_owner'
+        resource_type: 'organization',
+        resource_id: org.id,
+        role: 'owner'
       })
       .select()
       .single();
     
-    if (userOrgError) {
-      console.error('Error adding user to organization:', userOrgError);
-      // Return error so user knows something went wrong
+    if (userAccessError) {
+      console.error('Error adding user to organization:', userAccessError);
       return NextResponse.json(
-        { error: `Organization created but failed to add user: ${userOrgError.message}` },
+        { error: `Organization created but failed to add user: ${userAccessError.message}` },
         { status: 400 }
       );
     }
     
-    console.log('Successfully added user to organization:', userOrgData);
+    console.log('Successfully added user to organization:', userAccessData);
     
     return NextResponse.json({ 
       success: true, 
