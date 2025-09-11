@@ -61,8 +61,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const supabase = createClient();
   const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
 
   // Filter data based on search term
   const filteredData = useMemo(() => {
