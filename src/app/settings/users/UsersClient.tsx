@@ -177,7 +177,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   };
 
   // Can user perform actions?
-  const canManage = userRole === 'account_owner' || userRole === 'admin';
+  const canManage = userRole === 'super_admin' || userRole === 'account_owner' || userRole === 'admin' || userRole === 'sustainability_manager';
 
   // Format role display
   const formatRole = (role: string) => {
