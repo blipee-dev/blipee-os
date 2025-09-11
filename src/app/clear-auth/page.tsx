@@ -2,15 +2,23 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { clearCorruptedAuthCookies } from '@/lib/supabase/client';
+
+function clearAuthCookies() {
+  if (typeof document !== 'undefined') {
+    // Clear all cookies by setting them to expire
+    document.cookie.split(";").forEach(function(c) { 
+      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+    });
+  }
+}
 
 export default function ClearAuthPage() {
   const router = useRouter();
   const [status, setStatus] = useState('Clearing authentication data...');
 
   useEffect(() => {
-    // Clear all corrupted cookies
-    clearCorruptedAuthCookies();
+    // Clear all cookies
+    clearAuthCookies();
     
     // Clear localStorage
     if (typeof window !== 'undefined') {
