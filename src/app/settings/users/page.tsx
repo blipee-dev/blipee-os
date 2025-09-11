@@ -12,41 +12,91 @@ export default async function UsersPage() {
     redirect('/login');
   }
 
-  // Fetch user's organizations and role
-  const { data: userOrgs, error: orgsError } = await supabase
-    .from('user_organizations')
-    .select(`
-      organization_id,
-      role,
-      organizations (
-        id,
-        name,
-        slug
-      )
-    `)
-    .eq('user_id', user.id);
-
-  if (orgsError) {
-    console.error('Error fetching organizations:', orgsError);
-  }
-
-  const organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
-
-  // Fetch app users for user's organizations
-  const { data: appUsers, error: usersError } = await supabase
+  // Check if user is super admin
+  const { data: appUser } = await supabase
     .from('app_users')
-    .select(`
-      *,
-      organizations:organization_id (
-        name,
-        slug
-      )
-    `)
-    .in('organization_id', organizationIds)
-    .order('created_at', { ascending: false });
+    .select('role')
+    .eq('auth_user_id', user.id)
+    .single();
 
-  if (usersError) {
-    console.error('Error fetching users:', usersError);
+  const isSuperAdmin = appUser?.role === 'super_admin';
+
+  let userOrgs;
+  let organizationIds;
+  let appUsers;
+
+  if (isSuperAdmin) {
+    // Super admin can see all organizations and users
+    const { data: allOrgs } = await supabase
+      .from('organizations')
+      .select('id, name, slug')
+      .order('name');
+
+    userOrgs = allOrgs?.map(org => ({ 
+      organization_id: org.id, 
+      role: 'super_admin',
+      organizations: org 
+    })) || [];
+    
+    organizationIds = allOrgs?.map(org => org.id) || [];
+
+    // Fetch all app users
+    const { data: allUsers, error: usersError } = await supabase
+      .from('app_users')
+      .select(`
+        *,
+        organizations:organization_id (
+          name,
+          slug
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (usersError) {
+      console.error('Error fetching users:', usersError);
+    }
+    
+    appUsers = allUsers;
+  } else {
+    // Regular user - fetch their organizations and users
+    const { data: userOrgData, error: orgsError } = await supabase
+      .from('user_organizations')
+      .select(`
+        organization_id,
+        role,
+        organizations (
+          id,
+          name,
+          slug
+        )
+      `)
+      .eq('user_id', user.id);
+
+    if (orgsError) {
+      console.error('Error fetching organizations:', orgsError);
+    }
+
+    userOrgs = userOrgData || [];
+    organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
+
+    // Fetch app users for user's organizations
+    const { data: orgUsers, error: usersError } = await supabase
+      .from('app_users')
+      .select(`
+        *,
+        organizations:organization_id (
+          name,
+          slug
+        )
+      `)
+      .in('organization_id', organizationIds)
+      .order('created_at', { ascending: false });
+
+    if (usersError) {
+      console.error('Error fetching users:', usersError);
+    }
+
+    appUsers = orgUsers;
   }
 
   // Pass data to client component

@@ -511,6 +511,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         onSuccess={handleModalSuccess}
         mode={modalMode}
         data={selectedUser}
+        organizations={organizations}
       />
     </SettingsLayout>
   );
