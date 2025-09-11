@@ -632,10 +632,6 @@
           "title": "Appearance",
           "status": "Dark"
         },
-        "language": {
-          "title": "Language",
-          "status": "English"
-        },
         "signOut": {
           "title": "Sign Out"
         }
@@ -796,28 +792,33 @@
       "title": "Language & Region",
       "subtitle": "Configure your language, region, and formatting preferences",
       "displayLanguage": "Display Language",
+      "interfaceLanguage": "Interface Language",
       "fallbackLanguage": "Fallback Language",
-      "autoDetectBrowser": "Auto-detect browser language",
-      "autoDetectBrowserDescription": "Automatically detect and use browser language preference",
-      "rtlSupport": "Right-to-left language support",
-      "rtlSupportDescription": "Enable support for RTL languages like Arabic and Hebrew",
+      "autoDetectBrowser": "Auto-detect Browser Language",
+      "autoDetectBrowserDescription": "Automatically use your browser's language when available",
+      "rtlSupport": "Right-to-Left Support",
+      "rtlSupportDescription": "Enable support for right-to-left languages",
       "regionalFormats": "Regional Formats",
       "dateFormat": "Date Format",
       "timeFormat": "Time Format",
       "numberFormat": "Number Format",
       "unitsOfMeasurement": "Units of Measurement",
+      "preview": "Preview",
       "timezoneAndCurrency": "Timezone & Currency",
       "timezone": "Timezone",
       "defaultCurrency": "Default Currency",
       "contentAndTranslation": "Content & Translation",
       "contentLanguagePreference": "Content Language Preference",
       "exportLanguage": "Export Language",
-      "autoTranslateContent": "Auto-translate content",
+      "autoTranslateContent": "Auto-translate Content",
       "autoTranslateContentDescription": "Automatically translate content to your preferred language",
       "sustainabilityStandards": "Sustainability Standards",
       "reportingStandardLanguage": "Reporting Standard Language",
-      "reportingStandardDescription": "Choose the language version of sustainability reporting standards",
-      "preview": "Preview"
+      "reportingStandardDescription": "Choose the language variant for sustainability reporting standards",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "saved": "Language settings saved successfully",
+      "loading": "Loading..."
     },
     "appearance": {
       "title": "Appearance",
