@@ -6,9 +6,7 @@ import { motion } from "framer-motion";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import { locales, localeNames, localeFlags, type Locale } from '@/i18n';
-import { useTranslations } from "@/providers/LanguageProvider";
-import { useLocale as useLocaleContext } from "@/contexts/LocaleContext";
-import { LanguageSwitchingIndicator } from "@/components/ui/LanguageSwitchingIndicator";
+import { useTranslations, useLanguage } from "@/providers/LanguageProvider";
 import {
   Globe,
   Clock,
@@ -124,10 +122,11 @@ const reportingStandardOptions = [
 
 export default function LanguagePage() {
   const t = useTranslations('profile.language');
-  const { locale: currentLocale, setLocale, isLoading: localeLoading } = useLocaleContext();
+  const { locale, setLocale } = useLanguage();
+  const [localeLoading] = useState(false);
   const [settings, setSettings] = useState<LanguageSettings>({
     ...defaultSettings,
-    displayLanguage: currentLocale
+    displayLanguage: locale
   });
   const [isLoading, setIsLoading] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
@@ -207,7 +206,7 @@ export default function LanguagePage() {
     setHasChanges(true);
     
     // Handle display language change immediately
-    if (key === 'displayLanguage' && value !== currentLocale) {
+    if (key === 'displayLanguage' && value !== locale) {
       setLocale(value as Locale);
     }
   };
@@ -247,7 +246,7 @@ export default function LanguagePage() {
     return date.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit' });
   };
 
-  const formatNumberPreview = (num: number, format: string) => {
+  const formatNumberPreview = (_num: number, format: string) => {
     switch (format) {
       case "1.234,56": return "1.234,56";
       case "1 234,56": return "1 234,56";
@@ -277,13 +276,13 @@ export default function LanguagePage() {
   }
 
   return (
-    <ProfileLayout pageTitle="Language">
+    <ProfileLayout pageTitle={t('title')}>
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Language & Region</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Configure your language, region, and formatting preferences
+            {t('subtitle')}
           </p>
         </div>
 
@@ -297,7 +296,7 @@ export default function LanguagePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                Interface Language
+                {t('interfaceLanguage')}
               </label>
               <CustomDropdown
                 value={settings.displayLanguage}
@@ -534,14 +533,12 @@ export default function LanguagePage() {
               onClick={saveSettings}
               className="px-6 py-3 accent-gradient text-white rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
             >
-              Save Changes
+              {t('saveChanges')}
               <CheckCircle className="w-4 h-4" />
             </button>
           </motion.div>
         )}
 
-        {/* Language switching indicator */}
-        <LanguageSwitchingIndicator />
       </div>
     </ProfileLayout>
   );

@@ -84,6 +84,18 @@ const nextConfig = {
     // Optimize for smaller bundles
     optimizeCss: true,
   },
+  
+  // Webpack configuration
+  webpack: (config, { dev }) => {
+    if (dev) {
+      // Suppress cache serialization warnings in development
+      config.cache = {
+        type: 'filesystem',
+        compression: false,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
