@@ -28,7 +28,7 @@ import {
   X,
   Loader2
 } from "lucide-react";
-// import { useTranslation } from '@/contexts/TranslationContext';
+import { useTranslations } from "@/providers/LanguageProvider";
 
 interface NotificationSettings {
   channels: {
@@ -96,81 +96,8 @@ const defaultSettings: NotificationSettings = {
   },
 };
 
-
-// Simple translation fallback - replace with actual i18n later
-const useTranslation = () => ({
-  t: (key: string) => {
-    // Simple key-to-text mapping for notifications
-    const translations: Record<string, string> = {
-      'profile.notifications.title': 'Notifications',
-      'profile.notifications.subtitle': 'Manage how you receive notifications and updates from blipee.',
-      'profile.notifications.loading': 'Loading...',
-      'profile.notifications.realtime': 'Real-time',
-      'profile.notifications.daily': 'Daily',
-      'profile.notifications.weekly': 'Weekly',
-      'profile.notifications.monthly': 'Monthly',
-      'profile.notifications.never': 'Never',
-      'profile.notifications.saveSuccess': 'Notification settings saved successfully!',
-      'profile.notifications.saveError': 'Failed to save settings. Changes saved locally.',
-      'profile.notifications.saving': 'Saving...',
-      'profile.notifications.saveChanges': 'Save Changes',
-      
-      // Channels
-      'profile.notifications.channels.title': 'Notification Channels',
-      'profile.notifications.channels.email.title': 'Email Notifications',
-      'profile.notifications.channels.email.description': 'Receive notifications via email',
-      'profile.notifications.channels.inApp.title': 'In-App Notifications',
-      'profile.notifications.channels.inApp.description': 'Show notifications in the application',
-      'profile.notifications.channels.push.title': 'Push Notifications',
-      'profile.notifications.channels.push.description': 'Browser and mobile push notifications',
-      
-      // Types
-      'profile.notifications.types.title': 'Notification Types',
-      'profile.notifications.types.systemUpdates.title': 'System Updates',
-      'profile.notifications.types.systemUpdates.description': 'New features, maintenance, and system changes',
-      'profile.notifications.types.securityAlerts.title': 'Security Alerts',
-      'profile.notifications.types.securityAlerts.description': 'Important security notifications and login alerts',
-      'profile.notifications.types.teamActivity.title': 'Team Activity',
-      'profile.notifications.types.teamActivity.description': 'Updates from your team and collaborators',
-      'profile.notifications.types.sustainabilityReports.title': 'Sustainability Reports',
-      'profile.notifications.types.sustainabilityReports.description': 'ESG reports, carbon tracking, and sustainability insights',
-      'profile.notifications.types.complianceAlerts.title': 'Compliance Alerts',
-      'profile.notifications.types.complianceAlerts.description': 'Regulatory updates and compliance reminders',
-      'profile.notifications.types.achievements.title': 'Achievements',
-      'profile.notifications.types.achievements.description': 'Celebrate your sustainability milestones',
-      
-      // Frequency
-      'profile.notifications.frequency.title': 'Frequency Settings',
-      'profile.notifications.frequency.reports': 'Sustainability Reports',
-      'profile.notifications.frequency.alerts': 'Security & Compliance Alerts',
-      'profile.notifications.frequency.updates': 'System Updates',
-      
-      // Quiet Hours
-      'profile.notifications.quietHours.title': 'Quiet Hours',
-      'profile.notifications.quietHours.enable': 'Enable Quiet Hours',
-      'profile.notifications.quietHours.enableDescription': 'Pause non-critical notifications during specified hours',
-      'profile.notifications.quietHours.startTime': 'Start Time',
-      'profile.notifications.quietHours.endTime': 'End Time',
-      'profile.notifications.quietHours.weekends': 'Weekend Quiet Mode',
-      'profile.notifications.quietHours.weekendsDescription': 'Disable non-critical notifications on weekends',
-      
-      // Email
-      'profile.notifications.email.title': 'Email Preferences',
-      'profile.notifications.email.marketing.title': 'Marketing Communications',
-      'profile.notifications.email.marketing.description': 'Product announcements and promotional content',
-      'profile.notifications.email.productUpdates.title': 'Product Updates',
-      'profile.notifications.email.productUpdates.description': 'New features and platform improvements',
-      'profile.notifications.email.newsletter.title': 'Newsletter',
-      'profile.notifications.email.newsletter.description': 'Monthly sustainability insights and trends',
-      'profile.notifications.email.tips.title': 'Tips & Best Practices',
-      'profile.notifications.email.tips.description': 'Sustainability tips and optimization suggestions',
-    };
-    return translations[key] || key;
-  }
-});
-
 export default function NotificationsPage() {
-  const { t } = useTranslation();
+  const t = useTranslations('profile.notifications');
   const [settings, setSettings] = useState<NotificationSettings>(defaultSettings);
   const [hasChanges, setHasChanges] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -179,11 +106,11 @@ export default function NotificationsPage() {
 
   // Define frequency options with translations
   const frequencyOptions = [
-    { value: "realtime", label: t('profile.notifications.realtime') },
-    { value: "daily", label: t('profile.notifications.daily') },
-    { value: "weekly", label: t('profile.notifications.weekly') },
-    { value: "monthly", label: t('profile.notifications.monthly') },
-    { value: "never", label: t('profile.notifications.never') },
+    { value: "realtime", label: t('realtime') },
+    { value: "daily", label: t('daily') },
+    { value: "weekly", label: t('weekly') },
+    { value: "monthly", label: t('monthly') },
+    { value: "never", label: t('never') },
   ];
 
   // Load settings from localStorage on mount
@@ -272,12 +199,12 @@ export default function NotificationsPage() {
         // Also save to localStorage as backup
         localStorage.setItem("notificationSettings", JSON.stringify(settings));
         setHasChanges(false);
-        setToast({ type: 'success', message: t('profile.notifications.saveSuccess') });
+        setToast({ type: 'success', message: t('saveSuccess') });
       } else {
         // Still save to localStorage as fallback
         localStorage.setItem("notificationSettings", JSON.stringify(settings));
         setHasChanges(false);
-        setToast({ type: 'error', message: t('profile.notifications.saveError') });
+        setToast({ type: 'error', message: t('saveError') });
       }
     } catch (error) {
       // Save to localStorage as fallback
@@ -349,38 +276,38 @@ export default function NotificationsPage() {
 
   if (isLoading) {
     return (
-      <ProfileLayout pageTitle={t('profile.notifications.title')}>
+      <ProfileLayout pageTitle={t('title')}>
         <div className="flex items-center justify-center h-full">
-          <div className="text-gray-500">{t('profile.notifications.loading')}</div>
+          <div className="text-gray-500">{t('loading')}</div>
         </div>
       </ProfileLayout>
     );
   }
 
   return (
-    <ProfileLayout pageTitle={t('profile.notifications.title')}>
+    <ProfileLayout pageTitle={t('title')}>
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('profile.notifications.title')}</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {t('profile.notifications.subtitle')}
+            {t('subtitle')}
           </p>
         </div>
 
         {/* Notification Channels */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            {t('profile.notifications.channels.title')}
+            {t('channels.title')}
           </h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.channels.email.title')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('channels.email.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('profile.notifications.channels.email.description')}
+                    {t('channels.email.description')}
                   </p>
                 </div>
               </div>
@@ -394,9 +321,9 @@ export default function NotificationsPage() {
               <div className="flex items-center gap-3">
                 <Bell className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.channels.inApp.title')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('channels.inApp.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('profile.notifications.channels.inApp.description')}
+                    {t('channels.inApp.description')}
                   </p>
                 </div>
               </div>
@@ -410,9 +337,9 @@ export default function NotificationsPage() {
               <div className="flex items-center gap-3">
                 <Smartphone className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.channels.push.title')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('channels.push.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('profile.notifications.channels.push.description')}
+                    {t('channels.push.description')}
                   </p>
                 </div>
               </div>
@@ -427,16 +354,16 @@ export default function NotificationsPage() {
         {/* Notification Types */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            {t('profile.notifications.types.title')}
+            {t('types.title')}
           </h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.systemUpdates.title')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('types.systemUpdates.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('profile.notifications.types.systemUpdates.description')}
+                    {t('types.systemUpdates.description')}
                   </p>
                 </div>
               </div>
@@ -450,9 +377,9 @@ export default function NotificationsPage() {
               <div className="flex items-center gap-3">
                 <Shield className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.securityAlerts.title')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('types.securityAlerts.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('profile.notifications.types.securityAlerts.description')}
+                    {t('types.securityAlerts.description')}
                   </p>
                 </div>
               </div>
@@ -466,9 +393,9 @@ export default function NotificationsPage() {
               <div className="flex items-center gap-3">
                 <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.teamActivity.title')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('types.teamActivity.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('profile.notifications.types.teamActivity.description')}
+                    {t('types.teamActivity.description')}
                   </p>
                 </div>
               </div>
@@ -482,9 +409,9 @@ export default function NotificationsPage() {
               <div className="flex items-center gap-3">
                 <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.sustainabilityReports.title')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('types.sustainabilityReports.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('profile.notifications.types.sustainabilityReports.description')}
+                    {t('types.sustainabilityReports.description')}
                   </p>
                 </div>
               </div>
@@ -498,9 +425,9 @@ export default function NotificationsPage() {
               <div className="flex items-center gap-3">
                 <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.complianceAlerts.title')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('types.complianceAlerts.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('profile.notifications.types.complianceAlerts.description')}
+                    {t('types.complianceAlerts.description')}
                   </p>
                 </div>
               </div>
@@ -514,9 +441,9 @@ export default function NotificationsPage() {
               <div className="flex items-center gap-3">
                 <Award className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.types.achievements.title')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('types.achievements.title')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('profile.notifications.types.achievements.description')}
+                    {t('types.achievements.description')}
                   </p>
                 </div>
               </div>
@@ -531,12 +458,12 @@ export default function NotificationsPage() {
         {/* Frequency Settings */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            {t('profile.notifications.frequency.title')}
+            {t('frequency.title')}
           </h2>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                {t('profile.notifications.frequency.reports')}
+                {t('frequency.reports')}
               </label>
               <Select value={settings.frequency.reports} onValueChange={(value) => updateFrequency("reports", value as any)}>
                 <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.03]">
@@ -554,7 +481,7 @@ export default function NotificationsPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                {t('profile.notifications.frequency.alerts')}
+                {t('frequency.alerts')}
               </label>
               <Select value={settings.frequency.alerts} onValueChange={(value) => updateFrequency("alerts", value as any)}>
                 <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.03]">
@@ -572,7 +499,7 @@ export default function NotificationsPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                {t('profile.notifications.frequency.updates')}
+                {t('frequency.updates')}
               </label>
               <Select value={settings.frequency.updates} onValueChange={(value) => updateFrequency("updates", value as any)}>
                 <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.03]">
@@ -593,16 +520,16 @@ export default function NotificationsPage() {
         {/* Quiet Hours */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            {t('profile.notifications.quietHours.title')}
+            {t('quietHours.title')}
           </h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.quietHours.enable')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('quietHours.enable')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('profile.notifications.quietHours.enableDescription')}
+                    {t('quietHours.enableDescription')}
                   </p>
                 </div>
               </div>
@@ -617,7 +544,7 @@ export default function NotificationsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                      {t('profile.notifications.quietHours.startTime')}
+                      {t('quietHours.startTime')}
                     </label>
                     <input
                       type="time"
@@ -628,7 +555,7 @@ export default function NotificationsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                      {t('profile.notifications.quietHours.endTime')}
+                      {t('quietHours.endTime')}
                     </label>
                     <input
                       type="time"
@@ -643,9 +570,9 @@ export default function NotificationsPage() {
                   <div className="flex items-center gap-3">
                     <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.quietHours.weekends')}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{t('quietHours.weekends')}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t('profile.notifications.quietHours.weekendsDescription')}
+                        {t('quietHours.weekendsDescription')}
                       </p>
                     </div>
                   </div>
@@ -662,14 +589,14 @@ export default function NotificationsPage() {
         {/* Email Preferences */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            {t('profile.notifications.email.title')}
+            {t('email.title')}
           </h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.email.marketing.title')}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{t('email.marketing.title')}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t('profile.notifications.email.marketing.description')}
+                  {t('email.marketing.description')}
                 </p>
               </div>
               <ToggleSwitch
@@ -680,9 +607,9 @@ export default function NotificationsPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.email.productUpdates.title')}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{t('email.productUpdates.title')}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t('profile.notifications.email.productUpdates.description')}
+                  {t('email.productUpdates.description')}
                 </p>
               </div>
               <ToggleSwitch
@@ -693,9 +620,9 @@ export default function NotificationsPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.email.newsletter.title')}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{t('email.newsletter.title')}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t('profile.notifications.email.newsletter.description')}
+                  {t('email.newsletter.description')}
                 </p>
               </div>
               <ToggleSwitch
@@ -706,9 +633,9 @@ export default function NotificationsPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">{t('profile.notifications.email.tips.title')}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{t('email.tips.title')}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t('profile.notifications.email.tips.description')}
+                  {t('email.tips.description')}
                 </p>
               </div>
               <ToggleSwitch
@@ -733,12 +660,12 @@ export default function NotificationsPage() {
             >
               {isSaving ? (
                 <>
-                  {t('profile.notifications.saving')}
+                  {t('saving')}
                   <Loader2 className="w-4 h-4 animate-spin" />
                 </>
               ) : (
                 <>
-                  {t('profile.notifications.saveChanges')}
+                  {t('saveChanges')}
                   <ChevronRight className="w-4 h-4" />
                 </>
               )}

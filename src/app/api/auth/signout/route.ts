@@ -1,38 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authService } from "@/lib/auth/service";
-import { sessionManager } from "@/lib/session/manager";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    // Create response first
+    const supabase = await createServerSupabaseClient();
+    
+    // Sign out from Supabase
+    const { error } = await supabase.auth.signOut();
+    
+    if (error) {
+      console.error('Supabase signout error:', error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.message || "Failed to sign out",
+        },
+        { status: 500 }
+      );
+    }
+
+    // Clear any session cookies
     const response = NextResponse.json({
       success: true,
       message: "Signed out successfully",
     });
 
-    // Delete Redis session and clear cookie
-    const cookieHeader = request.headers.get('cookie');
-    const sessionId = sessionManager['sessionService'].parseSessionCookie(cookieHeader);
+    // Clear Supabase auth cookies
+    const cookieStore = cookies();
+    const allCookies = cookieStore.getAll();
     
-    if (sessionId) {
-      await sessionManager.deleteSession(sessionId, response);
-    }
-
-    // Sign out from Supabase
-    await authService.signOut();
+    allCookies.forEach(cookie => {
+      if (cookie.name.includes('sb-') || cookie.name.includes('auth')) {
+        response.cookies.delete(cookie.name);
+      }
+    });
 
     return response;
   } catch (error: any) {
-    console.error('Error:', error);
+    console.error('Signout error:', error);
 
     return NextResponse.json(
       {
         success: false,
-        _error: error.message || "Failed to sign out",
+        error: error.message || "Failed to sign out",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

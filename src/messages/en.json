@@ -589,16 +589,32 @@
         "uploadError": "File size must be less than 5MB",
         "uploadSuccess": "Profile photo updated successfully"
       },
+      "roles": {
+        "super_admin": "Super Admin",
+        "platform_developer": "Platform Developer",
+        "account_owner": "Account Owner",
+        "sustainability_manager": "Sustainability Manager",
+        "facility_manager": "Facility Manager",
+        "analyst": "Analyst",
+        "user": "User",
+        "viewer": "Viewer"
+      },
       "personalInformation": {
         "title": "Personal Information",
         "fullName": "Full Name",
         "emailAddress": "Email Address",
         "phoneNumber": "Phone Number",
+        "jobTitle": "Job Title",
+        "department": "Department",
+        "location": "Location",
         "bio": "Bio",
         "placeholders": {
           "fullName": "John Doe",
           "emailAddress": "john@example.com",
           "phoneNumber": "+1 (555) 123-4567",
+          "jobTitle": "Software Engineer",
+          "department": "Engineering",
+          "location": "San Francisco, CA",
           "bio": "Tell us about yourself..."
         }
       },
@@ -629,6 +645,152 @@
         "saving": "Saving...",
         "saved": "Changes saved successfully"
       }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Manage how you receive notifications and updates from blipee",
+      "loading": "Loading...",
+      "realtime": "Real-time",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "never": "Never",
+      "saveSuccess": "Notification settings saved successfully!",
+      "saveError": "Failed to save settings. Changes saved locally.",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes",
+      "channels": {
+        "title": "Notification Channels",
+        "email": {
+          "title": "Email Notifications",
+          "description": "Receive notifications via email"
+        },
+        "inApp": {
+          "title": "In-App Notifications",
+          "description": "Show notifications in the application"
+        },
+        "push": {
+          "title": "Push Notifications",
+          "description": "Browser and mobile push notifications"
+        }
+      },
+      "types": {
+        "title": "Notification Types",
+        "systemUpdates": {
+          "title": "System Updates",
+          "description": "New features, maintenance, and system changes"
+        },
+        "securityAlerts": {
+          "title": "Security Alerts",
+          "description": "Important security notifications and login alerts"
+        },
+        "teamActivity": {
+          "title": "Team Activity",
+          "description": "Updates from your team and collaborators"
+        },
+        "sustainabilityReports": {
+          "title": "Sustainability Reports",
+          "description": "ESG reports, carbon tracking, and sustainability insights"
+        },
+        "complianceAlerts": {
+          "title": "Compliance Alerts",
+          "description": "Regulatory updates and compliance reminders"
+        },
+        "achievements": {
+          "title": "Achievements",
+          "description": "Celebrate your sustainability milestones"
+        }
+      },
+      "frequency": {
+        "title": "Frequency Settings",
+        "reports": "Sustainability Reports",
+        "alerts": "Security & Compliance Alerts",
+        "updates": "System Updates"
+      },
+      "quietHours": {
+        "title": "Quiet Hours",
+        "enable": "Enable Quiet Hours",
+        "enableDescription": "Pause non-critical notifications during specified hours",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "weekends": "Weekend Quiet Mode",
+        "weekendsDescription": "Disable non-critical notifications on weekends"
+      },
+      "email": {
+        "title": "Email Preferences",
+        "marketing": {
+          "title": "Marketing Communications",
+          "description": "Product announcements and promotional content"
+        },
+        "productUpdates": {
+          "title": "Product Updates",
+          "description": "New features and platform improvements"
+        },
+        "newsletter": {
+          "title": "Newsletter",
+          "description": "Monthly sustainability insights and trends"
+        },
+        "tips": {
+          "title": "Tips & Best Practices",
+          "description": "Sustainability tips and optimization suggestions"
+        }
+      }
+    },
+    "security": {
+      "title": "Security",
+      "subtitle": "Manage your account security settings and monitor login activity",
+      "loading": "Loading...",
+      "loadingSettings": "Loading security settings...",
+      "signInRequired": "Please sign in to view security settings",
+      "settingsSaved": "Security settings saved successfully",
+      "settingsSaveError": "Failed to save security settings",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password",
+      "updatePassword": "Update Password",
+      "updating": "Updating...",
+      "passwordUpdated": "Password updated successfully",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordChangedSuccess": "Password changed successfully",
+      "twoFactorAuth": "Two-Factor Authentication",
+      "twoFactorEnabled": "Two-factor authentication is enabled",
+      "twoFactorDisabled": "Two-factor authentication is disabled",
+      "twoFactorEnabledDescription": "Your account is protected with an additional security layer",
+      "twoFactorDisabledDescription": "Add an extra layer of security to protect your account",
+      "enableTwoFactor": "Enable Two-Factor Authentication",
+      "disableTwoFactor": "Disable 2FA",
+      "setupTwoFactor": "Set up Two-Factor Authentication",
+      "regenerateBackupCodes": "Regenerate Backup Codes",
+      "backupCodes": "Backup Codes",
+      "qrCodePlaceholder": "Scan this QR code with your authenticator app",
+      "enterVerificationCode": "Enter verification code",
+      "enableTwoFactorButton": "Verify & Enable",
+      "invalidCode": "Invalid verification code",
+      "enable2FAError": "Failed to enable two-factor authentication",
+      "disable2FAError": "Failed to disable two-factor authentication",
+      "disable2FAConfirmation": "Are you sure you want to disable two-factor authentication?",
+      "securityNotifications": "Security Notifications",
+      "emailNotifications": "Email Security Alerts",
+      "emailNotificationsDescription": "Get notified of security events via email",
+      "loginAlerts": "Login Alerts",
+      "loginAlertsDescription": "Get notified of new login attempts from unrecognized devices",
+      "activeSessions": "Active Sessions",
+      "noActiveSessions": "No active sessions",
+      "current": "Current Session",
+      "signOut": "Sign Out",
+      "revokeSession": "Revoke Session",
+      "revokeSessionConfirmation": "Are you sure you want to revoke this session?",
+      "securityActivity": "Security Activity",
+      "noSecurityEvents": "No security events",
+      "recentLogin": "Recent login",
+      "accountCreated": "Account created",
+      "emailVerified": "Email verified",
+      "locationHidden": "Location hidden for privacy",
+      "currentLocation": "Current location",
+      "unknownBrowser": "Unknown Browser",
+      "unknownOS": "Unknown OS"
     },
     "language": {
       "title": "Language & Region",
@@ -664,7 +826,7 @@
         "title": "Theme",
         "light": {
           "title": "Light",
-          "description": "Tema claro para uso durante o dia"
+          "description": "Light theme for daytime use"
         },
         "dark": {
           "title": "Dark",
@@ -738,6 +900,20 @@
         "borderText": "The border and text will change based on your selected accent color",
         "gradientBackground": "Gradient Background",
         "gradientText": "This uses your selected accent gradient"
+      },
+      "saving": "Saving...",
+      "saveChanges": "Save Changes",
+      "accentColors": {
+        "purple": "Purple",
+        "blue": "Blue",
+        "green": "Green",
+        "orange": "Orange",
+        "pink": "Pink",
+        "indigo": "Indigo",
+        "teal": "Teal",
+        "sunset": "Sunset",
+        "slate": "Slate",
+        "lime": "Lime"
       }
     }
   },

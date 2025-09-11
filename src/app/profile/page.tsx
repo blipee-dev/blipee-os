@@ -2,18 +2,23 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, Phone, Camera, Save, Bell, Shield, Palette, Globe, LogOut } from "lucide-react";
+import { User, Mail, Phone, Camera, Save, Bell, Shield, Palette, Globe, LogOut, Building, Briefcase, MapPin } from "lucide-react";
 import { ProfileLayout } from "@/components/profile/ProfileLayout";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/context";
 import { getUserInitials, getUserDisplayName } from "@/lib/utils/user";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/providers/LanguageProvider";
 
 interface ProfileData {
   name: string;
   email: string;
   phone: string;
   bio: string;
+  department: string;
+  title: string;
+  location: string;
+  role?: string;
+  avatar_url?: string;
 }
 
 export default function ProfilePage() {
@@ -25,7 +30,12 @@ export default function ProfilePage() {
     name: '',
     email: '',
     phone: '',
-    bio: ''
+    bio: '',
+    department: '',
+    title: '',
+    location: '',
+    role: 'user',
+    avatar_url: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -48,10 +58,15 @@ export default function ProfilePage() {
         const data = await response.json();
         if (data.success && data.data) {
           setProfileData({
-            name: data.data.full_name || '',
+            name: data.data.name || data.data.full_name || '',
             email: data.data.email || user?.email || '',
             phone: data.data.phone || '',
-            bio: data.data.metadata?.bio || ''
+            bio: data.data.bio || data.data.metadata?.bio || '',
+            department: data.data.department || '',
+            title: data.data.title || '',
+            location: data.data.location || '',
+            role: data.data.role || 'user',
+            avatar_url: data.data.avatar_url || ''
           });
         }
       }
@@ -62,7 +77,12 @@ export default function ProfilePage() {
         name: user?.user_metadata?.full_name || '',
         email: user?.email || '',
         phone: user?.user_metadata?.phone || '',
-        bio: ''
+        bio: '',
+        department: '',
+        title: '',
+        location: '',
+        role: 'user',
+        avatar_url: ''
       });
     } finally {
       setLoading(false);
@@ -145,14 +165,27 @@ export default function ProfilePage() {
 
           {/* Profile Picture Section */}
           <div className="bg-white dark:bg-[#111111] rounded-xl p-6 mb-6 border border-gray-200 dark:border-white/[0.05]">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              {t('sections.profilePicture.title')}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t('sections.profilePicture.title')}
+              </h2>
+              {profileData.role && (
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
+                  ['super_admin', 'platform_developer', 'account_owner', 'sustainability_manager', 'facility_manager'].includes(profileData.role) 
+                    ? 'accent-gradient' 
+                    : profileData.role === 'analyst' ? 'bg-blue-500' 
+                    : profileData.role === 'viewer' ? 'bg-gray-400' 
+                    : 'bg-gray-500'
+                }`}>
+                  {t(`sections.roles.${profileData.role}`) || profileData.role.charAt(0).toUpperCase() + profileData.role.slice(1)}
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-6">
               <div className="w-24 h-24 accent-gradient-lr rounded-full flex items-center justify-center">
                 <span className="text-2xl font-semibold text-white">
                   {getUserInitials(
-                    user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.first_name,
+                    profileData.name || (user as any)?.user_metadata?.full_name || user?.email,
                     user?.email
                   )}
                 </span>
@@ -234,6 +267,56 @@ export default function ProfilePage() {
                     value={profileData.phone}
                     onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
                     placeholder={t('sections.personalInformation.placeholders.phoneNumber')}
+                    className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:accent-ring"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#616161] dark:text-[#757575] mb-2">
+                    {t('sections.personalInformation.jobTitle')}
+                  </label>
+                  <div className="relative">
+                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#757575]" />
+                    <input
+                      type="text"
+                      value={profileData.title}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder={t('sections.personalInformation.placeholders.jobTitle')}
+                      className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:accent-ring"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#616161] dark:text-[#757575] mb-2">
+                    {t('sections.personalInformation.department')}
+                  </label>
+                  <div className="relative">
+                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#757575]" />
+                    <input
+                      type="text"
+                      value={profileData.department}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, department: e.target.value }))}
+                      placeholder={t('sections.personalInformation.placeholders.department')}
+                      className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:accent-ring"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#616161] dark:text-[#757575] mb-2">
+                  {t('sections.personalInformation.location')}
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#757575]" />
+                  <input
+                    type="text"
+                    value={profileData.location}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder={t('sections.personalInformation.placeholders.location')}
                     className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-[#616161] dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:accent-ring"
                   />
                 </div>

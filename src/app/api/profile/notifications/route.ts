@@ -4,26 +4,37 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 interface NotificationSettings {
   channels: {
     email: boolean;
-    push: boolean;
-    sms: boolean;
     inApp: boolean;
+    push: boolean;
   };
   types: {
-    systemAlerts: boolean;
-    performance: boolean;
-    security: boolean;
-    teamUpdates: boolean;
-    reports: boolean;
-    mentions: boolean;
+    systemUpdates: boolean;
+    securityAlerts: boolean;
+    teamActivity: boolean;
+    sustainabilityReports: boolean;
+    complianceAlerts: boolean;
+    achievements: boolean;
   };
   frequency: {
-    realTime: 'instant' | 'hourly' | 'daily' | 'weekly';
-    digest: 'daily' | 'weekly' | 'monthly' | 'never';
-    reports: 'daily' | 'weekly' | 'monthly' | 'quarterly';
+    reports: "realtime" | "daily" | "weekly" | "monthly" | "never";
+    alerts: "realtime" | "daily" | "weekly" | "monthly" | "never";
+    updates: "realtime" | "daily" | "weekly" | "monthly" | "never";
+  };
+  quietHours: {
+    enabled: boolean;
+    startTime: string;
+    endTime: string;
+    weekendsOff: boolean;
+  };
+  emailPreferences: {
+    marketing: boolean;
+    productUpdates: boolean;
+    newsletter: boolean;
+    tips: boolean;
   };
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -56,22 +67,33 @@ export async function GET(request: NextRequest) {
     const defaultSettings: NotificationSettings = {
       channels: {
         email: true,
-        push: true,
-        sms: false,
         inApp: true,
+        push: false,
       },
       types: {
-        systemAlerts: true,
-        performance: true,
-        security: true,
-        teamUpdates: true,
-        reports: false,
-        mentions: true,
+        systemUpdates: true,
+        securityAlerts: true,
+        teamActivity: true,
+        sustainabilityReports: true,
+        complianceAlerts: true,
+        achievements: true,
       },
       frequency: {
-        realTime: 'instant',
-        digest: 'daily',
-        reports: 'weekly',
+        reports: "weekly",
+        alerts: "realtime",
+        updates: "daily",
+      },
+      quietHours: {
+        enabled: false,
+        startTime: "22:00",
+        endTime: "08:00",
+        weekendsOff: false,
+      },
+      emailPreferences: {
+        marketing: false,
+        productUpdates: true,
+        newsletter: false,
+        tips: true,
       },
     };
 
@@ -109,7 +131,7 @@ export async function PUT(request: NextRequest) {
     const settings = body as NotificationSettings;
 
     // Validate the settings structure
-    if (!settings.channels || !settings.types || !settings.frequency) {
+    if (!settings.channels || !settings.types || !settings.frequency || !settings.quietHours || !settings.emailPreferences) {
       return NextResponse.json(
         { error: 'Invalid notification settings format' },
         { status: 400 }
@@ -147,12 +169,16 @@ export async function PUT(request: NextRequest) {
       result = data;
     } else {
       // Create new profile with notification settings
+      // Note: This will need organization_id from user's context
       const { data, error } = await supabase
         .from('app_users')
         .insert({
           auth_user_id: user.id,
-          email: user.email,
+          email: user.email || '',
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
           notification_settings: settings,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .select('notification_settings')
         .single();

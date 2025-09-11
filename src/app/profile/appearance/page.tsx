@@ -17,15 +17,19 @@ import {
 } from "lucide-react";
 import { useAppearance } from "@/providers/AppearanceProvider";
 import { AccentButton } from "@/components/ui/AccentButton";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/providers/LanguageProvider";
 
 const accentColors = [
-  { id: "purple", label: "Purple", gradient: "from-purple-500 to-pink-500", from: "#8b5cf6", to: "#ec4899" },
-  { id: "blue", label: "Blue", gradient: "from-blue-500 to-cyan-500", from: "#3b82f6", to: "#06b6d4" },
-  { id: "green", label: "Green", gradient: "from-green-500 to-emerald-500", from: "#10b981", to: "#34d399" },
-  { id: "orange", label: "Orange", gradient: "from-orange-500 to-red-500", from: "#f59e0b", to: "#ef4444" },
-  { id: "pink", label: "Pink", gradient: "from-pink-500 to-rose-500", from: "#ec4899", to: "#f43f5e" },
-  { id: "indigo", label: "Indigo", gradient: "from-indigo-500 to-purple-500", from: "#6366f1", to: "#8b5cf6" },
+  { id: "purple", gradient: "from-purple-500 to-pink-500", from: "#8b5cf6", to: "#ec4899" },
+  { id: "blue", gradient: "from-blue-500 to-cyan-500", from: "#3b82f6", to: "#06b6d4" },
+  { id: "green", gradient: "from-green-500 to-emerald-500", from: "#10b981", to: "#34d399" },
+  { id: "orange", gradient: "from-orange-500 to-red-500", from: "#f59e0b", to: "#ef4444" },
+  { id: "pink", gradient: "from-pink-500 to-rose-500", from: "#ec4899", to: "#f43f5e" },
+  { id: "indigo", gradient: "from-indigo-500 to-purple-500", from: "#6366f1", to: "#8b5cf6" },
+  { id: "teal", gradient: "from-teal-500 to-cyan-500", from: "#14b8a6", to: "#06b6d4" },
+  { id: "sunset", gradient: "from-amber-500 to-fuchsia-500", from: "#f59e0b", to: "#d946ef" },
+  { id: "slate", gradient: "from-slate-500 to-gray-500", from: "#64748b", to: "#6b7280" },
+  { id: "lime", gradient: "from-lime-500 to-green-500", from: "#84cc16", to: "#22c55e" },
 ];
 
 interface AppearanceSettings {
@@ -79,6 +83,14 @@ export default function AppearancePage() {
           const data = await response.json();
           if (data.success && data.data) {
             setSettings(data.data);
+            // Sync global settings with loaded data
+            updateGlobalSetting('accentGradient', data.data.accentGradient);
+            updateGlobalSetting('theme', data.data.theme);
+            updateGlobalSetting('fontSize', data.data.fontSize);
+            updateGlobalSetting('density', data.data.interfaceDensity as any);
+            updateGlobalSetting('reduceMotion', data.data.reduceMotion);
+            updateGlobalSetting('highContrast', data.data.highContrast);
+            updateGlobalSetting('sidebarAutoCollapse', data.data.autoCollapseSidebar);
           }
         }
       } catch (error) {
@@ -86,7 +98,16 @@ export default function AppearancePage() {
         // Load from localStorage as fallback
         const stored = localStorage.getItem('appearance-settings');
         if (stored) {
-          setSettings(JSON.parse(stored));
+          const storedSettings = JSON.parse(stored);
+          setSettings(storedSettings);
+          // Sync global settings with stored data
+          updateGlobalSetting('accentGradient', storedSettings.accentGradient);
+          updateGlobalSetting('theme', storedSettings.theme);
+          updateGlobalSetting('fontSize', storedSettings.fontSize);
+          updateGlobalSetting('density', storedSettings.interfaceDensity as any);
+          updateGlobalSetting('reduceMotion', storedSettings.reduceMotion);
+          updateGlobalSetting('highContrast', storedSettings.highContrast);
+          updateGlobalSetting('sidebarAutoCollapse', storedSettings.autoCollapseSidebar);
         } else {
           // If no stored settings, use global settings as initial values
           setSettings({
@@ -105,7 +126,8 @@ export default function AppearancePage() {
     };
 
     loadSettings();
-  }, [globalSettings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Save settings to API and localStorage
   const saveSettings = async () => {
@@ -181,7 +203,7 @@ export default function AppearancePage() {
   };
 
   return (
-    <ProfileLayout pageTitle="Appearance">
+    <ProfileLayout pageTitle={t('title')}>
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div>
@@ -270,7 +292,7 @@ export default function AppearancePage() {
                 style={{
                   '--tw-ring-color': settings.accentGradient === color.gradient ? color.from : undefined
                 } as React.CSSProperties}
-                title={color.label}
+                title={t(`accentColors.${color.id}`)}
               >
                 {settings.accentGradient === color.gradient && (
                   <Check className="w-5 h-5 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
@@ -475,11 +497,9 @@ export default function AppearancePage() {
             </div>
             <div className={`relative p-[2px] rounded-lg bg-gradient-to-r ${currentAccent.gradient}`}>
               <div className="bg-white dark:bg-[#111111] p-4 rounded-[6px]">
-                <p className="font-medium"
+                <p className="font-medium text-transparent bg-clip-text"
                   style={{
-                    background: `linear-gradient(135deg, ${currentAccent.from}, ${currentAccent.to})`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
+                    backgroundImage: `linear-gradient(135deg, ${currentAccent.from}, ${currentAccent.to})`,
                   }}>
                   {t('preview.accentText')}
                 </p>
@@ -507,7 +527,7 @@ export default function AppearancePage() {
                 disabled={isSaving}
                 className={`px-6 py-2 disabled:opacity-50 text-white rounded-lg font-medium transition-all hover:opacity-90 bg-gradient-to-r ${currentAccent.gradient}`}
               >
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {isSaving ? t('saving') : t('saveChanges')}
               </button>
             </motion.div>
           </div>
