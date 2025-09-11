@@ -27,10 +27,14 @@ export default async function UsersPage() {
 
   if (isSuperAdmin) {
     // Super admin can see all organizations and users
-    const { data: allOrgs } = await supabase
+    const { data: allOrgs, error: orgsError } = await supabase
       .from('organizations')
       .select('id, name, slug')
       .order('name');
+
+    if (orgsError) {
+      console.error('Error fetching organizations:', orgsError);
+    }
 
     userOrgs = allOrgs?.map(org => ({ 
       organization_id: org.id, 
@@ -41,7 +45,7 @@ export default async function UsersPage() {
     organizationIds = allOrgs?.map(org => org.id) || [];
 
     // Fetch all app users
-    const { data: allUsers, error: usersError } = await supabase
+    const { data: allUsers, error: allUsersError } = await supabase
       .from('app_users')
       .select(`
         *,
@@ -52,8 +56,8 @@ export default async function UsersPage() {
       `)
       .order('created_at', { ascending: false });
 
-    if (usersError) {
-      console.error('Error fetching users:', usersError);
+    if (allUsersError) {
+      console.error('Error fetching all users:', allUsersError);
     }
     
     appUsers = allUsers;
@@ -80,7 +84,7 @@ export default async function UsersPage() {
     organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
 
     // Fetch app users for user's organizations
-    const { data: orgUsers, error: usersError } = await supabase
+    const { data: orgUsers, error: orgUsersError } = await supabase
       .from('app_users')
       .select(`
         *,
@@ -92,8 +96,8 @@ export default async function UsersPage() {
       .in('organization_id', organizationIds)
       .order('created_at', { ascending: false });
 
-    if (usersError) {
-      console.error('Error fetching users:', usersError);
+    if (orgUsersError) {
+      console.error('Error fetching org users:', orgUsersError);
     }
 
     appUsers = orgUsers;
