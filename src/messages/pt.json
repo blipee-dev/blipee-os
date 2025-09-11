@@ -795,7 +795,8 @@
     "language": {
       "title": "Idioma e Região",
       "subtitle": "Configure suas preferências de idioma, região e formatação",
-      "displayLanguage": "Idioma de Interface",
+      "displayLanguage": "Idioma de Exibição",
+      "interfaceLanguage": "Idioma da Interface",
       "fallbackLanguage": "Idioma de Fallback",
       "autoDetectBrowser": "Detectar idioma do navegador automaticamente",
       "autoDetectBrowserDescription": "Detectar e usar automaticamente a preferência de idioma do navegador",
@@ -806,6 +807,7 @@
       "timeFormat": "Formato de Hora",
       "numberFormat": "Formato de Número",
       "unitsOfMeasurement": "Unidades de Medida",
+      "preview": "Visualizar",
       "timezoneAndCurrency": "Fuso Horário e Moeda",
       "timezone": "Fuso Horário",
       "defaultCurrency": "Moeda Padrão",
@@ -817,7 +819,10 @@
       "sustainabilityStandards": "Padrões de Sustentabilidade",
       "reportingStandardLanguage": "Idioma do Padrão de Relatório",
       "reportingStandardDescription": "Escolha a versão do idioma dos padrões de relatório de sustentabilidade",
-      "preview": "Visualizar"
+      "saveChanges": "Salvar Alterações",
+      "saving": "Salvando...",
+      "saved": "Configurações de idioma salvas com sucesso",
+      "loading": "Carregando..."
     },
     "appearance": {
       "title": "Aparência",
