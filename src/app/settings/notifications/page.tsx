@@ -3,8 +3,11 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Bell, Mail, MessageSquare, AlertTriangle, TrendingUp, FileText } from "lucide-react";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export default function NotificationsSettingsPage() {
+  useAuthRedirect('/settings/notifications');
+  
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [smsNotifications, setSmsNotifications] = useState(false);

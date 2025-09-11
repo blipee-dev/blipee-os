@@ -6,6 +6,7 @@ import { Activity, TrendingUp, Clock, AlertTriangle, Calendar, BarChart3, Zap, G
 import { CustomDropdown } from '@/components/ui/CustomDropdown';
 import { motion } from 'framer-motion';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import {
   LineChart,
   Line,
@@ -54,6 +55,8 @@ interface UsageMetrics {
 }
 
 export default function APIUsagePage() {
+  useAuthRedirect('/settings/api-usage');
+  
   const [metrics, setMetrics] = useState<UsageMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('7d');

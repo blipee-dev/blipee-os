@@ -9,8 +9,11 @@ import { useAuth } from '@/lib/auth/context';
 import { SSOConfiguration, SSOProvider } from '@/types/sso';
 import { SSOConfigurationForm } from '@/components/auth/sso/SSOConfigurationForm';
 import { SSOTestInterface } from '@/components/auth/sso/SSOTestInterface';
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export default function SSOSettingsPage() {
+  useAuthRedirect('/settings/sso');
+  
   const [configurations, setConfigurations] = useState<SSOConfiguration[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

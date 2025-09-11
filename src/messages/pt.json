@@ -1383,6 +1383,7 @@
       "table": {
         "organization": "Organização",
         "industry": "Indústria",
+        "subscription": "Subscrição",
         "sites": "Locais",
         "users": "Usuários",
         "status": "Status"
@@ -1393,7 +1394,111 @@
         "firstPage": "Primeira página",
         "previousPage": "Página anterior",
         "nextPage": "Próxima página",
-        "lastPage": "Última página"
+        "lastPage": "Última página",
+        "page": "Página {number}"
+      },
+      "modal": {
+        "createTitle": "Adicionar Nova Organização",
+        "editTitle": "Editar Organização",
+        "viewTitle": "Ver Organização",
+        "createSuccess": "Organização criada com sucesso!",
+        "updateSuccess": "Organização atualizada com sucesso!",
+        "aiLookupSuccess": "✨ Detalhes da organização preenchidos por IA!",
+        "aiLookupTooltip": "Busca IA - Preencher automaticamente detalhes da organização",
+        "sections": {
+          "basicInfo": "Informações Básicas",
+          "contact": "Informações de Contacto",
+          "addresses": "Informações de Endereços",
+          "industry": "Indústria e Classificação",
+          "subscription": "Subscrição e Facturação",
+          "system": "Sistema e Personalização"
+        },
+        "fields": {
+          "name": "Nome da Organização",
+          "legalName": "Nome Legal",
+          "slug": "Slug da URL",
+          "companySize": "Tamanho da Empresa",
+          "website": "Website",
+          "logoUrl": "URL do Logotipo",
+          "publicCompany": "Empresa Pública",
+          "stockTicker": "Símbolo da Bolsa",
+          "primaryEmail": "E-mail Principal",
+          "primaryPhone": "Telefone Principal",
+          "headquartersAddress": "Endereço da Sede",
+          "billingAddress": "Endereço de Facturação",
+          "sameAsHeadquarters": "Igual ao da sede",
+          "primaryIndustry": "Indústria Principal",
+          "secondaryIndustry": "Indústria Secundária",
+          "griSector": "Setor GRI",
+          "industryConfidence": "Confiança da Indústria (%)",
+          "subscriptionTier": "Nível de Subscrição",
+          "subscriptionStatus": "Estado da Subscrição",
+          "subscriptionSeats": "Lugares da Subscrição",
+          "subscriptionStarted": "Subscrição Iniciada",
+          "subscriptionExpires": "Subscrição Expira",
+          "dataResidency": "Região de Residência de Dados",
+          "brandColors": "Cores da Marca",
+          "primaryColor": "Cor Principal",
+          "secondaryColor": "Cor Secundária",
+          "accentColor": "Cor de Destaque"
+        },
+        "placeholders": {
+          "streetAddress": "Endereço",
+          "city": "Cidade",
+          "postalCode": "Código Postal",
+          "country": "País"
+        },
+        "companySizes": {
+          "1-10": "1-10 funcionários",
+          "11-50": "11-50 funcionários",
+          "51-200": "51-200 funcionários",
+          "201-500": "201-500 funcionários",
+          "501-1000": "501-1000 funcionários",
+          "1001-5000": "1001-5000 funcionários",
+          "5000+": "5000+ funcionários"
+        },
+        "subscriptionTiers": {
+          "starter": "Inicial",
+          "professional": "Profissional",
+          "enterprise": "Empresarial",
+          "custom": "Personalizado"
+        },
+        "subscriptionStatuses": {
+          "active": "Ativo",
+          "inactive": "Inativo",
+          "suspended": "Suspenso",
+          "cancelled": "Cancelado",
+          "trialing": "Teste"
+        },
+        "dataResidencyRegions": {
+          "us-east-1": "EUA Leste (Virgínia)",
+          "us-west-2": "EUA Oeste (Oregon)",
+          "eu-west-1": "Europa (Irlanda)",
+          "ap-southeast-1": "Ásia Pacífico (Singapura)"
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "create": "Criar",
+          "update": "Atualizar",
+          "creating": "A criar...",
+          "updating": "A atualizar...",
+          "created": "Criado!",
+          "updated": "Atualizado!",
+          "viewOnly": "Apenas Visualização"
+        },
+        "validation": {
+          "nameRequired": "O nome da organização é obrigatório",
+          "slugRequired": "O slug da URL é obrigatório",
+          "slugInvalid": "O slug da URL só pode conter letras minúsculas, números e hífenes",
+          "emailInvalid": "Por favor, insira um endereço de e-mail válido",
+          "urlInvalid": "Por favor, insira uma URL válida",
+          "phoneInvalid": "Por favor, insira um número de telefone válido",
+          "seatsMin": "Mínimo 1 lugar obrigatório",
+          "confidenceRange": "A confiança deve estar entre 0 e 100",
+          "stockTickerInvalid": "O símbolo da bolsa deve ter 1-5 letras maiúsculas",
+          "colorInvalid": "Por favor, insira um código de cor hex válido",
+          "pleaseFixErrors": "Por favor, corrija os erros abaixo antes de submeter"
+        }
       }
     }
   },
@@ -1447,6 +1552,7 @@
       "table": {
         "organization": "Organização",
         "industry": "Indústria",
+        "subscription": "Subscrição",
         "sites": "Locais",
         "users": "Utilizadores",
         "status": "Estado",
@@ -1470,43 +1576,104 @@
         "createTitle": "Criar Organização",
         "editTitle": "Editar Organização",
         "viewTitle": "Detalhes da Organização",
-        "basicInformation": "Informação Básica",
-        "organizationName": "Nome da Organização",
-        "organizationNamePlaceholder": "Inserir nome da organização",
-        "legalName": "Nome Legal",
-        "legalNamePlaceholder": "Nome legal da empresa",
-        "website": "Website",
-        "websitePlaceholder": "https://exemplo.com",
-        "industryPrimary": "Indústria Principal",
-        "industrySecondary": "Indústria Secundária",
-        "companySize": "Tamanho da Empresa",
-        "contactInformation": "Informação de Contacto",
-        "primaryContactEmail": "Email de Contacto Principal",
-        "primaryContactEmailPlaceholder": "contacto@exemplo.com",
-        "primaryContactPhone": "Telefone de Contacto Principal",
-        "primaryContactPhonePlaceholder": "+351 123 456 789",
-        "headquartersAddress": "Morada da Sede",
-        "street": "Morada",
-        "city": "Cidade",
-        "postalCode": "Código Postal",
-        "country": "País",
-        "subscriptionSettings": "Configurações de Subscrição",
-        "subscriptionTier": "Nível de Subscrição",
-        "subscriptionStatus": "Estado da Subscrição",
-        "enabledFeatures": "Funcionalidades Ativadas",
-        "complianceFrameworks": "Frameworks de Conformidade",
-        "creating": "A criar...",
-        "updating": "A atualizar...",
-        "create": "Criar Organização",
-        "update": "Atualizar Organização",
-        "cancel": "Cancelar",
-        "close": "Fechar",
-        "organizationCreated": "Organização criada com sucesso",
-        "organizationUpdated": "Organização atualizada com sucesso",
-        "errorCreating": "Erro ao criar organização",
-        "errorUpdating": "Erro ao atualizar organização",
-        "nameRequired": "O nome da organização é obrigatório",
-        "emailInvalid": "Por favor insira um email válido"
+        "createSuccess": "Organização criada com sucesso!",
+        "updateSuccess": "Organização atualizada com sucesso!",
+        "aiLookupSuccess": "✨ Detalhes da organização preenchidos por IA!",
+        "aiLookupTooltip": "Pesquisa IA - Preencher automaticamente detalhes da organização",
+        "sections": {
+          "basicInfo": "Informação Básica",
+          "contact": "Informação de Contacto",
+          "addresses": "Informação de Morada",
+          "industry": "Indústria e Classificação",
+          "subscription": "Subscrição e Faturação",
+          "system": "Sistema e Personalização"
+        },
+        "fields": {
+          "name": "Nome da Organização",
+          "legalName": "Nome Legal",
+          "slug": "URL Slug",
+          "companySize": "Tamanho da Empresa",
+          "website": "Website",
+          "logoUrl": "URL do Logo",
+          "publicCompany": "Empresa Pública",
+          "stockTicker": "Ticker da Bolsa",
+          "primaryEmail": "Email Principal",
+          "primaryPhone": "Telefone Principal",
+          "headquartersAddress": "Morada da Sede",
+          "billingAddress": "Morada de Faturação",
+          "sameAsHeadquarters": "Igual à sede",
+          "primaryIndustry": "Indústria Principal",
+          "secondaryIndustry": "Indústria Secundária",
+          "griSector": "Setor GRI",
+          "industryConfidence": "Confiança da Indústria (%)",
+          "subscriptionTier": "Nível de Subscrição",
+          "subscriptionStatus": "Estado da Subscrição",
+          "subscriptionSeats": "Lugares da Subscrição",
+          "subscriptionStarted": "Início da Subscrição",
+          "subscriptionExpires": "Expiração da Subscrição",
+          "dataResidency": "Região de Residência de Dados",
+          "brandColors": "Cores da Marca",
+          "primaryColor": "Cor Primária",
+          "secondaryColor": "Cor Secundária",
+          "accentColor": "Cor de Destaque"
+        },
+        "placeholders": {
+          "streetAddress": "Morada",
+          "city": "Cidade",
+          "postalCode": "Código Postal",
+          "country": "País"
+        },
+        "companySizes": {
+          "1-10": "1-10 funcionários",
+          "11-50": "11-50 funcionários",
+          "51-200": "51-200 funcionários",
+          "201-500": "201-500 funcionários",
+          "501-1000": "501-1000 funcionários",
+          "1001-5000": "1001-5000 funcionários",
+          "5000+": "5000+ funcionários"
+        },
+        "subscriptionTiers": {
+          "starter": "Inicial",
+          "professional": "Profissional",
+          "enterprise": "Empresarial",
+          "custom": "Personalizado"
+        },
+        "subscriptionStatuses": {
+          "active": "Ativo",
+          "inactive": "Inativo",
+          "suspended": "Suspenso",
+          "cancelled": "Cancelado",
+          "trialing": "Teste"
+        },
+        "dataResidencyRegions": {
+          "us-east-1": "EUA Leste (Virgínia)",
+          "us-west-2": "EUA Oeste (Oregon)",
+          "eu-west-1": "Europa (Irlanda)",
+          "ap-southeast-1": "Ásia-Pacífico (Singapura)"
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "create": "Criar",
+          "update": "Atualizar",
+          "creating": "A criar...",
+          "updating": "A atualizar...",
+          "created": "Criado!",
+          "updated": "Atualizado!",
+          "viewOnly": "Apenas Visualizar"
+        },
+        "validation": {
+          "nameRequired": "O nome da organização é obrigatório",
+          "slugRequired": "URL slug é obrigatório",
+          "slugInvalid": "URL slug só pode conter letras minúsculas, números e hífens",
+          "emailInvalid": "Por favor insira um email válido",
+          "urlInvalid": "Por favor insira um URL válido",
+          "phoneInvalid": "Por favor insira um número de telefone válido",
+          "seatsMin": "Mínimo 1 lugar obrigatório",
+          "confidenceRange": "Confiança deve estar entre 0 e 100",
+          "stockTickerInvalid": "Ticker da bolsa deve ter 1-5 letras maiúsculas",
+          "colorInvalid": "Por favor insira um código de cor hex válido",
+          "pleaseFixErrors": "Por favor corrija os erros abaixo antes de submeter"
+        }
       }
     }
   }

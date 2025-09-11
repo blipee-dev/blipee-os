@@ -4,8 +4,11 @@ import React, { Suspense } from "react";
 import { LazyConversationInterface } from "@/components/lazy";
 import { useAuth } from "@/lib/auth/context";
 import { Leaf, TrendingDown, FileText, Target } from "lucide-react";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export default function DashboardPage() {
+  useAuthRedirect('/blipee-ai');
+  
   const { session } = useAuth();
 
   // For now, we'll use a simplified context that focuses on sustainability
