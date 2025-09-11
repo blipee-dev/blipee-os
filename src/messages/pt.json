@@ -1365,6 +1365,38 @@
       "submitButton": "Submeter Pedido"
     }
   },
+  "settings": {
+    "organizations": {
+      "title": "Gestão de Organizações",
+      "subtitle": "Gerencie suas organizações e suas configurações",
+      "searchPlaceholder": "Pesquisar organizações...",
+      "filter": "Filtrar",
+      "download": "Baixar",
+      "upload": "Carregar",
+      "addOrganization": "Adicionar Organização",
+      "createFirstOrganization": "Criar Sua Primeira Organização",
+      "noOrganizationsFound": "Nenhuma organização encontrada",
+      "userNotAuthenticated": "Usuário não autenticado",
+      "failedToLoad": "Falha ao carregar organizações",
+      "retry": "Tentar novamente",
+      "failedToDelete": "Falha ao excluir organização",
+      "table": {
+        "organization": "Organização",
+        "industry": "Indústria",
+        "sites": "Locais",
+        "users": "Usuários",
+        "status": "Status"
+      },
+      "pagination": {
+        "itemsPerPage": "Itens por página:",
+        "showing": "Mostrando {start}-{end} de {total}",
+        "firstPage": "Primeira página",
+        "previousPage": "Página anterior",
+        "nextPage": "Próxima página",
+        "lastPage": "Última página"
+      }
+    }
+  },
   "common": {
     "loading": "A carregar...",
     "error": "Erro",
@@ -1395,5 +1427,87 @@
     "dark": "Escuro",
     "light": "Claro",
     "system": "Sistema"
+  },
+  "settings": {
+    "organizations": {
+      "title": "Gestão de Organizações",
+      "subtitle": "Gerir as suas organizações e configurações",
+      "searchPlaceholder": "Pesquisar organizações...",
+      "filter": "Filtrar",
+      "download": "Descarregar",
+      "upload": "Carregar",
+      "addOrganization": "Adicionar Organização",
+      "createFirstOrganization": "Criar a Sua Primeira Organização",
+      "noOrganizationsFound": "Nenhuma organização encontrada",
+      "userNotAuthenticated": "Utilizador não autenticado",
+      "failedToLoad": "Falha ao carregar organizações",
+      "retry": "Tentar novamente",
+      "deleteConfirmation": "Tem a certeza de que quer eliminar {name}? Esta ação não pode ser desfeita.",
+      "failedToDelete": "Falha ao eliminar organização",
+      "table": {
+        "organization": "Organização",
+        "industry": "Indústria",
+        "sites": "Locais",
+        "users": "Utilizadores",
+        "status": "Estado",
+        "actions": "Ações"
+      },
+      "status": {
+        "active": "Ativo",
+        "inactive": "Inativo",
+        "suspended": "Suspenso"
+      },
+      "pagination": {
+        "itemsPerPage": "Itens por página:",
+        "showing": "A mostrar {start}-{end} de {total}",
+        "firstPage": "Primeira página",
+        "previousPage": "Página anterior",
+        "nextPage": "Página seguinte",
+        "lastPage": "Última página",
+        "page": "Página {number}"
+      },
+      "modal": {
+        "createTitle": "Criar Organização",
+        "editTitle": "Editar Organização",
+        "viewTitle": "Detalhes da Organização",
+        "basicInformation": "Informação Básica",
+        "organizationName": "Nome da Organização",
+        "organizationNamePlaceholder": "Inserir nome da organização",
+        "legalName": "Nome Legal",
+        "legalNamePlaceholder": "Nome legal da empresa",
+        "website": "Website",
+        "websitePlaceholder": "https://exemplo.com",
+        "industryPrimary": "Indústria Principal",
+        "industrySecondary": "Indústria Secundária",
+        "companySize": "Tamanho da Empresa",
+        "contactInformation": "Informação de Contacto",
+        "primaryContactEmail": "Email de Contacto Principal",
+        "primaryContactEmailPlaceholder": "contacto@exemplo.com",
+        "primaryContactPhone": "Telefone de Contacto Principal",
+        "primaryContactPhonePlaceholder": "+351 123 456 789",
+        "headquartersAddress": "Morada da Sede",
+        "street": "Morada",
+        "city": "Cidade",
+        "postalCode": "Código Postal",
+        "country": "País",
+        "subscriptionSettings": "Configurações de Subscrição",
+        "subscriptionTier": "Nível de Subscrição",
+        "subscriptionStatus": "Estado da Subscrição",
+        "enabledFeatures": "Funcionalidades Ativadas",
+        "complianceFrameworks": "Frameworks de Conformidade",
+        "creating": "A criar...",
+        "updating": "A atualizar...",
+        "create": "Criar Organização",
+        "update": "Atualizar Organização",
+        "cancel": "Cancelar",
+        "close": "Fechar",
+        "organizationCreated": "Organização criada com sucesso",
+        "organizationUpdated": "Organização atualizada com sucesso",
+        "errorCreating": "Erro ao criar organização",
+        "errorUpdating": "Erro ao atualizar organização",
+        "nameRequired": "O nome da organização é obrigatório",
+        "emailInvalid": "Por favor insira um email válido"
+      }
+    }
   }
 }

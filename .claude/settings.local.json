@@ -89,7 +89,22 @@
       "Bash(npx supabase:*)",
       "WebSearch",
       "Bash(open http://localhost:3000/settings/organizations)",
-      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/api/admin/organization-invitations/route.ts)"
+      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/api/admin/organization-invitations/route.ts)",
+      "Bash(gh pr view:*)",
+      "Bash(xargs git ls-files:*)",
+      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/profile/appearance/page.tsx)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_6k1fkQ/**)",
+      "Bash(gh pr create:*)",
+      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/profile/language/page.tsx)",
+      "Bash(open http://localhost:3000/profile/language)",
+      "Bash(npx json5:*)",
+      "Bash(python3:*)",
+      "Read(///**)",
+      "Bash(awk:*)",
+      "Bash(do echo \"=== $lang.json ===\")",
+      "Bash(git reset:*)",
+      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/settings/organizations/page.tsx)",
+      "Bash(xargs cat:*)"
     ],
     "deny": [],
     "ask": []

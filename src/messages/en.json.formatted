@@ -215,80 +215,135 @@
     }
   },
   "features": {
-    "title": "Features that Transform",
-    "subtitle": "Your Sustainability Operations",
-    "description": "Everything you need to revolutionize how your organization manages sustainability",
-    "conversationalAI": {
-      "title": "Conversational AI Interface",
-      "description": "Natural language interaction with your sustainability data",
-      "features": [
-        "Ask questions in plain language",
-        "Get instant insights and analysis",
-        "No training required",
-        "Context-aware responses",
-        "Multi-turn conversations",
-        "Voice input support"
-      ]
+    "skipToContent": "Skip to main content",
+    "hero": {
+      "badge": "Every feature designed for impact",
+      "title1": "Features that Transform",
+      "title2": "Sustainability Management",
+      "description": "From conversational AI to predictive analytics, every feature is crafted to make sustainability simple, actionable, and impactful."
     },
-    "realTimeAnalytics": {
-      "title": "Real-Time Analytics",
-      "description": "Live monitoring and instant insights for your operations",
-      "features": [
-        "Live emissions tracking",
-        "Energy consumption monitoring",
-        "Waste stream analysis",
-        "Water usage tracking",
-        "Supply chain visibility",
-        "Instant alerts and notifications"
-      ]
+    "categories": {
+      "conversationalAI": {
+        "title": "Conversational AI",
+        "description": "Natural language interaction that feels human",
+        "features": [
+          "Ask anything in plain English",
+          "Context-aware responses",
+          "Multi-turn conversations",
+          "Voice input support",
+          "Instant AI insights",
+          "Personalized recommendations",
+          "24/7 availability",
+          "Multi-language support",
+          "Emotion-aware responses"
+        ]
+      },
+      "dynamicVisualization": {
+        "title": "Dynamic Visualization",
+        "description": "AI generates the perfect chart for every conversation",
+        "features": [
+          "Auto-generated dashboards",
+          "Real-time data updates",
+          "Interactive 3D models",
+          "Custom report builder",
+          "Trend analysis",
+          "Predictive visualizations",
+          "Export to any format",
+          "Mobile-responsive design",
+          "Branded templates"
+        ]
+      },
+      "sustainabilityTracking": {
+        "title": "Sustainability Tracking",
+        "description": "Complete emissions management made simple",
+        "features": [
+          "Scope 1, 2, 3 emissions",
+          "Science-based targets",
+          "Carbon credit management",
+          "Supply chain tracking",
+          "Regulatory compliance",
+          "ESG reporting",
+          "Benchmark analysis",
+          "Goal progress tracking",
+          "Offset recommendations"
+        ]
+      },
+      "documentIntelligence": {
+        "title": "Document Intelligence",
+        "description": "Turn any document into actionable sustainability data",
+        "features": [
+          "Invoice scanning",
+          "Utility bill parsing",
+          "Travel receipt analysis",
+          "PDF data extraction",
+          "Image recognition",
+          "Automatic categorization",
+          "Multi-format support",
+          "Batch processing",
+          "Error validation"
+        ]
+      },
+      "predictiveAnalytics": {
+        "title": "Predictive Analytics",
+        "description": "See the future with AI-powered predictions",
+        "features": [
+          "Emission forecasting",
+          "Equipment failure prediction",
+          "Energy optimization",
+          "Cost projections",
+          "Weather impact analysis",
+          "Anomaly detection",
+          "Risk assessment",
+          "Investment ROI",
+          "Scenario modeling"
+        ]
+      },
+      "enterpriseSecurity": {
+        "title": "Enterprise Security",
+        "description": "Bank-grade security with complete transparency",
+        "features": [
+          "End-to-end encryption",
+          "SOC 2 compliance",
+          "GDPR ready",
+          "Role-based access",
+          "Audit logging",
+          "Data residency options",
+          "API security",
+          "Single sign-on",
+          "Multi-factor auth"
+        ]
+      }
     },
-    "complianceAutomation": {
-      "title": "Compliance & Reporting",
-      "description": "Automated compliance tracking and report generation",
-      "features": [
-        "GRI Standards compliance",
-        "TCFD reporting",
-        "CDP questionnaires",
-        "EU CSRD compliance",
-        "SEC climate disclosures",
-        "Custom report builder"
-      ]
+    "cta": {
+      "title": "Ready to Transform Your Sustainability?",
+      "description": "Access your AI-powered sustainability platform and start making data-driven decisions today.",
+      "signInButton": "Sign In to Dashboard",
+      "requestButton": "Request Access",
+      "footer": "Your AI sustainability team is waiting for you"
     },
-    "intelligentInsights": {
-      "title": "Intelligent Insights",
-      "description": "AI-powered recommendations and predictive analytics",
-      "features": [
-        "Predictive emissions modeling",
-        "Cost optimization suggestions",
-        "Risk assessment and mitigation",
-        "Performance benchmarking",
-        "Trend analysis and forecasting",
-        "Automated action plans"
-      ]
+    "contactModal": {
+      "title": "Schedule a Demo",
+      "subtitle": "Get in touch with our team to see blipee in action",
+      "namePlaceholder": "Your Name",
+      "emailPlaceholder": "Email Address",
+      "companyPlaceholder": "Company",
+      "messagePlaceholder": "Tell us about your sustainability goals",
+      "submitButton": "Send Request"
     },
-    "integration": {
-      "title": "Enterprise Integration",
-      "description": "Seamlessly connect with your existing systems",
-      "features": [
-        "ERP system integration",
-        "IoT sensor connectivity",
-        "Building management systems",
-        "Supply chain platforms",
-        "Financial systems",
-        "Custom API access"
-      ]
-    },
-    "security": {
-      "title": "Security & Privacy",
-      "description": "Enterprise-grade security for your sensitive data",
-      "features": [
-        "End-to-end encryption",
-        "SOC 2 Type II compliance",
-        "GDPR compliant",
-        "Role-based access control",
-        "Audit logging",
-        "Data residency options"
-      ]
+    "supportModal": {
+      "title": "Get Support",
+      "subtitle": "Our team is here to help you succeed with blipee",
+      "namePlaceholder": "Your Name",
+      "emailPlaceholder": "Email Address",
+      "issueTypePlaceholder": "Select Issue Type",
+      "issueTypes": {
+        "technical": "Technical Issue",
+        "billing": "Billing Question",
+        "feature": "Feature Request",
+        "other": "Other"
+      },
+      "descriptionPlaceholder": "Describe your issue or question",
+      "submitButton": "Submit Request"
     }
   },
   "aiTechnology": {
@@ -300,7 +355,7 @@
       "description": "Discover the revolutionary multi-brain AI architecture that makes sustainability management feel like magic. 12 specialized AI models working together to transform how you achieve your environmental goals."
     },
     "architectureSection": {
-      "badge": "Advanced AI Architecture", 
+      "badge": "Advanced AI Architecture",
       "title": "Multi-Brain Architecture",
       "subtitle": "Each brain specializes in different aspects of sustainability, working together to deliver comprehensive intelligence",
       "sectionTitle": "Specialized Intelligence Systems",
@@ -312,7 +367,7 @@
         "description": "12 specialized AI models working in harmony for comprehensive sustainability intelligence",
         "features": [
           "Context-aware conversation engine",
-          "Predictive analytics brain", 
+          "Predictive analytics brain",
           "Document intelligence processor",
           "Visual analysis system",
           "Recommendation engine",
@@ -457,7 +512,7 @@
           "description": "We believe in pushing boundaries and challenging the status quo. Every day we ask: how can we make sustainability management 10x better, not just incrementally improved?"
         },
         "customerObsession": {
-          "title": "Customer Obsession", 
+          "title": "Customer Obsession",
           "description": "Our customers' success is our success. We listen deeply, iterate rapidly, and won't rest until sustainability teams feel empowered rather than overwhelmed by their tools"
         },
         "transparencyTrust": {
@@ -524,29 +579,18 @@
     }
   },
   "footer": {
-    "tagline": "Your AI-powered sustainability intelligence platform",
-    "quickLinks": "Quick Links",
-    "legal": "Legal",
+    "features": "Features",
+    "industries": "Industries",
+    "aiTechnology": "AI Technology",
+    "about": "About",
+    "contact": "Contact",
     "support": "Support",
-    "followUs": "Follow Us",
-    "contact": {
-      "title": "Contact",
-      "email": "Email",
-      "phone": "Phone",
-      "address": "Address"
-    },
-    "links": {
-      "privacy": "Privacy Policy",
-      "terms": "Terms of Service",
-      "cookies": "Cookie Policy",
-      "security": "Security",
-      "dataProcessing": "Data Processing Agreement",
-      "documentation": "Documentation",
-      "apiDocs": "API Documentation",
-      "helpCenter": "Help Center",
-      "community": "Community"
-    },
-    "copyright": "© 2024 blipee. All rights reserved."
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "cookies": "Cookies",
+    "security": "Security",
+    "dpa": "DPA",
+    "copyright": "© 2025 blipee. All rights reserved."
   },
   "modals": {
     "contact": {
@@ -918,152 +962,6 @@
       }
     }
   },
-  "footer": {
-    "features": "Features",
-    "industries": "Industries",
-    "aiTechnology": "AI Technology",
-    "about": "About",
-    "contact": "Contact",
-    "support": "Support",
-    "terms": "Terms",
-    "privacy": "Privacy",
-    "cookies": "Cookies",
-    "security": "Security",
-    "dpa": "DPA",
-    "copyright": "© 2025 blipee. All rights reserved."
-  },
-  "features": {
-    "skipToContent": "Skip to main content",
-    "hero": {
-      "badge": "Every feature designed for impact",
-      "title1": "Features that Transform",
-      "title2": "Sustainability Management",
-      "description": "From conversational AI to predictive analytics, every feature is crafted to make sustainability simple, actionable, and impactful."
-    },
-    "categories": {
-      "conversationalAI": {
-        "title": "Conversational AI",
-        "description": "Natural language interaction that feels human",
-        "features": [
-          "Ask anything in plain English",
-          "Context-aware responses",
-          "Multi-turn conversations",
-          "Voice input support",
-          "Instant AI insights",
-          "Personalized recommendations",
-          "24/7 availability",
-          "Multi-language support",
-          "Emotion-aware responses"
-        ]
-      },
-      "dynamicVisualization": {
-        "title": "Dynamic Visualization",
-        "description": "AI generates the perfect chart for every conversation",
-        "features": [
-          "Auto-generated dashboards",
-          "Real-time data updates",
-          "Interactive 3D models",
-          "Custom report builder",
-          "Trend analysis",
-          "Predictive visualizations",
-          "Export to any format",
-          "Mobile-responsive design",
-          "Branded templates"
-        ]
-      },
-      "sustainabilityTracking": {
-        "title": "Sustainability Tracking",
-        "description": "Complete emissions management made simple",
-        "features": [
-          "Scope 1, 2, 3 emissions",
-          "Science-based targets",
-          "Carbon credit management",
-          "Supply chain tracking",
-          "Regulatory compliance",
-          "ESG reporting",
-          "Benchmark analysis",
-          "Goal progress tracking",
-          "Offset recommendations"
-        ]
-      },
-      "documentIntelligence": {
-        "title": "Document Intelligence",
-        "description": "Turn any document into actionable sustainability data",
-        "features": [
-          "Invoice scanning",
-          "Utility bill parsing",
-          "Travel receipt analysis",
-          "PDF data extraction",
-          "Image recognition",
-          "Automatic categorization",
-          "Multi-format support",
-          "Batch processing",
-          "Error validation"
-        ]
-      },
-      "predictiveAnalytics": {
-        "title": "Predictive Analytics",
-        "description": "See the future with AI-powered predictions",
-        "features": [
-          "Emission forecasting",
-          "Equipment failure prediction",
-          "Energy optimization",
-          "Cost projections",
-          "Weather impact analysis",
-          "Anomaly detection",
-          "Risk assessment",
-          "Investment ROI",
-          "Scenario modeling"
-        ]
-      },
-      "enterpriseSecurity": {
-        "title": "Enterprise Security",
-        "description": "Bank-grade security with complete transparency",
-        "features": [
-          "End-to-end encryption",
-          "SOC 2 compliance",
-          "GDPR ready",
-          "Role-based access",
-          "Audit logging",
-          "Data residency options",
-          "API security",
-          "Single sign-on",
-          "Multi-factor auth"
-        ]
-      }
-    },
-    "cta": {
-      "title": "Ready to Transform Your Sustainability?",
-      "description": "Access your AI-powered sustainability platform and start making data-driven decisions today.",
-      "signInButton": "Sign In to Dashboard",
-      "requestButton": "Request Access",
-      "footer": "Your AI sustainability team is waiting for you"
-    },
-    "contactModal": {
-      "title": "Schedule a Demo",
-      "subtitle": "Get in touch with our team to see blipee in action",
-      "namePlaceholder": "Your Name",
-      "emailPlaceholder": "Email Address",
-      "companyPlaceholder": "Company",
-      "messagePlaceholder": "Tell us about your sustainability goals",
-      "submitButton": "Send Request"
-    },
-    "supportModal": {
-      "title": "Get Support",
-      "subtitle": "Our team is here to help you succeed with blipee",
-      "namePlaceholder": "Your Name",
-      "emailPlaceholder": "Email Address",
-      "issueTypePlaceholder": "Select Issue Type",
-      "issueTypes": {
-        "technical": "Technical Issue",
-        "billing": "Billing Question",
-        "feature": "Feature Request",
-        "other": "Other"
-      },
-      "descriptionPlaceholder": "Describe your issue or question",
-      "submitButton": "Submit Request"
-    }
-  },
   "industries": {
     "skipToContent": "Skip to main content",
     "hero": {
@@ -1262,72 +1160,72 @@
     "compliance": {
       "title": "Compliance Standards",
       "description": "Full compliance with Global Reporting Initiative sector-specific standards and CSRD (Corporate Sustainability Reporting Directive). Our AI knows the exact requirements for your industry.",
-        "gri11": {
-          "title": "GRI 11",
-          "sector": "Oil and Gas Sector",
-          "description": "Comprehensive sustainability reporting for oil and gas operations",
-          "items": [
-            "Greenhouse gas emissions management",
-            "Biodiversity and ecosystem protection",
-            "Asset integrity and process safety",
-            "Rights of indigenous peoples"
-          ]
-        },
-        "gri12": {
-          "title": "GRI 12",
-          "sector": "Coal Sector",
-          "description": "Sustainability standards for coal mining and processing",
-          "items": [
-            "Particulate matter emissions",
-            "Biodiversity impact assessment",
-            "Land and resource rights",
-            "Closure and rehabilitation planning"
-          ]
-        },
-        "gri13": {
-          "title": "GRI 13",
-          "sector": "Agriculture & Food",
-          "description": "Food production and agricultural sustainability reporting",
-          "items": [
-            "Food loss and waste management",
-            "Sustainable sourcing practices",
-            "Animal welfare standards",
-            "Water and soil conservation"
-          ]
-        },
-        "gri14": {
-          "title": "GRI 14",
-          "sector": "Mining Sector",
-          "description": "Mining operations and extractive industry standards",
-          "items": [
-            "Waste and tailings management",
-            "Mine closure and rehabilitation",
-            "Artisanal and small-scale mining",
-            "Economic contribution reporting"
-          ]
-        },
-        "gri15": {
-          "title": "GRI 15",
-          "sector": "Chemicals Sector",
-          "description": "Chemical industry sustainability and safety reporting",
-          "items": [
-            "Chemical safety and product stewardship",
-            "Process safety management",
-            "Emissions and waste reduction",
-            "Supply chain transparency"
-          ]
-        },
-        "gri16": {
-          "title": "GRI 16",
-          "sector": "Construction & Real Estate",
-          "description": "Built environment sustainability standards",
-          "items": [
-            "Sustainable building practices",
-            "Land use and planning",
-            "Construction waste management",
-            "Energy efficiency in buildings"
-          ]
-        }
+      "gri11": {
+        "title": "GRI 11",
+        "sector": "Oil and Gas Sector",
+        "description": "Comprehensive sustainability reporting for oil and gas operations",
+        "items": [
+          "Greenhouse gas emissions management",
+          "Biodiversity and ecosystem protection",
+          "Asset integrity and process safety",
+          "Rights of indigenous peoples"
+        ]
+      },
+      "gri12": {
+        "title": "GRI 12",
+        "sector": "Coal Sector",
+        "description": "Sustainability standards for coal mining and processing",
+        "items": [
+          "Particulate matter emissions",
+          "Biodiversity impact assessment",
+          "Land and resource rights",
+          "Closure and rehabilitation planning"
+        ]
+      },
+      "gri13": {
+        "title": "GRI 13",
+        "sector": "Agriculture & Food",
+        "description": "Food production and agricultural sustainability reporting",
+        "items": [
+          "Food loss and waste management",
+          "Sustainable sourcing practices",
+          "Animal welfare standards",
+          "Water and soil conservation"
+        ]
+      },
+      "gri14": {
+        "title": "GRI 14",
+        "sector": "Mining Sector",
+        "description": "Mining operations and extractive industry standards",
+        "items": [
+          "Waste and tailings management",
+          "Mine closure and rehabilitation",
+          "Artisanal and small-scale mining",
+          "Economic contribution reporting"
+        ]
+      },
+      "gri15": {
+        "title": "GRI 15",
+        "sector": "Chemicals Sector",
+        "description": "Chemical industry sustainability and safety reporting",
+        "items": [
+          "Chemical safety and product stewardship",
+          "Process safety management",
+          "Emissions and waste reduction",
+          "Supply chain transparency"
+        ]
+      },
+      "gri16": {
+        "title": "GRI 16",
+        "sector": "Construction & Real Estate",
+        "description": "Built environment sustainability standards",
+        "items": [
+          "Sustainable building practices",
+          "Land use and planning",
+          "Construction waste management",
+          "Energy efficiency in buildings"
+        ]
+      }
     },
     "cta": {
       "title": "Ready to Transform Your Sustainability?",
@@ -1375,13 +1273,20 @@
       "userNotAuthenticated": "User not authenticated",
       "failedToLoad": "Failed to load organizations",
       "retry": "Retry",
+      "deleteConfirmation": "Are you sure you want to delete {name}? This action cannot be undone.",
       "failedToDelete": "Failed to delete organization",
       "table": {
         "organization": "Organization",
         "industry": "Industry",
         "sites": "Sites",
         "users": "Users",
-        "status": "Status"
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "suspended": "Suspended"
       },
       "pagination": {
         "itemsPerPage": "Items per page:",
@@ -1389,7 +1294,50 @@
         "firstPage": "First page",
         "previousPage": "Previous page",
         "nextPage": "Next page",
-        "lastPage": "Last page"
+        "lastPage": "Last page",
+        "page": "Page {number}"
+      },
+      "modal": {
+        "createTitle": "Create Organization",
+        "editTitle": "Edit Organization",
+        "viewTitle": "Organization Details",
+        "basicInformation": "Basic Information",
+        "organizationName": "Organization Name",
+        "organizationNamePlaceholder": "Enter organization name",
+        "legalName": "Legal Name",
+        "legalNamePlaceholder": "Legal business name",
+        "website": "Website",
+        "websitePlaceholder": "https://example.com",
+        "industryPrimary": "Primary Industry",
+        "industrySecondary": "Secondary Industry",
+        "companySize": "Company Size",
+        "contactInformation": "Contact Information",
+        "primaryContactEmail": "Primary Contact Email",
+        "primaryContactEmailPlaceholder": "contact@example.com",
+        "primaryContactPhone": "Primary Contact Phone",
+        "primaryContactPhonePlaceholder": "+1 (555) 123-4567",
+        "headquartersAddress": "Headquarters Address",
+        "street": "Street Address",
+        "city": "City",
+        "postalCode": "Postal Code",
+        "country": "Country",
+        "subscriptionSettings": "Subscription Settings",
+        "subscriptionTier": "Subscription Tier",
+        "subscriptionStatus": "Subscription Status",
+        "enabledFeatures": "Enabled Features",
+        "complianceFrameworks": "Compliance Frameworks",
+        "creating": "Creating...",
+        "updating": "Updating...",
+        "create": "Create Organization",
+        "update": "Update Organization",
+        "cancel": "Cancel",
+        "close": "Close",
+        "organizationCreated": "Organization created successfully",
+        "organizationUpdated": "Organization updated successfully",
+        "errorCreating": "Error creating organization",
+        "errorUpdating": "Error updating organization",
+        "nameRequired": "Organization name is required",
+        "emailInvalid": "Please enter a valid email address"
       }
     }
   },
