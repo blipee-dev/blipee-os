@@ -127,7 +127,7 @@ export default function SecuritySettingsPage() {
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <Shield className="h-5 w-5 text-purple-500" />
+                <Shield className="h-5 w-5 accent-text" />
                 Two-Factor Authentication
               </h2>
               <p className="mt-1 text-[#616161] dark:text-[#757575]">
@@ -152,7 +152,7 @@ export default function SecuritySettingsPage() {
                     disabled={loading}
                     className={`relative inline-flex h-8 w-14 items-center rounded-full transition-all ${
                       mfaEnabled
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500"
+                        ? "accent-gradient-lr"
                         : "bg-gray-300 dark:bg-[#616161]"
                     } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
@@ -255,7 +255,7 @@ export default function SecuritySettingsPage() {
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <Key className="h-5 w-5 text-purple-500" />
+                <Key className="h-5 w-5 accent-text" />
                 Password & Authentication
               </h2>
               <p className="mt-1 text-[#616161] dark:text-[#757575]">
@@ -302,7 +302,7 @@ export default function SecuritySettingsPage() {
             
             {loadingSessions ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 accent-border mx-auto"></div>
               </div>
             ) : sessions.length === 0 ? (
               <p className="text-sm text-[#616161] dark:text-[#757575]">No active sessions found</p>

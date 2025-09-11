@@ -1,5 +1,6 @@
 import { AuditEvent, AuditEventType, AuditEventSeverity, AuditLogQuery, AuditLogSummary } from './types';
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
+import { safeAuditLog } from '@/lib/utils/audit-helpers';
 import crypto from 'crypto';
 
 // Dynamic imports for server-side only
@@ -144,37 +145,25 @@ export class AuditService {
    * Store events in Supabase
    */
   private async storeInSupabase(events: AuditEvent[]): Promise<void> {
-    const supabase = createClient();
-    const { error } = await supabase
-      .from('audit_logs')
-      .insert(events.map(event => ({
-        id: event.id,
-        timestamp: event.timestamp.toISOString(),
-        type: event.type,
-        severity: event.severity,
-        actor_type: event.actor.type,
-        actor_id: event.actor.id,
-        actor_email: event.actor.email,
-        actor_ip: event.actor.ip,
-        actor_user_agent: event.actor.userAgent,
-        target_type: event.target?.type,
-        target_id: event.target?.id,
-        target_name: event.target?.name,
+    // Use safe audit logging for each event to handle RLS properly
+    for (const event of events) {
+      await safeAuditLog({
         organization_id: event.context.organizationId,
-        building_id: event.context.buildingId,
-        session_id: event.context.sessionId,
-        request_id: event.context.requestId,
-        api_key_id: event.context.apiKeyId,
-        metadata: event.metadata,
-        changes: event.changes,
-        result: event.result,
-        error_code: event.errorDetails?.code,
-        error_message: event.errorDetails?.message,
-        error_stack_trace: event.errorDetails?.stackTrace,
-      })));
-
-    if (error) {
-      throw error;
+        user_id: event.actor.id,
+        action: event.type,
+        resource_type: event.target?.type || 'system',
+        resource_id: event.target?.id || event.id,
+        metadata: {
+          ...event.metadata,
+          severity: event.severity,
+          result: event.result,
+          actor_type: event.actor.type,
+          actor_email: event.actor.email,
+          actor_ip: event.actor.ip,
+          error_code: event.errorDetails?.code,
+          error_message: event.errorDetails?.message
+        }
+      });
     }
   }
 
@@ -248,7 +237,7 @@ export class AuditService {
    * Query Supabase
    */
   private async querySupabase(query: AuditLogQuery): Promise<AuditEvent[]> {
-    const supabase = createClient();
+    const supabase = await createClient();
     let supabaseQuery = supabase
       .from('audit_logs')
       .select('*');
@@ -534,7 +523,7 @@ export class AuditService {
     
     switch (this.config.storage) {
       case 'supabase':
-        const supabase = createClient();
+        const supabase = await createClient();
         const { count } = await supabase
           .from('audit_logs')
           .delete()

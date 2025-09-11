@@ -72,7 +72,7 @@ export default function NotificationsSettingsPage() {
             <button
               onClick={() => setEmailNotifications(!emailNotifications)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                emailNotifications ? "bg-purple-500" : "bg-gray-300 dark:bg-[#616161]"
+                emailNotifications ? "accent-bg" : "bg-gray-300 dark:bg-[#616161]"
               }`}
             >
               <span
@@ -98,7 +98,7 @@ export default function NotificationsSettingsPage() {
             <button
               onClick={() => setPushNotifications(!pushNotifications)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                pushNotifications ? "bg-purple-500" : "bg-gray-300 dark:bg-[#616161]"
+                pushNotifications ? "accent-bg" : "bg-gray-300 dark:bg-[#616161]"
               }`}
             >
               <span
@@ -124,7 +124,7 @@ export default function NotificationsSettingsPage() {
             <button
               onClick={() => setSmsNotifications(!smsNotifications)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                smsNotifications ? "bg-purple-500" : "bg-gray-300 dark:bg-[#616161]"
+                smsNotifications ? "accent-bg" : "bg-gray-300 dark:bg-[#616161]"
               }`}
             >
               <span
@@ -148,8 +148,8 @@ export default function NotificationsSettingsPage() {
             return (
               <div key={type.id} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-lg flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-purple-500" />
+                  <div className="w-10 h-10 accent-bg rounded-lg flex items-center justify-center">
+                    <Icon className="w-5 h-5 accent-text" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -162,7 +162,7 @@ export default function NotificationsSettingsPage() {
                 </div>
                 <button
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    type.enabled ? "bg-purple-500" : "bg-gray-300 dark:bg-[#616161]"
+                    type.enabled ? "accent-bg" : "bg-gray-300 dark:bg-[#616161]"
                   }`}
                 >
                   <span

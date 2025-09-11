@@ -70,11 +70,10 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
     
     return users.filter(user => 
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.organizations?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.organizations?.name.toLowerCase().includes(searchTerm.toLowerCase())
+      user.department?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [users, searchTerm]);
 
@@ -120,12 +119,12 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
 
       const organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
 
-      // Fetch app users
-      const { data: appUsersData, error } = await supabase
+      // Fetch users
+      const { data: usersData, error } = await supabase
         .from('app_users')
         .select(`
           *,
-          organizations:organization_id (
+          organizations (
             name,
             slug
           )
@@ -138,7 +137,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         return;
       }
 
-      setUsers(appUsersData || []);
+      setUsers(usersData || []);
     } finally {
       setLoading(false);
     }
@@ -180,32 +179,25 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   // Can user perform actions?
   const canManage = userRole === 'account_owner' || userRole === 'admin';
 
-  // Format last active time
-  const formatLastActive = (lastActive: string) => {
-    if (!lastActive) return 'Never';
-    const date = new Date(lastActive);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
-    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    if (minutes > 0) return `${minutes} min ago`;
-    return 'Just now';
+  // Format role display
+  const formatRole = (role: string) => {
+    return role.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
   };
 
-  // Get role badge color
+  // Get role color
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'account_owner':
         return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400';
-      case 'admin':
+      case 'sustainability_manager':
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400';
+      case 'facility_manager':
         return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400';
-      case 'manager':
-        return 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400';
-      case 'user':
+      case 'analyst':
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400';
+      case 'viewer':
         return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-400';
       default:
         return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-400';
@@ -229,7 +221,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   // Pagination Component
   const PaginationControls = () => {
     return (
-      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 sm:px-6">
+      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-white/[0.05]">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <label htmlFor="items-per-page" className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
@@ -239,7 +231,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
               id="items-per-page"
               value={itemsPerPage}
               onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 focus:ring-purple-500"
+              className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 accent-ring"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -296,7 +288,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                     className={`
                       px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg transition-colors
                       ${currentPage === pageNum
-                        ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
+                        ? "accent-gradient-lr text-white"
                         : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-[#616161] dark:text-[#757575]"
                       }
                     `}
@@ -331,8 +323,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   return (
     <SettingsLayout pageTitle="Users">
       <header className="hidden md:block p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05]">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">Users Management</h1>
-        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">Manage user accounts and permissions</p>
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">User Management</h1>
+        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">Manage team members and their permissions</p>
       </header>
 
       <main className="p-4 sm:p-6">
@@ -345,7 +337,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 accent-ring text-sm"
             />
           </div>
           
@@ -378,7 +370,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                 setModalMode('create');
                 setShowUserModal(true);
               }}
-              className="p-2.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg text-white hover:opacity-90 transition-opacity"
+              className="p-2.5 accent-gradient-lr rounded-lg text-white hover:opacity-90 transition-opacity"
               title="Add User"
             >
               <Plus className="w-4 h-4" />
@@ -386,48 +378,53 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
           )}
         </div>
 
-        {/* Content */}
-        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] overflow-hidden">
+        {/* Table Content */}
+        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] h-[700px] flex flex-col">
           {loading ? (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-              Loading users...
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="w-8 h-8 border-4 accent-border border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-500 dark:text-gray-400">Loading users...</p>
+              </div>
             </div>
           ) : currentData.length === 0 ? (
-            <div className="p-8 text-center">
-              <Users className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">No users found</p>
-              {canManage && (
-                <button
-                  onClick={() => {
-                    setModalMode('create');
-                    setShowUserModal(true);
-                  }}
-                  className="mt-4 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-                >
-                  Add Your First User
-                </button>
-              )}
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No users found</p>
+                {canManage && (
+                  <button
+                    onClick={() => {
+                      setModalMode('create');
+                      setShowUserModal(true);
+                    }}
+                    className="mt-4 px-4 py-2 accent-gradient-lr text-white rounded-lg hover:opacity-90"
+                  >
+                    Add Your First User
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
-            <>
-              <div className="overflow-x-auto">
+            <div className="flex flex-col h-full">
+              <div className="flex-1 overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-[#212121] border-b border-gray-200 dark:border-white/[0.05]">
+                  <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
                     <tr>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
                         User
                       </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
                         Contact
                       </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Role
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
                         Organization
                       </th>
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
+                        Department
+                      </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        Last Active
+                        Role
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
                         Status
@@ -442,53 +439,49 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                       <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                            <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3">
                               <Users className="w-4 h-4 text-white" />
                             </div>
                             <div>
                               <div className="text-sm font-medium text-gray-900 dark:text-white">
                                 {user.name}
                               </div>
-                              {user.title && (
-                                <div className="text-xs text-gray-500 dark:text-gray-400">
-                                  {user.title}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            <div className="flex items-center gap-1">
-                              <Mail className="w-3 h-3" />
-                              {user.email}
-                            </div>
-                            {user.phone && (
-                              <div className="flex items-center gap-1 mt-1">
-                                <Phone className="w-3 h-3" />
-                                {user.phone}
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                {user.title || 'Team Member'}
                               </div>
-                            )}
+                            </div>
                           </div>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor(user.role)}`}>
-                            {user.role}
-                          </span>
-                          {user.two_factor_enabled && (
-                            <ShieldCheck className="w-3 h-3 text-green-500 inline-block ml-1" title="2FA Enabled" />
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {user.email}
+                          </div>
+                          {user.phone && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {user.phone}
+                            </div>
                           )}
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden lg:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575] hidden md:table-cell">
                           {user.organizations?.name || '-'}
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575] hidden md:table-cell">
-                          {formatLastActive(user.last_active || user.updated_at)}
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden lg:table-cell">
+                          {user.department || '-'}
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor(user.role)}`}>
+                            {formatRole(user.role)}
+                          </span>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                            {user.status}
-                          </span>
+                          <div className="flex items-center">
+                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
+                              {user.status}
+                            </span>
+                            {user.two_factor_enabled && (
+                              <ShieldCheck className="w-4 h-4 text-green-500 ml-2" title="2FA Enabled" />
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end">
@@ -506,7 +499,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
               </div>
 
               <PaginationControls />
-            </>
+            </div>
           )}
         </div>
       </main>

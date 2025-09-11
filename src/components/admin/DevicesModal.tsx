@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Cpu, Wifi, Zap, Thermometer } from "lucide-react";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
 
 interface DevicesModalProps {
   isOpen: boolean;
@@ -122,19 +123,20 @@ export default function DevicesModal({ isOpen, onClose, onSuccess, mode = 'creat
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Device Type *
                     </label>
-                    <select
+                    <CustomDropdown
                       value={formData.type}
-                      onChange={(e) => setFormData({...formData, type: e.target.value})}
-                      className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
-                    >
-                      <option value="sensor">Sensor</option>
-                      <option value="meter">Energy Meter</option>
-                      <option value="hvac">HVAC System</option>
-                      <option value="lighting">Lighting Control</option>
-                      <option value="solar">Solar Panel</option>
-                      <option value="battery">Battery Storage</option>
-                      <option value="other">Other</option>
-                    </select>
+                      onChange={(value) => setFormData({...formData, type: value as string})}
+                      options={[
+                        { value: "sensor", label: "Sensor" },
+                        { value: "meter", label: "Energy Meter" },
+                        { value: "hvac", label: "HVAC System" },
+                        { value: "lighting", label: "Lighting Control" },
+                        { value: "solar", label: "Solar Panel" },
+                        { value: "battery", label: "Battery Storage" },
+                        { value: "other", label: "Other" }
+                      ]}
+                      className="w-full"
+                    />
                   </div>
                 </div>
 
@@ -171,17 +173,18 @@ export default function DevicesModal({ isOpen, onClose, onSuccess, mode = 'creat
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Communication Protocol
                     </label>
-                    <select
+                    <CustomDropdown
                       value={formData.protocol}
-                      onChange={(e) => setFormData({...formData, protocol: e.target.value})}
-                      className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500"
-                    >
-                      <option value="modbus">Modbus TCP</option>
-                      <option value="bacnet">BACnet</option>
-                      <option value="mqtt">MQTT</option>
-                      <option value="opcua">OPC UA</option>
-                      <option value="api">REST API</option>
-                    </select>
+                      onChange={(value) => setFormData({...formData, protocol: value as string})}
+                      options={[
+                        { value: "modbus", label: "Modbus TCP" },
+                        { value: "bacnet", label: "BACnet" },
+                        { value: "mqtt", label: "MQTT" },
+                        { value: "opcua", label: "OPC UA" },
+                        { value: "api", label: "REST API" }
+                      ]}
+                      className="w-full"
+                    />
                   </div>
                   
                   <div>

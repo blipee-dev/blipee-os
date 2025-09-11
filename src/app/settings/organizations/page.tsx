@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import OrganizationModal from "@/components/admin/OrganizationModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
-import { createClient } from "@/lib/supabase/client";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export default function OrganizationSettingsPage() {
   const [showOrgModal, setShowOrgModal] = useState(false);
@@ -31,10 +32,11 @@ export default function OrganizationSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const supabase = createClient();
+  const supabase = createClientComponentClient();
 
   // Fetch organizations from database
   const fetchOrganizations = async () => {
+    console.log('Fetching organizations...');
     try {
       setLoading(true);
       setError(null);
@@ -77,6 +79,8 @@ export default function OrganizationSettingsPage() {
 
       if (userOrgsError) throw userOrgsError;
 
+      console.log('Fetched user organizations:', userOrgs);
+
       // Transform the data to match our component's expectations
       const orgs = userOrgs?.map(uo => ({
         ...uo.organizations,
@@ -107,12 +111,14 @@ export default function OrganizationSettingsPage() {
         org.users = usersCount || 0;
       }
 
+      console.log('Setting organizations state with:', orgs);
       setOrganizations(orgs);
     } catch (err) {
       console.error('Error fetching organizations:', err);
       setError('Failed to load organizations');
     } finally {
       setLoading(false);
+      console.log('Fetch complete, loading set to false');
     }
   };
 
@@ -191,35 +197,37 @@ export default function OrganizationSettingsPage() {
     setModalMode("create");
   };
 
-  const handleModalSuccess = () => {
+  const handleModalSuccess = async () => {
+    console.log('Modal success callback triggered, refreshing organizations...');
     handleModalClose();
-    // Refresh data
-    fetchOrganizations();
+    // Refresh data immediately
+    await fetchOrganizations();
   };
 
   // Pagination Component
   const PaginationControls = () => {
     return (
-      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 sm:px-6">
-        <div className="flex items-center gap-4">
+      <div className="mt-auto border-t border-gray-200 dark:border-white/[0.05] bg-gray-50 dark:bg-[#757575]/10 rounded-b-lg p-3 sm:p-4">
+        <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <div className="flex items-center gap-2">
-            <label htmlFor="items-per-page" className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
+            <label className="hidden sm:block text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
               Items per page:
             </label>
-            <select
-              id="items-per-page"
+            <CustomDropdown
               value={itemsPerPage}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 focus:ring-purple-500"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
+              onChange={handleItemsPerPageChange}
+              options={[
+                { value: 5, label: "5" },
+                { value: 10, label: "10" },
+                { value: 20, label: "20" },
+                { value: 50, label: "50" }
+              ]}
+              className="w-16"
+            />
           </div>
           
-          <div className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
+          <div className="text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
             Showing {Math.min(startIndex + 1, totalItems)}-{Math.min(endIndex, totalItems)} of {totalItems}
           </div>
         </div>
@@ -229,7 +237,7 @@ export default function OrganizationSettingsPage() {
             <button
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="First page"
             >
               <ChevronsLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -238,7 +246,7 @@ export default function OrganizationSettingsPage() {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="Previous page"
             >
               <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -268,8 +276,8 @@ export default function OrganizationSettingsPage() {
                     className={`
                       px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg transition-colors
                       ${currentPage === pageNum
-                        ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
-                        : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-[#616161] dark:text-[#757575]"
+                        ? "accent-gradient-lr text-white"
+                        : "hover:bg-gray-200 dark:hover:bg-white/[0.05] text-gray-700 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white"
                       }
                     `}
                     aria-label={`Page ${pageNum}`}
@@ -284,7 +292,7 @@ export default function OrganizationSettingsPage() {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="Next page"
             >
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -293,7 +301,7 @@ export default function OrganizationSettingsPage() {
             <button
               onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="Last page"
             >
               <ChevronsRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -301,6 +309,7 @@ export default function OrganizationSettingsPage() {
           </div>
         )}
       </nav>
+      </div>
     );
   };
 
@@ -326,7 +335,7 @@ export default function OrganizationSettingsPage() {
               placeholder="Search organizations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 accent-ring text-sm"
             />
           </div>
           
@@ -355,7 +364,7 @@ export default function OrganizationSettingsPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleAdd}
-            className="p-2.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg text-white hover:opacity-90 transition-opacity"
+            className="p-2.5 accent-gradient-lr rounded-lg text-white hover:opacity-90 transition-opacity"
             title="Add Organization"
           >
             <Plus className="w-4 h-4" />
@@ -363,37 +372,39 @@ export default function OrganizationSettingsPage() {
         </div>
 
         {/* Table Content */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] overflow-hidden">
+        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] h-[700px] flex flex-col">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+              <Loader2 className="w-8 h-8 animate-spin accent-text" />
             </div>
           ) : error ? (
             <div className="text-center py-12">
               <p className="text-red-500">{error}</p>
               <button 
                 onClick={fetchOrganizations}
-                className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                className="mt-4 px-4 py-2 accent-bg text-white rounded-lg hover:opacity-80"
               >
                 Retry
               </button>
             </div>
           ) : filteredOrganizations.length === 0 ? (
-            <div className="text-center py-12">
-              <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">No organizations found</p>
-              <button 
-                onClick={handleAdd}
-                className="mt-4 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:opacity-90"
-              >
-                Create Your First Organization
-              </button>
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No organizations found</p>
+                <button 
+                  onClick={handleAdd}
+                  className="mt-4 px-4 py-2 accent-gradient-lr text-white rounded-lg hover:opacity-90"
+                >
+                  Create Your First Organization
+                </button>
+              </div>
             </div>
           ) : (
-            <>
-              <div className="overflow-x-auto">
+            <div className="flex flex-col h-full">
+              <div className="flex-1 overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-[#111111] border-b border-gray-200 dark:border-white/[0.05]">
+                  <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
                     <tr>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
                         Organization
@@ -420,7 +431,7 @@ export default function OrganizationSettingsPage() {
                       <tr key={org.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                            <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3">
                               <Building2 className="w-4 h-4 text-white" />
                             </div>
                             <div>
@@ -468,7 +479,7 @@ export default function OrganizationSettingsPage() {
 
               {/* Pagination */}
               <PaginationControls />
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -481,6 +492,7 @@ export default function OrganizationSettingsPage() {
         onSuccess={handleModalSuccess}
         mode={modalMode}
         data={selectedOrganization}
+        supabase={supabase}
       />
     </SettingsLayout>
   );

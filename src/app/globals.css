@@ -17,6 +17,14 @@
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 10, 10, 10;
   --background-end-rgb: 10, 10, 10;
+  
+  /* Appearance settings CSS variables */
+  --font-size-base: 16px;
+  --font-scale: 1;
+  --spacing-scale: 1;
+  --padding-base: 0.75rem;
+  --accent-primary-rgb: 168, 85, 247;
+  --accent-secondary-rgb: 236, 72, 153;
 }
 
 /* Blob animation for animated background */
@@ -763,4 +771,123 @@ input:focus {
   transition-property: background-color, border-color, color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+}
+
+/* Appearance Settings - Font Size */
+html {
+  font-size: var(--font-size-base);
+}
+
+.text-xs { font-size: calc(0.75rem * var(--font-scale)); }
+.text-sm { font-size: calc(0.875rem * var(--font-scale)); }
+.text-base { font-size: calc(1rem * var(--font-scale)); }
+.text-lg { font-size: calc(1.125rem * var(--font-scale)); }
+.text-xl { font-size: calc(1.25rem * var(--font-scale)); }
+.text-2xl { font-size: calc(1.5rem * var(--font-scale)); }
+.text-3xl { font-size: calc(1.875rem * var(--font-scale)); }
+
+/* Appearance Settings - Density */
+.p-1 { padding: calc(0.25rem * var(--spacing-scale)); }
+.p-2 { padding: calc(0.5rem * var(--spacing-scale)); }
+.p-3 { padding: calc(0.75rem * var(--spacing-scale)); }
+.p-4 { padding: calc(1rem * var(--spacing-scale)); }
+.p-5 { padding: calc(1.25rem * var(--spacing-scale)); }
+.p-6 { padding: calc(1.5rem * var(--spacing-scale)); }
+.p-8 { padding: calc(2rem * var(--spacing-scale)); }
+
+.py-1 { padding-top: calc(0.25rem * var(--spacing-scale)); padding-bottom: calc(0.25rem * var(--spacing-scale)); }
+.py-2 { padding-top: calc(0.5rem * var(--spacing-scale)); padding-bottom: calc(0.5rem * var(--spacing-scale)); }
+.py-3 { padding-top: calc(0.75rem * var(--spacing-scale)); padding-bottom: calc(0.75rem * var(--spacing-scale)); }
+.py-4 { padding-top: calc(1rem * var(--spacing-scale)); padding-bottom: calc(1rem * var(--spacing-scale)); }
+
+.px-2 { padding-left: calc(0.5rem * var(--spacing-scale)); padding-right: calc(0.5rem * var(--spacing-scale)); }
+.px-3 { padding-left: calc(0.75rem * var(--spacing-scale)); padding-right: calc(0.75rem * var(--spacing-scale)); }
+.px-4 { padding-left: calc(1rem * var(--spacing-scale)); padding-right: calc(1rem * var(--spacing-scale)); }
+.px-6 { padding-left: calc(1.5rem * var(--spacing-scale)); padding-right: calc(1.5rem * var(--spacing-scale)); }
+
+.gap-1 { gap: calc(0.25rem * var(--spacing-scale)); }
+.gap-2 { gap: calc(0.5rem * var(--spacing-scale)); }
+.gap-3 { gap: calc(0.75rem * var(--spacing-scale)); }
+.gap-4 { gap: calc(1rem * var(--spacing-scale)); }
+
+.space-y-2 > * + * { margin-top: calc(0.5rem * var(--spacing-scale)); }
+.space-y-3 > * + * { margin-top: calc(0.75rem * var(--spacing-scale)); }
+.space-y-4 > * + * { margin-top: calc(1rem * var(--spacing-scale)); }
+.space-y-6 > * + * { margin-top: calc(1.5rem * var(--spacing-scale)); }
+
+/* Reduce Motion */
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  filter: contrast(1.2);
+}
+
+.high-contrast .text-gray-500 {
+  color: rgb(75, 85, 99);
+}
+
+.high-contrast .text-gray-400 {
+  color: rgb(107, 114, 128);
+}
+
+.high-contrast .dark .text-gray-500 {
+  color: rgb(209, 213, 219);
+}
+
+.high-contrast .dark .text-gray-400 {
+  color: rgb(229, 231, 235);
+}
+
+.high-contrast .border-gray-200 {
+  border-color: rgb(107, 114, 128);
+}
+
+.high-contrast .dark .border-white\/\[0\.05\] {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Dynamic Accent Colors */
+.accent-gradient {
+  background: linear-gradient(135deg, 
+    rgb(var(--accent-primary-rgb)), 
+    rgb(var(--accent-secondary-rgb)));
+}
+
+.accent-gradient-lr {
+  background: linear-gradient(to right, 
+    rgb(var(--accent-primary-rgb)), 
+    rgb(var(--accent-secondary-rgb)));
+}
+
+.accent-primary {
+  color: rgb(var(--accent-primary-rgb));
+}
+
+.accent-border {
+  border-color: rgb(var(--accent-primary-rgb));
+}
+
+.accent-bg {
+  background-color: rgb(var(--accent-primary-rgb));
+}
+
+.accent-bg-hover:hover {
+  background-color: rgba(var(--accent-primary-rgb), 0.1);
+}
+
+.accent-ring {
+  --tw-ring-color: rgb(var(--accent-primary-rgb));
+}
+
+.accent-text {
+  color: rgb(var(--accent-primary-rgb));
+}
+
+.dark .accent-text {
+  color: rgba(var(--accent-primary-rgb), 0.9);
 }

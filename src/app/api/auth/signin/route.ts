@@ -13,32 +13,47 @@ const signInSchema = z.object({
 });
 
 async function signInHandler(request: NextRequest) {
+  const startTime = Date.now();
+  console.log('🔍 SignIn handler started');
+  
   let body: any;
   try {
+    const parseStart = Date.now();
     body = await request.json();
+    console.log(`📝 Request parsed in ${Date.now() - parseStart}ms`);
 
     // Validate input
+    const validateStart = Date.now();
     const validated = signInSchema.parse(body);
+    console.log(`✅ Validation completed in ${Date.now() - validateStart}ms`);
 
     // Sign in user with session creation
+    const authStart = Date.now();
+    console.log('🔐 Starting authentication...');
     const result = await sessionAuth.signIn(
       validated.email,
       validated.password,
       request
     );
+    console.log(`🔐 Authentication completed in ${Date.now() - authStart}ms`);
 
     // Log successful authentication
     if (result.user) {
+      const auditStart = Date.now();
       await auditLogger.logAuthSuccess(
         request,
         result.user.id,
         validated.email,
         result.requiresMFA ? 'password' : 'password'
       );
+      console.log(`📊 Audit logging completed in ${Date.now() - auditStart}ms`);
     }
 
     // Check if MFA is required
     if (result.requiresMFA) {
+      const totalDuration = Date.now() - startTime;
+      console.log(`🔍 SignIn completed (MFA required) in ${totalDuration}ms`);
+      
       return NextResponse.json({
         success: true,
         data: {
@@ -50,6 +65,7 @@ async function signInHandler(request: NextRequest) {
     }
 
     // Create response with session cookie
+    const responseStart = Date.now();
     const response = NextResponse.json({
       success: true,
       data: {
@@ -63,7 +79,11 @@ async function signInHandler(request: NextRequest) {
       const cookieHeader = sessionManager['sessionService'].generateCookieHeader(result.sessionId);
       response.headers.set('Set-Cookie', cookieHeader);
     }
+    console.log(`🍪 Response creation completed in ${Date.now() - responseStart}ms`);
 
+    const totalDuration = Date.now() - startTime;
+    console.log(`🔍 SignIn completed successfully in ${totalDuration}ms`);
+    
     return response;
   } catch (error: any) {
     console.error('Error:', error);

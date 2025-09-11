@@ -102,7 +102,7 @@ export default function IntegrationsSettingsPage() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium text-sm hover:opacity-90 transition-opacity"
+                className="w-full px-4 py-2 accent-gradient-lr text-white rounded-lg font-medium text-sm hover:opacity-90 transition-opacity"
               >
                 Connect
               </motion.button>

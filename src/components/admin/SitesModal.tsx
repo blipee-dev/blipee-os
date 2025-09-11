@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MapPin, Building2, Wifi, AlertCircle, CheckCircle, Plus, Trash2 } from "lucide-react";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 interface SitesModalProps {
   isOpen: boolean;
@@ -10,10 +12,13 @@ interface SitesModalProps {
   onSuccess?: () => void;
   mode?: 'create' | 'edit' | 'view';
   data?: any;
+  supabase: SupabaseClient;
 }
 
-export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create', data }: SitesModalProps) {
+export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create', data, supabase }: SitesModalProps) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [showFloorDetails, setShowFloorDetails] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -30,7 +35,8 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
     total_employees: "",
     floors: "",
     timezone: "Europe/Lisbon",
-    floor_details: [] as Array<{ floor: number; area_sqm: number; employees: number }>
+    floor_details: [] as Array<{ floor: number; area_sqm: number; employees: number }>,
+    metadata: {} as any
   });
 
   // Update form data when data prop changes
@@ -54,7 +60,8 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         total_employees: data.total_employees?.toString() || "",
         floors: data.floors?.toString() || "",
         timezone: data.timezone || "Europe/Lisbon",
-        floor_details: data.floor_details || []
+        floor_details: data.floor_details || [],
+        metadata: data.metadata || {}
       });
     } else if (mode === 'create') {
       setShowFloorDetails(false);
@@ -73,7 +80,8 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         total_employees: "",
         floors: "",
         timezone: "Europe/Lisbon",
-        floor_details: []
+        floor_details: [],
+        metadata: {}
       });
     }
   }, [data, mode]);
@@ -115,12 +123,80 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    setError(null);
+    
+    try {
+      console.log('Submitting site data:', formData);
+      
+      // Get current user for organization context
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get user's organization
+      const { data: userOrgs, error: orgError } = await supabase
+        .from('user_organizations')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (orgError || !userOrgs) {
+        throw new Error('Organization not found');
+      }
+
+      const siteData = {
+        ...formData,
+        organization_id: userOrgs.organization_id,
+        address: {
+          street: formData.address.street || '',
+          city: formData.address.city || '',
+          postal_code: formData.address.postal_code || '',
+          country: formData.address.country || ''
+        },
+        metadata: formData.metadata || {},
+        status: 'active'
+      };
+
+      if (mode === 'edit' && data?.id) {
+        // Update existing site
+        const { error: updateError } = await supabase
+          .from('sites')
+          .update(siteData)
+          .eq('id', data.id);
+
+        if (updateError) {
+          console.error('Error updating site:', updateError);
+          throw new Error(updateError.message);
+        }
+        console.log('Site updated successfully');
+      } else {
+        // Create new site
+        const { data: newSite, error: createError } = await supabase
+          .from('sites')
+          .insert(siteData)
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating site:', createError);
+          throw new Error(createError.message);
+        }
+        console.log('Site created successfully:', newSite);
+      }
+
+      setSuccess(true);
+      setTimeout(() => {
+        onSuccess?.();
+        onClose();
+      }, 1500);
+      
+    } catch (err: any) {
+      console.error('Error submitting site:', err);
+      setError(err.message || 'Failed to save site');
       setLoading(false);
-      onSuccess?.();
-      onClose();
-    }, 1500);
+    }
   };
 
   return (
@@ -195,20 +271,20 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Site Type
                     </label>
-                    <select
+                    <CustomDropdown
                       value={formData.type}
-                      onChange={(e) => setFormData({...formData, type: e.target.value})}
-                      readOnly={mode === 'view'}
-                      className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="office">Office</option>
-                      <option value="warehouse">Warehouse</option>
-                      <option value="retail">Retail</option>
-                      <option value="industrial">Industrial</option>
-                      <option value="healthcare">Healthcare</option>
-                      <option value="manufacturing">Manufacturing</option>
-                      <option value="datacenter">Data Center</option>
-                    </select>
+                      onChange={(value) => setFormData({...formData, type: value as string})}
+                      options={[
+                        { value: "office", label: "Office" },
+                        { value: "warehouse", label: "Warehouse" },
+                        { value: "retail", label: "Retail" },
+                        { value: "industrial", label: "Industrial" },
+                        { value: "healthcare", label: "Healthcare" },
+                        { value: "manufacturing", label: "Manufacturing" },
+                        { value: "datacenter", label: "Data Center" }
+                      ]}
+                      className="w-full"
+                    />
                   </div>
                   
                   <div>
@@ -284,7 +360,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                                 value={floor.floor}
                                 onChange={(e) => updateFloorDetail(index, 'floor', e.target.value)}
                                 readOnly={mode === 'view'}
-                                className="w-full px-2 py-1 text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded"
+                                className="w-full px-2 py-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                               />
                             </div>
                             <div>
@@ -294,7 +370,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                                 value={floor.area_sqm}
                                 onChange={(e) => updateFloorDetail(index, 'area_sqm', e.target.value)}
                                 readOnly={mode === 'view'}
-                                className="w-full px-2 py-1 text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded"
+                                className="w-full px-2 py-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                               />
                             </div>
                             <div>
@@ -304,7 +380,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                                 value={floor.employees}
                                 onChange={(e) => updateFloorDetail(index, 'employees', e.target.value)}
                                 readOnly={mode === 'view'}
-                                className="w-full px-2 py-1 text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded"
+                                className="w-full px-2 py-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                               />
                             </div>
                           </div>
@@ -333,6 +409,21 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                     </div>
                   )}
                 </div>
+
+                {/* Error/Success Messages */}
+                {error && (
+                  <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
+                    <AlertCircle className="w-5 h-5" />
+                    <span className="text-sm">{error}</span>
+                  </div>
+                )}
+                
+                {success && (
+                  <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="text-sm">Site {mode === 'edit' ? 'updated' : 'created'} successfully!</span>
+                  </div>
+                )}
 
                 <div className="flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-white/10">
                   <button

@@ -17,14 +17,14 @@ import {
   Check,
   Pin,
   Edit3,
-  Sun,
-  Moon,
   Settings,
   User,
+  LogOut,
 } from "lucide-react";
 import { format, isToday, isYesterday, isThisWeek, isThisMonth } from "date-fns";
-import { useTheme } from "@/providers/ThemeProvider";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/context";
+import { getUserInitials, getUserDisplayName } from "@/lib/utils/user";
 
 interface Conversation {
   id: string;
@@ -66,8 +66,14 @@ export function ConversationSidebar({
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { isDarkMode, toggleTheme } = useTheme();
   const router = useRouter();
+  const { user, signOut } = useAuth();
+  
+  const userDisplayName = user ? getUserDisplayName(user) : 'User';
+  const userInitials = user ? getUserInitials(
+    user?.full_name || (user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.first_name) || null,
+    user?.email
+  ) : 'U';
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -141,20 +147,14 @@ export function ConversationSidebar({
   if (isCollapsed) {
     return (
       <>
-        <div className="w-16 h-full bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-white/[0.05] flex flex-col">
+        <div className="w-20 h-full bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-white/[0.05] flex flex-col">
         {/* Logo Icon */}
         <div className="p-3 border-b border-gray-200 dark:border-white/[0.05]">
-          <div className="w-10 h-10 p-0.5 rounded-xl mx-auto" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+          <div className="w-10 h-10 p-0.5 rounded-xl mx-auto accent-gradient">
             <div className="w-full h-full bg-white/95 dark:bg-[#111111]/95 rounded-[10px] flex items-center justify-center">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="homeGradientCollapsed" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="rgb(236, 72, 153)" />
-                    <stop offset="100%" stopColor="rgb(147, 51, 234)" />
-                  </linearGradient>
-                </defs>
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="url(#homeGradientCollapsed)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <polyline points="9 22 9 12 15 12 15 22" stroke="url(#homeGradientCollapsed)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <svg className="w-6 h-6 accent-text" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           </div>
@@ -165,17 +165,11 @@ export function ConversationSidebar({
           {/* New Chat */}
           <button
             onClick={onNewConversation}
-            className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gradient-to-r hover:from-pink-500/10 hover:to-purple-600/10 transition-all"
+            className="w-full p-2 flex items-center justify-center rounded-lg hover:accent-bg-hover transition-all"
             title="New chat"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="newChatGradientCollapsed" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="rgb(236, 72, 153)" />
-                  <stop offset="100%" stopColor="rgb(147, 51, 234)" />
-                </linearGradient>
-              </defs>
-              <path d="M12 5v14M5 12h14" stroke="url(#newChatGradientCollapsed)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg className="w-5 h-5 accent-text" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
 
@@ -217,13 +211,15 @@ export function ConversationSidebar({
 
         {/* Bottom buttons for collapsed sidebar */}
         <div className="p-3 border-t border-gray-200 dark:border-white/[0.05] space-y-1">
-          {/* Profile Button */}
+          {/* User Avatar */}
           <button
             onClick={() => router.push('/profile')}
             className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-            title="Profile"
+            title={userDisplayName}
           >
-            <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <div className="w-8 h-8 accent-gradient-lr rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-medium">{userInitials}</span>
+            </div>
           </button>
 
           {/* Settings Button */}
@@ -235,17 +231,21 @@ export function ConversationSidebar({
             <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
 
-          {/* Theme Toggle Button */}
+
+          {/* Logout Button */}
           <button
-            onClick={toggleTheme}
+            onClick={async () => {
+              try {
+                await signOut();
+                router.push("/signin");
+              } catch (error) {
+                console.error("Error during logout:", error);
+              }
+            }}
             className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-            title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            title="Sign out"
           >
-            {isDarkMode ? (
-              <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            ) : (
-              <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            )}
+            <LogOut className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
 
           {/* Expand Button */}
@@ -386,21 +386,20 @@ export function ConversationSidebar({
       <div className="p-4 border-b border-gray-200 dark:border-white/[0.05] space-y-10">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 p-0.5 rounded-xl" style={{background: 'linear-gradient(to bottom right, rgb(236, 72, 153), rgb(147, 51, 234))'}}>
+          <div className="w-10 h-10 p-0.5 rounded-xl accent-gradient">
             <div className="w-full h-full bg-white/95 dark:bg-[#111111]/95 rounded-[10px] flex items-center justify-center">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="homeGradientExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="rgb(236, 72, 153)" />
-                    <stop offset="100%" stopColor="rgb(147, 51, 234)" />
-                  </linearGradient>
-                </defs>
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="url(#homeGradientExpanded)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <polyline points="9 22 9 12 15 12 15 22" stroke="url(#homeGradientExpanded)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <svg className="w-6 h-6 accent-text" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           </div>
-          <span className="text-xl font-normal bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+          <span className="text-xl font-normal" style={{
+            background: 'linear-gradient(to right, rgb(var(--accent-primary-rgb)), rgb(var(--accent-secondary-rgb)))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
             blipee
           </span>
         </div>
@@ -412,18 +411,12 @@ export function ConversationSidebar({
         {/* New Chat Link */}
         <button
           onClick={onNewConversation}
-          className="w-full px-3 py-2 rounded-lg hover:bg-gradient-to-r hover:from-pink-500/10 hover:to-purple-600/10 transition-all flex items-center gap-3 text-left group"
+          className="w-full px-3 py-2 rounded-lg hover:accent-bg-hover transition-all flex items-center gap-3 text-left group"
         >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="newChatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="rgb(236, 72, 153)" />
-                <stop offset="100%" stopColor="rgb(147, 51, 234)" />
-              </linearGradient>
-            </defs>
-            <path d="M12 5v14M5 12h14" stroke="url(#newChatGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <svg className="w-4 h-4 accent-text" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="text-sm bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent font-medium">New chat</span>
+          <span className="text-sm accent-text font-medium">New chat</span>
         </button>
 
         {/* Chats Link */}
@@ -577,13 +570,18 @@ export function ConversationSidebar({
 
       {/* Bottom buttons for expanded sidebar */}
       <div className="p-3 border-t border-gray-200 dark:border-white/[0.05] space-y-2">
-        {/* Profile Button */}
+        {/* User Profile */}
         <button
           onClick={() => router.push('/profile')}
-          className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+          className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-3"
         >
-          <User className="w-4 h-4" />
-          Profile
+          <div className="w-8 h-8 accent-gradient rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-xs font-medium">{userInitials}</span>
+          </div>
+          <div className="flex-1 text-left">
+            <p className="text-sm font-medium text-gray-900 dark:text-white">{userDisplayName}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || 'user@example.com'}</p>
+          </div>
         </button>
 
         {/* Settings Button */}
@@ -595,22 +593,21 @@ export function ConversationSidebar({
           Settings
         </button>
 
-        {/* Theme Toggle Button */}
+
+        {/* Logout Button */}
         <button
-          onClick={toggleTheme}
+          onClick={async () => {
+            try {
+              await signOut();
+              router.push("/signin");
+            } catch (error) {
+              console.error("Error during logout:", error);
+            }
+          }}
           className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
         >
-          {isDarkMode ? (
-            <>
-              <Sun className="w-4 h-4" />
-              Light mode
-            </>
-          ) : (
-            <>
-              <Moon className="w-4 h-4" />
-              Dark mode
-            </>
-          )}
+          <LogOut className="w-4 h-4" />
+          Sign out
         </button>
 
         {/* Collapse Button */}

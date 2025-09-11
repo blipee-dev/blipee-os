@@ -25,7 +25,9 @@
       "seeInAction": "Ver IA em Ação",
       "learnMore": "Saber Mais",
       "requestDemo": "Solicitar Demonstração",
-      "watchDemo": "Ver Demonstração"
+      "watchDemo": "Ver Demonstração",
+      "signInToDashboard": "Iniciar Sessão no Painel",
+      "requestAccess": "Solicitar Acesso"
     },
     "badges": {
       "aiPowered": "Alimentado por IA",
@@ -35,26 +37,124 @@
     }
   },
   "landing": {
-    "stats": {
-      "emissions": "Emissões Reduzidas",
-      "companies": "Empresas Confiam em Nós",
-      "savings": "Poupança Média de Custos",
-      "uptime": "Tempo de Atividade do Sistema"
-    },
+    "skipToContent": "Saltar para o conteúdo principal",
     "features": {
-      "title": "Porque é que as Empresas Líderes Escolhem",
+      "title": "Capacidades Revolucionárias",
+      "subtitle": "A plataforma de sustentabilidade mais avançada, alimentada por IA que prevê, aconselha e atua",
       "conversational": {
-        "title": "Fale, Não Clique",
-        "description": "Sem painéis. Sem interfaces complexas. Apenas conversação."
+        "title": "100% Conversacional",
+        "description": "Sem painéis, sem formulários complexos. Apenas pergunte à sua IA qualquer coisa sobre sustentabilidade"
       },
-      "instant": {
-        "title": "Inteligência Instantânea",
-        "description": "Obtenha respostas em segundos, não horas. Insights em tempo real ao seu alcance."
+      "scopeTracking": {
+        "title": "Rastreamento de Âmbito 1, 2, 3",
+        "description": "Rastreamento completo de emissões em toda a sua cadeia de valor, automaticamente"
       },
-      "comprehensive": {
-        "title": "Cobertura Completa",
-        "description": "Do rastreamento de carbono ao relatório ESG, temos tudo coberto."
+      "scienceTargets": {
+        "title": "Metas Baseadas na Ciência",
+        "description": "A IA define e rastreia metas alinhadas com SBTi, garantindo que cumpre os objetivos climáticos"
+      },
+      "documentIntelligence": {
+        "title": "Inteligência de Documentos",
+        "description": "Carregue qualquer fatura, conta ou relatório. A IA extrai emissões instantaneamente"
+      },
+      "buildingExcellence": {
+        "title": "Excelência em Edifícios",
+        "description": "Capacidades de gestão de edifícios de classe mundial integradas perfeitamente"
+      },
+      "complianceAutomation": {
+        "title": "Automação de Conformidade",
+        "description": "Mantenha-se à frente das regulamentações com IA que monitoriza e garante conformidade"
       }
+    },
+    "useCases": {
+      "title": "Funciona para",
+      "titleHighlight": "Todas as Indústrias",
+      "subtitle": "Veja como as organizações alcançam os seus objetivos de sustentabilidade através da conversação",
+      "buildings": {
+        "title": "Para Edifícios",
+        "stats": "23 Mil Milhões de pés²",
+        "query": "Reduzir as nossas emissões de edifícios em 40% este ano",
+        "response": "Analisei os seus padrões de energia e identifiquei 2 oportunidades de otimização que reduzirão as emissões em 42% enquanto poupam €127.000 anualmente."
+      },
+      "manufacturing": {
+        "title": "Para Manufatura",
+        "stats": "45% potencial de redução",
+        "query": "Qual é a nossa pegada de carbono por unidade de produto?",
+        "response": "Cada unidade produz 12,7 kg CO₂e. Principal ponto crítico: matérias-primas (45%). Mudar para o Fornecedor B para alumínio reduziria isto em 23%."
+      },
+      "energy": {
+        "title": "Para Energia",
+        "stats": "7 Sites Ativos",
+        "query": "Mostre-me o desempenho de energia renovável em todos os sites",
+        "response": "Geração solar aumentou 18% este mês. Site 3 a render 30% acima do objetivo. Recomendo armazenamento de bateria para o Site 5 para capturar €85K em créditos de rede."
+      },
+      "retail": {
+        "title": "Para Retalho",
+        "stats": "1.247 Localizações",
+        "query": "Como podemos alcançar zero líquido até 2030?",
+        "response": "Criei o seu roteiro: Modernização LED (T2), contratos renováveis (T3), eletrificação da frota (T4). Este caminho alcança zero líquido até 2029."
+      },
+      "aiThinking": "A IA está a pensar..."
+    },
+    "stats": {
+      "reductionInWork": "Redução em Trabalho Manual",
+      "reductionInWorkValue": "90%",
+      "minutesToSetup": "Minutos para Configuração Completa",
+      "minutesToSetupValue": "5min",
+      "aiAccuracy": "Taxa de Precisão da IA",
+      "aiAccuracyValue": "99,2%",
+      "compliance": "Conformidade Regulamentar",
+      "complianceValue": "100%"
+    },
+    "aiCapabilities": {
+      "title": "12 Cérebros de IA Trabalhando",
+      "titleHighlight": "Para Si 24/7",
+      "subtitle": "A nossa arquitetura de IA multi-cérebro garante que cada aspeto da sustentabilidade está coberto, desde monitorização em tempo real até análises preditivas e ações autónomas.",
+      "capabilities": [
+        "Rastreamento e previsão de emissões",
+        "Análise preditiva para equipamentos",
+        "Monitorização e alertas de conformidade",
+        "Otimização da cadeia de fornecimento",
+        "Definição de metas baseadas na ciência",
+        "Relatórios de sustentabilidade automatizados",
+        "Otimização de energia em tempo real",
+        "Gestão de créditos de carbono",
+        "Comunicação com partes interessadas",
+        "Avaliação e mitigação de riscos",
+        "Cálculos de ROI de investimentos",
+        "Comparação com pares"
+      ]
+    },
+    "cta": {
+      "title": "Pronto para Transformar a sua Sustentabilidade?",
+      "subtitle": "Aceda à sua plataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
+      "signInButton": "Iniciar Sessão no Painel",
+      "requestButton": "Solicitar Acesso",
+      "footer": "A sua equipa de IA de sustentabilidade está à sua espera"
+    },
+    "contactModal": {
+      "title": "Agendar uma Demonstração",
+      "subtitle": "Entre em contacto com a nossa equipa para ver o blipee em ação",
+      "namePlaceholder": "O Seu Nome",
+      "emailPlaceholder": "Endereço de Email",
+      "companyPlaceholder": "Empresa",
+      "messagePlaceholder": "Conte-nos sobre os seus objetivos de sustentabilidade",
+      "submitButton": "Enviar Pedido"
+    },
+    "supportModal": {
+      "title": "Obter Suporte",
+      "subtitle": "A nossa equipa está aqui para ajudá-lo a ter sucesso com o blipee",
+      "namePlaceholder": "O Seu Nome",
+      "emailPlaceholder": "Endereço de Email",
+      "issueTypePlaceholder": "Selecionar Tipo de Problema",
+      "issueTypes": {
+        "technical": "Problema Técnico",
+        "billing": "Questão de Faturação",
+        "feature": "Pedido de Funcionalidade",
+        "other": "Outro"
+      },
+      "descriptionPlaceholder": "Descreva o seu problema ou questão",
+      "submitButton": "Enviar Pedido"
     },
     "testimonials": {
       "title": "Adorado por Líderes de Sustentabilidade",
@@ -191,69 +291,139 @@
       ]
     }
   },
-  "industries": {
-    "title": "Sustentabilidade Universal",
-    "subtitle": "Inteligência para Todas as Indústrias",
-    "description": "O blipee funciona com qualquer organização, em qualquer indústria, de qualquer tamanho. De startups a Fortune 500, de manufatura a tecnologia.",
-    "yourIndustry": "A Sua Indústria Está Coberta",
-    "industryDescription": "Quer esteja a rastrear emissões, a gerir energia, a reduzir resíduos ou a reportar métricas ESG, o blipee adapta-se aos seus requisitos e regulamentações específicas da indústria.",
-    "howWeOrganize": "Como Organizamos as Indústrias",
-    "howWeOrganizeDescription": "Seguimos os Padrões Setoriais da Global Reporting Initiative (GRI), a estrutura de relatórios de sustentabilidade mais amplamente utilizada no mundo.",
-    "griStandards": "Padrões Setoriais GRI",
-    "griDescription": "Apoiamos todos os 17 Padrões Setoriais GRI, fornecendo inteligência de sustentabilidade específica da indústria",
-    "standards": {
-      "oil_gas": {
-        "title": "Petróleo e Gás",
-        "description": "Rastreamento abrangente de emissões, monitorização de metano e gestão de desmantelamento",
-        "coverage": ["Operações upstream", "Transporte midstream", "Refinação downstream", "Desmantelamento"]
-      },
-      "coal": {
-        "title": "Carvão",
-        "description": "Reabilitação de minas, gestão de água e planeamento de transição justa",
-        "coverage": ["Operações mineiras", "Processamento", "Reabilitação", "Impacto comunitário"]
-      },
-      "agriculture": {
-        "title": "Agricultura, Aquicultura e Pesca",
-        "description": "Práticas agrícolas sustentáveis, rastreabilidade da cadeia de fornecimento e impacto na biodiversidade",
-        "coverage": ["Produção agrícola", "Pecuária", "Aquicultura", "Cadeia de fornecimento"]
-      },
-      "manufacturing": {
-        "title": "Manufatura",
-        "description": "Economia circular, redução de resíduos e sustentabilidade da cadeia de fornecimento",
-        "coverage": ["Matérias-primas", "Produção", "Gestão de resíduos", "Ciclo de vida do produto"]
-      }
-    }
-  },
   "aiTechnology": {
-    "title": "A IA Por Detrás",
-    "subtitle": "da Inteligência do blipee",
-    "description": "Construído com tecnologia de IA de ponta dos principais fornecedores mundiais",
-    "multiBrain": {
+    "skipToContent": "Saltar para o conteúdo principal",
+    "hero": {
+      "badge": "Tecnologia IA de Próxima Geração",
+      "title1": "A IA Por Detrás da",
+      "title2": "Magia da Sustentabilidade",
+      "description": "Descobre a arquitetura revolucionária de IA multi-cérebro que faz com que a gestão de sustentabilidade pareça magia. 12 modelos de IA especializados trabalhando juntos para transformar como alcança os seus objetivos ambientais."
+    },
+    "architectureSection": {
+      "badge": "Arquitetura IA Avançada", 
       "title": "Arquitetura Multi-Cérebro",
-      "description": "Não dependemos de uma única IA. O blipee orquestra múltiplos modelos de IA para lhe dar a melhor inteligência possível."
+      "subtitle": "Cada cérebro especializa-se em diferentes aspetos da sustentabilidade, trabalhando juntos para entregar inteligência abrangente",
+      "sectionTitle": "Sistemas de Inteligência Especializados",
+      "sectionDescription": "A nossa arquitetura de IA combina múltiplos sistemas especializados para fornecer inteligência abrangente de sustentabilidade"
+    },
+    "technologies": {
+      "multiBrain": {
+        "title": "Arquitetura Multi-Cérebro",
+        "description": "12 modelos de IA especializados trabalhando em harmonia para inteligência abrangente de sustentabilidade",
+        "features": [
+          "Motor de conversa consciente do contexto",
+          "Cérebro de análise preditiva", 
+          "Processador de inteligência de documentos",
+          "Sistema de análise visual",
+          "Motor de recomendações",
+          "Módulo de planeamento de ações",
+          "IA de monitorização de conformidade",
+          "Orquestrador de dados em tempo real"
+        ],
+        "showMore": "Mostrar {count} funcionalidades mais",
+        "showLess": "Mostrar menos"
+      },
+      "nlp": {
+        "title": "Processamento de Linguagem Natural",
+        "description": "PNL avançado que compreende o contexto de sustentabilidade e terminologia da indústria",
+        "features": [
+          "Suporte multi-idioma (50+ idiomas)",
+          "Vocabulário específico da indústria",
+          "Reconhecimento de intenções e retenção de contexto",
+          "Inteligência emocional nas respostas",
+          "Compreensão de documentos técnicos",
+          "Integração voz-para-texto",
+          "Tradução em tempo real",
+          "Análise de sentimentos"
+        ]
+      },
+      "computerVision": {
+        "title": "Visão Computacional",
+        "description": "Extrai dados de sustentabilidade de qualquer documento visual ou imagem automaticamente",
+        "features": [
+          "Digitalização de faturas e recibos",
+          "Extração de dados de contas de serviços",
+          "Cálculo de imagem para emissões",
+          "OCR com 99,8% de precisão",
+          "Reconhecimento de escrita à mão",
+          "Análise de gráficos e tabelas",
+          "Avaliação do estado do equipamento",
+          "Análise de imagens aéreas"
+        ]
+      },
+      "predictiveAnalytics": {
+        "title": "Análise Preditiva",
+        "description": "Prevê futuras emissões, custos e desempenho de sustentabilidade com precisão",
+        "features": [
+          "Previsão de falhas de equipamento",
+          "Previsão de consumo de energia",
+          "Modelagem de impacto meteorológico",
+          "Algoritmos de projeção de custos",
+          "Automatização de avaliação de riscos",
+          "Sistema de deteção de anomalias",
+          "Reconhecimento de padrões sazonais",
+          "Modelos de otimização de ROI"
+        ]
+      },
+      "orchestration": {
+        "title": "Orquestração em Tempo Real",
+        "description": "Coordena perfeitamente entre múltiplos fornecedores de IA para desempenho otimizado",
+        "features": [
+          "Sistema de backup multi-fornecedor",
+          "Algoritmos de balanceamento de carga",
+          "Otimização do tempo de resposta",
+          "Monitorização de garantia de qualidade",
+          "Motor de otimização de custos",
+          "Encaminhamento de conformidade regional",
+          "Análise de desempenho",
+          "Escalamento automático"
+        ]
+      },
+      "security": {
+        "title": "Privacidade e Segurança",
+        "description": "Segurança de nível empresarial com design que prioriza a privacidade e total transparência",
+        "features": [
+          "Encriptação ponto a ponto (AES-256)",
+          "Arquitetura de conhecimento zero",
+          "Conformidade SOC 2 Tipo II",
+          "Pronto para GDPR e CCPA",
+          "Opções de implementação local",
+          "Registo de auditoria para todas as operações",
+          "Controlo de acesso baseado em funções",
+          "Conformidade de residência de dados"
+        ]
+      }
     },
     "providers": {
       "title": "Fornecedores de IA de Primeira Classe",
+      "description": "Fazemos parceria com os principais fornecedores de IA do mundo para garantir desempenho otimizado, fiabilidade e custo-efetividade",
       "deepseek": {
         "name": "DeepSeek",
-        "description": "Capacidades avançadas de raciocínio e análise"
+        "role": "Motor de raciocínio principal",
+        "features": [
+          "Processamento custo-efetivo",
+          "Raciocínio avançado",
+          "Resposta rápida"
+        ]
       },
       "openai": {
-        "name": "OpenAI GPT-4",
-        "description": "Compreensão de linguagem líder da indústria"
+        "name": "OpenAI",
+        "role": "Análise complexa e criatividade",
+        "features": [
+          "Integração GPT-4",
+          "Raciocínio avançado",
+          "Soluções criativas"
+        ]
       },
       "anthropic": {
-        "name": "Anthropic Claude",
-        "description": "Assistência de IA segura e confiável"
+        "name": "Anthropic",
+        "role": "Segurança e precisão",
+        "features": [
+          "IA Constitucional",
+          "Alinhamento de segurança",
+          "Saídas precisas"
+        ]
       }
-    },
-    "capabilities": {
-      "nlp": "Processamento de Linguagem Natural",
-      "contextual": "Compreensão Contextual",
-      "multimodal": "Análise Multimodal",
-      "realtime": "Processamento em Tempo Real",
-      "predictive": "Análise Preditiva",
-      "continuous": "Aprendizagem Contínua"
     }
   },
   "cta": {
@@ -262,6 +432,96 @@
     "signInToDashboard": "Entrar no Painel",
     "requestAccess": "Solicitar Acesso",
     "waitingMessage": "A sua equipa de sustentabilidade IA está à sua espera"
+  },
+  "about": {
+    "title": "Sobre a blipee",
+    "hero": {
+      "title": "Sobre",
+      "brand": "blipee",
+      "description": "Estamos a construir a primeira plataforma mundial de Inteligência de Sustentabilidade Autónoma que transforma a gestão ESG tradicional baseada em painéis numa IA conversacional que funciona 24/7 como a sua equipa digital de sustentabilidade. A nossa missão é criar não apenas software, mas funcionários de IA que gerem, otimizem e melhorem autonomamente o desempenho de sustentabilidade em qualquer indústria."
+    },
+    "vision": {
+      "title": "A Nossa Visão",
+      "description": "Um mundo onde cada organização tem acesso a gestão de sustentabilidade inteligente e autónoma—onde a administração ambiental não é um fardo, mas uma vantagem capacitadora baseada em dados. Visionamos um futuro onde funcionários de IA trabalham ao lado de equipas humanas para tomar decisões de sustentabilidade em tempo real, transformando conformidade em vantagem competitiva e responsabilidade ambiental em crescimento empresarial."
+    },
+    "mission": {
+      "title": "A Nossa Missão",
+      "description": "Democratizar a inteligência de sustentabilidade construindo sistemas de IA que eliminam a complexidade, custo e barreiras de conhecimento que impedem as organizações de alcançar os seus objetivos ambientais. Existimos para tornar a gestão de sustentabilidade acessível a cada organização—desde startups a empresas—fornecendo funcionários de IA autónomos que compreendem, preveem e otimizam o desempenho ambiental sem requerer conhecimento especializado ou recursos massivos."
+    },
+    "values": {
+      "title": "Os Nossos Valores",
+      "subtitle": "Os princípios que orientam como trabalhamos, tomamos decisões e construímos a nossa cultura",
+      "items": {
+        "relentlessInnovation": {
+          "title": "Inovação Implacável",
+          "description": "Acreditamos em ultrapassar limites e desafiar o status quo. Todos os dias perguntamos: como podemos tornar a gestão de sustentabilidade 10x melhor, não apenas melhorada incrementalmente?"
+        },
+        "customerObsession": {
+          "title": "Obsessão pelo Cliente",
+          "description": "O sucesso dos nossos clientes é o nosso sucesso. Ouvimos profundamente, iteramos rapidamente, e não descansaremos até que as equipas de sustentabilidade se sintam capacitadas em vez de sobrecarregadas pelas suas ferramentas"
+        },
+        "transparencyTrust": {
+          "title": "Transparência e Confiança",
+          "description": "Construímos com abertura—transparentes sobre as nossas decisões de IA, o nosso uso de dados e o nosso progresso empresarial. A confiança conquista-se através de ações consistentes, não promessas"
+        },
+        "globalImpactMindset": {
+          "title": "Mentalidade de Impacto Global",
+          "description": "Cada funcionalidade que construímos, cada decisão que tomamos é avaliada através da lente do impacto ambiental global. Não estamos apenas a construir software; estamos a combater as alterações climáticas"
+        },
+        "qualityOverSpeed": {
+          "title": "Qualidade sobre Velocidade",
+          "description": "Movemo-nos rapidamente mas nunca comprometemos a qualidade. A nossa IA deve ser confiável, os nossos dados precisos e os nossos insights acionáveis—porque as decisões de sustentabilidade importam demasiado para falhar"
+        },
+        "diversePerspectives": {
+          "title": "Perspetivas Diversas",
+          "description": "A crise climática afeta todos de forma diferente. Construímos uma equipa inclusiva com antecedentes variados porque perspetivas diversas levam a melhores soluções para um desafio global"
+        }
+      }
+    },
+    "contact": {
+      "scheduleDemo": {
+        "title": "Agendar uma Demo",
+        "description": "Entre em contacto com a nossa equipa para ver a blipee em ação",
+        "form": {
+          "name": "O Seu Nome",
+          "email": "Endereço de Email",
+          "company": "Empresa",
+          "message": "Conte-nos sobre os seus objetivos de sustentabilidade",
+          "submit": "Enviar Pedido"
+        }
+      },
+      "support": {
+        "title": "Obter Suporte",
+        "description": "A nossa equipa está aqui para ajudá-lo a ter sucesso com a blipee",
+        "form": {
+          "name": "O Seu Nome",
+          "email": "Endereço de Email",
+          "issueType": "Selecionar Tipo de Problema",
+          "issueTypes": {
+            "technical": "Problema Técnico",
+            "billing": "Questão de Faturação",
+            "feature": "Pedido de Funcionalidade",
+            "other": "Outro"
+          },
+          "message": "Descreva o seu problema ou questão",
+          "submit": "Enviar Pedido"
+        }
+      }
+    },
+    "navigation": {
+      "skipToContent": "Saltar para o conteúdo principal",
+      "toggleTheme": "Mudar para modo claro",
+      "toggleThemeDark": "Mudar para modo escuro",
+      "openMenu": "Abrir menu",
+      "closeMenu": "Fechar menu",
+      "signIn": "Iniciar Sessão",
+      "menu": {
+        "features": "Funcionalidades",
+        "industries": "Indústrias",
+        "aiTechnology": "Tecnologia IA",
+        "about": "Sobre"
+      }
+    }
   },
   "footer": {
     "tagline": "A sua plataforma de inteligência de sustentabilidade alimentada por IA",
@@ -316,6 +576,788 @@
         "message": "Descreva o seu problema ou questão",
         "submit": "Submeter Pedido"
       }
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "subtitle": "Gira a sua informação pessoal e preferências",
+    "sections": {
+      "profilePicture": {
+        "title": "Foto de Perfil",
+        "changePhoto": "Alterar Foto",
+        "fileHint": "JPG, PNG ou GIF. Máx. 5MB.",
+        "uploadError": "O tamanho do ficheiro deve ser inferior a 5MB",
+        "uploadSuccess": "Foto de perfil atualizada com sucesso"
+      },
+      "roles": {
+        "super_admin": "Super Administrador",
+        "platform_developer": "Desenvolvedor de Plataforma",
+        "account_owner": "Proprietário da Conta",
+        "sustainability_manager": "Gestor de Sustentabilidade",
+        "facility_manager": "Gestor de Instalações",
+        "analyst": "Analista",
+        "user": "Utilizador",
+        "viewer": "Observador"
+      },
+      "personalInformation": {
+        "title": "Informação Pessoal",
+        "fullName": "Nome Completo",
+        "emailAddress": "Endereço de Email",
+        "phoneNumber": "Número de Telefone",
+        "jobTitle": "Cargo",
+        "department": "Departamento",
+        "location": "Localização",
+        "bio": "Biografia",
+        "placeholders": {
+          "fullName": "João Silva",
+          "emailAddress": "joao@exemplo.com",
+          "phoneNumber": "+351 912 345 678",
+          "jobTitle": "Engenheiro de Software",
+          "department": "Engenharia",
+          "location": "Lisboa, Portugal",
+          "bio": "Fale-nos sobre si..."
+        }
+      },
+      "quickSettings": {
+        "title": "Definições Rápidas",
+        "notifications": {
+          "title": "Notificações",
+          "action": "Gerir"
+        },
+        "security": {
+          "title": "Segurança",
+          "action": "Configurar"
+        },
+        "appearance": {
+          "title": "Aparência",
+          "status": "Escuro"
+        },
+        "language": {
+          "title": "Idioma",
+          "status": "Português"
+        },
+        "signOut": {
+          "title": "Terminar Sessão"
+        }
+      },
+      "actions": {
+        "saveChanges": "Guardar Alterações",
+        "saving": "A guardar...",
+        "saved": "Alterações guardadas com sucesso"
+      }
+    },
+    "notifications": {
+      "title": "Notificações",
+      "subtitle": "Gira como recebes notificações e atualizações do blipee",
+      "loading": "A carregar...",
+      "realtime": "Tempo real",
+      "daily": "Diário",
+      "weekly": "Semanal",
+      "monthly": "Mensal",
+      "never": "Nunca",
+      "saveSuccess": "Definições de notificações guardadas com sucesso!",
+      "saveError": "Falha ao guardar definições. Alterações guardadas localmente.",
+      "saving": "A guardar...",
+      "saveChanges": "Guardar Alterações",
+      "channels": {
+        "title": "Canais de Notificação",
+        "email": {
+          "title": "Notificações por Email",
+          "description": "Receber notificações por email"
+        },
+        "inApp": {
+          "title": "Notificações na Aplicação",
+          "description": "Mostrar notificações na aplicação"
+        },
+        "push": {
+          "title": "Notificações Push",
+          "description": "Notificações push no navegador e dispositivo móvel"
+        }
+      },
+      "types": {
+        "title": "Tipos de Notificações",
+        "systemUpdates": {
+          "title": "Atualizações do Sistema",
+          "description": "Novas funcionalidades, manutenção e alterações do sistema"
+        },
+        "securityAlerts": {
+          "title": "Alertas de Segurança",
+          "description": "Notificações importantes de segurança e alertas de login"
+        },
+        "teamActivity": {
+          "title": "Atividade da Equipa",
+          "description": "Atualizações da tua equipa e colaboradores"
+        },
+        "sustainabilityReports": {
+          "title": "Relatórios de Sustentabilidade",
+          "description": "Relatórios ESG, rastreamento de carbono e insights de sustentabilidade"
+        },
+        "complianceAlerts": {
+          "title": "Alertas de Conformidade",
+          "description": "Atualizações regulatórias e lembretes de conformidade"
+        },
+        "achievements": {
+          "title": "Conquistas",
+          "description": "Celebra os teus marcos de sustentabilidade"
+        }
+      },
+      "frequency": {
+        "title": "Definições de Frequência",
+        "reports": "Relatórios de Sustentabilidade",
+        "alerts": "Alertas de Segurança e Conformidade",
+        "updates": "Atualizações do Sistema"
+      },
+      "quietHours": {
+        "title": "Horas de Silêncio",
+        "enable": "Ativar Horas de Silêncio",
+        "enableDescription": "Pausar notificações não críticas durante as horas especificadas",
+        "startTime": "Hora de Início",
+        "endTime": "Hora de Fim",
+        "weekends": "Modo Silencioso de Fim de Semana",
+        "weekendsDescription": "Desativar notificações não críticas aos fins de semana"
+      },
+      "email": {
+        "title": "Preferências de Email",
+        "marketing": {
+          "title": "Comunicações de Marketing",
+          "description": "Anúncios de produtos e conteúdo promocional"
+        },
+        "productUpdates": {
+          "title": "Atualizações do Produto",
+          "description": "Novas funcionalidades e melhorias da plataforma"
+        },
+        "newsletter": {
+          "title": "Newsletter",
+          "description": "Insights mensais de sustentabilidade e tendências"
+        },
+        "tips": {
+          "title": "Dicas e Melhores Práticas",
+          "description": "Dicas de sustentabilidade e sugestões de otimização"
+        }
+      }
+    },
+    "security": {
+      "title": "Segurança",
+      "subtitle": "Gira as definições de segurança da tua conta e monitoriza a atividade de login",
+      "loading": "A carregar...",
+      "loadingSettings": "A carregar definições de segurança...",
+      "signInRequired": "Por favor, inicia sessão para ver as definições de segurança",
+      "settingsSaved": "Definições de segurança guardadas com sucesso",
+      "settingsSaveError": "Erro ao guardar definições de segurança",
+      "changePassword": "Alterar Palavra-passe",
+      "currentPassword": "Palavra-passe Atual",
+      "newPassword": "Nova Palavra-passe",
+      "confirmNewPassword": "Confirmar Nova Palavra-passe",
+      "updatePassword": "Atualizar Palavra-passe",
+      "updating": "A atualizar...",
+      "passwordUpdated": "Palavra-passe atualizada com sucesso",
+      "passwordMismatch": "As palavras-passe não coincidem",
+      "passwordTooShort": "A palavra-passe deve ter pelo menos 8 caracteres",
+      "passwordChangedSuccess": "Palavra-passe alterada com sucesso",
+      "twoFactorAuth": "Autenticação de Dois Fatores",
+      "twoFactorEnabled": "A autenticação de dois fatores está ativada",
+      "twoFactorDisabled": "A autenticação de dois fatores está desativada",
+      "twoFactorEnabledDescription": "A tua conta está protegida com uma camada adicional de segurança",
+      "twoFactorDisabledDescription": "Adiciona uma camada extra de segurança para proteger a tua conta",
+      "enableTwoFactor": "Ativar Autenticação de Dois Fatores",
+      "disableTwoFactor": "Desativar 2FA",
+      "setupTwoFactor": "Configurar Autenticação de Dois Fatores",
+      "regenerateBackupCodes": "Regenerar Códigos de Backup",
+      "backupCodes": "Códigos de Backup",
+      "qrCodePlaceholder": "Digitaliza este código QR com a tua aplicação de autenticação",
+      "enterVerificationCode": "Introduz o código de verificação",
+      "enableTwoFactorButton": "Verificar e Ativar",
+      "invalidCode": "Código de verificação inválido",
+      "enable2FAError": "Erro ao ativar a autenticação de dois fatores",
+      "disable2FAError": "Erro ao desativar a autenticação de dois fatores",
+      "disable2FAConfirmation": "Tens a certeza de que queres desativar a autenticação de dois fatores?",
+      "securityNotifications": "Notificações de Segurança",
+      "emailNotifications": "Alertas de Segurança por Email",
+      "emailNotificationsDescription": "Recebe notificações de eventos de segurança por email",
+      "loginAlerts": "Alertas de Login",
+      "loginAlertsDescription": "Recebe notificações de tentativas de login de dispositivos não reconhecidos",
+      "activeSessions": "Sessões Ativas",
+      "noActiveSessions": "Não há sessões ativas",
+      "current": "Sessão Atual",
+      "signOut": "Terminar Sessão",
+      "revokeSession": "Revogar Sessão",
+      "revokeSessionConfirmation": "Tens a certeza de que queres revogar esta sessão?",
+      "securityActivity": "Atividade de Segurança",
+      "noSecurityEvents": "Não há eventos de segurança",
+      "recentLogin": "Login recente",
+      "accountCreated": "Conta criada",
+      "emailVerified": "Email verificado",
+      "locationHidden": "Localização oculta por privacidade",
+      "currentLocation": "Localização atual",
+      "unknownBrowser": "Navegador Desconhecido",
+      "unknownOS": "SO Desconhecido"
+    },
+    "language": {
+      "title": "Idioma e Região",
+      "subtitle": "Configure suas preferências de idioma, região e formatação",
+      "displayLanguage": "Idioma de Interface",
+      "fallbackLanguage": "Idioma de Fallback",
+      "autoDetectBrowser": "Detectar idioma do navegador automaticamente",
+      "autoDetectBrowserDescription": "Detectar e usar automaticamente a preferência de idioma do navegador",
+      "rtlSupport": "Suporte para idiomas da direita para a esquerda",
+      "rtlSupportDescription": "Ativar suporte para idiomas RTL como árabe e hebraico",
+      "regionalFormats": "Formatos Regionais",
+      "dateFormat": "Formato de Data",
+      "timeFormat": "Formato de Hora",
+      "numberFormat": "Formato de Número",
+      "unitsOfMeasurement": "Unidades de Medida",
+      "timezoneAndCurrency": "Fuso Horário e Moeda",
+      "timezone": "Fuso Horário",
+      "defaultCurrency": "Moeda Padrão",
+      "contentAndTranslation": "Conteúdo e Tradução",
+      "contentLanguagePreference": "Preferência de Idioma do Conteúdo",
+      "exportLanguage": "Idioma de Exportação",
+      "autoTranslateContent": "Traduzir conteúdo automaticamente",
+      "autoTranslateContentDescription": "Traduzir automaticamente o conteúdo para seu idioma preferido",
+      "sustainabilityStandards": "Padrões de Sustentabilidade",
+      "reportingStandardLanguage": "Idioma do Padrão de Relatório",
+      "reportingStandardDescription": "Escolha a versão do idioma dos padrões de relatório de sustentabilidade",
+      "preview": "Visualizar"
+    },
+    "appearance": {
+      "title": "Aparência",
+      "subtitle": "Personalize como o blipee OS parece e funciona",
+      "theme": {
+        "title": "Tema",
+        "light": {
+          "title": "Claro",
+          "description": "Tema claro para uso durante o dia"
+        },
+        "dark": {
+          "title": "Escuro",
+          "description": "Tema escuro para reduzir o cansaço visual"
+        },
+        "system": {
+          "title": "Sistema",
+          "description": "Corresponder automaticamente às definições do sistema"
+        }
+      },
+      "accentColor": {
+        "title": "Cor de Destaque"
+      },
+      "fontSize": {
+        "title": "Tamanho da Letra",
+        "small": {
+          "title": "Pequeno",
+          "description": "Texto compacto para mais conteúdo"
+        },
+        "medium": {
+          "title": "Médio",
+          "description": "Tamanho de texto padrão"
+        },
+        "large": {
+          "title": "Grande",
+          "description": "Mais fácil de ler"
+        }
+      },
+      "interfaceDensity": {
+        "title": "Densidade da Interface",
+        "compact": {
+          "title": "Compacto",
+          "description": "Mais conteúdo visível"
+        },
+        "comfortable": {
+          "title": "Confortável",
+          "description": "Legibilidade otimizada"
+        },
+        "spacious": {
+          "title": "Espaçoso",
+          "description": "Máxima clareza"
+        }
+      },
+      "accessibility": {
+        "title": "Acessibilidade",
+        "reduceMotion": {
+          "title": "Reduzir movimento",
+          "description": "Minimizar animações e transições"
+        },
+        "highContrast": {
+          "title": "Alto contraste",
+          "description": "Aumentar o contraste das cores para melhor visibilidade"
+        }
+      },
+      "sidebar": {
+        "title": "Barra Lateral",
+        "autoCollapse": {
+          "title": "Recolher barra lateral automaticamente",
+          "description": "Recolher automaticamente a barra lateral em ecrãs menores"
+        }
+      },
+      "preview": {
+        "title": "Visualização",
+        "smallButton": "Botão Pequeno",
+        "mediumButton": "Botão Médio",
+        "largeButton": "Botão Grande",
+        "solid": "Sólido",
+        "outline": "Contorno",
+        "ghost": "Fantasma",
+        "accentText": "Este texto usa a cor de destaque",
+        "borderText": "A borda e o texto mudarão com base na sua cor de destaque selecionada",
+        "gradientBackground": "Fundo em Gradiente",
+        "gradientText": "Isto usa o seu gradiente de destaque selecionado"
+      },
+      "saving": "A guardar...",
+      "saveChanges": "Guardar Alterações",
+      "accentColors": {
+        "purple": "Roxo",
+        "blue": "Azul",
+        "green": "Verde",
+        "orange": "Laranja",
+        "pink": "Rosa",
+        "indigo": "Índigo",
+        "teal": "Verde-água",
+        "sunset": "Pôr do Sol",
+        "slate": "Ardósia",
+        "lime": "Lima"
+      }
+    }
+  },
+  "footer": {
+    "features": "Funcionalidades",
+    "industries": "Indústrias",
+    "aiTechnology": "Tecnologia IA",
+    "about": "Sobre",
+    "contact": "Contacto",
+    "support": "Suporte",
+    "terms": "Termos",
+    "privacy": "Privacidade",
+    "cookies": "Cookies",
+    "security": "Segurança",
+    "dpa": "DPA",
+    "copyright": "© 2025 blipee. Todos os direitos reservados."
+  },
+  "features": {
+    "skipToContent": "Saltar para o conteúdo principal",
+    "hero": {
+      "badge": "Cada funcionalidade desenhada para impacto",
+      "title1": "Funcionalidades que Transformam",
+      "title2": "Gestão de Sustentabilidade",
+      "description": "Da IA conversacional à análise preditiva, cada funcionalidade é criada para tornar a sustentabilidade simples, acionável e impactante."
+    },
+    "categories": {
+      "conversationalAI": {
+        "title": "IA Conversacional",
+        "description": "Interação em linguagem natural que parece humana",
+        "features": [
+          "Pergunte qualquer coisa em português simples",
+          "Respostas conscientes do contexto",
+          "Conversas multi-turno",
+          "Suporte de entrada de voz",
+          "Insights de IA instantâneos",
+          "Recomendações personalizadas",
+          "Disponibilidade 24/7",
+          "Suporte multi-idioma",
+          "Respostas conscientes de emoção"
+        ]
+      },
+      "dynamicVisualization": {
+        "title": "Visualização Dinâmica",
+        "description": "A IA gera o gráfico perfeito para cada conversa",
+        "features": [
+          "Dashboards gerados automaticamente",
+          "Atualizações de dados em tempo real",
+          "Modelos 3D interativos",
+          "Construtor de relatórios personalizados",
+          "Análise de tendências",
+          "Visualizações preditivas",
+          "Exportar para qualquer formato",
+          "Design responsivo móvel",
+          "Modelos com marca"
+        ]
+      },
+      "sustainabilityTracking": {
+        "title": "Rastreamento de Sustentabilidade",
+        "description": "Gestão completa de emissões simplificada",
+        "features": [
+          "Emissões Scope 1, 2, 3",
+          "Metas baseadas na ciência",
+          "Gestão de créditos de carbono",
+          "Rastreamento da cadeia de fornecimento",
+          "Conformidade regulatória",
+          "Relatórios ESG",
+          "Análise de benchmark",
+          "Rastreamento de progresso de metas",
+          "Recomendações de compensação"
+        ]
+      },
+      "documentIntelligence": {
+        "title": "Inteligência Documental",
+        "description": "Transforme qualquer documento em dados de sustentabilidade acionáveis",
+        "features": [
+          "Digitalização de faturas",
+          "Análise de contas de utilidades",
+          "Análise de recibos de viagem",
+          "Extração de dados PDF",
+          "Reconhecimento de imagem",
+          "Categorização automática",
+          "Suporte multi-formato",
+          "Processamento em lote",
+          "Validação de erros"
+        ]
+      },
+      "predictiveAnalytics": {
+        "title": "Análise Preditiva",
+        "description": "Veja o futuro com previsões alimentadas por IA",
+        "features": [
+          "Previsão de emissões",
+          "Previsão de falhas de equipamento",
+          "Otimização de energia",
+          "Projeções de custos",
+          "Análise de impacto climático",
+          "Deteção de anomalias",
+          "Avaliação de riscos",
+          "ROI de investimento",
+          "Modelagem de cenários"
+        ]
+      },
+      "enterpriseSecurity": {
+        "title": "Segurança Empresarial",
+        "description": "Segurança bancária com transparência completa",
+        "features": [
+          "Encriptação ponta a ponta",
+          "Conformidade SOC 2",
+          "Pronto para GDPR",
+          "Acesso baseado em funções",
+          "Registo de auditoria",
+          "Opções de residência de dados",
+          "Segurança da API",
+          "Sign-on único",
+          "Autenticação multi-fator"
+        ]
+      }
+    },
+    "cta": {
+      "title": "Pronto para Transformar a Sua Sustentabilidade?",
+      "description": "Aceda à sua plataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
+      "signInButton": "Entrar no Dashboard",
+      "requestButton": "Solicitar Acesso",
+      "footer": "A sua equipa de sustentabilidade IA está à sua espera"
+    },
+    "contactModal": {
+      "title": "Agendar uma Demo",
+      "subtitle": "Entre em contacto com a nossa equipa para ver o blipee em ação",
+      "namePlaceholder": "O Seu Nome",
+      "emailPlaceholder": "Endereço de Email",
+      "companyPlaceholder": "Empresa",
+      "messagePlaceholder": "Conte-nos sobre os seus objetivos de sustentabilidade",
+      "submitButton": "Enviar Pedido"
+    },
+    "supportModal": {
+      "title": "Obter Suporte",
+      "subtitle": "A nossa equipa está aqui para o ajudar a ter sucesso com o blipee",
+      "namePlaceholder": "O Seu Nome",
+      "emailPlaceholder": "Endereço de Email",
+      "issueTypePlaceholder": "Selecionar Tipo de Problema",
+      "issueTypes": {
+        "technical": "Problema Técnico",
+        "billing": "Questão de Faturação",
+        "feature": "Pedido de Funcionalidade",
+        "other": "Outro"
+      },
+      "descriptionPlaceholder": "Descreva o seu problema ou questão",
+      "submitButton": "Submeter Pedido"
+    }
+  },
+  "industries": {
+    "skipToContent": "Saltar para o conteúdo principal",
+    "hero": {
+      "badge": "Todas as Indústrias. Todas as Organizações. Todos os Objetivos.",
+      "title1": "Sustentabilidade Universal",
+      "title2": "Para Todas as Indústrias",
+      "description": "blipee funciona com qualquer organização, em qualquer indústria, de qualquer tamanho. De startups a Fortune 500s, de fabricação a serviços, tornamos a sustentabilidade simples e alcançável para todos."
+    },
+    "coverage": {
+      "title": "A Sua Indústria Está Coberta",
+      "description": "Os desafios de sustentabilidade são universais. Se está a rastrear emissões, a gerir energia, a reduzir resíduos, ou a reportar métricas ESG, o blipee adapta-se aos seus requisitos e regulamentos específicos da indústria.",
+      "anySector": {
+        "title": "Qualquer Sector",
+        "description": "Da indústria pesada aos serviços digitais, a nossa IA compreende os seus desafios únicos de sustentabilidade."
+      },
+      "anyStandard": {
+        "title": "Qualquer Padrão",
+        "description": "GRI, SASB, TCFD, CSRD, Taxonomia da UE - apoiamos todas as principais estruturas e regulamentações de sustentabilidade."
+      },
+      "anySize": {
+        "title": "Qualquer Tamanho",
+        "description": "De pequenas empresas a corporações multinacionais, a nossa plataforma escala com as suas necessidades."
+      }
+    },
+    "intelligence": {
+      "title": "Inteligência Industrial",
+      "subtitle": "Como Organizamos as Indústrias",
+      "description": "Estes são apenas exemplos. Se a sua indústria não está listada, ainda assim trabalhamos consigo. A nossa IA adapta-se a qualquer desafio de sustentabilidade.",
+      "categories": {
+        "manufacturing": {
+          "title": "Fabricação e Produção",
+          "description": "Qualquer empresa que produz bens ou produtos",
+          "items": [
+            "Automobilística e aeroespacial",
+            "Electrónica e tecnologia",
+            "Produção de alimentos e bebidas",
+            "Químicos e farmacêuticos",
+            "Têxteis e bens de consumo",
+            "Maquinaria pesada e equipamento"
+          ]
+        },
+        "builtEnvironment": {
+          "title": "Ambiente Construído",
+          "description": "Organizações que gerem edifícios e infraestrutura",
+          "items": [
+            "Imobiliário comercial",
+            "Propriedades residenciais",
+            "Instituições educacionais",
+            "Instalações de saúde",
+            "Hospitalidade e turismo",
+            "Aeroportos e centros de transporte"
+          ]
+        },
+        "energyUtilities": {
+          "title": "Energia e Serviços Públicos",
+          "description": "Geração de energia, distribuição e serviços públicos",
+          "items": [
+            "Empresas eléctricas",
+            "Empresas de petróleo e gás",
+            "Promotores de energia renovável",
+            "Tratamento de água e águas residuais",
+            "Sistemas de energia distrital",
+            "Armazenamento e distribuição de energia"
+          ]
+        },
+        "servicesDigital": {
+          "title": "Serviços e Digital",
+          "description": "Organizações baseadas em serviços em todos os sectores",
+          "items": [
+            "Serviços financeiros e bancários",
+            "Serviços profissionais",
+            "Tecnologia e software",
+            "Telecomunicações",
+            "Media e entretenimento",
+            "Consultoria e assessoria"
+          ]
+        },
+        "naturalResources": {
+          "title": "Recursos Naturais",
+          "description": "Organizações que trabalham com recursos naturais",
+          "items": [
+            "Agricultura e pecuaria",
+            "Silvicultura e papel",
+            "Mineração e extractivos",
+            "Pesca e aquacultura",
+            "Gestão de resíduos e reciclagem",
+            "Serviços ambientais"
+          ]
+        },
+        "publicSocial": {
+          "title": "Sector Público e Social",
+          "description": "Organizações governamentais e de serviço público",
+          "items": [
+            "Agências governamentais",
+            "Organizações sem fins lucrativos",
+            "Sistemas de saúde",
+            "Instituições educacionais",
+            "Empresas sociais",
+            "Organizações internacionais"
+          ]
+        }
+      }
+    },
+    "categories": {
+      "manufacturingProduction": {
+        "title": "Fabricação e Produção",
+        "description": "Qualquer empresa que produza bens ou produtos",
+        "features": [
+          "Automóvel e aeroespacial",
+          "Electrónica e tecnologia",
+          "Produção de alimentos e bebidas",
+          "Químicos e farmacêuticos",
+          "Têxteis e bens de consumo",
+          "Maquinaria pesada e equipamentos",
+          "Economia circular e sustentabilidade",
+          "Redução de resíduos na produção",
+          "Rastreamento da pegada de carbono"
+        ]
+      },
+      "builtEnvironment": {
+        "title": "Ambiente Construído",
+        "description": "Organizações que gerem edifícios e infraestrutura",
+        "features": [
+          "Imobiliário comercial",
+          "Propriedades residenciais",
+          "Instituições educacionais",
+          "Instalações de saúde",
+          "Hospitalidade e turismo",
+          "Aeroportos e centros de transporte",
+          "Gestão de energia de edifícios",
+          "Certificações de sustentabilidade",
+          "Monitorização de qualidade do ar interior"
+        ]
+      },
+      "energyUtilities": {
+        "title": "Energia e Serviços Públicos",
+        "description": "Geração de energia, distribuição e serviços públicos",
+        "features": [
+          "Empresas eléctricas",
+          "Empresas de petróleo e gás",
+          "Promotores de energia renovável",
+          "Tratamento de água e águas residuais",
+          "Sistemas de energia distrital",
+          "Armazenamento e distribuição de energia",
+          "Optimização da rede inteligente",
+          "Integração de energias renováveis",
+          "Gestão da procura energética"
+        ]
+      },
+      "servicesDigital": {
+        "title": "Serviços e Digital",
+        "description": "Organizações baseadas em serviços em todos os sectores",
+        "features": [
+          "Serviços financeiros e bancários",
+          "Serviços profissionais",
+          "Tecnologia e software",
+          "Telecomunicações",
+          "Media e entretenimento",
+          "Consultoria e assessoria",
+          "Centros de dados sustentáveis",
+          "Trabalho remoto e carbono digital",
+          "Fintech verde e investimentos ESG"
+        ]
+      },
+      "naturalResources": {
+        "title": "Recursos Naturais",
+        "description": "Organizações que trabalham com recursos naturais",
+        "features": [
+          "Agricultura e pecuária",
+          "Silvicultura e papel",
+          "Mineração e extractivos",
+          "Pesca e aquacultura",
+          "Gestão de resíduos e reciclagem",
+          "Serviços ambientais",
+          "Agricultura regenerativa",
+          "Práticas de mineração sustentável",
+          "Conservação da biodiversidade"
+        ]
+      },
+      "publicSocialSector": {
+        "title": "Sector Público e Social",
+        "description": "Organizações governamentais e de serviço público",
+        "features": [
+          "Agências governamentais",
+          "Organizações sem fins lucrativos",
+          "Sistemas de saúde",
+          "Instituições educacionais",
+          "Empresas sociais",
+          "Organizações internacionais",
+          "Políticas de sustentabilidade pública",
+          "Contratação pública verde",
+          "Programas comunitários de sustentabilidade"
+        ]
+      }
+    },
+    "compliance": {
+      "title": "Padrões de Conformidade",
+      "description": "Conformidade total com padrões específicos do sector da Global Reporting Initiative e CSRD (Directiva de Relatórios de Sustentabilidade Corporativa). A nossa IA conhece os requisitos exactos para a sua indústria.",
+        "gri11": {
+          "title": "GRI 11",
+          "sector": "Sector de Petróleo e Gás",
+          "description": "Relatórios abrangentes de sustentabilidade para operações de petróleo e gás",
+          "items": [
+            "Gestão de emissões de gases de efeito de estufa",
+            "Proteção da biodiversidade e ecossistema",
+            "Integridade de ativos e segurança de processos",
+            "Direitos dos povos indígenas"
+          ]
+        },
+        "gri12": {
+          "title": "GRI 12",
+          "sector": "Sector do Carvão",
+          "description": "Padrões de sustentabilidade para mineração e processamento de carvão",
+          "items": [
+            "Emissões de matéria particulada",
+            "Avaliação de impacto na biodiversidade",
+            "Direitos de terra e recursos",
+            "Planeamento de encerramento e reabilitação"
+          ]
+        },
+        "gri13": {
+          "title": "GRI 13",
+          "sector": "Agricultura e Alimentação",
+          "description": "Relatórios de sustentabilidade da produção de alimentos e agrícola",
+          "items": [
+            "Gestão de perda e desperdício de alimentos",
+            "Práticas de aprovisionamento sustentável",
+            "Padrões de bem-estar animal",
+            "Conservação de água e solo"
+          ]
+        },
+        "gri14": {
+          "title": "GRI 14",
+          "sector": "Sector Mineiro",
+          "description": "Padrões de operações de mineração e indústria extractiva",
+          "items": [
+            "Gestão de resíduos e rejeitos",
+            "Encerramento e reabilitação de minas",
+            "Mineração artesanal e de pequena escala",
+            "Relatórios de contribuição económica"
+          ]
+        },
+        "gri15": {
+          "title": "GRI 15",
+          "sector": "Sector Químico",
+          "description": "Relatórios de sustentabilidade e segurança da indústria química",
+          "items": [
+            "Segurança química e administração de produtos",
+            "Gestão de segurança de processos",
+            "Redução de emissões e resíduos",
+            "Transparência da cadeia de fornecimento"
+          ]
+        },
+        "gri16": {
+          "title": "GRI 16",
+          "sector": "Construção e Imobiliário",
+          "description": "Padrões de sustentabilidade do ambiente construído",
+          "items": [
+            "Práticas de construção sustentável",
+            "Uso da terra e planeamento",
+            "Gestão de resíduos de construção",
+            "Eficiência energética em edifícios"
+          ]
+        }
+    },
+    "cta": {
+      "title": "Pronto para Transformar a Sua Sustentabilidade?",
+      "description": "Aceda à sua plataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
+      "signInButton": "Entrar no Dashboard",
+      "requestButton": "Solicitar Acesso",
+      "footer": "A sua equipa de sustentabilidade IA está à sua espera"
+    },
+    "contactModal": {
+      "title": "Agendar uma Demo",
+      "subtitle": "Entre em contacto com a nossa equipa para ver o blipee em ação",
+      "namePlaceholder": "O Seu Nome",
+      "emailPlaceholder": "Endereço de Email",
+      "companyPlaceholder": "Empresa",
+      "messagePlaceholder": "Conte-nos sobre os seus objetivos de sustentabilidade",
+      "submitButton": "Enviar Pedido"
+    },
+    "supportModal": {
+      "title": "Obter Suporte",
+      "subtitle": "A nossa equipa está aqui para o ajudar a ter sucesso com o blipee",
+      "namePlaceholder": "O Seu Nome",
+      "emailPlaceholder": "Endereço de Email",
+      "issueTypePlaceholder": "Selecionar Tipo de Problema",
+      "issueTypes": {
+        "technical": "Problema Técnico",
+        "billing": "Questão de Faturação",
+        "feature": "Pedido de Funcionalidade",
+        "other": "Outro"
+      },
+      "descriptionPlaceholder": "Descreva o seu problema ou questão",
+      "submitButton": "Submeter Pedido"
     }
   },
   "common": {
