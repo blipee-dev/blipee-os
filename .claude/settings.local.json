@@ -104,7 +104,19 @@
       "Bash(do echo \"=== $lang.json ===\")",
       "Bash(git reset:*)",
       "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/settings/organizations/page.tsx)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "Bash(open http://localhost:3000/clear-cookies)",
+      "Bash(open http://localhost:3000/signin)",
+      "Bash(npx prettier:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_Oe43tk/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_jGmy30/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_PzTplV/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_T9VrrV/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_Z7MNpe/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_6YIbpd/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_RBRDFL/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_O0aQsq/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_oWuelr/**)"
     ],
     "deny": [],
     "ask": []

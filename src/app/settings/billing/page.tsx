@@ -3,8 +3,11 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { CreditCard, Download, TrendingUp, Calendar } from "lucide-react";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export default function BillingSettingsPage() {
+  useAuthRedirect('/settings/billing');
+  
   return (
     <div className="p-6">
       <div className="mb-8 hidden md:block">

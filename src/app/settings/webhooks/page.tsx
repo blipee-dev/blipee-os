@@ -32,8 +32,11 @@ import {
   WEBHOOK_EVENT_CATEGORIES 
 } from '@/types/webhooks';
 import { format } from 'date-fns';
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export default function WebhooksPage() {
+  useAuthRedirect('/settings/webhooks');
+  
   const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([]);
   const [stats, setStats] = useState<WebhookStats | null>(null);
   const [loading, setLoading] = useState(true);

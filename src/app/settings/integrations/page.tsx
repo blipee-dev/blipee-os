@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Puzzle, Check, X, Settings } from "lucide-react";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 const integrations = [
   {
@@ -50,6 +51,8 @@ const integrations = [
 ];
 
 export default function IntegrationsSettingsPage() {
+  useAuthRedirect('/settings/integrations');
+  
   return (
     <div className="p-6">
       <div className="mb-8 hidden md:block">

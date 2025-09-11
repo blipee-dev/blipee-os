@@ -25,6 +25,7 @@ import {
 import { useAuth } from "@/lib/auth/context";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "@/providers/LanguageProvider";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 interface SecuritySettings {
   twoFactorEnabled: boolean;
@@ -62,6 +63,8 @@ const defaultSettings: SecuritySettings = {
 };
 
 export default function SecurityPage() {
+  useAuthRedirect('/profile/security');
+  
   const t = useTranslations('profile.security');
   const { user } = useAuth();
   const supabase = createClient();

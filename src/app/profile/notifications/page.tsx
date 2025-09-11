@@ -29,6 +29,7 @@ import {
   Loader2
 } from "lucide-react";
 import { useTranslations } from "@/providers/LanguageProvider";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 interface NotificationSettings {
   channels: {
@@ -97,6 +98,8 @@ const defaultSettings: NotificationSettings = {
 };
 
 export default function NotificationsPage() {
+  useAuthRedirect('/profile/notifications');
+  
   const t = useTranslations('profile.notifications');
   const [settings, setSettings] = useState<NotificationSettings>(defaultSettings);
   const [hasChanges, setHasChanges] = useState(false);
