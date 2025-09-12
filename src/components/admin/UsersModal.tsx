@@ -354,7 +354,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            {t('modal.firstName')} *
+                            {t('modal.fields.name')} *
                           </label>
                           <input
                             type="text"
@@ -370,7 +370,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <Mail className="inline w-4 h-4 mr-1" />
-                            {t('modal.email')} *
+                            {t('modal.fields.email')} *
                           </label>
                           <input
                             type="email"
@@ -399,17 +399,17 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            {t('modal.role')} *
+                            {t('modal.fields.role')} *
                           </label>
                           <CustomDropdown
                             value={formData.role}
                             onChange={(value) => setFormData({...formData, role: value as string})}
                             options={[
-                              { value: "account_owner", label: t('roles.account_owner') },
-                              { value: "sustainability_manager", label: t('roles.sustainability_manager') },
-                              { value: "facility_manager", label: t('roles.facility_manager') },
-                              { value: "analyst", label: t('roles.analyst') },
-                              { value: "viewer", label: t('roles.viewer') }
+                              { value: "account_owner", label: t('modal.roles.account_owner') },
+                              { value: "sustainability_manager", label: t('modal.roles.sustainability_manager') },
+                              { value: "facility_manager", label: t('modal.roles.facility_manager') },
+                              { value: "analyst", label: t('modal.roles.analyst') },
+                              { value: "viewer", label: t('modal.roles.viewer') }
                             ]}
                             disabled={mode === 'view'}
                             className="w-full"
@@ -419,7 +419,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <Building2 className="inline w-4 h-4 mr-1" />
-                            {t('modal.organization')} *
+                            {t('modal.fields.organization')} *
                           </label>
                           <CustomDropdown
                             value={formData.organization_id}
@@ -441,15 +441,15 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          {t('modal.status')} *
+                          {t('modal.fields.status')} *
                         </label>
                         <CustomDropdown
                           value={formData.status}
                           onChange={(value) => setFormData({...formData, status: value as string})}
                           options={[
-                            { value: "pending", label: t('status.pending') },
-                            { value: "active", label: t('status.active') },
-                            { value: "inactive", label: t('status.inactive') }
+                            { value: "pending", label: t('modal.statuses.pending') },
+                            { value: "active", label: t('modal.statuses.active') },
+                            { value: "inactive", label: t('modal.statuses.inactive') }
                           ]}
                           disabled={mode === 'view'}
                           className="w-full"
@@ -481,7 +481,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                     onClick={onClose}
                     className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                   >
-                    {t('modal.cancel')}
+                    {t('modal.buttons.cancel')}
                   </button>
                   {mode !== 'view' && (
                     <button
@@ -492,8 +492,8 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                       {loading && (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       )}
-                      {loading ? (mode === 'edit' ? t('messages.userUpdated') : t('messages.userCreated')) : 
-                       mode === 'edit' ? t('modal.save') : t('modal.save')}
+                      {loading ? (mode === 'edit' ? t('modal.buttons.updating') : t('modal.buttons.creating')) : 
+                       mode === 'edit' ? t('modal.buttons.update') : t('modal.buttons.create')}
                     </button>
                   )}
                 </div>
