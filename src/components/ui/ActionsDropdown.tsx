@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MoreHorizontal, Pin, Edit2, Trash2, Eye, Star } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface ActionsDropdownProps {
   onView?: () => void;
@@ -31,6 +32,7 @@ export default function ActionsDropdown({
 }: ActionsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -75,7 +77,7 @@ export default function ActionsDropdown({
                   className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/[0.05] flex items-center gap-3 transition-colors"
                 >
                   <Eye className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
-                  <span>View</span>
+                  <span>{t('common.view') || 'View'}</span>
                 </button>
               )}
               
@@ -85,7 +87,7 @@ export default function ActionsDropdown({
                   className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/[0.05] flex items-center gap-3 transition-colors"
                 >
                   <Star className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
-                  <span>Star</span>
+                  <span>{t('common.star') || 'Star'}</span>
                 </button>
               )}
               
@@ -95,7 +97,7 @@ export default function ActionsDropdown({
                   className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/[0.05] flex items-center gap-3 transition-colors"
                 >
                   <Pin className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
-                  <span>Pin</span>
+                  <span>{t('common.pin') || 'Pin'}</span>
                 </button>
               )}
               
@@ -105,7 +107,7 @@ export default function ActionsDropdown({
                   className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/[0.05] flex items-center gap-3 transition-colors"
                 >
                   <Edit2 className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
-                  <span>Rename</span>
+                  <span>{t('common.rename') || 'Rename'}</span>
                 </button>
               )}
               
@@ -115,7 +117,7 @@ export default function ActionsDropdown({
                   className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/[0.05] flex items-center gap-3 transition-colors"
                 >
                   <Edit2 className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
-                  <span>Edit</span>
+                  <span>{t('common.edit') || 'Edit'}</span>
                 </button>
               )}
               
@@ -127,7 +129,7 @@ export default function ActionsDropdown({
                     className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span>Delete</span>
+                    <span>{t('common.delete') || 'Delete'}</span>
                   </button>
                 </>
               )}

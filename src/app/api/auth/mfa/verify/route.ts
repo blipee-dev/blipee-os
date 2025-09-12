@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MFAService } from '@/lib/auth/mfa/service';
 import { sessionAuth } from '@/lib/auth/session-auth';
 import { sessionManager } from '@/lib/session/manager';
+import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
 const verifySchema = z.object({
@@ -40,6 +41,72 @@ export async function POST(request: NextRequest) {
       challengeId,
       request
     );
+
+    // Update last_login and status for successful MFA verification
+    console.log('🔥 MFA DIRECT LOGIN TRACKING: Updating user login status for user:', result.userId);
+    
+    try {
+      const supabase = await createClient();
+      
+      // Get current user status
+      const { data: currentUser, error: selectError } = await supabase
+        .from('app_users')
+        .select('status')
+        .eq('auth_user_id', result.userId)
+        .single();
+
+      if (selectError && selectError.code === 'PGRST116') {
+        // User doesn't exist in app_users table, create them
+        console.log('👤 MFA: User not found in app_users, creating record...');
+        
+        const { error: insertError } = await supabase
+          .from('app_users')
+          .insert({
+            auth_user_id: result.userId,
+            name: 'User', // Will be updated when user profile is loaded
+            email: '', // Will be updated when user profile is loaded
+            role: 'viewer', // Default role
+            status: 'active', // Set as active since they're logging in
+            last_login: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          console.error('❌ MFA: Error creating user record:', insertError);
+        } else {
+          console.log('✅ MFA: Successfully created user record and updated login time');
+        }
+      } else if (selectError) {
+        console.error('❌ MFA: Error fetching current user:', selectError);
+      } else {
+        console.log('👤 MFA: Current user status:', currentUser?.status);
+
+        // Update last_login and change status from pending to active
+        const updateData: { last_login: string; status?: string } = {
+          last_login: new Date().toISOString()
+        };
+
+        // If user status is pending, change to active on first login
+        if (currentUser?.status === 'pending') {
+          updateData.status = 'active';
+          console.log('🔄 MFA: Changing status from pending to active');
+        }
+
+        console.log('💾 MFA: Updating with data:', updateData);
+
+        const { error: updateError } = await supabase
+          .from('app_users')
+          .update(updateData)
+          .eq('auth_user_id', result.userId);
+
+        if (updateError) {
+          console.error('❌ MFA: Error updating user login status:', updateError);
+        } else {
+          console.log('✅ MFA: Successfully updated user login status');
+        }
+      }
+    } catch (error) {
+      console.error('🔥 MFA DIRECT LOGIN TRACKING ERROR:', error);
+    }
 
     // Create response
     const response = NextResponse.json({
