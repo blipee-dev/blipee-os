@@ -1496,6 +1496,106 @@
           "pleaseFixErrors": "Please fix the errors below before submitting"
         }
       }
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Manage team members and their permissions",
+      "searchPlaceholder": "Search users...",
+      "filter": "Filter",
+      "download": "Download",
+      "upload": "Upload",
+      "addUser": "Add User",
+      "createFirstUser": "Add Your First User",
+      "noUsersFound": "No users found",
+      "userNotAuthenticated": "User not authenticated",
+      "failedToLoad": "Failed to load users",
+      "retry": "Retry",
+      "failedToDelete": "Failed to delete user",
+      "table": {
+        "user": "User",
+        "organization": "Organization", 
+        "created": "Created",
+        "role": "Role",
+        "lastLogin": "Last Login",
+        "status": "Status",
+        "dailyTime": "Daily Time",
+        "avgPerDay": "avg per day",
+        "never": "Never"
+      },
+      "pagination": {
+        "itemsPerPage": "Items per page:",
+        "showing": "Showing {start}-{end} of {total}",
+        "firstPage": "First page", 
+        "previousPage": "Previous page",
+        "nextPage": "Next page",
+        "lastPage": "Last page",
+        "page": "Page {number}"
+      },
+      "modal": {
+        "createTitle": "Add New User",
+        "editTitle": "Edit User", 
+        "viewTitle": "View User",
+        "createSuccess": "User created successfully!",
+        "updateSuccess": "User updated successfully!",
+        "sections": {
+          "basicInfo": "Basic Information",
+          "permissions": "Permissions & Access",
+          "activity": "Activity & Status"
+        },
+        "fields": {
+          "name": "Full Name",
+          "email": "Email Address", 
+          "role": "Role",
+          "organization": "Organization",
+          "status": "Status",
+          "lastLogin": "Last Login",
+          "dailyTimeSpent": "Average Daily Time Spent",
+          "joinDate": "Join Date",
+          "userProfile": "User Profile",
+          "accountDetails": "Account Details",
+          "memberSince": "Member Since",
+          "userId": "User ID",
+          "lastUpdated": "Last Updated",
+          "authUserId": "Auth User ID",
+          "noOrganization": "No organization assigned",
+          "neverLoggedIn": "Never logged in"
+        },
+        "placeholders": {
+          "name": "Enter full name",
+          "email": "Enter email address"
+        },
+        "roles": {
+          "super_admin": "Super Admin",
+          "account_owner": "Account Owner",
+          "sustainability_manager": "Sustainability Manager", 
+          "facility_manager": "Facility Manager",
+          "analyst": "Analyst",
+          "viewer": "Viewer"
+        },
+        "statuses": {
+          "active": "Active",
+          "inactive": "Inactive", 
+          "pending": "Pending"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "create": "Create User",
+          "update": "Update User", 
+          "creating": "Creating...",
+          "updating": "Updating...",
+          "created": "Created!",
+          "updated": "Updated!",
+          "viewOnly": "View Only"
+        },
+        "validation": {
+          "nameRequired": "Full name is required",
+          "emailRequired": "Email address is required",
+          "emailInvalid": "Please enter a valid email address",
+          "roleRequired": "Role is required",
+          "organizationRequired": "Organization is required",
+          "pleaseFixErrors": "Please fix the errors below before submitting"
+        }
+      }
     }
   },
   "common": {

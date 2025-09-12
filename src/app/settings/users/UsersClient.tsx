@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Users,
@@ -14,15 +14,16 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Shield,
-  ShieldCheck,
   Phone,
   Mail
 } from "lucide-react";
 import UsersModal from "@/components/admin/UsersModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from '@/providers/LanguageProvider';
 
 interface AppUser {
   id: string;
@@ -32,17 +33,11 @@ interface AppUser {
   name: string;
   email: string;
   role: string;
-  department?: string;
-  phone?: string;
-  title?: string;
-  location?: string;
-  join_date?: string;
-  last_active?: string;
-  permissions?: string[];
-  two_factor_enabled?: boolean;
   status: string;
+  last_login?: string;
   created_at: string;
   updated_at: string;
+  avgDailyTimeSpent?: number; // in minutes
 }
 
 interface UsersClientProps {
@@ -52,7 +47,8 @@ interface UsersClientProps {
 }
 
 export default function UsersClient({ initialUsers, organizations, userRole }: UsersClientProps) {
-  const [users, setUsers] = useState<AppUser[]>(initialUsers);
+  const [users, setUsers] = useState<AppUser[]>([]);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
@@ -61,8 +57,72 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const supabase = createClient();
   const router = useRouter();
+  const supabase = createClient();
+  const t = useTranslations('settings.users');
+
+  // Get session stats for multiple users via API
+  const getSessionStats = async (userIds: string[]): Promise<Record<string, number>> => {
+    try {
+      const response = await fetch('/api/users/session-stats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userIds }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch session stats');
+      }
+
+      const data = await response.json();
+      
+      // Convert array of user stats to a record/map for easy lookup
+      const statsMap: Record<string, number> = {};
+      data.userStats.forEach((stat: { userId: string; avgDailyTimeSpent: number }) => {
+        statsMap[stat.userId] = stat.avgDailyTimeSpent;
+      });
+
+      return statsMap;
+    } catch (error) {
+      console.error('Error fetching session stats:', error);
+      return {};
+    }
+  };
+
+  // Calculate time spent for initial users on mount
+  useEffect(() => {
+    const calculateInitialTimeSpent = async () => {
+      if (!initialLoad) return;
+      
+      setLoading(true);
+      try {
+        // Collect all user IDs that have auth_user_id
+        const userIds = initialUsers
+          .filter(user => user.auth_user_id)
+          .map(user => user.auth_user_id!);
+
+        // Get session stats for all users at once
+        const sessionStats = await getSessionStats(userIds);
+
+        // Map the stats back to users
+        const usersWithTimeSpent = initialUsers.map(userData => ({
+          ...userData,
+          avgDailyTimeSpent: userData.auth_user_id 
+            ? sessionStats[userData.auth_user_id] || 0 
+            : 0,
+        }));
+
+        setUsers(usersWithTimeSpent);
+      } finally {
+        setLoading(false);
+        setInitialLoad(false);
+      }
+    };
+
+    calculateInitialTimeSpent();
+  }, [initialUsers, initialLoad]);
 
   // Filter data based on search term
   const filteredData = useMemo(() => {
@@ -72,8 +132,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.organizations?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.department?.toLowerCase().includes(searchTerm.toLowerCase())
+      user.role?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [users, searchTerm]);
 
@@ -137,7 +196,21 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         return;
       }
 
-      setUsers(usersData || []);
+      // Calculate average daily time spent for each user
+      const userIds = (usersData || [])
+        .filter(user => user.auth_user_id)
+        .map(user => user.auth_user_id!);
+
+      const sessionStats = await getSessionStats(userIds);
+
+      const usersWithTimeSpent = (usersData || []).map(userData => ({
+        ...userData,
+        avgDailyTimeSpent: userData.auth_user_id 
+          ? sessionStats[userData.auth_user_id] || 0 
+          : 0,
+      }));
+
+      setUsers(usersWithTimeSpent);
     } finally {
       setLoading(false);
     }
@@ -150,7 +223,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   };
 
   const handleDelete = async (user: AppUser) => {
-    if (!confirm(`Are you sure you want to delete ${user.name}?`)) return;
+    if (!confirm(t('modal.confirmDelete'))) return;
 
     setLoading(true);
     try {
@@ -161,7 +234,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
 
       if (error) {
         console.error('Error deleting user:', error);
-        alert('Failed to delete user');
+        alert(t('messages.error'));
         return;
       }
 
@@ -171,17 +244,23 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
     }
   };
 
+  const handleView = (user: AppUser) => {
+    setModalMode('view');
+    setSelectedUser(user);
+    setShowUserModal(true);
+  };
+
   const handlePin = async (user: AppUser) => {
     // Implement pin functionality if needed
     console.log('Pin user:', user.name);
   };
 
   // Can user perform actions?
-  const canManage = userRole === 'account_owner' || userRole === 'admin';
+  const canManage = userRole === 'super_admin' || userRole === 'account_owner' || userRole === 'admin' || userRole === 'sustainability_manager';
 
   // Format role display
   const formatRole = (role: string) => {
-    return role.split('_').map(word => 
+    return t(`roles.${role}` as any) || role.split('_').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
@@ -218,30 +297,59 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
     }
   };
 
+  // Format time spent in minutes to human readable format
+  const formatTimeSpent = (minutes: number): string => {
+    if (minutes === 0) return '0 min';
+    
+    if (minutes < 60) {
+      return `${minutes} min`;
+    }
+    
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    
+    if (hours < 24) {
+      return remainingMinutes > 0 
+        ? `${hours}h ${remainingMinutes}m`
+        : `${hours}h`;
+    }
+    
+    const days = Math.floor(hours / 24);
+    const remainingHours = hours % 24;
+    
+    return remainingHours > 0 
+      ? `${days}d ${remainingHours}h`
+      : `${days}d`;
+  };
+
   // Pagination Component
   const PaginationControls = () => {
     return (
-      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-white/[0.05]">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label htmlFor="items-per-page" className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
-              Items per page:
-            </label>
-            <select
-              id="items-per-page"
+      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-3 py-3 px-3 sm:px-4 bg-gray-50 dark:bg-[#757575]/10 border-t border-gray-200 dark:border-white/[0.05] rounded-b-lg">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto">
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:block text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
+              {t('pagination.itemsPerPage')}
+            </span>
+            <CustomDropdown
               value={itemsPerPage}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 accent-ring"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
+              onChange={handleItemsPerPageChange}
+              options={[
+                { value: 5, label: "5" },
+                { value: 10, label: "10" },
+                { value: 20, label: "20" },
+                { value: 50, label: "50" },
+              ]}
+              className="w-16"
+            />
           </div>
           
-          <div className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
-            Showing {Math.min(startIndex + 1, totalItems)}-{Math.min(endIndex, totalItems)} of {totalItems}
+          <div className="text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
+            {t('pagination.showing', {
+              start: Math.min(startIndex + 1, totalItems),
+              end: Math.min(endIndex, totalItems),
+              total: totalItems,
+            })}
           </div>
         </div>
 
@@ -250,7 +358,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             <button
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label={t('pagination.firstPage')}
             >
               <ChevronsLeft className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
@@ -258,7 +367,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label={t('pagination.previousPage')}
             >
               <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
@@ -289,9 +399,11 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                       px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg transition-colors
                       ${currentPage === pageNum
                         ? "accent-gradient-lr text-white"
-                        : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-[#616161] dark:text-[#757575]"
+                        : "hover:bg-gray-200 dark:hover:bg-white/[0.05] text-gray-700 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white"
                       }
                     `}
+                    aria-label={t('pagination.page', { number: pageNum })}
+                    aria-current={currentPage === pageNum ? "page" : undefined}
                   >
                     {pageNum}
                   </button>
@@ -302,7 +414,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label={t('pagination.nextPage')}
             >
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
@@ -310,7 +423,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             <button
               onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label={t('pagination.lastPage')}
             >
               <ChevronsRight className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
@@ -323,8 +437,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   return (
     <SettingsLayout pageTitle="Users">
       <header className="hidden md:block p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05]">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">User Management</h1>
-        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">Manage team members and their permissions</p>
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
+        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">{t('subtitle')}</p>
       </header>
 
       <main className="p-4 sm:p-6">
@@ -334,7 +448,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#757575]" />
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 accent-ring text-sm"
@@ -384,14 +498,14 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <div className="w-8 h-8 border-4 accent-border border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-500 dark:text-gray-400">Loading users...</p>
+                <p className="text-gray-500 dark:text-gray-400">{t('messages.loadingUsers')}</p>
               </div>
             </div>
           ) : currentData.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">No users found</p>
+                <p className="text-gray-500 dark:text-gray-400">{t('messages.noUsers')}</p>
                 {canManage && (
                   <button
                     onClick={() => {
@@ -400,7 +514,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                     }}
                     className="mt-4 px-4 py-2 accent-gradient-lr text-white rounded-lg hover:opacity-90"
                   >
-                    Add Your First User
+                    {t('modal.createTitle')}
                   </button>
                 )}
               </div>
@@ -412,22 +526,25 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                   <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
                     <tr>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
-                        User
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Contact
+                        {t('table.user')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        Organization
+                        {t('table.organization')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
-                        Department
+                        {t('table.created')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        Role
+                        {t('table.role')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Status
+                        {t('table.lastLogin')}
+                      </th>
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
+                        {t('table.status')}
+                      </th>
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
+                        {t('table.dailyTime')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
                         
@@ -447,26 +564,16 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                                 {user.name}
                               </div>
                               <div className="text-xs text-gray-500 dark:text-gray-400">
-                                {user.title || 'Team Member'}
+                                {user.email}
                               </div>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                          <div className="text-sm text-gray-900 dark:text-white">
-                            {user.email}
-                          </div>
-                          {user.phone && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {user.phone}
-                            </div>
-                          )}
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575] hidden md:table-cell">
                           {user.organizations?.name || '-'}
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden lg:table-cell">
-                          {user.department || '-'}
+                          {user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor(user.role)}`}>
@@ -474,21 +581,37 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                           </span>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                          <div className="flex items-center">
-                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                              {user.status}
-                            </span>
-                            {user.two_factor_enabled && (
-                              <ShieldCheck className="w-4 h-4 text-green-500 ml-2" title="2FA Enabled" />
-                            )}
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {user.last_login ? new Date(user.last_login).toLocaleDateString() : t('status.inactive')}
+                          </div>
+                          {user.last_login && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {new Date(user.last_login).toLocaleTimeString()}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
+                            {t(`status.${user.status}` as any) || user.status}
+                          </span>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {formatTimeSpent(user.avgDailyTimeSpent || 0)}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {t('table.avgPerDay')}
                           </div>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end">
                             <ActionsDropdown
+                              onView={() => handleView(user)}
                               onPin={() => handlePin(user)}
                               onEdit={canManage ? () => handleEdit(user) : undefined}
                               onDelete={canManage ? () => handleDelete(user) : undefined}
+                              showView={true}
+                              showPin={true}
                             />
                           </div>
                         </td>
@@ -511,6 +634,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         onSuccess={handleModalSuccess}
         mode={modalMode}
         data={selectedUser}
+        organizations={organizations}
+        supabase={supabase}
       />
     </SettingsLayout>
   );
