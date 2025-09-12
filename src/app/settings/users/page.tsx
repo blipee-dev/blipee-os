@@ -9,17 +9,17 @@ export default async function UsersPage() {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   
   if (!user) {
-    redirect('/login');
+    redirect('/signin');
   }
 
-  // Check if user is super admin
-  const { data: appUser } = await supabase
-    .from('app_users')
-    .select('role')
-    .eq('auth_user_id', user.id)
+  // Check if user is super admin (in super_admins table)
+  const { data: superAdminRecord } = await supabase
+    .from('super_admins')
+    .select('id')
+    .eq('user_id', user.id)
     .single();
 
-  const isSuperAdmin = appUser?.role === 'super_admin';
+  const isSuperAdmin = !!superAdminRecord;
 
   let userOrgs;
   let organizationIds;
@@ -78,10 +78,53 @@ export default async function UsersPage() {
 
     if (orgsError) {
       console.error('Error fetching organizations:', orgsError);
+      // If there's an error fetching organizations, redirect to home
+      redirect('/');
     }
 
     userOrgs = userOrgData || [];
     organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
+    
+    // If user has no organizations, try to get from app_users table
+    if (userOrgs.length === 0) {
+      const { data: appUserData } = await supabase
+        .from('app_users')
+        .select(`
+          organization_id,
+          role,
+          organizations:organization_id (
+            id,
+            name,
+            slug
+          )
+        `)
+        .eq('auth_user_id', user.id)
+        .single();
+        
+      if (appUserData && appUserData.organizations) {
+        userOrgs = [{
+          organization_id: appUserData.organization_id,
+          role: appUserData.role,
+          organizations: appUserData.organizations
+        }];
+        organizationIds = [appUserData.organization_id];
+      }
+    }
+    
+    // Check if user has permission to manage users (account_owner or sustainability_manager)
+    const hasPermission = userOrgs.some(uo => 
+      ['account_owner', 'sustainability_manager', 'facility_manager'].includes(uo.role)
+    );
+    
+    if (!hasPermission && userOrgs.length > 0) {
+      // User doesn't have permission to manage users
+      redirect('/');
+    }
+    
+    // If still no organizations, redirect  
+    if (userOrgs.length === 0) {
+      redirect('/');
+    }
 
     // Fetch app users for user's organizations
     const { data: orgUsers, error: orgUsersError } = await supabase

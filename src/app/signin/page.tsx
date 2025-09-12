@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { AlertCircle, Mail, Lock, EyeOff, Eye, Loader2, Building2 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
+import { useTranslations } from "@/providers/LanguageProvider";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { MFAVerification } from "@/components/auth/mfa/MFAVerification";
 import { useSSOAuth } from "@/hooks/useSSOAuth";
@@ -23,6 +24,7 @@ const preloadConversationInterface = () => {
 };
 
 export default function SignInPage() {
+  const t = useTranslations('auth.signin');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
@@ -195,7 +197,7 @@ export default function SignInPage() {
     return (
       <AuthLayout
         title=""
-        subtitle="Two-factor authentication required"
+        subtitle={t('mfaRequired')}
       >
         <MFAVerification
           challengeId={challengeId}
@@ -213,7 +215,7 @@ export default function SignInPage() {
   return (
     <AuthLayout
       title=""
-      subtitle="Enter your credentials to access your workspace"
+      subtitle={t('subtitle')}
     >
 
       {/* Error Message */}
@@ -239,10 +241,10 @@ export default function SignInPage() {
             htmlFor="email"
             className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-white/70 mb-1.5 sm:mb-2"
           >
-            Email
+            {t('email')}
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60 dark:text-white/60 pointer-events-none z-10" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-white/60 pointer-events-none z-10" />
             <input
               id="email"
               type="email"
@@ -256,7 +258,7 @@ export default function SignInPage() {
               aria-required="true"
               aria-invalid={error ? "true" : "false"}
               aria-describedby={error ? "email-error" : undefined}
-              placeholder="name@company.com"
+              placeholder={t('emailPlaceholder')}
             />
           </div>
         </div>
@@ -267,10 +269,10 @@ export default function SignInPage() {
             htmlFor="password"
             className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-white/70 mb-1.5 sm:mb-2"
           >
-            Password
+            {t('password')}
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60 dark:text-white/60 pointer-events-none z-10" />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-white/60 pointer-events-none z-10" />
             <input
               id="password"
               type={showPassword ? "text" : "password"}
@@ -281,13 +283,13 @@ export default function SignInPage() {
               className="block w-full pl-9 sm:pl-10 pr-12 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-gray-600 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-[#616161] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-[#757575] transition-all focus:outline-none"
               aria-label="Password"
               aria-required="true"
-              placeholder="••••••••"
+              placeholder={t('passwordPlaceholder')}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-600 focus:outline-none rounded"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
             >
               {showPassword ? (
                 <EyeOff className="h-5 w-5" />
@@ -308,7 +310,7 @@ export default function SignInPage() {
             <div className="flex items-center">
               <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400 mr-2" />
               <p className="text-sm text-blue-600 dark:text-blue-400">
-                Checking for SSO configuration...
+                {t('checkingSSO')}
               </p>
             </div>
           </motion.div>
@@ -328,14 +330,14 @@ export default function SignInPage() {
               htmlFor="remember-me"
               className="ml-2 block text-xs text-gray-700 dark:text-white/60"
             >
-              Remember me
+              {t('rememberMe')}
             </label>
           </div>
           <Link
             href="/forgot-password"
             className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors focus:outline-none rounded px-1"
           >
-            Forgot password?
+            {t('forgotPassword')}
           </Link>
         </div>
 
@@ -349,10 +351,10 @@ export default function SignInPage() {
           {loading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin mr-2" />
-              Signing in...
+              {t('signingIn')}
             </>
           ) : (
-            "Sign in"
+            t('signIn')
           )}
         </button>
       </form>

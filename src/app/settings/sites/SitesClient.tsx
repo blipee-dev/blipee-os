@@ -59,7 +59,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const router = useRouter();
-  const supabase = useMemo(() => createClient(), []);
+  const supabase = createClient();
 
   // Filter data based on search term
   const filteredData = useMemo(() => {

@@ -1513,8 +1513,7 @@
         "lastLogin": "Último Acceso",
         "status": "Estado",
         "dailyTime": "Tiempo Diario",
-        "actions": "Acciones",
-        "avgPerDay": "promedio por día"
+        "actions": "Acciones"
       },
       "modal": {
         "createTitle": "Agregar Nuevo Usuario",
@@ -1534,26 +1533,16 @@
         "cancel": "Cancelar",
         "delete": "Eliminar",
         "confirmDelete": "¿Estás seguro de que deseas eliminar este usuario?",
-        "deleteWarning": "Esta acción no se puede deshacer.",
-        "fields": {
-          "userProfile": "Perfil de Usuario",
-          "accountDetails": "Detalles de Cuenta",
-          "memberSince": "Miembro Desde",
-          "userId": "ID de Usuario",
-          "lastUpdated": "Última Actualización",
-          "authUserId": "ID de Usuario de Autenticación",
-          "noOrganization": "Sin organización asignada",
-          "neverLoggedIn": "Nunca ha iniciado sesión"
-        }
+        "deleteWarning": "Esta acción no se puede deshacer."
       },
       "pagination": {
-        "itemsPerPage": "Elementos por página:",
-        "showing": "Mostrando {start}-{end} de {total}",
-        "firstPage": "Primera página",
-        "previousPage": "Página anterior",
-        "nextPage": "Página siguiente",
-        "lastPage": "Última página",
-        "page": "Página {number}"
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "page": "Página",
+        "of": "de",
+        "showing": "Mostrando",
+        "to": "a",
+        "results": "resultados"
       },
       "filters": {
         "all": "Todos",
@@ -1567,8 +1556,7 @@
         "sustainability_manager": "Gerente de Sostenibilidad",
         "facility_manager": "Gerente de Instalaciones",
         "analyst": "Analista",
-        "viewer": "Visualizador",
-        "super_admin": "Super Administrador"
+        "viewer": "Visualizador"
       },
       "status": {
         "active": "Activo",
@@ -1604,10 +1592,6 @@
     "cancel": "Cancelar",
     "delete": "Eliminar",
     "edit": "Editar",
-    "view": "Ver",
-    "pin": "Fijar",
-    "star": "Destacar",
-    "rename": "Renombrar",
     "close": "Cerrar",
     "back": "Atrás",
     "next": "Siguiente",
@@ -1630,42 +1614,5 @@
     "dark": "Oscuro",
     "light": "Claro",
     "system": "Sistema"
-  },
-  "auth": {
-    "signin": {
-      "title": "Iniciar Sesión",
-      "subtitle": "Ingresa tus credenciales para acceder a tu espacio de trabajo",
-      "email": "Correo electrónico",
-      "password": "Contraseña",
-      "emailPlaceholder": "nombre@empresa.com",
-      "passwordPlaceholder": "••••••••",
-      "rememberMe": "Recordarme",
-      "forgotPassword": "¿Olvidaste la contraseña?",
-      "signingIn": "Iniciando sesión...",
-      "signIn": "Iniciar sesión",
-      "showPassword": "Mostrar contraseña",
-      "hidePassword": "Ocultar contraseña",
-      "checkingSSO": "Verificando configuración SSO...",
-      "mfaRequired": "Se requiere autenticación de dos factores"
-    },
-    "forgotPassword": {
-      "title": "Olvidé mi Contraseña",
-      "subtitle": "Te ayudaremos a recuperar tu cuenta",
-      "email": "Correo electrónico",
-      "emailPlaceholder": "nombre@empresa.com",
-      "sendResetLink": "Enviar enlace de restablecimiento",
-      "sending": "Enviando...",
-      "backToSignIn": "Volver a iniciar sesión",
-      "resetLinkSent": "Enlace de restablecimiento de contraseña enviado",
-      "emailSentMessage": "Enviamos un enlace de restablecimiento de contraseña a",
-      "didntReceiveEmail": "¿No recibiste el correo? Revisa tu carpeta de spam o",
-      "tryAgain": "inténtalo de nuevo"
-    }
-  },
-  "notFound": {
-    "title": "404",
-    "message": "La página que buscabas no existe. Es posible que hayas escrito mal la dirección o que la página se haya movido.",
-    "goHome": "Ir al inicio",
-    "blipee": "blipee"
   }
 }

@@ -3,6 +3,7 @@ import { sessionAuth } from "@/lib/auth/session-auth";
 import { sessionManager } from "@/lib/session/manager";
 import { withAuthSecurity } from "@/lib/security/api/wrapper";
 import { auditLogger } from "@/lib/audit/logger";
+import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 
 export const dynamic = 'force-dynamic';
@@ -36,6 +37,77 @@ async function signInHandler(request: NextRequest) {
       request
     );
     console.log(`🔐 Authentication completed in ${Date.now() - authStart}ms`);
+
+    // Update last_login and status for successful authentication
+    if (result.user && !result.requiresMFA) {
+      const loginUpdateStart = Date.now();
+      console.log('🔥 DIRECT LOGIN TRACKING: Updating user login status for user:', result.user.id);
+      
+      try {
+        const supabase = await createClient();
+        
+        // Get current user status
+        const { data: currentUser, error: selectError } = await supabase
+          .from('app_users')
+          .select('status')
+          .eq('auth_user_id', result.user.id)
+          .single();
+
+        if (selectError && selectError.code === 'PGRST116') {
+          // User doesn't exist in app_users table, create them
+          console.log('👤 User not found in app_users, creating record...');
+          
+          const { error: insertError } = await supabase
+            .from('app_users')
+            .insert({
+              auth_user_id: result.user.id,
+              name: result.user.user_metadata?.full_name || result.user.email?.split('@')[0] || 'User',
+              email: result.user.email || '',
+              role: 'viewer', // Default role
+              status: 'active', // Set as active since they're logging in
+              last_login: new Date().toISOString(),
+            });
+
+          if (insertError) {
+            console.error('❌ Error creating user record:', insertError);
+          } else {
+            console.log('✅ Successfully created user record and updated login time');
+          }
+        } else if (selectError) {
+          console.error('❌ Error fetching current user:', selectError);
+        } else {
+          console.log('👤 Current user status:', currentUser?.status);
+
+          // Update last_login and change status from pending to active
+          const updateData: { last_login: string; status?: string } = {
+            last_login: new Date().toISOString()
+          };
+
+          // If user status is pending, change to active on first login
+          if (currentUser?.status === 'pending') {
+            updateData.status = 'active';
+            console.log('🔄 Changing status from pending to active');
+          }
+
+          console.log('💾 Updating with data:', updateData);
+
+          const { error: updateError } = await supabase
+            .from('app_users')
+            .update(updateData)
+            .eq('auth_user_id', result.user.id);
+
+          if (updateError) {
+            console.error('❌ Error updating user login status:', updateError);
+          } else {
+            console.log('✅ Successfully updated user login status');
+          }
+        }
+      } catch (error) {
+        console.error('🔥 DIRECT LOGIN TRACKING ERROR:', error);
+      }
+      
+      console.log(`🔥 DIRECT LOGIN TRACKING completed in ${Date.now() - loginUpdateStart}ms`);
+    }
 
     // Log successful authentication
     if (result.user) {
