@@ -1606,10 +1606,6 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
-    "view": "View",
-    "pin": "Pin",
-    "star": "Star",
-    "rename": "Rename",
     "close": "Close",
     "back": "Back",
     "next": "Next",
@@ -1632,42 +1628,5 @@
     "dark": "Dark",
     "light": "Light",
     "system": "System"
-  },
-  "auth": {
-    "signin": {
-      "title": "Sign In",
-      "subtitle": "Enter your credentials to access your workspace",
-      "email": "Email",
-      "password": "Password",
-      "emailPlaceholder": "name@company.com",
-      "passwordPlaceholder": "••••••••",
-      "rememberMe": "Remember me",
-      "forgotPassword": "Forgot password?",
-      "signingIn": "Signing in...",
-      "signIn": "Sign in",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password",
-      "checkingSSO": "Checking for SSO configuration...",
-      "mfaRequired": "Two-factor authentication required"
-    },
-    "forgotPassword": {
-      "title": "Forgot Password",
-      "subtitle": "We'll help you get back into your account",
-      "email": "Email",
-      "emailPlaceholder": "name@company.com",
-      "sendResetLink": "Send reset link",
-      "sending": "Sending...",
-      "backToSignIn": "Back to sign in",
-      "resetLinkSent": "Password reset link sent",
-      "emailSentMessage": "We sent a password reset link to",
-      "didntReceiveEmail": "Didn't receive the email? Check your spam folder or",
-      "tryAgain": "try again"
-    }
-  },
-  "notFound": {
-    "title": "404",
-    "message": "The page you were looking for doesn't exist. You may have mistyped the address or the page may have moved.",
-    "goHome": "Go home",
-    "blipee": "blipee"
   }
 }

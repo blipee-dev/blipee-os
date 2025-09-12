@@ -1365,6 +1365,7 @@
       "submitButton": "Enviar Solicitud"
     }
   },
+<<<<<<< HEAD
   "settings": {
     "organizations": {
       "title": "Gestión de Organizaciones",
@@ -1594,6 +1595,106 @@
         "loadingUsers": "Cargando usuarios...",
         "invitationSent": "Invitación enviada exitosamente"
       }
+    },
+    "users": {
+      "title": "Gestión de Usuarios",
+      "subtitle": "Gestiona los miembros del equipo y sus permisos",
+      "searchPlaceholder": "Buscar usuarios...",
+      "filter": "Filtrar",
+      "download": "Descargar",
+      "upload": "Subir",
+      "addUser": "Añadir Usuario",
+      "createFirstUser": "Añadir Tu Primer Usuario",
+      "noUsersFound": "No se encontraron usuarios",
+      "userNotAuthenticated": "Usuario no autenticado",
+      "failedToLoad": "Error al cargar usuarios",
+      "retry": "Reintentar",
+      "failedToDelete": "Error al eliminar usuario",
+      "table": {
+        "user": "Usuario",
+        "organization": "Organización",
+        "created": "Creado",
+        "role": "Rol",
+        "lastLogin": "Último Acceso",
+        "status": "Estado",
+        "dailyTime": "Tiempo Diario",
+        "avgPerDay": "promedio por día",
+        "never": "Nunca"
+      },
+      "pagination": {
+        "itemsPerPage": "Elementos por página:",
+        "showing": "Mostrando {start}-{end} de {total}",
+        "firstPage": "Primera página",
+        "previousPage": "Página anterior",
+        "nextPage": "Página siguiente",
+        "lastPage": "Última página",
+        "page": "Página {number}"
+      },
+      "modal": {
+        "createTitle": "Añadir Nuevo Usuario",
+        "editTitle": "Editar Usuario",
+        "viewTitle": "Ver Usuario",
+        "createSuccess": "¡Usuario creado exitosamente!",
+        "updateSuccess": "¡Usuario actualizado exitosamente!",
+        "sections": {
+          "basicInfo": "Información Básica",
+          "permissions": "Permisos y Acceso",
+          "activity": "Actividad y Estado"
+        },
+        "fields": {
+          "name": "Nombre Completo",
+          "email": "Dirección de Email",
+          "role": "Rol",
+          "organization": "Organización",
+          "status": "Estado",
+          "lastLogin": "Último Acceso",
+          "dailyTimeSpent": "Tiempo Promedio Diario",
+          "joinDate": "Fecha de Ingreso",
+          "userProfile": "Perfil de Usuario",
+          "accountDetails": "Detalles de Cuenta",
+          "memberSince": "Miembro Desde",
+          "userId": "ID de Usuario",
+          "lastUpdated": "Última Actualización",
+          "authUserId": "ID de Usuario Auth",
+          "noOrganization": "Sin organización asignada",
+          "neverLoggedIn": "Nunca ha iniciado sesión"
+        },
+        "placeholders": {
+          "name": "Ingrese nombre completo",
+          "email": "Ingrese dirección de email"
+        },
+        "roles": {
+          "super_admin": "Super Admin",
+          "account_owner": "Propietario de Cuenta",
+          "sustainability_manager": "Gerente de Sostenibilidad",
+          "facility_manager": "Gerente de Instalaciones",
+          "analyst": "Analista",
+          "viewer": "Visor"
+        },
+        "statuses": {
+          "active": "Activo",
+          "inactive": "Inactivo",
+          "pending": "Pendiente"
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "create": "Crear Usuario",
+          "update": "Actualizar Usuario",
+          "creating": "Creando...",
+          "updating": "Actualizando...",
+          "created": "¡Creado!",
+          "updated": "¡Actualizado!",
+          "viewOnly": "Solo Ver"
+        },
+        "validation": {
+          "nameRequired": "El nombre completo es requerido",
+          "emailRequired": "La dirección de email es requerida",
+          "emailInvalid": "Por favor ingrese un email válido",
+          "roleRequired": "El rol es requerido",
+          "organizationRequired": "La organización es requerida",
+          "pleaseFixErrors": "Por favor corrija los errores antes de enviar"
+        }
+      }
     }
   },
   "common": {
@@ -1630,6 +1731,7 @@
     "dark": "Oscuro",
     "light": "Claro",
     "system": "Sistema"
+<<<<<<< HEAD
   },
   "auth": {
     "signin": {
