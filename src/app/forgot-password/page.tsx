@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "@/providers/LanguageProvider";
 import { motion } from "framer-motion";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import {
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations('auth.forgotPassword');
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -48,7 +50,7 @@ export default function ForgotPasswordPage() {
     return (
       <AuthLayout
         title=""
-        subtitle="Password reset link sent"
+        subtitle={t('resetLinkSent')}
       >
 
         <div className="text-center">
@@ -62,11 +64,11 @@ export default function ForgotPasswordPage() {
           </motion.div>
 
           <p className="text-sm text-gray-700 dark:text-gray-300 mb-6">
-            We sent a password reset link to <strong>{email}</strong>
+            {t('emailSentMessage')} <strong>{email}</strong>
           </p>
 
           <p className="text-xs text-gray-700 dark:text-gray-400 mb-6">
-            Didn&apos;t receive the email? Check your spam folder or{" "}
+            {t('didntReceiveEmail')}{" "}
             <button
               onClick={() => {
                 setSuccess(false);
@@ -74,7 +76,7 @@ export default function ForgotPasswordPage() {
               }}
               className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors"
             >
-              try again
+              {t('tryAgain')}
             </button>
           </p>
 
@@ -83,7 +85,7 @@ export default function ForgotPasswordPage() {
             className="inline-flex items-center text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to sign in
+            {t('backToSignIn')}
           </Link>
         </div>
       </AuthLayout>
@@ -93,7 +95,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthLayout
       title=""
-      subtitle="We'll help you get back into your account"
+      subtitle={t('subtitle')}
     >
 
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6" noValidate>
@@ -109,10 +111,10 @@ export default function ForgotPasswordPage() {
             htmlFor="email"
             className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-white/70 mb-1.5 sm:mb-2"
           >
-            Email
+            {t('email')}
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60 dark:text-white/60 pointer-events-none z-10" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-white/60 pointer-events-none z-10" />
             <input
               id="email"
               name="email"
@@ -124,7 +126,7 @@ export default function ForgotPasswordPage() {
               className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-gray-600 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-[#616161] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-[#757575] transition-all focus:outline-none"
             aria-label="Email address"
             aria-required="true"
-              placeholder="name@company.com"
+              placeholder={t('emailPlaceholder')}
             />
           </div>
         </div>
@@ -138,10 +140,10 @@ export default function ForgotPasswordPage() {
           {loading ? (
             <>
               <Loader2 className="animate-spin h-5 w-5 mr-2" />
-              Sending...
+              {t('sending')}
             </>
           ) : (
-            "Send reset link"
+            t('sendResetLink')
           )}
         </button>
 
@@ -151,7 +153,7 @@ export default function ForgotPasswordPage() {
             className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium inline-flex items-center transition-colors focus:outline-none rounded px-1"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to sign in
+            {t('backToSignIn')}
           </Link>
         </div>
       </form>

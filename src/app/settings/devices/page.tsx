@@ -10,7 +10,7 @@ export default async function DevicesPage() {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   
   if (!user) {
-    redirect('/login');
+    redirect('/signin');
   }
 
   // Fetch user's organizations

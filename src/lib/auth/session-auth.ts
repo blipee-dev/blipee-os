@@ -2,6 +2,7 @@ import { sessionManager } from '@/lib/session/manager';
 import { authService } from './service';
 import type { AuthResponse, Session } from '@/types/auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/client';
 
 /**
  * Session-based authentication service
@@ -17,12 +18,20 @@ export class SessionAuthService {
     request?: NextRequest
   ): Promise<AuthResponse & { sessionId?: string; requiresMFA?: boolean; challengeId?: string }> {
     // Authenticate user
+    console.log('🔐 About to call authService.signIn...');
     const authResult = await authService.signIn(email, password);
+    console.log('🔐 authService.signIn completed, user:', authResult.user.id, 'requiresMFA:', !!authResult.requiresMFA);
 
     // If MFA is required, don't create session yet
     if (authResult.requiresMFA) {
+      console.log('🔒 MFA required, skipping login status update until MFA completion');
       return authResult;
     }
+
+    console.log('📝 About to update user login status for user:', authResult.user.id);
+    // Update last_login and status (pending -> active) in app_users table
+    await this.updateUserLoginStatus(authResult.user.id);
+    console.log('✅ Completed user login status update');
 
     // Create session
     const { sessionId } = await sessionManager.createSession({
@@ -53,6 +62,9 @@ export class SessionAuthService {
     if (!session) {
       throw new Error('Failed to get user session');
     }
+
+    // Update last_login and status (pending -> active) in app_users table
+    await this.updateUserLoginStatus(userId);
 
     // Create server session
     const { sessionId } = await sessionManager.createSession({
@@ -102,10 +114,10 @@ export class SessionAuthService {
    * Refresh session expiration
    */
   async refreshSession(request: NextRequest): Promise<boolean> {
-    const sessionData = await sessionManager.getSession(_request);
+    const sessionData = await sessionManager.getSession(request);
     if (!sessionData) return false;
 
-    const cookieHeader = _request.headers.get('cookie');
+    const cookieHeader = request.headers.get('cookie');
     const sessionId = sessionManager['sessionService'].parseSessionCookie(cookieHeader);
     
     if (!sessionId) return false;
@@ -145,6 +157,82 @@ export class SessionAuthService {
     const session = await sessionManager['sessionService'].getSession(sessionId);
     if (session && session.userId === userId) {
       await sessionManager.deleteSession(sessionId);
+    }
+  }
+
+  /**
+   * Update user's last login and activate if pending
+   */
+  private async updateUserLoginStatus(userId: string): Promise<void> {
+    console.log('🔥 UPDATEUSERLOGINSTATUS CALLED FOR USER:', userId);
+    const { createClient: createServerClient } = await import('@/lib/supabase/server');
+    const supabase = await createServerClient();
+    
+    try {
+      console.log('🔄 Updating user login status for user:', userId);
+      
+      // Get current user status
+      const { data: currentUser, error: selectError } = await supabase
+        .from('app_users')
+        .select('status')
+        .eq('auth_user_id', userId)
+        .single();
+
+      if (selectError && selectError.code === 'PGRST116') {
+        // User doesn't exist in app_users table, create them
+        console.log('👤 Session-Auth: User not found in app_users, creating record...');
+        
+        const { error: insertError } = await supabase
+          .from('app_users')
+          .insert({
+            auth_user_id: userId,
+            name: 'User', // Will be updated when user profile is loaded
+            email: '', // Will be updated when user profile is loaded
+            role: 'viewer', // Default role
+            status: 'active', // Set as active since they're logging in
+            last_login: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          console.error('❌ Session-Auth: Error creating user record:', insertError);
+        } else {
+          console.log('✅ Session-Auth: Successfully created user record and updated login time');
+        }
+        return;
+      } else if (selectError) {
+        console.error('❌ Error fetching current user:', selectError);
+        return;
+      }
+
+      console.log('👤 Current user status:', currentUser?.status);
+
+      // Update last_login and change status from pending to active
+      const updateData: { last_login: string; status?: string } = {
+        last_login: new Date().toISOString()
+      };
+
+      // If user status is pending, change to active on first login
+      if (currentUser?.status === 'pending') {
+        updateData.status = 'active';
+        console.log('🔄 Changing status from pending to active');
+      }
+
+      console.log('💾 Updating with data:', updateData);
+
+      const { error: updateError } = await supabase
+        .from('app_users')
+        .update(updateData)
+        .eq('auth_user_id', userId);
+
+      if (updateError) {
+        console.error('❌ Error updating user login status:', updateError);
+      } else {
+        console.log('✅ Successfully updated user login status');
+      }
+
+    } catch (error) {
+      console.error('Failed to update user login status:', error);
+      // Don't throw - login should still succeed even if status update fails
     }
   }
 }
