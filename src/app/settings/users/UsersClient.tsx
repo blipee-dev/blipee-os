@@ -260,7 +260,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
 
   // Format role display
   const formatRole = (role: string) => {
-    return t(`roles.${role}` as any) || role.split('_').map(word => 
+    return t(`modal.roles.${role}` as any) || role.split('_').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
@@ -592,7 +592,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                            {t(`status.${user.status}` as any) || user.status}
+                            {t(`modal.statuses.${user.status}` as any) || user.status}
                           </span>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
