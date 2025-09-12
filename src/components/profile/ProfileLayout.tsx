@@ -21,13 +21,14 @@ import { MobileNavigation } from "@/components/blipee-os/MobileNavigation";
 import { useAuth } from "@/lib/auth/context";
 import { getUserInitials, getUserDisplayName } from "@/lib/utils/user";
 import { useAppearance } from "@/providers/AppearanceProvider";
+import { useTranslations } from "@/providers/LanguageProvider";
 
-const profileNavItems = [
-  { id: "profile", label: "Profile", icon: User, href: "/profile" },
-  { id: "notifications", label: "Notifications", icon: Bell, href: "/profile/notifications" },
-  { id: "security", label: "Security", icon: Shield, href: "/profile/security" },
-  { id: "appearance", label: "Appearance", icon: Palette, href: "/profile/appearance" },
-  { id: "language", label: "Language", icon: Globe, href: "/profile/language" },
+const getProfileNavItems = (t: (key: string) => string) => [
+  { id: "profile", label: t('navigation.profile'), icon: User, href: "/profile" },
+  { id: "notifications", label: t('navigation.notifications'), icon: Bell, href: "/profile/notifications" },
+  { id: "security", label: t('navigation.security'), icon: Shield, href: "/profile/security" },
+  { id: "appearance", label: t('navigation.appearance'), icon: Palette, href: "/profile/appearance" },
+  { id: "language", label: t('navigation.language'), icon: Globe, href: "/profile/language" },
 ];
 
 interface ProfileLayoutProps {
@@ -35,13 +36,16 @@ interface ProfileLayoutProps {
   pageTitle?: string;
 }
 
-export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayoutProps) {
+export function ProfileLayout({ children, pageTitle }: ProfileLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { settings, updateSetting } = useAppearance();
   const [isCollapsed, setIsCollapsed] = useState(settings.sidebarAutoCollapse);
   const { user, signOut } = useAuth();
+  const t = useTranslations('profile.sidebar');
+  const profileNavItems = getProfileNavItems(t);
+  const defaultPageTitle = pageTitle || t('title');
   
   // Initialize collapsed state on mount and when setting changes
   useEffect(() => {
@@ -55,7 +59,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
     updateSetting('sidebarAutoCollapse', newCollapsedState);
   };
   
-  const userDisplayName = user ? getUserDisplayName(user) : 'User';
+  const userDisplayName = user ? getUserDisplayName(user) : t('defaultUser');
   const userInitials = user ? getUserInitials(
     user?.full_name || (user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.first_name) || null,
     user?.email
@@ -155,7 +159,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                   className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  Chat
+                  {t('buttons.chat')}
                 </button>
                 
                 {/* Settings Button */}
@@ -164,7 +168,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                   className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                 >
                   <Settings className="w-4 h-4" />
-                  Settings
+                  {t('buttons.settings')}
                 </button>
                 
 
@@ -181,7 +185,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                   className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                 >
                   <LogOut className="w-4 h-4" />
-                  Sign out
+                  {t('buttons.signOut')}
                 </button>
                 
                 {/* Collapse Button */}
@@ -190,7 +194,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                   className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Collapse sidebar
+                  {t('buttons.collapseSidebar')}
                 </button>
               </>
             ) : (
@@ -210,7 +214,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                 <button
                   onClick={() => router.push('/blipee-ai')}
                   className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title="Chat"
+                  title={t('buttons.chat')}
                 >
                   <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
@@ -219,7 +223,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                 <button
                   onClick={() => router.push('/settings/organizations')}
                   className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title="Settings"
+                  title={t('buttons.settings')}
                 >
                   <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
@@ -236,7 +240,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                     }
                   }}
                   className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title="Sign out"
+                  title={t('buttons.signOut')}
                 >
                   <LogOut className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
@@ -245,7 +249,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                 <button
                   onClick={handleToggleCollapse}
                   className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title="Expand sidebar"
+                  title={t('buttons.expandSidebar')}
                 >
                   <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
@@ -292,7 +296,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                           </svg>
                         </div>
                       </div>
-                      <span className="text-lg font-semibold text-gray-900 dark:text-white">Profile</span>
+                      <span className="text-lg font-semibold text-gray-900 dark:text-white">{t('title')}</span>
                     </div>
                     <button
                       onClick={() => setIsMenuOpen(false)}
@@ -342,7 +346,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                     className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    Back to Chat
+                    {t('buttons.backToChat')}
                   </button>
                   
                   {/* Settings Button */}
@@ -354,7 +358,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
                     className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                   >
                     <Settings className="w-4 h-4" />
-                    Settings
+                    {t('buttons.settings')}
                   </button>
                   
                 </div>
@@ -376,7 +380,7 @@ export function ProfileLayout({ children, pageTitle = "Profile" }: ProfileLayout
               <ChevronLeft className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
             </button>
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {currentPage?.label || pageTitle}
+              {currentPage?.label || defaultPageTitle}
             </h1>
           </div>
           <button
