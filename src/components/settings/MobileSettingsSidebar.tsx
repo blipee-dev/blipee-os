@@ -11,38 +11,39 @@ import {
   X,
   ChevronRight,
 } from "lucide-react";
+import { useTranslations } from "@/providers/LanguageProvider";
 
 interface MobileSettingsSidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const settingsItems = [
+const getSettingsItems = (t: (key: string) => string) => [
   {
     id: "organizations",
-    label: "Organizations",
-    description: "Organization management",
+    label: t('navigation.organizations'),
+    description: t('navigation.organizationsDesc'),
     icon: Building2,
     href: "/settings/organizations",
   },
   {
     id: "sites",
-    label: "Sites",
-    description: "Site management",
+    label: t('navigation.sites'),
+    description: t('navigation.sitesDesc'),
     icon: MapPin,
     href: "/settings/sites",
   },
   {
     id: "devices",
-    label: "Devices",
-    description: "Device management",
+    label: t('navigation.devices'),
+    description: t('navigation.devicesDesc'),
     icon: Cpu,
     href: "/settings/devices",
   },
   {
     id: "users",
-    label: "Users",
-    description: "User management",
+    label: t('navigation.users'),
+    description: t('navigation.usersDesc'),
     icon: Users,
     href: "/settings/users",
   },
@@ -51,6 +52,8 @@ const settingsItems = [
 export function MobileSettingsSidebar({ isOpen, onClose }: MobileSettingsSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations('settings.sidebar');
+  const settingsItems = getSettingsItems(t);
 
   const handleItemClick = (href: string) => {
     router.push(href);
@@ -81,7 +84,7 @@ export function MobileSettingsSidebar({ isOpen, onClose }: MobileSettingsSidebar
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/[0.05]">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Settings
+                {t('title')}
               </h2>
               <button
                 onClick={onClose}
