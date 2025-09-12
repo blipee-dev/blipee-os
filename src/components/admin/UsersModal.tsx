@@ -272,7 +272,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                              {t('modal.organization') || 'Organization'}
+                              {t('modal.fields.organization') || 'Organization'}
                             </label>
                             <p className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
                               {data?.organizations?.name || t('modal.fields.noOrganization') || 'No organization assigned'}
@@ -282,7 +282,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                           <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               <Calendar className="inline w-4 h-4 mr-1" />
-                              {t('modal.lastLogin') || 'Last Login'}
+                              {t('modal.fields.lastLogin') || 'Last Login'}
                             </label>
                             <p className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
                               {data?.last_login 
