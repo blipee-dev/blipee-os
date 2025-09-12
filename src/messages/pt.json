@@ -1365,6 +1365,7 @@
       "submitButton": "Submeter Pedido"
     }
   },
+<<<<<<< HEAD
   "settings": {
     "organizations": {
       "title": "Gestão de Organizações",
@@ -1594,6 +1595,106 @@
         "loadingUsers": "A carregar utilizadores...",
         "invitationSent": "Convite enviado com sucesso"
       }
+    },
+    "users": {
+      "title": "Gestão de Utilizadores",
+      "subtitle": "Gerir membros da equipa e as suas permissões",
+      "searchPlaceholder": "Pesquisar utilizadores...",
+      "filter": "Filtrar",
+      "download": "Descarregar",
+      "upload": "Carregar",
+      "addUser": "Adicionar Utilizador",
+      "createFirstUser": "Adicionar Seu Primeiro Utilizador",
+      "noUsersFound": "Nenhum utilizador encontrado",
+      "userNotAuthenticated": "Utilizador não autenticado",
+      "failedToLoad": "Falha ao carregar utilizadores",
+      "retry": "Tentar novamente",
+      "failedToDelete": "Falha ao eliminar utilizador",
+      "table": {
+        "user": "Utilizador",
+        "organization": "Organização",
+        "created": "Criado",
+        "role": "Função",
+        "lastLogin": "Último Acesso",
+        "status": "Estado",
+        "dailyTime": "Tempo Diário",
+        "avgPerDay": "média por dia",
+        "never": "Nunca"
+      },
+      "pagination": {
+        "itemsPerPage": "Itens por página:",
+        "showing": "A mostrar {start}-{end} de {total}",
+        "firstPage": "Primeira página",
+        "previousPage": "Página anterior",
+        "nextPage": "Página seguinte",
+        "lastPage": "Última página",
+        "page": "Página {number}"
+      },
+      "modal": {
+        "createTitle": "Adicionar Novo Utilizador",
+        "editTitle": "Editar Utilizador",
+        "viewTitle": "Ver Utilizador",
+        "createSuccess": "Utilizador criado com sucesso!",
+        "updateSuccess": "Utilizador atualizado com sucesso!",
+        "sections": {
+          "basicInfo": "Informação Básica",
+          "permissions": "Permissões e Acesso",
+          "activity": "Atividade e Estado"
+        },
+        "fields": {
+          "name": "Nome Completo",
+          "email": "Endereço de Email",
+          "role": "Função",
+          "organization": "Organização",
+          "status": "Estado",
+          "lastLogin": "Último Acesso",
+          "dailyTimeSpent": "Tempo Médio Diário",
+          "joinDate": "Data de Entrada",
+          "userProfile": "Perfil de Utilizador",
+          "accountDetails": "Detalhes da Conta",
+          "memberSince": "Membro Desde",
+          "userId": "ID de Utilizador",
+          "lastUpdated": "Última Atualização",
+          "authUserId": "ID de Utilizador Auth",
+          "noOrganization": "Sem organização atribuída",
+          "neverLoggedIn": "Nunca iniciou sessão"
+        },
+        "placeholders": {
+          "name": "Insira nome completo",
+          "email": "Insira endereço de email"
+        },
+        "roles": {
+          "super_admin": "Super Admin",
+          "account_owner": "Proprietário da Conta",
+          "sustainability_manager": "Gestor de Sustentabilidade",
+          "facility_manager": "Gestor de Instalações",
+          "analyst": "Analista",
+          "viewer": "Visualizador"
+        },
+        "statuses": {
+          "active": "Ativo",
+          "inactive": "Inativo",
+          "pending": "Pendente"
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "create": "Criar Utilizador",
+          "update": "Atualizar Utilizador",
+          "creating": "A criar...",
+          "updating": "A atualizar...",
+          "created": "Criado!",
+          "updated": "Atualizado!",
+          "viewOnly": "Apenas Visualizar"
+        },
+        "validation": {
+          "nameRequired": "O nome completo é obrigatório",
+          "emailRequired": "O endereço de email é obrigatório",
+          "emailInvalid": "Por favor insira um email válido",
+          "roleRequired": "A função é obrigatória",
+          "organizationRequired": "A organização é obrigatória",
+          "pleaseFixErrors": "Por favor corrija os erros antes de enviar"
+        }
+      }
     }
   },
   "common": {
@@ -1630,6 +1731,7 @@
     "dark": "Escuro",
     "light": "Claro",
     "system": "Sistema"
+<<<<<<< HEAD
   },
   "auth": {
     "signin": {

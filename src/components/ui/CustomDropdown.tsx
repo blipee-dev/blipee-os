@@ -15,7 +15,6 @@ interface CustomDropdownProps {
   options: Option[];
   placeholder?: string;
   className?: string;
-  disabled?: boolean;
 }
 
 export function CustomDropdown({
@@ -23,8 +22,7 @@ export function CustomDropdown({
   onChange,
   options,
   placeholder = "Select...",
-  className = "",
-  disabled = false
+  className = ""
 }: CustomDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -47,17 +45,12 @@ export function CustomDropdown({
     setIsOpen(false);
   };
 
-  // Extract width class from className or default to w-20
-  const widthClass = className.match(/w-\w+/) ? className.match(/w-\w+/)![0] : 'w-20';
-  const otherClasses = className.replace(/w-\w+/g, '').trim();
-  
   return (
-    <div ref={dropdownRef} className={`relative ${otherClasses}`}>
+    <div ref={dropdownRef} className={`relative ${className}`}>
       <button
         type="button"
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        disabled={disabled}
-        className={`flex items-center justify-between ${widthClass} px-3 py-1.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:outline-none focus:ring-2 focus:accent-ring focus:accent-border transition-all hover:border-gray-400 dark:hover:border-white/[0.1] disabled:opacity-50 disabled:cursor-not-allowed`}
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between w-20 px-3 py-1.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:outline-none focus:ring-2 focus:accent-ring focus:accent-border transition-all hover:border-gray-400 dark:hover:border-white/[0.1]"
       >
         <span className="truncate">
           {selectedOption ? selectedOption.label : placeholder}
@@ -76,7 +69,7 @@ export function CustomDropdown({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className={`absolute z-50 ${widthClass} mt-1 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg shadow-lg overflow-hidden`}
+            className="absolute z-50 w-20 mt-1 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg shadow-lg overflow-hidden"
           >
             <div className="py-1 max-h-60 overflow-auto">
               {options.map((option) => (
