@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { VoiceInput } from "@/components/voice/VoiceInput";
+import { useTranslations } from "@/providers/LanguageProvider";
 
 interface AttachedFile {
   id: string;
@@ -34,8 +35,9 @@ export function InputArea({
   onChange,
   onSend,
   disabled,
-  placeholder = "Message blipee...",
+  placeholder,
 }: InputAreaProps) {
+  const t = useTranslations('conversation.input');
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -160,7 +162,7 @@ export function InputArea({
                   disabled={disabled}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 
                     rounded-lg transition-colors disabled:opacity-50"
-                  title="Attach files"
+                  title={t('attachFiles')}
                 >
                   <Paperclip className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </button>
@@ -181,7 +183,7 @@ export function InputArea({
                   onChange={(e) => onChange(e.target.value)}
                   onKeyPress={handleKeyPress}
                   disabled={disabled}
-                  placeholder={placeholder}
+                  placeholder={placeholder || t('placeholder')}
                   rows={1}
                   className="flex-1 bg-transparent px-12 py-3 text-gray-900 dark:text-gray-100 
                     placeholder-gray-500 dark:placeholder-gray-400 resize-none focus:outline-none 
@@ -208,7 +210,7 @@ export function InputArea({
                         : "bg-[#616161] hover:bg-gray-500 text-white"
                     }
                   `}
-                  title="Send message"
+                  title={t('sendMessage')}
                 >
                   <ArrowUp className="w-5 h-5" />
                 </button>
@@ -218,7 +220,7 @@ export function InputArea({
 
           {/* Helper text */}
           <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">
-            Press Enter to send, Shift + Enter for new line
+            {t('helperText')}
           </p>
         </div>
       </div>
