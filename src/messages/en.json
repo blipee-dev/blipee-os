@@ -1454,10 +1454,16 @@
         "viewTitle": "View User",
         "createSuccess": "User created successfully!",
         "updateSuccess": "User updated successfully!",
+        "messages": {
+          "userCreated": "User has been created successfully!",
+          "userUpdated": "User has been updated successfully!"
+        },
         "sections": {
           "basicInfo": "Basic Information",
           "permissions": "Permissions & Access",
-          "activity": "Activity & Status"
+          "activity": "Activity & Status",
+          "accessPermissions": "Access & Permissions",
+          "accountStatus": "Account Status"
         },
         "fields": {
           "name": "Full Name",
@@ -1475,7 +1481,8 @@
           "lastUpdated": "Last Updated",
           "authUserId": "Auth User ID",
           "noOrganization": "No organization assigned",
-          "neverLoggedIn": "Never logged in"
+          "neverLoggedIn": "Never logged in",
+          "sendInvite": "Send invitation email to user"
         },
         "placeholders": {
           "name": "Enter full name",
