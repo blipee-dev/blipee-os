@@ -1647,6 +1647,148 @@
         "delete": "Delete",
         "view": "View"
       }
+    },
+    "devices": {
+      "title": "Devices Management",
+      "subtitle": "Manage and monitor all your IoT devices across sites",
+      "searchPlaceholder": "Search devices...",
+      "filter": "Filter",
+      "addDevice": "Add Device",
+      "createFirstDevice": "Add Your First Device",
+      "noDevicesFound": "No devices found",
+      "deviceNotAuthenticated": "Device not authenticated",
+      "failedToLoad": "Failed to load devices",
+      "retry": "Retry",
+      "failedToDelete": "Failed to delete device",
+      "failedToPin": "Failed to pin device",
+      "loadingDevices": "Loading devices...",
+      "confirmDelete": "Are you sure you want to delete {name}?",
+      "pagination": {
+        "showing": "Showing {start} to {end} of {total} devices",
+        "pageOf": "{current} / {total}"
+      },
+      "table": {
+        "device": "Device",
+        "type": "Type",
+        "site": "Site",
+        "details": "Details",
+        "lastSeen": "Last Seen",
+        "status": "Status",
+        "manufacturer": "Manufacturer",
+        "model": "Model",
+        "serialNumber": "Serial Number",
+        "ipAddress": "IP Address",
+        "macAddress": "MAC Address",
+        "floor": "Floor",
+        "zone": "Zone",
+        "protocol": "Protocol",
+        "dataInterval": "Data Interval"
+      },
+      "status": {
+        "online": "Online",
+        "offline": "Offline",
+        "maintenance": "Maintenance",
+        "unknown": "Unknown"
+      },
+      "lastSeenTime": {
+        "justNow": "Just now",
+        "minutesAgo": "{minutes} min ago",
+        "hoursAgo": "{hours} hour{suffix} ago",
+        "daysAgo": "{days} day{suffix} ago",
+        "never": "Never"
+      },
+      "pagination": {
+        "itemsPerPage": "Items per page:",
+        "showing": "Showing {start}-{end} of {total}",
+        "firstPage": "First page",
+        "previousPage": "Previous page",
+        "nextPage": "Next page",
+        "lastPage": "Last page",
+        "page": "Page {number}"
+      },
+      "modal": {
+        "createTitle": "Add New Device",
+        "editTitle": "Edit Device",
+        "viewTitle": "View Device",
+        "createSuccess": "Device created successfully!",
+        "updateSuccess": "Device updated successfully!",
+        "sections": {
+          "basicInfo": "Basic Information",
+          "connectivity": "Connectivity",
+          "location": "Location & Assignment",
+          "technical": "Technical Details"
+        },
+        "fields": {
+          "name": "Device Name",
+          "type": "Device Type",
+          "site": "Site",
+          "organization": "Organization",
+          "manufacturer": "Manufacturer",
+          "model": "Model",
+          "serialNumber": "Serial Number",
+          "ipAddress": "IP Address",
+          "macAddress": "MAC Address",
+          "protocol": "Protocol",
+          "dataInterval": "Data Interval (minutes)",
+          "floor": "Floor",
+          "zone": "Zone",
+          "status": "Status",
+          "lastSeen": "Last Seen",
+          "createdAt": "Created At",
+          "updatedAt": "Updated At"
+        },
+        "placeholders": {
+          "name": "e.g., Temperature Sensor 01",
+          "manufacturer": "e.g., Siemens",
+          "model": "e.g., S7-1200",
+          "serialNumber": "e.g., SN123456789",
+          "ipAddress": "e.g., 192.168.1.100",
+          "macAddress": "e.g., 00:1B:44:11:3A:B7",
+          "floor": "e.g., 2",
+          "zone": "e.g., North Wing"
+        },
+        "types": {
+          "sensor": "Sensor",
+          "meter": "Meter",
+          "controller": "Controller",
+          "gateway": "Gateway",
+          "actuator": "Actuator",
+          "hvac": "HVAC",
+          "lighting": "Lighting",
+          "other": "Other"
+        },
+        "protocols": {
+          "modbus": "Modbus",
+          "bacnet": "BACnet",
+          "mqtt": "MQTT",
+          "opcua": "OPC UA",
+          "http": "HTTP/REST",
+          "snmp": "SNMP",
+          "custom": "Custom"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "create": "Create Device",
+          "update": "Update Device",
+          "creating": "Creating...",
+          "updating": "Updating...",
+          "save": "Save",
+          "delete": "Delete"
+        },
+        "validation": {
+          "nameRequired": "Device name is required",
+          "typeRequired": "Device type is required",
+          "siteRequired": "Site is required",
+          "ipInvalid": "Please enter a valid IP address",
+          "macInvalid": "Please enter a valid MAC address",
+          "intervalInvalid": "Data interval must be a positive number"
+        },
+        "messages": {
+          "deviceCreated": "Device has been created successfully!",
+          "deviceUpdated": "Device has been updated successfully!",
+          "deviceDeleted": "Device has been deleted successfully!"
+        }
+      }
     }
   },
   "common": {
@@ -1681,6 +1823,7 @@
     "system": "System",
     "view": "View",
     "pin": "Pin",
+    "unpin": "Unpin",
     "star": "Star",
     "rename": "Rename"
   },
@@ -1784,6 +1927,87 @@
         "configuration_error": "There is an issue with the SSO configuration.",
         "user_not_found": "Your account was not found or is not authorized."
       }
+    }
+  },
+  "blipee-ai": {
+    "defaultOrganization": "Your Organization",
+    "dashboard": {
+      "monthlyReduction": "Monthly Reduction",
+      "targetProgress": "Target Progress", 
+      "reportsReady": "Reports Ready",
+      "newReports": "{{count}} new",
+      "platformBadge": "Sustainability First Platform"
+    }
+  },
+  "conversation": {
+    "newConversation": "New conversation",
+    "defaultResponse": "I'll help you with that.",
+    "generatedCode": "Generated Code",
+    "errorMessage": "I encountered an error. Please try again or rephrase your question.",
+    "welcomeMessage": "How can I help you today?",
+    "welcomeSubtitle": "Start a conversation about sustainability, energy management, or building operations",
+    "defaultUser": "User",
+    "input": {
+      "placeholder": "Message blipee...",
+      "attachFiles": "Attach files",
+      "sendMessage": "Send message",
+      "helperText": "Press Enter to send, Shift + Enter for new line"
+    },
+    "navigation": {
+      "home": "Home",
+      "chats": "Chats",
+      "new": "New",
+      "profile": "Profile",
+      "settings": "Settings"
+    },
+    "sidebar": {
+      "buttons": {
+        "newChat": "New Chat",
+        "chats": "Chats",
+        "library": "Library",
+        "settings": "Settings",
+        "signOut": "Sign Out",
+        "expandSidebar": "Expand Sidebar",
+        "collapseSidebar": "Collapse Sidebar"
+      },
+      "sections": {
+        "recents": "Recent"
+      },
+      "empty": {
+        "noConversations": "No conversations yet",
+        "startConversation": "Start your first conversation",
+        "noConversationsFound": "No conversations found"
+      },
+      "actions": {
+        "pin": "Pin",
+        "rename": "Rename",
+        "delete": "Delete"
+      },
+      "search": {
+        "placeholder": "Search conversations..."
+      },
+      "groups": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "thisWeek": "This Week",
+        "thisMonth": "This Month",
+        "older": "Older"
+      }
+    },
+    "message": {
+      "downloadFile": "Download file"
+    },
+    "suggestions": {
+      "energyTrends": "Show energy usage trends",
+      "generateCode": "Generate Python code for data analysis",
+      "performanceReport": "Building performance report",
+      "sustainabilityDashboard": "Create a sustainability dashboard"
+    },
+    "artifacts": {
+      "sustainabilityReport": "Sustainability Report",
+      "monthlyReportContent": "<h2>Monthly Sustainability Report</h2><p>Carbon emissions reduced by 15% this month.</p>",
+      "energyTrends": "Energy Usage Trends",
+      "energyTrendsContent": "Chart showing energy consumption patterns over the last quarter"
     }
   },
   "defaults": {

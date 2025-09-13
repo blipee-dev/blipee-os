@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { sanitizeUserInput } from "@/lib/validation/sanitization";
+import { useTranslations } from "@/providers/LanguageProvider";
 
 interface MessageBubbleProps {
   message: Message;
@@ -22,6 +23,7 @@ interface MessageBubbleProps {
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === "user";
   const [copied, setCopied] = useState(false);
+  const t = useTranslations('conversation.message');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(message.content);
@@ -119,7 +121,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                           href={file.url}
                           download={file.name}
                           className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                          title="Download file"
+                          title={t('downloadFile')}
                         >
                           <Download className="w-3.5 h-3.5 text-gray-500" />
                         </a>
