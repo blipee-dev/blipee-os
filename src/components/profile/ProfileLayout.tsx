@@ -110,30 +110,37 @@ export function ProfileLayout({ children, pageTitle }: ProfileLayoutProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto">
-            <div className="p-2 space-y-0.5">
-              {profileNavItems.map((item) => {
+          <div className={`p-2 ${isCollapsed ? 'space-y-1' : ''} border-b border-gray-200 dark:border-white/[0.05]`}>
+            {profileNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
-                
-                return (
-                  <button
+
+                return <button
                     key={item.id}
                     onClick={() => router.push(item.href)}
-                    className={`w-full flex items-center ${isCollapsed ? 'justify-center px-3' : 'gap-3 px-3'} py-2.5 rounded-lg transition-all ${
+                    className={`w-full ${isCollapsed ? 'p-2 flex items-center justify-center' : 'px-3 py-2 flex items-center gap-3 text-left'} rounded-lg transition-all ${
                       isActive
-                        ? "bg-gray-100 dark:bg-white/[0.05] text-gray-900 dark:text-white"
-                        : "hover:bg-gray-50 dark:hover:bg-white/[0.03] text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                        ? "bg-gray-100 dark:bg-[#757575]"
+                        : "hover:bg-gray-50 dark:hover:bg-white/[0.05]"
                     }`}
                     title={isCollapsed ? item.label : undefined}
                   >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-                  </button>
-                );
+                    <Icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'} ${
+                      isActive
+                        ? "text-gray-900 dark:text-white"
+                        : "text-gray-500 dark:text-gray-400"
+                    }`} />
+                    {!isCollapsed && <span className={`text-sm ${
+                      isActive
+                        ? "text-gray-900 dark:text-white font-medium"
+                        : "text-gray-700 dark:text-gray-300"
+                    }`}>{item.label}</span>}
+                  </button>;
               })}
-            </div>
-          </nav>
+          </div>
+
+          {/* Empty space for consistency */}
+          <div className="flex-1 overflow-y-auto"></div>
 
           {/* Bottom Section */}
           <div className="p-3 border-t border-gray-200 dark:border-white/[0.05] space-y-2">
@@ -309,7 +316,7 @@ export function ProfileLayout({ children, pageTitle }: ProfileLayoutProps) {
 
                 {/* Navigation */}
                 <nav className="flex-1 overflow-y-auto">
-                  <div className="p-2 space-y-0.5">
+                  <div className="p-2">
                     {profileNavItems.map((item) => {
                       const Icon = item.icon;
                       const isActive = pathname === item.href;
@@ -321,14 +328,22 @@ export function ProfileLayout({ children, pageTitle }: ProfileLayoutProps) {
                             router.push(item.href);
                             setIsMenuOpen(false);
                           }}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left ${
                             isActive
-                              ? "bg-gray-100 dark:bg-white/[0.05] text-gray-900 dark:text-white"
-                              : "hover:bg-gray-50 dark:hover:bg-white/[0.03] text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                              ? "bg-gray-100 dark:bg-[#757575]"
+                              : "hover:bg-gray-50 dark:hover:bg-white/[0.05]"
                           }`}
                         >
-                          <Icon className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-sm font-medium">{item.label}</span>
+                          <Icon className={`w-4 h-4 ${
+                            isActive
+                              ? "text-gray-900 dark:text-white"
+                              : "text-gray-500 dark:text-gray-400"
+                          }`} />
+                          <span className={`text-sm ${
+                            isActive
+                              ? "text-gray-900 dark:text-white font-medium"
+                              : "text-gray-700 dark:text-gray-300"
+                          }`}>{item.label}</span>
                         </button>
                       );
                     })}
