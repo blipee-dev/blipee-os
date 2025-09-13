@@ -255,8 +255,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
     console.log('Pin user:', user.name);
   };
 
-  // Can user perform actions?
-  const canManage = userRole === 'super_admin' || userRole === 'account_owner' || userRole === 'admin' || userRole === 'sustainability_manager';
+  // Can user perform actions? Using RBAC roles (owner, manager, member, viewer)
+  const canManage = userRole === 'super_admin' || userRole === 'owner' || userRole === 'manager';
 
   // Format role display
   const formatRole = (role: string) => {
@@ -340,7 +340,6 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                 { value: 20, label: "20" },
                 { value: 50, label: "50" },
               ]}
-              className="w-16"
             />
           </div>
           
@@ -592,7 +591,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                            {t(`status.${user.status}` as any) || user.status}
+                            {t(`modal.statuses.${user.status}` as any) || user.status}
                           </span>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">

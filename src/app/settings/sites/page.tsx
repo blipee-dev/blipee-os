@@ -12,41 +12,110 @@ export default async function SitesPage() {
     redirect('/signin');
   }
 
-  // Fetch user's organizations
-  const { data: userOrgs, error: orgsError } = await supabase
-    .from('user_organizations')
-    .select(`
-      organization_id,
-      role,
-      organizations (
-        id,
-        name,
-        slug
-      )
-    `)
-    .eq('user_id', user.id);
+  // Check if user is super admin (in super_admins table)
+  const { data: superAdminRecord } = await supabase
+    .from('super_admins')
+    .select('id')
+    .eq('user_id', user.id)
+    .maybeSingle();
 
-  if (orgsError) {
-    console.error('Error fetching organizations:', orgsError);
-  }
+  const isSuperAdmin = !!superAdminRecord;
 
-  const organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
+  let userOrgs;
+  let organizationIds;
+  let sites;
 
-  // Fetch sites for user's organizations
-  const { data: sites, error: sitesError } = await supabase
-    .from('sites')
-    .select(`
-      *,
-      organizations (
-        name,
-        slug
-      )
-    `)
-    .in('organization_id', organizationIds)
-    .order('created_at', { ascending: false });
+  if (isSuperAdmin) {
+    // Super admin can see all organizations and sites
+    const { data: allOrgs, error: orgsError } = await supabase
+      .from('organizations')
+      .select('id, name, slug')
+      .order('name');
 
-  if (sitesError) {
-    console.error('Error fetching sites:', sitesError);
+    if (orgsError) {
+      console.error('Error fetching organizations:', orgsError);
+    }
+
+    userOrgs = allOrgs?.map(org => ({ 
+      organization_id: org.id, 
+      role: 'super_admin',
+      organizations: org 
+    })) || [];
+    
+    // Fetch ALL sites for super admin
+    const { data: allSites, error: sitesError } = await supabase
+      .from('sites')
+      .select(`
+        *,
+        organizations (
+          name,
+          slug
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (sitesError) {
+      console.error('Error fetching sites:', sitesError);
+    }
+    
+    sites = allSites;
+  } else {
+    // Regular users - fetch their organizations through user_access table
+    const { data: userAccess, error: userAccessError } = await supabase
+      .from('user_access')
+      .select('resource_id, role')
+      .eq('user_id', user.id)
+      .eq('resource_type', 'organization');
+
+    if (userAccessError) {
+      console.error('Error fetching user access:', userAccessError);
+    }
+
+    userOrgs = [];
+    organizationIds = [];
+
+    // If user has access to organizations, fetch them
+    if (userAccess && userAccess.length > 0) {
+      organizationIds = userAccess.map(ua => ua.resource_id);
+      
+      const { data: orgsData, error: orgsError } = await supabase
+        .from('organizations')
+        .select('id, name, slug')
+        .in('id', organizationIds);
+
+      if (orgsError) {
+        console.error('Error fetching organizations:', orgsError);
+      }
+
+      // Map organizations with their roles from user_access
+      userOrgs = orgsData?.map(org => {
+        const access = userAccess.find(ua => ua.resource_id === org.id);
+        return {
+          organization_id: org.id,
+          role: access?.role || 'viewer',
+          organizations: org
+        };
+      }) || [];
+    }
+
+    // Fetch sites for user's organizations only
+    const { data: userSites, error: sitesError } = await supabase
+      .from('sites')
+      .select(`
+        *,
+        organizations (
+          name,
+          slug
+        )
+      `)
+      .in('organization_id', organizationIds)
+      .order('created_at', { ascending: false });
+
+    if (sitesError) {
+      console.error('Error fetching sites:', sitesError);
+    }
+    
+    sites = userSites;
   }
 
   // Count devices for each site
