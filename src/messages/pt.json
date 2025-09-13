@@ -1668,6 +1668,108 @@
         "delete": "Excluir",
         "view": "Ver"
       }
+    },
+    "devices": {
+      "title": "Gestão de Dispositivos",
+      "subtitle": "Gerencie e monitore todos os seus dispositivos IoT nos sites",
+      "searchPlaceholder": "Pesquisar dispositivos...",
+      "filter": "Filtrar",
+      "addDevice": "Adicionar Dispositivo",
+      "createFirstDevice": "Adicionar Seu Primeiro Dispositivo",
+      "noDevicesFound": "Nenhum dispositivo encontrado",
+      "loadingDevices": "Carregando dispositivos...",
+      "failedToDelete": "Erro ao excluir dispositivo",
+      "failedToPin": "Erro ao fixar dispositivo",
+      "confirmDelete": "Tem certeza de que deseja excluir {name}?",
+      "pagination": {
+        "showing": "Mostrando {start} a {end} de {total} dispositivos",
+        "pageOf": "{current} / {total}"
+      },
+      "table": {
+        "device": "Dispositivo",
+        "type": "Tipo",
+        "site": "Site",
+        "details": "Detalhes",
+        "lastSeen": "Última Vez Visto",
+        "status": "Status",
+        "serialNumber": "NS",
+        "floor": "Andar",
+        "justNow": "Agora mesmo",
+        "minutesAgo": "{count} min atrás",
+        "hoursAgo": "{count} hora{count, plural, =1 {} other {s}} atrás",
+        "daysAgo": "{count} dia{count, plural, =1 {} other {s}} atrás",
+        "never": "Nunca"
+      },
+      "status": {
+        "online": "online",
+        "offline": "offline",
+        "maintenance": "manutenção",
+        "unknown": "desconhecido"
+      },
+      "types": {
+        "sensor": "Sensor",
+        "meter": "Medidor de Energia",
+        "hvac": "Sistema HVAC",
+        "lighting": "Controle de Iluminação",
+        "solar": "Painel Solar",
+        "battery": "Armazenamento de Bateria",
+        "other": "Outro"
+      },
+      "protocols": {
+        "modbus": "Modbus TCP",
+        "bacnet": "BACnet",
+        "mqtt": "MQTT",
+        "opcua": "OPC UA",
+        "api": "REST API"
+      },
+      "modal": {
+        "addTitle": "Adicionar Novo Dispositivo",
+        "editTitle": "Editar Dispositivo",
+        "viewTitle": "Visualizar Dispositivo",
+        "sections": {
+          "basicInfo": "Informações Básicas",
+          "connectivity": "Conectividade",
+          "location": "Localização e Atribuição",
+          "technical": "Detalhes Técnicos"
+        },
+        "fields": {
+          "name": "Nome do Dispositivo",
+          "namePlaceholder": "ex., Sensor de Temperatura Andar 1",
+          "type": "Tipo de Dispositivo",
+          "site": "Site",
+          "manufacturer": "Fabricante",
+          "manufacturerPlaceholder": "ex., Schneider Electric",
+          "model": "Modelo",
+          "modelPlaceholder": "ex., PM5560",
+          "serialNumber": "Número de Série",
+          "serialNumberPlaceholder": "ex., SN123456789",
+          "ipAddress": "Endereço IP",
+          "ipAddressPlaceholder": "ex., 192.168.1.100",
+          "macAddress": "Endereço MAC",
+          "macAddressPlaceholder": "ex., 00:1B:44:11:3A:B7",
+          "protocol": "Protocolo de Comunicação",
+          "dataInterval": "Intervalo de Dados (minutos)",
+          "dataIntervalPlaceholder": "5",
+          "floor": "Andar",
+          "floorPlaceholder": "ex., 1",
+          "zone": "Zona",
+          "zonePlaceholder": "ex., Ala Norte"
+        },
+        "actions": {
+          "cancel": "Cancelar",
+          "create": "Criar",
+          "creating": "Criando...",
+          "update": "Atualizar",
+          "updating": "Atualizando...",
+          "viewOnly": "Somente Visualização"
+        },
+        "messages": {
+          "createSuccess": "Dispositivo criado com sucesso",
+          "updateSuccess": "Dispositivo atualizado com sucesso",
+          "createError": "Erro ao criar dispositivo",
+          "updateError": "Erro ao atualizar dispositivo"
+        }
+      }
     }
   },
   "common": {
@@ -1680,6 +1782,7 @@
     "edit": "Editar",
     "view": "Ver",
     "pin": "Fixar",
+    "unpin": "Desfixar",
     "star": "Destacar",
     "rename": "Renomear",
     "close": "Fechar",
@@ -1811,6 +1914,87 @@
         "configuration_error": "Existe um problema com a configuração SSO.",
         "user_not_found": "A sua conta não foi encontrada ou não está autorizada."
       }
+    }
+  },
+  "blipee-ai": {
+    "defaultOrganization": "Sua Organização",
+    "dashboard": {
+      "monthlyReduction": "Redução Mensal",
+      "targetProgress": "Progresso da Meta",
+      "reportsReady": "Relatórios Prontos",
+      "newReports": "{{count}} novo{{count, plural, one {} other {s}}}",
+      "platformBadge": "Plataforma Sustentabilidade Primeiro"
+    }
+  },
+  "conversation": {
+    "newConversation": "Nova conversa",
+    "defaultResponse": "Eu vou ajudá-lo com isso.",
+    "generatedCode": "Código Gerado",
+    "errorMessage": "Encontrei um erro. Por favor, tente novamente ou reformule sua pergunta.",
+    "welcomeMessage": "Como posso ajudá-lo hoje?",
+    "welcomeSubtitle": "Inicie uma conversa sobre sustentabilidade, gestão energética ou operações de edifícios",
+    "defaultUser": "Usuário",
+    "input": {
+      "placeholder": "Mensagem para blipee...",
+      "attachFiles": "Anexar arquivos",
+      "sendMessage": "Enviar mensagem",
+      "helperText": "Pressione Enter para enviar, Shift + Enter para nova linha"
+    },
+    "navigation": {
+      "home": "Início",
+      "chats": "Conversas",
+      "new": "Novo",
+      "profile": "Perfil",
+      "settings": "Configurações"
+    },
+    "sidebar": {
+      "buttons": {
+        "newChat": "Nova Conversa",
+        "chats": "Conversas",
+        "library": "Biblioteca",
+        "settings": "Configurações",
+        "signOut": "Sair",
+        "expandSidebar": "Expandir Barra Lateral",
+        "collapseSidebar": "Recolher Barra Lateral"
+      },
+      "sections": {
+        "recents": "Recentes"
+      },
+      "empty": {
+        "noConversations": "Ainda não há conversas",
+        "startConversation": "Inicie sua primeira conversa",
+        "noConversationsFound": "Nenhuma conversa encontrada"
+      },
+      "actions": {
+        "pin": "Fixar",
+        "rename": "Renomear",
+        "delete": "Excluir"
+      },
+      "search": {
+        "placeholder": "Pesquisar conversas..."
+      },
+      "groups": {
+        "today": "Hoje",
+        "yesterday": "Ontem",
+        "thisWeek": "Esta Semana",
+        "thisMonth": "Este Mês",
+        "older": "Anteriores"
+      }
+    },
+    "message": {
+      "downloadFile": "Baixar arquivo"
+    },
+    "suggestions": {
+      "energyTrends": "Mostrar tendências de uso energético",
+      "generateCode": "Gerar código Python para análise de dados",
+      "performanceReport": "Relatório de desempenho do edifício",
+      "sustainabilityDashboard": "Criar um painel de sustentabilidade"
+    },
+    "artifacts": {
+      "sustainabilityReport": "Relatório de Sustentabilidade",
+      "monthlyReportContent": "<h2>Relatório Mensal de Sustentabilidade</h2><p>As emissões de carbono foram reduzidas em 15% este mês.</p>",
+      "energyTrends": "Tendências de Uso Energético",
+      "energyTrendsContent": "Gráfico mostrando padrões de consumo energético durante o último trimestre"
     }
   },
   "defaults": {

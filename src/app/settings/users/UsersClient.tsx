@@ -58,7 +58,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const t = useTranslations('settings.users');
 
   // Get session stats for multiple users via API

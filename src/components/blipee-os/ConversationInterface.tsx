@@ -18,6 +18,7 @@ import { useAPIClient } from "@/lib/api/client";
 import { useCSRF } from "@/hooks/use-csrf";
 import { useAuth } from "@/lib/auth/context";
 import { useAppearance } from "@/providers/AppearanceProvider";
+import { useTranslations } from "@/providers/LanguageProvider";
 import { Menu, Plus, PanelRightOpen, PanelRightClose } from "lucide-react";
 
 interface BuildingContext {
@@ -55,6 +56,7 @@ export function ConversationInterface({
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { settings, updateSetting } = useAppearance();
+  const t = useTranslations('conversation');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(settings.sidebarAutoCollapse);
   
   // Initialize collapsed state on mount and when setting changes
@@ -72,15 +74,15 @@ export function ConversationInterface({
     {
       id: "sample1",
       type: "document",
-      title: "Sustainability Report",
-      content: "<h2>Monthly Sustainability Report</h2><p>Carbon emissions reduced by 15% this month.</p>",
+      title: t('artifacts.sustainabilityReport'),
+      content: t('artifacts.monthlyReportContent'),
       timestamp: new Date(),
     },
     {
       id: "sample2",
       type: "chart",
-      title: "Energy Usage Trends",
-      content: "Chart showing energy consumption patterns over the last quarter",
+      title: t('artifacts.energyTrends'),
+      content: t('artifacts.energyTrendsContent'),
       timestamp: new Date(),
     },
   ]);
@@ -129,7 +131,7 @@ export function ConversationInterface({
     const newId = `conv_${Date.now()}`;
     const newConversation: StoredConversation = {
       id: newId,
-      title: "New conversation",
+      title: t('newConversation'),
       lastMessage: "",
       timestamp: new Date(),
       messageCount: 0,
@@ -279,7 +281,7 @@ export function ConversationInterface({
       const assistantMessage: Message = {
         id: Date.now().toString(),
         role: "assistant",
-        content: aiResponse.content || "I'll help you with that.",
+        content: aiResponse.content || t('defaultResponse'),
         components: aiResponse.components,
         suggestions: aiResponse.suggestions,
         timestamp: new Date(),
@@ -291,7 +293,7 @@ export function ConversationInterface({
         const newArtifact: Artifact = {
           id: artifactId,
           type: aiResponse.artifactType || "code",
-          title: aiResponse.artifactTitle || "Generated Code",
+          title: aiResponse.artifactTitle || t('generatedCode'),
           language: aiResponse.artifactLanguage || "typescript",
           content: aiResponse.artifact || extractCodeFromMessage(aiResponse.content),
           timestamp: new Date(),
@@ -310,7 +312,7 @@ export function ConversationInterface({
       const errorMessage: Message = {
         id: Date.now().toString(),
         role: "assistant",
-        content: "I encountered an error. Please try again or rephrase your question.",
+        content: t('errorMessage'),
         timestamp: new Date(),
       };
       const finalMessages = [...newMessages, errorMessage];
@@ -422,20 +424,20 @@ export function ConversationInterface({
                       WebkitTextFillColor: 'transparent',
                       backgroundClip: 'text'
                     }}>
-                      How can I help you today?
+                      {t('welcomeMessage')}
                     </span>
                   </h1>
                   <p className="text-gray-600 dark:text-gray-400 mb-8">
-                    Start a conversation about sustainability, energy management, or building operations
+                    {t('welcomeSubtitle')}
                   </p>
                   
                   {/* Quick start suggestions */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
                     {[
-                      "Show energy usage trends",
-                      "Generate Python code for data analysis",
-                      "Building performance report",
-                      "Create a sustainability dashboard",
+                      t('suggestions.energyTrends'),
+                      t('suggestions.generateCode'),
+                      t('suggestions.performanceReport'),
+                      t('suggestions.sustainabilityDashboard'),
                     ].map((suggestion, index) => (
                       <motion.button
                         key={index}

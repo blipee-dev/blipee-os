@@ -11,6 +11,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useTranslations } from "@/providers/LanguageProvider";
 
 interface MobileNavigationProps {
   onNewChat?: () => void;
@@ -20,6 +21,7 @@ export function MobileNavigation({ onNewChat }: MobileNavigationProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { openSidebar } = useSettings();
+  const t = useTranslations('conversation.navigation');
 
   const handleSettingsClick = () => {
     // If we're on a settings page, open sidebar
@@ -35,32 +37,32 @@ export function MobileNavigation({ onNewChat }: MobileNavigationProps) {
     {
       id: "home",
       icon: Home,
-      label: "Home",
+      label: t('home'),
       href: "/blipee-ai",
     },
     {
       id: "chats",
       icon: MessageSquare,
-      label: "Chats",
+      label: t('chats'),
       href: "/chats",
     },
     {
       id: "new",
       icon: Plus,
-      label: "New",
+      label: t('new'),
       action: onNewChat,
       isSpecial: true,
     },
     {
       id: "profile",
       icon: User,
-      label: "Profile",
+      label: t('profile'),
       href: "/profile",
     },
     {
       id: "settings",
       icon: Settings,
-      label: "Settings",
+      label: t('settings'),
       action: handleSettingsClick,
     },
   ];
