@@ -222,7 +222,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
   };
 
   // Can user perform actions?
-  const canManage = userRole === 'account_owner' || userRole === 'admin' || userRole === 'manager';
+  const canManage = userRole === 'super_admin' || userRole === 'account_owner' || userRole === 'admin' || userRole === 'manager' || userRole === 'sustainability_manager' || userRole === 'facility_manager';
 
   // Pagination Component
   const PaginationControls = () => {
