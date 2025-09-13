@@ -2,115 +2,170 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { AuthLayout } from '@/components/auth/AuthLayout';
-import { motion } from 'framer-motion';
-import { XCircle, ArrowLeft } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Home, Shield } from 'lucide-react';
+import { useTheme } from '@/providers/ThemeProvider';
+import { useTranslations } from '@/providers/LanguageProvider';
 import { Suspense } from 'react';
 
 function SSOErrorContent() {
+  const { theme } = useTheme();
+  const t = useTranslations('errors.sso');
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [isDark, setIsDark] = useState(theme === 'dark');
   
   const error = searchParams.get('error') || 'unknown_error';
   const description = searchParams.get('description') || 'An error occurred during SSO authentication';
 
-  const getErrorMessage = (errorCode: string) => {
-    switch (errorCode) {
-      case 'invalid_request':
-        return 'The SSO request was invalid. Please try again.';
-      case 'access_denied':
-        return 'Access was denied by the identity provider.';
-      case 'unsupported_response_type':
-        return 'The identity provider returned an unsupported response type.';
-      case 'invalid_scope':
-        return 'The requested scope is invalid or not supported.';
-      case 'server_error':
-        return 'The identity provider encountered an error.';
-      case 'temporarily_unavailable':
-        return 'The identity provider is temporarily unavailable.';
-      case 'configuration_error':
-        return 'There is an issue with the SSO configuration.';
-      case 'user_not_found':
-        return 'Your account was not found or is not authorized.';
-      default:
-        return description;
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+      setIsDark(storedTheme === 'dark');
+    } else {
+      setIsDark(theme === 'dark');
     }
+  }, [theme]);
+
+  const getErrorMessage = (errorCode: string) => {
+    const errorKey = `errorCodes.${errorCode}`;
+    return t(errorKey) || t('errorCodes.invalid_request');
   };
 
   return (
-    <AuthLayout
-      title="SSO Authentication Failed"
-      subtitle="We couldn't complete the sign-in process"
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
-      >
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <div className="flex items-start">
-            <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-3 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-red-900 dark:text-red-100 mb-1">
-                Authentication Error
-              </h3>
-              <p className="text-sm text-red-700 dark:text-red-300">
-                {getErrorMessage(error)}
-              </p>
-              {error !== 'unknown_error' && (
-                <p className="text-xs text-red-600 dark:text-red-400 mt-2">
-                  Error code: {error}
-                </p>
-              )}
+    <div className={`min-h-screen flex items-center justify-center relative transition-colors duration-300 ${
+      isDark ? 'bg-[#111111]' : 'bg-white'
+    }`}>
+      {/* Logo in top left */}
+      <div className="absolute top-8 left-8">
+        <Link href="/" className="flex items-center">
+          <div className={`w-10 h-10 p-0.5 rounded-xl ${
+            isDark ? 'bg-[#FAFAFA]' : 'bg-[#111111]'
+          }`}>
+            <div className={`w-full h-full rounded-[10px] flex items-center justify-center ${
+              isDark ? 'bg-[#111111]' : 'bg-white'
+            }`}>
+              <Home className={`w-6 h-6 ${
+                isDark ? 'text-[#FAFAFA]' : 'text-[#111111]'
+              }`} fill="none" strokeWidth="2" />
             </div>
           </div>
+          <span className={`ml-3 text-xl font-normal ${
+            isDark ? 'text-[#FAFAFA]' : 'text-[#111111]'
+          }`}>
+            blipee
+          </span>
+        </Link>
+      </div>
+
+      {/* Main content */}
+      <div className="flex items-start gap-24 relative z-10">
+        {/* Large SSO symbol */}
+        <div className={`text-[280px] font-bold leading-none -mt-12 ${
+          isDark ? 'text-[#FAFAFA]' : 'text-[#111111]'
+        }`}>
+          🔐
         </div>
 
-        <div className="space-y-3">
-          <button
-            onClick={() => router.push('/signin')}
-            className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 focus:outline-none transform transition-all hover:scale-[1.02] active:scale-[0.98] font-medium shadow-lg"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Sign In
-          </button>
+        {/* Message and buttons */}
+        <div className="pt-20 max-w-lg">
+          <h2 className={`text-2xl font-bold mb-2 ${
+            isDark ? 'text-[#FAFAFA]' : 'text-[#111111]'
+          }`}>
+            {t('title')}
+          </h2>
+          <h3 className={`text-lg mb-4 ${
+            isDark ? 'text-[#FAFAFA]/80' : 'text-[#111111]/70'
+          }`}>
+            {t('subtitle')}
+          </h3>
+          
+          {/* Error details */}
+          <div className={`p-4 mb-6 rounded-lg border ${
+            isDark 
+              ? 'bg-red-900/20 border-red-800' 
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <h4 className={`text-sm font-medium mb-2 ${
+              isDark ? 'text-red-100' : 'text-red-900'
+            }`}>
+              {t('authenticationError')}
+            </h4>
+            <p className={`text-sm mb-2 ${
+              isDark ? 'text-red-300' : 'text-red-700'
+            }`}>
+              {getErrorMessage(error)}
+            </p>
+            {error !== 'unknown_error' && (
+              <p className={`text-xs ${
+                isDark ? 'text-red-400' : 'text-red-600'
+              }`}>
+                Error code: {error}
+              </p>
+            )}
+          </div>
 
-          <button
-            onClick={() => router.push('/signin')}
-            className="w-full text-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-          >
-            Try a different sign-in method
-          </button>
-        </div>
+          <div className="flex gap-4 mb-6">
+            <button
+              onClick={() => router.push('/signin')}
+              className={`underline hover:no-underline text-base ${
+                isDark ? 'text-[#FAFAFA]' : 'text-[#111111]'
+              }`}
+            >
+              {t('backToSignIn')}
+            </button>
+            <button
+              onClick={() => router.push('/signin')}
+              className={`underline hover:no-underline text-base ${
+                isDark ? 'text-[#FAFAFA]/80' : 'text-[#111111]/70'
+              }`}
+            >
+              {t('tryDifferentMethod')}
+            </button>
+          </div>
 
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            If you continue to experience issues, please contact your administrator or{' '}
+          <p className={`text-sm ${
+            isDark ? 'text-[#FAFAFA]/60' : 'text-[#111111]/60'
+          }`}>
+            {t('contactAdmin')}{' '}
             <a
               href="mailto:support@blipee.com"
-              className="text-purple-600 dark:text-purple-400 hover:underline"
+              className={`underline hover:no-underline ${
+                isDark ? 'text-[#FAFAFA]' : 'text-[#111111]'
+              }`}
             >
-              our support team
+              {t('supportTeam')}
             </a>
             .
           </p>
         </div>
-      </motion.div>
-    </AuthLayout>
+      </div>
+
+      {/* Large Shield icon in bottom right corner */}
+      <div className="absolute bottom-16 right-16 pointer-events-none">
+        <div className={`w-[680px] h-[680px] p-[2px] rounded-[74px] ${
+          isDark ? 'bg-[#FAFAFA]' : 'bg-[#111111]'
+        }`}>
+          <div className={`w-full h-full rounded-[72px] flex items-center justify-center ${
+            isDark ? 'bg-[#111111]' : 'bg-white'
+          }`}>
+            <Shield className={`w-[490px] h-[490px] ${
+              isDark ? 'text-[#FAFAFA]' : 'text-[#111111]'
+            }`} fill="none" strokeWidth="0.125" />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
 export default function SSOErrorPage() {
   return (
     <Suspense fallback={
-      <AuthLayout
-        title="Loading..."
-        subtitle="Please wait"
-      >
-        <div className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
-        </div>
-      </AuthLayout>
+      <div className="min-h-screen flex items-center justify-center bg-[#111111]">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#FAFAFA]"></div>
+      </div>
     }>
       <SSOErrorContent />
     </Suspense>
