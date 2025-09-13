@@ -110,29 +110,61 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
       
       if (!user) return;
 
-      const { data: userOrgs } = await supabase
-        .from('user_organizations')
-        .select('organization_id')
-        .eq('user_id', user.id);
+      // Check if user is super admin
+      const { data: superAdminRecord } = await supabase
+        .from('super_admins')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
 
-      const organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
+      const isSuperAdmin = !!superAdminRecord;
 
-      // Fetch sites
-      const { data: sitesData, error } = await supabase
-        .from('sites')
-        .select(`
-          *,
-          organizations (
-            name,
-            slug
-          )
-        `)
-        .in('organization_id', organizationIds)
-        .order('created_at', { ascending: false });
+      let sitesData;
 
-      if (error) {
-        console.error('Error fetching sites:', error);
-        return;
+      if (isSuperAdmin) {
+        // Super admin can see all sites
+        const { data: allSites, error } = await supabase
+          .from('sites')
+          .select(`
+            *,
+            organizations (
+              name,
+              slug
+            )
+          `)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching sites:', error);
+          return;
+        }
+        sitesData = allSites;
+      } else {
+        // Regular user - fetch their organizations' sites
+        const { data: userOrgs } = await supabase
+          .from('user_organizations')
+          .select('organization_id')
+          .eq('user_id', user.id);
+
+        const organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
+
+        const { data: userSites, error } = await supabase
+          .from('sites')
+          .select(`
+            *,
+            organizations (
+              name,
+              slug
+            )
+          `)
+          .in('organization_id', organizationIds)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching sites:', error);
+          return;
+        }
+        sitesData = userSites;
       }
 
       // Count devices for each site
@@ -497,6 +529,8 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
         mode={modalMode}
         data={selectedSite}
         supabase={supabase}
+        organizations={organizations}
+        userRole={userRole}
       />
     </SettingsLayout>
   );

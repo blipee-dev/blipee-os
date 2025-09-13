@@ -14,9 +14,11 @@ interface SitesModalProps {
   mode?: 'create' | 'edit' | 'view';
   data?: any;
   supabase: SupabaseClient;
+  organizations?: any[];
+  userRole?: string;
 }
 
-export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create', data, supabase }: SitesModalProps) {
+export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create', data, supabase, organizations, userRole }: SitesModalProps) {
   const t = useTranslations('settings.sites.modal');
   const defaultsT = useTranslations('defaults.organization');
   const [loading, setLoading] = useState(false);
@@ -27,6 +29,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
     name: "",
     location: "",
     organization: defaultsT('name'),
+    organization_id: "",
     address: {
       street: "",
       city: "",
@@ -52,6 +55,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         name: data.name || "",
         location: data.location || "",
         organization: data.organization || defaultsT('name'),
+        organization_id: data.organization_id || "",
         address: data.address || {
           street: "",
           city: "",
@@ -72,6 +76,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         name: "",
         location: "",
         organization: defaultsT('name'),
+        organization_id: organizations?.[0]?.id || "",
         address: {
           street: "",
           city: "",
@@ -138,20 +143,28 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         throw new Error('User not authenticated');
       }
 
-      // Get user's organization
-      const { data: userOrgs, error: orgError } = await supabase
-        .from('user_organizations')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .single();
+      // Determine organization_id
+      let organizationId = formData.organization_id;
+      
+      if (!organizationId && userRole !== 'super_admin') {
+        // For non-super admins, get their organization
+        const { data: userOrgs, error: orgError } = await supabase
+          .from('user_organizations')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .single();
 
-      if (orgError || !userOrgs) {
-        throw new Error('Organization not found');
+        if (orgError || !userOrgs) {
+          throw new Error('Organization not found');
+        }
+        organizationId = userOrgs.organization_id;
+      } else if (!organizationId) {
+        throw new Error('Please select an organization');
       }
 
       const siteData = {
         ...formData,
-        organization_id: userOrgs.organization_id,
+        organization_id: organizationId,
         address: {
           street: formData.address.street || '',
           city: formData.address.city || '',
@@ -238,6 +251,25 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                {/* Organization Selection for Super Admin */}
+                {userRole === 'super_admin' && organizations && organizations.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Organization *
+                    </label>
+                    <CustomDropdown
+                      value={formData.organization_id}
+                      onChange={(value) => setFormData({...formData, organization_id: value as string})}
+                      options={organizations.map(org => ({
+                        value: org.id,
+                        label: org.name
+                      }))}
+                      className="w-full"
+                      disabled={mode === 'view' || mode === 'edit'}
+                    />
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
