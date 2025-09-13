@@ -25,6 +25,7 @@ import { format, isToday, isYesterday, isThisWeek, isThisMonth } from "date-fns"
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/context";
 import { getUserInitials, getUserDisplayName } from "@/lib/utils/user";
+import { useTranslations } from "@/providers/LanguageProvider";
 
 interface Conversation {
   id: string;
@@ -68,8 +69,9 @@ export function ConversationSidebar({
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { user, signOut } = useAuth();
+  const t = useTranslations('conversation.sidebar');
   
-  const userDisplayName = user ? getUserDisplayName(user) : 'User';
+  const userDisplayName = user ? getUserDisplayName(user) : t('defaultUser');
   const userInitials = user ? getUserInitials(
     user?.full_name || (user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.first_name) || null,
     user?.email
@@ -97,11 +99,11 @@ export function ConversationSidebar({
   // Group conversations by date
   const groupedConversations = React.useMemo(() => {
     const groups: Record<string, Conversation[]> = {
-      Today: [],
-      Yesterday: [],
-      "This Week": [],
-      "This Month": [],
-      Older: [],
+      [t('groups.today')]: [],
+      [t('groups.yesterday')]: [],
+      [t('groups.thisWeek')]: [],
+      [t('groups.thisMonth')]: [],
+      [t('groups.older')]: [],
     };
 
     const filtered = conversations.filter((conv) =>
@@ -112,15 +114,15 @@ export function ConversationSidebar({
     filtered.forEach((conv) => {
       const date = new Date(conv.timestamp);
       if (isToday(date)) {
-        groups["Today"].push(conv);
+        groups[t('groups.today')].push(conv);
       } else if (isYesterday(date)) {
-        groups["Yesterday"].push(conv);
+        groups[t('groups.yesterday')].push(conv);
       } else if (isThisWeek(date)) {
-        groups["This Week"].push(conv);
+        groups[t('groups.thisWeek')].push(conv);
       } else if (isThisMonth(date)) {
-        groups["This Month"].push(conv);
+        groups[t('groups.thisMonth')].push(conv);
       } else {
-        groups["Older"].push(conv);
+        groups[t('groups.older')].push(conv);
       }
     });
 
@@ -136,7 +138,7 @@ export function ConversationSidebar({
     if (isToday(date)) {
       return format(date, "h:mm a");
     } else if (isYesterday(date)) {
-      return "Yesterday";
+      return t('groups.yesterday');
     } else if (isThisWeek(date)) {
       return format(date, "EEEE");
     } else {
@@ -166,7 +168,7 @@ export function ConversationSidebar({
           <button
             onClick={onNewConversation}
             className="w-full p-2 flex items-center justify-center rounded-lg hover:accent-bg-hover transition-all"
-            title="New chat"
+            title={t('buttons.newChat')}
           >
             <svg className="w-5 h-5 accent-text" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -182,7 +184,7 @@ export function ConversationSidebar({
                   ? "bg-gray-100 dark:bg-[#757575] text-gray-900 dark:text-white"
                   : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-gray-600 dark:text-gray-400"
               }`}
-              title="Chats"
+              title={t('buttons.chats')}
             >
               <MessageSquare className="w-5 h-5" />
             </button>
@@ -197,7 +199,7 @@ export function ConversationSidebar({
                   ? "bg-gray-100 dark:bg-[#757575] text-gray-900 dark:text-white"
                   : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-gray-600 dark:text-gray-400"
               }`}
-              title="Library"
+              title={t('buttons.library')}
             >
               <Library className="w-5 h-5" />
             </button>
@@ -226,7 +228,7 @@ export function ConversationSidebar({
           <button
             onClick={() => router.push('/settings/organizations')}
             className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-            title="Settings"
+            title={t('buttons.settings')}
           >
             <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
@@ -243,7 +245,7 @@ export function ConversationSidebar({
               }
             }}
             className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-            title="Sign out"
+            title={t('buttons.signOut')}
           >
             <LogOut className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
@@ -252,7 +254,7 @@ export function ConversationSidebar({
           <button
             onClick={onToggleCollapse}
             className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-            title="Expand sidebar"
+            title={t('buttons.expandSidebar')}
           >
             <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
@@ -299,7 +301,7 @@ export function ConversationSidebar({
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Search by title or content..."
+                      placeholder={t('search.placeholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       autoFocus
@@ -313,7 +315,7 @@ export function ConversationSidebar({
                   {Object.keys(groupedConversations).length === 0 ? (
                     <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                       <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p className="text-sm">No conversations found</p>
+                      <p className="text-sm">{t('empty.noConversationsFound')}</p>
                     </div>
                   ) : (
                     <div className="p-4">
@@ -416,7 +418,7 @@ export function ConversationSidebar({
           <svg className="w-4 h-4 accent-text" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="text-sm accent-text font-medium">New chat</span>
+          <span className="text-sm accent-text font-medium">{t('buttons.newChat')}</span>
         </button>
 
         {/* Chats Link */}
@@ -434,7 +436,7 @@ export function ConversationSidebar({
               showChats 
                 ? "text-gray-900 dark:text-white font-medium" 
                 : "text-gray-700 dark:text-gray-300"
-            }`}>Chats</span>
+            }`}>{t('buttons.chats')}</span>
           </button>
         )}
         
@@ -453,7 +455,7 @@ export function ConversationSidebar({
               showArtifacts 
                 ? "text-gray-900 dark:text-white font-medium" 
                 : "text-gray-700 dark:text-gray-300"
-            }`}>Library</span>
+            }`}>{t('buttons.library')}</span>
           </button>
         )}
       </div>
@@ -463,14 +465,14 @@ export function ConversationSidebar({
         <div className="p-2">
           {/* Recents Header */}
           <div className="px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-            Recents
+            {t('sections.recents')}
           </div>
           
           {conversations.length === 0 ? (
             <div className="p-4 text-center text-gray-500 dark:text-gray-400">
               <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">No conversations yet</p>
-              <p className="text-xs mt-1">Start a new conversation to begin</p>
+              <p className="text-sm">{t('empty.noConversations')}</p>
+              <p className="text-xs mt-1">{t('empty.startConversation')}</p>
             </div>
           ) : (
             <div className="space-y-1">
@@ -535,7 +537,7 @@ export function ConversationSidebar({
                         className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] flex items-center gap-2"
                       >
                         <Pin className="w-4 h-4" />
-                        Pin
+                        {t('actions.pin')}
                       </button>
                       <button
                         onClick={(e) => {
@@ -546,7 +548,7 @@ export function ConversationSidebar({
                         className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] flex items-center gap-2"
                       >
                         <Edit3 className="w-4 h-4" />
-                        Rename
+                        {t('actions.rename')}
                       </button>
                       <button
                         onClick={(e) => {
@@ -557,7 +559,7 @@ export function ConversationSidebar({
                         className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] flex items-center gap-2"
                       >
                         <Trash2 className="w-4 h-4" />
-                        Delete
+                        {t('actions.delete')}
                       </button>
                     </div>
                   )}
@@ -590,7 +592,7 @@ export function ConversationSidebar({
           className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
         >
           <Settings className="w-4 h-4" />
-          Settings
+          {t('buttons.settings')}
         </button>
 
 
@@ -607,7 +609,7 @@ export function ConversationSidebar({
           className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
         >
           <LogOut className="w-4 h-4" />
-          Sign out
+          {t('buttons.signOut')}
         </button>
 
         {/* Collapse Button */}
@@ -616,7 +618,7 @@ export function ConversationSidebar({
           className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
         >
           <ChevronLeft className="w-4 h-4" />
-          Collapse sidebar
+          {t('buttons.collapseSidebar')}
         </button>
       </div>
     </div>
@@ -661,7 +663,7 @@ export function ConversationSidebar({
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search by title or content..."
+                  placeholder={t('search.placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   autoFocus

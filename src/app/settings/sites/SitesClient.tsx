@@ -19,9 +19,11 @@ import {
 } from "lucide-react";
 import SitesModal from "@/components/admin/SitesModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from '@/providers/LanguageProvider';
 
 interface Site {
   id: string;
@@ -49,6 +51,7 @@ interface SitesClientProps {
 }
 
 export default function SitesClient({ initialSites, organizations, userRole }: SitesClientProps) {
+  const t = useTranslations('settings.sites');
   const [sites, setSites] = useState<Site[]>(initialSites);
   const [showSiteModal, setShowSiteModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -108,29 +111,62 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
       
       if (!user) return;
 
-      const { data: userOrgs } = await supabase
-        .from('user_organizations')
-        .select('organization_id')
-        .eq('user_id', user.id);
+      // Check if user is super admin
+      const { data: superAdminRecord } = await supabase
+        .from('super_admins')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      const organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
+      const isSuperAdmin = !!superAdminRecord;
 
-      // Fetch sites
-      const { data: sitesData, error } = await supabase
-        .from('sites')
-        .select(`
-          *,
-          organizations (
-            name,
-            slug
-          )
-        `)
-        .in('organization_id', organizationIds)
-        .order('created_at', { ascending: false });
+      let sitesData;
 
-      if (error) {
-        console.error('Error fetching sites:', error);
-        return;
+      if (isSuperAdmin) {
+        // Super admin can see all sites
+        const { data: allSites, error } = await supabase
+          .from('sites')
+          .select(`
+            *,
+            organizations (
+              name,
+              slug
+            )
+          `)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching sites:', error);
+          return;
+        }
+        sitesData = allSites;
+      } else {
+        // Regular user - fetch their organizations' sites through user_access
+        const { data: userAccess } = await supabase
+          .from('user_access')
+          .select('resource_id')
+          .eq('user_id', user.id)
+          .eq('resource_type', 'organization');
+
+        const organizationIds = userAccess?.map(ua => ua.resource_id) || [];
+
+        const { data: userSites, error } = await supabase
+          .from('sites')
+          .select(`
+            *,
+            organizations (
+              name,
+              slug
+            )
+          `)
+          .in('organization_id', organizationIds)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching sites:', error);
+          return;
+        }
+        sitesData = userSites;
       }
 
       // Count devices for each site
@@ -161,7 +197,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
   };
 
   const handleDelete = async (site: Site) => {
-    if (!confirm(`Are you sure you want to delete ${site.name}?`)) return;
+    if (!confirm(`${t('modal.messages.deleteConfirm')} ${site.name}?`)) return;
 
     setLoading(true);
     try {
@@ -172,7 +208,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
 
       if (error) {
         console.error('Error deleting site:', error);
-        alert('Failed to delete site');
+        alert(t('modal.messages.deleteFailed'));
         return;
       }
 
@@ -187,33 +223,32 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
     console.log('Pin site:', site.name);
   };
 
-  // Can user perform actions?
-  const canManage = userRole === 'account_owner' || userRole === 'admin' || userRole === 'manager';
+  // Can user perform actions? (Based on RBAC: owner and manager can create sites, super_admin has all permissions)
+  const canManage = userRole === 'super_admin' || userRole === 'owner' || userRole === 'manager';
 
   // Pagination Component
   const PaginationControls = () => {
     return (
       <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-white/[0.05]">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label htmlFor="items-per-page" className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
-              Items per page:
-            </label>
-            <select
-              id="items-per-page"
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto">
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:block text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
+              {t('pagination.itemsPerPage')}
+            </span>
+            <CustomDropdown
               value={itemsPerPage}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 accent-ring"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
+              onChange={handleItemsPerPageChange}
+              options={[
+                { value: 5, label: "5" },
+                { value: 10, label: "10" },
+                { value: 20, label: "20" },
+                { value: 50, label: "50" },
+              ]}
+            />
           </div>
           
-          <div className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
-            Showing {Math.min(startIndex + 1, totalItems)}-{Math.min(endIndex, totalItems)} of {totalItems}
+          <div className="text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
+            {t('pagination.showing')} {Math.min(startIndex + 1, totalItems)}-{Math.min(endIndex, totalItems)} {t('pagination.of')} {totalItems}
           </div>
         </div>
 
@@ -293,10 +328,10 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
   };
 
   return (
-    <SettingsLayout pageTitle="Sites">
+    <SettingsLayout pageTitle={t('title')}>
       <header className="hidden md:block p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05]">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">Sites Management</h1>
-        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">Manage your sites and locations</p>
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
+        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">{t('subtitle')}</p>
       </header>
 
       <main className="p-4 sm:p-6">
@@ -306,7 +341,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#757575]" />
             <input
               type="text"
-              placeholder="Search sites..."
+              placeholder={t('search.placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 accent-ring text-sm"
@@ -315,21 +350,21 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
           
           <button 
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-            title="Filter"
+            title={t('buttons.filter')}
           >
             <Filter className="w-4 h-4" />
           </button>
           
           <button 
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-            title="Download"
+            title={t('buttons.download')}
           >
             <Download className="w-4 h-4" />
           </button>
           
           <button 
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-            title="Upload"
+            title={t('buttons.upload')}
           >
             <Upload className="w-4 h-4" />
           </button>
@@ -343,7 +378,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
                 setShowSiteModal(true);
               }}
               className="p-2.5 accent-gradient-lr rounded-lg text-white hover:opacity-90 transition-opacity"
-              title="Add Site"
+              title={t('buttons.addSite')}
             >
               <Plus className="w-4 h-4" />
             </motion.button>
@@ -356,14 +391,14 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <div className="w-8 h-8 border-4 accent-border border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-500 dark:text-gray-400">Loading sites...</p>
+                <p className="text-gray-500 dark:text-gray-400">{t('loading.loadingSites')}</p>
               </div>
             </div>
           ) : currentData.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">No sites found</p>
+                <p className="text-gray-500 dark:text-gray-400">{t('empty.noSites')}</p>
                 {canManage && (
                   <button
                     onClick={() => {
@@ -372,7 +407,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
                     }}
                     className="mt-4 px-4 py-2 accent-gradient-lr text-white rounded-lg hover:opacity-90"
                   >
-                    Add Your First Site
+                    {t('empty.addFirst')}
                   </button>
                 )}
               </div>
@@ -384,22 +419,22 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
                   <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
                     <tr>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
-                        Site
+                        {t('table.headers.site')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Location
+                        {t('table.headers.location')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        Organization
+                        {t('table.headers.organization')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
-                        Details
+                        {t('table.headers.details')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        Devices
+                        {t('table.headers.devices')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        Status
+                        {t('table.headers.status')}
                       </th>
                       <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
                         
@@ -419,7 +454,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
                                 {site.name}
                               </div>
                               <div className="text-xs text-gray-500 dark:text-gray-400">
-                                {site.type || 'Office'}
+                                {site.type ? t(`modal.types.${site.type.toLowerCase()}`) : t('table.fallbackType')}
                               </div>
                             </div>
                           </div>
@@ -435,7 +470,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
                             {site.total_area_sqm && (
                               <div className="flex items-center gap-1">
                                 <Building2 className="w-3 h-3" />
-                                {site.total_area_sqm} sqm
+                                {site.total_area_sqm} {t('table.details.area')}
                               </div>
                             )}
                             {site.total_employees && (
@@ -447,7 +482,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
                             {site.floors && (
                               <div className="flex items-center gap-1">
                                 <Layers className="w-3 h-3" />
-                                {site.floors} floors
+                                {site.floors} {t('table.details.floors')}
                               </div>
                             )}
                           </div>
@@ -463,7 +498,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
                               ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400'
                               : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
                           }`}>
-                            {site.status || 'active'}
+                            {t(`table.status.${site.status || 'active'}`)}
                           </span>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -495,6 +530,8 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
         mode={modalMode}
         data={selectedSite}
         supabase={supabase}
+        organizations={organizations}
+        userRole={userRole}
       />
     </SettingsLayout>
   );

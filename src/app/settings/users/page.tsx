@@ -62,28 +62,45 @@ export default async function UsersPage() {
     
     appUsers = allUsers;
   } else {
-    // Regular user - fetch their organizations and users
-    const { data: userOrgData, error: orgsError } = await supabase
-      .from('user_organizations')
-      .select(`
-        organization_id,
-        role,
-        organizations (
-          id,
-          name,
-          slug
-        )
-      `)
-      .eq('user_id', user.id);
+    // Regular users - fetch their organizations through user_access table
+    const { data: userAccess, error: userAccessError } = await supabase
+      .from('user_access')
+      .select('resource_id, role')
+      .eq('user_id', user.id)
+      .eq('resource_type', 'organization');
 
-    if (orgsError) {
-      console.error('Error fetching organizations:', orgsError);
-      // If there's an error fetching organizations, redirect to home
+    if (userAccessError) {
+      console.error('Error fetching user access:', userAccessError);
       redirect('/');
     }
 
-    userOrgs = userOrgData || [];
-    organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
+    if (!userAccess || userAccess.length === 0) {
+      console.log('User has no organization access');
+      redirect('/');
+    }
+
+    // Get organization IDs from user access
+    organizationIds = userAccess.map(ua => ua.resource_id);
+    
+    // Fetch organization details
+    const { data: orgsData, error: orgsDataError } = await supabase
+      .from('organizations')
+      .select('id, name, slug')
+      .in('id', organizationIds);
+      
+    if (orgsDataError) {
+      console.error('Error fetching organization data:', orgsDataError);
+    }
+    
+    // Map organizations with their roles from user_access
+    userOrgs = orgsData?.map(org => {
+      const access = userAccess.find(ua => ua.resource_id === org.id);
+      return {
+        organization_id: org.id,
+        role: access?.role || 'viewer',
+        organizations: org
+      };
+    }) || [];
     
     // If user has no organizations, try to get from app_users table
     if (userOrgs.length === 0) {
@@ -111,9 +128,9 @@ export default async function UsersPage() {
       }
     }
     
-    // Check if user has permission to manage users (account_owner or sustainability_manager)
+    // Check if user has permission to manage users (owner or manager roles from RBAC)
     const hasPermission = userOrgs.some(uo => 
-      ['account_owner', 'sustainability_manager', 'facility_manager'].includes(uo.role)
+      ['owner', 'manager'].includes(uo.role)
     );
     
     if (!hasPermission && userOrgs.length > 0) {
@@ -151,7 +168,7 @@ export default async function UsersPage() {
     <UsersClient 
       initialUsers={appUsers || []}
       organizations={userOrgs?.map(uo => uo.organizations) || []}
-      userRole={userOrgs?.[0]?.role || 'viewer'}
+      userRole={isSuperAdmin ? 'super_admin' : (userOrgs?.[0]?.role || 'viewer')}
     />
   );
 }

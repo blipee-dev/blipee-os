@@ -72,8 +72,8 @@ export default function NotFound() {
         </div>
       </div>
 
-      {/* Large Home icon in bottom right */}
-      <div className="absolute bottom-8 right-8">
+      {/* Large Home icon in bottom right corner */}
+      <div className="absolute bottom-16 right-16 pointer-events-none">
         <div className={`w-[680px] h-[680px] p-[2px] rounded-[74px] ${
           isDark ? 'bg-[#FAFAFA]' : 'bg-[#111111]'
         }`}>

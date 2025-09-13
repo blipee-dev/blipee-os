@@ -36,6 +36,7 @@ interface UsersModalProps {
 export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create', data, organizations = [], supabase }: UsersModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userOrganizations, setUserOrganizations] = useState<any[]>([]);
   const t = useTranslations('settings.users');
@@ -200,19 +201,39 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                 </div>
               </div>
 
-              {/* Success Message */}
-              {/* No success state in users modal currently, but keeping structure consistent */}
-
-              {/* Error Message */}
+              {/* Messages at top */}
+              {success && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mx-6 mt-4 p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl"
+                >
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-900 dark:text-green-400">
+                        {mode === 'create' 
+                          ? t('modal.messages.userCreated')
+                          : t('modal.messages.userUpdated')}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+              
               {error && (
                 <motion.div
-                  initial={{ opacity: 0, y: -20 }}
+                  initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mx-6 mt-4 p-4 bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg"
+                  className="mx-6 mt-4 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl"
                 >
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 accent-text" />
-                    <p className="accent-text">{error}</p>
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-red-900 dark:text-red-400">
+                        {error}
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -227,10 +248,10 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                         <User className="w-5 h-5 accent-text" />
-                        {t('modal.fields.userProfile') || 'User Profile'}
+                        {t('modal.fields.userProfile')}
                       </h3>
                       
-                      <div className="flex items-center gap-4 p-6 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg">
+                      <div className="flex items-center gap-4 p-6 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl">
                         <div className="w-16 h-16 accent-gradient rounded-full flex items-center justify-center">
                           <span className="text-xl font-semibold text-white">
                             {data?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
@@ -265,29 +286,29 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                         <Building2 className="w-5 h-5 accent-text" />
-                        {t('modal.fields.accountDetails') || 'Account Details'}
+                        {t('modal.fields.accountDetails')}
                       </h3>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                              {t('modal.organization') || 'Organization'}
+                              {t('modal.organization')}
                             </label>
-                            <p className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
-                              {data?.organizations?.name || t('modal.fields.noOrganization') || 'No organization assigned'}
+                            <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
+                              {data?.organizations?.name || t('modal.fields.noOrganization')}
                             </p>
                           </div>
                           
                           <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               <Calendar className="inline w-4 h-4 mr-1" />
-                              {t('modal.lastLogin') || 'Last Login'}
+                              {t('modal.lastLogin')}
                             </label>
-                            <p className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
+                            <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
                               {data?.last_login 
                                 ? new Date(data.last_login).toLocaleString()
-                                : t('modal.fields.neverLoggedIn') || 'Never logged in'
+                                : t('modal.fields.neverLoggedIn')
                               }
                             </p>
                           </div>
@@ -297,10 +318,10 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                               <Calendar className="inline w-4 h-4 mr-1" />
                               {t('modal.fields.memberSince') || 'Member Since'}
                             </label>
-                            <p className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
+                            <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
                               {data?.created_at 
                                 ? new Date(data.created_at).toLocaleDateString()
-                                : t('status.pending') || 'Unknown'
+                                : t('status.pending')
                               }
                             </p>
                           </div>
@@ -311,7 +332,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               {t('modal.fields.userId') || 'User ID'}
                             </label>
-                            <p className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
+                            <p className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
                               {data?.id || 'N/A'}
                             </p>
                           </div>
@@ -321,10 +342,10 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                               <Calendar className="inline w-4 h-4 mr-1" />
                               {t('modal.fields.lastUpdated') || 'Last Updated'}
                             </label>
-                            <p className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
+                            <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
                               {data?.updated_at 
                                 ? new Date(data.updated_at).toLocaleDateString()
-                                : t('status.pending') || 'Never updated'
+                                : t('status.pending')
                               }
                             </p>
                           </div>
@@ -333,7 +354,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               {t('modal.fields.authUserId') || 'Auth User ID'}
                             </label>
-                            <p className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
+                            <p className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
                               {data?.auth_user_id || 'N/A'}
                             </p>
                           </div>
@@ -348,13 +369,13 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                         <User className="w-5 h-5 accent-text" />
-                        Basic Information
+                        {t('modal.sections.basicInfo')}
                       </h3>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            {t('modal.firstName')} *
+                            {t('modal.fields.name')} *
                           </label>
                           <input
                             type="text"
@@ -362,7 +383,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                             value={formData.name}
                             onChange={(e) => setFormData({...formData, name: e.target.value})}
                             readOnly={mode === 'view'}
-                            className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="w-full px-4 py-2 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 accent-ring focus:accent-border transition-all hover:border-gray-400 dark:hover:border-white/[0.1] disabled:opacity-60 disabled:cursor-not-allowed"
                             placeholder="John Doe"
                           />
                         </div>
@@ -378,7 +399,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                             value={formData.email}
                             onChange={(e) => setFormData({...formData, email: e.target.value})}
                             readOnly={mode === 'view'}
-                            className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="w-full px-4 py-2 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 accent-ring focus:accent-border transition-all hover:border-gray-400 dark:hover:border-white/[0.1] disabled:opacity-60 disabled:cursor-not-allowed"
                             placeholder="john@company.com"
                           />
                         </div>
@@ -393,7 +414,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                         <Shield className="w-5 h-5 accent-text" />
-                        Access & Permissions
+                        {t('modal.sections.accessPermissions')}
                       </h3>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -405,11 +426,11 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                             value={formData.role}
                             onChange={(value) => setFormData({...formData, role: value as string})}
                             options={[
-                              { value: "account_owner", label: t('roles.account_owner') },
-                              { value: "sustainability_manager", label: t('roles.sustainability_manager') },
-                              { value: "facility_manager", label: t('roles.facility_manager') },
-                              { value: "analyst", label: t('roles.analyst') },
-                              { value: "viewer", label: t('roles.viewer') }
+                              { value: "account_owner", label: t('modal.roles.account_owner') },
+                              { value: "sustainability_manager", label: t('modal.roles.sustainability_manager') },
+                              { value: "facility_manager", label: t('modal.roles.facility_manager') },
+                              { value: "analyst", label: t('modal.roles.analyst') },
+                              { value: "viewer", label: t('modal.roles.viewer') }
                             ]}
                             disabled={mode === 'view'}
                             className="w-full"
@@ -436,7 +457,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                         <CheckCircle className="w-5 h-5 accent-text" />
-                        Account Status
+                        {t('modal.sections.accountStatus')}
                       </h3>
                       
                       <div>
@@ -447,9 +468,9 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                           value={formData.status}
                           onChange={(value) => setFormData({...formData, status: value as string})}
                           options={[
-                            { value: "pending", label: t('status.pending') },
-                            { value: "active", label: t('status.active') },
-                            { value: "inactive", label: t('status.inactive') }
+                            { value: "pending", label: t('modal.statuses.pending') },
+                            { value: "active", label: t('modal.statuses.active') },
+                            { value: "inactive", label: t('modal.statuses.inactive') }
                           ]}
                           disabled={mode === 'view'}
                           className="w-full"
@@ -469,7 +490,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                       className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 checked:bg-gradient-to-r checked:from-purple-500 checked:to-pink-500 checked:border-transparent focus:ring-2 focus:ring-purple-500/20 focus:ring-offset-0 accent-purple-600"
                     />
                     <label htmlFor="sendInvite" className="text-sm text-gray-700 dark:text-gray-300">
-                      Send invitation email to user
+                      {t('modal.fields.sendInvite')}
                     </label>
                   </div>
                 )}
@@ -481,7 +502,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                     onClick={onClose}
                     className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                   >
-                    {t('modal.cancel')}
+                    {t('modal.buttons.cancel')}
                   </button>
                   {mode !== 'view' && (
                     <button
@@ -492,8 +513,8 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                       {loading && (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       )}
-                      {loading ? (mode === 'edit' ? t('messages.userUpdated') : t('messages.userCreated')) : 
-                       mode === 'edit' ? t('modal.save') : t('modal.save')}
+                      {loading ? (mode === 'edit' ? t('modal.buttons.updating') : t('modal.buttons.creating')) : 
+                       mode === 'edit' ? t('modal.buttons.update') : t('modal.buttons.create')}
                     </button>
                   )}
                 </div>
