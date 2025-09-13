@@ -115,7 +115,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
         .from('super_admins')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       const isSuperAdmin = !!superAdminRecord;
 
@@ -140,13 +140,14 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
         }
         sitesData = allSites;
       } else {
-        // Regular user - fetch their organizations' sites
-        const { data: userOrgs } = await supabase
-          .from('user_organizations')
-          .select('organization_id')
-          .eq('user_id', user.id);
+        // Regular user - fetch their organizations' sites through user_access
+        const { data: userAccess } = await supabase
+          .from('user_access')
+          .select('resource_id')
+          .eq('user_id', user.id)
+          .eq('resource_type', 'organization');
 
-        const organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
+        const organizationIds = userAccess?.map(ua => ua.resource_id) || [];
 
         const { data: userSites, error } = await supabase
           .from('sites')
@@ -221,8 +222,8 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
     console.log('Pin site:', site.name);
   };
 
-  // Can user perform actions?
-  const canManage = userRole === 'super_admin' || userRole === 'account_owner' || userRole === 'admin' || userRole === 'manager' || userRole === 'sustainability_manager' || userRole === 'facility_manager';
+  // Can user perform actions? (Based on RBAC: owner and manager can create sites, super_admin has all permissions)
+  const canManage = userRole === 'super_admin' || userRole === 'owner' || userRole === 'manager';
 
   // Pagination Component
   const PaginationControls = () => {
