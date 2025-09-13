@@ -19,7 +19,7 @@ import OrganizationModal from "@/components/admin/OrganizationModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "@/providers/LanguageProvider";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
@@ -40,7 +40,7 @@ export default function OrganizationSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   // Fetch organizations from database
   const fetchOrganizations = async () => {

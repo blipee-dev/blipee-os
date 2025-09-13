@@ -133,7 +133,11 @@
       "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/settings/sites/page.tsx src/app/settings/sites/SitesClient.tsx src/components/admin/SitesModal.tsx)",
       "Bash(open http://localhost:3000/doesnotexist)",
       "Bash(open http://localhost:3000/auth/sso/error?error=invalid_request)",
-      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/components/ui/CustomDropdown.tsx)"
+      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/components/ui/CustomDropdown.tsx)",
+      "Bash(open:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_r6GAge/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_nSxxzF/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_LdPTEF/**)"
     ],
     "deny": [],
     "ask": []
