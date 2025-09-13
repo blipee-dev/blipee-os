@@ -1452,7 +1452,13 @@
         "delete": "Eliminar",
         "confirmDelete": "¿Estás seguro de que deseas eliminar este usuario?",
         "deleteWarning": "Esta acción no se puede deshacer.",
+        "sections": {
+          "basicInfo": "Información Básica",
+          "accessPermissions": "Acceso y Permisos",
+          "accountStatus": "Estado de la Cuenta"
+        },
         "fields": {
+          "name": "Nombre Completo",
           "userProfile": "Perfil de Usuario",
           "accountDetails": "Detalles de Cuenta",
           "memberSince": "Miembro Desde",
@@ -1460,7 +1466,31 @@
           "lastUpdated": "Última Actualización",
           "authUserId": "ID de Usuario de Autenticación",
           "noOrganization": "Sin organización asignada",
-          "neverLoggedIn": "Nunca ha iniciado sesión"
+          "neverLoggedIn": "Nunca ha iniciado sesión",
+          "sendInvite": "Enviar correo de invitación al usuario"
+        },
+        "messages": {
+          "userCreated": "¡El usuario ha sido creado exitosamente!",
+          "userUpdated": "¡El usuario ha sido actualizado exitosamente!"
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "create": "Crear Usuario",
+          "update": "Actualizar Usuario",
+          "creating": "Creando...",
+          "updating": "Actualizando..."
+        },
+        "roles": {
+          "account_owner": "Propietario de Cuenta",
+          "sustainability_manager": "Gerente de Sostenibilidad",
+          "facility_manager": "Gerente de Instalaciones",
+          "analyst": "Analista",
+          "viewer": "Visualizador"
+        },
+        "statuses": {
+          "active": "Activo",
+          "inactive": "Inactivo",
+          "pending": "Pendiente"
         }
       },
       "pagination": {

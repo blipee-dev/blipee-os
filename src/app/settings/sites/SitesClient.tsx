@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import SitesModal from "@/components/admin/SitesModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -229,25 +230,24 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
   const PaginationControls = () => {
     return (
       <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-white/[0.05]">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label htmlFor="items-per-page" className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto">
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:block text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
               {t('pagination.itemsPerPage')}
-            </label>
-            <select
-              id="items-per-page"
+            </span>
+            <CustomDropdown
               value={itemsPerPage}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-2 py-1 text-xs sm:text-sm bg-white dark:bg-[#212121] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:ring-2 accent-ring"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
+              onChange={handleItemsPerPageChange}
+              options={[
+                { value: 5, label: "5" },
+                { value: 10, label: "10" },
+                { value: 20, label: "20" },
+                { value: 50, label: "50" },
+              ]}
+            />
           </div>
           
-          <div className="text-xs sm:text-sm text-[#616161] dark:text-[#757575]">
+          <div className="text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
             {t('pagination.showing')} {Math.min(startIndex + 1, totalItems)}-{Math.min(endIndex, totalItems)} {t('pagination.of')} {totalItems}
           </div>
         </div>
