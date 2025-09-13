@@ -128,7 +128,9 @@
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_Wvjegg/**)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_IIOqdO/**)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_Cuacsv/**)",
-      "Bash(jq:*)"
+      "Bash(jq:*)",
+      "Bash(gh pr:*)",
+      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/settings/sites/page.tsx src/app/settings/sites/SitesClient.tsx src/components/admin/SitesModal.tsx)"
     ],
     "deny": [],
     "ask": []

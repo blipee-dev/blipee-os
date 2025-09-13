@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, MapPin, Building2, Wifi, AlertCircle, CheckCircle, Plus, Trash2 } from "lucide-react";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { useTranslations } from "@/providers/LanguageProvider";
 
 interface SitesModalProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ interface SitesModalProps {
 }
 
 export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create', data, supabase }: SitesModalProps) {
+  const t = useTranslations('settings.sites.modal');
+  const defaultsT = useTranslations('defaults.organization');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -23,18 +26,18 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
   const [formData, setFormData] = useState({
     name: "",
     location: "",
-    organization: "PLMJ",
+    organization: defaultsT('name'),
     address: {
       street: "",
       city: "",
       postal_code: "",
-      country: "Portugal"
+      country: defaultsT('country')
     },
     type: "office",
     total_area_sqm: "",
     total_employees: "",
     floors: "",
-    timezone: "Europe/Lisbon",
+    timezone: defaultsT('timezone'),
     floor_details: [] as Array<{ floor: number; area_sqm: number; employees: number }>,
     metadata: {} as any
   });
@@ -48,18 +51,18 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
       setFormData({
         name: data.name || "",
         location: data.location || "",
-        organization: data.organization || "PLMJ",
+        organization: data.organization || defaultsT('name'),
         address: data.address || {
           street: "",
           city: "",
           postal_code: "",
-          country: "Portugal"
+          country: defaultsT('country')
         },
         type: data.type || "office",
         total_area_sqm: data.total_area_sqm?.toString() || "",
         total_employees: data.total_employees?.toString() || "",
         floors: data.floors?.toString() || "",
-        timezone: data.timezone || "Europe/Lisbon",
+        timezone: data.timezone || defaultsT('timezone'),
         floor_details: data.floor_details || [],
         metadata: data.metadata || {}
       });
@@ -68,18 +71,18 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
       setFormData({
         name: "",
         location: "",
-        organization: "PLMJ",
+        organization: defaultsT('name'),
         address: {
           street: "",
           city: "",
           postal_code: "",
-          country: "Portugal"
+          country: defaultsT('country')
         },
         type: "office",
         total_area_sqm: "",
         total_employees: "",
         floors: "",
-        timezone: "Europe/Lisbon",
+        timezone: defaultsT('timezone'),
         floor_details: [],
         metadata: {}
       });
@@ -225,7 +228,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                       <MapPin className="w-6 h-6 text-white" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {mode === 'edit' ? 'Edit Site' : mode === 'view' ? 'View Site' : 'Add New Site'}
+                      {mode === 'edit' ? t('title.edit') : mode === 'view' ? t('title.view') : t('title.add')}
                     </h2>
                   </div>
                   <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors">
@@ -238,7 +241,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Site Name *
+                      {t('fields.siteName')} *
                     </label>
                     <input
                       type="text"
@@ -247,13 +250,13 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
                       readOnly={mode === 'view'}
                       className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
-                      placeholder="e.g., Headquarters"
+                      placeholder={t('placeholders.siteName')}
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Location *
+                      {t('fields.location')} *
                     </label>
                     <input
                       type="text"
@@ -261,7 +264,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                       value={formData.location}
                       onChange={(e) => setFormData({...formData, location: e.target.value})}
                       className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., Lisbon"
+                      placeholder={t('placeholders.location')}
                     />
                   </div>
                 </div>
@@ -269,19 +272,19 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Site Type
+                      {t('fields.siteType')}
                     </label>
                     <CustomDropdown
                       value={formData.type}
                       onChange={(value) => setFormData({...formData, type: value as string})}
                       options={[
-                        { value: "office", label: "Office" },
-                        { value: "warehouse", label: "Warehouse" },
-                        { value: "retail", label: "Retail" },
-                        { value: "industrial", label: "Industrial" },
-                        { value: "healthcare", label: "Healthcare" },
-                        { value: "manufacturing", label: "Manufacturing" },
-                        { value: "datacenter", label: "Data Center" }
+                        { value: "office", label: t('types.office') },
+                        { value: "warehouse", label: t('types.warehouse') },
+                        { value: "retail", label: t('types.retail') },
+                        { value: "industrial", label: t('types.industrial') },
+                        { value: "healthcare", label: t('types.healthcare') },
+                        { value: "manufacturing", label: t('types.manufacturing') },
+                        { value: "datacenter", label: t('types.datacenter') }
                       ]}
                       className="w-full"
                     />
@@ -289,7 +292,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Total Area (sqm)
+                      {t('fields.totalArea')}
                     </label>
                     <input
                       type="number"
@@ -297,7 +300,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                       onChange={(e) => setFormData({...formData, total_area_sqm: e.target.value})}
                       readOnly={mode === 'view'}
                       className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., 5000"
+                      placeholder={t('placeholders.totalArea')}
                     />
                   </div>
                 </div>
@@ -305,7 +308,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Total Employees
+                      {t('fields.totalEmployees')}
                     </label>
                     <input
                       type="number"
@@ -313,13 +316,13 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                       onChange={(e) => setFormData({...formData, total_employees: e.target.value})}
                       readOnly={mode === 'view'}
                       className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., 50"
+                      placeholder={t('placeholders.totalEmployees')}
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Number of Floors
+                      {t('fields.numberOfFloors')}
                     </label>
                     <input
                       type="number"
@@ -327,7 +330,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                       onChange={(e) => setFormData({...formData, floors: e.target.value})}
                       readOnly={mode === 'view'}
                       className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., 5"
+                      placeholder={t('placeholders.numberOfFloors')}
                     />
                   </div>
                 </div>
@@ -336,7 +339,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                 <div className="border-t border-gray-200 dark:border-white/10 pt-4">
                   <div className="flex items-center justify-between mb-4">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Detailed Floor Information
+                      {t('fields.detailedFloor')}
                     </label>
                     <button
                       type="button"
@@ -344,7 +347,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                       disabled={mode === 'view'}
                       className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      {showFloorDetails ? 'Use Overall Values Only' : 'Add Floor-by-Floor Details'}
+                      {showFloorDetails ? t('fields.useOverall') : t('fields.addFloorByFloor')}
                     </button>
                   </div>
                   
@@ -354,7 +357,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                         <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/5 rounded-lg">
                           <div className="flex-1 grid grid-cols-3 gap-3">
                             <div>
-                              <label className="text-xs text-gray-600 dark:text-gray-400">Floor</label>
+                              <label className="text-xs text-gray-600 dark:text-gray-400">{t('fields.floor')}</label>
                               <input
                                 type="number"
                                 value={floor.floor}
@@ -364,7 +367,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-gray-600 dark:text-gray-400">Area (sqm)</label>
+                              <label className="text-xs text-gray-600 dark:text-gray-400">{t('fields.area')}</label>
                               <input
                                 type="number"
                                 value={floor.area_sqm}
@@ -374,7 +377,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-gray-600 dark:text-gray-400">Employees</label>
+                              <label className="text-xs text-gray-600 dark:text-gray-400">{t('fields.employees')}</label>
                               <input
                                 type="number"
                                 value={floor.employees}
@@ -403,7 +406,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                           className="w-full p-2 border-2 border-dashed border-gray-300 dark:border-white/20 rounded-lg text-gray-600 dark:text-gray-400 hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center justify-center gap-2"
                         >
                           <Plus className="w-4 h-4" />
-                          Add Floor
+                          {t('fields.addFloor')}
                         </button>
                       )}
                     </div>
@@ -421,7 +424,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                 {success && (
                   <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg">
                     <CheckCircle className="w-5 h-5" />
-                    <span className="text-sm">Site {mode === 'edit' ? 'updated' : 'created'} successfully!</span>
+                    <span className="text-sm">{mode === 'edit' ? t('messages.updateSuccess') : t('messages.createSuccess')}</span>
                   </div>
                 )}
 
@@ -431,17 +434,17 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                     onClick={onClose}
                     className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                   >
-                    Cancel
+                    {t('buttons.cancel')}
                   </button>
                   <button
                     type="submit"
                     disabled={loading || mode === 'view'}
                     className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50"
                   >
-                    {loading ? (mode === 'edit' ? "Updating..." : "Creating...") : 
-                     mode === 'edit' ? "Update" : 
-                     mode === 'view' ? "View Only" : 
-                     "Create"}
+                    {loading ? (mode === 'edit' ? t('buttons.updating') : t('buttons.creating')) : 
+                     mode === 'edit' ? t('buttons.update') : 
+                     mode === 'view' ? t('buttons.viewOnly') : 
+                     t('buttons.create')}
                   </button>
                 </div>
               </form>
