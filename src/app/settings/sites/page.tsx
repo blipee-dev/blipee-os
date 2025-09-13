@@ -17,7 +17,7 @@ export default async function SitesPage() {
     .from('super_admins')
     .select('id')
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
 
   const isSuperAdmin = !!superAdminRecord;
 
@@ -60,26 +60,43 @@ export default async function SitesPage() {
     
     sites = allSites;
   } else {
-    // Regular user - fetch their organizations
-    const { data: userOrgData, error: orgsError } = await supabase
-      .from('user_organizations')
-      .select(`
-        organization_id,
-        role,
-        organizations (
-          id,
-          name,
-          slug
-        )
-      `)
-      .eq('user_id', user.id);
+    // Regular users - fetch their organizations through user_access table
+    const { data: userAccess, error: userAccessError } = await supabase
+      .from('user_access')
+      .select('resource_id, role')
+      .eq('user_id', user.id)
+      .eq('resource_type', 'organization');
 
-    if (orgsError) {
-      console.error('Error fetching organizations:', orgsError);
+    if (userAccessError) {
+      console.error('Error fetching user access:', userAccessError);
     }
 
-    userOrgs = userOrgData || [];
-    organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
+    userOrgs = [];
+    organizationIds = [];
+
+    // If user has access to organizations, fetch them
+    if (userAccess && userAccess.length > 0) {
+      organizationIds = userAccess.map(ua => ua.resource_id);
+      
+      const { data: orgsData, error: orgsError } = await supabase
+        .from('organizations')
+        .select('id, name, slug')
+        .in('id', organizationIds);
+
+      if (orgsError) {
+        console.error('Error fetching organizations:', orgsError);
+      }
+
+      // Map organizations with their roles from user_access
+      userOrgs = orgsData?.map(org => {
+        const access = userAccess.find(ua => ua.resource_id === org.id);
+        return {
+          organization_id: org.id,
+          role: access?.role || 'viewer',
+          organizations: org
+        };
+      }) || [];
+    }
 
     // Fetch sites for user's organizations only
     const { data: userSites, error: sitesError } = await supabase
