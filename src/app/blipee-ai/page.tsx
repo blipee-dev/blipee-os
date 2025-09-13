@@ -5,17 +5,19 @@ import { LazyConversationInterface } from "@/components/lazy";
 import { useAuth } from "@/lib/auth/context";
 import { Leaf, TrendingDown, FileText, Target } from "lucide-react";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { useTranslations } from "@/providers/LanguageProvider";
 
 export default function DashboardPage() {
   useAuthRedirect('/blipee-ai');
   
   const { session } = useAuth();
+  const t = useTranslations('blipee-ai');
 
   // For now, we'll use a simplified context that focuses on sustainability
   // In the future, this can be enhanced with actual organization/building data
   const sustainabilityContext = {
     id: session?.current_organization?.id || "demo",
-    name: session?.current_organization?.name || "Your Organization",
+    name: session?.current_organization?.name || t('defaultOrganization'),
     organizationId: session?.current_organization?.id || "demo",
     metadata: {
       size_sqft: 50000,
@@ -44,7 +46,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white/60">
-                      Monthly Reduction
+                      {t('dashboard.monthlyReduction')}
                     </p>
                     <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
                       -12.3%
@@ -58,7 +60,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white/60">
-                      Target Progress
+                      {t('dashboard.targetProgress')}
                     </p>
                     <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
                       67%
@@ -72,10 +74,10 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white/60">
-                      Reports Ready
+                      {t('dashboard.reportsReady')}
                     </p>
                     <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
-                      3 new
+                      {t('dashboard.newReports', { count: 3 })}
                     </p>
                   </div>
                 </div>
@@ -84,7 +86,7 @@ export default function DashboardPage() {
               {/* Platform Badge - Hidden on mobile, shown on sm+ */}
               <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-white/50">
                 <Leaf className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 dark:text-green-400" />
-                <span className="hidden md:inline">Sustainability First Platform</span>
+                <span className="hidden md:inline">{t('dashboard.platformBadge')}</span>
               </div>
             </div>
           </div>

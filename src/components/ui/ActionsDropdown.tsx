@@ -16,6 +16,7 @@ interface ActionsDropdownProps {
   showPin?: boolean;
   showStar?: boolean;
   showRename?: boolean;
+  isPinned?: boolean;
 }
 
 export default function ActionsDropdown({
@@ -29,6 +30,7 @@ export default function ActionsDropdown({
   showPin = true,
   showStar = false,
   showRename = false,
+  isPinned = false,
 }: ActionsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -96,8 +98,8 @@ export default function ActionsDropdown({
                   onClick={() => handleAction(onPin)}
                   className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/[0.05] flex items-center gap-3 transition-colors"
                 >
-                  <Pin className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
-                  <span>{t('common.pin') || 'Pin'}</span>
+                  <Pin className={`w-4 h-4 ${isPinned ? 'text-purple-500' : 'text-[#616161] dark:text-[#757575]'}`} />
+                  <span>{isPinned ? (t('common.unpin') || 'Unpin') : (t('common.pin') || 'Pin')}</span>
                 </button>
               )}
               
