@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
 /**
@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
  */
 export function useAuthRedirect(redirectTo?: string) {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     const checkAuth = async () => {
