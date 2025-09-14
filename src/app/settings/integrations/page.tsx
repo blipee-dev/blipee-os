@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Puzzle, Check, X, Settings } from "lucide-react";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { SettingsLayout } from "@/components/settings/SettingsLayout";
 
 const integrations = [
   {
@@ -54,17 +55,14 @@ export default function IntegrationsSettingsPage() {
   useAuthRedirect('/settings/integrations');
   
   return (
-    <div className="p-6">
-      <div className="mb-8 hidden md:block">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Integrations
-        </h1>
-        <p className="text-[#616161] dark:text-[#757575]">
-          Connect blipee OS with your favorite tools and services
-        </p>
-      </div>
+    <SettingsLayout pageTitle="Integrations">
+      <header className="hidden md:block p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05]">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">Integrations</h1>
+        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">Connect blipee OS with your favorite tools and services</p>
+      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <main className="p-4 sm:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {integrations.map((integration) => (
           <motion.div
             key={integration.id}
@@ -112,7 +110,8 @@ export default function IntegrationsSettingsPage() {
             )}
           </motion.div>
         ))}
-      </div>
-    </div>
+        </div>
+      </main>
+    </SettingsLayout>
   );
 }

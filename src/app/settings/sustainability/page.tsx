@@ -31,6 +31,7 @@ import { useTranslations } from '@/providers/LanguageProvider';
 import toast from 'react-hot-toast';
 import DataEntryModal from '@/components/sustainability/DataEntryModal';
 import SiteMetricsManager from '@/components/sustainability/SiteMetricsManager';
+import { SettingsLayout } from '@/components/settings/SettingsLayout';
 
 const scopeIcons = {
   scope_1: Factory,
@@ -181,21 +182,19 @@ export default function SustainabilityMetricsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Sustainability Metrics
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Manage and track your organization's sustainability metrics and data collection
-            </p>
-          </div>
+    <SettingsLayout pageTitle="Sustainability Metrics">
+      <header className="hidden md:block p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05]">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">Sustainability Metrics</h1>
+        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">Manage and track your organization's sustainability metrics and data collection</p>
+      </header>
+
+      <main className="p-4 sm:p-6">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             {sites.length === 0 && (
               <button
@@ -500,6 +499,7 @@ export default function SustainabilityMetricsPage() {
         sites={sites}
         onDataSaved={fetchData}
       />
-    </div>
+      </main>
+    </SettingsLayout>
   );
 }
