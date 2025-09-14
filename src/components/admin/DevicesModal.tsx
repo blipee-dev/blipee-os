@@ -171,24 +171,39 @@ export default function DevicesModal({
     }
   };
 
-  const tTypes = useTranslations('settings.devices.types');
+  // Format device type from snake_case to Title Case
+  const formatDeviceType = (type: string) => {
+    if (!type) return '-';
+    return type
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   const deviceTypes = [
-    { value: "sensor", label: tTypes('sensor') },
-    { value: "meter", label: tTypes('meter') },
-    { value: "hvac", label: tTypes('hvac') },
-    { value: "lighting", label: tTypes('lighting') },
-    { value: "solar", label: tTypes('solar') },
-    { value: "battery", label: tTypes('battery') },
-    { value: "other", label: tTypes('other') }
+    { value: "sensor", label: "Sensor" },
+    { value: "meter", label: "Meter" },
+    { value: "hvac", label: "HVAC" },
+    { value: "lighting", label: "Lighting" },
+    { value: "controller", label: "Controller" },
+    { value: "gateway", label: "Gateway" },
+    { value: "actuator", label: "Actuator" },
+    { value: "enthalpy_meter", label: formatDeviceType("enthalpy_meter") },
+    { value: "electricity_meter", label: formatDeviceType("electricity_meter") },
+    { value: "temperature_sensor", label: formatDeviceType("temperature_sensor") },
+    { value: "flow_meter", label: formatDeviceType("flow_meter") },
+    { value: "pressure_sensor", label: formatDeviceType("pressure_sensor") },
+    { value: "other", label: "Other" }
   ];
 
-  const tProtocols = useTranslations('settings.devices.protocols');
   const protocols = [
-    { value: "modbus", label: tProtocols('modbus') },
-    { value: "bacnet", label: tProtocols('bacnet') },
-    { value: "mqtt", label: tProtocols('mqtt') },
-    { value: "opcua", label: tProtocols('opcua') },
-    { value: "api", label: tProtocols('api') }
+    { value: "modbus", label: "Modbus TCP" },
+    { value: "bacnet", label: "BACnet" },
+    { value: "mqtt", label: "MQTT" },
+    { value: "opcua", label: "OPC UA" },
+    { value: "http", label: "HTTP/REST" },
+    { value: "snmp", label: "SNMP" },
+    { value: "custom", label: "Custom" }
   ];
 
   const siteOptions = sites.map(site => ({

@@ -221,14 +221,14 @@ export default function SustainabilityMetricsPage() {
                 setSelectedMetricForEntry(null);
                 setShowDataEntry(true);
               }}
-              className="px-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm font-medium text-[#616161] dark:text-[#757575] hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2"
+              className="px-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm font-medium text-[#616161] dark:text-[#757575] hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2"
             >
               <Upload className="w-4 h-4" />
               Import
             </button>
             <button
               onClick={() => router.push('/sustainability/dashboard')}
-              className="px-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm font-medium text-[#616161] dark:text-[#757575] hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2"
+              className="px-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm font-medium text-[#616161] dark:text-[#757575] hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2"
             >
               <BarChart3 className="w-4 h-4" />
               Dashboard
@@ -300,7 +300,7 @@ export default function SustainabilityMetricsPage() {
                   className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition-all flex items-center gap-2 ${
                     selectedScope === scope
                       ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300'
-                      : 'bg-white dark:bg-[#212121] border-gray-200 dark:border-white/[0.05] text-[#616161] dark:text-[#757575] hover:bg-gray-50 dark:hover:bg-white/[0.05]'
+                      : 'bg-white dark:bg-[#212121] border-gray-200 dark:border-white/[0.05] text-[#616161] dark:text-[#757575] hover:bg-gray-100 dark:hover:bg-white/[0.05]'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -374,7 +374,7 @@ export default function SustainabilityMetricsPage() {
                       <div key={category} className="border border-gray-200 dark:border-white/[0.05] rounded-lg ml-7">
                         <button
                           onClick={() => toggleCategory(category)}
-                          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
+                          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-white/[0.02] transition-colors"
                         >
                           <div className="flex items-center gap-3">
                             <Package className="w-5 h-5 text-gray-400" />

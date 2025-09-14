@@ -1414,6 +1414,165 @@
         }
       }
     },
+    "devices": {
+      "title": "Devices Management",
+      "subtitle": "Manage and monitor all your IoT devices across sites",
+      "searchPlaceholder": "Search devices...",
+      "filter": "Filter",
+      "addDevice": "Add Device",
+      "createFirstDevice": "Create Your First Device",
+      "noDevicesFound": "No devices found",
+      "loadingDevices": "Loading devices...",
+      "confirmDelete": "Are you sure you want to delete {name}?",
+      "failedToDelete": "Failed to delete device",
+      "failedToPin": "Failed to pin/unpin device",
+      "table": {
+        "device": "DEVICE",
+        "type": "TYPE",
+        "site": "SITE",
+        "details": "DETAILS",
+        "lastSeen": "LAST SEEN",
+        "status": {
+          "online": "Online",
+          "offline": "Offline",
+          "maintenance": "Maintenance",
+          "active": "Active"
+        },
+        "headers": {
+          "device": "DEVICE",
+          "site": "SITE",
+          "type": "TYPE",
+          "details": "DETAILS",
+          "status": "STATUS"
+        },
+        "serialNumber": "Serial Number",
+        "floor": "Floor",
+        "never": "Never",
+        "daysAgo": "{count} days ago",
+        "hoursAgo": "{count} hours ago",
+        "minutesAgo": "{count} minutes ago",
+        "justNow": "Just now",
+        "new": "New"
+      },
+      "status": {
+        "online": "Online",
+        "offline": "Offline",
+        "maintenance": "Maintenance",
+        "unknown": "Unknown"
+      },
+      "noSite": "No Site",
+      "unknown": "Unknown",
+      "pagination": {
+        "showing": "Showing",
+        "of": "of",
+        "itemsPerPage": "Items per page",
+        "pageOf": "Page {page} of {total}"
+      },
+      "buttons": {
+        "filter": "Filter",
+        "download": "Download",
+        "upload": "Upload",
+        "addDevice": "Add Device"
+      },
+      "deleteError": "Failed to delete device",
+      "loading": {
+        "loadingDevices": "Loading devices..."
+      },
+      "empty": {
+        "noDevices": "No devices found",
+        "addFirst": "Add First Device"
+      },
+      "stats": {
+        "total": "Total Devices",
+        "online": "Online",
+        "sites": "Sites"
+      },
+      "modal": {
+        "createTitle": "Add New Device",
+        "editTitle": "Edit Device",
+        "viewTitle": "View Device",
+        "addTitle": "Add New Device",
+        "createSuccess": "Device created successfully!",
+        "updateSuccess": "Device updated successfully!",
+        "sections": {
+          "basicInfo": "Basic Information",
+          "connectivity": "Connectivity",
+          "location": "Location & Assignment",
+          "technical": "Technical Details"
+        },
+        "fields": {
+          "name": "Device Name",
+          "namePlaceholder": "e.g., Temperature Sensor 01",
+          "type": "Device Type",
+          "site": "Site",
+          "organization": "Organization",
+          "manufacturer": "Manufacturer",
+          "manufacturerPlaceholder": "e.g., Siemens",
+          "model": "Model",
+          "modelPlaceholder": "e.g., S7-1200",
+          "serialNumber": "Serial Number",
+          "serialNumberPlaceholder": "e.g., SN123456789",
+          "ipAddress": "IP Address",
+          "ipAddressPlaceholder": "e.g., 192.168.1.100",
+          "macAddress": "MAC Address",
+          "macAddressPlaceholder": "e.g., 00:1B:44:11:3A:B7",
+          "protocol": "Protocol",
+          "dataInterval": "Data Interval (minutes)",
+          "dataIntervalPlaceholder": "5",
+          "floor": "Floor",
+          "floorPlaceholder": "e.g., 2",
+          "zone": "Zone",
+          "zonePlaceholder": "e.g., North Wing",
+          "status": "Status",
+          "lastSeen": "Last Seen",
+          "createdAt": "Created At",
+          "updatedAt": "Updated At"
+        },
+        "types": {
+          "sensor": "Sensor",
+          "meter": "Meter",
+          "controller": "Controller",
+          "gateway": "Gateway",
+          "actuator": "Actuator",
+          "hvac": "HVAC",
+          "lighting": "Lighting",
+          "other": "Other",
+          "enthalpy_meter": "Enthalpy Meter",
+          "electricity_meter": "Electricity Meter"
+        },
+        "protocols": {
+          "modbus": "Modbus",
+          "bacnet": "BACnet",
+          "mqtt": "MQTT",
+          "opcua": "OPC UA",
+          "http": "HTTP/REST",
+          "snmp": "SNMP",
+          "custom": "Custom"
+        },
+        "actions": {
+          "cancel": "Cancel",
+          "create": "Create Device",
+          "update": "Update Device",
+          "creating": "Creating...",
+          "updating": "Updating...",
+          "save": "Save",
+          "delete": "Delete"
+        },
+        "validation": {
+          "nameRequired": "Device name is required",
+          "typeRequired": "Device type is required",
+          "siteRequired": "Site is required",
+          "ipInvalid": "Please enter a valid IP address",
+          "macInvalid": "Please enter a valid MAC address",
+          "intervalInvalid": "Data interval must be a positive number"
+        },
+        "messages": {
+          "deviceCreated": "Device has been created successfully!",
+          "deviceUpdated": "Device has been updated successfully!",
+          "deviceDeleted": "Device has been deleted successfully!"
+        }
+      }
+    },
     "sustainability": {
       "title": "Sustainability Metrics",
       "description": "Select and manage your organization's sustainability metrics",
@@ -1578,6 +1737,18 @@
           "organizationRequired": "Organization is required",
           "pleaseFixErrors": "Please fix the errors below before submitting"
         }
+      },
+      "roles": {
+        "account_owner": "Account Owner",
+        "sustainability_manager": "Sustainability Manager",
+        "facility_manager": "Facility Manager",
+        "analyst": "Analyst",
+        "viewer": "Viewer",
+        "owner": "Owner",
+        "manager": "Manager",
+        "member": "Member",
+        "admin": "Admin",
+        "super_admin": "Super Admin"
       }
     },
     "sidebar": {
@@ -1710,148 +1881,6 @@
         "delete": "Delete",
         "view": "View"
       }
-    },
-    "devices": {
-      "title": "Devices Management",
-      "subtitle": "Manage and monitor all your IoT devices across sites",
-      "searchPlaceholder": "Search devices...",
-      "filter": "Filter",
-      "addDevice": "Add Device",
-      "createFirstDevice": "Add Your First Device",
-      "noDevicesFound": "No devices found",
-      "deviceNotAuthenticated": "Device not authenticated",
-      "failedToLoad": "Failed to load devices",
-      "retry": "Retry",
-      "failedToDelete": "Failed to delete device",
-      "failedToPin": "Failed to pin device",
-      "loadingDevices": "Loading devices...",
-      "confirmDelete": "Are you sure you want to delete {name}?",
-      "pagination": {
-        "showing": "Showing {start} to {end} of {total} devices",
-        "pageOf": "{current} / {total}"
-      },
-      "table": {
-        "device": "Device",
-        "type": "Type",
-        "site": "Site",
-        "details": "Details",
-        "lastSeen": "Last Seen",
-        "status": "Status",
-        "manufacturer": "Manufacturer",
-        "model": "Model",
-        "serialNumber": "Serial Number",
-        "ipAddress": "IP Address",
-        "macAddress": "MAC Address",
-        "floor": "Floor",
-        "zone": "Zone",
-        "protocol": "Protocol",
-        "dataInterval": "Data Interval"
-      },
-      "status": {
-        "online": "Online",
-        "offline": "Offline",
-        "maintenance": "Maintenance",
-        "unknown": "Unknown"
-      },
-      "lastSeenTime": {
-        "justNow": "Just now",
-        "minutesAgo": "{minutes} min ago",
-        "hoursAgo": "{hours} hour{suffix} ago",
-        "daysAgo": "{days} day{suffix} ago",
-        "never": "Never"
-      },
-      "pagination": {
-        "itemsPerPage": "Items per page:",
-        "showing": "Showing {start}-{end} of {total}",
-        "firstPage": "First page",
-        "previousPage": "Previous page",
-        "nextPage": "Next page",
-        "lastPage": "Last page",
-        "page": "Page {number}"
-      },
-      "modal": {
-        "createTitle": "Add New Device",
-        "editTitle": "Edit Device",
-        "viewTitle": "View Device",
-        "createSuccess": "Device created successfully!",
-        "updateSuccess": "Device updated successfully!",
-        "sections": {
-          "basicInfo": "Basic Information",
-          "connectivity": "Connectivity",
-          "location": "Location & Assignment",
-          "technical": "Technical Details"
-        },
-        "fields": {
-          "name": "Device Name",
-          "type": "Device Type",
-          "site": "Site",
-          "organization": "Organization",
-          "manufacturer": "Manufacturer",
-          "model": "Model",
-          "serialNumber": "Serial Number",
-          "ipAddress": "IP Address",
-          "macAddress": "MAC Address",
-          "protocol": "Protocol",
-          "dataInterval": "Data Interval (minutes)",
-          "floor": "Floor",
-          "zone": "Zone",
-          "status": "Status",
-          "lastSeen": "Last Seen",
-          "createdAt": "Created At",
-          "updatedAt": "Updated At"
-        },
-        "placeholders": {
-          "name": "e.g., Temperature Sensor 01",
-          "manufacturer": "e.g., Siemens",
-          "model": "e.g., S7-1200",
-          "serialNumber": "e.g., SN123456789",
-          "ipAddress": "e.g., 192.168.1.100",
-          "macAddress": "e.g., 00:1B:44:11:3A:B7",
-          "floor": "e.g., 2",
-          "zone": "e.g., North Wing"
-        },
-        "types": {
-          "sensor": "Sensor",
-          "meter": "Meter",
-          "controller": "Controller",
-          "gateway": "Gateway",
-          "actuator": "Actuator",
-          "hvac": "HVAC",
-          "lighting": "Lighting",
-          "other": "Other"
-        },
-        "protocols": {
-          "modbus": "Modbus",
-          "bacnet": "BACnet",
-          "mqtt": "MQTT",
-          "opcua": "OPC UA",
-          "http": "HTTP/REST",
-          "snmp": "SNMP",
-          "custom": "Custom"
-        },
-        "buttons": {
-          "cancel": "Cancel",
-          "create": "Create Device",
-          "update": "Update Device",
-          "creating": "Creating...",
-          "updating": "Updating...",
-          "save": "Save",
-          "delete": "Delete"
-        },
-        "validation": {
-          "nameRequired": "Device name is required",
-          "typeRequired": "Device type is required",
-          "siteRequired": "Site is required",
-          "ipInvalid": "Please enter a valid IP address",
-          "macInvalid": "Please enter a valid MAC address",
-          "intervalInvalid": "Data interval must be a positive number"
-        },
-        "messages": {
-          "deviceCreated": "Device has been created successfully!",
-          "deviceUpdated": "Device has been updated successfully!",
-          "deviceDeleted": "Device has been deleted successfully!"
-        }
-      }
     }
   },
   "common": {
@@ -1917,89 +1946,6 @@
       "backToSignIn": "Back to Sign In",
       "successMessage": "Reset link sent! Check your email.",
       "errorMessage": "Failed to send reset link. Please try again."
-    }
-  },
-  "conversation": {
-    "sidebar": {
-      "defaultUser": "User",
-      "groups": {
-        "today": "Today",
-        "yesterday": "Yesterday",
-        "thisWeek": "This Week",
-        "thisMonth": "This Month",
-        "older": "Older"
-      },
-      "buttons": {
-        "newChat": "New chat",
-        "chats": "Chats",
-        "library": "Library",
-        "settings": "Settings",
-        "signOut": "Sign out",
-        "expandSidebar": "Expand sidebar",
-        "collapseSidebar": "Collapse sidebar"
-      },
-      "sections": {
-        "recents": "Recents"
-      },
-      "search": {
-        "placeholder": "Search by title or content..."
-      },
-      "empty": {
-        "noConversations": "No conversations yet",
-        "noConversationsFound": "No conversations found",
-        "startConversation": "Start a new conversation to begin"
-      },
-      "actions": {
-        "pin": "Pin",
-        "rename": "Rename",
-        "delete": "Delete"
-      }
-    }
-  },
-  "errors": {
-    "general": {
-      "title": "Something went wrong!",
-      "subtitle": "An unexpected error occurred",
-      "description": "We encountered an error while processing your request. Please try again, and if the problem persists, contact support.",
-      "tryAgain": "Try again",
-      "goHome": "Go home",
-      "contactSupport": "Contact support"
-    },
-    "global": {
-      "title": "Something went wrong!",
-      "subtitle": "A critical error occurred",
-      "description": "We're experiencing a critical system error. Our team has been notified and is working to resolve this issue.",
-      "tryAgain": "Try again",
-      "goHome": "Go home"
-    },
-    "sso": {
-      "title": "SSO Authentication Failed",
-      "subtitle": "We couldn't complete the sign-in process",
-      "authenticationError": "Authentication Error",
-      "backToSignIn": "Back to Sign In",
-      "tryDifferentMethod": "Try a different sign-in method",
-      "contactAdmin": "If you continue to experience issues, please contact your administrator or",
-      "supportTeam": "our support team",
-      "errorCodes": {
-        "invalid_request": "The SSO request was invalid. Please try again.",
-        "access_denied": "Access was denied by the identity provider.",
-        "unsupported_response_type": "The identity provider returned an unsupported response type.",
-        "invalid_scope": "The requested scope is invalid or not supported.",
-        "server_error": "The identity provider encountered an error.",
-        "temporarily_unavailable": "The identity provider is temporarily unavailable.",
-        "configuration_error": "There is an issue with the SSO configuration.",
-        "user_not_found": "Your account was not found or is not authorized."
-      }
-    }
-  },
-  "blipee-ai": {
-    "defaultOrganization": "Your Organization",
-    "dashboard": {
-      "monthlyReduction": "Monthly Reduction",
-      "targetProgress": "Target Progress", 
-      "reportsReady": "Reports Ready",
-      "newReports": "{{count}} new",
-      "platformBadge": "Sustainability First Platform"
     }
   },
   "conversation": {
@@ -2071,6 +2017,52 @@
       "monthlyReportContent": "<h2>Monthly Sustainability Report</h2><p>Carbon emissions reduced by 15% this month.</p>",
       "energyTrends": "Energy Usage Trends",
       "energyTrendsContent": "Chart showing energy consumption patterns over the last quarter"
+    }
+  },
+  "errors": {
+    "general": {
+      "title": "Something went wrong!",
+      "subtitle": "An unexpected error occurred",
+      "description": "We encountered an error while processing your request. Please try again, and if the problem persists, contact support.",
+      "tryAgain": "Try again",
+      "goHome": "Go home",
+      "contactSupport": "Contact support"
+    },
+    "global": {
+      "title": "Something went wrong!",
+      "subtitle": "A critical error occurred",
+      "description": "We're experiencing a critical system error. Our team has been notified and is working to resolve this issue.",
+      "tryAgain": "Try again",
+      "goHome": "Go home"
+    },
+    "sso": {
+      "title": "SSO Authentication Failed",
+      "subtitle": "We couldn't complete the sign-in process",
+      "authenticationError": "Authentication Error",
+      "backToSignIn": "Back to Sign In",
+      "tryDifferentMethod": "Try a different sign-in method",
+      "contactAdmin": "If you continue to experience issues, please contact your administrator or",
+      "supportTeam": "our support team",
+      "errorCodes": {
+        "invalid_request": "The SSO request was invalid. Please try again.",
+        "access_denied": "Access was denied by the identity provider.",
+        "unsupported_response_type": "The identity provider returned an unsupported response type.",
+        "invalid_scope": "The requested scope is invalid or not supported.",
+        "server_error": "The identity provider encountered an error.",
+        "temporarily_unavailable": "The identity provider is temporarily unavailable.",
+        "configuration_error": "There is an issue with the SSO configuration.",
+        "user_not_found": "Your account was not found or is not authorized."
+      }
+    }
+  },
+  "blipee-ai": {
+    "defaultOrganization": "Your Organization",
+    "dashboard": {
+      "monthlyReduction": "Monthly Reduction",
+      "targetProgress": "Target Progress",
+      "reportsReady": "Reports Ready",
+      "newReports": "{{count}} new",
+      "platformBadge": "Sustainability First Platform"
     }
   },
   "defaults": {

@@ -1418,6 +1418,165 @@
         }
       }
     },
+    "devices": {
+      "title": "Gestão de Dispositivos",
+      "subtitle": "Gerir e monitorizar todos os seus dispositivos IoT em todos os sites",
+      "searchPlaceholder": "Pesquisar dispositivos...",
+      "filter": "Filtrar",
+      "addDevice": "Adicionar Dispositivo",
+      "createFirstDevice": "Criar o Seu Primeiro Dispositivo",
+      "noDevicesFound": "Nenhum dispositivo encontrado",
+      "loadingDevices": "A carregar dispositivos...",
+      "confirmDelete": "Tem a certeza de que deseja eliminar {name}?",
+      "failedToDelete": "Falha ao eliminar o dispositivo",
+      "failedToPin": "Falha ao fixar/desafixar o dispositivo",
+      "table": {
+        "device": "DISPOSITIVO",
+        "type": "TIPO",
+        "site": "SITE",
+        "details": "DETALHES",
+        "lastSeen": "ÚLTIMA VEZ VISTO",
+        "status": {
+          "online": "Online",
+          "offline": "Offline",
+          "maintenance": "Manutenção",
+          "active": "Ativo"
+        },
+        "serialNumber": "Número de Série",
+        "floor": "Piso",
+        "never": "Nunca",
+        "daysAgo": "há {count} dias",
+        "hoursAgo": "há {count} horas",
+        "minutesAgo": "há {count} minutos",
+        "justNow": "Agora mesmo",
+        "new": "Novo",
+        "headers": {
+          "device": "DISPOSITIVO",
+          "site": "LOCAL",
+          "type": "TIPO",
+          "details": "DETALHES",
+          "status": "STATUS"
+        }
+      },
+      "status": {
+        "online": "Online",
+        "offline": "Offline",
+        "maintenance": "Manutenção",
+        "unknown": "Desconhecido"
+      },
+      "noSite": "Sem Site",
+      "unknown": "Desconhecido",
+      "pagination": {
+        "showing": "Mostrando",
+        "of": "de",
+        "itemsPerPage": "Itens por página",
+        "pageOf": "Página {page} de {total}"
+      },
+      "modal": {
+        "createTitle": "Adicionar Novo Dispositivo",
+        "editTitle": "Editar Dispositivo",
+        "viewTitle": "Visualizar Dispositivo",
+        "addTitle": "Adicionar Novo Dispositivo",
+        "createSuccess": "Dispositivo criado com sucesso!",
+        "updateSuccess": "Dispositivo atualizado com sucesso!",
+        "sections": {
+          "basicInfo": "Informações Básicas",
+          "connectivity": "Conectividade",
+          "location": "Localização e Atribuição",
+          "technical": "Detalhes Técnicos"
+        },
+        "fields": {
+          "name": "Nome do Dispositivo",
+          "namePlaceholder": "ex., Sensor de Temperatura 01",
+          "type": "Tipo de Dispositivo",
+          "site": "Site",
+          "organization": "Organização",
+          "manufacturer": "Fabricante",
+          "manufacturerPlaceholder": "ex., Siemens",
+          "model": "Modelo",
+          "modelPlaceholder": "ex., S7-1200",
+          "serialNumber": "Número de Série",
+          "serialNumberPlaceholder": "ex., SN123456789",
+          "ipAddress": "Endereço IP",
+          "ipAddressPlaceholder": "ex., 192.168.1.100",
+          "macAddress": "Endereço MAC",
+          "macAddressPlaceholder": "ex., 00:1B:44:11:3A:B7",
+          "protocol": "Protocolo",
+          "dataInterval": "Intervalo de Dados (minutos)",
+          "dataIntervalPlaceholder": "5",
+          "floor": "Andar",
+          "floorPlaceholder": "ex., 2",
+          "zone": "Zona",
+          "zonePlaceholder": "ex., Ala Norte",
+          "status": "Estado",
+          "lastSeen": "Última Vez Visto",
+          "createdAt": "Criado Em",
+          "updatedAt": "Atualizado Em"
+        },
+        "types": {
+          "sensor": "Sensor",
+          "meter": "Medidor",
+          "controller": "Controlador",
+          "gateway": "Gateway",
+          "actuator": "Atuador",
+          "hvac": "HVAC",
+          "lighting": "Iluminação",
+          "other": "Outro",
+          "enthalpy_meter": "Medidor de Entalpia",
+          "electricity_meter": "Medidor de Eletricidade"
+        },
+        "protocols": {
+          "modbus": "Modbus",
+          "bacnet": "BACnet",
+          "mqtt": "MQTT",
+          "opcua": "OPC UA",
+          "http": "HTTP/REST",
+          "snmp": "SNMP",
+          "custom": "Personalizado"
+        },
+        "actions": {
+          "cancel": "Cancelar",
+          "create": "Criar Dispositivo",
+          "update": "Atualizar Dispositivo",
+          "creating": "Criando...",
+          "updating": "Atualizando...",
+          "save": "Guardar",
+          "delete": "Eliminar"
+        },
+        "validation": {
+          "nameRequired": "Nome do dispositivo é obrigatório",
+          "typeRequired": "Tipo de dispositivo é obrigatório",
+          "siteRequired": "Site é obrigatório",
+          "ipInvalid": "Por favor, insira um endereço IP válido",
+          "macInvalid": "Por favor, insira um endereço MAC válido",
+          "intervalInvalid": "O intervalo de dados deve ser um número positivo"
+        },
+        "messages": {
+          "deviceCreated": "Dispositivo criado com sucesso!",
+          "deviceUpdated": "Dispositivo atualizado com sucesso!",
+          "deviceDeleted": "Dispositivo eliminado com sucesso!"
+        }
+      },
+      "buttons": {
+        "filter": "Filtrar",
+        "download": "Baixar",
+        "upload": "Carregar",
+        "addDevice": "Adicionar Dispositivo"
+      },
+      "deleteError": "Falha ao deletar dispositivo",
+      "loading": {
+        "loadingDevices": "Carregando dispositivos..."
+      },
+      "empty": {
+        "noDevices": "Nenhum dispositivo encontrado",
+        "addFirst": "Adicionar Primeiro Dispositivo"
+      },
+      "stats": {
+        "total": "Total de Dispositivos",
+        "online": "Online",
+        "sites": "Locais"
+      }
+    },
     "sustainability": {
       "title": "Métricas de Sustentabilidade",
       "description": "Selecione e gira as métricas de sustentabilidade da sua organização",
@@ -1708,11 +1867,15 @@
       },
       "roles": {
         "account_owner": "Proprietário da Conta",
-        "sustainability_manager": "Gestor de Sustentabilidade",
-        "facility_manager": "Gestor de Instalações",
+        "sustainability_manager": "Gerente de Sustentabilidade",
+        "facility_manager": "Gerente de Instalações",
         "analyst": "Analista",
         "viewer": "Visualizador",
-        "super_admin": "Super Administrador"
+        "owner": "Proprietário",
+        "manager": "Gerente",
+        "member": "Membro",
+        "admin": "Administrador",
+        "super_admin": "Super Admin"
       },
       "status": {
         "active": "Ativo",
@@ -1869,108 +2032,6 @@
         "delete": "Excluir",
         "view": "Ver"
       }
-    },
-    "devices": {
-      "title": "Gestão de Dispositivos",
-      "subtitle": "Gerencie e monitore todos os seus dispositivos IoT nos sites",
-      "searchPlaceholder": "Pesquisar dispositivos...",
-      "filter": "Filtrar",
-      "addDevice": "Adicionar Dispositivo",
-      "createFirstDevice": "Adicionar Seu Primeiro Dispositivo",
-      "noDevicesFound": "Nenhum dispositivo encontrado",
-      "loadingDevices": "Carregando dispositivos...",
-      "failedToDelete": "Erro ao excluir dispositivo",
-      "failedToPin": "Erro ao fixar dispositivo",
-      "confirmDelete": "Tem certeza de que deseja excluir {name}?",
-      "pagination": {
-        "showing": "Mostrando {start} a {end} de {total} dispositivos",
-        "pageOf": "{current} / {total}"
-      },
-      "table": {
-        "device": "Dispositivo",
-        "type": "Tipo",
-        "site": "Site",
-        "details": "Detalhes",
-        "lastSeen": "Última Vez Visto",
-        "status": "Status",
-        "serialNumber": "NS",
-        "floor": "Andar",
-        "justNow": "Agora mesmo",
-        "minutesAgo": "{count} min atrás",
-        "hoursAgo": "{count} hora{count, plural, =1 {} other {s}} atrás",
-        "daysAgo": "{count} dia{count, plural, =1 {} other {s}} atrás",
-        "never": "Nunca"
-      },
-      "status": {
-        "online": "online",
-        "offline": "offline",
-        "maintenance": "manutenção",
-        "unknown": "desconhecido"
-      },
-      "types": {
-        "sensor": "Sensor",
-        "meter": "Medidor de Energia",
-        "hvac": "Sistema HVAC",
-        "lighting": "Controle de Iluminação",
-        "solar": "Painel Solar",
-        "battery": "Armazenamento de Bateria",
-        "other": "Outro"
-      },
-      "protocols": {
-        "modbus": "Modbus TCP",
-        "bacnet": "BACnet",
-        "mqtt": "MQTT",
-        "opcua": "OPC UA",
-        "api": "REST API"
-      },
-      "modal": {
-        "addTitle": "Adicionar Novo Dispositivo",
-        "editTitle": "Editar Dispositivo",
-        "viewTitle": "Visualizar Dispositivo",
-        "sections": {
-          "basicInfo": "Informações Básicas",
-          "connectivity": "Conectividade",
-          "location": "Localização e Atribuição",
-          "technical": "Detalhes Técnicos"
-        },
-        "fields": {
-          "name": "Nome do Dispositivo",
-          "namePlaceholder": "ex., Sensor de Temperatura Andar 1",
-          "type": "Tipo de Dispositivo",
-          "site": "Site",
-          "manufacturer": "Fabricante",
-          "manufacturerPlaceholder": "ex., Schneider Electric",
-          "model": "Modelo",
-          "modelPlaceholder": "ex., PM5560",
-          "serialNumber": "Número de Série",
-          "serialNumberPlaceholder": "ex., SN123456789",
-          "ipAddress": "Endereço IP",
-          "ipAddressPlaceholder": "ex., 192.168.1.100",
-          "macAddress": "Endereço MAC",
-          "macAddressPlaceholder": "ex., 00:1B:44:11:3A:B7",
-          "protocol": "Protocolo de Comunicação",
-          "dataInterval": "Intervalo de Dados (minutos)",
-          "dataIntervalPlaceholder": "5",
-          "floor": "Andar",
-          "floorPlaceholder": "ex., 1",
-          "zone": "Zona",
-          "zonePlaceholder": "ex., Ala Norte"
-        },
-        "actions": {
-          "cancel": "Cancelar",
-          "create": "Criar",
-          "creating": "Criando...",
-          "update": "Atualizar",
-          "updating": "Atualizando...",
-          "viewOnly": "Somente Visualização"
-        },
-        "messages": {
-          "createSuccess": "Dispositivo criado com sucesso",
-          "updateSuccess": "Dispositivo atualizado com sucesso",
-          "createError": "Erro ao criar dispositivo",
-          "updateError": "Erro ao atualizar dispositivo"
-        }
-      }
     }
   },
   "common": {
@@ -2045,89 +2106,6 @@
     "blipee": "blipee"
   },
   "conversation": {
-    "sidebar": {
-      "defaultUser": "Usuário",
-      "groups": {
-        "today": "Hoje",
-        "yesterday": "Ontem",
-        "thisWeek": "Esta Semana",
-        "thisMonth": "Este Mês",
-        "older": "Anteriores"
-      },
-      "buttons": {
-        "newChat": "Novo chat",
-        "chats": "Chats",
-        "library": "Biblioteca",
-        "settings": "Configurações",
-        "signOut": "Sair",
-        "expandSidebar": "Expandir barra lateral",
-        "collapseSidebar": "Recolher barra lateral"
-      },
-      "sections": {
-        "recents": "Recentes"
-      },
-      "search": {
-        "placeholder": "Pesquisar por título ou conteúdo..."
-      },
-      "empty": {
-        "noConversations": "Ainda não há conversas",
-        "noConversationsFound": "Nenhuma conversa encontrada",
-        "startConversation": "Inicie uma nova conversa para começar"
-      },
-      "actions": {
-        "pin": "Fixar",
-        "rename": "Renomear",
-        "delete": "Excluir"
-      }
-    }
-  },
-  "errors": {
-    "general": {
-      "title": "Algo correu mal!",
-      "subtitle": "Ocorreu um erro inesperado",
-      "description": "Encontrámos um erro ao processar o seu pedido. Por favor, tente novamente e, se o problema persistir, contacte o suporte.",
-      "tryAgain": "Tentar novamente",
-      "goHome": "Ir para o início",
-      "contactSupport": "Contactar suporte"
-    },
-    "global": {
-      "title": "Algo correu mal!",
-      "subtitle": "Ocorreu um erro crítico",
-      "description": "Estamos a experienciar um erro crítico do sistema. A nossa equipa foi notificada e está a trabalhar para resolver este problema.",
-      "tryAgain": "Tentar novamente",
-      "goHome": "Ir para o início"
-    },
-    "sso": {
-      "title": "Erro de Autenticação SSO",
-      "subtitle": "Não conseguimos completar o processo de início de sessão",
-      "authenticationError": "Erro de Autenticação",
-      "backToSignIn": "Voltar ao Início de Sessão",
-      "tryDifferentMethod": "Tentar um método de início de sessão diferente",
-      "contactAdmin": "Se continuar a ter problemas, contacte o seu administrador ou",
-      "supportTeam": "a nossa equipa de suporte",
-      "errorCodes": {
-        "invalid_request": "O pedido SSO era inválido. Por favor, tente novamente.",
-        "access_denied": "O acesso foi negado pelo fornecedor de identidade.",
-        "unsupported_response_type": "O fornecedor de identidade devolveu um tipo de resposta não suportado.",
-        "invalid_scope": "O âmbito solicitado é inválido ou não é suportado.",
-        "server_error": "O fornecedor de identidade encontrou um erro.",
-        "temporarily_unavailable": "O fornecedor de identidade está temporariamente indisponível.",
-        "configuration_error": "Existe um problema com a configuração SSO.",
-        "user_not_found": "A sua conta não foi encontrada ou não está autorizada."
-      }
-    }
-  },
-  "blipee-ai": {
-    "defaultOrganization": "Sua Organização",
-    "dashboard": {
-      "monthlyReduction": "Redução Mensal",
-      "targetProgress": "Progresso da Meta",
-      "reportsReady": "Relatórios Prontos",
-      "newReports": "{{count}} novo{{count, plural, one {} other {s}}}",
-      "platformBadge": "Plataforma Sustentabilidade Primeiro"
-    }
-  },
-  "conversation": {
     "newConversation": "Nova conversa",
     "defaultResponse": "Eu vou ajudá-lo com isso.",
     "generatedCode": "Código Gerado",
@@ -2196,6 +2174,52 @@
       "monthlyReportContent": "<h2>Relatório Mensal de Sustentabilidade</h2><p>As emissões de carbono foram reduzidas em 15% este mês.</p>",
       "energyTrends": "Tendências de Uso Energético",
       "energyTrendsContent": "Gráfico mostrando padrões de consumo energético durante o último trimestre"
+    }
+  },
+  "errors": {
+    "general": {
+      "title": "Algo correu mal!",
+      "subtitle": "Ocorreu um erro inesperado",
+      "description": "Encontrámos um erro ao processar o seu pedido. Por favor, tente novamente e, se o problema persistir, contacte o suporte.",
+      "tryAgain": "Tentar novamente",
+      "goHome": "Ir para o início",
+      "contactSupport": "Contactar suporte"
+    },
+    "global": {
+      "title": "Algo correu mal!",
+      "subtitle": "Ocorreu um erro crítico",
+      "description": "Estamos a experienciar um erro crítico do sistema. A nossa equipa foi notificada e está a trabalhar para resolver este problema.",
+      "tryAgain": "Tentar novamente",
+      "goHome": "Ir para o início"
+    },
+    "sso": {
+      "title": "Erro de Autenticação SSO",
+      "subtitle": "Não conseguimos completar o processo de início de sessão",
+      "authenticationError": "Erro de Autenticação",
+      "backToSignIn": "Voltar ao Início de Sessão",
+      "tryDifferentMethod": "Tentar um método de início de sessão diferente",
+      "contactAdmin": "Se continuar a ter problemas, contacte o seu administrador ou",
+      "supportTeam": "a nossa equipa de suporte",
+      "errorCodes": {
+        "invalid_request": "O pedido SSO era inválido. Por favor, tente novamente.",
+        "access_denied": "O acesso foi negado pelo fornecedor de identidade.",
+        "unsupported_response_type": "O fornecedor de identidade devolveu um tipo de resposta não suportado.",
+        "invalid_scope": "O âmbito solicitado é inválido ou não é suportado.",
+        "server_error": "O fornecedor de identidade encontrou um erro.",
+        "temporarily_unavailable": "O fornecedor de identidade está temporariamente indisponível.",
+        "configuration_error": "Existe um problema com a configuração SSO.",
+        "user_not_found": "A sua conta não foi encontrada ou não está autorizada."
+      }
+    }
+  },
+  "blipee-ai": {
+    "defaultOrganization": "Sua Organização",
+    "dashboard": {
+      "monthlyReduction": "Redução Mensal",
+      "targetProgress": "Progresso da Meta",
+      "reportsReady": "Relatórios Prontos",
+      "newReports": "{{count}} novo{{count, plural, one {} other {s}}}",
+      "platformBadge": "Plataforma Sustentabilidade Primeiro"
     }
   },
   "defaults": {

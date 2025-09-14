@@ -143,7 +143,10 @@
       "Bash(kill:*)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_q7dRui/**)",
       "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/settings/sustainability/page.tsx)",
-      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_u4MEcD/**)"
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_u4MEcD/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_At12eA/**)",
+      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/settings/devices/DevicesClient.tsx)",
+      "Bash(tr:*)"
     ],
     "deny": [],
     "ask": []

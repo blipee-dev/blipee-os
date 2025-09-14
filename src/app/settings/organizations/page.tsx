@@ -370,7 +370,7 @@ export default function OrganizationSettingsPage() {
   // Pagination Component
   const PaginationControls = () => {
     return (
-      <div className="mt-auto border-t border-gray-200 dark:border-white/[0.05] bg-gray-50 dark:bg-[#757575]/10 rounded-b-lg p-3 sm:p-4">
+      <div className="mt-auto border-t border-gray-200 dark:border-white/[0.05] bg-white dark:bg-[#212121] rounded-b-lg p-3 sm:p-4">
         <nav
           aria-label="Pagination Navigation"
           className="flex flex-col sm:flex-row items-center justify-center gap-3"
@@ -407,7 +407,7 @@ export default function OrganizationSettingsPage() {
               <button
                 onClick={() => handlePageChange(1)}
                 disabled={currentPage === 1}
-                className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 aria-label={t("pagination.firstPage")}
               >
                 <ChevronsLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -416,7 +416,7 @@ export default function OrganizationSettingsPage() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 aria-label={t("pagination.previousPage")}
               >
                 <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -448,7 +448,7 @@ export default function OrganizationSettingsPage() {
                       ${
                         currentPage === pageNum
                           ? "accent-gradient-lr text-white"
-                          : "hover:bg-gray-200 dark:hover:bg-white/[0.05] text-gray-700 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white"
+                          : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-gray-700 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white"
                       }
                     `}
                       aria-label={t("pagination.page", { number: pageNum })}
@@ -465,7 +465,7 @@ export default function OrganizationSettingsPage() {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 aria-label={t("pagination.nextPage")}
               >
                 <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -474,7 +474,7 @@ export default function OrganizationSettingsPage() {
               <button
                 onClick={() => handlePageChange(totalPages)}
                 disabled={currentPage === totalPages}
-                className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 aria-label={t("pagination.lastPage")}
               >
                 <ChevronsRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -545,7 +545,7 @@ export default function OrganizationSettingsPage() {
         </div>
 
         {/* Table Content */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] h-[700px] flex flex-col">
+        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05]">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin accent-text" />
@@ -561,7 +561,7 @@ export default function OrganizationSettingsPage() {
               </button>
             </div>
           ) : filteredOrganizations.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">
@@ -576,8 +576,8 @@ export default function OrganizationSettingsPage() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-x-auto">
+            <div className="flex flex-col">
+              <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
                     <tr>

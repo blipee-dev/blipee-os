@@ -469,12 +469,12 @@ export default function NotificationsPage() {
                 {t('frequency.reports')}
               </label>
               <Select value={settings.frequency.reports} onValueChange={(value) => updateFrequency("reports", value as any)}>
-                <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/[0.03]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05]">
                   {frequencyOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:bg-gray-50 dark:focus:bg-white/[0.05]">
+                    <SelectItem key={option.value} value={option.value} className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/[0.05] focus:bg-gray-100 dark:focus:bg-white/[0.05]">
                       {option.label}
                     </SelectItem>
                   ))}
@@ -487,12 +487,12 @@ export default function NotificationsPage() {
                 {t('frequency.alerts')}
               </label>
               <Select value={settings.frequency.alerts} onValueChange={(value) => updateFrequency("alerts", value as any)}>
-                <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/[0.03]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05]">
                   {frequencyOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:bg-gray-50 dark:focus:bg-white/[0.05]">
+                    <SelectItem key={option.value} value={option.value} className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/[0.05] focus:bg-gray-100 dark:focus:bg-white/[0.05]">
                       {option.label}
                     </SelectItem>
                   ))}
@@ -505,12 +505,12 @@ export default function NotificationsPage() {
                 {t('frequency.updates')}
               </label>
               <Select value={settings.frequency.updates} onValueChange={(value) => updateFrequency("updates", value as any)}>
-                <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                <SelectTrigger className="w-full bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/[0.03]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05]">
                   {frequencyOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:bg-gray-50 dark:focus:bg-white/[0.05]">
+                    <SelectItem key={option.value} value={option.value} className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/[0.05] focus:bg-gray-100 dark:focus:bg-white/[0.05]">
                       {option.label}
                     </SelectItem>
                   ))}

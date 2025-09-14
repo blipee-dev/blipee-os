@@ -239,7 +239,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
   // Pagination Component
   const PaginationControls = () => {
     return (
-      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-white/[0.05]">
+      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4 px-4 sm:px-6 bg-white dark:bg-[#212121] border-t border-gray-200 dark:border-white/[0.05] rounded-b-lg">
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto">
           <div className="flex items-center gap-3">
             <span className="hidden sm:block text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
@@ -396,7 +396,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
         </div>
 
         {/* Table Content */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] h-[700px] flex flex-col">
+        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05]">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
@@ -405,7 +405,7 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
               </div>
             </div>
           ) : currentData.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">{t('empty.noSites')}</p>
@@ -423,8 +423,8 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
               </div>
             </div>
           ) : (
-            <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-x-auto">
+            <div className="flex flex-col">
+              <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
                     <tr>
