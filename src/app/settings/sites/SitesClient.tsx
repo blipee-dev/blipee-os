@@ -24,6 +24,7 @@ import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from '@/providers/LanguageProvider';
+import { auditLogger } from '@/lib/audit/client';
 
 interface Site {
   id: string;
@@ -211,6 +212,15 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
         alert(t('modal.messages.deleteFailed'));
         return;
       }
+
+      // Log audit event for site deletion
+      await auditLogger.logDataOperation(
+        'delete',
+        'site',
+        site.id,
+        site.name,
+        'success'
+      );
 
       await refreshSites();
     } finally {

@@ -24,6 +24,7 @@ import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from '@/providers/LanguageProvider';
+import { auditLogger } from '@/lib/audit/client';
 
 interface AppUser {
   id: string;
@@ -237,6 +238,15 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         alert(t('messages.error'));
         return;
       }
+
+      // Log audit event for user deletion
+      await auditLogger.logDataOperation(
+        'delete',
+        'user',
+        user.id,
+        user.name,
+        'success'
+      );
 
       await refreshUsers();
     } finally {

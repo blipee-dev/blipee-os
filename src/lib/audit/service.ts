@@ -239,7 +239,7 @@ export class AuditService {
   private async querySupabase(query: AuditLogQuery): Promise<AuditEvent[]> {
     const supabase = await createClient();
     let supabaseQuery = supabase
-      .from('audit_logs')
+      .from('audit_events')
       .select('*');
 
     // Apply filters

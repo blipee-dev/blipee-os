@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Session, UserProfile, Organization } from "@/types/auth";
+import { auditLogger } from "@/lib/audit/client";
 
 interface AuthContextType {
   session: Session | null;
@@ -75,6 +76,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("Sign in successful, session:", data.data.session);
       console.log("Onboarding completed:", data.data.session?.user?.onboarding_completed);
 
+      // Log successful login
+      await auditLogger.logAuth('login', 'success', {
+        email,
+        userId: data.data.session?.user?.id,
+        metadata: {
+          onboarding_completed: data.data.session?.user?.onboarding_completed,
+        }
+      });
+
       // Redirect based on onboarding status
       if (!data.data.session?.user?.onboarding_completed) {
         console.log("Redirecting to /onboarding");
@@ -85,6 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (err: any) {
       setError(err.message);
+
+      // Log failed login attempt
+      await auditLogger.logAuth('login_failed', 'failure', {
+        email,
+        error: err.message,
+      });
+
       throw err;
     } finally {
       setLoading(false);
@@ -122,6 +139,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
 
     try {
+      // Log the logout event before signing out
+      if (session?.user) {
+        await auditLogger.logAuth('logout', 'success', {
+          email: session.user.email,
+          userId: session.user.id,
+        });
+      }
+
       const response = await fetch("/api/auth/signout", {
         method: "POST",
       });

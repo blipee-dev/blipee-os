@@ -22,6 +22,7 @@ import ActionsDropdown from "@/components/ui/ActionsDropdown";
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from '@/providers/LanguageProvider';
+import { auditLogger } from '@/lib/audit/client';
 
 interface Device {
   id: string;
@@ -182,6 +183,15 @@ export default function DevicesClient({ initialDevices, sites, organizations, us
         alert(t('failedToDelete'));
         return;
       }
+
+      // Log audit event for device deletion
+      await auditLogger.logDataOperation(
+        'delete',
+        'device',
+        device.id,
+        device.name,
+        'success'
+      );
 
       await refreshDevices();
     } finally {
