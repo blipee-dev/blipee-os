@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { isSuperAdmin } from '@/lib/auth/super-admin';
+import { adminInvitationCreateSchema, validateAndSanitize } from '@/lib/validation/schemas';
 
 interface CreateInvitationRequest {
   email: string;
@@ -33,30 +34,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body: CreateInvitationRequest = await request.json();
-    const { 
-      email, 
-      organization_name, 
-      custom_message, 
+    const body = await request.json();
+
+    // Validate request body
+    const validation = validateAndSanitize(adminInvitationCreateSchema, body);
+    if (!validation.success) {
+      const errors = validation.error.errors.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      return NextResponse.json(
+        { error: 'Invalid invitation data', details: errors },
+        { status: 400 }
+      );
+    }
+
+    const {
+      email,
+      organization_name,
+      custom_message,
       expires_in_days = 7,
       suggested_org_data = {}
-    } = body;
+    } = validation.data;
 
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      );
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      );
-    }
 
     // Check if there's already a pending invitation for this email
     const { data: existingInvitation } = await supabase

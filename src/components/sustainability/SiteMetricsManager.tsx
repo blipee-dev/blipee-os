@@ -20,7 +20,12 @@ import {
   ChevronUp,
   Users,
   Target,
-  Loader2
+  Loader2,
+  Building,
+  ChartBar,
+  Database,
+  Download,
+  Upload
 } from 'lucide-react';
 import { useTranslations } from '@/providers/LanguageProvider';
 import toast from 'react-hot-toast';
@@ -42,12 +47,20 @@ interface SiteMetricsManagerProps {
   sites: Site[];
   organizationMetrics: any[];
   onRefresh: () => void;
+  onAddData: () => void;
+  onImport: () => void;
+  onDashboard: () => void;
+  onCreateTestData: () => void;
 }
 
 export default function SiteMetricsManager({
   sites,
   organizationMetrics,
-  onRefresh
+  onRefresh,
+  onAddData,
+  onImport,
+  onDashboard,
+  onCreateTestData
 }: SiteMetricsManagerProps) {
   const t = useTranslations('settings.sustainability');
   const [selectedSite, setSelectedSite] = useState<string>('organization');
@@ -59,9 +72,22 @@ export default function SiteMetricsManager({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedScope, setSelectedScope] = useState<string | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchSiteMetrics();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const fetchSiteMetrics = async () => {
@@ -223,111 +249,123 @@ export default function SiteMetricsManager({
 
   return (
     <div className="space-y-6">
-      {/* Site Selector */}
-      <div className="flex flex-col md:flex-row gap-4 items-start">
-        <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Select Site
-          </label>
-          <CustomDropdown
-            value={selectedSite}
-            onChange={(value) => setSelectedSite(value as string)}
-            options={[
-              ...sites.map(site => ({
-                value: site.id,
-                label: `🏭 ${site.name}`
-              })),
-              { value: 'organization', label: '📊 View Organization Summary' }
-            ]}
-            placeholder="Select a site..."
-            className="w-full"
-          />
+      {/* Site Selector and Action Buttons */}
+      <div className="flex items-center gap-2 mb-6">
+        <div className="flex-1 relative" ref={dropdownRef}>
+          <ChartBar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#757575]" />
+          <button
+            type="button"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 accent-ring text-sm text-left"
+          >
+            {selectedSite === 'organization' ? (
+              'View Organization Summary'
+            ) : (
+              sites.find(s => s.id === selectedSite)?.name || 'Select a site...'
+            )}
+          </button>
+
+          <AnimatePresence>
+            {isDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="absolute z-50 w-full mt-1 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg shadow-lg overflow-hidden"
+              >
+                <div className="py-1 max-h-60 overflow-auto">
+                  {sites.map((site) => (
+                    <button
+                      key={site.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSite(site.id);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors flex items-center gap-2 ${
+                        selectedSite === site.id ? 'bg-gray-50 dark:bg-white/[0.03]' : ''
+                      }`}
+                    >
+                      <Building className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
+                      <span className="text-gray-700 dark:text-gray-300">{site.name}</span>
+                      {selectedSite === site.id && (
+                        <Check className="w-4 h-4 ml-auto text-green-500" />
+                      )}
+                    </button>
+                  ))}
+                  <div className="border-t border-gray-200 dark:border-white/[0.05] mt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedSite('organization');
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors flex items-center gap-2 ${
+                        selectedSite === 'organization' ? 'bg-gray-50 dark:bg-white/[0.03]' : ''
+                      }`}
+                    >
+                      <ChartBar className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
+                      <span className="text-gray-700 dark:text-gray-300">View Organization Summary</span>
+                      {selectedSite === 'organization' && (
+                        <Check className="w-4 h-4 ml-auto text-green-500" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Summary Stats */}
-        <div className="flex gap-4">
-          {selectedSite === 'organization' ? (
-            <>
-              <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-3 min-w-[120px]">
-                <div className="text-xs text-[#616161] dark:text-[#757575]">Total Metrics</div>
-                <div className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {getOrganizationSummary().totalMetrics}
-                </div>
-              </div>
-              <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-3 min-w-[120px]">
-                <div className="text-xs text-[#616161] dark:text-[#757575]">Total Sites</div>
-                <div className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {getOrganizationSummary().totalSites}
-                </div>
-              </div>
-            </>
-          ) : currentSite ? (
-            <>
-              <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-3">
-                <div className="text-xs text-[#616161] dark:text-[#757575]">Site Metrics</div>
-                <div className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {currentSiteMetrics?.metrics?.length || 0}
-                </div>
-              </div>
-            </>
-          ) : null}
-        </div>
+        <button
+          className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
+          title="Filter"
+        >
+          <Filter className="w-4 h-4" />
+        </button>
+
+        <button
+          onClick={onImport}
+          className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
+          title="Download"
+        >
+          <Download className="w-4 h-4" />
+        </button>
+
+        <button
+          onClick={onDashboard}
+          className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
+          title="Upload"
+        >
+          <Upload className="w-4 h-4" />
+        </button>
+
+        {sites.length === 0 && (
+          <button
+            onClick={onCreateTestData}
+            className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+          >
+            <Database className="w-4 h-4" />
+            Need Test Data?
+          </button>
+        )}
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={onAddData}
+          className="p-2.5 accent-gradient-lr rounded-lg text-white hover:opacity-90 transition-opacity"
+          title="Add Data"
+        >
+          <Plus className="w-4 h-4" />
+        </motion.button>
       </div>
 
       {/* Content Display */}
       {selectedSite === 'organization' ? (
         // Organization Summary View
         <div className="space-y-6">
-          {/* Organization Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-[#616161] dark:text-[#757575]">Scope Coverage</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {new Set(organizationMetrics.map(m => m.metric?.scope?.replace('scope_', ''))).size}/3
-                  </p>
-                </div>
-                <Globe className="w-5 h-5 text-purple-500" />
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-[#616161] dark:text-[#757575]">Categories</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {new Set(organizationMetrics.map(m => m.metric?.category)).size}
-                  </p>
-                </div>
-                <Package className="w-5 h-5 text-orange-500" />
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-[#616161] dark:text-[#757575]">Active Sites</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {sites.length}
-                  </p>
-                </div>
-                <Building2 className="w-5 h-5 text-green-500" />
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-[#616161] dark:text-[#757575]">Total Tracked</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {getOrganizationSummary().totalMetrics}
-                  </p>
-                </div>
-                <Target className="w-5 h-5 text-blue-500" />
-              </div>
-            </div>
-          </div>
 
           {/* Sites Breakdown */}
           {Object.keys(getOrganizationSummary().metricsBreakdown).length > 0 && (
