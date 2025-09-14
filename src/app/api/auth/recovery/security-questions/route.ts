@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRecoveryService } from '@/lib/auth/recovery/service';
 import { sessionManager } from '@/lib/session/manager';
-import { auditLogger } from '@/lib/audit/logger';
+import { auditLogger } from '@/lib/audit/server';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -41,11 +41,13 @@ export async function POST(request: NextRequest) {
     );
     
     // Log security questions setup
-    await auditLogger.logUserAction(
-      request,
-      'updated',
+    await auditLogger.logDataOperation(
+      'update',
+      'user_recovery',
       validation.session.userId,
-      [{ field: 'security_questions', oldValue: null, newValue: 'configured' }]
+      'Security Questions',
+      'success',
+      { field: 'security_questions', oldValue: null, newValue: 'configured' }
     );
     
     return NextResponse.json({
@@ -127,7 +129,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: errorerror.message || 'Failed to get recovery options',
+        _error: error.message || 'Failed to get recovery options',
       },
       { status: 500 }
     );

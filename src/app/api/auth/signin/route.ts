@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sessionAuth } from "@/lib/auth/session-auth";
 import { sessionManager } from "@/lib/session/manager";
 import { withAuthSecurity } from "@/lib/security/api/wrapper";
-import { auditLogger } from "@/lib/audit/logger";
+import { auditLogger } from "@/lib/audit/server";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 
@@ -112,12 +112,13 @@ async function signInHandler(request: NextRequest) {
     // Log successful authentication
     if (result.user) {
       const auditStart = Date.now();
-      await auditLogger.logAuthSuccess(
-        request,
-        result.user.id,
-        validated.email,
-        result.requiresMFA ? 'password' : 'password'
-      );
+      await auditLogger.logAuth('login', 'success', {
+        email: validated.email,
+        userId: result.user.id,
+        metadata: {
+          requiresMFA: result.requiresMFA
+        }
+      });
       console.log(`📊 Audit logging completed in ${Date.now() - auditStart}ms`);
     }
 
@@ -162,12 +163,13 @@ async function signInHandler(request: NextRequest) {
 
     // Log authentication failure
     if (body?.email) {
-      await auditLogger.logAuthFailure(
-        request,
-        body.email,
-        error.message || "Authentication failed",
-        error.code
-      );
+      await auditLogger.logAuth('login_failed', 'failure', {
+        email: body.email,
+        error: error.message || "Authentication failed",
+        metadata: {
+          errorCode: error.code
+        }
+      });
     }
 
     if (error instanceof z.ZodError) {

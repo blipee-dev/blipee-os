@@ -22,6 +22,7 @@ import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "@/providers/LanguageProvider";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { auditLogger } from "@/lib/audit/client";
 
 export default function OrganizationSettingsPage() {
   // Check authentication and redirect if not authenticated
@@ -321,10 +322,31 @@ export default function OrganizationSettingsPage() {
 
         if (error) throw error;
 
+        // Log the delete operation
+        await auditLogger.logDataOperation(
+          'delete',
+          'organization',
+          org.id,
+          org.name,
+          'success',
+          {
+            before: org
+          }
+        );
+
         // Refresh the list
         await fetchOrganizations();
       } catch (err) {
         console.error("Error deleting organization:", err);
+
+        // Log the failed delete
+        await auditLogger.logDataOperation(
+          'delete',
+          'organization',
+          org.id,
+          org.name,
+          'failure'
+        );
         alert(t("failedToDelete"));
       }
     }

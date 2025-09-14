@@ -1532,7 +1532,9 @@
         "devices": "Devices",
         "devicesDesc": "Device management",
         "users": "Users",
-        "usersDesc": "User management"
+        "usersDesc": "User management",
+        "logs": "Audit Logs",
+        "logsDesc": "View system activity logs"
       },
       "buttons": {
         "chat": "Chat",

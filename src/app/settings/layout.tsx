@@ -15,6 +15,7 @@ import {
   Settings,
   MessageSquare,
   LogOut,
+  FileText,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MobileNavigation } from "@/components/blipee-os/MobileNavigation";
@@ -28,6 +29,7 @@ const getSettingsNavItems = (t: (key: string) => string) => [
   { id: "sites", label: t('navigation.sites'), icon: MapPin, href: "/settings/sites" },
   { id: "devices", label: t('navigation.devices'), icon: Cpu, href: "/settings/devices" },
   { id: "users", label: t('navigation.users'), icon: Users, href: "/settings/users" },
+  { id: "logs", label: t('navigation.logs'), icon: FileText, href: "/settings/logs" },
 ];
 
 export default function SettingsLayout({

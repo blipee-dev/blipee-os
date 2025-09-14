@@ -27,6 +27,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { useAuth } from "@/lib/auth/context";
 import { useTranslations } from "@/providers/LanguageProvider";
+import { auditLogger } from "@/lib/audit/client";
 
 interface OrganizationModalProps {
   isOpen: boolean;
@@ -456,7 +457,20 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
           .eq('id', data.id);
 
         if (orgError) throw orgError;
-        
+
+        // Log the update operation
+        await auditLogger.logDataOperation(
+          'update',
+          'organization',
+          data.id,
+          formData.name,
+          'success',
+          {
+            before: data,
+            after: formData
+          }
+        );
+
       } else {
         // Create new organization via API to handle RLS properly
         const response = await fetch('/api/organizations/create', {
@@ -506,6 +520,18 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
         if (!response.ok) {
           throw new Error(result.error || 'Failed to create organization');
         }
+
+        // Log the create operation
+        await auditLogger.logDataOperation(
+          'create',
+          'organization',
+          result.data?.id || 'new',
+          formData.name,
+          'success',
+          {
+            after: formData
+          }
+        );
       }
 
       setSuccess(true);
@@ -524,6 +550,18 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
     } catch (err: any) {
       console.error("Error creating organization:", err);
       setError(err.message || "Failed to create organization");
+
+      // Log the failed operation
+      await auditLogger.logDataOperation(
+        mode === 'edit' ? 'update' : 'create',
+        'organization',
+        data?.id || 'new',
+        formData.name,
+        'failure',
+        {
+          error: err.message
+        }
+      );
     } finally {
       setLoading(false);
     }

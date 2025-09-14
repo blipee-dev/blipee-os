@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { useTranslations } from '@/providers/LanguageProvider';
+import { auditLogger } from '@/lib/audit/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
 
@@ -129,6 +130,15 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
 
         if (createError) throw createError;
 
+        // Log audit event for user creation
+        await auditLogger.logDataOperation(
+          'create',
+          'user',
+          newUser.id,
+          newUser.name,
+          'success'
+        );
+
         // TODO: Send invitation email if formData.sendInvite is true
         if (formData.sendInvite) {
           // Implement invitation logic here
@@ -150,6 +160,19 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
           .eq('id', data.id);
 
         if (updateError) throw updateError;
+
+        // Log audit event for user update
+        await auditLogger.logDataOperation(
+          'update',
+          'user',
+          data.id,
+          formData.name,
+          'success',
+          {
+            before: data,
+            after: formData
+          }
+        );
       }
 
       onSuccess?.();
