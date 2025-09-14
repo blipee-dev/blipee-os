@@ -335,7 +335,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   // Pagination Component
   const PaginationControls = () => {
     return (
-      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-3 py-3 px-3 sm:px-4 bg-gray-50 dark:bg-[#757575]/10 border-t border-gray-200 dark:border-white/[0.05] rounded-b-lg">
+      <nav aria-label="Pagination Navigation" className="flex flex-col sm:flex-row items-center justify-center gap-3 py-3 px-3 sm:px-4 bg-white dark:bg-[#212121] border-t border-gray-200 dark:border-white/[0.05] rounded-b-lg">
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto">
           <div className="flex items-center gap-3">
             <span className="hidden sm:block text-xs sm:text-sm text-gray-700 dark:text-[#757575]">
@@ -367,7 +367,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             <button
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label={t('pagination.firstPage')}
             >
               <ChevronsLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -376,7 +376,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label={t('pagination.previousPage')}
             >
               <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -408,7 +408,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                       px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg transition-colors
                       ${currentPage === pageNum
                         ? "accent-gradient-lr text-white"
-                        : "hover:bg-gray-200 dark:hover:bg-white/[0.05] text-gray-700 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white"
+                        : "hover:bg-gray-100 dark:hover:bg-white/[0.05] text-gray-700 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white"
                       }
                     `}
                     aria-label={t('pagination.page', { number: pageNum })}
@@ -423,7 +423,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label={t('pagination.nextPage')}
             >
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -432,7 +432,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             <button
               onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label={t('pagination.lastPage')}
             >
               <ChevronsRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -502,7 +502,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         </div>
 
         {/* Table Content */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] h-[700px] flex flex-col">
+        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05]">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
@@ -511,7 +511,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
               </div>
             </div>
           ) : currentData.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">{t('messages.noUsers')}</p>
@@ -529,8 +529,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
               </div>
             </div>
           ) : (
-            <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-x-auto">
+            <div className="flex flex-col">
+              <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
                     <tr>

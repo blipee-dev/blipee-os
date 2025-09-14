@@ -312,7 +312,7 @@ export default function AppearancePage() {
             {fontSizes.map((size) => (
               <label
                 key={size.id}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.05] cursor-pointer transition-colors"
+                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] cursor-pointer transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <input
@@ -348,7 +348,7 @@ export default function AppearancePage() {
             {densityOptions.map((density) => (
               <label
                 key={density.id}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.05] cursor-pointer transition-colors"
+                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] cursor-pointer transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <input

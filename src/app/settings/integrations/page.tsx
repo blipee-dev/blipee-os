@@ -98,7 +98,7 @@ export default function IntegrationsSettingsPage() {
             </p>
             
             {integration.connected ? (
-              <button className="w-full px-4 py-2 bg-gray-100 dark:bg-[#212121] text-[#616161] dark:text-[#757575] rounded-lg hover:bg-gray-200 dark:hover:bg-white/[0.05] transition-colors text-sm font-medium">
+              <button className="w-full px-4 py-2 bg-gray-100 dark:bg-[#212121] text-[#616161] dark:text-[#757575] rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors text-sm font-medium">
                 Disconnect
               </button>
             ) : (

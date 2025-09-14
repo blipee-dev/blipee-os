@@ -343,7 +343,7 @@ export default function ProfilePage() {
               {t('sections.quickSettings.title')}
             </h2>
             <div className="space-y-3">
-              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
+              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
                 <div className="flex items-center gap-3">
                   <Bell className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
                   <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.notifications.title')}</span>
@@ -351,7 +351,7 @@ export default function ProfilePage() {
                 <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.notifications.action')}</span>
               </button>
 
-              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
+              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
                 <div className="flex items-center gap-3">
                   <Shield className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
                   <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.security.title')}</span>
@@ -359,7 +359,7 @@ export default function ProfilePage() {
                 <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.security.action')}</span>
               </button>
 
-              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
+              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
                 <div className="flex items-center gap-3">
                   <Palette className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
                   <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.appearance.title')}</span>
@@ -367,7 +367,7 @@ export default function ProfilePage() {
                 <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.appearance.status')}</span>
               </button>
 
-              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
+              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
                 <div className="flex items-center gap-3">
                   <Globe className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
                   <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.language.title')}</span>

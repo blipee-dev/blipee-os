@@ -801,7 +801,7 @@ export default function SecurityPage() {
           ) : (
             <div className="space-y-3">
               {securityEvents.map((event) => (
-                <div key={event.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg transition-colors">
+                <div key={event.id} className="flex items-start gap-3 p-3 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
                   <div className={`p-1.5 rounded-full ${
                     event.success 
                       ? "bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400"
@@ -865,7 +865,7 @@ export default function SecurityPage() {
                       setShow2FASetup(false);
                       setVerificationCode("");
                     }}
-                    className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+                    className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
