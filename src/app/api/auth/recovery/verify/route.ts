@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRecoveryService } from '@/lib/auth/recovery/service';
 import { RecoveryMethod } from '@/lib/auth/recovery/types';
-import { auditLogger } from '@/lib/audit/logger';
+import { auditLogger } from '@/lib/audit/server';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -48,19 +48,20 @@ export async function POST(request: NextRequest) {
     
     // Log recovery attempt
     if (result.success && result.userId) {
-      await auditLogger.logAuthSuccess(
-        request,
-        result.userId,
-        '', // Email would need to be fetched
-        'password'
-      );
+      await auditLogger.logAuth('password_reset', 'success', {
+        userId: result.userId,
+        metadata: {
+          method: validated.method
+        }
+      });
     } else {
-      await auditLogger.logAuthFailure(
-        request,
-        '',
-        result.message,
-        'RECOVERY_VERIFICATION_FAILED'
-      );
+      await auditLogger.logAuth('password_reset', 'failure', {
+        error: result.message,
+        metadata: {
+          method: validated.method,
+          errorCode: 'RECOVERY_VERIFICATION_FAILED'
+        }
+      });
     }
     
     return NextResponse.json({
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: errorerror.message || 'Failed to verify recovery',
+        _error: error.message || 'Failed to verify recovery',
       },
       { status: 500 }
     );

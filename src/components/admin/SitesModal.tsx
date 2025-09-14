@@ -20,6 +20,7 @@ import {
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useTranslations } from "@/providers/LanguageProvider";
+import { auditLogger } from "@/lib/audit/client";
 
 interface SitesModalProps {
   isOpen: boolean;
@@ -203,6 +204,19 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
           throw new Error(updateError.message);
         }
         console.log('Site updated successfully');
+
+        // Log audit event for site update
+        await auditLogger.logDataOperation(
+          'update',
+          'site',
+          data.id,
+          siteData.name,
+          'success',
+          {
+            before: data,
+            after: siteData
+          }
+        );
       } else {
         // Create new site
         const { data: newSite, error: createError } = await supabase
@@ -216,6 +230,15 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
           throw new Error(createError.message);
         }
         console.log('Site created successfully:', newSite);
+
+        // Log audit event for site creation
+        await auditLogger.logDataOperation(
+          'create',
+          'site',
+          newSite.id,
+          newSite.name,
+          'success'
+        );
       }
 
       setSuccess(true);
