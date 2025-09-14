@@ -6,7 +6,7 @@ import {
   metricsDataUpdateSchema,
   validateAndSanitize
 } from '@/lib/validation/schemas';
-import { withMiddleware, middlewareConfigs } from '@/lib/middleware';
+import { withMiddleware, middlewareConfigs } from '@/lib/middleware/index';
 
 // Internal GET handler
 async function getMetricsData(request: NextRequest): Promise<NextResponse> {
