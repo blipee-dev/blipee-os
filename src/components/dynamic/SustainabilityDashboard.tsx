@@ -50,6 +50,27 @@ export function SustainabilityDashboard({
   const [animatedValues, setAnimatedValues] = useState<{
     [key: string]: number;
   }>({});
+  const [realData, setRealData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch real sustainability data
+  useEffect(() => {
+    const fetchRealData = async () => {
+      try {
+        const response = await fetch('/api/sustainability/metrics/data');
+        if (response.ok) {
+          const data = await response.json();
+          setRealData(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch sustainability data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRealData();
+  }, []);
 
   useEffect(() => {
     if (realTime) {
@@ -261,70 +282,90 @@ export function SustainabilityDashboard({
     </motion.div>
   );
 
-  // Default widgets if none provided
-  const defaultWidgets = [
-    {
-      type: "metric" as const,
-      title: "Total Emissions",
-      value: 2450,
-      unit: "tons CO₂e",
-      change: -12.5,
-      trend: "down" as const,
-      color: "green",
-      subtitle: "Scope 1, 2 & 3 combined",
-    },
-    {
-      type: "metric" as const,
-      title: "Energy Efficiency",
-      value: 87,
-      unit: "%",
-      change: 5.2,
-      trend: "up" as const,
-      color: "blue",
-      target: 95,
-    },
-    {
-      type: "metric" as const,
-      title: "Water Conservation",
-      value: 1.2,
-      unit: "M gallons saved",
-      change: -8.7,
-      trend: "down" as const,
-      color: "blue",
-    },
-    {
-      type: "metric" as const,
-      title: "Waste Diverted",
-      value: 78,
-      unit: "% from landfill",
-      change: 3.4,
-      trend: "up" as const,
-      color: "yellow",
-      target: 90,
-    },
-    {
-      type: "metric" as const,
-      title: "Renewable Energy",
-      value: 65,
-      unit: "%",
-      change: 12.1,
-      trend: "up" as const,
-      color: "purple",
-      target: 100,
-    },
-    {
-      type: "metric" as const,
-      title: "Carbon Offset",
-      value: 320,
-      unit: "tons",
-      change: 28.5,
-      trend: "up" as const,
-      color: "green",
-      subtitle: "Via verified projects",
-    },
-  ];
+  // Generate widgets from real data
+  const getRealWidgets = () => {
+    if (!realData?.summary) {
+      return []; // Show nothing while loading
+    }
 
-  const displayWidgets = widgets.length > 0 ? widgets : defaultWidgets;
+    const summary = realData.summary;
+    return [
+      {
+        type: "metric" as const,
+        title: "Total Emissions",
+        value: Math.round(summary.total_emissions || 0),
+        unit: "tons CO₂e",
+        change: undefined, // TODO: Calculate from historical data
+        trend: "stable" as const,
+        color: "green",
+        subtitle: "Scope 1, 2 & 3 combined",
+      },
+      {
+        type: "metric" as const,
+        title: "Scope 1 Emissions",
+        value: Math.round(summary.by_scope?.scope_1 || 0),
+        unit: "tons CO₂e",
+        change: undefined,
+        trend: "stable" as const,
+        color: "red",
+        subtitle: "Direct emissions",
+      },
+      {
+        type: "metric" as const,
+        title: "Scope 2 Emissions",
+        value: Math.round(summary.by_scope?.scope_2 || 0),
+        unit: "tons CO₂e",
+        change: undefined,
+        trend: "stable" as const,
+        color: "yellow",
+        subtitle: "Energy indirect",
+      },
+      {
+        type: "metric" as const,
+        title: "Scope 3 Emissions",
+        value: Math.round(summary.by_scope?.scope_3 || 0),
+        unit: "tons CO₂e",
+        change: undefined,
+        trend: "stable" as const,
+        color: "blue",
+        subtitle: "Value chain",
+      },
+      {
+        type: "metric" as const,
+        title: "Data Points",
+        value: summary.count || 0,
+        unit: "entries",
+        change: undefined,
+        trend: "stable" as const,
+        color: "purple",
+        subtitle: "Total metrics recorded",
+      },
+    ];
+  };
+
+  const displayWidgets = widgets.length > 0 ? widgets : getRealWidgets();
+
+  if (loading) {
+    return (
+      <div className="w-full">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
+            {title}
+          </h2>
+          <p className="text-white/60 mt-1">Loading sustainability data...</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="backdrop-blur-xl bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6 h-48 animate-pulse">
+              <div className="w-16 h-16 bg-white/10 rounded-xl mb-4"></div>
+              <div className="w-3/4 h-4 bg-white/10 rounded mb-2"></div>
+              <div className="w-1/2 h-8 bg-white/10 rounded"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div

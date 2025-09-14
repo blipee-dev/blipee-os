@@ -148,7 +148,19 @@
       "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/app/settings/devices/DevicesClient.tsx)",
       "Bash(tr:*)",
       "Bash(git reflog:*)",
-      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_XtDFHo/**)"
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_XtDFHo/**)",
+      "Bash(timeout 30 npx tsc --noEmit --skipLibCheck src/components/sustainability/SiteMetricsManager.tsx)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_obMlFv/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_qmIvfS/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_R23QMI/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_HAs6Q3/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_dCJn1x/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_1PQycW/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_OAo9D9/**)",
+      "Bash(y)",
+      "Bash(do echo \"Checking table: $table\")",
+      "Bash(do echo \"=== $table ===\")",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://taqnpqotynpudcaejlxj.supabase.co node scripts/check-emission-factors-structure.js)"
     ],
     "deny": [],
     "ask": []
