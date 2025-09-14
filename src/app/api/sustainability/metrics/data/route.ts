@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import {
+  metricsDataQuerySchema,
+  metricsDataCreateSchema,
+  metricsDataUpdateSchema,
+  validateAndSanitize
+} from '@/lib/validation/schemas';
+import { withMiddleware, middlewareConfigs } from '@/lib/middleware';
 
-// GET metrics data
-export async function GET(request: NextRequest) {
+// Internal GET handler
+async function getMetricsData(request: NextRequest): Promise<NextResponse> {
   const supabase = await createServerSupabaseClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -10,11 +17,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Validate query parameters
   const { searchParams } = new URL(request.url);
-  const metric_id = searchParams.get('metric_id');
-  const site_id = searchParams.get('site_id');
-  const start_date = searchParams.get('start_date');
-  const end_date = searchParams.get('end_date');
+  const queryParams = {
+    metric_id: searchParams.get('metric_id'),
+    site_id: searchParams.get('site_id'),
+    start_date: searchParams.get('start_date'),
+    end_date: searchParams.get('end_date'),
+    page: searchParams.get('page'),
+    limit: searchParams.get('limit'),
+  };
+
+  const validation = validateAndSanitize(metricsDataQuerySchema, queryParams);
+  if (!validation.success) {
+    const errors = validation.error.errors.map(err => ({
+      field: err.path.join('.'),
+      message: err.message,
+    }));
+    return NextResponse.json(
+      { error: 'Invalid query parameters', details: errors },
+      { status: 400 }
+    );
+  }
+
+  const { metric_id, site_id, start_date, end_date } = validation.data;
 
   try {
     // Get user's organization
@@ -91,6 +117,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Export GET handler with middleware
+export const GET = withMiddleware(getMetricsData, {
+  ...middlewareConfigs.api,
+  validation: {
+    query: metricsDataQuerySchema,
+  },
+});
+
 // POST add metrics data
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -102,6 +136,20 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
+
+    // Validate request body
+    const validation = validateAndSanitize(metricsDataCreateSchema, body);
+    if (!validation.success) {
+      const errors = validation.error.errors.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      return NextResponse.json(
+        { error: 'Invalid request data', details: errors },
+        { status: 400 }
+      );
+    }
+
     const {
       metric_id,
       site_id,
@@ -112,7 +160,7 @@ export async function POST(request: NextRequest) {
       data_quality = 'measured',
       notes,
       evidence_url
-    } = body;
+    } = validation.data;
 
     // Get user's organization
     const { data: member } = await supabase
@@ -180,7 +228,21 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { id, ...updates } = body;
+
+    // Validate request body
+    const validation = validateAndSanitize(metricsDataUpdateSchema, body);
+    if (!validation.success) {
+      const errors = validation.error.errors.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      return NextResponse.json(
+        { error: 'Invalid update data', details: errors },
+        { status: 400 }
+      );
+    }
+
+    const { id, ...updates } = validation.data;
 
     // Get user's organization
     const { data: member } = await supabase

@@ -53,7 +53,7 @@ export default function SustainabilityMetricsPage() {
   const [organizationMetrics, setOrganizationMetrics] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedScope, setSelectedScope] = useState<string | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Electricity', 'Mobile Combustion', 'Stationary Combustion']));
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [showDataEntry, setShowDataEntry] = useState(false);
   const [selectedMetricForEntry, setSelectedMetricForEntry] = useState<any>(null);
   const [sites, setSites] = useState<any[]>([]);
@@ -189,94 +189,21 @@ export default function SustainabilityMetricsPage() {
       </header>
 
       <main className="p-4 sm:p-6">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            {sites.length === 0 && (
-              <button
-                onClick={createTestData}
-                className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2"
-              >
-                <Database className="w-4 h-4" />
-                Need Test Data?
-              </button>
-            )}
-            <button
-              onClick={() => {
-                setSelectedMetricForEntry(null);
-                setShowDataEntry(true);
-              }}
-              className="px-4 py-2.5 accent-gradient-lr text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2 hover:opacity-90"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Add Data
-            </button>
-            <button
-              onClick={() => {
-                setSelectedMetricForEntry(null);
-                setShowDataEntry(true);
-              }}
-              className="px-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm font-medium text-[#616161] dark:text-[#757575] hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2"
-            >
-              <Upload className="w-4 h-4" />
-              Import
-            </button>
-            <button
-              onClick={() => router.push('/sustainability/dashboard')}
-              className="px-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm font-medium text-[#616161] dark:text-[#757575] hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2"
-            >
-              <BarChart3 className="w-4 h-4" />
-              Dashboard
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-[#616161] dark:text-[#757575]">Total Available</p>
-                <p className="text-xl font-semibold text-gray-900 dark:text-white">74</p>
-              </div>
-              <Database className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
-            </div>
-          </div>
-          <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-[#616161] dark:text-[#757575]">Selected</p>
-                <p className="text-xl font-semibold text-gray-900 dark:text-white">{selectedMetrics.size}</p>
-              </div>
-              <Check className="w-5 h-5 text-green-500" />
-            </div>
-          </div>
-          <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-[#616161] dark:text-[#757575]">Scope Coverage</p>
-                <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {new Set(organizationMetrics.map(m => m.metric?.scope?.replace('scope_', ''))).size}/3
-                </p>
-              </div>
-              <TrendingUp className="w-5 h-5 text-blue-500" />
-            </div>
-          </div>
-          <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-[#616161] dark:text-[#757575]">Categories</p>
-                <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {new Set(organizationMetrics.map(m => m.metric?.category)).size}
-                </p>
-              </div>
-              <Package className="w-5 h-5 text-purple-500" />
-            </div>
-          </div>
-        </div>
+        <SiteMetricsManager
+          sites={sites}
+          organizationMetrics={organizationMetrics}
+          onRefresh={fetchData}
+          onAddData={() => {
+            setSelectedMetricForEntry(null);
+            setShowDataEntry(true);
+          }}
+          onImport={() => {
+            setSelectedMetricForEntry(null);
+            setShowDataEntry(true);
+          }}
+          onDashboard={() => router.push('/sustainability/dashboard')}
+          onCreateTestData={createTestData}
+        />
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
@@ -286,7 +213,7 @@ export default function SustainabilityMetricsPage() {
               placeholder="Search metrics by name or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 accent-ring transition-all"
             />
           </div>
           <div className="flex gap-2">
@@ -298,18 +225,17 @@ export default function SustainabilityMetricsPage() {
                   onClick={() => setSelectedScope(selectedScope === scope ? null : scope)}
                   className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition-all flex items-center gap-2 ${
                     selectedScope === scope
-                      ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300'
+                      ? 'accent-gradient-lr text-white border-transparent'
                       : 'bg-white dark:bg-[#212121] border-gray-200 dark:border-white/[0.05] text-[#616161] dark:text-[#757575] hover:bg-gray-100 dark:hover:bg-white/[0.05]'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
-                  <span>{scope.replace('_', ' ').toUpperCase()}</span>
+                  <span>{scope.replace('scope_', 'Scope ')}</span>
                 </button>
               );
             })}
           </div>
         </div>
-      </motion.div>
 
       {/* Metrics Catalog Section */}
       <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6 mb-6">
@@ -355,9 +281,9 @@ export default function SustainabilityMetricsPage() {
               return (
                 <div key={scope} className="space-y-3">
                   <div className="flex items-center gap-2 mb-3">
-                    <ScopeIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <ScopeIcon className="w-5 h-5 accent-text" />
                     <h3 className="text-md font-semibold text-gray-900 dark:text-white">
-                      {scope.replace('_', ' ').toUpperCase()}
+                      {scope.replace('scope_', 'Scope ')}
                     </h3>
                   </div>
 
@@ -400,14 +326,17 @@ export default function SustainabilityMetricsPage() {
                                 return (
                                   <div
                                     key={metric.id}
-                                    className={`p-4 rounded-lg border transition-all cursor-pointer ${
-                                      isSelected
-                                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-                                        : 'bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] hover:border-gray-300 dark:hover:border-white/[0.1]'
-                                    }`}
-                                    onClick={() => toggleMetric(metric.id)}
+                                    className="p-4 rounded-lg border bg-white dark:bg-[#111111] border-gray-200 dark:border-white/[0.05] hover:border-gray-300 dark:hover:border-white/[0.1] transition-all"
                                   >
-                                    <div className="flex items-start justify-between">
+                                    <div className="flex items-start gap-3">
+                                      <div className="flex-shrink-0 pt-1">
+                                        <input
+                                          type="checkbox"
+                                          checked={isSelected}
+                                          onChange={() => toggleMetric(metric.id)}
+                                          className="w-4 h-4 accent-checkbox rounded focus:ring-2 accent-ring focus:ring-offset-0"
+                                        />
+                                      </div>
                                       <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-2">
                                           <span className="text-sm font-medium text-gray-900 dark:text-white">
@@ -458,13 +387,6 @@ export default function SustainabilityMetricsPage() {
                                           )}
                                         </div>
                                       </div>
-                                      <div className="ml-3">
-                                        {isSelected ? (
-                                          <Check className="w-5 h-5 text-blue-500" />
-                                        ) : (
-                                          <Plus className="w-5 h-5 text-gray-400" />
-                                        )}
-                                      </div>
                                     </div>
                                   </div>
                                 );
@@ -481,12 +403,6 @@ export default function SustainabilityMetricsPage() {
           )}
         </div>
       </div>
-
-      <SiteMetricsManager
-        sites={sites}
-        organizationMetrics={organizationMetrics}
-        onRefresh={fetchData}
-      />
 
       <DataEntryModal
         isOpen={showDataEntry}

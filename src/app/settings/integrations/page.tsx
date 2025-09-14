@@ -2,7 +2,18 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Puzzle, Check, X, Settings } from "lucide-react";
+import {
+  Puzzle,
+  Check,
+  X,
+  Settings,
+  MessageSquare,
+  Users,
+  Calendar,
+  Cloud,
+  Hexagon,
+  BarChart3
+} from "lucide-react";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
 
@@ -11,42 +22,42 @@ const integrations = [
     id: 1,
     name: "Slack",
     description: "Get notifications and alerts in your Slack workspace",
-    icon: "💬",
+    icon: MessageSquare,
     connected: true,
   },
   {
     id: 2,
     name: "Microsoft Teams",
     description: "Integrate with Microsoft Teams for collaboration",
-    icon: "👥",
+    icon: Users,
     connected: false,
   },
   {
     id: 3,
     name: "Google Calendar",
     description: "Sync events and schedule reports automatically",
-    icon: "📅",
+    icon: Calendar,
     connected: true,
   },
   {
     id: 4,
     name: "Salesforce",
     description: "Connect your CRM data with sustainability metrics",
-    icon: "☁️",
+    icon: Cloud,
     connected: false,
   },
   {
     id: 5,
     name: "SAP",
     description: "Import data from SAP systems",
-    icon: "🔷",
+    icon: Hexagon,
     connected: false,
   },
   {
     id: 6,
     name: "Power BI",
     description: "Export data to Power BI for advanced analytics",
-    icon: "📊",
+    icon: BarChart3,
     connected: true,
   },
 ];
@@ -71,8 +82,8 @@ export default function IntegrationsSettingsPage() {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-100 dark:bg-[#212121] rounded-lg flex items-center justify-center text-2xl">
-                  {integration.icon}
+                <div className="w-12 h-12 bg-gray-100 dark:bg-[#212121] rounded-lg flex items-center justify-center">
+                  <integration.icon className="w-6 h-6 text-[#616161] dark:text-[#757575]" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
