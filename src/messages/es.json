@@ -1553,7 +1553,9 @@
         "devices": "Dispositivos",
         "devicesDesc": "Gestión de dispositivos",
         "users": "Usuarios",
-        "usersDesc": "Gestión de usuarios"
+        "usersDesc": "Gestión de usuarios",
+        "logs": "Registros de Auditoría",
+        "logsDesc": "Ver registros de actividad del sistema"
       },
       "buttons": {
         "chat": "Chat",

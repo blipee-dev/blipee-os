@@ -6,6 +6,7 @@ import { X, Cpu, Wifi, Settings, MapPin, AlertCircle, Check } from "lucide-react
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from '@/providers/LanguageProvider';
+import { auditLogger } from '@/lib/audit/client';
 
 interface DevicesModalProps {
   isOpen: boolean;
@@ -95,15 +96,26 @@ export default function DevicesModal({
 
     try {
       if (mode === 'create') {
-        const { error } = await supabase
+        const { data: newDevice, error } = await supabase
           .from('devices')
           .insert({
             ...formData,
             floor: formData.floor || null
-          });
+          })
+          .select()
+          .single();
 
         if (error) throw error;
-        
+
+        // Log audit event for device creation
+        await auditLogger.logDataOperation(
+          'create',
+          'device',
+          newDevice.id,
+          newDevice.name,
+          'success'
+        );
+
         setMessage({ type: 'success', text: t('messages.createSuccess') });
         setTimeout(() => {
           onSuccess?.();
@@ -120,7 +132,20 @@ export default function DevicesModal({
           .eq('id', device.id);
 
         if (error) throw error;
-        
+
+        // Log audit event for device update
+        await auditLogger.logDataOperation(
+          'update',
+          'device',
+          device.id,
+          formData.name,
+          'success',
+          {
+            before: device,
+            after: formData
+          }
+        );
+
         setMessage({ type: 'success', text: t('messages.updateSuccess') });
         setTimeout(() => {
           onSuccess?.();
