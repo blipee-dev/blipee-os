@@ -1418,6 +1418,65 @@
         }
       }
     },
+    "sustainability": {
+      "title": "Métricas de Sostenibilidad",
+      "description": "Seleccione y gestione las métricas de sostenibilidad de su organización",
+      "searchPlaceholder": "Buscar métricas...",
+      "addData": "Añadir Datos",
+      "import": "Importar",
+      "dashboard": "Panel",
+      "saveMetrics": "Guardar Métricas Seleccionadas",
+      "saving": "Guardando...",
+      "failedToLoadMetrics": "Error al cargar las métricas",
+      "failedToSaveMetrics": "Error al guardar las métricas",
+      "metricsAddedSuccess": "Se añadieron {count} métricas para rastrear",
+      "metricsRemovedSuccess": "Se eliminaron {count} métricas",
+      "stats": {
+        "totalAvailable": "Total Disponible",
+        "selected": "Seleccionadas",
+        "scopeCoverage": "Cobertura de Alcance",
+        "categories": "Categorías"
+      },
+      "scopes": {
+        "scope1": "ALCANCE 1",
+        "scope2": "ALCANCE 2",
+        "scope3": "ALCANCE 3",
+        "scope1Description": "Emisiones directas de fuentes propias o controladas",
+        "scope2Description": "Emisiones indirectas de energía comprada",
+        "scope3Description": "Todas las demás emisiones indirectas en su cadena de valor"
+      },
+      "categories": {
+        "Fugitive Emissions": "Emisiones Fugitivas",
+        "Mobile Combustion": "Combustión Móvil",
+        "Process Emissions": "Emisiones de Proceso",
+        "Stationary Combustion": "Combustión Estacionaria",
+        "Electricity": "Electricidad",
+        "Purchased Energy": "Energía Comprada",
+        "Business Travel": "Viajes de Negocios",
+        "Capital Goods": "Bienes de Capital",
+        "Downstream Leased Assets": "Activos Arrendados Aguas Abajo",
+        "Downstream Transportation": "Transporte Aguas Abajo",
+        "Employee Commuting": "Desplazamiento de Empleados",
+        "End-of-Life": "Fin de Vida",
+        "Franchises": "Franquicias",
+        "Fuel & Energy Related": "Relacionado con Combustibles y Energía",
+        "Investments": "Inversiones",
+        "Processing of Sold Products": "Procesamiento de Productos Vendidos",
+        "Purchased Goods & Services": "Bienes y Servicios Comprados",
+        "Upstream Leased Assets": "Activos Arrendados Aguas Arriba",
+        "Upstream Transportation": "Transporte Aguas Arriba",
+        "Use of Sold Products": "Uso de Productos Vendidos",
+        "Waste": "Residuos"
+      },
+      "category": {
+        "selectedCount": "{selected}/{total} seleccionadas"
+      },
+      "metric": {
+        "emissionFactor": "Factor de Emisión: {factor} {unit}",
+        "source": "Fuente",
+        "sourceNotSpecified": "Fuente no especificada - se necesita referencia"
+      }
+    },
     "users": {
       "title": "Gestión de Usuarios",
       "subtitle": "Gestiona los miembros del equipo y sus permisos",
@@ -1554,6 +1613,8 @@
         "devicesDesc": "Gestión de dispositivos",
         "users": "Usuarios",
         "usersDesc": "Gestión de usuarios",
+        "sustainability": "Sostenibilidad",
+        "sustainabilityDesc": "Gestión de métricas de sostenibilidad",
         "logs": "Registros de Auditoría",
         "logsDesc": "Ver registros de actividad del sistema"
       },
