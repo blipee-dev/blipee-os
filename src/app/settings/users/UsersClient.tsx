@@ -444,7 +444,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   };
 
   return (
-    <SettingsLayout pageTitle="Users">
+    <SettingsLayout pageTitle={t('title')}>
       <header className="hidden md:block p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05]">
         <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
         <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">{t('subtitle')}</p>

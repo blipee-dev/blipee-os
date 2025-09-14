@@ -487,17 +487,13 @@ export default function OrganizationSettingsPage() {
   };
 
   return (
-    <SettingsLayout pageTitle="Organizations">
-      <div className="p-4 sm:p-6">
-        {/* Header - Hidden on mobile */}
-        <header className="hidden md:block mb-6">
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
-            {t("title")}
-          </h1>
-          <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">
-            {t("subtitle")}
-          </p>
-        </header>
+    <SettingsLayout pageTitle={t('title')}>
+      <header className="hidden md:block p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05]">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
+        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">{t('subtitle')}</p>
+      </header>
+
+      <main className="p-4 sm:p-6">
 
         {/* Search Bar with Actions - New Design */}
         <div className="flex items-center gap-2 mb-6">
@@ -761,10 +757,9 @@ export default function OrganizationSettingsPage() {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Modal */}
-      <OrganizationModal
+        {/* Modal */}
+        <OrganizationModal
         key={`org-modal-${modalMode}-${selectedOrganization?.id || "new"}`}
         isOpen={showOrgModal}
         onClose={handleModalClose}
@@ -773,6 +768,7 @@ export default function OrganizationSettingsPage() {
         data={selectedOrganization}
         supabase={supabase}
       />
+      </main>
     </SettingsLayout>
   );
 }
