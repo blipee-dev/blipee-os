@@ -1414,6 +1414,65 @@
         }
       }
     },
+    "sustainability": {
+      "title": "Sustainability Metrics",
+      "description": "Select and manage your organization's sustainability metrics",
+      "searchPlaceholder": "Search metrics...",
+      "addData": "Add Data",
+      "import": "Import",
+      "dashboard": "Dashboard",
+      "saveMetrics": "Save Selected Metrics",
+      "saving": "Saving...",
+      "failedToLoadMetrics": "Failed to load metrics",
+      "failedToSaveMetrics": "Failed to save metrics",
+      "metricsAddedSuccess": "Added {count} metrics to track",
+      "metricsRemovedSuccess": "Removed {count} metrics",
+      "stats": {
+        "totalAvailable": "Total Available",
+        "selected": "Selected",
+        "scopeCoverage": "Scope Coverage",
+        "categories": "Categories"
+      },
+      "scopes": {
+        "scope1": "SCOPE 1",
+        "scope2": "SCOPE 2",
+        "scope3": "SCOPE 3",
+        "scope1Description": "Direct emissions from owned or controlled sources",
+        "scope2Description": "Indirect emissions from purchased energy",
+        "scope3Description": "All other indirect emissions in your value chain"
+      },
+      "categories": {
+        "Fugitive Emissions": "Fugitive Emissions",
+        "Mobile Combustion": "Mobile Combustion",
+        "Process Emissions": "Process Emissions",
+        "Stationary Combustion": "Stationary Combustion",
+        "Electricity": "Electricity",
+        "Purchased Energy": "Purchased Energy",
+        "Business Travel": "Business Travel",
+        "Capital Goods": "Capital Goods",
+        "Downstream Leased Assets": "Downstream Leased Assets",
+        "Downstream Transportation": "Downstream Transportation",
+        "Employee Commuting": "Employee Commuting",
+        "End-of-Life": "End-of-Life",
+        "Franchises": "Franchises",
+        "Fuel & Energy Related": "Fuel & Energy Related",
+        "Investments": "Investments",
+        "Processing of Sold Products": "Processing of Sold Products",
+        "Purchased Goods & Services": "Purchased Goods & Services",
+        "Upstream Leased Assets": "Upstream Leased Assets",
+        "Upstream Transportation": "Upstream Transportation",
+        "Use of Sold Products": "Use of Sold Products",
+        "Waste": "Waste"
+      },
+      "category": {
+        "selectedCount": "{selected}/{total} selected"
+      },
+      "metric": {
+        "emissionFactor": "Emission Factor: {factor} {unit}",
+        "source": "Source",
+        "sourceNotSpecified": "Source not specified - reference needed"
+      }
+    },
     "users": {
       "title": "User Management",
       "subtitle": "Manage team members and their permissions",
@@ -1533,6 +1592,8 @@
         "devicesDesc": "Device management",
         "users": "Users",
         "usersDesc": "User management",
+        "sustainability": "Sustainability",
+        "sustainabilityDesc": "Sustainability metrics management",
         "logs": "Audit Logs",
         "logsDesc": "View system activity logs"
       },
