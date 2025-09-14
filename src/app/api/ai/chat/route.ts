@@ -1,19 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getMenuResponse, generateDynamicContent, menuTree } from "@/lib/chat/menu-navigation";
+import { chatMessageSchema, validateAndSanitize } from "@/lib/validation/schemas";
+import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+// Internal POST handler
+async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();
-    const { message } = body;
 
-    if (!message) {
+    // Validate request body
+    const validation = validateAndSanitize(chatMessageSchema, body);
+    if (!validation.success) {
+      const errors = validation.error.errors.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
       return NextResponse.json(
-        { error: "Message is required" },
+        { error: 'Invalid message data', details: errors },
         { status: 400 }
       );
     }
+
+    const { message } = validation.data;
 
     // Use the menu navigation system
     let response = getMenuResponse(message);
@@ -127,3 +137,11 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// Export POST handler with AI middleware (stricter rate limiting)
+export const POST = withMiddleware(handleChatMessage, {
+  ...middlewareConfigs.ai,
+  validation: {
+    body: chatMessageSchema,
+  },
+});
