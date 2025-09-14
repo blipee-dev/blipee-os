@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getMenuResponse, generateDynamicContent, menuTree } from "@/lib/chat/menu-navigation";
 import { chatMessageSchema, validateAndSanitize } from "@/lib/validation/schemas";
-import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
+import { withMiddleware, middlewareConfigs } from "@/lib/middleware/index";
 
 export const dynamic = 'force-dynamic';
 
