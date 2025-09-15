@@ -11,11 +11,25 @@ export async function GET(request: NextRequest) {
     // Get the current user session
     const { data: { user }, error } = await supabase.auth.getUser();
     
-    if (error || !user) {
+    if (error) {
+      console.error('Auth error in session endpoint:', error.message);
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.message || "Authentication error",
+          code: error.code || "UNKNOWN_ERROR",
+        },
+        { status: 401 }
+      );
+    }
+    
+    if (!user) {
+      // This is a normal case when user is not logged in
       return NextResponse.json(
         {
           success: false,
           error: "Not authenticated",
+          code: "NO_SESSION",
         },
         { status: 401 }
       );

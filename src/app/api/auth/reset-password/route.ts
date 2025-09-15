@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authService } from "@/lib/auth/service";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { z } from "zod";
 
 const resetPasswordSchema = z.object({
@@ -13,8 +13,23 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validated = resetPasswordSchema.parse(body);
 
-    // Send reset password email
-    await authService.resetPassword(validated.email);
+    // Get the origin from the request headers
+    const origin = request.headers.get('origin') || 
+                  request.headers.get('x-forwarded-host') ? 
+                    `https://${request.headers.get('x-forwarded-host')}` : 
+                    process.env.NEXT_PUBLIC_SITE_URL || 
+                    'http://localhost:3000';
+
+    // Send reset password email using server client
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(validated.email, {
+      redirectTo: `${origin}/auth/reset-password`,
+    });
+
+    if (error) {
+      console.error('Reset password error:', error);
+      throw error;
+    }
 
     return NextResponse.json({
       success: true,
