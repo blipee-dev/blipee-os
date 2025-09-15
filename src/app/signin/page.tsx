@@ -34,6 +34,7 @@ export default function SignInPage() {
   const [mfaRequired, setMfaRequired] = useState(false);
   const [challengeId, setChallengeId] = useState("");
   const [checkingSSO, setCheckingSSO] = useState(false);
+  const [ssoChecked, setSsoChecked] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn } = useAuth();
@@ -53,25 +54,37 @@ export default function SignInPage() {
   }, []);
 
   // Check for SSO when email changes
-  const handleEmailChange = async (value: string) => {
+  const handleEmailChange = (value: string) => {
     setEmail(value);
+    setSsoChecked(false); // Reset SSO check when email changes
     
     // Preload ConversationInterface when user starts typing (likely to sign in)
     if (value.length === 1) {
       preloadConversationInterface();
     }
-    
-    // Check if SSO is required for this email domain
-    if (value.includes('@') && value.split('@')[1]) {
-      setCheckingSSO(true);
-      const ssoRequired = await checkSSO(value);
-      setCheckingSSO(false);
-      
-      if (ssoRequired) {
-        // Automatically redirect to SSO
-        const domain = value.split('@')[1];
-        if (domain) {
-          initiateSSO({ domain });
+  };
+
+  // Check SSO when user finishes entering email (on blur)
+  const handleEmailBlur = async () => {
+    // Only check if we have a valid email format and haven't checked yet
+    if (email.includes('@') && email.split('@')[1] && !ssoChecked) {
+      const domainPart = email.split('@')[1];
+      // Check if domain looks complete (has at least one dot)
+      if (domainPart.includes('.')) {
+        setCheckingSSO(true);
+        setSsoChecked(true);
+        
+        try {
+          const ssoRequired = await checkSSO(email);
+          
+          if (ssoRequired) {
+            // Automatically redirect to SSO
+            initiateSSO({ domain: domainPart });
+          }
+        } catch (error) {
+          console.error('SSO check failed:', error);
+        } finally {
+          setCheckingSSO(false);
         }
       }
     }
@@ -81,6 +94,27 @@ export default function SignInPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    // Check SSO before attempting regular sign in
+    if (!ssoChecked && email.includes('@') && email.split('@')[1]) {
+      const domainPart = email.split('@')[1];
+      if (domainPart.includes('.')) {
+        try {
+          const ssoRequired = await checkSSO(email);
+          setSsoChecked(true);
+          
+          if (ssoRequired) {
+            setLoading(false);
+            // Redirect to SSO
+            initiateSSO({ domain: domainPart });
+            return;
+          }
+        } catch (error) {
+          console.error('SSO check failed:', error);
+          // Continue with regular sign in if SSO check fails
+        }
+      }
+    }
 
     try {
       const result = await signIn(email, password);
@@ -250,6 +284,7 @@ export default function SignInPage() {
               type="email"
               value={email}
               onChange={(e) => handleEmailChange(e.target.value)}
+              onBlur={handleEmailBlur}
               required
               disabled={checkingSSO}
               autoComplete="email"

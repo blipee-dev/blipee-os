@@ -15,24 +15,26 @@ export async function GET(request: NextRequest) {
       .from('organizations')
       .select('*', { count: 'exact' });
     
-    // Query user_organizations for current user
+    // Query organization_members for current user
     let userOrgs = null;
     let userOrgsError = null;
     if (user) {
       const result = await supabase
-        .from('user_organizations')
+        .from('organization_members')
         .select(`
           user_id,
           organization_id,
           role,
-          organizations (
+          invitation_status,
+          organization:organizations (
             id,
             name,
             slug,
             created_at
           )
         `)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('invitation_status', 'accepted');
       
       userOrgs = result.data;
       userOrgsError = result.error;
@@ -44,7 +46,7 @@ export async function GET(request: NextRequest) {
       .select('*', { count: 'exact', head: true });
     
     const { count: userOrgCount } = await supabase
-      .from('user_organizations')
+      .from('organization_members')
       .select('*', { count: 'exact', head: true });
     
     return NextResponse.json({
@@ -59,9 +61,9 @@ export async function GET(request: NextRequest) {
         error: allOrgsError?.message,
         data: allOrgs
       },
-      userOrganizationsTable: {
+      organizationMembersTable: {
         totalCount: userOrgCount,
-        currentUserOrgs: userOrgs,
+        currentUserMemberships: userOrgs,
         error: userOrgsError?.message
       },
       summary: {
