@@ -88,8 +88,8 @@ export function ReportUploader({
         animate={{ opacity: 1, y: 0 }}
         className={`relative border-2 border-dashed rounded-2xl p-8 transition-all duration-200 ${
           isDragging
-            ? "border-purple-500 bg-purple-500/10"
-            : "border-white/20 hover:border-purple-500/50"
+            ? "accent-border accent-bg"
+            : "border-white/20 hover:accent-border"
         }`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -108,9 +108,9 @@ export function ReportUploader({
 
         <div className="text-center">
           {isUploading ? (
-            <Loader2 className="w-12 h-12 text-purple-500 mx-auto mb-4 animate-spin" />
+            <Loader2 className="w-12 h-12 accent-text mx-auto mb-4 animate-spin" />
           ) : (
-            <Upload className="w-12 h-12 text-purple-500 mx-auto mb-4" />
+            <Upload className="w-12 h-12 accent-text mx-auto mb-4" />
           )}
 
           <h3 className="text-lg font-semibold text-white mb-2">
@@ -134,11 +134,11 @@ export function ReportUploader({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl"
+            className="mt-4 p-4 bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl"
           >
             <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red-400" />
-              <p className="text-sm text-red-400">{error}</p>
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           </motion.div>
         )}
@@ -154,9 +154,9 @@ export function ReportUploader({
             className="mt-6 space-y-4"
           >
             {/* Success Header */}
-            <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
-              <CheckCircle className="w-5 h-5 text-green-400" />
-              <p className="text-green-400 font-medium">
+            <div className="flex items-center gap-3 p-4 bg-green-100 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <p className="text-green-600 dark:text-green-400 font-medium">
                 {uploadResult.message}
               </p>
             </div>
@@ -212,7 +212,7 @@ export function ReportUploader({
                   <div className="space-y-2">
                     {uploadResult.summary.metrics.renewable && (
                       <div>
-                        <p className="text-lg font-semibold text-purple-400">
+                        <p className="text-lg font-semibold accent-text">
                           {uploadResult.summary.metrics.renewable}%
                         </p>
                         <p className="text-xs text-white/50">
@@ -222,7 +222,7 @@ export function ReportUploader({
                     )}
                     {uploadResult.summary.metrics.waste_diversion && (
                       <div>
-                        <p className="text-lg font-semibold text-green-400">
+                        <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                           {uploadResult.summary.metrics.waste_diversion}%
                         </p>
                         <p className="text-xs text-white/50">Waste Diverted</p>
