@@ -13,6 +13,8 @@
     "optimize": "node scripts/optimize-bundle.js",
     "type-check": "tsc --noEmit",
     "i18n": "node scripts/i18n.mjs",
+    "fix-month-shift": "node scripts/fix-month-shift.js",
+    "shift-months": "node scripts/shift-months-forward.js",
     "type-check:strict": "bash scripts/strict-typecheck.sh",
     "prebuild": "echo 'Skipping type-check for deployment'",
     "precommit": "npm run type-check:strict && npm run lint",

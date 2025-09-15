@@ -1579,17 +1579,120 @@
     },
     "sustainability": {
       "title": "Métricas de Sostenibilidad",
+      "subtitle": "Gestione y realice el seguimiento de las métricas de sostenibilidad y recogida de datos de su organización",
       "description": "Seleccione y gestione las métricas de sostenibilidad de su organización",
-      "searchPlaceholder": "Buscar métricas...",
+      "searchPlaceholder": "Buscar métricas por nombre o descripción...",
       "addData": "Añadir Datos",
       "import": "Importar",
-      "dashboard": "Panel",
+      "dashboardLink": "Panel",
       "saveMetrics": "Guardar Métricas Seleccionadas",
+      "saveSelection": "Guardar Selección",
       "saving": "Guardando...",
+      "metricsLibrary": "Biblioteca de Métricas",
+      "loadingMetrics": "Cargando catálogo de métricas...",
       "failedToLoadMetrics": "Error al cargar las métricas",
       "failedToSaveMetrics": "Error al guardar las métricas",
-      "metricsAddedSuccess": "Se añadieron {count} métricas para rastrear",
-      "metricsRemovedSuccess": "Se eliminaron {count} métricas",
+      "metricsAddedSuccess": "{count} métricas añadidas con éxito",
+      "metricsRemovedSuccess": "{count} métricas eliminadas con éxito",
+      "testDataError": "Para probar la funcionalidad del sitio, necesita crear organizaciones y sitios en su base de datos Supabase. Por favor, verifique su esquema de base de datos y añada datos de prueba manualmente.",
+      "scope": "Alcance",
+      "factor": "Factor:",
+      "unit": "Unidad:",
+      "viewOrganizationSummary": "Ver Resumen de la Organización",
+      "selectSite": "Seleccionar un sitio...",
+      "filter": "Filtrar",
+      "download": "Descargar",
+      "upload": "Cargar",
+      "failedToLoadSiteMetrics": "Error al cargar las métricas del sitio",
+      "failedToLoadCatalog": "Error al cargar el catálogo de métricas",
+      "failedToLoadData": "Error al cargar los datos",
+      "failedToUpdateMetric": "Error al actualizar la métrica",
+      "dashboard": {
+        "title": "Panel de Sostenibilidad",
+        "subtitle": "Supervise y realice el seguimiento del rendimiento medioambiental de su organización",
+        "header": {
+          "title": "Resumen de Sostenibilidad",
+          "subtitle": "Métricas de desempeño ambiental en tiempo real"
+        },
+        "navigation": {
+          "overview": "Resumen",
+          "emissions": "Emisiones",
+          "energy": "Energía",
+          "scopeAnalysis": "Análisis de Alcance",
+          "siteComparison": "Comparación de Sitios",
+          "trends": "Tendencias",
+          "targets": "Objetivos",
+          "dataEntry": "Entrada de Datos",
+          "dataInvestigation": "Investigación de Datos",
+          "dataMigration": "Migración de Datos",
+          "reports": "Informes"
+        },
+        "metrics": {
+          "totalEmissions": "Emisiones Totales de CO₂",
+          "energyConsumption": "Consumo de Energía",
+          "waterUsage": "Uso de Agua",
+          "wasteGenerated": "Residuos Generados",
+          "carbonIntensity": "Intensidad de Carbono"
+        },
+        "charts": {
+          "emissionsByScope": "Emisiones por Alcance",
+          "emissionsTrend": "Tendencia de Emisiones",
+          "siteComparison": "Comparación de Sitios",
+          "emissionsByCategory": "Emisiones por Categoría"
+        },
+        "dateRanges": {
+          "thisMonth": "Este Mes",
+          "thisQuarter": "Este Trimestre",
+          "thisYear": "Este Año",
+          "year2024": "2024",
+          "year2023": "2023",
+          "year2022": "2022",
+          "allTime": "Todo el Tiempo"
+        },
+        "buttons": {
+          "export": "Exportar",
+          "selectSite": "Seleccionar sitio",
+          "allSites": "Todos los Sitios"
+        },
+        "units": {
+          "tco2e": "tCO2e",
+          "mwh": "MWh",
+          "m3": "m³",
+          "tons": "toneladas",
+          "kgco2e_m2": "kgCO2e/m²",
+          "kgCO2ePerM2": "kgCO2e/m²"
+        },
+        "vsLastPeriod": "vs período anterior",
+        "messages": {
+          "failedToLoadData": "Error al cargar datos",
+          "exportingData": "Exportando datos como {format}..."
+        }
+      },
+      "sidebar": {
+        "title": "Sostenibilidad",
+        "navigation": {
+          "overview": "Resumen",
+          "metrics": "Métricas",
+          "dataEntry": "Entrada de Datos",
+          "reports": "Informes",
+          "targets": "Objetivos",
+          "settings": "Configuración"
+        },
+        "actions": {
+          "viewDashboard": "Ver Panel",
+          "manageMetrics": "Gestionar Métricas",
+          "generateReport": "Generar Informe"
+        },
+        "defaultUser": "Usuario",
+        "userEmail": "usuario@ejemplo.com",
+        "buttons": {
+          "chat": "Chat",
+          "settings": "Configuración",
+          "signOut": "Cerrar sesión",
+          "collapseSidebar": "Contraer barra lateral",
+          "expandSidebar": "Expandir barra lateral"
+        }
+      },
       "stats": {
         "totalAvailable": "Total Disponible",
         "selected": "Seleccionadas",
@@ -1597,9 +1700,9 @@
         "categories": "Categorías"
       },
       "scopes": {
-        "scope1": "ALCANCE 1",
-        "scope2": "ALCANCE 2",
-        "scope3": "ALCANCE 3",
+        "scope1": "Alcance 1",
+        "scope2": "Alcance 2",
+        "scope3": "Alcance 3",
         "scope1Description": "Emisiones directas de fuentes propias o controladas",
         "scope2Description": "Emisiones indirectas de energía comprada",
         "scope3Description": "Todas las demás emisiones indirectas en su cadena de valor"
