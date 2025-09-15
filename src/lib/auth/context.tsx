@@ -85,14 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
 
-      // Redirect based on onboarding status
-      if (!data.data.session?.user?.onboarding_completed) {
-        console.log("Redirecting to /onboarding");
-        router.push("/onboarding");
-      } else {
-        console.log("Redirecting to /dashboard");
-        router.push("/dashboard");
-      }
+      // Bypass onboarding - always redirect to blipee-ai
+      console.log("Bypassing onboarding, redirecting to /blipee-ai");
+      router.push("/blipee-ai");
     } catch (err: any) {
       setError(err.message);
 
@@ -126,7 +121,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setSession(data.data.session);
-      router.push("/onboarding");
+      // Bypass onboarding - redirect to blipee-ai
+      router.push("/blipee-ai");
     } catch (err: any) {
       setError(err.message);
       throw err;

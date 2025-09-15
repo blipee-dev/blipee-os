@@ -141,14 +141,9 @@ export default function SignInPage() {
         console.log('Sign in successful, redirecting to requested page:', redirectParam);
         router.push(redirectParam);
       } else {
-        // Default behavior: Skip onboarding for demo users, go straight to dashboard
-        if (email.includes("demo") || email.includes("@blipee.com")) {
-          console.log('Sign in successful, demo user - redirecting to blipee-ai');
-          router.push("/blipee-ai");
-        } else {
-          console.log('Sign in successful, regular user - redirecting to onboarding');
-          router.push("/onboarding");
-        }
+        // Bypass onboarding for all users - always go to blipee-ai
+        console.log('Sign in successful, bypassing onboarding - redirecting to blipee-ai');
+        router.push("/blipee-ai");
       }
     } catch (err: any) {
       setError(err.message || "Failed to sign in");
