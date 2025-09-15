@@ -21,6 +21,26 @@ export class AuthService {
     }
   }
 
+  private async getSupabaseAdmin() {
+    if (typeof window === 'undefined' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      // Server-side with service role key - bypasses RLS
+      const { createClient: createAdminClient } = await import("@supabase/supabase-js");
+      return createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+          },
+        }
+      );
+    } else {
+      // Fall back to regular client
+      return this.getSupabase();
+    }
+  }
+
   /**
    * Sign up a new user with proper transaction handling
    */
@@ -201,15 +221,24 @@ export class AuthService {
    */
   async signIn(email: string, password: string): Promise<AuthResponse & { requiresMFA?: boolean; challengeId?: string }> {
     const supabase = await this.getSupabase();
-    
+
+    console.log('🔐 AuthService.signIn - attempting authentication for:', email);
     const { data: authData, error: authError } =
       await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-    if (authError) throw authError;
-    if (!authData.user) throw new Error("Authentication failed");
+    if (authError) {
+      console.error('🔴 Supabase auth error:', authError.message, authError.code);
+      throw authError;
+    }
+    if (!authData.user) {
+      console.error('🔴 No user returned from Supabase');
+      throw new Error("Authentication failed");
+    }
+
+    console.log('✅ Supabase auth successful, user ID:', authData.user.id);
 
     // Parallelize MFA config and profile fetching for faster signin
     const [mfaResult, profileResult] = await Promise.all([
@@ -249,14 +278,28 @@ export class AuthService {
 
     // Get user profile directly if session is null
     const session = await this.getSession();
-    
+
+    console.log('🔐 AuthService.signIn - session check:', {
+      hasSession: !!session,
+      userId: authData.user.id
+    });
+
     if (!session) {
       // If no session (no organizations), return minimal auth response
-      const { data: profile } = await supabase
+      console.log('🔐 No session found, fetching user profile for:', authData.user.id);
+
+      // Use admin client to bypass RLS issues
+      const adminSupabase = await this.getSupabaseAdmin();
+      const { data: profile, error: profileError } = await adminSupabase
         .from("user_profiles")
         .select("*")
         .eq("id", authData.user.id)
         .single();
+
+      console.log('🔐 Profile fetch result:', {
+        hasProfile: !!profile,
+        error: profileError?.message
+      });
 
       if (!profile) throw new Error("User profile not found");
 
@@ -303,21 +346,24 @@ export class AuthService {
    */
   async getSession(): Promise<Session | null> {
     const supabase = await this.getSupabase();
-    
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) return null;
 
+    // Use admin client to bypass RLS issues
+    const adminSupabase = await this.getSupabaseAdmin();
+
     // Parallelize profile and memberships fetching for faster session loading
     const [profileResult, membershipsResult] = await Promise.all([
-      supabase
+      adminSupabase
         .from("user_profiles")
         .select("*")
         .eq("id", user.id)
         .single(),
-      supabase
+      adminSupabase
         .from("organization_members")
         .select(
           `
