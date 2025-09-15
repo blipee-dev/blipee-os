@@ -32,18 +32,8 @@ export default function AuthCallbackPage() {
       } = await supabase.auth.getSession();
 
       if (session) {
-        // Check if this is a new user
-        const { data: profile } = await supabase
-          .from("user_profiles")
-          .select("onboarding_completed")
-          .eq("id", session.user.id)
-          .single();
-
-        if (profile && 'onboarding_completed' in profile && profile.onboarding_completed) {
-          router.push("/blipee-ai");
-        } else {
-          router.push("/onboarding");
-        }
+        // Bypass onboarding - always redirect to blipee-ai
+        router.push("/blipee-ai");
       } else {
         router.push("/signin");
       }

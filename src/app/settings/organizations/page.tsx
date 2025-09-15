@@ -102,42 +102,9 @@ export default function OrganizationSettingsPage() {
       if (isSuperAdmin) {
         // Super admins see ALL organizations
         console.log("Fetching ALL organizations for super admin...");
-        const { data: allOrgs, error: allOrgsError } = await supabase.from(
-          "organizations",
-        ).select(`
-            id,
-            name,
-            legal_name,
-            slug,
-            industry_primary,
-            industry_secondary,
-            company_size,
-            website,
-            logo_url,
-            public_company,
-            stock_ticker,
-            primary_contact_email,
-            primary_contact_phone,
-            headquarters_address,
-            billing_address,
-            subscription_tier,
-            subscription_status,
-            subscription_seats,
-            subscription_started_at,
-            subscription_expires_at,
-            enabled_features,
-            compliance_frameworks,
-            brand_colors,
-            data_residency_region,
-            gri_sector_id,
-            industry_classification_id,
-            industry_confidence,
-            account_owner_id,
-            metadata,
-            settings,
-            created_at,
-            updated_at
-          `);
+        const { data: allOrgs, error: allOrgsError } = await supabase
+          .from("organizations")
+          .select("id, name, legal_name, slug, industry_primary, industry_secondary, company_size, website, logo_url, public_company, stock_ticker, primary_contact_email, primary_contact_phone, headquarters_address, billing_address, subscription_tier, subscription_status, subscription_seats, subscription_started_at, subscription_expires_at, enabled_features, compliance_frameworks, brand_colors, data_residency_region, gri_sector_id, industry_classification_id, industry_confidence, account_owner_id, metadata, settings, created_at, updated_at");
 
         if (allOrgsError) throw allOrgsError;
 
@@ -154,80 +121,31 @@ export default function OrganizationSettingsPage() {
 
         console.log("Fetched all organizations for super admin:", allOrgs);
       } else {
-        // Regular users only see their organizations through user_access table
-        console.log("Fetching user organizations via user_access...");
+        // Regular users - use API endpoint to bypass RLS issues
+        console.log("Fetching user organizations via API...");
 
-        // First get the user's access records
-        const { data: userAccess, error: userAccessError } = await supabase
-          .from("user_access")
-          .select("resource_id, role")
-          .eq("user_id", currentUser.id)
-          .eq("resource_type", "organization");
-
-        if (userAccessError) throw userAccessError;
-
-        console.log("Fetched user access:", userAccess);
-
-        // If user has access to organizations, fetch them
-        if (userAccess && userAccess.length > 0) {
-          const orgIds = userAccess.map((ua) => ua.resource_id);
-
-          const { data: userOrgs, error: orgsError } = await supabase
-            .from("organizations")
-            .select(
-              `
-              id,
-              name,
-              legal_name,
-              slug,
-              industry_primary,
-              industry_secondary,
-              company_size,
-              website,
-              logo_url,
-              public_company,
-              stock_ticker,
-              primary_contact_email,
-              primary_contact_phone,
-              headquarters_address,
-              billing_address,
-              subscription_tier,
-              subscription_status,
-              subscription_seats,
-              subscription_started_at,
-              subscription_expires_at,
-              enabled_features,
-              compliance_frameworks,
-              brand_colors,
-              data_residency_region,
-              gri_sector_id,
-              industry_classification_id,
-              industry_confidence,
-              account_owner_id,
-              metadata,
-              settings,
-              created_at,
-              updated_at
-            `,
-            )
-            .in("id", orgIds);
-
-          if (orgsError) throw orgsError;
-
-          // Map organizations with their roles
-          orgs =
-            userOrgs?.map((org) => {
-              const access = userAccess.find((ua) => ua.resource_id === org.id);
-              return {
-                ...org,
-                role: access?.role || "viewer",
-                sites: 0, // Will be updated below
-                users: 0, // Will be updated below
-                status: org.subscription_status || "active",
-                industry: org.industry_primary || "",
-              };
-            }) || [];
+        const response = await fetch('/api/organizations/user-orgs');
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("API error:", errorData);
+          throw new Error(errorData.error || 'Failed to fetch user organizations');
         }
+        
+        const { organizations: userOrgs } = await response.json();
+        
+        console.log("Fetched user organizations:", userOrgs);
+
+        // Map organizations with additional fields
+        orgs = userOrgs.map((org: any) => ({
+          ...org,
+          sites: 0, // Will be updated below
+          users: 0, // Will be updated below
+          status: org.subscription_status || "active",
+          industry: org.industry_primary || "",
+        }));
+        
+        console.log("Mapped organizations:", orgs);
       }
 
       // For each organization, fetch counts
@@ -242,10 +160,10 @@ export default function OrganizationSettingsPage() {
 
         // Count users in organization
         const { count: usersCount } = await supabase
-          .from("user_access")
+          .from("organization_members")
           .select("*", { count: "exact", head: true })
-          .eq("resource_id", org.id)
-          .eq("resource_type", "organization");
+          .eq("organization_id", org.id)
+          .eq("invitation_status", "accepted");
 
         org.users = usersCount || 0;
       }
