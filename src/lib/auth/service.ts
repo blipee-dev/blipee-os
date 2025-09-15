@@ -40,7 +40,7 @@ export class AuthService {
         options: {
           data: {
             full_name: metadata.full_name,
-            role: metadata.role || "subscription_owner",
+            role: metadata.role || "account_owner",
           },
         },
       });
@@ -136,7 +136,7 @@ export class AuthService {
         options: {
           data: {
             full_name: metadata.full_name,
-            role: metadata.role || "subscription_owner",
+            role: metadata.role || "account_owner",
           },
         },
       });
@@ -431,47 +431,64 @@ export class AuthService {
   /**
    * Get default permissions for a role
    */
-  private getRolePermissions(role: UserRole): Permission[] {
-    const permissionMap: Record<UserRole, Permission[]> = {
-      [UserRole.SUBSCRIPTION_OWNER]: [{ resource: "*", action: "*" }],
-      [UserRole.ORGANIZATION_ADMIN]: [
+  private getRolePermissions(role: UserRole | string): Permission[] {
+    const permissionMap: Record<string, Permission[]> = {
+      ["account_owner"]: [
+        // Can manage everything within their organization
         { resource: "organization", action: "view" },
         { resource: "organization", action: "edit" },
+        { resource: "organization", action: "delete" },
         { resource: "buildings", action: "*" },
         { resource: "users", action: "*" },
         { resource: "reports", action: "*" },
+        { resource: "sustainability", action: "*" },
+        { resource: "systems", action: "*" },
+        { resource: "maintenance", action: "*" },
+        { resource: "analytics", action: "*" },
+        { resource: "settings", action: "*" },
+        { resource: "billing", action: "*" },
+        { resource: "integrations", action: "*" },
+        // Cannot create new organizations
       ],
-      [UserRole.SITE_MANAGER]: [
+      ["sustainability_manager"]: [
+        { resource: "organization", action: "view" },
+        { resource: "buildings", action: "*" },
+        { resource: "users", action: "view" },
+        { resource: "users", action: "invite" }, // Can only invite facility_manager, analyst, viewer
+        { resource: "reports", action: "*" },
+        { resource: "sustainability", action: "*" },
+        { resource: "analytics", action: "*" },
+        { resource: "systems", action: "view" },
+      ],
+      ["facility_manager"]: [
+        { resource: "organization", action: "view" },
         { resource: "buildings", action: "view" },
         { resource: "buildings", action: "edit" },
         { resource: "systems", action: "*" },
-        { resource: "users", action: "invite" },
-        { resource: "reports", action: "*" },
-      ],
-      [UserRole.FACILITY_MANAGER]: [
-        { resource: "buildings", action: "view" },
-        { resource: "systems", action: "view" },
-        { resource: "systems", action: "control" },
         { resource: "maintenance", action: "*" },
         { resource: "reports", action: "view" },
+        { resource: "reports", action: "create" },
+        { resource: "users", action: "view" },
+        { resource: "sustainability", action: "view" },
       ],
-      [UserRole.TECHNICIAN]: [
+      ["analyst"]: [
+        { resource: "organization", action: "view" },
         { resource: "buildings", action: "view" },
-        { resource: "systems", action: "view" },
-        { resource: "systems", action: "control" },
-        { resource: "maintenance", action: "*" },
-      ],
-      [UserRole.GROUP_MANAGER]: [
-        { resource: "buildings", action: "view" },
-        { resource: "systems", action: "control" },
         { resource: "reports", action: "view" },
+        { resource: "reports", action: "create" },
+        { resource: "reports", action: "export" },
+        { resource: "sustainability", action: "view" },
+        { resource: "analytics", action: "*" },
+        { resource: "users", action: "view" },
       ],
-      [UserRole.TENANT]: [
+      ["viewer"]: [
+        { resource: "organization", action: "view" },
         { resource: "buildings", action: "view" },
-        { resource: "systems", action: "view" },
-        { resource: "maintenance", action: "create" },
+        { resource: "reports", action: "view" },
+        { resource: "sustainability", action: "view" },
+        { resource: "analytics", action: "view" },
+        { resource: "users", action: "view" },
       ],
-      [UserRole.GUEST]: [{ resource: "buildings", action: "view" }],
     };
 
     return permissionMap[role] || [];
@@ -496,29 +513,41 @@ export class AuthService {
    */
   private getDefaultAISettings(role?: string) {
     const roleSettings: Record<string, any> = {
-      subscription_owner: {
+      account_owner: {
         tone: "professional",
         detail_level: "executive",
         proactivity: "medium",
         expertise_level: "intermediate",
       },
-      site_manager: {
+      sustainability_manager: {
+        tone: "professional",
+        detail_level: "detailed",
+        proactivity: "high",
+        expertise_level: "expert",
+      },
+      facility_manager: {
         tone: "friendly",
         detail_level: "detailed",
         proactivity: "high",
         expertise_level: "intermediate",
       },
-      technician: {
-        tone: "casual",
+      analyst: {
+        tone: "professional",
         detail_level: "technical",
-        proactivity: "high",
+        proactivity: "medium",
         expertise_level: "expert",
+      },
+      viewer: {
+        tone: "friendly",
+        detail_level: "executive",
+        proactivity: "low",
+        expertise_level: "beginner",
       },
     };
 
     return (
-      roleSettings[role || "subscription_owner"] ||
-      roleSettings.subscription_owner
+      roleSettings[role || "account_owner"] ||
+      roleSettings.account_owner
     );
   }
 
