@@ -22,11 +22,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user profile from app_users if needed
-    const { data: profile } = await supabase
-      .from('app_users')
-      .select('*')
-      .eq('auth_user_id', user.id)
-      .single();
+    let profile = null;
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from('app_users')
+        .select('*')
+        .eq('auth_user_id', user.id)
+        .maybeSingle();
+      
+      if (!profileError) {
+        profile = profileData;
+      } else {
+        console.warn('Profile not found or error loading profile:', profileError);
+      }
+    } catch (profileErr) {
+      console.warn('Error fetching user profile:', profileErr);
+      // Continue without profile - user can still authenticate
+    }
 
     // Return session data
     return NextResponse.json({

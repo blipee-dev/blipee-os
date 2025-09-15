@@ -149,6 +149,24 @@ class ClientAuditLogger {
     );
   }
 
+  // Data Operations (for backwards compatibility)
+  async logDataOperation(
+    action: 'create' | 'update' | 'delete' | 'view',
+    resource: ResourceType,
+    resourceId: string,
+    resourceName?: string,
+    outcome: OutcomeStatus = 'success',
+    changes?: Record<string, any>
+  ) {
+    const category: ActionCategory = action === 'view' ? 'access' : 'data_management';
+    
+    return this.sendAuditEvent(action, category, resource, outcome, {
+      resourceId,
+      resourceName,
+      changes,
+    });
+  }
+
   // Custom Events
   async logEvent(
     action: ActionType,
