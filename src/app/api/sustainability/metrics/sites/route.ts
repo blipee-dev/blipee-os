@@ -16,36 +16,51 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is super_admin (same as sites API)
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+    const { data: superAdminRecord } = await supabase
+      .from('super_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
+    const isSuperAdmin = !!superAdminRecord;
     let userOrgId = null;
 
-    if (profile?.role === 'super_admin') {
-      // For super_admin, get the first organization or use provided org_id
+    if (isSuperAdmin) {
+      // For super_admin, use provided org_id or default to PLMJ
       if (organizationId) {
         userOrgId = organizationId;
       } else {
+        // Default to PLMJ organization for super_admin
         const { data: org } = await supabase
           .from('organizations')
           .select('id')
-          .limit(1)
+          .eq('name', 'PLMJ')
           .single();
 
-        userOrgId = org?.id;
+        userOrgId = org?.id || null;
+
+        // If PLMJ not found, get first organization
+        if (!userOrgId) {
+          const { data: firstOrg } = await supabase
+            .from('organizations')
+            .select('id')
+            .limit(1)
+            .single();
+
+          userOrgId = firstOrg?.id;
+        }
       }
     } else {
-      // Get user's organization from members table
-      const { data: member } = await supabase
-        .from('organization_members')
-        .select('organization_id')
+      // Regular users - fetch their organizations through user_access table
+      const { data: userAccess } = await supabase
+        .from('user_access')
+        .select('resource_id')
         .eq('user_id', user.id)
+        .eq('resource_type', 'organization')
+        .limit(1)
         .single();
 
-      userOrgId = member?.organization_id;
+      userOrgId = userAccess?.resource_id;
     }
 
     if (!userOrgId) {
@@ -163,16 +178,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user is super_admin (same as sites API)
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+    const { data: superAdminRecord } = await supabase
+      .from('super_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
+    const isSuperAdmin = !!superAdminRecord;
     let userOrgId = null;
     let hasPermission = false;
 
-    if (profile?.role === 'super_admin') {
+    if (isSuperAdmin) {
       // Super admin can manage any organization
       hasPermission = true;
       if (organizationId) {
@@ -181,22 +197,23 @@ export async function POST(request: NextRequest) {
         const { data: org } = await supabase
           .from('organizations')
           .select('id')
-          .limit(1)
+          .eq('name', 'PLMJ')
           .single();
 
         userOrgId = org?.id;
       }
     } else {
-      // Regular users - get their organization and check permissions
-      const { data: orgMember } = await supabase
-        .from('organization_members')
-        .select('organization_id, role')
+      // Regular users - get their organization and check permissions through user_access
+      const { data: userAccess } = await supabase
+        .from('user_access')
+        .select('resource_id, role')
         .eq('user_id', user.id)
+        .eq('resource_type', 'organization')
         .single();
 
-      if (orgMember && ['account_owner', 'sustainability_manager', 'facility_manager'].includes(orgMember.role)) {
+      if (userAccess && ['owner', 'admin', 'manager'].includes(userAccess.role)) {
         hasPermission = true;
-        userOrgId = orgMember.organization_id;
+        userOrgId = userAccess.resource_id;
       }
     }
 
@@ -263,24 +280,26 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check permissions (same as sites API)
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+    const { data: superAdminRecord } = await supabase
+      .from('super_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
+    const isSuperAdmin = !!superAdminRecord;
     let hasPermission = false;
 
-    if (profile?.role === 'super_admin') {
+    if (isSuperAdmin) {
       hasPermission = true;
     } else {
-      const { data: orgMember } = await supabase
-        .from('organization_members')
-        .select('organization_id, role')
+      const { data: userAccess } = await supabase
+        .from('user_access')
+        .select('resource_id, role')
         .eq('user_id', user.id)
+        .eq('resource_type', 'organization')
         .single();
 
-      if (orgMember && ['account_owner', 'sustainability_manager', 'facility_manager'].includes(orgMember.role)) {
+      if (userAccess && ['owner', 'admin', 'manager'].includes(userAccess.role)) {
         hasPermission = true;
       }
     }

@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 interface Option {
   value: string | number;
   label: string;
+  renderLabel?: () => React.ReactNode;
 }
 
 interface CustomDropdownProps {
@@ -56,7 +57,7 @@ export function CustomDropdown({
         className="flex items-center justify-between w-full min-w-[4rem] px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg focus:outline-none focus:ring-2 focus:accent-ring focus:accent-border transition-all hover:border-gray-400 dark:hover:border-white/[0.1] disabled:opacity-60 disabled:cursor-not-allowed"
       >
         <span className="whitespace-nowrap pr-2">
-          {selectedOption ? selectedOption.label : placeholder}
+          {selectedOption ? (selectedOption.renderLabel ? selectedOption.renderLabel() : selectedOption.label) : placeholder}
         </span>
         <ChevronDown 
           className={`ml-2 h-4 w-4 text-gray-400 transition-transform ${
@@ -82,11 +83,11 @@ export function CustomDropdown({
                   onClick={() => handleSelect(option.value)}
                   className={`w-full px-3 py-2 text-left text-xs sm:text-sm transition-colors hover:bg-gray-100 dark:hover:bg-white/[0.05] ${
                     value === option.value
-                      ? "bg-purple-600 text-white"
+                      ? "accent-bg text-white"
                       : "text-gray-700 dark:text-gray-300"
                   }`}
                 >
-                  {option.label}
+                  {option.renderLabel ? option.renderLabel() : option.label}
                 </button>
               ))}
             </div>
