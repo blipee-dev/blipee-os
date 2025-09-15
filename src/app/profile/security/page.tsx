@@ -567,6 +567,7 @@ export default function SecurityPage() {
                   type={showCurrentPassword ? "text" : "password"}
                   value={passwordForm.currentPassword}
                   onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  autoComplete="current-password"
                   className="w-full px-3 py-2 pr-10 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 accent-ring"
                   required
                 />
@@ -590,6 +591,7 @@ export default function SecurityPage() {
                     type={showNewPassword ? "text" : "password"}
                     value={passwordForm.newPassword}
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                    autoComplete="new-password"
                     className="w-full px-3 py-2 pr-10 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 accent-ring"
                     required
                     minLength={8}
@@ -613,6 +615,7 @@ export default function SecurityPage() {
                     type={showConfirmPassword ? "text" : "password"}
                     value={passwordForm.confirmPassword}
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                    autoComplete="new-password"
                     className="w-full px-3 py-2 pr-10 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 accent-ring"
                     required
                     minLength={8}
