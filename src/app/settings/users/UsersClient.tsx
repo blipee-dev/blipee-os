@@ -173,9 +173,10 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
       if (!user) return;
 
       const { data: userOrgs } = await supabase
-        .from('user_organizations')
+        .from('organization_members')
         .select('organization_id')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('invitation_status', 'accepted');
 
       const organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
 
