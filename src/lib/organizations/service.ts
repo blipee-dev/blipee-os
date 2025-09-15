@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type {
   Organization,
   Building,
@@ -10,6 +11,18 @@ import type {
 
 export class OrganizationService {
   private supabase = createClient();
+  private adminSupabase = typeof window === 'undefined' && process.env.SUPABASE_SERVICE_ROLE_KEY
+    ? createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false
+          }
+        }
+      )
+    : null;
 
   /**
    * Get organization by ID
@@ -159,38 +172,100 @@ export class OrganizationService {
     invitedBy: string,
   ): Promise<OrganizationMember | null> {
     try {
-      // First check if user exists
-      let { data: userProfile } = await this.supabase
-        .from("user_profiles")
-        .select("id")
-        .eq("email", email)
-        .single();
+      // Use admin client for user operations (only available server-side)
+      const adminClient = this.adminSupabase || this.supabase;
 
-      // If user doesn't exist, create a placeholder profile
-      if (!userProfile) {
-        const { data: newProfile, error: profileError } = await this.supabase
+      // First check if user exists in auth.users
+      const { data: authUsers } = await adminClient.auth.admin.listUsers();
+      const existingAuthUser = authUsers?.users?.find(u => u.email === email);
+
+      let userId: string;
+
+      if (existingAuthUser) {
+        // User already exists in auth system
+        userId = existingAuthUser.id;
+        console.log('Found existing auth user:', email);
+
+        // Check if they have a profile
+        const { data: profile } = await this.supabase
           .from("user_profiles")
-          .insert({
-            email,
-            onboarding_completed: false,
-          })
-          .select()
+          .select("id")
+          .eq("id", userId)
           .single();
 
-        if (profileError) throw profileError;
-        userProfile = newProfile;
+        if (!profile) {
+          // Create profile if missing
+          const { error: profileError } = await this.supabase
+            .from("user_profiles")
+            .insert({
+              id: userId,
+              email,
+              full_name: existingAuthUser.user_metadata?.full_name || email.split('@')[0],
+              display_name: existingAuthUser.user_metadata?.full_name || email.split('@')[0],
+              email_verified: existingAuthUser.email_confirmed_at ? true : false,
+            });
+
+          if (profileError && profileError.code !== '23505') {
+            throw profileError;
+          }
+        }
+      } else {
+        // Create new auth user with temporary password
+        const tempPassword = `Temp-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+
+        const { data: newAuthUser, error: authError } = await adminClient.auth.admin.createUser({
+          email,
+          password: tempPassword,
+          email_confirm: false, // They'll confirm via invitation
+          user_metadata: {
+            full_name: email.split('@')[0],
+            role: role,
+            invited_by: invitedBy,
+            temp_password: true // Flag for password reset on first login
+          }
+        });
+
+        if (authError) throw authError;
+        if (!newAuthUser.user) throw new Error("Failed to create auth user");
+
+        userId = newAuthUser.user.id;
+        console.log('Created new auth user:', email);
+
+        // Create profile for new user
+        const { error: profileError } = await this.supabase
+          .from("user_profiles")
+          .insert({
+            id: userId,
+            email,
+            full_name: email.split('@')[0],
+            display_name: email.split('@')[0],
+            email_verified: false,
+          });
+
+        if (profileError && profileError.code !== '23505') {
+          throw profileError;
+        }
       }
 
-      // Create invitation
-      if (!userProfile) {
-        throw new Error("Failed to create or find user profile");
+      // Check if already a member
+      const { data: existingMember } = await this.supabase
+        .from("organization_members")
+        .select("*")
+        .eq("organization_id", organizationId)
+        .eq("user_id", userId)
+        .single();
+
+      if (existingMember) {
+        console.log('User is already a member of this organization');
+        return existingMember;
       }
 
+      // Create organization membership invitation
       const { data, error } = await this.supabase
         .from("organization_members")
         .insert({
           organization_id: organizationId,
-          user_id: userProfile.id,
+          user_id: userId,
           role,
           invitation_status: "pending" as InvitationStatus,
           invited_by: invitedBy,
@@ -201,7 +276,23 @@ export class OrganizationService {
 
       if (error) throw error;
 
-      // TODO: Send invitation email
+      // Send invitation email
+      if (!existingAuthUser) {
+        // For new users, send invitation with password reset link
+        const { error: inviteError } = await adminClient.auth.resetPasswordForEmail(email, {
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/accept-invitation?org=${organizationId}`,
+        });
+
+        if (inviteError) {
+          console.error("Error sending invitation email:", inviteError);
+        } else {
+          console.log('Invitation email sent to:', email);
+        }
+      } else {
+        // For existing users, we'd send a different email
+        // TODO: Implement organization invitation email for existing users
+        console.log('TODO: Send organization invitation to existing user:', email);
+      }
 
       return data;
     } catch (error) {
