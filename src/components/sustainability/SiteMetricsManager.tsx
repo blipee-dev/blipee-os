@@ -79,6 +79,14 @@ export default function SiteMetricsManager({
     fetchSiteMetrics();
   }, []);
 
+  // Set default site when sites are loaded
+  useEffect(() => {
+    if (sites.length > 0 && selectedSite === 'organization') {
+      // Default to the first site
+      setSelectedSite(sites[0].id);
+    }
+  }, [sites]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -252,7 +260,7 @@ export default function SiteMetricsManager({
       {/* Site Selector and Action Buttons */}
       <div className="flex items-center gap-2 mb-6">
         <div className="flex-1 relative" ref={dropdownRef}>
-          <ChartBar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#757575]" />
+          <ChartBar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 accent-text" />
           <button
             type="button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -287,10 +295,10 @@ export default function SiteMetricsManager({
                         selectedSite === site.id ? 'bg-gray-50 dark:bg-white/[0.03]' : ''
                       }`}
                     >
-                      <Building className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
+                      <Building className="w-4 h-4 accent-text" />
                       <span className="text-gray-700 dark:text-gray-300">{site.name}</span>
                       {selectedSite === site.id && (
-                        <Check className="w-4 h-4 ml-auto text-green-500" />
+                        <Check className="w-4 h-4 ml-auto accent-text" />
                       )}
                     </button>
                   ))}
@@ -305,10 +313,10 @@ export default function SiteMetricsManager({
                         selectedSite === 'organization' ? 'bg-gray-50 dark:bg-white/[0.03]' : ''
                       }`}
                     >
-                      <ChartBar className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
+                      <ChartBar className="w-4 h-4 accent-text" />
                       <span className="text-gray-700 dark:text-gray-300">View Organization Summary</span>
                       {selectedSite === 'organization' && (
-                        <Check className="w-4 h-4 ml-auto text-green-500" />
+                        <Check className="w-4 h-4 ml-auto accent-text" />
                       )}
                     </button>
                   </div>
@@ -344,7 +352,7 @@ export default function SiteMetricsManager({
         {sites.length === 0 && (
           <button
             onClick={onCreateTestData}
-            className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+            className="px-4 py-2.5 accent-gradient-lr text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2 hover:opacity-90"
           >
             <Database className="w-4 h-4" />
             Need Test Data?
@@ -377,7 +385,7 @@ export default function SiteMetricsManager({
                 {Object.entries(getOrganizationSummary().metricsBreakdown).map(([siteName, count]: [string, any]) => (
                   <div key={siteName} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#1a1a1a] rounded-lg">
                     <div className="flex items-center gap-2">
-                      <Factory className="w-4 h-4 text-gray-500" />
+                      <Factory className="w-4 h-4 accent-text" />
                       <span className="text-sm font-medium text-gray-900 dark:text-white">{siteName}</span>
                     </div>
                     <span className="text-sm text-[#616161] dark:text-[#757575]">{count} metrics</span>
@@ -401,7 +409,7 @@ export default function SiteMetricsManager({
                       key={metric.id}
                       className="flex items-center gap-3 p-3 border border-gray-200 dark:border-white/[0.05] rounded-lg"
                     >
-                      <ScopeIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <ScopeIcon className="w-4 h-4 accent-text" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           {metric.metric?.name || 'Unknown Metric'}
@@ -410,7 +418,7 @@ export default function SiteMetricsManager({
                           {metric.metric?.category} • {metric.metric?.scope?.replace('scope_', 'Scope ')}
                         </p>
                       </div>
-                      <Check className="w-4 h-4 text-green-500" />
+                      <Check className="w-4 h-4 accent-text" />
                     </div>
                   );
                 })}
@@ -425,7 +433,7 @@ export default function SiteMetricsManager({
             <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 accent-gradient rounded-lg flex items-center justify-center">
                     <Factory className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -453,7 +461,7 @@ export default function SiteMetricsManager({
                           key={metric.id}
                           className="flex items-center gap-3 p-4 border border-gray-200 dark:border-white/[0.05] rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
                         >
-                          <ScopeIcon className="w-5 h-5 text-blue-500" />
+                          <ScopeIcon className="w-5 h-5 accent-text" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
                               {metric.metrics_catalog?.name || 'Unknown Metric'}
@@ -467,7 +475,7 @@ export default function SiteMetricsManager({
                               </p>
                             )}
                           </div>
-                          <Check className="w-4 h-4 text-green-500" />
+                          <Check className="w-4 h-4 accent-text" />
                         </div>
                       );
                     })}
