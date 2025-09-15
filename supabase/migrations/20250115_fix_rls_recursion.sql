@@ -13,6 +13,8 @@ BEGIN;
 
 -- Drop all existing policies on these tables to start fresh
 DO $$
+DECLARE
+    r RECORD;
 BEGIN
     -- Drop all policies on organization_members
     FOR r IN (SELECT policyname FROM pg_policies WHERE tablename = 'organization_members')
