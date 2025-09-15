@@ -104,9 +104,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   // Translation function with dot notation support and interpolation
   const t = (key: string, params?: Record<string, any>): string => {
     let value = getNestedValue(messages, key);
-    if (value === key) {
-      console.warn(`Translation missing for key: ${key}`);
-    }
     
     // Handle interpolation
     if (params && typeof value === 'string') {
