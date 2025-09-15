@@ -52,7 +52,7 @@ export default function SustainabilityMetricsPage() {
   const [selectedMetrics, setSelectedMetrics] = useState<Set<string>>(new Set());
   const [organizationMetrics, setOrganizationMetrics] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedScope, setSelectedScope] = useState<string | null>(null);
+  const [selectedScope, setSelectedScope] = useState<string>('scope_1');
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [showDataEntry, setShowDataEntry] = useState(false);
   const [selectedMetricForEntry, setSelectedMetricForEntry] = useState<any>(null);
@@ -205,41 +205,9 @@ export default function SustainabilityMetricsPage() {
           onCreateTestData={createTestData}
         />
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search metrics by name or description..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 accent-ring transition-all"
-            />
-          </div>
-          <div className="flex gap-2">
-            {['scope_1', 'scope_2', 'scope_3'].map(scope => {
-              const Icon = scopeIcons[scope as keyof typeof scopeIcons];
-              return (
-                <button
-                  key={scope}
-                  onClick={() => setSelectedScope(selectedScope === scope ? null : scope)}
-                  className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition-all flex items-center gap-2 ${
-                    selectedScope === scope
-                      ? 'accent-gradient-lr text-white border-transparent'
-                      : 'bg-white dark:bg-[#212121] border-gray-200 dark:border-white/[0.05] text-[#616161] dark:text-[#757575] hover:bg-gray-100 dark:hover:bg-white/[0.05]'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{scope.replace('scope_', 'Scope ')}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
       {/* Metrics Catalog Section */}
       <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Metrics Library
           </h2>
@@ -264,6 +232,39 @@ export default function SustainabilityMetricsPage() {
           )}
         </div>
 
+        {/* Tabs for Scopes */}
+        <div className="flex items-center gap-2 border-b border-gray-200 dark:border-white/[0.05] mb-6">
+          {['scope_1', 'scope_2', 'scope_3'].map(scope => {
+            const Icon = scopeIcons[scope as keyof typeof scopeIcons];
+            return (
+              <button
+                key={scope}
+                onClick={() => setSelectedScope(scope)}
+                className={`px-4 py-3 text-sm font-medium transition-all flex items-center gap-2 border-b-2 -mb-[2px] ${
+                  selectedScope === scope
+                    ? 'accent-text border-current'
+                    : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{scope.replace('scope_', 'Scope ')}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search metrics by name or description..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 accent-ring transition-all"
+          />
+        </div>
+
         {/* Metrics by Scope */}
         <div className="space-y-6">
           {Object.entries(catalog).length === 0 ? (
@@ -275,17 +276,11 @@ export default function SustainabilityMetricsPage() {
               const scopeCategories = catalog[scope] || {};
               const ScopeIcon = scopeIcons[scope as keyof typeof scopeIcons];
 
-              if (selectedScope && selectedScope !== scope) return null;
+              if (selectedScope !== scope) return null;
               if (Object.keys(scopeCategories).length === 0) return null;
 
               return (
                 <div key={scope} className="space-y-3">
-                  <div className="flex items-center gap-2 mb-3">
-                    <ScopeIcon className="w-5 h-5 accent-text" />
-                    <h3 className="text-md font-semibold text-gray-900 dark:text-white">
-                      {scope.replace('scope_', 'Scope ')}
-                    </h3>
-                  </div>
 
                   {Object.entries(scopeCategories).map(([category, metrics]: [string, any]) => {
                     const metricsArray = Array.isArray(metrics) ? metrics : [];
@@ -296,7 +291,7 @@ export default function SustainabilityMetricsPage() {
                     const isExpanded = expandedCategories.has(category);
 
                     return (
-                      <div key={category} className="border border-gray-200 dark:border-white/[0.05] rounded-lg ml-7">
+                      <div key={category} className="border border-gray-200 dark:border-white/[0.05] rounded-lg">
                         <button
                           onClick={() => toggleCategory(category)}
                           className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-white/[0.02] transition-colors"
@@ -381,7 +376,10 @@ export default function SustainabilityMetricsPage() {
                                             Unit: {metric.unit}
                                           </span>
                                           {metric.subcategory && (
-                                            <span className="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded">
+                                            <span
+                                              className="text-xs px-2 py-0.5 rounded accent-text"
+                                              style={{ backgroundColor: `rgba(var(--accent-primary-rgb), 0.1)` }}
+                                            >
                                               {metric.subcategory}
                                             </span>
                                           )}
