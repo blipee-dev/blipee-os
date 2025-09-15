@@ -1,6 +1,7 @@
 // Supabase Auth Utilities for blipee OS
 
 import { createClient } from "@supabase/supabase-js";
+import { createOrgMembersCompat } from "@/lib/database/organization-members-compat";
 
 // Create Supabase client
 export const supabase = createClient(
@@ -95,24 +96,15 @@ export const requireAuth = async () => {
 
 // Helper to get user's organization
 export const getUserOrganization = async (userId: string) => {
-  const { data, error } = await supabase
-    .from("user_organizations")
-    .select(
-      `
-      organization_id,
-      role,
-      organizations (
-        id,
-        name,
-        slug,
-        settings
-      )
-    `,
-    )
-    .eq("user_id", userId)
-    .single();
-
-  return { data, error };
+  const compat = createOrgMembersCompat(supabase);
+  const result = await compat.getUserOrganizations(userId);
+  
+  // Get single result for backward compatibility
+  if (result.data && result.data.length > 0) {
+    return { data: result.data[0], error: null };
+  }
+  
+  return { data: null, error: result.error };
 };
 
 // Helper to create demo data for new users
