@@ -124,17 +124,17 @@ export default function SiteMetricsManager({
         });
         setSiteMetrics(siteMetricsLookup);
       } else {
-        toast.error(siteData.error || 'Failed to load site metrics');
+        toast.error(siteData.error || t('failedToLoadSiteMetrics'));
       }
 
       if (catalogResponse.ok) {
         setCatalog(catalogData.grouped || {});
       } else {
-        toast.error(catalogData.error || 'Failed to load metrics catalog');
+        toast.error(catalogData.error || t('failedToLoadCatalog'));
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error('Failed to load data');
+      toast.error(t('failedToLoadData'));
     } finally {
       setLoading(false);
     }
@@ -189,7 +189,7 @@ export default function SiteMetricsManager({
       }
     } catch (error) {
       console.error('Error updating site metric:', error);
-      toast.error(error.message || 'Failed to update metric');
+      toast.error(error.message || t('failedToUpdateMetric'));
     } finally {
       setSaving(false);
     }
@@ -267,9 +267,9 @@ export default function SiteMetricsManager({
             className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 accent-ring text-sm text-left"
           >
             {selectedSite === 'organization' ? (
-              'View Organization Summary'
+              t('viewOrganizationSummary')
             ) : (
-              sites.find(s => s.id === selectedSite)?.name || 'Select a site...'
+              sites.find(s => s.id === selectedSite)?.name || t('selectSite')
             )}
           </button>
 
@@ -314,7 +314,7 @@ export default function SiteMetricsManager({
                       }`}
                     >
                       <ChartBar className="w-4 h-4 accent-text" />
-                      <span className="text-gray-700 dark:text-gray-300">View Organization Summary</span>
+                      <span className="text-gray-700 dark:text-gray-300">{t('viewOrganizationSummary')}</span>
                       {selectedSite === 'organization' && (
                         <Check className="w-4 h-4 ml-auto accent-text" />
                       )}
@@ -328,7 +328,7 @@ export default function SiteMetricsManager({
 
         <button
           className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-          title="Filter"
+          title={t('filter')}
         >
           <Filter className="w-4 h-4" />
         </button>
@@ -336,7 +336,7 @@ export default function SiteMetricsManager({
         <button
           onClick={onImport}
           className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-          title="Download"
+          title={t('download')}
         >
           <Download className="w-4 h-4" />
         </button>
@@ -344,7 +344,7 @@ export default function SiteMetricsManager({
         <button
           onClick={onDashboard}
           className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
-          title="Upload"
+          title={t('upload')}
         >
           <Upload className="w-4 h-4" />
         </button>

@@ -90,7 +90,7 @@ export default function SustainabilityMetricsPage() {
       setSites(sitesData.sites || []);
     } catch (error) {
       console.error('Error fetching metrics:', error);
-      toast.error('Failed to load metrics');
+      toast.error(t('failedToLoadMetrics'));
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ export default function SustainabilityMetricsPage() {
 
         if (!res.ok) throw new Error('Failed to save metrics');
 
-        toast.success(`${newMetricIds.length} metrics added successfully`);
+        toast.success(t('metricsAddedSuccess', { count: newMetricIds.length }));
         await fetchData(); // Refresh data
       }
 
@@ -140,12 +140,12 @@ export default function SustainabilityMetricsPage() {
       }
 
       if (removedIds.length > 0) {
-        toast.success(`${removedIds.length} metrics removed successfully`);
+        toast.success(t('metricsRemovedSuccess', { count: removedIds.length }));
         await fetchData();
       }
     } catch (error) {
       console.error('Error saving metrics:', error);
-      toast.error('Failed to save metrics');
+      toast.error(t('failedToSaveMetrics'));
     } finally {
       setSaving(false);
     }
@@ -162,7 +162,7 @@ export default function SustainabilityMetricsPage() {
   };
 
   const createTestData = async () => {
-    toast.error('To test site functionality, you need to create organizations and sites in your Supabase database. Please check your database schema and add test data manually.');
+    toast.error(t('testDataError'));
   };
 
   const filterMetrics = (metrics: any[]) => {
@@ -182,10 +182,10 @@ export default function SustainabilityMetricsPage() {
   }
 
   return (
-    <SettingsLayout pageTitle="Sustainability Metrics">
+    <SettingsLayout pageTitle={t('title')}>
       <header className="hidden md:block p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05]">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">Sustainability Metrics</h1>
-        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">Manage and track your organization's sustainability metrics and data collection</p>
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
+        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">{t('subtitle')}</p>
       </header>
 
       <main className="p-4 sm:p-6">
@@ -209,7 +209,7 @@ export default function SustainabilityMetricsPage() {
       <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6 mb-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Metrics Library
+            {t('metricsLibrary')}
           </h2>
           {selectedMetrics.size > 0 && (
             <button
@@ -220,12 +220,12 @@ export default function SustainabilityMetricsPage() {
               {saving ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Saving...
+                  {t('saving')}
                 </>
               ) : (
                 <>
                   <Check className="w-4 h-4" />
-                  Save Selection ({selectedMetrics.size})
+                  {t('saveSelection')} ({selectedMetrics.size})
                 </>
               )}
             </button>
@@ -247,7 +247,7 @@ export default function SustainabilityMetricsPage() {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span>{scope.replace('scope_', 'Scope ')}</span>
+                <span>{t('scope')} {scope.replace('scope_', '')}</span>
               </button>
             );
           })}
@@ -258,7 +258,7 @@ export default function SustainabilityMetricsPage() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search metrics by name or description..."
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 accent-ring transition-all"
@@ -269,7 +269,7 @@ export default function SustainabilityMetricsPage() {
         <div className="space-y-6">
           {Object.entries(catalog).length === 0 ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              Loading metrics catalog...
+              {t('loadingMetrics')}
             </div>
           ) : (
             ['scope_1', 'scope_2', 'scope_3'].map((scope) => {
@@ -354,7 +354,7 @@ export default function SustainabilityMetricsPage() {
                                           <div className="bg-gray-50 dark:bg-white/[0.02] rounded p-2 mb-2">
                                             <div className="flex items-center gap-4">
                                               <div className="flex items-center gap-1">
-                                                <span className="text-xs text-gray-500 dark:text-gray-400">Factor:</span>
+                                                <span className="text-xs text-gray-500 dark:text-gray-400">{t('factor')}</span>
                                                 <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                                                   {metric.emission_factor} {metric.emission_factor_unit}
                                                 </span>
@@ -373,7 +373,7 @@ export default function SustainabilityMetricsPage() {
 
                                         <div className="flex items-center gap-2">
                                           <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-white/[0.05] text-gray-600 dark:text-gray-400 rounded">
-                                            Unit: {metric.unit}
+                                            {t('unit')} {metric.unit}
                                           </span>
                                           {metric.subcategory && (
                                             <span
