@@ -1580,7 +1580,7 @@
       "searchPlaceholder": "Search metrics by name or description...",
       "addData": "Add Data",
       "import": "Import",
-      "dashboard": "Dashboard",
+      "dashboardLink": "Dashboard",
       "saveMetrics": "Save Selected Metrics",
       "saveSelection": "Save Selection",
       "saving": "Saving...",
@@ -1603,6 +1603,93 @@
       "failedToLoadCatalog": "Failed to load metrics catalog",
       "failedToLoadData": "Failed to load data",
       "failedToUpdateMetric": "Failed to update metric",
+      "dashboard": {
+        "title": "Sustainability Dashboard",
+        "subtitle": "Monitor and track your organization's environmental performance",
+        "header": {
+          "title": "Sustainability Overview",
+          "subtitle": "Real-time environmental performance metrics"
+        },
+        "navigation": {
+          "overview": "Overview",
+          "emissions": "Emissions",
+          "energy": "Energy",
+          "scopeAnalysis": "Scope Analysis",
+          "siteComparison": "Site Comparison",
+          "trends": "Trends",
+          "targets": "Targets",
+          "dataEntry": "Data Entry",
+          "dataInvestigation": "Data Investigation",
+          "dataComparison": "Data Comparison",
+          "dataMigration": "Data Migration",
+          "reports": "Reports"
+        },
+        "metrics": {
+          "totalEmissions": "Total CO₂ Emissions",
+          "energyConsumption": "Energy Consumption",
+          "waterUsage": "Water Usage",
+          "wasteGenerated": "Waste Generated",
+          "carbonIntensity": "Carbon Intensity"
+        },
+        "charts": {
+          "emissionsByScope": "Emissions by Scope",
+          "emissionsTrend": "Emissions Trend",
+          "siteComparison": "Site Comparison",
+          "emissionsByCategory": "Emissions by Category"
+        },
+        "dateRanges": {
+          "thisMonth": "This Month",
+          "thisQuarter": "This Quarter",
+          "thisYear": "This Year",
+          "year2024": "2024",
+          "year2023": "2023",
+          "year2022": "2022",
+          "allTime": "All Time"
+        },
+        "buttons": {
+          "export": "Export",
+          "selectSite": "Select site",
+          "allSites": "All Sites"
+        },
+        "units": {
+          "tco2e": "tCO2e",
+          "mwh": "MWh",
+          "m3": "m³",
+          "tons": "tons",
+          "kgco2e_m2": "kgCO2e/m²",
+          "kgCO2ePerM2": "kgCO2e/m²"
+        },
+        "vsLastPeriod": "vs last period",
+        "messages": {
+          "failedToLoadData": "Failed to load data",
+          "exportingData": "Exporting data as {format}..."
+        }
+      },
+      "sidebar": {
+        "title": "Sustainability",
+        "navigation": {
+          "overview": "Overview",
+          "metrics": "Metrics",
+          "dataEntry": "Data Entry",
+          "reports": "Reports",
+          "targets": "Targets",
+          "settings": "Settings"
+        },
+        "actions": {
+          "viewDashboard": "View Dashboard",
+          "manageMetrics": "Manage Metrics",
+          "generateReport": "Generate Report"
+        },
+        "defaultUser": "User",
+        "userEmail": "user@example.com",
+        "buttons": {
+          "chat": "Chat",
+          "settings": "Settings",
+          "signOut": "Sign Out",
+          "collapseSidebar": "Collapse Sidebar",
+          "expandSidebar": "Expand Sidebar"
+        }
+      },
       "stats": {
         "totalAvailable": "Total Available",
         "selected": "Selected",
