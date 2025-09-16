@@ -76,16 +76,22 @@ export async function PUT(request: NextRequest) {
     const { name, email, phone, bio, department, title, location } = body;
 
     // Check if profile exists
-    const { data: existingProfile } = await supabase
+    const { data: existingProfile, error: checkError } = await supabase
       .from('app_users')
       .select('id')
       .eq('auth_user_id', user.id)
       .single();
 
+    // Log for debugging
+    console.log('Profile check for user:', user.id);
+    console.log('Existing profile:', existingProfile);
+    console.log('Check error:', checkError);
+
     let result;
 
     if (existingProfile) {
       // Update existing profile
+      console.log('Updating profile for user:', user.id);
       const { data, error } = await supabase
         .from('app_users')
         .update({
@@ -104,8 +110,11 @@ export async function PUT(request: NextRequest) {
 
       if (error) {
         console.error('Error updating profile:', error);
+        console.error('Update payload:', {
+          name, email, phone, department, title, bio, location
+        });
         return NextResponse.json(
-          { error: 'Failed to update profile' },
+          { error: `Failed to update profile: ${error.message}` },
           { status: 500 }
         );
       }

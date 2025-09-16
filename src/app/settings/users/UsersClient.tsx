@@ -531,34 +531,35 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             </div>
           ) : (
             <div className="flex flex-col">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
-                    <tr>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
-                        {t('table.user')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        {t('table.organization')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
-                        {t('table.created')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        {t('table.role')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        {t('table.lastLogin')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        {t('table.status')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
-                        {t('table.dailyTime')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
-                        
-                      </th>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="min-w-full table-fixed">
+                    <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05]">
+                      <tr>
+                        <th className="w-[30%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.user')}
+                        </th>
+                        <th className="w-[15%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.organization')}
+                        </th>
+                        <th className="w-[10%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.created')}
+                        </th>
+                        <th className="w-[12%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.role')}
+                        </th>
+                        <th className="w-[12%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.lastLogin')}
+                        </th>
+                        <th className="w-[8%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.status')}
+                        </th>
+                        <th className="w-[10%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.dailyTime')}
+                        </th>
+                        <th className="w-[3%] px-4 sm:px-6 py-3 text-right text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+
+                        </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-white/[0.05]">
@@ -566,31 +567,31 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                       <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3">
+                            <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                               <Users className="w-4 h-4 text-white" />
                             </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                 {user.name}
                               </div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                 {user.email}
                               </div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575] hidden md:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575]">
                           {user.organizations?.name || '-'}
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden lg:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           {user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor(user.role)}`}>
                             {formatRole(user.role)}
                           </span>
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-white">
                             {user.last_login ? new Date(user.last_login).toLocaleDateString() : t('status.inactive')}
                           </div>
@@ -600,12 +601,12 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                             </div>
                           )}
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
                             {t(`modal.statuses.${user.status}` as any) || user.status}
                           </span>
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-white">
                             {formatTimeSpent(user.avgDailyTimeSpent || 0)}
                           </div>
@@ -628,7 +629,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                  </table>
+                </div>
               </div>
 
               <PaginationControls />
