@@ -194,6 +194,7 @@ export async function POST(request: NextRequest) {
       if (organizationId) {
         userOrgId = organizationId;
       } else {
+        // Default to PLMJ organization
         const { data: org } = await supabase
           .from('organizations')
           .select('id')
