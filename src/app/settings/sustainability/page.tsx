@@ -247,7 +247,7 @@ export default function SustainabilityMetricsPage() {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span>{t('scope')} {scope.replace('scope_', '')}</span>
+                <span>{t(scope)}</span>
               </button>
             );
           })}

@@ -355,7 +355,7 @@ export default function SiteMetricsManager({
             className="px-4 py-2.5 accent-gradient-lr text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2 hover:opacity-90"
           >
             <Database className="w-4 h-4" />
-            Need Test Data?
+            {t('needTestData')}
           </button>
         )}
 
@@ -364,7 +364,7 @@ export default function SiteMetricsManager({
           whileTap={{ scale: 0.98 }}
           onClick={onAddData}
           className="p-2.5 accent-gradient-lr rounded-lg text-white hover:opacity-90 transition-opacity"
-          title="Add Data"
+          title={t('addData')}
         >
           <Plus className="w-4 h-4" />
         </motion.button>
@@ -379,7 +379,7 @@ export default function SiteMetricsManager({
           {Object.keys(getOrganizationSummary().metricsBreakdown).length > 0 && (
             <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Metrics by Site
+                {t('metricsBySite')}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Object.entries(getOrganizationSummary().metricsBreakdown).map(([siteName, count]: [string, any]) => (
@@ -388,7 +388,7 @@ export default function SiteMetricsManager({
                       <Factory className="w-4 h-4 accent-text" />
                       <span className="text-sm font-medium text-gray-900 dark:text-white">{siteName}</span>
                     </div>
-                    <span className="text-sm text-[#616161] dark:text-[#757575]">{count} metrics</span>
+                    <span className="text-sm text-[#616161] dark:text-[#757575]">{t('metricsCount', { count })}</span>
                   </div>
                 ))}
               </div>
