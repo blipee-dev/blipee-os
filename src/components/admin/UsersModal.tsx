@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  X, 
-  Users, 
-  Mail, 
-  Shield, 
-  Building2, 
+import {
+  X,
+  Users,
+  Mail,
+  Shield,
+  Building2,
   Phone,
   MapPin,
   Briefcase,
@@ -16,7 +16,8 @@ import {
   Loader2,
   Calendar,
   Globe,
-  User
+  User,
+  Building
 } from "lucide-react";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { useTranslations } from '@/providers/LanguageProvider';
@@ -47,9 +48,13 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
     email: "",
     role: "viewer",
     organization_id: "",
+    site_ids: [] as string[], // Multiple sites can be selected
+    access_level: "organization" as "organization" | "site", // Organization-wide or site-specific
     status: "pending", // New users start as pending until first login
     sendInvite: true
   });
+
+  const [availableSites, setAvailableSites] = useState<any[]>([]);
 
   // Load current user and all organizations
   useEffect(() => {
@@ -59,7 +64,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
         if (user) {
           setCurrentUser(user);
         }
-        
+
         // Get ALL organizations (not just user's organizations)
         const { data: orgs } = await supabase
           .from('organizations')
@@ -67,7 +72,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
           .order('name');
 
         setUserOrganizations(orgs || []);
-        
+
         // Set default organization if available
         if (orgs && orgs.length > 0) {
           setFormData(prev => ({
@@ -85,6 +90,30 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
     }
   }, [isOpen, supabase]);
 
+  // Load sites when organization changes
+  useEffect(() => {
+    const loadSites = async () => {
+      if (!formData.organization_id) {
+        setAvailableSites([]);
+        return;
+      }
+
+      try {
+        const { data: sites } = await supabase
+          .from('sites')
+          .select('id, name, location')
+          .eq('organization_id', formData.organization_id)
+          .order('name');
+
+        setAvailableSites(sites || []);
+      } catch (error) {
+        console.error('Error loading sites:', error);
+      }
+    };
+
+    loadSites();
+  }, [formData.organization_id, supabase]);
+
   // Update form data when data prop changes
   useEffect(() => {
     if (data && mode === 'edit') {
@@ -93,6 +122,8 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
         email: data.email || "",
         role: data.role || "viewer",
         organization_id: data.organization_id || "",
+        site_ids: data.site_ids || [],
+        access_level: data.access_level || "organization",
         status: data.status || "active",
         sendInvite: false // Don't send invite when editing
       });
@@ -102,6 +133,8 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
         email: "",
         role: "viewer",
         organization_id: userOrganizations.length > 0 ? userOrganizations[0].id : "",
+        site_ids: [],
+        access_level: "organization",
         status: "pending", // New users start as pending until first login
         sendInvite: true
       });
@@ -115,27 +148,35 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
 
     try {
       if (mode === 'create') {
-        // Create new user
-        const { data: newUser, error: createError } = await supabase
-          .from('app_users')
-          .insert([{
+        // Create new user via API
+        const response = await fetch('/api/users/manage', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
             name: formData.name,
             email: formData.email,
             role: formData.role,
             organization_id: formData.organization_id,
+            site_ids: formData.access_level === 'site' ? formData.site_ids : [],
+            access_level: formData.access_level,
             status: formData.status
-          }])
-          .select()
-          .single();
+          }),
+        });
 
-        if (createError) throw createError;
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to create user');
+        }
 
         // Log audit event for user creation
         await auditLogger.logDataOperation(
           'create',
           'user',
-          newUser.id,
-          newUser.name,
+          result.user.id,
+          result.user.name,
           'success'
         );
 
@@ -146,20 +187,29 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
         }
 
       } else if (mode === 'edit') {
-        // Update existing user
-        const { error: updateError } = await supabase
-          .from('app_users')
-          .update({
+        // Update existing user via API
+        const response = await fetch('/api/users/manage', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: data.id,
             name: formData.name,
             email: formData.email,
             role: formData.role,
             organization_id: formData.organization_id,
-            status: formData.status,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', data.id);
+            site_ids: formData.access_level === 'site' ? formData.site_ids : [],
+            access_level: formData.access_level,
+            status: formData.status
+          }),
+        });
 
-        if (updateError) throw updateError;
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to update user');
+        }
 
         // Log audit event for user update
         await auditLogger.logDataOperation(
@@ -474,6 +524,101 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                           />
                         </div>
                       </div>
+
+                      {/* Access Level Selection */}
+                      <div className="col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          <Shield className="inline w-4 h-4 mr-1" />
+                          {t('modal.accessLevel')}
+                        </label>
+                        <div className="flex gap-4">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="access_level"
+                              value="organization"
+                              checked={formData.access_level === 'organization'}
+                              onChange={(e) => setFormData({...formData, access_level: 'organization' as const, site_ids: []})}
+                              className="accent-purple-600"
+                            />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              {t('modal.organizationWideAccess')}
+                            </span>
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="access_level"
+                              value="site"
+                              checked={formData.access_level === 'site'}
+                              onChange={(e) => setFormData({...formData, access_level: 'site' as const})}
+                              className="accent-purple-600"
+                            />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              {t('modal.siteSpecificAccess')}
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Site Selection (only show if site-specific access is selected) */}
+                      {formData.access_level === 'site' && (
+                        <div className="col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <Building className="inline w-4 h-4 mr-1" />
+                            {t('modal.selectSites')} *
+                          </label>
+                          <div className="border border-gray-300 dark:border-white/[0.05] rounded-lg p-3 max-h-48 overflow-y-auto">
+                            {availableSites.length === 0 ? (
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {t('modal.noSitesAvailable')}
+                              </p>
+                            ) : (
+                              <div className="space-y-2">
+                                {availableSites.map((site) => (
+                                  <label key={site.id} className="flex items-start gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03] p-2 rounded">
+                                    <input
+                                      type="checkbox"
+                                      value={site.id}
+                                      checked={formData.site_ids.includes(site.id)}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setFormData({
+                                            ...formData,
+                                            site_ids: [...formData.site_ids, site.id]
+                                          });
+                                        } else {
+                                          setFormData({
+                                            ...formData,
+                                            site_ids: formData.site_ids.filter(id => id !== site.id)
+                                          });
+                                        }
+                                      }}
+                                      className="mt-1 w-4 h-4 rounded border-gray-300 dark:border-gray-600 checked:bg-gradient-to-r checked:from-purple-500 checked:to-pink-500 checked:border-transparent focus:ring-2 focus:ring-purple-500/20"
+                                    />
+                                    <div className="flex-1">
+                                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                        {site.name}
+                                      </p>
+                                      {site.location && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                          <MapPin className="inline w-3 h-3 mr-1" />
+                                          {site.location}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </label>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          {formData.access_level === 'site' && formData.site_ids.length === 0 && (
+                            <p className="mt-2 text-xs text-red-600 dark:text-red-400">
+                              {t('modal.selectAtLeastOneSite')}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Account Status */}

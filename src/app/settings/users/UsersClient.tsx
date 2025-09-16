@@ -266,8 +266,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
     console.log('Pin user:', user.name);
   };
 
-  // Can user perform actions? Using RBAC roles (owner, manager, member, viewer)
-  const canManage = userRole === 'super_admin' || userRole === 'owner' || userRole === 'manager';
+  // Can user perform actions? Using RBAC roles (account_owner, sustainability_manager, facility_manager)
+  const canManage = userRole === 'super_admin' || userRole === 'account_owner' || userRole === 'sustainability_manager' || userRole === 'facility_manager';
 
   // Format role display
   const formatRole = (role: string) => {

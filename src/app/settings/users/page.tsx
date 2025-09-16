@@ -1,9 +1,10 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import UsersClient from './UsersClient';
 
 export default async function UsersPage() {
   const supabase = await createClient();
+  const supabaseAdmin = createAdminClient();
 
   // Check authentication
   const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -17,7 +18,7 @@ export default async function UsersPage() {
     .from('super_admins')
     .select('id')
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
 
   const isSuperAdmin = !!superAdminRecord;
 
@@ -62,42 +63,41 @@ export default async function UsersPage() {
     
     appUsers = allUsers;
   } else {
-    // Regular users - fetch their organizations through user_access table
-    const { data: userAccess, error: userAccessError } = await supabase
-      .from('user_access')
-      .select('resource_id, role')
-      .eq('user_id', user.id)
-      .eq('resource_type', 'organization');
+    // Regular users - fetch their organizations through organization_members table
+    const { data: orgMemberships, error: membershipError } = await supabase
+      .from('organization_members')
+      .select('organization_id, role')
+      .eq('user_id', user.id);
 
-    if (userAccessError) {
-      console.error('Error fetching user access:', userAccessError);
+    if (membershipError) {
+      console.error('Error fetching organization memberships:', membershipError);
       redirect('/');
     }
 
-    if (!userAccess || userAccess.length === 0) {
-      console.log('User has no organization access');
+    if (!orgMemberships || orgMemberships.length === 0) {
+      console.log('User has no organization memberships');
       redirect('/');
     }
 
-    // Get organization IDs from user access
-    organizationIds = userAccess.map(ua => ua.resource_id);
-    
+    // Get organization IDs from memberships
+    organizationIds = orgMemberships.map(om => om.organization_id);
+
     // Fetch organization details
     const { data: orgsData, error: orgsDataError } = await supabase
       .from('organizations')
       .select('id, name, slug')
       .in('id', organizationIds);
-      
+
     if (orgsDataError) {
       console.error('Error fetching organization data:', orgsDataError);
     }
-    
-    // Map organizations with their roles from user_access
+
+    // Map organizations with their roles from organization_members
     userOrgs = orgsData?.map(org => {
-      const access = userAccess.find(ua => ua.resource_id === org.id);
+      const membership = orgMemberships.find(om => om.organization_id === org.id);
       return {
         organization_id: org.id,
-        role: access?.role || 'viewer',
+        role: membership?.role || 'viewer',
         organizations: org
       };
     }) || [];
@@ -128,11 +128,27 @@ export default async function UsersPage() {
       }
     }
     
-    // Check if user has permission to manage users (owner or manager roles from RBAC)
-    const hasPermission = userOrgs.some(uo => 
-      ['owner', 'manager'].includes(uo.role)
-    );
-    
+    // Check permission using Simple RBAC system
+    let hasPermission = false;
+
+    if (organizationIds.length > 0) {
+      // Check if user has permission to manage users in any of their organizations
+      for (const orgId of organizationIds) {
+        const { data: permissionResult } = await supabaseAdmin
+          .rpc('check_user_permission', {
+            p_user_id: user.id,
+            p_resource_type: 'org',
+            p_resource_id: orgId,
+            p_action: 'users'
+          });
+
+        if (permissionResult) {
+          hasPermission = true;
+          break;
+        }
+      }
+    }
+
     if (!hasPermission && userOrgs.length > 0) {
       // User doesn't have permission to manage users
       redirect('/');
@@ -143,8 +159,8 @@ export default async function UsersPage() {
       redirect('/');
     }
 
-    // Fetch app users for user's organizations
-    const { data: orgUsers, error: orgUsersError } = await supabase
+    // Fetch app users for user's organizations using admin client
+    const { data: orgUsers, error: orgUsersError } = await supabaseAdmin
       .from('app_users')
       .select(`
         *,
