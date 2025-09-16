@@ -100,14 +100,23 @@ export default function ProfilePage() {
         body: JSON.stringify(profileData),
       });
 
-      if (response.ok) {
-        // Show success message (could add a toast here)
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Show success message
         console.log('Profile saved successfully');
+        // You could add a toast notification here
+        alert(t('messages.profileSaved') || 'Profile saved successfully!');
+
+        // Refresh profile data
+        await fetchProfileData();
       } else {
-        console.error('Failed to save profile');
+        console.error('Failed to save profile:', data.error);
+        alert(data.error || t('messages.saveFailed') || 'Failed to save profile. Please try again.');
       }
     } catch (error) {
       console.error('Error saving profile:', error);
+      alert(t('messages.saveError') || 'An error occurred while saving your profile. Please try again.');
     } finally {
       setSaving(false);
     }
