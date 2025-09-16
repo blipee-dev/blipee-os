@@ -51,16 +51,15 @@ export async function GET(request: NextRequest) {
         }
       }
     } else {
-      // Regular users - fetch their organizations through user_access table
-      const { data: userAccess } = await supabase
-        .from('user_access')
-        .select('resource_id')
+      // Regular users - fetch their organizations through organization_members table
+      const { data: orgMembership } = await supabase
+        .from('organization_members')
+        .select('organization_id')
         .eq('user_id', user.id)
-        .eq('resource_type', 'organization')
         .limit(1)
         .single();
 
-      userOrgId = userAccess?.resource_id;
+      userOrgId = orgMembership?.organization_id;
     }
 
     if (!userOrgId) {
@@ -204,17 +203,16 @@ export async function POST(request: NextRequest) {
         userOrgId = org?.id;
       }
     } else {
-      // Regular users - get their organization and check permissions through user_access
+      // Regular users - get their organization and check permissions through organization_members
       const { data: userAccess } = await supabase
-        .from('user_access')
-        .select('resource_id, role')
+        .from('organization_members')
+        .select('organization_id, role')
         .eq('user_id', user.id)
-        .eq('resource_type', 'organization')
         .single();
 
-      if (userAccess && ['owner', 'admin', 'manager'].includes(userAccess.role)) {
+      if (userAccess && ['account_owner', 'sustainability_manager', 'facility_manager'].includes(userAccess.role)) {
         hasPermission = true;
-        userOrgId = userAccess.resource_id;
+        userOrgId = userAccess.organization_id;
       }
     }
 
@@ -294,13 +292,12 @@ export async function DELETE(request: NextRequest) {
       hasPermission = true;
     } else {
       const { data: userAccess } = await supabase
-        .from('user_access')
-        .select('resource_id, role')
+        .from('organization_members')
+        .select('organization_id, role')
         .eq('user_id', user.id)
-        .eq('resource_type', 'organization')
         .single();
 
-      if (userAccess && ['owner', 'admin', 'manager'].includes(userAccess.role)) {
+      if (userAccess && ['account_owner', 'sustainability_manager', 'facility_manager'].includes(userAccess.role)) {
         hasPermission = true;
       }
     }

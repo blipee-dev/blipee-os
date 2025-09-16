@@ -190,7 +190,7 @@ export default function DevicesClient({ initialDevices, sites, organizations, us
     }
   };
 
-  const canEdit = userRole === 'super_admin' || userRole === 'owner' || userRole === 'manager';
+  const canEdit = userRole === 'super_admin' || userRole === 'account_owner' || userRole === 'facility_manager';
 
   const getStatusColor = (status: string) => {
     switch (status) {

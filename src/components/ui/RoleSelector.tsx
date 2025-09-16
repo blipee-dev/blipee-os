@@ -25,12 +25,13 @@ export function RoleSelector({
   const availableRoles = getAvailableRoles();
   
   // Filter roles based on current user's role (can't assign higher roles)
-  const filteredRoles = currentUserRole 
+  const filteredRoles = currentUserRole
     ? availableRoles.filter(role => {
         const hierarchy: Record<string, number> = {
-          owner: 4,
-          manager: 3,
-          member: 2,
+          account_owner: 5,
+          sustainability_manager: 4,
+          facility_manager: 3,
+          analyst: 2,
           viewer: 1
         };
         return hierarchy[role.value] <= (hierarchy[currentUserRole] || 0);

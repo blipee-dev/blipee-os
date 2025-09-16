@@ -299,7 +299,7 @@ export default function SustainabilityMetricsPage() {
                           <div className="flex items-center gap-3">
                             <Package className="w-5 h-5 text-gray-400" />
                             <span className="font-medium text-gray-900 dark:text-white">
-                              {category}
+                              {t(`categories.${category}`) || category}
                             </span>
                             <span className="text-sm text-gray-500 dark:text-gray-400">
                               ({filteredMetrics.length})
@@ -380,7 +380,7 @@ export default function SustainabilityMetricsPage() {
                                               className="text-xs px-2 py-0.5 rounded accent-text"
                                               style={{ backgroundColor: `rgba(var(--accent-primary-rgb), 0.1)` }}
                                             >
-                                              {metric.subcategory}
+                                              {t(`subcategories.${metric.subcategory}`) || metric.subcategory}
                                             </span>
                                           )}
                                         </div>

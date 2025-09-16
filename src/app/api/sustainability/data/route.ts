@@ -49,11 +49,10 @@ export async function POST(request: NextRequest) {
 
     // Check if user has access to this organization
     const { data: userAccess } = await supabase
-      .from('user_access')
+      .from('organization_members')
       .select('role')
       .eq('user_id', user.id)
-      .eq('resource_type', 'organization')
-      .eq('resource_id', site.organization_id)
+      .eq('organization_id', site.organization_id)
       .single();
 
     // Also check if user is super admin
