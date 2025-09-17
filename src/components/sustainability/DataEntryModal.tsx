@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { CustomDropdown } from '@/components/ui/CustomDropdown';
+import { useTranslations } from '@/providers/LanguageProvider';
 
 interface DataEntryModalProps {
   isOpen: boolean;
@@ -43,6 +44,7 @@ export default function DataEntryModal({
   sites,
   onDataSaved
 }: DataEntryModalProps) {
+  const t = useTranslations('settings.sustainability');
   const [selectedSite, setSelectedSite] = useState<string>('');
   const [selectedMetric, setSelectedMetric] = useState<string>(metric?.id || '');
   const [siteMetrics, setSiteMetrics] = useState<any[]>([]);
@@ -718,18 +720,18 @@ export default function DataEntryModal({
                                     { value: '', label: 'Choose a metric...' },
                                     ...siteMetrics.map(sm => ({
                                       value: sm.metric_id,
-                                      label: `${sm.metrics_catalog?.name} (${sm.metrics_catalog?.unit}) - ${sm.metrics_catalog?.scope?.replace('scope_', 'Scope ')}`,
+                                      label: `${sm.metrics_catalog?.name} (${sm.metrics_catalog?.unit}) - ${sm.metrics_catalog?.scope ? t(sm.metrics_catalog.scope) : ''}`,
                                       renderLabel: () => (
                                         <div className="flex items-center justify-between w-full">
                                           <span>{sm.metrics_catalog?.name} ({sm.metrics_catalog?.unit})</span>
                                           <div className="flex items-center gap-2">
-                                            <span className="text-xs text-gray-500">{sm.metrics_catalog?.scope?.replace('scope_', 'Scope ')}</span>
+                                            <span className="text-xs text-gray-500">{sm.metrics_catalog?.scope ? t(sm.metrics_catalog.scope) : ''}</span>
                                             {sm.metrics_catalog?.subcategory && (
                                               <span
                                                 className="text-xs px-2 py-0.5 rounded accent-text"
                                                 style={{ backgroundColor: `rgba(var(--accent-primary-rgb), 0.1)` }}
                                               >
-                                                {sm.metrics_catalog?.subcategory}
+                                                {sm.metrics_catalog?.subcategory ? (t(`subcategories.${sm.metrics_catalog.subcategory}`) || sm.metrics_catalog.subcategory) : ''}
                                               </span>
                                             )}
                                           </div>

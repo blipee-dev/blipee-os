@@ -7,10 +7,10 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
-    
+
     // Sign out from Supabase
     const { error } = await supabase.auth.signOut();
-    
+
     if (error) {
       console.error('Supabase signout error:', error);
       return NextResponse.json(
@@ -22,19 +22,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Clear any session cookies
+    // Create response
     const response = NextResponse.json({
       success: true,
       message: "Signed out successfully",
     });
 
-    // Clear Supabase auth cookies
-    const cookieStore = cookies();
+    // Clear Supabase auth cookies manually
+    const cookieStore = await cookies();
     const allCookies = cookieStore.getAll();
-    
+
+    // Delete all Supabase-related cookies
     allCookies.forEach(cookie => {
       if (cookie.name.includes('sb-') || cookie.name.includes('auth')) {
-        response.cookies.delete(cookie.name);
+        response.cookies.set(cookie.name, '', {
+          maxAge: 0,
+          path: '/',
+        });
       }
     });
 

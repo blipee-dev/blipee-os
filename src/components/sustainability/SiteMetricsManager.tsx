@@ -159,7 +159,7 @@ export default function SiteMetricsManager({
           newSiteMetrics[siteId] = new Set(newSiteMetrics[siteId]);
           newSiteMetrics[siteId].delete(metricId);
           setSiteMetrics(newSiteMetrics);
-          toast.success('Metric removed from site');
+          toast.success(t('metricRemovedFromSite'));
         } else {
           const error = await response.json();
           throw new Error(error.error);
@@ -181,7 +181,7 @@ export default function SiteMetricsManager({
           }
           newSiteMetrics[siteId].add(metricId);
           setSiteMetrics(newSiteMetrics);
-          toast.success('Metric added to site');
+          toast.success(t('metricAddedToSite'));
         } else {
           const error = await response.json();
           throw new Error(error.error);
@@ -355,7 +355,7 @@ export default function SiteMetricsManager({
             className="px-4 py-2.5 accent-gradient-lr text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2 hover:opacity-90"
           >
             <Database className="w-4 h-4" />
-            Need Test Data?
+            {t('needTestData')}
           </button>
         )}
 
@@ -364,7 +364,7 @@ export default function SiteMetricsManager({
           whileTap={{ scale: 0.98 }}
           onClick={onAddData}
           className="p-2.5 accent-gradient-lr rounded-lg text-white hover:opacity-90 transition-opacity"
-          title="Add Data"
+          title={t('addData')}
         >
           <Plus className="w-4 h-4" />
         </motion.button>
@@ -379,7 +379,7 @@ export default function SiteMetricsManager({
           {Object.keys(getOrganizationSummary().metricsBreakdown).length > 0 && (
             <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Metrics by Site
+                {t('metricsBySite')}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Object.entries(getOrganizationSummary().metricsBreakdown).map(([siteName, count]: [string, any]) => (
@@ -388,7 +388,7 @@ export default function SiteMetricsManager({
                       <Factory className="w-4 h-4 accent-text" />
                       <span className="text-sm font-medium text-gray-900 dark:text-white">{siteName}</span>
                     </div>
-                    <span className="text-sm text-[#616161] dark:text-[#757575]">{count} metrics</span>
+                    <span className="text-sm text-[#616161] dark:text-[#757575]">{t('metricsCount').replace('{count}', count.toString())}</span>
                   </div>
                 ))}
               </div>
@@ -399,7 +399,7 @@ export default function SiteMetricsManager({
           {organizationMetrics.length > 0 && (
             <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Organization-Level Metrics ({organizationMetrics.length})
+                {t('organizationLevelMetrics')} ({organizationMetrics.length})
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {organizationMetrics.map((metric: any) => {
@@ -412,10 +412,10 @@ export default function SiteMetricsManager({
                       <ScopeIcon className="w-4 h-4 accent-text" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                          {metric.metric?.name || 'Unknown Metric'}
+                          {metric.metric?.name || t('unknownMetric')}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {metric.metric?.category} • {metric.metric?.scope?.replace('scope_', 'Scope ')}
+                          {metric.metric?.category ? (t(`categories.${metric.metric.category}`) || metric.metric.category) : ''} • {metric.metric?.scope ? t(metric.metric.scope) : ''}
                         </p>
                       </div>
                       <Check className="w-4 h-4 accent-text" />
@@ -441,7 +441,7 @@ export default function SiteMetricsManager({
                       {currentSite.name}
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {currentSiteMetrics?.metrics?.length || 0} metrics configured
+                      {t('metricsConfigured').replace('{count}', (currentSiteMetrics?.metrics?.length || 0).toString())}
                     </p>
                   </div>
                 </div>
@@ -451,7 +451,7 @@ export default function SiteMetricsManager({
               {currentSiteMetrics && currentSiteMetrics.metrics && currentSiteMetrics.metrics.length > 0 ? (
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Configured Metrics
+                    {t('configuredMetrics')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {currentSiteMetrics.metrics.map((metric: any) => {
@@ -464,14 +464,14 @@ export default function SiteMetricsManager({
                           <ScopeIcon className="w-5 h-5 accent-text" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
-                              {metric.metrics_catalog?.name || 'Unknown Metric'}
+                              {metric.metrics_catalog?.name || t('unknownMetric')}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {metric.metrics_catalog?.category} • {metric.metrics_catalog?.scope?.replace('scope_', 'Scope ')}
+                              {metric.metrics_catalog?.category ? (t(`categories.${metric.metrics_catalog.category}`) || metric.metrics_catalog.category) : ''} • {metric.metrics_catalog?.scope ? t(metric.metrics_catalog.scope) : ''}
                             </p>
                             {metric.metrics_catalog?.unit && (
                               <p className="text-xs text-gray-400 dark:text-gray-500">
-                                Unit: {metric.metrics_catalog.unit}
+                                {t('metricUnit').replace('{unit}', metric.metrics_catalog.unit)}
                               </p>
                             )}
                           </div>
@@ -485,10 +485,10 @@ export default function SiteMetricsManager({
                 <div className="text-center py-8">
                   <Factory className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No metrics configured for this site
+                    {t('noMetricsConfigured')}
                   </p>
                   <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                    Add metrics to start tracking sustainability data
+                    {t('addMetricsToStart')}
                   </p>
                 </div>
               )}

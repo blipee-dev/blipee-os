@@ -100,21 +100,24 @@ export default function OrganizationSettingsPage() {
       let orgs = [];
 
       if (isSuperAdmin) {
-        // Super admins see ALL organizations
+        // Super admins see ALL organizations - use API endpoint that uses admin client
         console.log("Fetching ALL organizations for super admin...");
-        const { data: allOrgs, error: allOrgsError } = await supabase
-          .from("organizations")
-          .select("id, name, legal_name, slug, industry_primary, industry_secondary, company_size, website, logo_url, public_company, stock_ticker, primary_contact_email, primary_contact_phone, headquarters_address, billing_address, subscription_tier, subscription_status, subscription_seats, subscription_started_at, subscription_expires_at, enabled_features, compliance_frameworks, brand_colors, data_residency_region, gri_sector_id, industry_classification_id, industry_confidence, account_owner_id, metadata, settings, created_at, updated_at");
 
-        if (allOrgsError) throw allOrgsError;
+        const response = await fetch('/api/organizations/all');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch all organizations');
+        }
+
+        const { organizations: allOrgs } = await response.json();
 
         // Transform to match expected format
         orgs =
-          allOrgs?.map((org) => ({
+          allOrgs?.map((org: any) => ({
             ...org,
             role: "super_admin", // Super admins have special role
-            sites: 0, // Will be updated below
-            users: 0, // Will be updated below
+            sites: org.sites || 0, // Already has count from API
+            users: org.users || 0, // Already has count from API
             status: org.subscription_status || "active",
             industry: org.industry_primary || "",
           })) || [];
@@ -135,38 +138,33 @@ export default function OrganizationSettingsPage() {
         const { organizations: userOrgs } = await response.json();
         
         console.log("Fetched user organizations:", userOrgs);
+        console.log("First org sites count:", userOrgs[0]?.sites);
+        console.log("First org users count:", userOrgs[0]?.users);
 
         // Map organizations with additional fields
-        orgs = userOrgs.map((org: any) => ({
-          ...org,
-          sites: 0, // Will be updated below
-          users: 0, // Will be updated below
-          status: org.subscription_status || "active",
-          industry: org.industry_primary || "",
-        }));
-        
+        orgs = userOrgs.map((org: any) => {
+          const mapped = {
+            ...org,
+            sites: org.sites || 0, // Keep the count from API
+            users: org.users || 0, // Keep the count from API
+            status: org.subscription_status || "active",
+            industry: org.industry_primary || "",
+          };
+          console.log(`Mapping org ${org.name}: sites=${org.sites} -> ${mapped.sites}, users=${org.users} -> ${mapped.users}`);
+          return mapped;
+        });
+
         console.log("Mapped organizations:", orgs);
+        console.log("Mapped orgs sites/users:", orgs.map((o: any) => ({ name: o.name, sites: o.sites, users: o.users })));
       }
 
-      // For each organization, fetch counts
-      for (const org of orgs) {
-        // Count sites
-        const { count: sitesCount } = await supabase
-          .from("sites")
-          .select("*", { count: "exact", head: true })
-          .eq("organization_id", org.id);
-
-        org.sites = sitesCount || 0;
-
-        // Count users in organization
-        const { count: usersCount } = await supabase
-          .from("organization_members")
-          .select("*", { count: "exact", head: true })
-          .eq("organization_id", org.id)
-          .eq("invitation_status", "accepted");
-
-        org.users = usersCount || 0;
-      }
+      // Counts are already fetched from the API, no need to fetch again
+      // This was overwriting the correct counts with 0 due to RLS issues
+      console.log("Organizations with counts from API:", orgs.map((o: any) => ({
+        name: o.name,
+        sites: o.sites,
+        users: o.users
+      })));
 
       console.log("Setting organizations state with:", orgs);
       setOrganizations(orgs);

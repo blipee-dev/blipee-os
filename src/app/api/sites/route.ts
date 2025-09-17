@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export async function GET(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -24,8 +25,8 @@ export async function GET(request: NextRequest) {
     let sites = [];
 
     if (isSuperAdmin) {
-      // Super admin can see all sites (only select what we need)
-      const { data: allSites, error: sitesError } = await supabase
+      // Super admin can see all sites (only select what we need) - use admin client
+      const { data: allSites, error: sitesError } = await supabaseAdmin
         .from('sites')
         .select('id, name, location, organization_id, type, total_area_sqm, total_employees, floors, floor_details, status, timezone, address, created_at, updated_at')
         .order('name');
@@ -38,25 +39,24 @@ export async function GET(request: NextRequest) {
       sites = allSites || [];
       console.log('Super admin - fetched all sites:', sites.length);
     } else {
-      // Regular users - fetch their organizations through user_access table
-      const { data: userAccess, error: userAccessError } = await supabase
-        .from('user_access')
-        .select('resource_id, role')
-        .eq('user_id', user.id)
-        .eq('resource_type', 'organization');
+      // Regular users - fetch their organizations through organization_members table
+      const { data: orgMemberships, error: membershipError } = await supabase
+        .from('organization_members')
+        .select('organization_id, role')
+        .eq('user_id', user.id);
 
-      if (userAccessError) {
-        console.error('Error fetching user access:', userAccessError);
+      if (membershipError) {
+        console.error('Error fetching organization memberships:', membershipError);
       }
 
-      console.log('User access records:', userAccess);
+      console.log('Organization memberships:', orgMemberships);
 
-      if (userAccess && userAccess.length > 0) {
-        organizationIds = userAccess.map(ua => ua.resource_id);
-        console.log('User has access to organizations:', organizationIds);
+      if (orgMemberships && orgMemberships.length > 0) {
+        organizationIds = orgMemberships.map(om => om.organization_id);
+        console.log('User is member of organizations:', organizationIds);
 
-        // Fetch sites for user's organizations (only select what we need)
-        const { data: userSites, error: sitesError } = await supabase
+        // Fetch sites for user's organizations (only select what we need) - use admin client
+        const { data: userSites, error: sitesError } = await supabaseAdmin
           .from('sites')
           .select('id, name, location, organization_id, type, total_area_sqm, total_employees, floors, floor_details, status, timezone, address, created_at, updated_at')
           .in('organization_id', organizationIds)
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
         sites = userSites || [];
         console.log('Regular user - fetched sites:', sites.length);
       } else {
-        console.log('User has no organization access - returning empty sites array');
+        console.log('User has no organization memberships - returning empty sites array');
         sites = [];
       }
     }

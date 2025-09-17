@@ -25,6 +25,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from '@/providers/LanguageProvider';
 import { auditLogger } from '@/lib/audit/client';
+import toast from 'react-hot-toast';
 
 interface AppUser {
   id: string;
@@ -39,6 +40,11 @@ interface AppUser {
   created_at: string;
   updated_at: string;
   avgDailyTimeSpent?: number; // in minutes
+  is_super_admin?: boolean; // Flag to indicate super admin status
+  permissions?: {
+    access_level: string;
+    site_ids: string[];
+  };
 }
 
 interface UsersClientProps {
@@ -167,60 +173,48 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   const refreshUsers = async () => {
     setLoading(true);
     try {
-      // Get user's organizations
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) return;
+      // Use API endpoint to fetch users (handles super admin access)
+      const response = await fetch('/api/users/all');
 
-      const { data: userOrgs } = await supabase
-        .from('organization_members')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .eq('invitation_status', 'accepted');
-
-      const organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
-
-      // Fetch users
-      const { data: usersData, error } = await supabase
-        .from('app_users')
-        .select(`
-          *,
-          organizations (
-            name,
-            slug
-          )
-        `)
-        .in('organization_id', organizationIds)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching users:', error);
+      if (!response.ok) {
+        console.error('Failed to fetch users');
         return;
       }
 
+      const data = await response.json();
+      const usersData = data.users || [];
+
       // Calculate average daily time spent for each user
-      const userIds = (usersData || [])
-        .filter(user => user.auth_user_id)
-        .map(user => user.auth_user_id!);
+      const userIds = usersData
+        .filter((user: any) => user.auth_user_id)
+        .map((user: any) => user.auth_user_id!);
 
       const sessionStats = await getSessionStats(userIds);
 
-      const usersWithTimeSpent = (usersData || []).map(userData => ({
+      const usersWithTimeSpent = usersData.map((userData: any) => ({
         ...userData,
-        avgDailyTimeSpent: userData.auth_user_id 
-          ? sessionStats[userData.auth_user_id] || 0 
+        avgDailyTimeSpent: userData.auth_user_id
+          ? sessionStats[userData.auth_user_id] || 0
           : 0,
       }));
 
       setUsers(usersWithTimeSpent);
+    } catch (error) {
+      console.error('Error refreshing users:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEdit = (user: AppUser) => {
+    // Map the user data to include permissions if they exist
+    const userWithPermissions = {
+      ...user,
+      access_level: user.permissions?.access_level || 'organization',
+      site_ids: user.permissions?.site_ids || []
+    };
     setModalMode('edit');
-    setSelectedUser(user);
+    setSelectedUser(userWithPermissions as any);
     setShowUserModal(true);
   };
 
@@ -229,14 +223,15 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('app_users')
-        .delete()
-        .eq('id', user.id);
+      // Use the API endpoint for deletion which uses admin client
+      const response = await fetch(`/api/users/manage?id=${user.id}`, {
+        method: 'DELETE',
+      });
 
-      if (error) {
+      if (!response.ok) {
+        const error = await response.json();
         console.error('Error deleting user:', error);
-        alert(t('messages.error'));
+        alert(t('failedToDelete') || 'Failed to delete user');
         return;
       }
 
@@ -249,7 +244,11 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         'success'
       );
 
+      toast.success(t('userDeleted') || 'User deleted successfully');
       await refreshUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error(t('failedToDelete') || 'Failed to delete user');
     } finally {
       setLoading(false);
     }
@@ -266,27 +265,33 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
     console.log('Pin user:', user.name);
   };
 
-  // Can user perform actions? Using RBAC roles (owner, manager, member, viewer)
+  // Can user perform actions? Using Simple RBAC roles (owner, manager, member, viewer) + super_admin
   const canManage = userRole === 'super_admin' || userRole === 'owner' || userRole === 'manager';
 
   // Format role display
-  const formatRole = (role: string) => {
-    return t(`roles.${role}` as any) || role.split('_').map(word => 
+  const formatRole = (role: string, isSuperAdmin?: boolean) => {
+    // Show "Super Admin" if user is a super admin
+    if (isSuperAdmin) {
+      return t('roles.super_admin') || 'Super Admin';
+    }
+    return t(`roles.${role}` as any) || role.split('_').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
 
-  // Get role color
-  const getRoleColor = (role: string) => {
+  // Get role color for Simple RBAC roles
+  const getRoleColor = (role: string, isSuperAdmin?: boolean) => {
+    // Super admin gets special color
+    if (isSuperAdmin) {
+      return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400';
+    }
     switch (role) {
-      case 'account_owner':
+      case 'owner':
         return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400';
-      case 'sustainability_manager':
+      case 'manager':
         return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400';
-      case 'facility_manager':
+      case 'member':
         return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400';
-      case 'analyst':
-        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400';
       case 'viewer':
         return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-400';
       default:
@@ -531,34 +536,35 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
             </div>
           ) : (
             <div className="flex flex-col">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05] rounded-t-lg">
-                    <tr>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
-                        {t('table.user')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        {t('table.organization')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
-                        {t('table.created')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden md:table-cell">
-                        {t('table.role')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        {t('table.lastLogin')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden sm:table-cell">
-                        {t('table.status')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider hidden lg:table-cell">
-                        {t('table.dailyTime')}
-                      </th>
-                      <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
-                        
-                      </th>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="min-w-full table-fixed">
+                    <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05]">
+                      <tr>
+                        <th className="w-[30%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.user')}
+                        </th>
+                        <th className="w-[15%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.organization')}
+                        </th>
+                        <th className="w-[10%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.created')}
+                        </th>
+                        <th className="w-[12%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.role')}
+                        </th>
+                        <th className="w-[12%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.lastLogin')}
+                        </th>
+                        <th className="w-[8%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.status')}
+                        </th>
+                        <th className="w-[10%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                          {t('table.dailyTime')}
+                        </th>
+                        <th className="w-[3%] px-4 sm:px-6 py-3 text-right text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+
+                        </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-white/[0.05]">
@@ -566,31 +572,31 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                       <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3">
+                            <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                               <Users className="w-4 h-4 text-white" />
                             </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                 {user.name}
                               </div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                 {user.email}
                               </div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575] hidden md:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-[#616161] dark:text-[#757575]">
                           {user.organizations?.name || '-'}
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden lg:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           {user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor(user.role)}`}>
-                            {formatRole(user.role)}
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor(user.role, user.is_super_admin)}`}>
+                            {formatRole(user.role, user.is_super_admin)}
                           </span>
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-white">
                             {user.last_login ? new Date(user.last_login).toLocaleDateString() : t('status.inactive')}
                           </div>
@@ -600,12 +606,12 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                             </div>
                           )}
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
                             {t(`modal.statuses.${user.status}` as any) || user.status}
                           </span>
                         </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-white">
                             {formatTimeSpent(user.avgDailyTimeSpent || 0)}
                           </div>
@@ -628,7 +634,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                  </table>
+                </div>
               </div>
 
               <PaginationControls />

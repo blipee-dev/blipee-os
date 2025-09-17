@@ -162,19 +162,18 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
       let organizationId = formData.organization_id;
       
       if (!organizationId && userRole !== 'super_admin') {
-        // For non-super admins, get their first organization from user_access
-        const { data: userAccess, error: accessError } = await supabase
-          .from('user_access')
-          .select('resource_id')
+        // For non-super admins, get their first organization from organization_members
+        const { data: orgMembership, error: membershipError } = await supabase
+          .from('organization_members')
+          .select('organization_id')
           .eq('user_id', user.id)
-          .eq('resource_type', 'organization')
           .limit(1)
           .single();
 
-        if (accessError || !userAccess) {
+        if (membershipError || !orgMembership) {
           throw new Error('Organization not found');
         }
-        organizationId = userAccess.resource_id;
+        organizationId = orgMembership.organization_id;
       } else if (!organizationId) {
         throw new Error('Please select an organization');
       }

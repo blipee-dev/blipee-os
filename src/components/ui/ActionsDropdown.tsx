@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from 'react-dom';
 import { MoreHorizontal, Pin, Edit2, Trash2, Eye, Star } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -33,12 +34,17 @@ export default function ActionsDropdown({
   isPinned = false,
 }: ActionsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        buttonRef.current && !buttonRef.current.contains(event.target as Node) &&
+        dropdownRef.current && !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -47,6 +53,36 @@ export default function ActionsDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Calculate dropdown position when opening
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownWidth = 160; // w-40 = 10rem = 160px
+      const dropdownHeight = 250; // Approximate height
+
+      // Calculate position
+      let top = rect.bottom + 4; // 4px gap
+      let left = rect.right - dropdownWidth; // Align to right edge
+
+      // Check if dropdown would go off screen bottom
+      if (top + dropdownHeight > window.innerHeight) {
+        top = rect.top - dropdownHeight - 4; // Position above
+      }
+
+      // Check if dropdown would go off screen left
+      if (left < 0) {
+        left = rect.left;
+      }
+
+      // Check if dropdown would go off screen right
+      if (left + dropdownWidth > window.innerWidth) {
+        left = window.innerWidth - dropdownWidth - 8; // 8px margin
+      }
+
+      setDropdownPosition({ top, left });
+    }
+  }, [isOpen]);
+
   const handleAction = (action: () => void | undefined) => {
     if (action) {
       action();
@@ -54,24 +90,37 @@ export default function ActionsDropdown({
     setIsOpen(false);
   };
 
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <div className="relative" ref={dropdownRef}>
+    <>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        ref={buttonRef}
+        onClick={handleToggle}
         className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors"
       >
         <MoreHorizontal className="w-4 h-4 text-[#616161] dark:text-[#757575]" />
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-[#212121] rounded-lg shadow-lg border border-gray-200 dark:border-white/[0.05] z-50 overflow-hidden"
-          >
+      {isOpen && typeof window !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              ref={dropdownRef}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="w-40 bg-white dark:bg-[#212121] rounded-lg shadow-lg border border-gray-200 dark:border-white/[0.05] overflow-hidden"
+              style={{
+                position: 'fixed',
+                top: `${dropdownPosition.top}px`,
+                left: `${dropdownPosition.left}px`,
+                zIndex: 9999,
+              }}
+            >
             <div className="py-1">
               {showView && onView && (
                 <button
@@ -137,8 +186,10 @@ export default function ActionsDropdown({
               )}
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+    </>
   );
 }

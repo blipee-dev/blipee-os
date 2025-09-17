@@ -1,21 +1,10 @@
 // Authentication and Authorization Types
 
 export enum UserRole {
-  // Organization Level
-  SUBSCRIPTION_OWNER = "subscription_owner",
-  ORGANIZATION_ADMIN = "organization_admin",
-
-  // Building Level
-  SITE_MANAGER = "site_manager",
-  FACILITY_MANAGER = "facility_manager",
-
-  // Operational Level
-  TECHNICIAN = "technician",
-  GROUP_MANAGER = "group_manager",
-
-  // Basic Access
-  TENANT = "tenant",
-  GUEST = "guest",
+  OWNER = "owner",
+  MANAGER = "manager",
+  MEMBER = "member",
+  VIEWER = "viewer",
 }
 
 export enum SubscriptionTier {
