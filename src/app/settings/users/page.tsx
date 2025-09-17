@@ -45,8 +45,8 @@ export default async function UsersPage() {
     
     organizationIds = allOrgs?.map(org => org.id) || [];
 
-    // Fetch all app users
-    const { data: allUsers, error: allUsersError } = await supabase
+    // Fetch all app users (using admin client to bypass RLS)
+    const { data: allUsers, error: allUsersError } = await supabaseAdmin
       .from('app_users')
       .select(`
         *,
@@ -60,72 +60,84 @@ export default async function UsersPage() {
     if (allUsersError) {
       console.error('Error fetching all users:', allUsersError);
     }
-    
-    appUsers = allUsers;
+
+    // Check which users are super admins (using admin client)
+    const { data: superAdmins } = await supabaseAdmin
+      .from('super_admins')
+      .select('user_id');
+
+    const superAdminIds = new Set(superAdmins?.map(sa => sa.user_id) || []);
+
+    // Add is_super_admin flag to users
+    appUsers = allUsers?.map(user => ({
+      ...user,
+      is_super_admin: superAdminIds.has(user.auth_user_id)
+    })) || [];
   } else {
-    // Regular users - fetch their organizations through organization_members table
-    const { data: orgMemberships, error: membershipError } = await supabase
+    // Regular users - first get their role from app_users table
+    const { data: currentAppUser } = await supabaseAdmin
+      .from('app_users')
+      .select('organization_id, role')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    let currentUserRole = currentAppUser?.role || 'viewer';
+
+    // Try to get organizations from organization_members table first
+    const { data: orgMemberships } = await supabase
       .from('organization_members')
       .select('organization_id, role')
       .eq('user_id', user.id);
 
-    if (membershipError) {
-      console.error('Error fetching organization memberships:', membershipError);
-      redirect('/');
-    }
+    if (orgMemberships && orgMemberships.length > 0) {
+      // Get organization IDs from memberships
+      organizationIds = orgMemberships.map(om => om.organization_id);
 
-    if (!orgMemberships || orgMemberships.length === 0) {
-      console.log('User has no organization memberships');
-      redirect('/');
-    }
+      // Fetch organization details
+      const { data: orgsData, error: orgsDataError } = await supabase
+        .from('organizations')
+        .select('id, name, slug')
+        .in('id', organizationIds);
 
-    // Get organization IDs from memberships
-    organizationIds = orgMemberships.map(om => om.organization_id);
-
-    // Fetch organization details
-    const { data: orgsData, error: orgsDataError } = await supabase
-      .from('organizations')
-      .select('id, name, slug')
-      .in('id', organizationIds);
-
-    if (orgsDataError) {
-      console.error('Error fetching organization data:', orgsDataError);
-    }
-
-    // Map organizations with their roles from organization_members
-    userOrgs = orgsData?.map(org => {
-      const membership = orgMemberships.find(om => om.organization_id === org.id);
-      return {
-        organization_id: org.id,
-        role: membership?.role || 'viewer',
-        organizations: org
-      };
-    }) || [];
-    
-    // If user has no organizations, try to get from app_users table
-    if (userOrgs.length === 0) {
-      const { data: appUserData } = await supabase
-        .from('app_users')
-        .select(`
-          organization_id,
-          role,
-          organizations:organization_id (
-            id,
-            name,
-            slug
-          )
-        `)
-        .eq('auth_user_id', user.id)
-        .single();
-        
-      if (appUserData && appUserData.organizations) {
-        userOrgs = [{
-          organization_id: appUserData.organization_id,
-          role: appUserData.role,
-          organizations: appUserData.organizations
-        }];
-        organizationIds = [appUserData.organization_id];
+      if (orgsDataError) {
+        console.error('Error fetching organization data:', orgsDataError);
       }
+
+      // Map organizations with their roles
+      userOrgs = orgsData?.map(org => {
+        const membership = orgMemberships.find(om => om.organization_id === org.id);
+        return {
+          organization_id: org.id,
+          role: currentUserRole, // Use role from app_users
+          organizations: org
+        };
+      }) || [];
+    }
+
+    // If no organizations from memberships, try to get from app_users table
+    if (!userOrgs || userOrgs.length === 0) {
+      if (currentAppUser && currentAppUser.organization_id) {
+        const { data: orgData } = await supabase
+          .from('organizations')
+          .select('id, name, slug')
+          .eq('id', currentAppUser.organization_id)
+          .single();
+
+        if (orgData) {
+          userOrgs = [{
+            organization_id: currentAppUser.organization_id,
+            role: currentUserRole,
+            organizations: orgData
+          }];
+          organizationIds = [currentAppUser.organization_id];
+        }
+      }
+    }
+
+    // If still no organizations, redirect
+    if (!userOrgs || userOrgs.length === 0) {
+      console.log('User has no organizations');
+      redirect('/');
     }
     
     // Check permission using Simple RBAC system
@@ -176,15 +188,41 @@ export default async function UsersPage() {
       console.error('Error fetching org users:', orgUsersError);
     }
 
-    appUsers = orgUsers;
+    // Check which users are super admins (using admin client)
+    const { data: superAdmins } = await supabaseAdmin
+      .from('super_admins')
+      .select('user_id');
+
+    const superAdminIds = new Set(superAdmins?.map(sa => sa.user_id) || []);
+
+    // Add is_super_admin flag to users
+    appUsers = orgUsers?.map(user => ({
+      ...user,
+      is_super_admin: superAdminIds.has(user.auth_user_id)
+    })) || [];
+  }
+
+  // Get the actual user role - for super admin use 'super_admin', otherwise use the role from app_users
+  let userRole = 'viewer';
+  if (isSuperAdmin) {
+    userRole = 'super_admin';
+  } else {
+    // Get the user's actual role from app_users table
+    const { data: currentUser } = await supabaseAdmin
+      .from('app_users')
+      .select('role')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    userRole = currentUser?.role || 'viewer';
   }
 
   // Pass data to client component
   return (
-    <UsersClient 
+    <UsersClient
       initialUsers={appUsers || []}
       organizations={userOrgs?.map(uo => uo.organizations) || []}
-      userRole={isSuperAdmin ? 'super_admin' : (userOrgs?.[0]?.role || 'viewer')}
+      userRole={userRole}
     />
   );
 }

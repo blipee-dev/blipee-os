@@ -121,27 +121,35 @@ export async function PUT(request: NextRequest) {
       result = data;
     } else {
       // Create new profile
+      console.log('Creating new profile for user:', user.id);
+      const insertData = {
+        auth_user_id: user.id,
+        name: name || user.user_metadata?.full_name || '',
+        email: email || user.email,
+        phone: phone || '',
+        department: department || '',
+        title: title || '',
+        bio: bio || '',
+        location: location || '',
+        role: 'viewer', // Default role
+        status: 'active',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      console.log('Insert data:', insertData);
+
       const { data, error } = await supabase
         .from('app_users')
-        .insert({
-          auth_user_id: user.id,
-          name: name || user.user_metadata?.full_name || '',
-          email: email || user.email,
-          phone: phone || '',
-          department: department || '',
-          title: title || '',
-          bio: bio || '',
-          location: location || '',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
+        .insert(insertData)
         .select()
         .single();
 
       if (error) {
         console.error('Error creating profile:', error);
+        console.error('Insert payload:', insertData);
         return NextResponse.json(
-          { error: 'Failed to create profile' },
+          { error: `Failed to create profile: ${error.message}` },
           { status: 500 }
         );
       }

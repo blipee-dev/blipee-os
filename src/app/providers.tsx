@@ -8,6 +8,7 @@ import { AppearanceProvider } from "@/providers/AppearanceProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { clearMalformedSupabaseCookies } from "@/lib/supabase/clear-cookies";
+import { AuthTokenHandler } from "@/components/auth/AuthTokenHandler";
 
 function ModuleSystemInitializer() {
   useEffect(() => {
@@ -29,6 +30,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <AppearanceProvider>
             <SettingsProvider>
               <ModuleSystemInitializer />
+              <AuthTokenHandler />
               {children}
             </SettingsProvider>
           </AppearanceProvider>

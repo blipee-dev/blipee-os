@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { RBACService } from '@/lib/rbac/service';
-import { RoleName, LEGACY_ROLE_MAPPING } from '@/lib/rbac/types';
+import { SimpleRoleName, LEGACY_TO_SIMPLE_MAPPING } from '@/lib/rbac/types';
+import { sendInvitationEmailViaGmail } from '@/lib/email/send-invitation-gmail';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,76 +19,239 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, email, role, organization_id, status, site_ids, access_level } = body;
 
-    // Check if user has permission to create users using Enterprise RBAC
-    const hasPermission = await RBACService.checkPermission({
-      user_id: user.id,
-      resource: 'user',
-      action: 'create',
-      organization_id
-    });
+    // Check if current user is super admin
+    const { data: superAdminCheck } = await supabaseAdmin
+      .from('super_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
 
-    if (!hasPermission.allowed) {
+    // Check if user has permission to create users based on Simple RBAC
+    // Get current user's role
+    const { data: currentUser } = await supabaseAdmin
+      .from('app_users')
+      .select('role')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    // Only super admins, owners, and managers can create users
+    const canCreate = superAdminCheck || (currentUser && (currentUser.role === 'owner' || currentUser.role === 'manager'));
+
+    if (!canCreate) {
       return NextResponse.json({ error: 'Insufficient permissions to create users' }, { status: 403 });
     }
 
-    // Create the user using admin client (bypasses RLS)
-    const { data: newUser, error: createError } = await supabaseAdmin
+    // IMPORTANT: Check if user already exists in app_users FIRST
+    const { data: existingAppUser } = await supabaseAdmin
       .from('app_users')
-      .insert([{
-        name,
-        email,
-        role,
-        organization_id,
-        status: status || 'pending',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }])
-      .select()
+      .select('*')
+      .eq('email', email)
       .single();
 
-    if (createError) {
-      console.error('Error creating user:', createError);
-      return NextResponse.json({ error: createError.message }, { status: 500 });
-    }
-
-    // Grant role to the new user using Enterprise RBAC
-    if (newUser.auth_user_id || newUser.id) {
-      // Map legacy role name to Enterprise RBAC role
-      const rbacRoleName = LEGACY_ROLE_MAPPING[role] || RoleName.STAKEHOLDER;
-
-      if (access_level === 'site' && site_ids && site_ids.length > 0) {
-        // Grant site-specific roles
-        for (const site_id of site_ids) {
-          await RBACService.grantRole(
-            newUser.auth_user_id || newUser.id,
-            rbacRoleName,
-            organization_id,
-            site_id,
-            user.id
-          );
-        }
+    if (existingAppUser) {
+      // User already exists in app_users
+      if (existingAppUser.auth_user_id) {
+        // Already has auth account
+        return NextResponse.json({
+          error: 'User with this email already exists'
+        }, { status: 409 });
       } else {
-        // Grant organization-wide role
-        await RBACService.grantRole(
-          newUser.auth_user_id || newUser.id,
-          rbacRoleName,
-          organization_id,
-          undefined,
-          user.id
-        );
-      }
-
-      // Also store in permissions field for backward compatibility
-      if (access_level === 'site') {
+        // App user exists but no auth account - delete it first
         await supabaseAdmin
           .from('app_users')
-          .update({
-            permissions: {
-              access_level,
-              site_ids
+          .delete()
+          .eq('email', email);
+      }
+    }
+
+    // Detect user's language from request headers
+    const acceptLanguage = request.headers.get('accept-language') || '';
+    const languages = acceptLanguage.split(',').map(l => l.split(';')[0].trim().toLowerCase());
+    let userLanguage = 'en';
+    if (languages.some(l => l.startsWith('es'))) userLanguage = 'es';
+    else if (languages.some(l => l.startsWith('pt'))) userLanguage = 'pt';
+
+    // Get organization details for the email
+    const { data: orgData } = await supabaseAdmin
+      .from('organizations')
+      .select('name')
+      .eq('id', organization_id)
+      .single();
+
+    const organizationName = orgData?.name || 'Your Organization';
+
+    // Create the auth user WITHOUT sending Supabase's default invite
+    // We'll generate a random password that the user will reset
+    const tempPassword = Math.random().toString(36).slice(-16) + 'Aa1!'; // Meets password requirements
+
+    const { data: authUser, error: createUserError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password: tempPassword,
+      email_confirm: false, // Don't auto-confirm email
+      user_metadata: {
+        full_name: name,
+        display_name: name,
+        organization_id: organization_id,
+        language: userLanguage
+      }
+    });
+
+    // If user creation successful, send our custom invitation email
+    if (!createUserError && authUser) {
+      try {
+        // Generate password reset link
+        const { data: resetData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
+          type: 'invite',
+          email: email,
+          options: {
+            data: {
+              full_name: name,
+              organization_id: organization_id,
+              language: userLanguage
             }
-          })
-          .eq('id', newUser.id);
+          }
+        });
+
+        if (resetData && !resetError) {
+          // The Supabase invite link has the token in query params
+          // We need to use the direct Supabase link with proper redirect
+          const actionLink = resetData.properties.action_link;
+
+          // Parse and modify the Supabase URL to ensure proper redirect
+          const url = new URL(actionLink);
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+          // IMPORTANT: Update the redirect_to parameter to our auth callback page
+          // This ensures after Supabase verifies the token, it redirects to our callback
+          url.searchParams.delete('redirect_to');
+          url.searchParams.append('redirect_to', `${baseUrl}/auth/callback`);
+
+          // The modified Supabase URL that will redirect to our callback
+          const confirmationUrl = url.toString();
+
+          console.log('Invitation link generated:', confirmationUrl);
+
+          // Send our custom invitation email
+          await sendInvitationEmailViaGmail({
+            email,
+            userName: name,
+            organizationName,
+            inviterName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Team Admin',
+            role,
+            confirmationUrl,
+            language: userLanguage as 'en' | 'es' | 'pt'
+          });
+
+          console.log(`Custom invitation email sent to ${email} in ${userLanguage}`);
+        }
+      } catch (emailError) {
+        console.error('Error sending custom invitation email:', emailError);
+        // Continue even if email fails - user can still be created
+      }
+    }
+
+    if (createUserError) {
+      console.error('Error creating auth user:', createUserError);
+      // If invite fails, try to check if user already exists
+      const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+      const existingUser = existingUsers?.users?.find(u => u.email === email);
+
+      if (existingUser) {
+        // User already exists in auth, use their ID
+        const { data: newUser, error: createError } = await supabaseAdmin
+          .from('app_users')
+          .insert([{
+            name,
+            email,
+            role,
+            organization_id,
+            auth_user_id: existingUser.id,
+            status: status || 'active',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            permissions: {
+              access_level: access_level || 'organization',
+              site_ids: access_level === 'site' ? (site_ids || []) : []
+            }
+          }])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating app user:', createError);
+          return NextResponse.json({ error: createError.message }, { status: 500 });
+        }
+
+        return NextResponse.json({
+          user: { ...newUser, site_ids, access_level },
+          message: 'User created with existing auth account'
+        });
+      } else {
+        return NextResponse.json({ error: 'Failed to create auth account: ' + createUserError.message }, { status: 500 });
+      }
+    }
+
+    // Auth user created successfully
+    // The trigger should have created the app_users record, but let's check
+    // First, wait a brief moment for the trigger to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Check if the trigger created the user
+    let { data: newUser, error: fetchError } = await supabaseAdmin
+      .from('app_users')
+      .select()
+      .eq('email', email)
+      .single();
+
+    // If the trigger didn't create it (or there was an error), create it manually
+    if (!newUser || fetchError) {
+      const { data: createdUser, error: createError } = await supabaseAdmin
+        .from('app_users')
+        .insert([{
+          name,
+          email,
+          role,
+          organization_id,
+          auth_user_id: authUser.user.id,
+          status: 'pending', // Will become active after first login
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          permissions: {
+            access_level: access_level || 'organization',
+            site_ids: access_level === 'site' ? (site_ids || []) : []
+          }
+        }])
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('Error creating app user:', createError);
+        // If app_users creation fails, we should clean up the auth user
+        await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
+        return NextResponse.json({ error: createError.message }, { status: 500 });
+      }
+
+      newUser = createdUser;
+    } else {
+      // If trigger created it, update it with the correct data
+      const { data: updatedUser } = await supabaseAdmin
+        .from('app_users')
+        .update({
+          name,
+          role,
+          organization_id,
+          status: 'pending',
+          permissions: {
+            access_level: access_level || 'organization',
+            site_ids: access_level === 'site' ? (site_ids || []) : []
+          }
+        })
+        .eq('email', email)
+        .select()
+        .single();
+
+      if (updatedUser) {
+        newUser = updatedUser;
       }
     }
 
@@ -118,16 +281,38 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    // Check if user has permission to update users using Enterprise RBAC
-    const hasPermission = await RBACService.checkPermission({
-      user_id: user.id,
-      resource: 'user',
-      action: 'update',
-      organization_id
-    });
+    // Get the user being updated to check if it's self-update
+    const { data: targetUser } = await supabaseAdmin
+      .from('app_users')
+      .select('auth_user_id')
+      .eq('id', id)
+      .single();
 
-    if (!hasPermission.allowed) {
-      return NextResponse.json({ error: 'Insufficient permissions to update users' }, { status: 403 });
+    // Check if this is a self-update (user updating their own profile)
+    const isSelfUpdate = targetUser?.auth_user_id === user.id;
+
+    // If not self-update, check permissions
+    if (!isSelfUpdate) {
+      // Check if current user is super admin
+      const { data: superAdminCheck } = await supabaseAdmin
+        .from('super_admins')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      // Get current user's role
+      const { data: currentUser } = await supabaseAdmin
+        .from('app_users')
+        .select('role')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      // Only super admins, owners, and managers can update other users
+      const canUpdate = superAdminCheck || (currentUser && (currentUser.role === 'owner' || currentUser.role === 'manager'));
+
+      if (!canUpdate) {
+        return NextResponse.json({ error: 'Insufficient permissions to update users' }, { status: 403 });
+      }
     }
 
     // Update the user using admin client (bypasses RLS)
@@ -140,13 +325,16 @@ export async function PUT(request: NextRequest) {
       updated_at: new Date().toISOString()
     };
 
-    // Store access level and site_ids in permissions field
-    if (access_level) {
-      updateData.permissions = {
-        access_level,
-        site_ids: access_level === 'site' ? site_ids : []
-      };
-    }
+    // Store access level and site_ids in permissions field as JSONB
+    // Make sure site_ids is always an array
+    const siteIdsArray = Array.isArray(site_ids) ? site_ids : [];
+    updateData.permissions = {
+      access_level: access_level || 'organization',
+      site_ids: access_level === 'site' ? siteIdsArray : []
+    };
+
+    console.log('Updating user with data:', updateData);
+    console.log('User ID:', id);
 
     const { data: updatedUser, error: updateError } = await supabaseAdmin
       .from('app_users')
@@ -160,47 +348,9 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    // Update user roles using Enterprise RBAC
-    if (updatedUser.auth_user_id || id) {
-      // First, deactivate all existing roles for this user in the organization
-      const { data: existingRoles } = await supabaseAdmin
-        .from('user_roles')
-        .select('id')
-        .eq('user_id', updatedUser.auth_user_id || id)
-        .eq('organization_id', organization_id)
-        .eq('is_active', true);
-
-      if (existingRoles) {
-        for (const userRole of existingRoles) {
-          await RBACService.revokeRole(userRole.id);
-        }
-      }
-
-      // Map legacy role name to Enterprise RBAC role
-      const rbacRoleName = LEGACY_ROLE_MAPPING[role] || RoleName.STAKEHOLDER;
-
-      if (access_level === 'site' && site_ids && site_ids.length > 0) {
-        // Grant site-specific roles
-        for (const site_id of site_ids) {
-          await RBACService.grantRole(
-            updatedUser.auth_user_id || id,
-            rbacRoleName,
-            organization_id,
-            site_id,
-            user.id
-          );
-        }
-      } else {
-        // Grant organization-wide role
-        await RBACService.grantRole(
-          updatedUser.auth_user_id || id,
-          rbacRoleName,
-          organization_id,
-          undefined,
-          user.id
-        );
-      }
-    }
+    // Simple RBAC: Role is stored directly in app_users table
+    // Permissions field handles site-level access control
+    // No additional role management needed as role is already updated above
 
     return NextResponse.json({ user: { ...updatedUser, site_ids, access_level } });
   } catch (error: any) {
@@ -239,30 +389,35 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Check if current user has permission to delete users using Enterprise RBAC
-    const hasPermission = await RBACService.checkPermission({
-      user_id: user.id,
-      resource: 'user',
-      action: 'delete',
-      organization_id: targetUser.organization_id
-    });
+    // Check if current user is super admin
+    const { data: superAdminCheck } = await supabaseAdmin
+      .from('super_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
 
-    if (!hasPermission.allowed) {
+    // Check if current user has permission to delete users based on Simple RBAC
+    // Get current user's role
+    const { data: currentUser } = await supabaseAdmin
+      .from('app_users')
+      .select('role')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    // Only super admins, owners, and managers can delete users
+    const canDelete = superAdminCheck || (currentUser && (currentUser.role === 'owner' || currentUser.role === 'manager'));
+
+    if (!canDelete) {
       return NextResponse.json({ error: 'Insufficient permissions to delete users' }, { status: 403 });
     }
 
-    // Delete user_roles entries if they exist
-    const { data: tableExists } = await supabaseAdmin
-      .from('user_roles')
-      .select('id')
-      .limit(1);
-
-    if (tableExists !== null) {
-      await supabaseAdmin
-        .from('user_roles')
-        .delete()
-        .eq('user_id', targetUser.auth_user_id || userId);
-    }
+    // Simple RBAC: No user_roles table to clean up
+    // User access is stored in user_access table if needed
+    // Clean up user_access entries
+    await supabaseAdmin
+      .from('user_access')
+      .delete()
+      .eq('user_id', targetUser.auth_user_id || userId);
 
     // Delete the user using admin client (bypasses RLS)
     const { error: deleteError } = await supabaseAdmin

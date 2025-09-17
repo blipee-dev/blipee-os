@@ -1,173 +1,129 @@
 /**
- * Enterprise RBAC System Types
- * Based on docs/RBAC_SYSTEM_ARCHITECTURE.md
+ * RBAC System Types
+ * Simple 4-role system: owner, manager, member, viewer
  */
 
-// Role levels in the hierarchy
-export enum RoleLevel {
-  PLATFORM = 'platform',
-  ORGANIZATION = 'organization',
-  REGIONAL = 'regional',
-  SITE = 'site',
-  EXTERNAL = 'external'
+// Role names
+export enum SimpleRoleName {
+  OWNER = 'owner',
+  MANAGER = 'manager',
+  MEMBER = 'member',
+  VIEWER = 'viewer'
 }
 
-// System role names
-export enum RoleName {
-  // Platform
-  SUPER_ADMIN = 'SUPER_ADMIN',
-
-  // Organization
-  ORGANIZATION_OWNER = 'ORGANIZATION_OWNER',
-  ORGANIZATION_ADMIN = 'ORGANIZATION_ADMIN',
-  SUSTAINABILITY_DIRECTOR = 'SUSTAINABILITY_DIRECTOR',
-
-  // Regional
-  REGIONAL_MANAGER = 'REGIONAL_MANAGER',
-
-  // Site
-  SITE_MANAGER = 'SITE_MANAGER',
-  SITE_ANALYST = 'SITE_ANALYST',
-  SITE_OPERATOR = 'SITE_OPERATOR',
-
-  // External
-  AUDITOR = 'AUDITOR',
-  STAKEHOLDER = 'STAKEHOLDER'
-}
-
-// Legacy role mapping (for backward compatibility during migration)
-export const LEGACY_ROLE_MAPPING: Record<string, RoleName> = {
-  'account_owner': RoleName.ORGANIZATION_OWNER,
-  'sustainability_manager': RoleName.SUSTAINABILITY_DIRECTOR,
-  'facility_manager': RoleName.SITE_MANAGER,
-  'analyst': RoleName.SITE_ANALYST,
-  'viewer': RoleName.STAKEHOLDER
+// Legacy role mapping (for backward compatibility)
+export const LEGACY_TO_SIMPLE_MAPPING: Record<string, SimpleRoleName> = {
+  'account_owner': SimpleRoleName.OWNER,
+  'sustainability_manager': SimpleRoleName.MANAGER,
+  'facility_manager': SimpleRoleName.MEMBER,
+  'analyst': SimpleRoleName.MEMBER,
+  'viewer': SimpleRoleName.VIEWER,
+  'stakeholder': SimpleRoleName.VIEWER,
+  // Legacy Enterprise RBAC mappings (deprecated)
+  'ORGANIZATION_OWNER': SimpleRoleName.OWNER,
+  'ORGANIZATION_ADMIN': SimpleRoleName.MANAGER,
+  'SUSTAINABILITY_DIRECTOR': SimpleRoleName.MANAGER,
+  'REGIONAL_MANAGER': SimpleRoleName.MANAGER,
+  'SITE_MANAGER': SimpleRoleName.MEMBER,
+  'SITE_ANALYST': SimpleRoleName.MEMBER,
+  'SITE_OPERATOR': SimpleRoleName.MEMBER,
+  'AUDITOR': SimpleRoleName.VIEWER,
+  'STAKEHOLDER': SimpleRoleName.VIEWER
 };
 
-// Role definition
-export interface Role {
-  id: string;
-  name: RoleName;
-  level: RoleLevel;
-  permissions: Record<string, string[] | boolean>;
-  description: string;
-  is_system: boolean;
-  created_at: Date;
-  updated_at: Date;
-}
-
-// User role assignment
-export interface UserRole {
+// User access record (from user_access table)
+export interface UserAccess {
   id: string;
   user_id: string;
-  role_id: string;
-  organization_id: string;
-  site_id?: string;
-  region?: string;
+  resource_type: 'org' | 'site' | 'report' | string;
+  resource_id: string;
+  role: SimpleRoleName;
+  permissions?: Record<string, any>; // Override permissions if needed
   granted_by?: string;
   granted_at: Date;
   expires_at?: Date;
-  is_active: boolean;
   metadata?: Record<string, any>;
 }
 
-// Permission override
-export interface PermissionOverride {
-  id: string;
+// Super admin record (from super_admins table)
+export interface SuperAdmin {
   user_id: string;
-  organization_id: string;
-  site_id?: string;
-  resource_type: string;
-  resource_id?: string;
-  permission: string;
-  granted_by: string;
-  reason: string;
-  expires_at?: Date;
-  created_at: Date;
+  granted_by?: string;
+  granted_at: Date;
+  reason?: string;
 }
 
-// Delegation
-export interface Delegation {
-  id: string;
-  delegator_user_id: string;
-  delegate_user_id: string;
-  delegator_role_id: string;
-  scope: 'full' | 'partial';
-  permissions?: Record<string, string[]>;
-  reason: string;
-  starts_at: Date;
-  ends_at?: Date;
-  is_active: boolean;
-  approved_by?: string;
-  approved_at?: Date;
+// Role permissions structure
+export interface RolePermissions {
+  organization?: string[];
+  sites?: string[];
+  users?: string[];
+  billing?: string[];
+  settings?: string[];
+  reports?: string[];
+  data?: string[];
+  devices?: string[];
 }
 
-// Permission check result
-export interface PermissionCheckResult {
-  allowed: boolean;
-  role?: string;
-  source: 'role' | 'override' | 'delegation' | 'super_admin';
-  expires_at?: Date;
+// Role definition
+export interface SimpleRole {
+  name: SimpleRoleName;
+  level: 'org' | 'site';
+  base_permissions: RolePermissions;
+  description: string;
 }
 
-// User's complete access profile
-export interface UserAccessProfile {
-  user_id: string;
-  is_super_admin: boolean;
-  roles: UserRoleInfo[];
-  overrides: PermissionOverride[];
-  delegations: Delegation[];
-}
-
-export interface UserRoleInfo {
-  role_name: RoleName;
-  role_level: RoleLevel;
-  organization_id: string;
-  organization_name?: string;
-  site_id?: string;
-  site_name?: string;
-  region?: string;
-  is_active: boolean;
-  expires_at?: Date;
-}
-
-// Resource types that can have permissions
-export type ResourceType =
-  | 'organization'
-  | 'site'
-  | 'user'
-  | 'report'
-  | 'emission'
-  | 'target'
-  | 'device'
-  | 'billing'
-  | 'settings'
-  | 'compliance'
-  | 'audit_trail';
-
-// Actions that can be performed on resources
-export type Action =
-  | 'create'
-  | 'read'
-  | 'update'
-  | 'delete'
-  | 'approve'
-  | 'export'
-  | 'analyze'
-  | '*'; // All actions
-
-// Permission structure
-export interface Permission {
-  resource: ResourceType;
-  actions: Action[];
-}
-
-// Helper type for permission checking
-export interface PermissionContext {
-  user_id: string;
-  resource: ResourceType;
-  action: Action;
-  organization_id?: string;
-  site_id?: string;
-  resource_id?: string;
-}
+// Role definitions with permissions
+export const SIMPLE_RBAC_ROLES: Record<SimpleRoleName, SimpleRole> = {
+  [SimpleRoleName.OWNER]: {
+    name: SimpleRoleName.OWNER,
+    level: 'org',
+    base_permissions: {
+      organization: ['*'],
+      sites: ['*'],
+      users: ['*'],
+      billing: ['*'],
+      settings: ['*'],
+      reports: ['*'],
+      data: ['*'],
+      devices: ['*']
+    },
+    description: 'Organization owner - full control'
+  },
+  [SimpleRoleName.MANAGER]: {
+    name: SimpleRoleName.MANAGER,
+    level: 'org',
+    base_permissions: {
+      organization: ['read', 'update'],
+      sites: ['*'],
+      users: ['create', 'read', 'update'],
+      settings: ['read', 'update'],
+      reports: ['*'],
+      data: ['*'],
+      devices: ['*']
+    },
+    description: 'Organization manager - manages sites and users'
+  },
+  [SimpleRoleName.MEMBER]: {
+    name: SimpleRoleName.MEMBER,
+    level: 'site',
+    base_permissions: {
+      sites: ['read', 'update'],
+      reports: ['create', 'read'],
+      data: ['create', 'read', 'update'],
+      devices: ['read', 'update']
+    },
+    description: 'Site member - can edit data and create reports'
+  },
+  [SimpleRoleName.VIEWER]: {
+    name: SimpleRoleName.VIEWER,
+    level: 'site',
+    base_permissions: {
+      sites: ['read'],
+      reports: ['read'],
+      data: ['read'],
+      devices: ['read']
+    },
+    description: 'Viewer - read-only access'
+  }
+};

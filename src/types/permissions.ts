@@ -2,12 +2,11 @@
  * Permission System Types
  */
 
-// Core role hierarchy
+// Simple RBAC roles
 export enum Role {
-  ACCOUNT_OWNER = 'account_owner',
-  SUSTAINABILITY_MANAGER = 'sustainability_manager',
-  FACILITY_MANAGER = 'facility_manager',
-  ANALYST = 'analyst',
+  OWNER = 'owner',
+  MANAGER = 'manager',
+  MEMBER = 'member',
   VIEWER = 'viewer'
 }
 
