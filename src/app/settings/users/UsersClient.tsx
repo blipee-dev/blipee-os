@@ -268,48 +268,43 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
     if (!confirm(confirmMessage)) return;
 
     setIsDeleting(true);
-    let successCount = 0;
-    let errorCount = 0;
 
     try {
-      // Delete users one by one
-      for (const userId of selectedUsers) {
-        try {
-          const response = await fetch(`/api/users/manage?id=${userId}`, {
-            method: 'DELETE',
+      // Use bulk delete endpoint for better performance
+      const response = await fetch('/api/users/bulk-delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userIds: Array.from(selectedUsers)
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Error in bulk delete:', error);
+        toast.error(t('bulkDeleteError') || 'Failed to delete users');
+        return;
+      }
+
+      const result = await response.json();
+
+      // Show results based on API response
+      if (result.successCount > 0) {
+        toast.success(t('bulkDeleteSuccess', { count: result.successCount }) ||
+                     `Successfully deleted ${result.successCount} users`);
+      }
+      if (result.failedCount > 0) {
+        toast.error(t('bulkDeletePartialError', { count: result.failedCount }) ||
+                   `Failed to delete ${result.failedCount} users`);
+
+        // Log specific errors if available
+        if (result.errors) {
+          result.errors.forEach((err: any) => {
+            console.error(`Failed to delete ${err.email}: ${err.error}`);
           });
-
-          if (response.ok) {
-            successCount++;
-
-            // Log audit event for each user deletion
-            const user = users.find(u => u.id === userId);
-            if (user) {
-              await auditLogger.logDataOperation(
-                'delete',
-                'user',
-                userId,
-                user.name,
-                'success'
-              );
-            }
-          } else {
-            errorCount++;
-          }
-        } catch (error) {
-          console.error(`Error deleting user ${userId}:`, error);
-          errorCount++;
         }
-      }
-
-      // Show results
-      if (successCount > 0) {
-        toast.success(t('bulkDeleteSuccess', { count: successCount }) ||
-                     `Successfully deleted ${successCount} users`);
-      }
-      if (errorCount > 0) {
-        toast.error(t('bulkDeleteError', { count: errorCount }) ||
-                   `Failed to delete ${errorCount} users`);
       }
 
       // Clear selection
