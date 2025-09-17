@@ -44,20 +44,66 @@ async function signInHandler(request: NextRequest) {
       console.log('🔥 DIRECT LOGIN TRACKING: Updating user login status for user:', result.user.id);
       
       try {
-        const supabase = await createClient();
-        
-        // Get current user status
-        const { data: currentUser, error: selectError } = await supabase
+        // Use admin client to bypass RLS
+        const { createClient: createAdminClient } = await import("@supabase/supabase-js");
+        const supabaseAdmin = createAdminClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          {
+            auth: {
+              persistSession: false,
+              autoRefreshToken: false,
+            },
+          }
+        );
+
+        // Get current user status - first check by auth_user_id
+        let { data: currentUser, error: selectError } = await supabaseAdmin
           .from('app_users')
-          .select('status')
+          .select('id, status, auth_user_id')
           .eq('auth_user_id', result.user.id)
           .single();
+
+        // If not found by auth_user_id, check by email (for legacy records)
+        if (selectError && selectError.code === 'PGRST116' && result.user.email) {
+          console.log('👤 User not found by auth_user_id, checking by email...');
+          const { data: userByEmail, error: emailError } = await supabaseAdmin
+            .from('app_users')
+            .select('id, status, auth_user_id')
+            .eq('email', result.user.email)
+            .single();
+
+          if (userByEmail && !userByEmail.auth_user_id) {
+            // User exists but missing auth_user_id, update it
+            console.log('🔄 Updating existing user with auth_user_id');
+            const { error: updateError } = await supabaseAdmin
+              .from('app_users')
+              .update({
+                auth_user_id: result.user.id,
+                status: 'active',
+                last_login: new Date().toISOString(),
+              })
+              .eq('id', userByEmail.id);
+
+            if (updateError) {
+              console.error('❌ Error updating user auth_user_id:', updateError);
+            } else {
+              console.log('✅ Successfully linked user to auth account');
+              currentUser = { ...userByEmail, auth_user_id: result.user.id, status: 'active' };
+              selectError = null;
+            }
+          } else if (userByEmail) {
+            // User exists with different auth_user_id
+            currentUser = userByEmail;
+            selectError = null;
+          }
+        }
 
         if (selectError && selectError.code === 'PGRST116') {
           // User doesn't exist in app_users table, create them
           console.log('👤 User not found in app_users, creating record...');
-          
-          const { error: insertError } = await supabase
+
+          const { error: insertError } = await supabaseAdmin
             .from('app_users')
             .insert({
               auth_user_id: result.user.id,
@@ -91,7 +137,7 @@ async function signInHandler(request: NextRequest) {
 
           console.log('💾 Updating with data:', updateData);
 
-          const { error: updateError } = await supabase
+          const { error: updateError } = await supabaseAdmin
             .from('app_users')
             .update(updateData)
             .eq('auth_user_id', result.user.id);

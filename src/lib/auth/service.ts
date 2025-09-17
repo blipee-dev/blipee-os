@@ -94,8 +94,9 @@ export class AuthService {
         }
       }
 
-      // Step 4: Get user profile
-      const { data: profile } = await supabase
+      // Step 4: Get user profile using admin client to bypass RLS
+      const adminSupabase = await this.getSupabaseAdmin();
+      const { data: profile } = await adminSupabase
         .from("app_users")
         .select("*")
         .eq("auth_user_id", userId)
@@ -166,8 +167,10 @@ export class AuthService {
 
     // Wait for trigger to create profile, then get it
     await new Promise(resolve => setTimeout(resolve, 100));
-    
-    const { data: profile, error: profileError } = await supabase
+
+    // Use admin client to bypass RLS
+    const adminSupabase = await this.getSupabaseAdmin();
+    const { data: profile, error: profileError } = await adminSupabase
       .from("app_users")
       .select("*")
       .eq("auth_user_id", authData.user.id)
@@ -178,7 +181,7 @@ export class AuthService {
     }
     
     // Update AI settings based on role
-    const { error: updateError } = await supabase
+    const { error: updateError } = await adminSupabase
       .from("app_users")
       .update({
         ai_personality_settings: this.getDefaultAISettings(metadata.role),
@@ -240,15 +243,18 @@ export class AuthService {
 
     console.log('✅ Supabase auth successful, user ID:', authData.user.id);
 
+    // Use admin client to bypass RLS for fetching user data
+    const adminSupabase = await this.getSupabaseAdmin();
+
     // Parallelize MFA config and profile fetching for faster signin
     const [mfaResult, profileResult] = await Promise.all([
-      supabase
+      adminSupabase
         .from("user_mfa_config")
         .select("*")
         .eq("user_id", authData.user.id)
         .eq("enabled", true)
         .single(),
-      supabase
+      adminSupabase
         .from("app_users")
         .select("*")
         .eq("auth_user_id", authData.user.id)
@@ -356,53 +362,67 @@ export class AuthService {
     // Use admin client to bypass RLS issues
     const adminSupabase = await this.getSupabaseAdmin();
 
-    // Parallelize profile and memberships fetching for faster session loading
-    const [profileResult, membershipsResult] = await Promise.all([
-      adminSupabase
-        .from("app_users")
-        .select("*")
-        .eq("auth_user_id", user.id)
-        .single(),
-      adminSupabase
-        .from("organization_members")
-        .select(
-          `
-          *,
-          organization:organizations(*)
-        `,
-        )
-        .eq("user_id", user.id)
-        .eq("invitation_status", "accepted")
-    ]);
+    // Get user profile with organization
+    const { data: profile, error: profileError } = await adminSupabase
+      .from("app_users")
+      .select(`
+        *,
+        organization:organizations(*)
+      `)
+      .eq("auth_user_id", user.id)
+      .single();
 
-    const profile = profileResult.data;
-    const memberships = membershipsResult.data;
-
-    // Return session even if no organizations
-    if (!memberships || memberships.length === 0) {
-      return {
-        user: profile,
-        organizations: [],
-        current_organization: null,
-        permissions: [],
-        expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
-      };
+    if (profileError || !profile) {
+      console.error('Failed to fetch user profile:', profileError);
+      return null;
     }
 
-    // Get current organization (first one for now)
-    const currentMembership = memberships[0];
-    const currentOrg = currentMembership.organization as Organization;
+    // Check for organization_members entries (for invited users)
+    const { data: memberships } = await adminSupabase
+      .from("organization_members")
+      .select(`
+        *,
+        organization:organizations(*)
+      `)
+      .eq("user_id", profile.id)  // Use profile.id, not auth user.id
+      .eq("invitation_status", "accepted");
 
-    // Get user's permissions
-    const permissions = this.buildPermissions(
-      currentMembership.role,
-      currentMembership.permissions,
-    );
+    // Build organizations list
+    const organizations: Organization[] = [];
+    let currentOrganization: Organization | null = null;
+    let userRole = profile.role || 'viewer';
+    let userPermissions: any = null;
+
+    // If user has a direct organization assignment in app_users
+    if (profile.organization_id && profile.organization) {
+      organizations.push(profile.organization as Organization);
+      currentOrganization = profile.organization as Organization;
+      userPermissions = profile.permissions;
+    }
+
+    // Add any organizations from memberships table (for invited users)
+    if (memberships && memberships.length > 0) {
+      for (const membership of memberships) {
+        if (membership.organization &&
+            !organizations.find(org => org.id === membership.organization.id)) {
+          organizations.push(membership.organization as Organization);
+        }
+      }
+      // If no current org set yet, use first membership
+      if (!currentOrganization && memberships[0]?.organization) {
+        currentOrganization = memberships[0].organization as Organization;
+        userRole = memberships[0].role || userRole;
+        userPermissions = memberships[0].permissions || userPermissions;
+      }
+    }
+
+    // Build permissions based on role
+    const permissions = this.buildPermissions(userRole, userPermissions);
 
     return {
       user: profile,
-      organizations: memberships.map((m) => m.organization as Organization),
-      current_organization: currentOrg,
+      organizations,
+      current_organization: currentOrganization,
       permissions,
       expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours
     };

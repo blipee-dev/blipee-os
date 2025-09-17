@@ -22,7 +22,8 @@
       "Bash(git merge:*)",
       "Bash(gh pr list:*)",
       "Bash(git rev-parse:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Read(//Users/pedro/.npm/_logs/**)"
     ],
     "deny": [],
     "ask": []
