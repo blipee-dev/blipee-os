@@ -5,7 +5,16 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_9Xhhlz/**)",
-      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_Ic5Dm0/**)"
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_Ic5Dm0/**)",
+      "Bash(find:*)",
+      "Bash(psql:*)",
+      "Bash(npx supabase:*)",
+      "Bash(grep:*)",
+      "Bash(chmod:*)",
+      "Bash(node:*)",
+      "Bash(gh pr view:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_f87jUo/**)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

@@ -119,12 +119,20 @@ export async function middleware(request: NextRequest) {
   const startTime = Date.now();
   const path = request.nextUrl.pathname;
   const method = request.method;
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-             request.headers.get('x-real-ip') || 
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
+             request.headers.get('x-real-ip') ||
              '127.0.0.1';
-  
+
   // Clean corrupted cookies from the request
   cleanCorruptedCookies(request);
+
+  // Handle Supabase auth redirects with tokens in query params
+  // This is for when Supabase redirects to root with auth tokens
+  if (path === '/' && request.nextUrl.searchParams.has('access_token')) {
+    const callbackUrl = new URL('/auth/callback', request.url);
+    callbackUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(callbackUrl);
+  }
 
   // Apply tracing first (wraps everything in a trace context)
   try {

@@ -168,7 +168,11 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.error || 'Failed to create user');
+          // Provide user-friendly error messages
+          if (response.status === 409) {
+            throw new Error(t('modal.errors.userAlreadyExists') || 'A user with this email already exists');
+          }
+          throw new Error(result.error || t('modal.errors.failedToCreateUser') || 'Failed to create user');
         }
 
         // Log audit event for user creation
@@ -180,10 +184,13 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
           'success'
         );
 
-        // TODO: Send invitation email if formData.sendInvite is true
-        if (formData.sendInvite) {
-          // Implement invitation logic here
-          console.log('Should send invitation to:', formData.email);
+        // Show success message
+        setSuccess(true);
+        if (result.message === 'User created with existing auth account') {
+          console.log('User linked to existing auth account');
+        } else if (formData.sendInvite) {
+          // Invitation email is sent automatically by Supabase
+          console.log('Invitation email sent to:', formData.email);
         }
 
       } else if (mode === 'edit') {
@@ -494,11 +501,10 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                             value={formData.role}
                             onChange={(value) => setFormData({...formData, role: value as string})}
                             options={[
-                              { value: "account_owner", label: t('modal.roles.account_owner') },
-                              { value: "sustainability_manager", label: t('modal.roles.sustainability_manager') },
-                              { value: "facility_manager", label: t('modal.roles.facility_manager') },
-                              { value: "analyst", label: t('modal.roles.analyst') },
-                              { value: "viewer", label: t('modal.roles.viewer') }
+                              { value: "owner", label: t('modal.roles.owner') || 'Owner' },
+                              { value: "manager", label: t('modal.roles.manager') || 'Manager' },
+                              { value: "member", label: t('modal.roles.member') || 'Member' },
+                              { value: "viewer", label: t('modal.roles.viewer') || 'Viewer' }
                             ]}
                             disabled={mode === 'view'}
                             className="w-full"

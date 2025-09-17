@@ -1803,6 +1803,11 @@
         "actions": "Acciones",
         "avgPerDay": "promedio por día"
       },
+      "status": {
+        "active": "Activo",
+        "inactive": "Inactivo",
+        "pending": "Pendiente"
+      },
       "modal": {
         "createTitle": "Agregar Nuevo Usuario",
         "editTitle": "Editar Usuario",
@@ -2111,6 +2116,37 @@
       "backToSignIn": "Volver a Iniciar Sesión",
       "successMessage": "¡Enlace enviado! Revisa tu correo.",
       "errorMessage": "Error al enviar el enlace. Por favor intenta de nuevo."
+    },
+    "setPassword": {
+      "title": "Establece Tu Contraseña",
+      "subtitle": "Crea una contraseña segura para acceder a tu cuenta",
+      "welcome": "Bienvenido",
+      "accountCreatedFor": "Tu cuenta ha sido creada para",
+      "newPassword": "Nueva Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "enterPassword": "Ingresa tu nueva contraseña",
+      "confirmPasswordPlaceholder": "Vuelve a ingresar tu contraseña",
+      "passwordRequirements": "Requisitos de la Contraseña:",
+      "req1": "Al menos 8 caracteres",
+      "req2": "Una letra mayúscula",
+      "req3": "Una letra minúscula",
+      "req4": "Un número",
+      "setPasswordButton": "Establecer Contraseña y Continuar",
+      "settingPassword": "Estableciendo Contraseña...",
+      "passwordsDontMatch": "Las contraseñas no coinciden",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+      "passwordNeedsUppercase": "La contraseña debe contener al menos una letra mayúscula",
+      "passwordNeedsLowercase": "La contraseña debe contener al menos una letra minúscula",
+      "passwordNeedsNumber": "La contraseña debe contener al menos un número",
+      "failedToSetPassword": "Error al establecer la contraseña",
+      "passwordSetSuccess": "¡Contraseña establecida exitosamente!",
+      "redirectingToDashboard": "Redirigiendo al panel de control...",
+      "resetLinkSent": "¡Revisa tu correo!",
+      "emailSentMessage": "Hemos enviado un enlace de restablecimiento a",
+      "didntReceiveEmail": "¿No recibiste el correo?",
+      "tryAgain": "Intentar de nuevo",
+      "backToSignIn": "Volver a Iniciar Sesión",
+      "sending": "Enviando..."
     }
   },
   "notFound": {

@@ -634,14 +634,17 @@
         "uploadSuccess": "Profile photo updated successfully"
       },
       "roles": {
+        "owner": "Owner",
+        "manager": "Manager",
+        "member": "Member",
+        "viewer": "Viewer",
         "super_admin": "Super Admin",
         "platform_developer": "Platform Developer",
         "account_owner": "Account Owner",
         "sustainability_manager": "Sustainability Manager",
         "facility_manager": "Facility Manager",
         "analyst": "Analyst",
-        "user": "User",
-        "viewer": "Viewer"
+        "user": "User"
       },
       "personalInformation": {
         "title": "Personal Information",
@@ -1799,6 +1802,11 @@
       "failedToLoad": "Failed to load users",
       "retry": "Retry",
       "failedToDelete": "Failed to delete user",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "pending": "Pending"
+      },
       "table": {
         "user": "User",
         "organization": "Organization",
@@ -1860,12 +1868,15 @@
           "email": "Enter email address"
         },
         "roles": {
+          "owner": "Owner",
+          "manager": "Manager",
+          "member": "Member",
+          "viewer": "Viewer",
           "super_admin": "Super Admin",
           "account_owner": "Account Owner",
           "sustainability_manager": "Sustainability Manager",
           "facility_manager": "Facility Manager",
-          "analyst": "Analyst",
-          "viewer": "Viewer"
+          "analyst": "Analyst"
         },
         "statuses": {
           "active": "Active",
@@ -1902,6 +1913,10 @@
         }
       },
       "roles": {
+        "owner": "Owner",
+        "manager": "Manager",
+        "member": "Member",
+        "viewer": "Viewer",
         "account_owner": "Account Owner",
         "sustainability_manager": "Sustainability Manager",
         "facility_manager": "Facility Manager",
@@ -2109,6 +2124,37 @@
       "backToSignIn": "Back to Sign In",
       "successMessage": "Reset link sent! Check your email.",
       "errorMessage": "Failed to send reset link. Please try again."
+    },
+    "setPassword": {
+      "title": "Set Your Password",
+      "subtitle": "Create a secure password to access your account",
+      "welcome": "Welcome",
+      "accountCreatedFor": "Your account has been created for",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "enterPassword": "Enter your new password",
+      "confirmPasswordPlaceholder": "Re-enter your password",
+      "passwordRequirements": "Password Requirements:",
+      "req1": "At least 8 characters",
+      "req2": "One uppercase letter",
+      "req3": "One lowercase letter",
+      "req4": "One number",
+      "setPasswordButton": "Set Password & Continue",
+      "settingPassword": "Setting Password...",
+      "passwordsDontMatch": "Passwords don't match",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordNeedsUppercase": "Password must contain at least one uppercase letter",
+      "passwordNeedsLowercase": "Password must contain at least one lowercase letter",
+      "passwordNeedsNumber": "Password must contain at least one number",
+      "failedToSetPassword": "Failed to set password",
+      "passwordSetSuccess": "Password set successfully!",
+      "redirectingToDashboard": "Redirecting to dashboard...",
+      "resetLinkSent": "Check your email!",
+      "emailSentMessage": "We've sent a password reset link to",
+      "didntReceiveEmail": "Didn't receive the email?",
+      "tryAgain": "Try again",
+      "backToSignIn": "Back to Sign In",
+      "sending": "Sending..."
     }
   },
   "conversation": {

@@ -28,8 +28,8 @@ export default async function DevicesPage() {
   let devices: any[] = [];
 
   if (isSuperAdmin) {
-    // Super admin can see all organizations and devices
-    const { data: allOrgs, error: orgsError } = await supabase
+    // Super admin can see all organizations and devices (using admin client to bypass RLS)
+    const { data: allOrgs, error: orgsError } = await supabaseAdmin
       .from('organizations')
       .select('id, name, slug')
       .order('name');
@@ -44,8 +44,8 @@ export default async function DevicesPage() {
       organizations: org 
     })) || [];
     
-    // Fetch ALL sites
-    const { data: allSites, error: sitesError } = await supabase
+    // Fetch ALL sites (using admin client to bypass RLS)
+    const { data: allSites, error: sitesError } = await supabaseAdmin
       .from('sites')
       .select('id, name, organization_id')
       .order('name');
@@ -56,8 +56,8 @@ export default async function DevicesPage() {
 
     sites = allSites || [];
     
-    // Fetch ALL devices
-    const { data: allDevices, error: devicesError } = await supabase
+    // Fetch ALL devices (using admin client to bypass RLS)
+    const { data: allDevices, error: devicesError } = await supabaseAdmin
       .from('devices')
       .select(`
         *,

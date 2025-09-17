@@ -27,8 +27,8 @@ export default async function SitesPage() {
   let sites;
 
   if (isSuperAdmin) {
-    // Super admin can see all organizations and sites
-    const { data: allOrgs, error: orgsError } = await supabase
+    // Super admin can see all organizations and sites (using admin client to bypass RLS)
+    const { data: allOrgs, error: orgsError } = await supabaseAdmin
       .from('organizations')
       .select('id, name, slug')
       .order('name');
@@ -43,8 +43,8 @@ export default async function SitesPage() {
       organizations: org 
     })) || [];
     
-    // Fetch ALL sites for super admin
-    const { data: allSites, error: sitesError } = await supabase
+    // Fetch ALL sites for super admin (using admin client to bypass RLS)
+    const { data: allSites, error: sitesError } = await supabaseAdmin
       .from('sites')
       .select(`
         *,

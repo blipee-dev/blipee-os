@@ -100,21 +100,24 @@ export default function OrganizationSettingsPage() {
       let orgs = [];
 
       if (isSuperAdmin) {
-        // Super admins see ALL organizations
+        // Super admins see ALL organizations - use API endpoint that uses admin client
         console.log("Fetching ALL organizations for super admin...");
-        const { data: allOrgs, error: allOrgsError } = await supabase
-          .from("organizations")
-          .select("id, name, legal_name, slug, industry_primary, industry_secondary, company_size, website, logo_url, public_company, stock_ticker, primary_contact_email, primary_contact_phone, headquarters_address, billing_address, subscription_tier, subscription_status, subscription_seats, subscription_started_at, subscription_expires_at, enabled_features, compliance_frameworks, brand_colors, data_residency_region, gri_sector_id, industry_classification_id, industry_confidence, account_owner_id, metadata, settings, created_at, updated_at");
 
-        if (allOrgsError) throw allOrgsError;
+        const response = await fetch('/api/organizations/all');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch all organizations');
+        }
+
+        const { organizations: allOrgs } = await response.json();
 
         // Transform to match expected format
         orgs =
-          allOrgs?.map((org) => ({
+          allOrgs?.map((org: any) => ({
             ...org,
             role: "super_admin", // Super admins have special role
-            sites: org.sites || 0, // Keep the count from API
-            users: org.users || 0, // Keep the count from API
+            sites: org.sites || 0, // Already has count from API
+            users: org.users || 0, // Already has count from API
             status: org.subscription_status || "active",
             industry: org.industry_primary || "",
           })) || [];

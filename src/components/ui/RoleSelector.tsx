@@ -1,11 +1,11 @@
 /**
  * Role Selector Component
- * For selecting user roles in forms with new RBAC system
+ * For selecting user roles with Simple RBAC system (4 roles)
  */
 
 import React from 'react';
-import { Role, getAvailableRoles } from '@/lib/permissions/roles';
 import { CustomDropdown } from './CustomDropdown';
+import { SimpleRoleName, SIMPLE_RBAC_ROLES } from '@/lib/rbac/types';
 
 interface RoleSelectorProps {
   value: string;
@@ -15,29 +15,35 @@ interface RoleSelectorProps {
   className?: string;
 }
 
-export function RoleSelector({ 
-  value, 
-  onChange, 
+export function RoleSelector({
+  value,
+  onChange,
   disabled = false,
   currentUserRole,
   className = ''
 }: RoleSelectorProps) {
-  const availableRoles = getAvailableRoles();
-  
+  // Simple RBAC roles
+  const simpleRoles = [
+    { value: 'owner', label: 'Owner', description: SIMPLE_RBAC_ROLES.owner.description },
+    { value: 'manager', label: 'Manager', description: SIMPLE_RBAC_ROLES.manager.description },
+    { value: 'member', label: 'Member', description: SIMPLE_RBAC_ROLES.member.description },
+    { value: 'viewer', label: 'Viewer', description: SIMPLE_RBAC_ROLES.viewer.description }
+  ];
+
   // Filter roles based on current user's role (can't assign higher roles)
+  const hierarchy: Record<string, number> = {
+    owner: 4,
+    manager: 3,
+    member: 2,
+    viewer: 1
+  };
+
   const filteredRoles = currentUserRole
-    ? availableRoles.filter(role => {
-        const hierarchy: Record<string, number> = {
-          account_owner: 5,
-          sustainability_manager: 4,
-          facility_manager: 3,
-          analyst: 2,
-          viewer: 1
-        };
+    ? simpleRoles.filter(role => {
         return hierarchy[role.value] <= (hierarchy[currentUserRole] || 0);
       })
-    : availableRoles;
-  
+    : simpleRoles;
+
   const options = filteredRoles.map(role => ({
     value: role.value,
     label: role.label,
@@ -72,23 +78,29 @@ export function SimpleRoleSelector({
   disabled = false,
   className = ''
 }: Omit<RoleSelectorProps, 'currentUserRole'>) {
-  const roles = getAvailableRoles();
-  
+  // Simple RBAC roles
+  const simpleRoles = [
+    { value: 'owner', label: 'Owner' },
+    { value: 'manager', label: 'Manager' },
+    { value: 'member', label: 'Member' },
+    { value: 'viewer', label: 'Viewer' }
+  ];
+
   return (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
       className={`
-        px-3 py-2 bg-white dark:bg-[#212121] 
-        border border-gray-200 dark:border-white/[0.05] 
-        rounded-lg text-gray-900 dark:text-white 
+        px-3 py-2 bg-white dark:bg-[#212121]
+        border border-gray-200 dark:border-white/[0.05]
+        rounded-lg text-gray-900 dark:text-white
         focus:outline-none focus:ring-2 accent-ring
         disabled:opacity-50 disabled:cursor-not-allowed
         ${className}
       `}
     >
-      {roles.map(role => (
+      {simpleRoles.map(role => (
         <option key={role.value} value={role.value}>
           {role.label}
         </option>

@@ -1941,6 +1941,11 @@
         "actions": "Ações",
         "avgPerDay": "média por dia"
       },
+      "status": {
+        "active": "Ativo",
+        "inactive": "Inativo",
+        "pending": "Pendente"
+      },
       "modal": {
         "createTitle": "Adicionar Novo Utilizador",
         "editTitle": "Editar Utilizador",
@@ -2249,6 +2254,37 @@
       "backToSignIn": "Voltar para Entrar",
       "successMessage": "Link enviado! Verifique seu email.",
       "errorMessage": "Falha ao enviar o link. Por favor, tente novamente."
+    },
+    "setPassword": {
+      "title": "Defina Sua Senha",
+      "subtitle": "Crie uma senha segura para acessar sua conta",
+      "welcome": "Bem-vindo",
+      "accountCreatedFor": "Sua conta foi criada para",
+      "newPassword": "Nova Senha",
+      "confirmPassword": "Confirmar Senha",
+      "enterPassword": "Digite sua nova senha",
+      "confirmPasswordPlaceholder": "Digite novamente sua senha",
+      "passwordRequirements": "Requisitos da Senha:",
+      "req1": "Pelo menos 8 caracteres",
+      "req2": "Uma letra maiúscula",
+      "req3": "Uma letra minúscula",
+      "req4": "Um número",
+      "setPasswordButton": "Definir Senha e Continuar",
+      "settingPassword": "Definindo Senha...",
+      "passwordsDontMatch": "As senhas não coincidem",
+      "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+      "passwordNeedsUppercase": "A senha deve conter pelo menos uma letra maiúscula",
+      "passwordNeedsLowercase": "A senha deve conter pelo menos uma letra minúscula",
+      "passwordNeedsNumber": "A senha deve conter pelo menos um número",
+      "failedToSetPassword": "Falha ao definir a senha",
+      "passwordSetSuccess": "Senha definida com sucesso!",
+      "redirectingToDashboard": "Redirecionando para o painel...",
+      "resetLinkSent": "Verifique seu email!",
+      "emailSentMessage": "Enviamos um link de redefinição para",
+      "didntReceiveEmail": "Não recebeu o email?",
+      "tryAgain": "Tentar novamente",
+      "backToSignIn": "Voltar para Entrar",
+      "sending": "Enviando..."
     }
   },
   "notFound": {
