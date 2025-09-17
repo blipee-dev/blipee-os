@@ -259,6 +259,35 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
     }
   };
 
+  const handleResendInvitation = async (user: AppUser) => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/users/resend-invitation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Error resending invitation:', error);
+        toast.error(error.error || 'Failed to resend invitation');
+        return;
+      }
+
+      toast.success(t('invitationResent') || `Invitation resent to ${user.email}`);
+    } catch (error) {
+      console.error('Error resending invitation:', error);
+      toast.error(t('failedToResend') || 'Failed to resend invitation');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleBulkDelete = async () => {
     if (selectedUsers.size === 0) return;
 
@@ -738,9 +767,20 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                           )}
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                            {t(`modal.statuses.${user.status}` as any) || user.status}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
+                              {t(`modal.statuses.${user.status}` as any) || user.status}
+                            </span>
+                            {canManage && (user.status === 'pending' || !user.last_login) && (
+                              <button
+                                onClick={() => handleResendInvitation(user)}
+                                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
+                                title="Resend invitation email"
+                              >
+                                {t('resendInvite') || 'Resend'}
+                              </button>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-white">

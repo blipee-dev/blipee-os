@@ -1802,6 +1802,9 @@
       "failedToLoad": "Failed to load users",
       "retry": "Retry",
       "failedToDelete": "Failed to delete user",
+      "invitationResent": "Invitation email sent successfully",
+      "failedToResend": "Failed to resend invitation",
+      "resendInvite": "Resend",
       "status": {
         "active": "Active",
         "inactive": "Inactive",
