@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
+import {
   Users,
   Plus,
   Search,
@@ -15,7 +15,10 @@ import {
   ChevronsRight,
   Shield,
   Phone,
-  Mail
+  Mail,
+  Trash2,
+  CheckSquare,
+  Square
 } from "lucide-react";
 import UsersModal from "@/components/admin/UsersModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
@@ -63,6 +66,8 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
@@ -251,6 +256,90 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
       toast.error(t('failedToDelete') || 'Failed to delete user');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedUsers.size === 0) return;
+
+    const confirmMessage = t('modal.confirmBulkDelete', { count: selectedUsers.size }) ||
+                           `Are you sure you want to delete ${selectedUsers.size} users?`;
+
+    if (!confirm(confirmMessage)) return;
+
+    setIsDeleting(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    try {
+      // Delete users one by one
+      for (const userId of selectedUsers) {
+        try {
+          const response = await fetch(`/api/users/manage?id=${userId}`, {
+            method: 'DELETE',
+          });
+
+          if (response.ok) {
+            successCount++;
+
+            // Log audit event for each user deletion
+            const user = users.find(u => u.id === userId);
+            if (user) {
+              await auditLogger.logDataOperation(
+                'delete',
+                'user',
+                userId,
+                user.name,
+                'success'
+              );
+            }
+          } else {
+            errorCount++;
+          }
+        } catch (error) {
+          console.error(`Error deleting user ${userId}:`, error);
+          errorCount++;
+        }
+      }
+
+      // Show results
+      if (successCount > 0) {
+        toast.success(t('bulkDeleteSuccess', { count: successCount }) ||
+                     `Successfully deleted ${successCount} users`);
+      }
+      if (errorCount > 0) {
+        toast.error(t('bulkDeleteError', { count: errorCount }) ||
+                   `Failed to delete ${errorCount} users`);
+      }
+
+      // Clear selection
+      setSelectedUsers(new Set());
+
+      // Refresh the user list
+      await refreshUsers();
+    } catch (error) {
+      console.error('Error during bulk deletion:', error);
+      toast.error(t('bulkDeleteFailed') || 'Bulk deletion failed');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const toggleUserSelection = (userId: string) => {
+    const newSelected = new Set(selectedUsers);
+    if (newSelected.has(userId)) {
+      newSelected.delete(userId);
+    } else {
+      newSelected.add(userId);
+    }
+    setSelectedUsers(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUsers.size === currentData.length) {
+      setSelectedUsers(new Set());
+    } else {
+      setSelectedUsers(new Set(currentData.map(user => user.id)));
     }
   };
 
@@ -469,28 +558,46 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
               className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 accent-ring text-sm"
             />
           </div>
-          
-          <button 
+
+          <button
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
             title="Filter"
           >
             <Filter className="w-4 h-4" />
           </button>
-          
-          <button 
+
+          <button
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
             title="Download"
           >
             <Download className="w-4 h-4" />
           </button>
-          
-          <button 
+
+          <button
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
             title="Upload"
           >
             <Upload className="w-4 h-4" />
           </button>
-          
+
+          {/* Bulk Delete Button */}
+          {canManage && selectedUsers.size > 0 && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="p-2.5 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              title={`Delete ${selectedUsers.size} selected user${selectedUsers.size > 1 ? 's' : ''}`}
+            >
+              {isDeleting ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
+            </motion.button>
+          )}
+
           {canManage && (
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -541,7 +648,22 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                   <table className="min-w-full table-fixed">
                     <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05]">
                       <tr>
-                        <th className="w-[30%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                        {canManage && (
+                          <th className="w-[5%] px-4 sm:px-6 py-3">
+                            <button
+                              onClick={toggleSelectAll}
+                              className="text-gray-500 dark:text-[#757575] hover:text-gray-700 dark:hover:text-white transition-colors"
+                              title={selectedUsers.size === currentData.length ? "Deselect all" : "Select all"}
+                            >
+                              {selectedUsers.size === currentData.length ? (
+                                <CheckSquare className="w-4 h-4" />
+                              ) : (
+                                <Square className="w-4 h-4" />
+                              )}
+                            </button>
+                          </th>
+                        )}
+                        <th className={`${canManage ? 'w-[25%]' : 'w-[30%]'} px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider`}>
                           {t('table.user')}
                         </th>
                         <th className="w-[15%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
@@ -570,6 +692,20 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                   <tbody className="divide-y divide-gray-200 dark:divide-white/[0.05]">
                     {currentData.map((user) => (
                       <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
+                        {canManage && (
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <button
+                              onClick={() => toggleUserSelection(user.id)}
+                              className="text-gray-500 dark:text-[#757575] hover:text-gray-700 dark:hover:text-white transition-colors"
+                            >
+                              {selectedUsers.has(user.id) ? (
+                                <CheckSquare className="w-4 h-4" />
+                              ) : (
+                                <Square className="w-4 h-4" />
+                              )}
+                            </button>
+                          </td>
+                        )}
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3 flex-shrink-0">

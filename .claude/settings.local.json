@@ -14,7 +14,14 @@
       "Bash(node:*)",
       "Bash(gh pr view:*)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_f87jUo/**)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(cat:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(gh pr create:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)",
+      "Bash(gh pr list:*)",
+      "Bash(git rev-parse:*)"
     ],
     "deny": [],
     "ask": []
