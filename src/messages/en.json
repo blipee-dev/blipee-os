@@ -1802,6 +1802,9 @@
       "failedToLoad": "Failed to load users",
       "retry": "Retry",
       "failedToDelete": "Failed to delete user",
+      "invitationResent": "Invitation email sent successfully",
+      "failedToResend": "Failed to resend invitation",
+      "resendInvite": "Resend",
       "status": {
         "active": "Active",
         "inactive": "Inactive",
@@ -1891,8 +1894,15 @@
           "updating": "Updating...",
           "created": "Created!",
           "updated": "Updated!",
-          "viewOnly": "View Only"
+          "viewOnly": "View Only",
+          "delete": "Delete",
+          "deleteSelected": "Delete Selected"
         },
+        "deleteTitle": "Delete User",
+        "bulkDeleteTitle": "Delete Multiple Users",
+        "confirmDelete": "Are you sure you want to delete",
+        "deleteWarning": "This action cannot be undone.",
+        "confirmBulkDelete": "Are you sure you want to delete {count} users? This action cannot be undone.",
         "accessLevel": "Access Level",
         "organizationWideAccess": "Organization-wide access",
         "siteSpecificAccess": "Site-specific access",

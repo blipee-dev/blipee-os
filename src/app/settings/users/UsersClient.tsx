@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
+import {
   Users,
   Plus,
   Search,
@@ -15,11 +15,15 @@ import {
   ChevronsRight,
   Shield,
   Phone,
-  Mail
+  Mail,
+  Trash2,
+  CheckSquare,
+  Square
 } from "lucide-react";
 import UsersModal from "@/components/admin/UsersModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -63,6 +67,15 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Confirmation dialog states
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; user: AppUser | null }>({
+    isOpen: false,
+    user: null
+  });
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
@@ -219,19 +232,23 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   };
 
   const handleDelete = async (user: AppUser) => {
-    if (!confirm(t('modal.confirmDelete'))) return;
+    setDeleteConfirm({ isOpen: true, user });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.user) return;
 
     setLoading(true);
     try {
       // Use the API endpoint for deletion which uses admin client
-      const response = await fetch(`/api/users/manage?id=${user.id}`, {
+      const response = await fetch(`/api/users/manage?id=${deleteConfirm.user.id}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
         const error = await response.json();
         console.error('Error deleting user:', error);
-        alert(t('failedToDelete') || 'Failed to delete user');
+        toast.error(t('failedToDelete') || 'Failed to delete user');
         return;
       }
 
@@ -239,18 +256,126 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
       await auditLogger.logDataOperation(
         'delete',
         'user',
-        user.id,
-        user.name,
+        deleteConfirm.user.id,
+        deleteConfirm.user.name,
         'success'
       );
 
       toast.success(t('userDeleted') || 'User deleted successfully');
       await refreshUsers();
+      setDeleteConfirm({ isOpen: false, user: null });
     } catch (error) {
       console.error('Error deleting user:', error);
       toast.error(t('failedToDelete') || 'Failed to delete user');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendInvitation = async (user: AppUser) => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/users/resend-invitation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Error resending invitation:', error);
+        toast.error(error.error || 'Failed to resend invitation');
+        return;
+      }
+
+      toast.success(t('invitationResent') || `Invitation resent to ${user.email}`);
+    } catch (error) {
+      console.error('Error resending invitation:', error);
+      toast.error(t('failedToResend') || 'Failed to resend invitation');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedUsers.size === 0) return;
+    setBulkDeleteConfirm(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsDeleting(true);
+    setBulkDeleteConfirm(false);
+
+    try {
+      // Use bulk delete endpoint for better performance
+      const response = await fetch('/api/users/bulk-delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userIds: Array.from(selectedUsers)
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Error in bulk delete:', error);
+        toast.error(t('bulkDeleteError') || 'Failed to delete users');
+        return;
+      }
+
+      const result = await response.json();
+
+      // Show results based on API response
+      if (result.successCount > 0) {
+        toast.success(t('bulkDeleteSuccess', { count: result.successCount }) ||
+                     `Successfully deleted ${result.successCount} users`);
+      }
+      if (result.failedCount > 0) {
+        toast.error(t('bulkDeletePartialError', { count: result.failedCount }) ||
+                   `Failed to delete ${result.failedCount} users`);
+
+        // Log specific errors if available
+        if (result.errors) {
+          result.errors.forEach((err: any) => {
+            console.error(`Failed to delete ${err.email}: ${err.error}`);
+          });
+        }
+      }
+
+      // Clear selection
+      setSelectedUsers(new Set());
+
+      // Refresh the user list
+      await refreshUsers();
+    } catch (error) {
+      console.error('Error during bulk deletion:', error);
+      toast.error(t('bulkDeleteFailed') || 'Bulk deletion failed');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const toggleUserSelection = (userId: string) => {
+    const newSelected = new Set(selectedUsers);
+    if (newSelected.has(userId)) {
+      newSelected.delete(userId);
+    } else {
+      newSelected.add(userId);
+    }
+    setSelectedUsers(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUsers.size === currentData.length) {
+      setSelectedUsers(new Set());
+    } else {
+      setSelectedUsers(new Set(currentData.map(user => user.id)));
     }
   };
 
@@ -469,28 +594,46 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
               className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#757575] focus:outline-none focus:ring-2 accent-ring text-sm"
             />
           </div>
-          
-          <button 
+
+          <button
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
             title="Filter"
           >
             <Filter className="w-4 h-4" />
           </button>
-          
-          <button 
+
+          <button
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
             title="Download"
           >
             <Download className="w-4 h-4" />
           </button>
-          
-          <button 
+
+          <button
             className="p-2.5 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-600 dark:text-[#757575] hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
             title="Upload"
           >
             <Upload className="w-4 h-4" />
           </button>
-          
+
+          {/* Bulk Delete Button */}
+          {canManage && selectedUsers.size > 0 && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="p-2.5 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              title={`Delete ${selectedUsers.size} selected user${selectedUsers.size > 1 ? 's' : ''}`}
+            >
+              {isDeleting ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
+            </motion.button>
+          )}
+
           {canManage && (
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -541,7 +684,22 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                   <table className="min-w-full table-fixed">
                     <thead className="bg-gray-50 dark:bg-[#757575]/10 border-b border-gray-200 dark:border-white/[0.05]">
                       <tr>
-                        <th className="w-[30%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
+                        {canManage && (
+                          <th className="w-[5%] px-4 sm:px-6 py-3">
+                            <button
+                              onClick={toggleSelectAll}
+                              className="text-gray-500 dark:text-[#757575] hover:text-gray-700 dark:hover:text-white transition-colors"
+                              title={selectedUsers.size === currentData.length ? "Deselect all" : "Select all"}
+                            >
+                              {selectedUsers.size === currentData.length ? (
+                                <CheckSquare className="w-4 h-4" />
+                              ) : (
+                                <Square className="w-4 h-4" />
+                              )}
+                            </button>
+                          </th>
+                        )}
+                        <th className={`${canManage ? 'w-[25%]' : 'w-[30%]'} px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider`}>
                           {t('table.user')}
                         </th>
                         <th className="w-[15%] px-4 sm:px-6 py-3 text-left text-xs font-medium text-[#616161] dark:text-[#757575] uppercase tracking-wider">
@@ -570,6 +728,20 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                   <tbody className="divide-y divide-gray-200 dark:divide-white/[0.05]">
                     {currentData.map((user) => (
                       <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
+                        {canManage && (
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <button
+                              onClick={() => toggleUserSelection(user.id)}
+                              className="text-gray-500 dark:text-[#757575] hover:text-gray-700 dark:hover:text-white transition-colors"
+                            >
+                              {selectedUsers.has(user.id) ? (
+                                <CheckSquare className="w-4 h-4" />
+                              ) : (
+                                <Square className="w-4 h-4" />
+                              )}
+                            </button>
+                          </td>
+                        )}
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="w-8 h-8 accent-gradient rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
@@ -607,9 +779,20 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
                           )}
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                            {t(`modal.statuses.${user.status}` as any) || user.status}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
+                              {t(`modal.statuses.${user.status}` as any) || user.status}
+                            </span>
+                            {canManage && (user.status === 'pending' || !user.last_login) && (
+                              <button
+                                onClick={() => handleResendInvitation(user)}
+                                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
+                                title="Resend invitation email"
+                              >
+                                {t('resendInvite') || 'Resend'}
+                              </button>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-white">
@@ -645,14 +828,47 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
       </main>
 
       {/* Modal */}
-      <UsersModal 
-        isOpen={showUserModal} 
-        onClose={handleModalClose} 
+      <UsersModal
+        isOpen={showUserModal}
+        onClose={handleModalClose}
         onSuccess={handleModalSuccess}
         mode={modalMode}
         data={selectedUser}
         organizations={organizations}
         supabase={supabase}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, user: null })}
+        onConfirm={confirmDelete}
+        title={t('modal.deleteTitle') || 'Delete User'}
+        message={
+          deleteConfirm.user
+            ? `${t('modal.confirmDelete') || 'Are you sure you want to delete'} ${deleteConfirm.user.name} (${deleteConfirm.user.email})? ${t('modal.deleteWarning') || 'This action cannot be undone.'}`
+            : ''
+        }
+        confirmText={t('modal.delete') || 'Delete'}
+        cancelText={t('modal.cancel') || 'Cancel'}
+        type="danger"
+        isLoading={loading}
+      />
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={bulkDeleteConfirm}
+        onClose={() => setBulkDeleteConfirm(false)}
+        onConfirm={confirmBulkDelete}
+        title={t('modal.bulkDeleteTitle') || 'Delete Multiple Users'}
+        message={
+          t('modal.confirmBulkDelete', { count: selectedUsers.size }) ||
+          `Are you sure you want to delete ${selectedUsers.size} user${selectedUsers.size > 1 ? 's' : ''}? This action cannot be undone.`
+        }
+        confirmText={t('modal.deleteSelected') || `Delete ${selectedUsers.size} User${selectedUsers.size > 1 ? 's' : ''}`}
+        cancelText={t('modal.cancel') || 'Cancel'}
+        type="danger"
+        isLoading={isDeleting}
       />
     </SettingsLayout>
   );
