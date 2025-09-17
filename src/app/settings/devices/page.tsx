@@ -78,41 +78,64 @@ export default async function DevicesPage() {
 
     devices = allDevices || [];
   } else {
-    // Regular users - fetch through organization_members table
-    const { data: orgMemberships, error: membershipError } = await supabase
+    // Regular users - get user's profile first for direct organization
+    const { data: userProfile } = await supabaseAdmin
+      .from('app_users')
+      .select('id, organization_id, role')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    const organizationIds = new Set<string>();
+    const orgRoles: Record<string, string> = {};
+
+    // Add direct organization if exists
+    if (userProfile?.organization_id) {
+      organizationIds.add(userProfile.organization_id);
+      orgRoles[userProfile.organization_id] = userProfile.role || 'viewer';
+    }
+
+    // Also check organization_members table
+    const { data: orgMemberships, error: membershipError } = await supabaseAdmin
       .from('organization_members')
       .select('organization_id, role')
-      .eq('user_id', user.id);
+      .eq('user_id', userProfile?.id || user.id);
 
     if (membershipError) {
       console.error('Error fetching organization memberships:', membershipError);
-      redirect('/');
     }
 
-    if (!orgMemberships || orgMemberships.length === 0) {
+    // Add membership organizations
+    if (orgMemberships && orgMemberships.length > 0) {
+      orgMemberships.forEach(om => {
+        organizationIds.add(om.organization_id);
+        if (!orgRoles[om.organization_id]) {
+          orgRoles[om.organization_id] = om.role || 'viewer';
+        }
+      });
+    }
+
+    const orgIdArray = Array.from(organizationIds);
+
+    if (orgIdArray.length === 0) {
       console.log('User has no organization memberships');
       redirect('/');
     }
 
-    // Get organization IDs from memberships
-    organizationIds = orgMemberships.map(om => om.organization_id);
-
     // Fetch organization details
-    const { data: orgsData, error: orgsDataError } = await supabase
+    const { data: orgsData, error: orgsDataError } = await supabaseAdmin
       .from('organizations')
       .select('id, name, slug')
-      .in('id', organizationIds);
+      .in('id', orgIdArray);
 
     if (orgsDataError) {
       console.error('Error fetching organization data:', orgsDataError);
     }
 
-    // Map organizations with their roles from organization_members
+    // Map organizations with their roles
     userOrgs = orgsData?.map(org => {
-      const membership = orgMemberships.find(om => om.organization_id === org.id);
       return {
         organization_id: org.id,
-        role: membership?.role || 'viewer',
+        role: orgRoles[org.id] || 'viewer',
         organizations: org
       };
     }) || [];
@@ -120,9 +143,9 @@ export default async function DevicesPage() {
     // Check permission using Simple RBAC system
     let hasPermission = false;
 
-    if (organizationIds.length > 0) {
+    if (orgIdArray.length > 0) {
       // Check if user has permission to view devices in any of their organizations
-      for (const orgId of organizationIds) {
+      for (const orgId of orgIdArray) {
         const { data: permissionResult } = await supabaseAdmin
           .rpc('check_user_permission', {
             p_user_id: user.id,
@@ -147,7 +170,7 @@ export default async function DevicesPage() {
     const { data: sitesData, error: sitesError } = await supabaseAdmin
       .from('sites')
       .select('id, name, organization_id')
-      .in('organization_id', organizationIds);
+      .in('organization_id', orgIdArray);
 
     if (sitesError) {
       console.error('Error fetching sites:', sitesError);

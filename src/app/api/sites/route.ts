@@ -39,11 +39,25 @@ export async function GET(request: NextRequest) {
       sites = allSites || [];
       console.log('Super admin - fetched all sites:', sites.length);
     } else {
-      // Regular users - fetch their organizations through organization_members table
-      const { data: orgMemberships, error: membershipError } = await supabase
+      // First, get user's profile for direct organization assignment
+      const { data: userProfile } = await supabaseAdmin
+        .from('app_users')
+        .select('id, organization_id, role')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      const orgIds = new Set<string>();
+
+      // Add direct organization if exists
+      if (userProfile?.organization_id) {
+        orgIds.add(userProfile.organization_id);
+      }
+
+      // Also check organization_members table (for invited users)
+      const { data: orgMemberships, error: membershipError } = await supabaseAdmin
         .from('organization_members')
         .select('organization_id, role')
-        .eq('user_id', user.id);
+        .eq('user_id', userProfile?.id || user.id);
 
       if (membershipError) {
         console.error('Error fetching organization memberships:', membershipError);
@@ -51,8 +65,14 @@ export async function GET(request: NextRequest) {
 
       console.log('Organization memberships:', orgMemberships);
 
+      // Add membership organizations to the set
       if (orgMemberships && orgMemberships.length > 0) {
-        organizationIds = orgMemberships.map(om => om.organization_id);
+        orgMemberships.forEach(om => orgIds.add(om.organization_id));
+      }
+
+      organizationIds = Array.from(orgIds);
+
+      if (organizationIds.length > 0) {
         console.log('User is member of organizations:', organizationIds);
 
         // Fetch sites for user's organizations (only select what we need) - use admin client

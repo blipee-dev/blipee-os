@@ -8,29 +8,56 @@ export async function GET(request: NextRequest) {
     
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
+
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
-    // Use admin client to bypass RLS
+
+    // First, get the user's profile to check direct organization assignment
+    const { data: userProfile, error: profileError } = await supabaseAdmin
+      .from("app_users")
+      .select("id, organization_id, role")
+      .eq("auth_user_id", user.id)
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError);
+      return NextResponse.json({ error: profileError.message }, { status: 500 });
+    }
+
+    const orgIds: string[] = [];
+    const orgRoles: Record<string, string> = {};
+
+    // Add direct organization if exists
+    if (userProfile?.organization_id) {
+      orgIds.push(userProfile.organization_id);
+      orgRoles[userProfile.organization_id] = userProfile.role || 'viewer';
+    }
+
+    // Also check organization_members table (for invited users)
     const { data: memberships, error: memberError } = await supabaseAdmin
       .from("organization_members")
       .select("organization_id, role")
-      .eq("user_id", user.id)
+      .eq("user_id", userProfile?.id || user.id)  // Use app_users.id if available
       .eq("invitation_status", "accepted");
-      
+
     if (memberError) {
       console.error('Error fetching memberships:', memberError);
-      return NextResponse.json({ error: memberError.message }, { status: 500 });
     }
-    
-    if (!memberships || memberships.length === 0) {
+
+    // Add membership organizations
+    if (memberships && memberships.length > 0) {
+      memberships.forEach(m => {
+        if (!orgIds.includes(m.organization_id)) {
+          orgIds.push(m.organization_id);
+          orgRoles[m.organization_id] = m.role || 'viewer';
+        }
+      });
+    }
+
+    if (orgIds.length === 0) {
       return NextResponse.json({ organizations: [] });
     }
-    
-    // Get organization IDs
-    const orgIds = memberships.map(m => m.organization_id);
     
     // Fetch organizations
     const { data: organizations, error: orgsError } = await supabaseAdmin
@@ -83,10 +110,9 @@ export async function GET(request: NextRequest) {
 
     // Map organizations with roles, sites, and users count
     const orgsWithRoles = organizations?.map(org => {
-      const membership = memberships.find(m => m.organization_id === org.id);
       const orgWithCounts = {
         ...org,
-        role: membership?.role || 'viewer',
+        role: orgRoles[org.id] || 'viewer',
         sites: siteCountMap[org.id] || 0,
         users: userCountMap[org.id] || 0
       };
