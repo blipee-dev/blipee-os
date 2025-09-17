@@ -23,6 +23,7 @@ import {
 import UsersModal from "@/components/admin/UsersModal";
 import ActionsDropdown from "@/components/ui/ActionsDropdown";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -68,6 +69,13 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Confirmation dialog states
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; user: AppUser | null }>({
+    isOpen: false,
+    user: null
+  });
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
@@ -224,19 +232,23 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   };
 
   const handleDelete = async (user: AppUser) => {
-    if (!confirm(t('modal.confirmDelete'))) return;
+    setDeleteConfirm({ isOpen: true, user });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.user) return;
 
     setLoading(true);
     try {
       // Use the API endpoint for deletion which uses admin client
-      const response = await fetch(`/api/users/manage?id=${user.id}`, {
+      const response = await fetch(`/api/users/manage?id=${deleteConfirm.user.id}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
         const error = await response.json();
         console.error('Error deleting user:', error);
-        alert(t('failedToDelete') || 'Failed to delete user');
+        toast.error(t('failedToDelete') || 'Failed to delete user');
         return;
       }
 
@@ -244,13 +256,14 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
       await auditLogger.logDataOperation(
         'delete',
         'user',
-        user.id,
-        user.name,
+        deleteConfirm.user.id,
+        deleteConfirm.user.name,
         'success'
       );
 
       toast.success(t('userDeleted') || 'User deleted successfully');
       await refreshUsers();
+      setDeleteConfirm({ isOpen: false, user: null });
     } catch (error) {
       console.error('Error deleting user:', error);
       toast.error(t('failedToDelete') || 'Failed to delete user');
@@ -290,13 +303,12 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
 
   const handleBulkDelete = async () => {
     if (selectedUsers.size === 0) return;
+    setBulkDeleteConfirm(true);
+  };
 
-    const confirmMessage = t('modal.confirmBulkDelete', { count: selectedUsers.size }) ||
-                           `Are you sure you want to delete ${selectedUsers.size} users?`;
-
-    if (!confirm(confirmMessage)) return;
-
+  const confirmBulkDelete = async () => {
     setIsDeleting(true);
+    setBulkDeleteConfirm(false);
 
     try {
       // Use bulk delete endpoint for better performance
@@ -816,14 +828,47 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
       </main>
 
       {/* Modal */}
-      <UsersModal 
-        isOpen={showUserModal} 
-        onClose={handleModalClose} 
+      <UsersModal
+        isOpen={showUserModal}
+        onClose={handleModalClose}
         onSuccess={handleModalSuccess}
         mode={modalMode}
         data={selectedUser}
         organizations={organizations}
         supabase={supabase}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, user: null })}
+        onConfirm={confirmDelete}
+        title={t('modal.deleteTitle') || 'Delete User'}
+        message={
+          deleteConfirm.user
+            ? `${t('modal.confirmDelete') || 'Are you sure you want to delete'} ${deleteConfirm.user.name} (${deleteConfirm.user.email})? ${t('modal.deleteWarning') || 'This action cannot be undone.'}`
+            : ''
+        }
+        confirmText={t('modal.delete') || 'Delete'}
+        cancelText={t('modal.cancel') || 'Cancel'}
+        type="danger"
+        isLoading={loading}
+      />
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={bulkDeleteConfirm}
+        onClose={() => setBulkDeleteConfirm(false)}
+        onConfirm={confirmBulkDelete}
+        title={t('modal.bulkDeleteTitle') || 'Delete Multiple Users'}
+        message={
+          t('modal.confirmBulkDelete', { count: selectedUsers.size }) ||
+          `Are you sure you want to delete ${selectedUsers.size} user${selectedUsers.size > 1 ? 's' : ''}? This action cannot be undone.`
+        }
+        confirmText={t('modal.deleteSelected') || `Delete ${selectedUsers.size} User${selectedUsers.size > 1 ? 's' : ''}`}
+        cancelText={t('modal.cancel') || 'Cancel'}
+        type="danger"
+        isLoading={isDeleting}
       />
     </SettingsLayout>
   );
