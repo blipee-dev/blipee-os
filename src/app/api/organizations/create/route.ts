@@ -79,14 +79,13 @@ export async function POST(request: NextRequest) {
           console.error('Update error:', updateError);
         }
         
-        // Add user as owner in new user_access table
+        // Add user as owner in organization_members table
         const { error: memberError } = await supabase
-          .from('user_access')
+          .from('organization_members')
           .insert({
             user_id: user.id,
-            resource_type: 'organization',
-            resource_id: simpleOrg.id,
-            role: 'owner'
+            organization_id: simpleOrg.id,
+            role: 'account_owner'
           });
           
         if (memberError) {
@@ -105,14 +104,13 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Add current user as owner in new user_access table
+    // Add current user as owner in organization_members table
     const { data: userAccessData, error: userAccessError } = await supabase
-      .from('user_access')
+      .from('organization_members')
       .insert({
         user_id: user.id,
-        resource_type: 'organization',
-        resource_id: org.id,
-        role: 'owner'
+        organization_id: org.id,
+        role: 'account_owner'
       })
       .select()
       .single();

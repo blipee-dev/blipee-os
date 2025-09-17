@@ -48,10 +48,9 @@ export async function GET(request: NextRequest) {
     } else {
       // Get user's organization
       const { data: userAccess } = await supabase
-        .from('user_access')
-        .select('resource_id')
+        .from('organization_members')
+        .select('organization_id')
         .eq('user_id', user.id)
-        .eq('resource_type', 'organization')
         .limit(1)
         .maybeSingle();
 
@@ -64,7 +63,7 @@ export async function GET(request: NextRequest) {
           .single();
         organizationId = plmjOrg?.id;
       } else {
-        organizationId = userAccess.resource_id;
+        organizationId = userAccess.organization_id;
       }
     }
 

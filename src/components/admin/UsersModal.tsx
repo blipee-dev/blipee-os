@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  X, 
-  Users, 
-  Mail, 
-  Shield, 
-  Building2, 
+import {
+  X,
+  Users,
+  Mail,
+  Shield,
+  Building2,
   Phone,
   MapPin,
   Briefcase,
@@ -16,7 +16,8 @@ import {
   Loader2,
   Calendar,
   Globe,
-  User
+  User,
+  Building
 } from "lucide-react";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { useTranslations } from '@/providers/LanguageProvider';
@@ -47,9 +48,13 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
     email: "",
     role: "viewer",
     organization_id: "",
+    site_ids: [] as string[], // Multiple sites can be selected
+    access_level: "organization" as "organization" | "site", // Organization-wide or site-specific
     status: "pending", // New users start as pending until first login
     sendInvite: true
   });
+
+  const [availableSites, setAvailableSites] = useState<any[]>([]);
 
   // Load current user and all organizations
   useEffect(() => {
@@ -59,7 +64,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
         if (user) {
           setCurrentUser(user);
         }
-        
+
         // Get ALL organizations (not just user's organizations)
         const { data: orgs } = await supabase
           .from('organizations')
@@ -67,7 +72,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
           .order('name');
 
         setUserOrganizations(orgs || []);
-        
+
         // Set default organization if available
         if (orgs && orgs.length > 0) {
           setFormData(prev => ({
@@ -85,6 +90,30 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
     }
   }, [isOpen, supabase]);
 
+  // Load sites when organization changes
+  useEffect(() => {
+    const loadSites = async () => {
+      if (!formData.organization_id) {
+        setAvailableSites([]);
+        return;
+      }
+
+      try {
+        const { data: sites } = await supabase
+          .from('sites')
+          .select('id, name, location')
+          .eq('organization_id', formData.organization_id)
+          .order('name');
+
+        setAvailableSites(sites || []);
+      } catch (error) {
+        console.error('Error loading sites:', error);
+      }
+    };
+
+    loadSites();
+  }, [formData.organization_id, supabase]);
+
   // Update form data when data prop changes
   useEffect(() => {
     if (data && mode === 'edit') {
@@ -93,6 +122,8 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
         email: data.email || "",
         role: data.role || "viewer",
         organization_id: data.organization_id || "",
+        site_ids: data.site_ids || [],
+        access_level: data.access_level || "organization",
         status: data.status || "active",
         sendInvite: false // Don't send invite when editing
       });
@@ -102,6 +133,8 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
         email: "",
         role: "viewer",
         organization_id: userOrganizations.length > 0 ? userOrganizations[0].id : "",
+        site_ids: [],
+        access_level: "organization",
         status: "pending", // New users start as pending until first login
         sendInvite: true
       });
@@ -115,51 +148,75 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
 
     try {
       if (mode === 'create') {
-        // Create new user
-        const { data: newUser, error: createError } = await supabase
-          .from('app_users')
-          .insert([{
+        // Create new user via API
+        const response = await fetch('/api/users/manage', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
             name: formData.name,
             email: formData.email,
             role: formData.role,
             organization_id: formData.organization_id,
+            site_ids: formData.access_level === 'site' ? formData.site_ids : [],
+            access_level: formData.access_level,
             status: formData.status
-          }])
-          .select()
-          .single();
+          }),
+        });
 
-        if (createError) throw createError;
+        const result = await response.json();
+
+        if (!response.ok) {
+          // Provide user-friendly error messages
+          if (response.status === 409) {
+            throw new Error(t('modal.errors.userAlreadyExists') || 'A user with this email already exists');
+          }
+          throw new Error(result.error || t('modal.errors.failedToCreateUser') || 'Failed to create user');
+        }
 
         // Log audit event for user creation
         await auditLogger.logDataOperation(
           'create',
           'user',
-          newUser.id,
-          newUser.name,
+          result.user.id,
+          result.user.name,
           'success'
         );
 
-        // TODO: Send invitation email if formData.sendInvite is true
-        if (formData.sendInvite) {
-          // Implement invitation logic here
-          console.log('Should send invitation to:', formData.email);
+        // Show success message
+        setSuccess(true);
+        if (result.message === 'User created with existing auth account') {
+          console.log('User linked to existing auth account');
+        } else if (formData.sendInvite) {
+          // Invitation email is sent automatically by Supabase
+          console.log('Invitation email sent to:', formData.email);
         }
 
       } else if (mode === 'edit') {
-        // Update existing user
-        const { error: updateError } = await supabase
-          .from('app_users')
-          .update({
+        // Update existing user via API
+        const response = await fetch('/api/users/manage', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: data.id,
             name: formData.name,
             email: formData.email,
             role: formData.role,
             organization_id: formData.organization_id,
-            status: formData.status,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', data.id);
+            site_ids: formData.access_level === 'site' ? formData.site_ids : [],
+            access_level: formData.access_level,
+            status: formData.status
+          }),
+        });
 
-        if (updateError) throw updateError;
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to update user');
+        }
 
         // Log audit event for user update
         await auditLogger.logDataOperation(
@@ -224,39 +281,32 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                 </div>
               </div>
 
-              {/* Messages at top */}
+              {/* Success Message */}
               {success && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mx-6 mt-4 p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl"
+                  className="mx-6 mt-4 p-4 bg-gradient-to-r from-[var(--accent-primary)]/10 to-[var(--accent-secondary)]/10 border accent-border rounded-lg"
                 >
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-green-900 dark:text-green-400">
-                        {mode === 'create' 
-                          ? t('modal.messages.userCreated')
-                          : t('modal.messages.userUpdated')}
-                      </p>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 accent-text" />
+                    <p className="accent-text font-medium">
+                      {mode === 'edit' ? t('modal.messages.userUpdated') : t('modal.messages.userCreated')}
+                    </p>
                   </div>
                 </motion.div>
               )}
-              
+
+              {/* Error Message */}
               {error && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mx-6 mt-4 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl"
+                  className="mx-6 mt-4 p-4 bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg"
                 >
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-red-900 dark:text-red-400">
-                        {error}
-                      </p>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 accent-text" />
+                    <p className="accent-text">{error}</p>
                   </div>
                 </motion.div>
               )}
@@ -274,7 +324,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                         {t('modal.fields.userProfile')}
                       </h3>
                       
-                      <div className="flex items-center gap-4 p-6 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl">
+                      <div className="flex items-center gap-4 p-6 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl">
                         <div className="w-16 h-16 accent-gradient rounded-full flex items-center justify-center">
                           <span className="text-xl font-semibold text-white">
                             {data?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
@@ -318,7 +368,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               {t('modal.organization')}
                             </label>
-                            <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
+                            <p className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
                               {data?.organizations?.name || t('modal.fields.noOrganization')}
                             </p>
                           </div>
@@ -328,7 +378,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                               <Calendar className="inline w-4 h-4 mr-1" />
                               {t('modal.lastLogin')}
                             </label>
-                            <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
+                            <p className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
                               {data?.last_login 
                                 ? new Date(data.last_login).toLocaleString()
                                 : t('modal.fields.neverLoggedIn')
@@ -341,7 +391,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                               <Calendar className="inline w-4 h-4 mr-1" />
                               {t('modal.fields.memberSince') || 'Member Since'}
                             </label>
-                            <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
+                            <p className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
                               {data?.created_at 
                                 ? new Date(data.created_at).toLocaleDateString()
                                 : t('status.pending')
@@ -355,7 +405,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               {t('modal.fields.userId') || 'User ID'}
                             </label>
-                            <p className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
+                            <p className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
                               {data?.id || 'N/A'}
                             </p>
                           </div>
@@ -365,7 +415,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                               <Calendar className="inline w-4 h-4 mr-1" />
                               {t('modal.fields.lastUpdated') || 'Last Updated'}
                             </label>
-                            <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
+                            <p className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
                               {data?.updated_at 
                                 ? new Date(data.updated_at).toLocaleDateString()
                                 : t('status.pending')
@@ -377,7 +427,7 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               {t('modal.fields.authUserId') || 'Auth User ID'}
                             </label>
-                            <p className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg px-4 py-2">
+                            <p className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2">
                               {data?.auth_user_id || 'N/A'}
                             </p>
                           </div>
@@ -391,10 +441,10 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                     {/* Basic Information */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                        <User className="w-5 h-5 accent-text" />
+                        <Briefcase className="w-5 h-5 accent-text" />
                         {t('modal.sections.basicInfo')}
                       </h3>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -402,15 +452,16 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                           </label>
                           <input
                             type="text"
+                            name="name"
                             required
                             value={formData.name}
                             onChange={(e) => setFormData({...formData, name: e.target.value})}
                             readOnly={mode === 'view'}
-                            className="w-full px-4 py-2 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 accent-ring focus:accent-border transition-all hover:border-gray-400 dark:hover:border-white/[0.1] disabled:opacity-60 disabled:cursor-not-allowed"
-                            placeholder="John Doe"
+                            className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
+                            placeholder={t('modal.placeholders.name') || "John Doe"}
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <Mail className="inline w-4 h-4 mr-1" />
@@ -418,12 +469,13 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                           </label>
                           <input
                             type="email"
+                            name="email"
                             required
                             value={formData.email}
                             onChange={(e) => setFormData({...formData, email: e.target.value})}
-                            readOnly={mode === 'view'}
-                            className="w-full px-4 py-2 bg-white dark:bg-[#111111] border border-gray-300 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 accent-ring focus:accent-border transition-all hover:border-gray-400 dark:hover:border-white/[0.1] disabled:opacity-60 disabled:cursor-not-allowed"
-                            placeholder="john@company.com"
+                            readOnly={mode === 'view' || mode === 'edit'}
+                            className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
+                            placeholder={t('modal.placeholders.email') || "john@company.com"}
                           />
                         </div>
                       </div>
@@ -449,11 +501,10 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                             value={formData.role}
                             onChange={(value) => setFormData({...formData, role: value as string})}
                             options={[
-                              { value: "account_owner", label: t('modal.roles.account_owner') },
-                              { value: "sustainability_manager", label: t('modal.roles.sustainability_manager') },
-                              { value: "facility_manager", label: t('modal.roles.facility_manager') },
-                              { value: "analyst", label: t('modal.roles.analyst') },
-                              { value: "viewer", label: t('modal.roles.viewer') }
+                              { value: "owner", label: t('modal.roles.owner') || 'Owner' },
+                              { value: "manager", label: t('modal.roles.manager') || 'Manager' },
+                              { value: "member", label: t('modal.roles.member') || 'Member' },
+                              { value: "viewer", label: t('modal.roles.viewer') || 'Viewer' }
                             ]}
                             disabled={mode === 'view'}
                             className="w-full"
@@ -474,6 +525,104 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
                           />
                         </div>
                       </div>
+
+                      {/* Access Level Selection */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                          <Globe className="inline w-4 h-4 mr-1" />
+                          {t('modal.accessLevel')}
+                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg cursor-pointer hover:border-gray-300 dark:hover:border-white/20 transition-colors">
+                            <input
+                              type="radio"
+                              name="access_level"
+                              value="organization"
+                              checked={formData.access_level === 'organization'}
+                              onChange={(e) => setFormData({...formData, access_level: 'organization' as const, site_ids: []})}
+                              className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 checked:bg-gradient-to-r checked:from-purple-500 checked:to-pink-500 checked:border-transparent focus:ring-2 focus:ring-purple-500/20 focus:ring-offset-0 accent-purple-600"
+                            />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              {t('modal.organizationWideAccess')}
+                            </span>
+                          </label>
+                          <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg cursor-pointer hover:border-gray-300 dark:hover:border-white/20 transition-colors">
+                            <input
+                              type="radio"
+                              name="access_level"
+                              value="site"
+                              checked={formData.access_level === 'site'}
+                              onChange={(e) => setFormData({...formData, access_level: 'site' as const})}
+                              className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 checked:bg-gradient-to-r checked:from-purple-500 checked:to-pink-500 checked:border-transparent focus:ring-2 focus:ring-purple-500/20 focus:ring-offset-0 accent-purple-600"
+                            />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              {t('modal.siteSpecificAccess')}
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Site Selection (only show if site-specific access is selected) */}
+                      {formData.access_level === 'site' && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <MapPin className="inline w-4 h-4 mr-1" />
+                            {t('modal.selectSites')} *
+                          </label>
+                          <div className="border border-gray-200 dark:border-white/10 rounded-lg p-4 max-h-60 overflow-y-auto bg-gray-50 dark:bg-white/5">
+                            {availableSites.length === 0 ? (
+                              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                                {t('modal.noSitesAvailable')}
+                              </p>
+                            ) : (
+                              <div className="grid grid-cols-1 gap-2">
+                                {availableSites.map((site) => (
+                                  <label
+                                    key={site.id}
+                                    className="flex items-start gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-colors border border-transparent hover:border-gray-200 dark:hover:border-white/10"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      value={site.id}
+                                      checked={formData.site_ids.includes(site.id)}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setFormData({
+                                            ...formData,
+                                            site_ids: [...formData.site_ids, site.id]
+                                          });
+                                        } else {
+                                          setFormData({
+                                            ...formData,
+                                            site_ids: formData.site_ids.filter(id => id !== site.id)
+                                          });
+                                        }
+                                      }}
+                                      className="mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 checked:bg-gradient-to-r checked:from-purple-500 checked:to-pink-500 checked:border-transparent focus:ring-2 focus:ring-purple-500/20 focus:ring-offset-0"
+                                    />
+                                    <div className="flex-1">
+                                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                        {site.name}
+                                      </p>
+                                      {site.location && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex items-center gap-1">
+                                          <MapPin className="w-3 h-3" />
+                                          {site.location}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </label>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          {formData.access_level === 'site' && formData.site_ids.length === 0 && (
+                            <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                              {t('modal.selectAtLeastOneSite')}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Account Status */}

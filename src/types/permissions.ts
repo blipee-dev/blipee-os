@@ -1,8 +1,8 @@
 /**
- * Simple RBAC Permission System Types
+ * Permission System Types
  */
 
-// Core role hierarchy (simple!)
+// Simple RBAC roles
 export enum Role {
   OWNER = 'owner',
   MANAGER = 'manager',
@@ -95,9 +95,10 @@ export interface AccessAuditLog {
 
 // Helper type for role hierarchy comparison
 export const RoleHierarchy: Record<Role, number> = {
-  [Role.OWNER]: 4,
-  [Role.MANAGER]: 3,
-  [Role.MEMBER]: 2,
+  [Role.ACCOUNT_OWNER]: 5,
+  [Role.SUSTAINABILITY_MANAGER]: 4,
+  [Role.FACILITY_MANAGER]: 3,
+  [Role.ANALYST]: 2,
   [Role.VIEWER]: 1
 };
 
@@ -115,7 +116,7 @@ export class PermissionUtils {
    */
   static getHighestRole(roles: Role[]): Role {
     if (roles.length === 0) return Role.VIEWER;
-    
+
     return roles.reduce((highest, current) => {
       return RoleHierarchy[current] > RoleHierarchy[highest] ? current : highest;
     });
@@ -135,9 +136,10 @@ export class PermissionUtils {
    */
   static getRoleDisplayName(role: Role): string {
     const displayNames: Record<Role, string> = {
-      [Role.OWNER]: 'Owner',
-      [Role.MANAGER]: 'Manager',
-      [Role.MEMBER]: 'Member',
+      [Role.ACCOUNT_OWNER]: 'Account Owner',
+      [Role.SUSTAINABILITY_MANAGER]: 'Sustainability Manager',
+      [Role.FACILITY_MANAGER]: 'Facility Manager',
+      [Role.ANALYST]: 'Analyst',
       [Role.VIEWER]: 'Viewer'
     };
     return displayNames[role] || role;
@@ -148,9 +150,10 @@ export class PermissionUtils {
    */
   static getRoleBadgeColor(role: Role): string {
     const colors: Record<Role, string> = {
-      [Role.OWNER]: 'red',
-      [Role.MANAGER]: 'orange',
-      [Role.MEMBER]: 'blue',
+      [Role.ACCOUNT_OWNER]: 'purple',
+      [Role.SUSTAINABILITY_MANAGER]: 'green',
+      [Role.FACILITY_MANAGER]: 'blue',
+      [Role.ANALYST]: 'yellow',
       [Role.VIEWER]: 'gray'
     };
     return colors[role] || 'gray';
@@ -158,16 +161,20 @@ export class PermissionUtils {
 }
 
 // Type guards
-export function isOwner(role?: Role): boolean {
-  return role === Role.OWNER;
+export function isAccountOwner(role?: Role): boolean {
+  return role === Role.ACCOUNT_OWNER;
 }
 
-export function isManager(role?: Role): boolean {
-  return role === Role.MANAGER || role === Role.OWNER;
+export function isSustainabilityManager(role?: Role): boolean {
+  return role === Role.SUSTAINABILITY_MANAGER || role === Role.ACCOUNT_OWNER;
 }
 
-export function isMember(role?: Role): boolean {
-  return role === Role.MEMBER || isManager(role);
+export function isFacilityManager(role?: Role): boolean {
+  return role === Role.FACILITY_MANAGER || isSustainabilityManager(role);
+}
+
+export function isAnalyst(role?: Role): boolean {
+  return role === Role.ANALYST || isFacilityManager(role);
 }
 
 export function isViewer(role?: Role): boolean {
@@ -176,7 +183,7 @@ export function isViewer(role?: Role): boolean {
 
 // Permission actions by role
 export const RolePermissions = {
-  [Role.OWNER]: {
+  [Role.ACCOUNT_OWNER]: {
     // Organization level
     canManageOrganization: true,
     canManageBilling: true,
@@ -186,19 +193,19 @@ export const RolePermissions = {
     canManageAllSites: true,
     canCreateSites: true,
     canDeleteSites: true,
-    
+
     // Site level
     canEditSiteData: true,
     canViewSiteData: true,
     canExportData: true,
     canManageTargets: true,
     canApproveReports: true,
-    
+
     // System
     canAccessAuditLogs: true,
     canManageIntegrations: true
   },
-  [Role.MANAGER]: {
+  [Role.SUSTAINABILITY_MANAGER]: {
     // Organization level
     canManageOrganization: true,
     canManageBilling: false,
@@ -208,19 +215,41 @@ export const RolePermissions = {
     canManageAllSites: true,
     canCreateSites: true,
     canDeleteSites: false,
-    
+
     // Site level
     canEditSiteData: true,
     canViewSiteData: true,
     canExportData: true,
     canManageTargets: true,
     canApproveReports: true,
-    
+
     // System
     canAccessAuditLogs: true,
     canManageIntegrations: true
   },
-  [Role.MEMBER]: {
+  [Role.FACILITY_MANAGER]: {
+    // Organization level
+    canManageOrganization: false,
+    canManageBilling: false,
+    canDeleteOrganization: false,
+    canInviteUsers: true,
+    canRemoveUsers: false,
+    canManageAllSites: true,
+    canCreateSites: true,
+    canDeleteSites: false,
+
+    // Site level
+    canEditSiteData: true,
+    canViewSiteData: true,
+    canExportData: true,
+    canManageTargets: true,
+    canApproveReports: false,
+
+    // System
+    canAccessAuditLogs: false,
+    canManageIntegrations: true
+  },
+  [Role.ANALYST]: {
     // Organization level
     canManageOrganization: false,
     canManageBilling: false,
@@ -230,14 +259,14 @@ export const RolePermissions = {
     canManageAllSites: false,
     canCreateSites: false,
     canDeleteSites: false,
-    
+
     // Site level
     canEditSiteData: true,
     canViewSiteData: true,
     canExportData: true,
     canManageTargets: false,
     canApproveReports: false,
-    
+
     // System
     canAccessAuditLogs: false,
     canManageIntegrations: false
@@ -252,14 +281,14 @@ export const RolePermissions = {
     canManageAllSites: false,
     canCreateSites: false,
     canDeleteSites: false,
-    
+
     // Site level
     canEditSiteData: false,
     canViewSiteData: true,
     canExportData: true,
     canManageTargets: false,
     canApproveReports: false,
-    
+
     // System
     canAccessAuditLogs: false,
     canManageIntegrations: false

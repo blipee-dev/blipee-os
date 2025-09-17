@@ -145,16 +145,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const response = await fetch("/api/auth/signout", {
         method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
-        throw new Error("Sign out failed");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Sign out failed");
       }
 
+      // Clear session and local storage
       setSession(null);
+
+      // Clear any local storage items
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('supabase.auth.token');
+        sessionStorage.clear();
+      }
+
+      // Redirect to signin page
       router.push("/signin");
     } catch (err: any) {
       setError(err.message);
+      console.error('Sign out error:', err);
       throw err;
     } finally {
       setLoading(false);

@@ -43,18 +43,62 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: orgsError.message }, { status: 500 });
     }
     
-    // Map organizations with roles
+    // Fetch sites count for each organization
+    const { data: siteCounts, error: siteCountError } = await supabaseAdmin
+      .from("sites")
+      .select("organization_id")
+      .in("organization_id", orgIds);
+
+    if (siteCountError) {
+      console.error('Error fetching site counts:', siteCountError);
+    }
+
+    console.log('Sites found:', siteCounts?.length || 0);
+    console.log('Site data:', siteCounts);
+
+    // Count sites per organization
+    const siteCountMap: Record<string, number> = {};
+    siteCounts?.forEach(site => {
+      siteCountMap[site.organization_id] = (siteCountMap[site.organization_id] || 0) + 1;
+    });
+
+    console.log('Site count map:', siteCountMap);
+
+    // Fetch user count for each organization
+    const { data: userCounts, error: userCountError } = await supabaseAdmin
+      .from("organization_members")
+      .select("organization_id")
+      .in("organization_id", orgIds)
+      .eq("invitation_status", "accepted");
+
+    if (userCountError) {
+      console.error('Error fetching user counts:', userCountError);
+    }
+
+    // Count users per organization
+    const userCountMap: Record<string, number> = {};
+    userCounts?.forEach(member => {
+      userCountMap[member.organization_id] = (userCountMap[member.organization_id] || 0) + 1;
+    });
+
+    // Map organizations with roles, sites, and users count
     const orgsWithRoles = organizations?.map(org => {
       const membership = memberships.find(m => m.organization_id === org.id);
-      return {
+      const orgWithCounts = {
         ...org,
-        role: membership?.role || 'viewer'
+        role: membership?.role || 'viewer',
+        sites: siteCountMap[org.id] || 0,
+        users: userCountMap[org.id] || 0
       };
+      console.log(`Organization ${org.name}: sites=${orgWithCounts.sites}, users=${orgWithCounts.users}`);
+      return orgWithCounts;
     }) || [];
-    
-    return NextResponse.json({ 
+
+    console.log('Final organizations with counts:', orgsWithRoles.map(o => ({ name: o.name, sites: o.sites, users: o.users })));
+
+    return NextResponse.json({
       organizations: orgsWithRoles,
-      memberships 
+      memberships
     });
   } catch (error) {
     console.error('Error in user-orgs:', error);

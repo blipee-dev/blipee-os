@@ -76,16 +76,22 @@ export async function PUT(request: NextRequest) {
     const { name, email, phone, bio, department, title, location } = body;
 
     // Check if profile exists
-    const { data: existingProfile } = await supabase
+    const { data: existingProfile, error: checkError } = await supabase
       .from('app_users')
       .select('id')
       .eq('auth_user_id', user.id)
       .single();
 
+    // Log for debugging
+    console.log('Profile check for user:', user.id);
+    console.log('Existing profile:', existingProfile);
+    console.log('Check error:', checkError);
+
     let result;
 
     if (existingProfile) {
       // Update existing profile
+      console.log('Updating profile for user:', user.id);
       const { data, error } = await supabase
         .from('app_users')
         .update({
@@ -104,35 +110,46 @@ export async function PUT(request: NextRequest) {
 
       if (error) {
         console.error('Error updating profile:', error);
+        console.error('Update payload:', {
+          name, email, phone, department, title, bio, location
+        });
         return NextResponse.json(
-          { error: 'Failed to update profile' },
+          { error: `Failed to update profile: ${error.message}` },
           { status: 500 }
         );
       }
       result = data;
     } else {
       // Create new profile
+      console.log('Creating new profile for user:', user.id);
+      const insertData = {
+        auth_user_id: user.id,
+        name: name || user.user_metadata?.full_name || '',
+        email: email || user.email,
+        phone: phone || '',
+        department: department || '',
+        title: title || '',
+        bio: bio || '',
+        location: location || '',
+        role: 'viewer', // Default role
+        status: 'active',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      console.log('Insert data:', insertData);
+
       const { data, error } = await supabase
         .from('app_users')
-        .insert({
-          auth_user_id: user.id,
-          name: name || user.user_metadata?.full_name || '',
-          email: email || user.email,
-          phone: phone || '',
-          department: department || '',
-          title: title || '',
-          bio: bio || '',
-          location: location || '',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
+        .insert(insertData)
         .select()
         .single();
 
       if (error) {
         console.error('Error creating profile:', error);
+        console.error('Insert payload:', insertData);
         return NextResponse.json(
-          { error: 'Failed to create profile' },
+          { error: `Failed to create profile: ${error.message}` },
           { status: 500 }
         );
       }
