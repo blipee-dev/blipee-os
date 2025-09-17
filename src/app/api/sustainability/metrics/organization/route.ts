@@ -11,16 +11,23 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Check if user is super_admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
+    // Get user's profile from app_users
+    const { data: userProfile } = await supabase
+      .from('app_users')
+      .select('id, organization_id, role')
+      .eq('auth_user_id', user.id)
       .single();
 
     let organizationId = null;
 
-    if (profile?.role === 'super_admin') {
+    // Check if user is super_admin
+    const { data: superAdmin } = await supabase
+      .from('super_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (superAdmin) {
       // For super_admin, get the first organization or a default one
       const { data: org } = await supabase
         .from('organizations')
@@ -30,14 +37,19 @@ export async function GET(request: NextRequest) {
 
       organizationId = org?.id;
     } else {
-      // Get user's organization from members table
-      const { data: member } = await supabase
-        .from('organization_members')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .single();
+      // First check direct organization assignment
+      if (userProfile?.organization_id) {
+        organizationId = userProfile.organization_id;
+      } else {
+        // Otherwise check organization_members table
+        const { data: member } = await supabase
+          .from('organization_members')
+          .select('organization_id')
+          .eq('user_id', userProfile?.id || user.id)
+          .single();
 
-      organizationId = member?.organization_id;
+        organizationId = member?.organization_id;
+      }
     }
 
     if (!organizationId) {

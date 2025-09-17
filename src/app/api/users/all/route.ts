@@ -53,27 +53,33 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({ users: usersWithFlags });
     } else {
-      // Regular user - fetch based on their organizations
-      const { data: userOrgs } = await supabase
+      // Regular user - get user's profile first for direct organization
+      const { data: userProfile } = await supabaseAdmin
+        .from('app_users')
+        .select('id, organization_id')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      const organizationIds = new Set<string>();
+
+      // Add direct organization if exists
+      if (userProfile?.organization_id) {
+        organizationIds.add(userProfile.organization_id);
+      }
+
+      // Also check organization_members table
+      const { data: userOrgs } = await supabaseAdmin
         .from('organization_members')
         .select('organization_id')
-        .eq('user_id', user.id)
+        .eq('user_id', userProfile?.id || user.id)
         .eq('invitation_status', 'accepted');
 
-      const organizationIds = userOrgs?.map(uo => uo.organization_id) || [];
-
-      if (organizationIds.length === 0) {
-        // Try to get from app_users table
-        const { data: appUserData } = await supabase
-          .from('app_users')
-          .select('organization_id')
-          .eq('auth_user_id', user.id)
-          .single();
-
-        if (appUserData) {
-          organizationIds.push(appUserData.organization_id);
-        }
+      // Add membership organizations
+      if (userOrgs && userOrgs.length > 0) {
+        userOrgs.forEach(uo => organizationIds.add(uo.organization_id));
       }
+
+      const orgIdArray = Array.from(organizationIds);
 
       // Fetch users for user's organizations using admin client to bypass RLS
       const { data: orgUsers, error: orgUsersError } = await supabaseAdmin
@@ -85,7 +91,7 @@ export async function GET(request: NextRequest) {
             slug
           )
         `)
-        .in('organization_id', organizationIds)
+        .in('organization_id', orgIdArray)
         .order('created_at', { ascending: false });
 
       if (orgUsersError) {

@@ -348,9 +348,40 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
+    // Also update auth.users metadata if auth_user_id exists
+    if (updatedUser.auth_user_id) {
+      try {
+        // Update user metadata in auth.users
+        const { error: authUpdateError } = await supabaseAdmin.auth.admin.updateUserById(
+          updatedUser.auth_user_id,
+          {
+            email: email, // Update email if changed
+            user_metadata: {
+              full_name: name,
+              display_name: name,
+              role: role,
+              organization_id: organization_id,
+              permissions: updateData.permissions
+            }
+          }
+        );
+
+        if (authUpdateError) {
+          console.error('Error updating auth user metadata:', authUpdateError);
+          // Don't fail the whole operation if metadata update fails
+          console.log('Warning: Could not update auth user metadata, but app_user was updated successfully');
+        } else {
+          console.log(`Successfully updated both app_user and auth metadata for user ${id}`);
+        }
+      } catch (authError) {
+        console.error('Failed to update auth user:', authError);
+        // Continue - app_user update was successful
+      }
+    }
+
     // Simple RBAC: Role is stored directly in app_users table
     // Permissions field handles site-level access control
-    // No additional role management needed as role is already updated above
+    // Auth metadata is kept in sync for consistency
 
     return NextResponse.json({ user: { ...updatedUser, site_ids, access_level } });
   } catch (error: any) {
@@ -419,15 +450,31 @@ export async function DELETE(request: NextRequest) {
       .delete()
       .eq('user_id', targetUser.auth_user_id || userId);
 
-    // Delete the user using admin client (bypasses RLS)
+    // Delete the user from app_users first (due to foreign key constraint)
     const { error: deleteError } = await supabaseAdmin
       .from('app_users')
       .delete()
       .eq('id', userId);
 
     if (deleteError) {
-      console.error('Error deleting user:', deleteError);
+      console.error('Error deleting app_user:', deleteError);
       return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    // Now delete from auth.users if auth_user_id exists
+    if (targetUser.auth_user_id) {
+      const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(
+        targetUser.auth_user_id
+      );
+
+      if (authDeleteError) {
+        console.error('Error deleting auth user:', authDeleteError);
+        // Don't fail the whole operation if auth deletion fails
+        // The app_user is already deleted
+        console.log('Warning: Could not delete auth user, but app_user was deleted successfully');
+      } else {
+        console.log(`Successfully deleted both app_user and auth user for ${userId}`);
+      }
     }
 
     return NextResponse.json({ success: true });
