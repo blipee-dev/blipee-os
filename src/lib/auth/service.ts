@@ -96,9 +96,9 @@ export class AuthService {
 
       // Step 4: Get user profile
       const { data: profile } = await supabase
-        .from("user_profiles")
+        .from("app_users")
         .select("*")
-        .eq("id", userId)
+        .eq("auth_user_id", userId)
         .single();
 
       if (!profile) {
@@ -168,9 +168,9 @@ export class AuthService {
     await new Promise(resolve => setTimeout(resolve, 100));
     
     const { data: profile, error: profileError } = await supabase
-      .from("user_profiles")
+      .from("app_users")
       .select("*")
-      .eq("id", authData.user.id)
+      .eq("auth_user_id", authData.user.id)
       .single();
 
     if (profileError || !profile) {
@@ -179,11 +179,11 @@ export class AuthService {
     
     // Update AI settings based on role
     const { error: updateError } = await supabase
-      .from("user_profiles")
+      .from("app_users")
       .update({
         ai_personality_settings: this.getDefaultAISettings(metadata.role),
       })
-      .eq("id", authData.user.id);
+      .eq("auth_user_id", authData.user.id);
       
     if (updateError) {
       console.warn("Failed to update AI settings:", updateError);
@@ -249,9 +249,9 @@ export class AuthService {
         .eq("enabled", true)
         .single(),
       supabase
-        .from("user_profiles")
+        .from("app_users")
         .select("*")
-        .eq("id", authData.user.id)
+        .eq("auth_user_id", authData.user.id)
         .single()
     ]);
 
@@ -291,9 +291,9 @@ export class AuthService {
       // Use admin client to bypass RLS issues
       const adminSupabase = await this.getSupabaseAdmin();
       const { data: profile, error: profileError } = await adminSupabase
-        .from("user_profiles")
+        .from("app_users")
         .select("*")
-        .eq("id", authData.user.id)
+        .eq("auth_user_id", authData.user.id)
         .single();
 
       console.log('🔐 Profile fetch result:', {
@@ -359,9 +359,9 @@ export class AuthService {
     // Parallelize profile and memberships fetching for faster session loading
     const [profileResult, membershipsResult] = await Promise.all([
       adminSupabase
-        .from("user_profiles")
+        .from("app_users")
         .select("*")
-        .eq("id", user.id)
+        .eq("auth_user_id", user.id)
         .single(),
       adminSupabase
         .from("organization_members")
