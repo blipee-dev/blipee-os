@@ -52,21 +52,32 @@ export class RedisClient {
       if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
         console.log('🚀 Using Upstash Redis (Serverless)');
         this.isUpstash = true;
-        
-        this.client = new UpstashRedis({
-          url: process.env.UPSTASH_REDIS_REST_URL,
-          token: process.env.UPSTASH_REDIS_REST_TOKEN,
-          retry: {
-            retries: 3,
-            backoff: (retryCount) => Math.exp(retryCount) * 50,
-          },
-        });
 
-        // Test connection
-        await (this.client as UpstashRedis).ping();
-        this.isConnected = true;
-        console.log('✅ Upstash Redis connected');
-        return;
+        try {
+          this.client = new UpstashRedis({
+            url: process.env.UPSTASH_REDIS_REST_URL,
+            token: process.env.UPSTASH_REDIS_REST_TOKEN,
+            retry: {
+              retries: 3,
+              backoff: (retryCount) => Math.exp(retryCount) * 50,
+            },
+          });
+
+          // Check if client was created successfully
+          if (!this.client) {
+            throw new Error('Failed to create Upstash Redis client');
+          }
+
+          // Test connection
+          await (this.client as UpstashRedis).ping();
+          this.isConnected = true;
+          console.log('✅ Upstash Redis connected');
+          return;
+        } catch (error) {
+          console.warn('⚠️ Failed to connect to Upstash Redis:', error);
+          this.client = null;
+          // Continue to fallback options
+        }
       }
 
       // Fall back to regular Redis
@@ -140,10 +151,10 @@ export class RedisClient {
       this.isConnected = true;
 
     } catch (error) {
-      console.error('Failed to connect to Redis:', error);
+      console.log('Failed to connect to Redis, falling back to in-memory sessions:', error);
       this.client = null;
       this.isConnected = false;
-      throw error;
+      // Don't throw error - gracefully fallback to in-memory caching
     }
   }
 

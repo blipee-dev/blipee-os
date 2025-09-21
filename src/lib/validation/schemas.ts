@@ -242,6 +242,13 @@ export const metricsCatalogCreateSchema = z.object({
 });
 
 /**
+ * Conversation schemas
+ */
+export const conversationCreateSchema = z.object({
+  buildingId: z.string().min(1, 'Building ID is required'),
+});
+
+/**
  * AI Target Setting schemas
  */
 export const targetSettingQuerySchema = z.object({

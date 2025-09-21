@@ -101,11 +101,14 @@ Only include targetData if the user is clearly ready to create a specific target
         console.log(`Trying ${provider.name}...`);
         const response = await provider.complete(prompt, options);
 
+        // Extract content from response
+        const content = typeof response === 'string' ? response : response.content || '';
+
         // Cache the successful response
         await aiCache.cacheResponse(
           prompt,
           {
-            content: response,
+            content: content,
             provider: provider.name,
             model: options?.model,
             timestamp: new Date().toISOString(),
@@ -117,7 +120,7 @@ Only include targetData if the user is clearly ready to create a specific target
         // Rotate to next provider for load balancing
         this.currentProviderIndex = (providerIndex + 1) % this.providers.length;
 
-        return response;
+        return content;
       } catch (error) {
         console.error(`${provider.name} failed:`, error);
         lastError = error as Error;

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
+import { conversationCreateSchema } from "@/lib/validation/schemas";
 
 // GET /api/conversations - Get user's conversations
 async function GET(request: NextRequest) {
@@ -42,7 +43,9 @@ async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { buildingId } = await request.json();
+    // Use parsed body from middleware if available, otherwise parse JSON
+    const body = (request as any).parsedBody || await request.json();
+    const { buildingId } = body;
 
     const { data, error } = await supabaseAdmin
       .from('conversations')
@@ -79,7 +82,9 @@ async function PATCH(request: NextRequest) {
 
     const url = new URL(request.url);
     const conversationId = url.pathname.split('/').pop();
-    const { messages, context } = await request.json();
+    // Use parsed body from middleware if available, otherwise parse JSON
+    const body = (request as any).parsedBody || await request.json();
+    const { messages, context } = body;
 
     const updateData: any = { updated_at: new Date().toISOString() };
     if (messages) updateData.messages = messages;
@@ -134,7 +139,12 @@ async function DELETE(request: NextRequest) {
 
 // Export with middleware
 export const GETWithMiddleware = withMiddleware(GET, middlewareConfigs.api);
-export const POSTWithMiddleware = withMiddleware(POST, middlewareConfigs.api);
+export const POSTWithMiddleware = withMiddleware(POST, {
+  ...middlewareConfigs.api,
+  validation: {
+    body: conversationCreateSchema,
+  },
+});
 export const PATCHWithMiddleware = withMiddleware(PATCH, middlewareConfigs.api);
 export const DELETEWithMiddleware = withMiddleware(DELETE, middlewareConfigs.api);
 
