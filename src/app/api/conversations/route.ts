@@ -133,10 +133,10 @@ async function DELETE(request: NextRequest) {
 }
 
 // Export with middleware
-export const GETWithMiddleware = withMiddleware(GET, middlewareConfigs.authenticated);
-export const POSTWithMiddleware = withMiddleware(POST, middlewareConfigs.authenticated);
-export const PATCHWithMiddleware = withMiddleware(PATCH, middlewareConfigs.authenticated);
-export const DELETEWithMiddleware = withMiddleware(DELETE, middlewareConfigs.authenticated);
+export const GETWithMiddleware = withMiddleware(GET, middlewareConfigs.api);
+export const POSTWithMiddleware = withMiddleware(POST, middlewareConfigs.api);
+export const PATCHWithMiddleware = withMiddleware(PATCH, middlewareConfigs.api);
+export const DELETEWithMiddleware = withMiddleware(DELETE, middlewareConfigs.api);
 
 export {
   GETWithMiddleware as GET,

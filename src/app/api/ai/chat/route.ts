@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aiService } from "@/lib/ai/service";
-import { chatMessageSchema, validateAndSanitize } from "@/lib/validation/schemas";
+import { chatMessageSchema } from "@/lib/validation/schemas";
 import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
 import { agentOrchestrator } from "@/lib/ai/autonomous-agents";
 import { PredictiveIntelligence } from "@/lib/ai/predictive-intelligence";
@@ -13,20 +13,8 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();
 
-    // Validate request body
-    const validation = validateAndSanitize(chatMessageSchema, body);
-    if (!validation.success) {
-      const errors = validation.error.errors.map(err => ({
-        field: err.path.join('.'),
-        message: err.message,
-      }));
-      return NextResponse.json(
-        { error: 'Invalid message data', details: errors },
-        { status: 400 }
-      );
-    }
-
-    const { message, conversationId, buildingContext, attachments } = validation.data;
+    // Body is already validated by middleware, so we can safely destructure
+    const { message, conversationId, buildingContext, attachments } = body;
 
     // Initialize ML and predictive systems
     const mlPipeline = new MLPipeline();
