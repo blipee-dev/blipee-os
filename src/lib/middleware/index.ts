@@ -77,22 +77,36 @@ export function withMiddleware(
 
       if (validation.body && (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH')) {
         try {
-          // Clone the request to avoid consuming the original body
-          const clonedRequest = request.clone();
-          const body = await clonedRequest.json();
+          // Check if body is already consumed
+          let body;
+          try {
+            body = await request.clone().json();
+          } catch (cloneError) {
+            // If cloning fails, the body might already be consumed
+            // Skip validation in this case and let the handler deal with it
+            console.warn('Middleware - Could not clone request, skipping body validation:', cloneError.message);
+            // Continue to handler without validation
+          }
 
-          const bodyValidation = validateAndSanitize(validation.body, body);
-          if (!bodyValidation.success) {
-            const errors = bodyValidation.error.errors.map(err => ({
-              field: err.path.join('.'),
-              message: err.message,
-            }));
-            return addSecurityHeaders(NextResponse.json(
-              { error: 'Invalid request body', details: errors },
-              { status: 400 }
-            ));
+          if (body) {
+            console.log('Middleware - Validating body:', JSON.stringify(body, null, 2));
+
+            const bodyValidation = validateAndSanitize(validation.body, body);
+            if (!bodyValidation.success) {
+              const errors = bodyValidation.error.errors.map(err => ({
+                field: err.path.join('.'),
+                message: err.message,
+              }));
+              console.log('Middleware - Validation failed:', errors);
+              return addSecurityHeaders(NextResponse.json(
+                { error: 'Invalid request body', details: errors },
+                { status: 400 }
+              ));
+            }
+            console.log('Middleware - Validation passed');
           }
         } catch (error) {
+          console.error('Middleware - JSON parsing error:', error);
           return addSecurityHeaders(NextResponse.json(
             { error: 'Invalid JSON in request body' },
             { status: 400 }
