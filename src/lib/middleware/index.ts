@@ -75,40 +75,55 @@ export function withMiddleware(
         }
       }
 
+      // Handle body validation with proper Next.js request handling
       if (validation.body && (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH')) {
         try {
-          // Check if body is already consumed
+          // Read body once and validate
+          const bodyText = await request.text();
           let body;
+
           try {
-            body = await request.clone().json();
-          } catch (cloneError) {
-            // If cloning fails, the body might already be consumed
-            // Skip validation in this case and let the handler deal with it
-            console.warn('Middleware - Could not clone request, skipping body validation:', cloneError.message);
-            // Continue to handler without validation
+            body = JSON.parse(bodyText);
+          } catch (parseError) {
+            console.error('Middleware - Invalid JSON:', parseError);
+            return addSecurityHeaders(NextResponse.json(
+              { error: 'Invalid JSON in request body' },
+              { status: 400 }
+            ));
           }
 
-          if (body) {
-            console.log('Middleware - Validating body:', JSON.stringify(body, null, 2));
+          console.log('Middleware - Validating body:', JSON.stringify(body, null, 2));
 
-            const bodyValidation = validateAndSanitize(validation.body, body);
-            if (!bodyValidation.success) {
-              const errors = bodyValidation.error.errors.map(err => ({
-                field: err.path.join('.'),
-                message: err.message,
-              }));
-              console.log('Middleware - Validation failed:', errors);
-              return addSecurityHeaders(NextResponse.json(
-                { error: 'Invalid request body', details: errors },
-                { status: 400 }
-              ));
-            }
-            console.log('Middleware - Validation passed');
+          const bodyValidation = validateAndSanitize(validation.body, body);
+          if (!bodyValidation.success) {
+            const errors = bodyValidation.error.errors.map(err => ({
+              field: err.path.join('.'),
+              message: err.message,
+            }));
+            console.log('Middleware - Validation failed:', errors);
+            return addSecurityHeaders(NextResponse.json(
+              { error: 'Invalid request body', details: errors },
+              { status: 400 }
+            ));
           }
+
+          console.log('Middleware - Validation passed');
+
+          // Create new request with the validated body for the handler
+          const newRequest = new NextRequest(request.url, {
+            method: request.method,
+            headers: request.headers,
+            body: bodyText,
+          });
+
+          // Execute handler with the new request
+          const response = await handler(newRequest, context);
+          return addSecurityHeaders(response);
+
         } catch (error) {
-          console.error('Middleware - JSON parsing error:', error);
+          console.error('Middleware - Body validation error:', error);
           return addSecurityHeaders(NextResponse.json(
-            { error: 'Invalid JSON in request body' },
+            { error: 'Request processing failed' },
             { status: 400 }
           ));
         }
