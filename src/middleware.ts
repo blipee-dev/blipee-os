@@ -22,11 +22,17 @@ const recordMetric = (name: string, value: number, labels?: Record<string, strin
 const protectedRoutes = [
   '/blipee-ai',
   '/settings',
+  '/sustainability',
+  '/profile',
   '/api/ai',
+  '/api/conversations',
   '/api/organizations',
   '/api/documents',
   '/api/files',
   '/api/import',
+  '/api/profile',
+  '/api/sustainability',
+  '/api/monitoring',
 ];
 
 // Public routes that don't require authentication

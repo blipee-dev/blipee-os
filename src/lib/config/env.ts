@@ -11,9 +11,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, {
     message: 'NEXT_PUBLIC_SUPABASE_ANON_KEY is required',
   }),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, {
-    message: 'SUPABASE_SERVICE_ROLE_KEY is required for server-side operations',
-  }),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  SUPABASE_SERVICE_KEY: z.string().optional(),
   
   // At least one AI provider required
   OPENAI_API_KEY: z.string().optional(),
@@ -65,10 +64,22 @@ function validateEnv() {
     parsed.data.ANTHROPIC_API_KEY ||
     parsed.data.DEEPSEEK_API_KEY
   );
-  
+
   if (!hasAIProvider) {
     throw new Error(
       'At least one AI provider API key is required. Please set OPENAI_API_KEY, ANTHROPIC_API_KEY, or DEEPSEEK_API_KEY.'
+    );
+  }
+
+  // Additional validation: at least one Supabase service key must be configured
+  const hasSupabaseServiceKey = !!(
+    parsed.data.SUPABASE_SERVICE_ROLE_KEY ||
+    parsed.data.SUPABASE_SERVICE_KEY
+  );
+
+  if (!hasSupabaseServiceKey) {
+    throw new Error(
+      'SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SERVICE_KEY is required for server-side operations.'
     );
   }
   

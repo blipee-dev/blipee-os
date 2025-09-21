@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMenuResponse, generateDynamicContent, menuTree } from "@/lib/chat/menu-navigation";
+import { aiService } from "@/lib/ai/service";
 import { chatMessageSchema, validateAndSanitize } from "@/lib/validation/schemas";
 import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
+import { agentOrchestrator } from "@/lib/ai/autonomous-agents";
+import { PredictiveIntelligence } from "@/lib/ai/predictive-intelligence";
+import { MLPipeline } from "@/lib/ai/ml-models/ml-pipeline-client";
 
 export const dynamic = 'force-dynamic';
 
@@ -23,119 +26,327 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const { message } = validation.data;
+    const { message, conversationId, buildingContext, attachments } = validation.data;
 
-    // Use the menu navigation system
-    let response = getMenuResponse(message);
-    
-    // If menu navigation found a response, use it
-    if (response) {
-      // Add dynamic content for terminal actions
-      if (response.action) {
-        const dynamicContent = generateDynamicContent(response.action);
-        response = { ...response, ...dynamicContent };
-      }
-    } 
-    // Natural language fallback
-    else {
-      const lowerMessage = message.toLowerCase();
-      
-      // Check for dashboard generation requests
-      if (lowerMessage.includes("dashboard") || lowerMessage.includes("create") && lowerMessage.includes("sustain")) {
-        response = {
-          content: "I've created an interactive sustainability dashboard design for you:",
-          artifact: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sustainability Dashboard</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #212121; color: #fff; }
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
-        .card { background: #111111; border-radius: 12px; padding: 24px; border: 1px solid rgba(255,255,255,0.05); }
-        .metric { font-size: 36px; font-weight: bold; margin: 10px 0; }
-        .label { color: #757575; font-size: 14px; text-transform: uppercase; }
-        .trend { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-left: 10px; }
-        .trend.up { background: #4caf50; }
-        .trend.down { background: #f44336; }
-        .chart { height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; margin-top: 20px; }
-        h1 { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    </style>
-</head>
-<body>
-    <h1>Sustainability Performance Dashboard</h1>
-    <div class="dashboard">
-        <div class="card">
-            <div class="label">Carbon Emissions</div>
-            <div class="metric">1,247 <small>tCO2e</small> <span class="trend down">-12%</span></div>
-            <div class="chart"></div>
-        </div>
-        <div class="card">
-            <div class="label">Energy Efficiency</div>
-            <div class="metric">87% <span class="trend up">+5%</span></div>
-            <div class="chart"></div>
-        </div>
-        <div class="card">
-            <div class="label">Water Usage</div>
-            <div class="metric">2,341 <small>gal</small> <span class="trend down">-8%</span></div>
-            <div class="chart"></div>
-        </div>
-        <div class="card">
-            <div class="label">Waste Diverted</div>
-            <div class="metric">76% <span class="trend up">+15%</span></div>
-            <div class="chart"></div>
-        </div>
-    </div>
-</body>
-</html>`,
-          artifactType: "document",
-          artifactTitle: "Sustainability Dashboard",
-          artifactLanguage: "html",
-          suggestions: ["Add more metrics", "Connect real data", "Export as PDF", "Schedule reports"]
-        };
-      } else if (lowerMessage.includes("help") || lowerMessage.includes("what can you do")) {
-        response = {
-          content: "I'm Blipee AI, your building intelligence assistant. I can help you with:\n\n• **Real-time monitoring** of energy, climate, and operations\n• **Generate reports** for compliance, sustainability, and performance\n• **Optimize** building systems for efficiency and comfort\n• **Track** carbon emissions and ESG metrics\n• **Analyze** costs and identify savings opportunities\n\nUse the menu below to explore specific features:",
-          suggestions: menuTree.main.suggestions
-        };
-      } else if (lowerMessage.includes("energy") || lowerMessage.includes("power")) {
-        response = menuTree.energy;
-      } else if (lowerMessage.includes("report") || lowerMessage.includes("analytics")) {
-        response = menuTree.analytics;
-      } else if (lowerMessage.includes("sustain") || lowerMessage.includes("esg") || lowerMessage.includes("carbon")) {
-        response = menuTree.sustainability;
-      } else if (lowerMessage.includes("building") || lowerMessage.includes("operations") || lowerMessage.includes("maintenance")) {
-        response = menuTree.operations;
-      } else {
-        // Default to main menu
-        response = {
-          content: `I understand you're asking about "${message}". Let me help you find the right feature. What area would you like to explore?`,
-          suggestions: menuTree.main.suggestions
-        };
+    // Initialize ML and predictive systems
+    const mlPipeline = new MLPipeline();
+    const predictiveIntel = new PredictiveIntelligence();
+
+    // Check if message requires autonomous agent assistance
+    const agentContext = {
+      message,
+      buildingContext,
+      conversationId,
+      attachments
+    };
+
+    let agentResponse = null;
+    let predictions = null;
+    let mlInsights = null;
+
+    // Analyze message intent for agent routing
+    const messageIntent = analyzeMessageIntent(message);
+
+    // Route to appropriate autonomous agent if needed
+    if (messageIntent.requiresAgent) {
+      try {
+        const agent = await agentOrchestrator.selectAgent(messageIntent.type);
+        if (agent) {
+          agentResponse = await agent.executeTask({
+            type: messageIntent.type,
+            description: message,
+            context: agentContext,
+            priority: messageIntent.priority || 'medium'
+          });
+        }
+      } catch (error) {
+        console.error('Agent execution error:', error);
       }
     }
 
-    // Add timestamp and return
-    const finalResponse = {
-      ...response,
+    // Get ML predictions if relevant
+    if (messageIntent.requiresPrediction && buildingContext) {
+      try {
+        predictions = await predictiveIntel.generateInsights({
+          buildingId: buildingContext.id,
+          query: message,
+          context: buildingContext.metadata
+        });
+
+        // Run ML models for specific predictions
+        if (messageIntent.type === 'energy') {
+          mlInsights = await mlPipeline.predict('energy-consumption', {
+            buildingId: buildingContext.id,
+            features: buildingContext.metadata
+          });
+        } else if (messageIntent.type === 'emissions') {
+          mlInsights = await mlPipeline.predict('emissions-forecast', {
+            buildingId: buildingContext.id,
+            features: buildingContext.metadata
+          });
+        }
+      } catch (error) {
+        console.error('ML prediction error:', error);
+      }
+    }
+
+    // Build enhanced context for AI
+    const systemPrompt = `You are Blipee AI, an intelligent sustainability and building management assistant with access to autonomous agents and ML predictions.
+
+You help users with:
+- Real-time monitoring of energy, climate, and building operations
+- ESG reporting and carbon emissions tracking
+- Sustainability analytics and optimization
+- Cost analysis and savings opportunities
+- Compliance and regulatory reporting
+- Predictive analytics and forecasting
+- Autonomous optimization and decision-making
+
+Be conversational, helpful, and proactive. When appropriate, suggest visualizations or actions the user might want to take.
+
+${buildingContext ? `Building Context: ${JSON.stringify(buildingContext)}` : ''}
+${attachments?.length ? `User has attached ${attachments.length} file(s)` : ''}
+${agentResponse ? `\n\nAutonomous Agent Analysis:\n${JSON.stringify(agentResponse.result)}` : ''}
+${predictions ? `\n\nPredictive Insights:\n${JSON.stringify(predictions)}` : ''}
+${mlInsights ? `\n\nML Model Predictions:\n${JSON.stringify(mlInsights)}` : ''}`;
+
+    // Get AI response with error handling
+    let aiResponse: string;
+    try {
+      aiResponse = await aiService.complete(message, {
+        systemPrompt,
+        temperature: 0.7,
+        maxTokens: 1000,
+      });
+    } catch (aiError) {
+      console.error('AI service error:', aiError);
+      aiResponse = "I'm experiencing some technical difficulties. Please try rephrasing your question or try again in a moment.";
+    }
+
+    // Parse response for suggestions
+    const suggestions = extractSuggestions(aiResponse);
+
+    // Check if response contains code or structured content
+    const hasCode = aiResponse.includes("```");
+    const artifact = hasCode ? extractCodeFromResponse(aiResponse) : null;
+
+    // Generate dynamic UI components based on context
+    const components = [];
+
+    // Add ML prediction components if available
+    if (mlInsights) {
+      components.push({
+        type: 'optimization-dashboard',
+        props: {
+          title: 'AI-Powered Optimization Opportunities',
+          opportunities: mlInsights.opportunities || [],
+          totalSavings: mlInsights.totalSavings || '$0',
+          roiTimeline: mlInsights.roiTimeline || 'N/A',
+          confidence: mlInsights.confidence || 0.85
+        }
+      });
+    }
+
+    // Add predictive analytics visualization
+    if (predictions) {
+      components.push({
+        type: 'insights-panel',
+        props: {
+          title: 'Predictive Analytics Insights',
+          insights: predictions.insights || [],
+          confidence: predictions.confidence || 0.9
+        }
+      });
+    }
+
+    // Add agent action panel if agent responded
+    if (agentResponse && agentResponse.result) {
+      components.push({
+        type: 'action-panel',
+        props: {
+          title: agentResponse.agent || 'AI Agent Recommendation',
+          priority: agentResponse.priority || 'medium',
+          steps: agentResponse.result.steps || [],
+          automatable: agentResponse.result.automatable || false
+        }
+      });
+    }
+
+    // Add energy dashboard for energy queries
+    if (messageIntent.type === 'energy' && buildingContext) {
+      components.push({
+        type: 'energy-dashboard',
+        props: {
+          buildingId: buildingContext.id,
+          realTimeData: true,
+          showPredictions: true
+        }
+      });
+    }
+
+    // Format response
+    const response = {
+      content: artifact ? cleanResponseContent(aiResponse) : aiResponse,
+      ...(artifact && {
+        artifact: artifact.code,
+        artifactType: artifact.type,
+        artifactTitle: artifact.title || "Generated Content",
+        artifactLanguage: artifact.language || "typescript"
+      }),
+      suggestions,
+      components: components.length > 0 ? components : undefined,
       timestamp: new Date().toISOString(),
-      cached: false
+      cached: false,
+      // Add metadata for tracking
+      metadata: {
+        agentUsed: agentResponse?.agent,
+        mlModelsUsed: mlInsights ? ['energy-consumption', 'emissions-forecast'] : [],
+        predictionsGenerated: !!predictions
+      }
     };
 
-    return NextResponse.json(finalResponse);
+    return NextResponse.json(response);
 
   } catch (error) {
     console.error('Chat API error:', error);
+
+    // Provide more specific error messages based on error type
+    let errorMessage = "I'm having trouble processing your request. Please try again.";
+    let suggestions = ["Try rephrasing your question", "Check your internet connection", "Contact support if the issue persists"];
+
+    if (error instanceof Error) {
+      if (error.message.includes('network') || error.message.includes('fetch')) {
+        errorMessage = "I'm having network connectivity issues. Please check your internet connection and try again.";
+        suggestions = ["Check your internet connection", "Try again in a moment", "Refresh the page"];
+      } else if (error.message.includes('validation')) {
+        errorMessage = "Your message couldn't be processed due to formatting issues. Please try rephrasing.";
+        suggestions = ["Try simpler language", "Break down complex questions", "Check for special characters"];
+      } else if (error.message.includes('rate') || error.message.includes('limit')) {
+        errorMessage = "You're sending messages too quickly. Please wait a moment before trying again.";
+        suggestions = ["Wait 30 seconds", "Try again later", "Consider shorter messages"];
+      }
+    }
+
     return NextResponse.json(
       {
         error: 'Failed to process chat request',
-        message: "I'm having trouble processing your request. Please try again."
+        content: errorMessage,
+        suggestions,
+        timestamp: new Date().toISOString(),
+        metadata: {
+          errorType: error instanceof Error ? error.constructor.name : 'UnknownError'
+        }
       },
       { status: 500 }
     );
   }
+}
+
+// Helper function to extract suggestions from AI response
+function extractSuggestions(response: string): string[] {
+  const suggestions: string[] = [];
+
+  // Look for bullet points or numbered lists that might be suggestions
+  const bulletPoints = response.match(/^[•\-\*]\s+(.+)$/gm);
+  if (bulletPoints && bulletPoints.length <= 4) {
+    return bulletPoints.slice(0, 4).map(s => s.replace(/^[•\-\*]\s+/, ''));
+  }
+
+  // Default suggestions based on content
+  if (response.toLowerCase().includes('energy')) {
+    suggestions.push("Show energy trends", "Optimize consumption", "Generate energy report");
+  } else if (response.toLowerCase().includes('carbon') || response.toLowerCase().includes('emissions')) {
+    suggestions.push("Track emissions", "Set reduction targets", "View carbon dashboard");
+  } else if (response.toLowerCase().includes('report')) {
+    suggestions.push("Generate PDF report", "Schedule reports", "Export data");
+  } else {
+    suggestions.push("Tell me more", "Show examples", "What else can you do?");
+  }
+
+  return suggestions.slice(0, 4);
+}
+
+// Helper function to extract code from response
+function extractCodeFromResponse(response: string): { code: string; type: string; language?: string; title?: string } | null {
+  const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/;
+  const match = response.match(codeBlockRegex);
+
+  if (match) {
+    const language = match[1] || 'typescript';
+    const code = match[2].trim();
+
+    // Determine artifact type based on language
+    let type = 'code';
+    if (language === 'html' || language === 'xml') type = 'document';
+    if (language === 'json') type = 'data';
+    if (language === 'sql') type = 'query';
+
+    return { code, type, language };
+  }
+
+  return null;
+}
+
+// Helper function to clean response content when artifact is extracted
+function cleanResponseContent(response: string): string {
+  // Remove code blocks from the response
+  return response.replace(/```[\w]*\n[\s\S]*?```/g, '').trim();
+}
+
+// Analyze message intent for routing
+function analyzeMessageIntent(message: string): {
+  requiresAgent: boolean;
+  requiresPrediction: boolean;
+  type: string;
+  priority?: string;
+} {
+  const lowerMessage = message.toLowerCase();
+
+  // Check for agent-requiring keywords
+  const agentKeywords = {
+    compliance: ['compliance', 'regulation', 'audit', 'standard', 'gri', 'tcfd', 'iso'],
+    carbon: ['carbon', 'emissions', 'scope 1', 'scope 2', 'scope 3', 'ghg', 'co2'],
+    supply: ['supply chain', 'supplier', 'vendor', 'procurement', 'sourcing'],
+    strategy: ['strategy', 'plan', 'roadmap', 'target', 'goal', 'objective']
+  };
+
+  // Check for prediction-requiring keywords
+  const predictionKeywords = ['predict', 'forecast', 'will', 'future', 'trend', 'projection', 'estimate'];
+
+  let requiresAgent = false;
+  let requiresPrediction = false;
+  let type = 'general';
+  let priority = 'medium';
+
+  // Check agent keywords
+  for (const [agentType, keywords] of Object.entries(agentKeywords)) {
+    if (keywords.some(keyword => lowerMessage.includes(keyword))) {
+      requiresAgent = true;
+      type = agentType;
+      break;
+    }
+  }
+
+  // Check prediction keywords
+  requiresPrediction = predictionKeywords.some(keyword => lowerMessage.includes(keyword));
+
+  // Check for urgency indicators
+  if (lowerMessage.includes('urgent') || lowerMessage.includes('critical') || lowerMessage.includes('immediately')) {
+    priority = 'high';
+  }
+
+  // Energy and emissions always benefit from ML
+  if (lowerMessage.includes('energy') || lowerMessage.includes('consumption')) {
+    requiresPrediction = true;
+    type = type === 'general' ? 'energy' : type;
+  }
+
+  if (lowerMessage.includes('emission') || lowerMessage.includes('carbon')) {
+    requiresPrediction = true;
+    type = type === 'general' ? 'emissions' : type;
+  }
+
+  return { requiresAgent, requiresPrediction, type, priority };
 }
 
 // Export POST handler with AI middleware (stricter rate limiting)

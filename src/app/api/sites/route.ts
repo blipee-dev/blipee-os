@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getUserOrganization } from '@/lib/auth/get-user-org';
 
 export async function GET(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -11,8 +12,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Check if user is super admin (same logic as /settings/sites page)
-    const { data: superAdminRecord } = await supabase
+    // Check if user is super admin using admin client to avoid RLS issues
+    const { data: superAdminRecord } = await supabaseAdmin
       .from('super_admins')
       .select('id')
       .eq('user_id', user.id)
@@ -39,35 +40,32 @@ export async function GET(request: NextRequest) {
       sites = allSites || [];
       console.log('Super admin - fetched all sites:', sites.length);
     } else {
-      // First, get user's profile for direct organization assignment
-      const { data: userProfile } = await supabaseAdmin
-        .from('app_users')
-        .select('id, organization_id, role')
-        .eq('auth_user_id', user.id)
-        .single();
+      // Get user's primary organization using centralized helper
+      const { organizationId: primaryOrgId } = await getUserOrganization(user.id);
 
       const orgIds = new Set<string>();
 
-      // Add direct organization if exists
-      if (userProfile?.organization_id) {
-        orgIds.add(userProfile.organization_id);
+      // Add primary organization if exists
+      if (primaryOrgId) {
+        orgIds.add(primaryOrgId);
       }
 
-      // Also check organization_members table (for invited users)
-      const { data: orgMemberships, error: membershipError } = await supabaseAdmin
-        .from('organization_members')
-        .select('organization_id, role')
-        .eq('user_id', userProfile?.id || user.id);
+      // Also check user_access table for additional organizations
+      const { data: userAccess, error: accessError } = await supabaseAdmin
+        .from('user_access')
+        .select('resource_id, role')
+        .eq('user_id', user.id)
+        .eq('resource_type', 'org');
 
-      if (membershipError) {
-        console.error('Error fetching organization memberships:', membershipError);
+      if (accessError) {
+        console.error('Error fetching user access:', accessError);
       }
 
-      console.log('Organization memberships:', orgMemberships);
+      console.log('User access:', userAccess);
 
-      // Add membership organizations to the set
-      if (orgMemberships && orgMemberships.length > 0) {
-        orgMemberships.forEach(om => orgIds.add(om.organization_id));
+      // Add user_access organizations to the set
+      if (userAccess && userAccess.length > 0) {
+        userAccess.forEach(ua => orgIds.add(ua.resource_id));
       }
 
       organizationIds = Array.from(orgIds);

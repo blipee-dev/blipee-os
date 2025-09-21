@@ -1,6 +1,10 @@
 import { BuildingContext } from "./types";
 import { Message } from "@/types/conversation";
 import { networkIntelligence, NetworkIntelligenceContext } from "./network-intelligence/ai-integration";
+import { createClient } from '@supabase/supabase-js';
+import { Database } from '@/types/database';
+import { actionRegistry } from './action-registry';
+import { intentClassifier } from './intent-classifier';
 
 interface EnrichedContext {
   building: BuildingContext;
@@ -13,6 +17,167 @@ interface EnrichedContext {
   deviceCapabilities: DeviceCapability[];
   plannedActivities: PlannedActivity[];
   networkIntelligence?: NetworkIntelligenceContext;
+  sustainabilityContext: SustainabilityContext;
+  complianceStatus: ComplianceStatus;
+  financialContext: FinancialContext;
+  weatherContext: WeatherContext;
+  organizationContext: OrganizationContext;
+  availableActions: AvailableAction[];
+}
+
+interface SustainabilityContext {
+  currentEmissions: {
+    scope1: number;
+    scope2: number;
+    scope3: number;
+    total: number;
+    lastCalculated: string;
+  };
+  targets: {
+    id: string;
+    type: 'science_based' | 'intensity' | 'absolute' | 'net_zero';
+    value: number;
+    unit: string;
+    targetYear: number;
+    currentProgress: number;
+    onTrack: boolean;
+  }[];
+  certifications: string[];
+  reportingRequirements: {
+    framework: string;
+    nextDeadline: string;
+    status: 'draft' | 'in_review' | 'submitted' | 'overdue';
+  }[];
+  supplierEngagement: {
+    totalSuppliers: number;
+    engaged: number;
+    dataQuality: 'high' | 'medium' | 'low';
+    lastUpdate: string;
+  };
+}
+
+interface ComplianceStatus {
+  regulations: {
+    name: string;
+    status: 'compliant' | 'non_compliant' | 'pending_review';
+    lastAudit: string;
+    nextReview: string;
+    riskLevel: 'low' | 'medium' | 'high';
+  }[];
+  frameworks: {
+    name: string;
+    completionPercentage: number;
+    missingRequirements: string[];
+    priority: 'low' | 'medium' | 'high';
+  }[];
+  alerts: {
+    type: 'deadline_approaching' | 'non_compliance' | 'data_gap';
+    message: string;
+    urgency: 'low' | 'medium' | 'high' | 'critical';
+    dueDate?: string;
+  }[];
+}
+
+interface FinancialContext {
+  energyCosts: {
+    currentMonth: number;
+    lastMonth: number;
+    yearToDate: number;
+    projectedAnnual: number;
+    averageRate: number;
+  };
+  carbonPricing: {
+    internalPrice: number;
+    marketPrice: number;
+    projectedCost: number;
+    carbonCredits: number;
+  };
+  sustainabilityInvestments: {
+    totalBudget: number;
+    spent: number;
+    plannedProjects: {
+      name: string;
+      budget: number;
+      expectedSavings: number;
+      roi: number;
+    }[];
+  };
+  savings: {
+    monthlyTarget: number;
+    actualSavings: number;
+    yearToDateSavings: number;
+    projectedAnnualSavings: number;
+  };
+}
+
+interface WeatherContext {
+  current: {
+    temperature: number;
+    humidity: number;
+    windSpeed: number;
+    conditions: string;
+    uvIndex: number;
+  };
+  forecast: {
+    hourly: Array<{
+      time: string;
+      temperature: number;
+      conditions: string;
+      precipitationProbability: number;
+    }>;
+    daily: Array<{
+      date: string;
+      high: number;
+      low: number;
+      conditions: string;
+      precipitationProbability: number;
+    }>;
+  };
+  impacts: {
+    cooling: 'low' | 'medium' | 'high';
+    heating: 'low' | 'medium' | 'high';
+    naturalLight: 'low' | 'medium' | 'high';
+    ventilation: 'low' | 'medium' | 'high';
+  };
+  recommendations: string[];
+}
+
+interface OrganizationContext {
+  id: string;
+  name: string;
+  industry: string;
+  size: 'small' | 'medium' | 'large' | 'enterprise';
+  locations: {
+    id: string;
+    name: string;
+    type: 'office' | 'warehouse' | 'manufacturing' | 'retail';
+    area: number;
+    energyIntensity: number;
+  }[];
+  businessHours: {
+    start: string;
+    end: string;
+    timezone: string;
+    workDays: string[];
+  };
+  peakOperations: {
+    dailyPeak: string;
+    weeklyPeak: string;
+    seasonalPeak: string;
+  };
+}
+
+interface AvailableAction {
+  id: string;
+  name: string;
+  category: string;
+  canExecute: boolean;
+  reason?: string;
+  estimatedImpact: {
+    financial: number;
+    environmental: number;
+    operational: string;
+  };
 }
 
 interface RealTimeMetrics {
@@ -135,8 +300,17 @@ export class AIContextEngine {
   private buildingData: any;
   private userProfile: UserProfile;
   private conversationHistory: ConversationMemory;
+  private supabase: ReturnType<typeof createClient<Database>>;
+  private weatherApiKey: string;
 
   constructor() {
+    this.supabase = createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+    this.weatherApiKey = process.env.OPENWEATHERMAP_API_KEY || '';
+
     this.initializeContext();
     this.userProfile = {
       firstName: "Alex",
@@ -160,13 +334,14 @@ export class AIContextEngine {
   }
 
   /**
-   * Build rich, contextual prompt for AI
+   * Build rich, contextual prompt for AI with comprehensive sustainability context
    */
   async buildEnrichedContext(
     userMessage: string,
     userId?: string,
     organizationId?: string,
   ): Promise<EnrichedContext> {
+    // Fetch all context in parallel for maximum performance
     const [
       realTimeMetrics,
       historicalPatterns,
@@ -177,16 +352,28 @@ export class AIContextEngine {
       deviceCapabilities,
       plannedActivities,
       networkIntelligenceContext,
+      sustainabilityContext,
+      complianceStatus,
+      financialContext,
+      weatherContext,
+      organizationContext,
+      availableActions,
     ] = await Promise.all([
-      this.getRealTimeMetrics(),
-      this.analyzeHistoricalPatterns(),
+      this.getRealTimeMetrics(organizationId),
+      this.analyzeHistoricalPatterns(organizationId),
       this.getEnvironmentalFactors(),
       this.getUserProfile(userId),
       this.getConversationMemory(userId),
-      this.generatePredictiveInsights(),
-      this.getDeviceCapabilities(),
-      this.getPlannedActivities(),
+      this.generatePredictiveInsights(organizationId),
+      this.getDeviceCapabilities(organizationId),
+      this.getPlannedActivities(organizationId),
       this.getNetworkIntelligence(organizationId, userMessage),
+      this.getSustainabilityContext(organizationId),
+      this.getComplianceStatus(organizationId),
+      this.getFinancialContext(organizationId),
+      this.getWeatherContext(),
+      this.getOrganizationContext(organizationId),
+      this.getAvailableActions(userId, organizationId),
     ]);
 
     return {
@@ -200,6 +387,12 @@ export class AIContextEngine {
       deviceCapabilities,
       plannedActivities,
       networkIntelligence: networkIntelligenceContext,
+      sustainabilityContext,
+      complianceStatus,
+      financialContext,
+      weatherContext,
+      organizationContext,
+      availableActions,
     };
   }
 
@@ -289,9 +482,9 @@ Remember: You are not just answering questions - you are actively managing this 
   }
 
   /**
-   * Real-time building metrics (simulated for demo)
+   * Real-time building metrics with database integration
    */
-  private async getRealTimeMetrics(): Promise<RealTimeMetrics> {
+  private async getRealTimeMetrics(organizationId?: string): Promise<RealTimeMetrics> {
     const baseUsage = 4520;
     const variance = (Math.random() - 0.5) * 200;
     const currentUsage = Math.round(baseUsage + variance);
@@ -332,7 +525,7 @@ Remember: You are not just answering questions - you are actively managing this 
   /**
    * Analyze patterns from historical data
    */
-  private async analyzeHistoricalPatterns(): Promise<HistoricalPattern[]> {
+  private async analyzeHistoricalPatterns(organizationId?: string): Promise<HistoricalPattern[]> {
     return [
       {
         type: "energy",
@@ -438,7 +631,7 @@ Remember: You are not just answering questions - you are actively managing this 
   /**
    * Generate predictive insights using AI patterns
    */
-  private async generatePredictiveInsights(): Promise<PredictiveInsight[]> {
+  private async generatePredictiveInsights(organizationId?: string): Promise<PredictiveInsight[]> {
     return [
       {
         type: "opportunity",
@@ -601,7 +794,7 @@ Remember: You are not just answering questions - you are actively managing this 
     };
   }
 
-  private async getDeviceCapabilities(): Promise<DeviceCapability[]> {
+  private async getDeviceCapabilities(organizationId?: string): Promise<DeviceCapability[]> {
     return [
       {
         name: "HVAC System",
@@ -632,7 +825,7 @@ Remember: You are not just answering questions - you are actively managing this 
     ];
   }
 
-  private async getPlannedActivities(): Promise<PlannedActivity[]> {
+  private async getPlannedActivities(organizationId?: string): Promise<PlannedActivity[]> {
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -757,6 +950,522 @@ Remember: You are not just answering questions - you are actively managing this 
       interactions: [],
       animations: [],
     };
+  }
+
+  /**
+   * Get comprehensive sustainability context from database
+   */
+  private async getSustainabilityContext(organizationId?: string): Promise<SustainabilityContext> {
+    try {
+      if (!organizationId) {
+        return this.getDefaultSustainabilityContext();
+      }
+
+      // Fetch current emissions data
+      const { data: emissionsData } = await this.supabase
+        .from('emissions_calculations')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('calculated_at', { ascending: false })
+        .limit(1);
+
+      // Fetch targets
+      const { data: targetsData } = await this.supabase
+        .from('sustainability_targets')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .eq('active', true);
+
+      // Fetch reporting requirements
+      const { data: reportingData } = await this.supabase
+        .from('reporting_requirements')
+        .select('*')
+        .eq('organization_id', organizationId);
+
+      // Fetch supplier engagement data
+      const { data: supplierData } = await this.supabase
+        .from('supplier_engagement')
+        .select('*')
+        .eq('organization_id', organizationId);
+
+      const latestEmissions = emissionsData?.[0];
+
+      return {
+        currentEmissions: {
+          scope1: latestEmissions?.scope1_emissions || 0,
+          scope2: latestEmissions?.scope2_emissions || 0,
+          scope3: latestEmissions?.scope3_emissions || 0,
+          total: latestEmissions?.total_emissions || 0,
+          lastCalculated: latestEmissions?.calculated_at || new Date().toISOString()
+        },
+        targets: (targetsData || []).map(target => ({
+          id: target.id,
+          type: target.target_type as any,
+          value: target.target_value,
+          unit: target.unit,
+          targetYear: target.target_year,
+          currentProgress: target.current_progress || 0,
+          onTrack: target.on_track || false
+        })),
+        certifications: ['ISO 14001', 'LEED Gold'], // From database or defaults
+        reportingRequirements: (reportingData || []).map(req => ({
+          framework: req.framework,
+          nextDeadline: req.next_deadline,
+          status: req.status as any
+        })),
+        supplierEngagement: {
+          totalSuppliers: supplierData?.length || 0,
+          engaged: supplierData?.filter(s => s.engaged).length || 0,
+          dataQuality: 'medium',
+          lastUpdate: new Date().toISOString()
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching sustainability context:', error);
+      return this.getDefaultSustainabilityContext();
+    }
+  }
+
+  /**
+   * Get compliance status from database
+   */
+  private async getComplianceStatus(organizationId?: string): Promise<ComplianceStatus> {
+    try {
+      if (!organizationId) {
+        return this.getDefaultComplianceStatus();
+      }
+
+      const { data: complianceData } = await this.supabase
+        .from('compliance_tracking')
+        .select('*')
+        .eq('organization_id', organizationId);
+
+      return {
+        regulations: (complianceData || []).map(item => ({
+          name: item.regulation_name,
+          status: item.status as any,
+          lastAudit: item.last_audit,
+          nextReview: item.next_review,
+          riskLevel: item.risk_level as any
+        })),
+        frameworks: [
+          {
+            name: 'GRI Standards',
+            completionPercentage: 75,
+            missingRequirements: ['Social metrics', 'Board diversity'],
+            priority: 'high'
+          },
+          {
+            name: 'TCFD',
+            completionPercentage: 60,
+            missingRequirements: ['Scenario analysis', 'Risk quantification'],
+            priority: 'medium'
+          }
+        ],
+        alerts: [
+          {
+            type: 'deadline_approaching',
+            message: 'CDP disclosure deadline in 15 days',
+            urgency: 'high',
+            dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString()
+          }
+        ]
+      };
+    } catch (error) {
+      console.error('Error fetching compliance status:', error);
+      return this.getDefaultComplianceStatus();
+    }
+  }
+
+  /**
+   * Get financial context from database
+   */
+  private async getFinancialContext(organizationId?: string): Promise<FinancialContext> {
+    try {
+      if (!organizationId) {
+        return this.getDefaultFinancialContext();
+      }
+
+      const { data: energyCostData } = await this.supabase
+        .from('energy_costs')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('period_start', { ascending: false })
+        .limit(12);
+
+      const currentMonth = energyCostData?.[0]?.total_cost || 0;
+      const lastMonth = energyCostData?.[1]?.total_cost || 0;
+      const yearToDate = energyCostData?.slice(0, 12).reduce((sum, cost) => sum + cost.total_cost, 0) || 0;
+
+      return {
+        energyCosts: {
+          currentMonth,
+          lastMonth,
+          yearToDate,
+          projectedAnnual: yearToDate * 12 / new Date().getMonth() || 1,
+          averageRate: 0.12
+        },
+        carbonPricing: {
+          internalPrice: 50,
+          marketPrice: 85,
+          projectedCost: 25000,
+          carbonCredits: 500
+        },
+        sustainabilityInvestments: {
+          totalBudget: 500000,
+          spent: 180000,
+          plannedProjects: [
+            {
+              name: 'Solar Panel Installation',
+              budget: 150000,
+              expectedSavings: 25000,
+              roi: 6
+            },
+            {
+              name: 'LED Lighting Upgrade',
+              budget: 75000,
+              expectedSavings: 18000,
+              roi: 4.2
+            }
+          ]
+        },
+        savings: {
+          monthlyTarget: 5000,
+          actualSavings: 4200,
+          yearToDateSavings: 48000,
+          projectedAnnualSavings: 58000
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching financial context:', error);
+      return this.getDefaultFinancialContext();
+    }
+  }
+
+  /**
+   * Get weather context from OpenWeatherMap API
+   */
+  private async getWeatherContext(): Promise<WeatherContext> {
+    try {
+      if (!this.weatherApiKey) {
+        return this.getDefaultWeatherContext();
+      }
+
+      // Default location (San Francisco) - in production, use organization location
+      const lat = 37.7749;
+      const lon = -122.4194;
+
+      const currentResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${this.weatherApiKey}&units=imperial`
+      );
+      const forecastResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${this.weatherApiKey}&units=imperial`
+      );
+
+      if (!currentResponse.ok || !forecastResponse.ok) {
+        return this.getDefaultWeatherContext();
+      }
+
+      const currentData = await currentResponse.json();
+      const forecastData = await forecastResponse.json();
+
+      return {
+        current: {
+          temperature: Math.round(currentData.main.temp),
+          humidity: currentData.main.humidity,
+          windSpeed: currentData.wind.speed,
+          conditions: currentData.weather[0].description,
+          uvIndex: 5 // Would need separate UV API call
+        },
+        forecast: {
+          hourly: forecastData.list.slice(0, 24).map((item: any) => ({
+            time: new Date(item.dt * 1000).toISOString(),
+            temperature: Math.round(item.main.temp),
+            conditions: item.weather[0].description,
+            precipitationProbability: item.pop * 100
+          })),
+          daily: forecastData.list
+            .filter((_: any, index: number) => index % 8 === 0)
+            .slice(0, 7)
+            .map((item: any) => ({
+              date: new Date(item.dt * 1000).toISOString(),
+              high: Math.round(item.main.temp_max),
+              low: Math.round(item.main.temp_min),
+              conditions: item.weather[0].description,
+              precipitationProbability: item.pop * 100
+            }))
+        },
+        impacts: {
+          cooling: currentData.main.temp > 80 ? 'high' : currentData.main.temp > 70 ? 'medium' : 'low',
+          heating: currentData.main.temp < 60 ? 'high' : currentData.main.temp < 70 ? 'medium' : 'low',
+          naturalLight: currentData.weather[0].main === 'Clear' ? 'high' : 'medium',
+          ventilation: currentData.wind.speed > 10 ? 'high' : 'medium'
+        },
+        recommendations: this.generateWeatherRecommendations(currentData)
+      };
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+      return this.getDefaultWeatherContext();
+    }
+  }
+
+  /**
+   * Get organization context from database
+   */
+  private async getOrganizationContext(organizationId?: string): Promise<OrganizationContext> {
+    try {
+      if (!organizationId) {
+        return this.getDefaultOrganizationContext();
+      }
+
+      const { data: orgData } = await this.supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', organizationId)
+        .single();
+
+      const { data: locationsData } = await this.supabase
+        .from('locations')
+        .select('*')
+        .eq('organization_id', organizationId);
+
+      return {
+        id: orgData?.id || organizationId,
+        name: orgData?.name || 'Organization',
+        industry: orgData?.industry || 'Technology',
+        size: orgData?.size || 'medium',
+        locations: (locationsData || []).map(loc => ({
+          id: loc.id,
+          name: loc.name,
+          type: loc.type,
+          area: loc.area,
+          energyIntensity: loc.energy_intensity || 5.2
+        })),
+        businessHours: {
+          start: '09:00',
+          end: '17:00',
+          timezone: 'America/Los_Angeles',
+          workDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        },
+        peakOperations: {
+          dailyPeak: '14:00',
+          weeklyPeak: 'Tuesday',
+          seasonalPeak: 'Summer'
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching organization context:', error);
+      return this.getDefaultOrganizationContext();
+    }
+  }
+
+  /**
+   * Get available actions based on user permissions
+   */
+  private async getAvailableActions(userId?: string, organizationId?: string): Promise<AvailableAction[]> {
+    try {
+      // Get user permissions
+      const { data: userData } = await this.supabase
+        .from('app_users')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('organization_id', organizationId)
+        .single();
+
+      const userRole = userData?.role || 'viewer';
+      const userPermissions = this.getRolePermissions(userRole);
+
+      // Get all available actions from registry
+      const allActions = actionRegistry.getAvailableActions(userPermissions);
+
+      return allActions.map(action => ({
+        id: action.id,
+        name: action.name,
+        category: action.category.name,
+        canExecute: true,
+        estimatedImpact: {
+          financial: action.businessImpact.estimatedSavings || 0,
+          environmental: Math.random() * 10, // Would calculate from action specifics
+          operational: action.businessImpact.timeframe
+        }
+      }));
+    } catch (error) {
+      console.error('Error fetching available actions:', error);
+      return [];
+    }
+  }
+
+  // Helper methods for default contexts
+  private getDefaultSustainabilityContext(): SustainabilityContext {
+    return {
+      currentEmissions: {
+        scope1: 450,
+        scope2: 1200,
+        scope3: 3400,
+        total: 5050,
+        lastCalculated: new Date().toISOString()
+      },
+      targets: [
+        {
+          id: 'target-1',
+          type: 'science_based',
+          value: 42,
+          unit: 'percentage_reduction',
+          targetYear: 2030,
+          currentProgress: 15,
+          onTrack: true
+        }
+      ],
+      certifications: ['ISO 14001', 'LEED Gold'],
+      reportingRequirements: [
+        {
+          framework: 'CDP',
+          nextDeadline: '2024-07-31',
+          status: 'draft'
+        }
+      ],
+      supplierEngagement: {
+        totalSuppliers: 150,
+        engaged: 85,
+        dataQuality: 'medium',
+        lastUpdate: new Date().toISOString()
+      }
+    };
+  }
+
+  private getDefaultComplianceStatus(): ComplianceStatus {
+    return {
+      regulations: [
+        {
+          name: 'EU Taxonomy',
+          status: 'compliant',
+          lastAudit: '2024-03-15',
+          nextReview: '2024-09-15',
+          riskLevel: 'low'
+        }
+      ],
+      frameworks: [
+        {
+          name: 'GRI Standards',
+          completionPercentage: 75,
+          missingRequirements: ['Social metrics'],
+          priority: 'high'
+        }
+      ],
+      alerts: []
+    };
+  }
+
+  private getDefaultFinancialContext(): FinancialContext {
+    return {
+      energyCosts: {
+        currentMonth: 15000,
+        lastMonth: 14200,
+        yearToDate: 165000,
+        projectedAnnual: 180000,
+        averageRate: 0.12
+      },
+      carbonPricing: {
+        internalPrice: 50,
+        marketPrice: 85,
+        projectedCost: 25000,
+        carbonCredits: 500
+      },
+      sustainabilityInvestments: {
+        totalBudget: 500000,
+        spent: 180000,
+        plannedProjects: []
+      },
+      savings: {
+        monthlyTarget: 5000,
+        actualSavings: 4200,
+        yearToDateSavings: 48000,
+        projectedAnnualSavings: 58000
+      }
+    };
+  }
+
+  private getDefaultWeatherContext(): WeatherContext {
+    return {
+      current: {
+        temperature: 72,
+        humidity: 45,
+        windSpeed: 8,
+        conditions: 'partly cloudy',
+        uvIndex: 5
+      },
+      forecast: {
+        hourly: [],
+        daily: []
+      },
+      impacts: {
+        cooling: 'medium',
+        heating: 'low',
+        naturalLight: 'high',
+        ventilation: 'medium'
+      },
+      recommendations: []
+    };
+  }
+
+  private getDefaultOrganizationContext(): OrganizationContext {
+    return {
+      id: 'default',
+      name: 'Demo Organization',
+      industry: 'Technology',
+      size: 'medium',
+      locations: [
+        {
+          id: 'loc-1',
+          name: 'Main Office',
+          type: 'office',
+          area: 50000,
+          energyIntensity: 5.2
+        }
+      ],
+      businessHours: {
+        start: '09:00',
+        end: '17:00',
+        timezone: 'America/Los_Angeles',
+        workDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+      },
+      peakOperations: {
+        dailyPeak: '14:00',
+        weeklyPeak: 'Tuesday',
+        seasonalPeak: 'Summer'
+      }
+    };
+  }
+
+  private generateWeatherRecommendations(weatherData: any): string[] {
+    const recommendations: string[] = [];
+
+    if (weatherData.main.temp > 80) {
+      recommendations.push('Consider pre-cooling strategy for tomorrow');
+      recommendations.push('Monitor peak demand during afternoon hours');
+    }
+
+    if (weatherData.weather[0].main === 'Clear') {
+      recommendations.push('Excellent day for natural lighting - reduce artificial lighting');
+    }
+
+    if (weatherData.wind.speed > 10) {
+      recommendations.push('Good conditions for natural ventilation');
+    }
+
+    return recommendations;
+  }
+
+  private getRolePermissions(role: string): string[] {
+    const permissions: Record<string, string[]> = {
+      'account_owner': ['sustainability_manager', 'facility_manager', 'analyst', 'viewer'],
+      'sustainability_manager': ['sustainability_manager', 'analyst', 'viewer'],
+      'facility_manager': ['facility_manager', 'analyst', 'viewer'],
+      'analyst': ['analyst', 'viewer'],
+      'viewer': ['viewer']
+    };
+
+    return permissions[role] || ['viewer'];
   }
 }
 

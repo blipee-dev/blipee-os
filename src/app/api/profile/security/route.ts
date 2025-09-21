@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 interface SecuritySettings {
   twoFactorEnabled: boolean;
@@ -33,8 +34,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch security settings from app_users table
-    const { data: userSettings, error: fetchError } = await supabase
+    // Fetch security settings from app_users table using admin client to avoid RLS issues
+    const { data: userSettings, error: fetchError } = await supabaseAdmin
       .from('app_users')
       .select('security_settings, security_events')
       .eq('auth_user_id', user.id)
@@ -94,8 +95,8 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { settings, event } = body;
 
-    // Check if user profile exists
-    const { data: existingProfile } = await supabase
+    // Check if user profile exists using admin client to avoid RLS issues
+    const { data: existingProfile } = await supabaseAdmin
       .from('app_users')
       .select('id, security_events')
       .eq('auth_user_id', user.id)
@@ -123,8 +124,8 @@ export async function PUT(request: NextRequest) {
     }
 
     if (existingProfile) {
-      // Update existing profile
-      const { data, error } = await supabase
+      // Update existing profile using admin client
+      const { data, error } = await supabaseAdmin
         .from('app_users')
         .update(updateData)
         .eq('auth_user_id', user.id)
@@ -140,12 +141,15 @@ export async function PUT(request: NextRequest) {
       }
       result = data;
     } else {
-      // Create new profile with security settings
-      const { data, error } = await supabase
+      // Create new profile with security settings using admin client
+      const { data, error } = await supabaseAdmin
         .from('app_users')
         .insert({
           auth_user_id: user.id,
           email: user.email,
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          role: 'viewer', // Default role
+          status: 'active',
           ...updateData,
         })
         .select('security_settings, security_events')
@@ -230,8 +234,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log the password change event
-    const { data: profile } = await supabase
+    // Log the password change event using admin client
+    const { data: profile } = await supabaseAdmin
       .from('app_users')
       .select('security_events')
       .eq('auth_user_id', user.id)
@@ -247,7 +251,7 @@ export async function POST(request: NextRequest) {
       ip: request.headers.get('x-forwarded-for') || 'Unknown',
     };
 
-    await supabase
+    await supabaseAdmin
       .from('app_users')
       .update({
         security_events: [...existingEvents, newEvent].slice(-50),

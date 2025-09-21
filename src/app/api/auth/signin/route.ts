@@ -193,10 +193,12 @@ async function signInHandler(request: NextRequest) {
       },
     });
 
-    // Set session cookie
+    // Set session cookie - use the sessionService directly since SessionManager doesn't expose this method
     if (result.sessionId) {
+      // Access the sessionService directly to generate the cookie header
       const cookieHeader = sessionManager['sessionService'].generateCookieHeader(result.sessionId);
       response.headers.set('Set-Cookie', cookieHeader);
+      console.log('🍪 Session cookie set:', cookieHeader);
     }
     console.log(`🍪 Response creation completed in ${Date.now() - responseStart}ms`);
 

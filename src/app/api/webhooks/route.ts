@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { PermissionService } from '@/lib/auth/permission-service';
+import { getUserOrganization } from '@/lib/auth/get-user-org';
 import { webhookService } from '@/lib/webhooks/webhook-service';
 import { WebhookEndpointCreate } from '@/types/webhooks';
 import { webhookVerifier } from '@/lib/webhooks/webhook-verifier';
@@ -7,7 +10,7 @@ import { webhookVerifier } from '@/lib/webhooks/webhook-verifier';
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
-    
+
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
@@ -17,23 +20,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user's organization
-    const { data: member } = await supabase
-      .from('organization_members')
-      .select('organization_id, role')
-      .eq('user_id', user.id)
-      .eq('invitation_status', 'accepted')
-      .single();
+    // Get user's organization using centralized helper
+    const { organizationId, role: userRole } = await getUserOrganization(user.id);
 
-    if (!member) {
+    if (!organizationId) {
       return NextResponse.json(
         { error: 'No organization found' },
         { status: 404 }
       );
     }
 
-    // Check if user has permissions
-    if (!['account_owner', 'admin'].includes(member.role)) {
+    // Check if user has permissions (owner or manager)
+    const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
+    if (!isSuperAdmin && !['owner', 'manager'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
         { status: 403 }
@@ -41,8 +40,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Get webhooks
-    const webhooks = await webhookService.getEndpoints(member.organization_id);
-    
+    const webhooks = await webhookService.getEndpoints(organizationId);
+
     return NextResponse.json({ webhooks });
   } catch (error) {
     console.error('Failed to get webhooks:', error);
@@ -56,7 +55,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
-    
+
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
@@ -66,23 +65,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user's organization
-    const { data: member } = await supabase
-      .from('organization_members')
-      .select('organization_id, role')
-      .eq('user_id', user.id)
-      .eq('invitation_status', 'accepted')
-      .single();
+    // Get user's organization using centralized helper
+    const { organizationId, role: userRole } = await getUserOrganization(user.id);
 
-    if (!member) {
+    if (!organizationId) {
       return NextResponse.json(
         { error: 'No organization found' },
         { status: 404 }
       );
     }
 
-    // Check if user has permissions
-    if (!['account_owner', 'admin'].includes(member.role)) {
+    // Check if user has permissions (owner or manager)
+    const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
+    if (!isSuperAdmin && !['owner', 'manager'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
         { status: 403 }
@@ -91,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const data: WebhookEndpointCreate = await request.json();
-    
+
     // Validate webhook data
     const urlValidation = webhookVerifier.validateWebhookUrl(data.url);
     if (!urlValidation.valid) {
@@ -101,35 +96,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const eventValidation = webhookVerifier.validateEventTypes(data.events);
-    if (!eventValidation.valid) {
-      return NextResponse.json(
-        { error: 'Invalid event types', details: eventValidation.errors },
-        { status: 400 }
-      );
-    }
-
-    if (data.headers) {
-      const headerValidation = webhookVerifier.validateHeaders(data.headers);
-      if (!headerValidation.valid) {
-        return NextResponse.json(
-          { error: 'Invalid headers', details: headerValidation.errors },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Create webhook
+    // Create webhook endpoint
     const webhook = await webhookService.createEndpoint(
-      member.organization_id,
+      organizationId,
       data,
       user.id
     );
-    
-    return NextResponse.json({ 
-      webhook,
-      message: 'Webhook created successfully' 
-    });
+
+    return NextResponse.json({ webhook });
   } catch (error) {
     console.error('Failed to create webhook:', error);
     return NextResponse.json(

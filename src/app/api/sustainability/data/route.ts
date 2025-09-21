@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { PermissionService } from '@/lib/auth/permission-service';
+import { getUserOrganization } from '@/lib/auth/get-user-org';
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,25 +51,38 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user has access to this organization
-    const { data: userAccess } = await supabase
-      .from('organization_members')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('organization_id', site.organization_id)
-      .single();
+    const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
 
-    // Also check if user is super admin
-    const { data: superAdmin } = await supabase
-      .from('super_admins')
-      .select('id')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    if (!isSuperAdmin) {
+      // Check user's organization access using centralized helper
+      const { organizationId: userOrgId, role } = await getUserOrganization(user.id);
 
-    if (!userAccess && !superAdmin) {
-      return NextResponse.json(
-        { error: 'No access to this organization' },
-        { status: 403 }
-      );
+      let hasAccess = false;
+
+      if (userOrgId === site.organization_id && role) {
+        // Check if user role allows data entry (member or higher)
+        hasAccess = ['owner', 'manager', 'member'].includes(role);
+      } else {
+        // Check user_access table for specific access to this org
+        const { data: userAccess } = await supabaseAdmin
+          .from('user_access')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('resource_type', 'org')
+          .eq('resource_id', site.organization_id)
+          .single();
+
+        if (userAccess) {
+          hasAccess = ['owner', 'manager', 'member'].includes(userAccess.role);
+        }
+      }
+
+      if (!hasAccess) {
+        return NextResponse.json(
+          { error: 'No access to this organization' },
+          { status: 403 }
+        );
+      }
     }
 
     // Insert data entry

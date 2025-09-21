@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { PermissionService } from '@/lib/auth/permission-service';
+import { getUserOrganization } from '@/lib/auth/get-user-org';
 
 // GET /api/sustainability/metrics/sites - Get metrics by site or all sites
 export async function GET(request: NextRequest) {
@@ -15,8 +18,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is super_admin (same as sites API)
-    const { data: superAdminRecord } = await supabase
+    // Check if user is super_admin using admin client to avoid RLS issues
+    const { data: superAdminRecord } = await supabaseAdmin
       .from('super_admins')
       .select('id')
       .eq('user_id', user.id)
@@ -30,8 +33,8 @@ export async function GET(request: NextRequest) {
       if (organizationId) {
         userOrgId = organizationId;
       } else {
-        // Default to PLMJ organization for super_admin
-        const { data: org } = await supabase
+        // Default to PLMJ organization for super_admin - use admin client to avoid RLS
+        const { data: org } = await supabaseAdmin
           .from('organizations')
           .select('id')
           .eq('name', 'PLMJ')
@@ -41,7 +44,7 @@ export async function GET(request: NextRequest) {
 
         // If PLMJ not found, get first organization
         if (!userOrgId) {
-          const { data: firstOrg } = await supabase
+          const { data: firstOrg } = await supabaseAdmin
             .from('organizations')
             .select('id')
             .limit(1)
@@ -51,15 +54,9 @@ export async function GET(request: NextRequest) {
         }
       }
     } else {
-      // Regular users - fetch their organizations through organization_members table
-      const { data: orgMembership } = await supabase
-        .from('organization_members')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .limit(1)
-        .single();
-
-      userOrgId = orgMembership?.organization_id;
+      // Regular users - get their organization using centralized helper
+      const { organizationId: orgId } = await getUserOrganization(user.id);
+      userOrgId = orgId;
     }
 
     if (!userOrgId) {
@@ -72,8 +69,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (siteId) {
-      // Get metrics for specific site
-      const { data: siteMetrics, error } = await supabase
+      // Get metrics for specific site - use admin client if super admin to avoid RLS issues
+      const dbClient = isSuperAdmin ? supabaseAdmin : supabase;
+      const { data: siteMetrics, error } = await dbClient
         .from('site_metrics')
         .select(`
           *,
@@ -98,8 +96,9 @@ export async function GET(request: NextRequest) {
       });
 
     } else {
-      // Get metrics for all sites in organization
-      const { data: allSiteMetrics, error: siteError } = await supabase
+      // Get metrics for all sites in organization - use admin client if super admin to avoid RLS issues
+      const dbClient = isSuperAdmin ? supabaseAdmin : supabase;
+      const { data: allSiteMetrics, error: siteError } = await dbClient
         .from('site_metrics')
         .select(`
           *,
@@ -133,8 +132,8 @@ export async function GET(request: NextRequest) {
         return acc;
       }, {} as Record<string, any>);
 
-      // Get organization-level metrics for comparison
-      const { data: orgMetrics, error: orgError } = await supabase
+      // Get organization-level metrics for comparison - use admin client if super admin to avoid RLS issues
+      const { data: orgMetrics, error: orgError } = await dbClient
         .from('organization_metrics')
         .select(`
           *,
@@ -176,8 +175,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is super_admin (same as sites API)
-    const { data: superAdminRecord } = await supabase
+    // Check if user is super_admin using admin client to avoid RLS issues
+    const { data: superAdminRecord } = await supabaseAdmin
       .from('super_admins')
       .select('id')
       .eq('user_id', user.id)
@@ -193,8 +192,8 @@ export async function POST(request: NextRequest) {
       if (organizationId) {
         userOrgId = organizationId;
       } else {
-        // Default to PLMJ organization
-        const { data: org } = await supabase
+        // Default to PLMJ organization - use admin client to avoid RLS
+        const { data: org } = await supabaseAdmin
           .from('organizations')
           .select('id')
           .eq('name', 'PLMJ')
@@ -203,16 +202,30 @@ export async function POST(request: NextRequest) {
         userOrgId = org?.id;
       }
     } else {
-      // Regular users - get their organization and check permissions through organization_members
-      const { data: userAccess } = await supabase
-        .from('organization_members')
+      // Regular users - get their organization and check permissions using admin client
+      const { data: appUser } = await supabaseAdmin
+        .from('app_users')
         .select('organization_id, role')
-        .eq('user_id', user.id)
+        .eq('auth_user_id', user.id)
         .single();
 
-      if (userAccess && ['account_owner', 'sustainability_manager', 'facility_manager'].includes(userAccess.role)) {
-        hasPermission = true;
-        userOrgId = userAccess.organization_id;
+      if (appUser?.organization_id) {
+        userOrgId = appUser.organization_id;
+        hasPermission = ['owner', 'manager', 'member'].includes(appUser.role);
+      } else {
+        // Check user_access table
+        const { data: userAccess } = await supabaseAdmin
+          .from('user_access')
+          .select('resource_id, role')
+          .eq('user_id', user.id)
+          .eq('resource_type', 'org')
+          .limit(1)
+          .single();
+
+        if (userAccess) {
+          userOrgId = userAccess.resource_id;
+          hasPermission = ['owner', 'manager', 'member'].includes(userAccess.role);
+        }
       }
     }
 
@@ -224,8 +237,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
 
-    // Verify site belongs to organization
-    const { data: site } = await supabase
+    // Verify site belongs to organization - use admin client if super admin to avoid RLS
+    const dbClient = isSuperAdmin ? supabaseAdmin : supabase;
+    const { data: site } = await dbClient
       .from('sites')
       .select('id')
       .eq('id', siteId)
@@ -244,7 +258,7 @@ export async function POST(request: NextRequest) {
       is_active: true
     }));
 
-    const { data, error } = await supabase
+    const { data, error } = await dbClient
       .from('site_metrics')
       .upsert(siteMetricsToInsert, { onConflict: 'site_id,metric_id' })
       .select();
@@ -278,8 +292,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check permissions (same as sites API)
-    const { data: superAdminRecord } = await supabase
+    // Check permissions using admin client to avoid RLS issues
+    const { data: superAdminRecord } = await supabaseAdmin
       .from('super_admins')
       .select('id')
       .eq('user_id', user.id)
@@ -291,14 +305,28 @@ export async function DELETE(request: NextRequest) {
     if (isSuperAdmin) {
       hasPermission = true;
     } else {
-      const { data: userAccess } = await supabase
-        .from('organization_members')
-        .select('organization_id, role')
-        .eq('user_id', user.id)
+      // Check user permissions using admin client
+      const { data: appUser } = await supabaseAdmin
+        .from('app_users')
+        .select('role')
+        .eq('auth_user_id', user.id)
         .single();
 
-      if (userAccess && ['account_owner', 'sustainability_manager', 'facility_manager'].includes(userAccess.role)) {
-        hasPermission = true;
+      if (appUser) {
+        hasPermission = ['owner', 'manager', 'member'].includes(appUser.role);
+      } else {
+        // Check user_access table
+        const { data: userAccess } = await supabaseAdmin
+          .from('user_access')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('resource_type', 'org')
+          .limit(1)
+          .single();
+
+        if (userAccess) {
+          hasPermission = ['owner', 'manager', 'member'].includes(userAccess.role);
+        }
       }
     }
 
@@ -306,8 +334,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    // Remove metric from site (set as inactive)
-    const { error } = await supabase
+    // Remove metric from site (set as inactive) - use admin client if super admin to avoid RLS
+    const dbClient = isSuperAdmin ? supabaseAdmin : supabase;
+    const { error } = await dbClient
       .from('site_metrics')
       .update({ is_active: false })
       .eq('site_id', siteId)

@@ -1,0 +1,146 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
+
+// GET /api/conversations - Get user's conversations
+async function GET(request: NextRequest) {
+  try {
+    // Get authenticated user
+    const supabase = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('conversations')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ conversations: data || [] });
+  } catch (error) {
+    console.error('Error fetching conversations:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch conversations' },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/conversations - Create new conversation
+async function POST(request: NextRequest) {
+  try {
+    // Get authenticated user
+    const supabase = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { buildingId } = await request.json();
+
+    const { data, error } = await supabaseAdmin
+      .from('conversations')
+      .insert({
+        user_id: user.id,
+        building_id: buildingId,
+        messages: [],
+        context: {}
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json({ conversation: data });
+  } catch (error) {
+    console.error('Error creating conversation:', error);
+    return NextResponse.json(
+      { error: 'Failed to create conversation' },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH /api/conversations/[id] - Update conversation
+async function PATCH(request: NextRequest) {
+  try {
+    // Get authenticated user
+    const supabase = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const conversationId = url.pathname.split('/').pop();
+    const { messages, context } = await request.json();
+
+    const updateData: any = { updated_at: new Date().toISOString() };
+    if (messages) updateData.messages = messages;
+    if (context) updateData.context = context;
+
+    const { data, error } = await supabaseAdmin
+      .from('conversations')
+      .update(updateData)
+      .eq('id', conversationId)
+      .eq('user_id', user.id) // Ensure user owns the conversation
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json({ conversation: data });
+  } catch (error) {
+    console.error('Error updating conversation:', error);
+    return NextResponse.json(
+      { error: 'Failed to update conversation' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/conversations/[id] - Delete conversation
+async function DELETE(request: NextRequest) {
+  try {
+    const userId = request.headers.get('x-user-id');
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const conversationId = url.pathname.split('/').pop();
+
+    const { error } = await supabaseAdmin
+      .from('conversations')
+      .delete()
+      .eq('id', conversationId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting conversation:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete conversation' },
+      { status: 500 }
+    );
+  }
+}
+
+// Export with middleware
+export const GETWithMiddleware = withMiddleware(GET, middlewareConfigs.authenticated);
+export const POSTWithMiddleware = withMiddleware(POST, middlewareConfigs.authenticated);
+export const PATCHWithMiddleware = withMiddleware(PATCH, middlewareConfigs.authenticated);
+export const DELETEWithMiddleware = withMiddleware(DELETE, middlewareConfigs.authenticated);
+
+export {
+  GETWithMiddleware as GET,
+  POSTWithMiddleware as POST,
+  PATCHWithMiddleware as PATCH,
+  DELETEWithMiddleware as DELETE
+};
