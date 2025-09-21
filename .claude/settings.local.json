@@ -59,7 +59,11 @@
       "Bash(lsof:*)",
       "Bash(xargs kill:*)",
       "Bash(curl:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "WebSearch",
+      "Bash(git log:*)",
+      "Bash(xargs git check-ignore:*)",
+      "Bash(xargs git add:*)"
     ],
     "deny": [],
     "ask": []

@@ -58,9 +58,9 @@ export const chatMessageSchema = z.object({
   message: z.string()
     .min(1, 'Message cannot be empty')
     .max(10000, 'Message is too long'),
-  conversationId: uuidSchema.optional(),
-  buildingId: uuidSchema.optional(),
-  organizationId: uuidSchema.optional(),
+  conversationId: z.string().optional(), // Allow any string for now (including local_ prefixed)
+  buildingId: z.string().optional(), // Allow any string for now
+  organizationId: z.string().optional(),
   buildingContext: z.object({
     id: z.string(),
     name: z.string(),
@@ -68,13 +68,15 @@ export const chatMessageSchema = z.object({
     metadata: z.record(z.any()).optional(),
   }).optional(),
   attachments: z.array(z.object({
-    id: uuidSchema,
-    name: z.string().max(255),
-    type: z.string().max(100),
-    size: z.number().max(10 * 1024 * 1024), // 10MB
+    id: z.string().optional(),
+    name: z.string().max(255).optional(),
+    type: z.string().max(100).optional(),
+    size: z.number().max(50 * 1024 * 1024).optional(), // 50MB
     publicUrl: z.string().url().optional(),
     extractedData: z.any().optional(),
-  })).optional(),
+    originalName: z.string().optional(),
+    fileType: z.string().optional(),
+  }).passthrough()).optional(),
 });
 
 /**
@@ -237,6 +239,13 @@ export const metricsCatalogCreateSchema = z.object({
   emission_factor: z.number().finite('Emission factor must be a valid number').optional(),
   emission_factor_unit: z.string().max(20, 'Emission factor unit too long').optional(),
   ghg_protocol_category: z.string().max(50, 'GHG protocol category too long').optional(),
+});
+
+/**
+ * Conversation schemas
+ */
+export const conversationCreateSchema = z.object({
+  buildingId: z.string().min(1, 'Building ID is required'),
 });
 
 /**
