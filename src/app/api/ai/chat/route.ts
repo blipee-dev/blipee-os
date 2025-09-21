@@ -11,7 +11,8 @@ export const dynamic = 'force-dynamic';
 // Internal POST handler
 async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
   try {
-    const body = await request.json();
+    // Use parsed body from middleware if available, otherwise parse JSON
+    const body = (request as any).parsedBody || await request.json();
 
     // Debug: Log the incoming request body
     console.log('AI Chat API - Incoming request body:', JSON.stringify(body, null, 2));
@@ -118,8 +119,9 @@ ${mlInsights ? `\n\nML Model Predictions:\n${JSON.stringify(mlInsights)}` : ''}`
     const suggestions = extractSuggestions(aiResponse);
 
     // Check if response contains code or structured content
-    const hasCode = aiResponse.includes("```");
-    const artifact = hasCode ? extractCodeFromResponse(aiResponse) : null;
+    const aiResponseText = typeof aiResponse === 'string' ? aiResponse : String(aiResponse || '');
+    const hasCode = aiResponseText.includes("```");
+    const artifact = hasCode ? extractCodeFromResponse(aiResponseText) : null;
 
     // Generate dynamic UI components based on context
     const components = [];
@@ -177,7 +179,7 @@ ${mlInsights ? `\n\nML Model Predictions:\n${JSON.stringify(mlInsights)}` : ''}`
 
     // Format response
     const response = {
-      content: artifact ? cleanResponseContent(aiResponse) : aiResponse,
+      content: artifact ? cleanResponseContent(aiResponseText) : aiResponseText,
       ...(artifact && {
         artifact: artifact.code,
         artifactType: artifact.type,
@@ -234,21 +236,24 @@ ${mlInsights ? `\n\nML Model Predictions:\n${JSON.stringify(mlInsights)}` : ''}`
 }
 
 // Helper function to extract suggestions from AI response
-function extractSuggestions(response: string): string[] {
+function extractSuggestions(response: string | any): string[] {
   const suggestions: string[] = [];
 
+  // Ensure response is a string
+  const responseText = typeof response === 'string' ? response : String(response || '');
+
   // Look for bullet points or numbered lists that might be suggestions
-  const bulletPoints = response.match(/^[•\-\*]\s+(.+)$/gm);
+  const bulletPoints = responseText.match(/^[•\-\*]\s+(.+)$/gm);
   if (bulletPoints && bulletPoints.length <= 4) {
     return bulletPoints.slice(0, 4).map(s => s.replace(/^[•\-\*]\s+/, ''));
   }
 
   // Default suggestions based on content
-  if (response.toLowerCase().includes('energy')) {
+  if (responseText.toLowerCase().includes('energy')) {
     suggestions.push("Show energy trends", "Optimize consumption", "Generate energy report");
-  } else if (response.toLowerCase().includes('carbon') || response.toLowerCase().includes('emissions')) {
+  } else if (responseText.toLowerCase().includes('carbon') || responseText.toLowerCase().includes('emissions')) {
     suggestions.push("Track emissions", "Set reduction targets", "View carbon dashboard");
-  } else if (response.toLowerCase().includes('report')) {
+  } else if (responseText.toLowerCase().includes('report')) {
     suggestions.push("Generate PDF report", "Schedule reports", "Export data");
   } else {
     suggestions.push("Tell me more", "Show examples", "What else can you do?");
@@ -258,9 +263,12 @@ function extractSuggestions(response: string): string[] {
 }
 
 // Helper function to extract code from response
-function extractCodeFromResponse(response: string): { code: string; type: string; language?: string; title?: string } | null {
+function extractCodeFromResponse(response: string | any): { code: string; type: string; language?: string; title?: string } | null {
+  // Ensure response is a string
+  const responseText = typeof response === 'string' ? response : String(response || '');
+
   const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/;
-  const match = response.match(codeBlockRegex);
+  const match = responseText.match(codeBlockRegex);
 
   if (match) {
     const language = match[1] || 'typescript';
@@ -279,9 +287,12 @@ function extractCodeFromResponse(response: string): { code: string; type: string
 }
 
 // Helper function to clean response content when artifact is extracted
-function cleanResponseContent(response: string): string {
+function cleanResponseContent(response: string | any): string {
+  // Ensure response is a string
+  const responseText = typeof response === 'string' ? response : String(response || '');
+
   // Remove code blocks from the response
-  return response.replace(/```[\w]*\n[\s\S]*?```/g, '').trim();
+  return responseText.replace(/```[\w]*\n[\s\S]*?```/g, '').trim();
 }
 
 // Analyze message intent for routing

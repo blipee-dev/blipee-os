@@ -52,10 +52,14 @@ export function withMiddleware(
       }
 
       // Apply security middleware
-      const securityResponse = await withSecurity(request, security);
-      if (securityResponse) {
-        return securityResponse;
+      const securityResult = await withSecurity(request, security);
+      if (securityResult.response) {
+        return securityResult.response;
       }
+
+      // Get sanitized body and body text from security middleware if available
+      const sanitizedBody = securityResult.sanitizedBody;
+      const securityBodyText = securityResult.bodyText;
 
       // Apply input validation
       if (validation.query) {
@@ -78,18 +82,27 @@ export function withMiddleware(
       // Handle body validation with proper Next.js request handling
       if (validation.body && (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH')) {
         try {
-          // Read body once and validate
-          const bodyText = await request.text();
-          let body;
+          let body: any;
+          let bodyText: string;
 
-          try {
-            body = JSON.parse(bodyText);
-          } catch (parseError) {
-            console.error('Middleware - Invalid JSON:', parseError);
-            return addSecurityHeaders(NextResponse.json(
-              { error: 'Invalid JSON in request body' },
-              { status: 400 }
-            ));
+          // Use sanitized body from security middleware if available
+          if (sanitizedBody && securityBodyText) {
+            body = sanitizedBody;
+            bodyText = securityBodyText;
+            console.log('Middleware - Using sanitized body from security middleware');
+          } else {
+            // Read body if not already processed by security middleware
+            try {
+              bodyText = await request.text();
+              body = JSON.parse(bodyText);
+              console.log('Middleware - Reading fresh body from request');
+            } catch (error) {
+              console.error('Middleware - Failed to read/parse request body:', error);
+              return addSecurityHeaders(NextResponse.json(
+                { error: 'Invalid request body' },
+                { status: 400 }
+              ));
+            }
           }
 
           console.log('Middleware - Validating body:', JSON.stringify(body, null, 2));
@@ -115,6 +128,9 @@ export function withMiddleware(
             headers: request.headers,
             body: bodyText,
           });
+
+          // Attach the parsed body to the request object for the handler to use
+          (newRequest as any).parsedBody = body;
 
           // Execute handler with the new request
           const response = await handler(newRequest, context);

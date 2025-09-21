@@ -149,32 +149,50 @@ export function detectXss(input: string): boolean {
 }
 
 // Request body sanitization middleware
-export async function sanitizeRequestBody(request: NextRequest): Promise<NextRequest | NextResponse> {
+export async function sanitizeRequestBody(request: NextRequest): Promise<{ sanitizedBody?: any; response?: NextResponse; bodyText?: string }> {
   try {
     if (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH') {
       const contentType = request.headers.get('content-type') || '';
 
       if (contentType.includes('application/json')) {
-        const body = await request.json();
+        const bodyText = await request.text();
+        let body;
+
+        try {
+          body = JSON.parse(bodyText);
+        } catch (error) {
+          return {
+            response: NextResponse.json(
+              { error: 'Invalid JSON in request body' },
+              { status: 400 }
+            )
+          };
+        }
 
         // Check for malicious content in JSON values
         const jsonString = JSON.stringify(body);
 
         if (detectSqlInjection(jsonString) || detectXss(jsonString)) {
-          return NextResponse.json(
-            { error: 'Malicious content detected in request' },
-            { status: 400 }
-          );
+          return {
+            response: NextResponse.json(
+              { error: 'Malicious content detected in request' },
+              { status: 400 }
+            )
+          };
         }
+
+        return { sanitizedBody: body, bodyText }; // Return both the sanitized body and the original text
       }
     }
 
-    return request; // Continue processing
+    return {}; // Continue processing
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Invalid request body' },
-      { status: 400 }
-    );
+    return {
+      response: NextResponse.json(
+        { error: 'Invalid request body' },
+        { status: 400 }
+      )
+    };
   }
 }
 
@@ -238,7 +256,7 @@ export interface SecurityConfig {
 export async function withSecurity(
   request: NextRequest,
   config: SecurityConfig = {}
-): Promise<NextResponse | null> {
+): Promise<{ response?: NextResponse; sanitizedBody?: any; bodyText?: string }> {
   const {
     cors = true,
     inputSanitization = true,
@@ -249,23 +267,27 @@ export async function withSecurity(
   // Check IP reputation
   if (ipReputation) {
     const ipCheck = checkIPReputation(request);
-    if (ipCheck) return ipCheck;
+    if (ipCheck) return { response: ipCheck };
   }
 
   // Handle CORS
   if (cors) {
     const corsConfig = typeof cors === 'object' ? cors : {};
     const corsResponse = handleCors(request, corsConfig);
-    if (corsResponse) return corsResponse;
+    if (corsResponse) return { response: corsResponse };
   }
 
   // Sanitize request body
   if (inputSanitization) {
-    const sanitizedRequest = await sanitizeRequestBody(request);
-    if (sanitizedRequest instanceof NextResponse) {
-      return sanitizedRequest;
+    const sanitizationResult = await sanitizeRequestBody(request);
+    if (sanitizationResult.response) {
+      return { response: sanitizationResult.response };
     }
+    return {
+      sanitizedBody: sanitizationResult.sanitizedBody,
+      bodyText: sanitizationResult.bodyText
+    };
   }
 
-  return null; // Continue to next middleware/handler
+  return {}; // Continue to next middleware/handler
 }
