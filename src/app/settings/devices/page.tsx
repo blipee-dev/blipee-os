@@ -1,34 +1,30 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase/server';
+import { PermissionService } from '@/lib/auth/permission-service';
+import { getUserOrganization } from '@/lib/auth/get-user-org';
 import DevicesClient from './DevicesClient';
 
 export default async function DevicesPage() {
-  const supabase = await createClient();
+  const supabase = await createServerSupabaseClient();
   const supabaseAdmin = createAdminClient();
 
   // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  
-  if (!user) {
-    redirect('/signin');
+  const { data: { user }, error } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    redirect('/signin?redirect=/settings/devices');
   }
 
-  // Check if user is super admin
-  const { data: superAdminRecord } = await supabase
-    .from('super_admins')
-    .select('id')
-    .eq('user_id', user.id)
-    .maybeSingle();
-  
-  const isSuperAdmin = !!superAdminRecord;
-  
+  // Check permissions
+  const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
+  const { organizationId, role } = await getUserOrganization(user.id);
+
   let userOrgs: any[] = [];
-  let organizationIds: string[] = [];
   let sites: any[] = [];
   let devices: any[] = [];
 
   if (isSuperAdmin) {
-    // Super admin can see all organizations and devices (using admin client to bypass RLS)
+    // Super admin can see all organizations and devices
     const { data: allOrgs, error: orgsError } = await supabaseAdmin
       .from('organizations')
       .select('id, name, slug')
@@ -38,13 +34,13 @@ export default async function DevicesPage() {
       console.error('Error fetching organizations:', orgsError);
     }
 
-    userOrgs = allOrgs?.map(org => ({ 
-      organization_id: org.id, 
+    userOrgs = allOrgs?.map(org => ({
+      organization_id: org.id,
       role: 'super_admin',
-      organizations: org 
+      organizations: org
     })) || [];
-    
-    // Fetch ALL sites (using admin client to bypass RLS)
+
+    // Fetch ALL sites
     const { data: allSites, error: sitesError } = await supabaseAdmin
       .from('sites')
       .select('id, name, organization_id')
@@ -55,8 +51,8 @@ export default async function DevicesPage() {
     }
 
     sites = allSites || [];
-    
-    // Fetch ALL devices (using admin client to bypass RLS)
+
+    // Fetch ALL devices
     const { data: allDevices, error: devicesError } = await supabaseAdmin
       .from('devices')
       .select(`
@@ -78,99 +74,37 @@ export default async function DevicesPage() {
 
     devices = allDevices || [];
   } else {
-    // Regular users - get user's profile first for direct organization
-    const { data: userProfile } = await supabaseAdmin
-      .from('app_users')
-      .select('id, organization_id, role')
-      .eq('auth_user_id', user.id)
-      .single();
-
-    const organizationIds = new Set<string>();
-    const orgRoles: Record<string, string> = {};
-
-    // Add direct organization if exists
-    if (userProfile?.organization_id) {
-      organizationIds.add(userProfile.organization_id);
-      orgRoles[userProfile.organization_id] = userProfile.role || 'viewer';
+    if (!organizationId || !role) {
+      redirect('/unauthorized?reason=no_organization');
     }
 
-    // Also check organization_members table
-    const { data: orgMemberships, error: membershipError } = await supabaseAdmin
-      .from('organization_members')
-      .select('organization_id, role')
-      .eq('user_id', userProfile?.id || user.id);
+    // Check if user has permission to view devices/sites
+    const canManageSites = await PermissionService.canManageSites(user.id, organizationId);
 
-    if (membershipError) {
-      console.error('Error fetching organization memberships:', membershipError);
-    }
-
-    // Add membership organizations
-    if (orgMemberships && orgMemberships.length > 0) {
-      orgMemberships.forEach(om => {
-        organizationIds.add(om.organization_id);
-        if (!orgRoles[om.organization_id]) {
-          orgRoles[om.organization_id] = om.role || 'viewer';
-        }
-      });
-    }
-
-    const orgIdArray = Array.from(organizationIds);
-
-    if (orgIdArray.length === 0) {
-      console.log('User has no organization memberships');
-      redirect('/');
+    if (!canManageSites) {
+      redirect('/unauthorized?reason=insufficient_permissions&required=sites_access');
     }
 
     // Fetch organization details
-    const { data: orgsData, error: orgsDataError } = await supabaseAdmin
+    const { data: orgData } = await supabase
       .from('organizations')
       .select('id, name, slug')
-      .in('id', orgIdArray);
+      .eq('id', organizationId)
+      .single();
 
-    if (orgsDataError) {
-      console.error('Error fetching organization data:', orgsDataError);
+    if (orgData) {
+      userOrgs = [{
+        organization_id: orgData.id,
+        role: role,
+        organizations: orgData
+      }];
     }
 
-    // Map organizations with their roles
-    userOrgs = orgsData?.map(org => {
-      return {
-        organization_id: org.id,
-        role: orgRoles[org.id] || 'viewer',
-        organizations: org
-      };
-    }) || [];
-
-    // Check permission using Simple RBAC system
-    let hasPermission = false;
-
-    if (orgIdArray.length > 0) {
-      // Check if user has permission to view devices in any of their organizations
-      for (const orgId of orgIdArray) {
-        const { data: permissionResult } = await supabaseAdmin
-          .rpc('check_user_permission', {
-            p_user_id: user.id,
-            p_resource_type: 'org',
-            p_resource_id: orgId,
-            p_action: 'sites'  // Sites permission includes devices
-          });
-
-        if (permissionResult) {
-          hasPermission = true;
-          break;
-        }
-      }
-    }
-
-    if (!hasPermission && userOrgs.length > 0) {
-      // User doesn't have permission to view devices
-      redirect('/');
-    }
-
-    // Fetch sites for user's organizations using admin client
+    // Fetch sites for user's organization
     const { data: sitesData, error: sitesError } = await supabaseAdmin
       .from('sites')
       .select('id, name, organization_id')
-      .in('organization_id', orgIdArray);
+      .eq('organization_id', organizationId);
 
     if (sitesError) {
       console.error('Error fetching sites:', sitesError);
@@ -179,37 +113,38 @@ export default async function DevicesPage() {
     sites = sitesData || [];
     const siteIds = sites.map(s => s.id);
 
-    // Fetch devices for user's sites using admin client
-    const { data: devicesData, error: devicesError } = await supabaseAdmin
-      .from('devices')
-      .select(`
-        *,
-        sites (
-          name,
-          location,
-          organizations (
+    // Fetch devices for user's sites
+    if (siteIds.length > 0) {
+      const { data: devicesData, error: devicesError } = await supabaseAdmin
+        .from('devices')
+        .select(`
+          *,
+          sites (
             name,
-            slug
+            location,
+            organizations (
+              name,
+              slug
+            )
           )
-        )
-      `)
-      .in('site_id', siteIds)
-      .order('created_at', { ascending: false });
+        `)
+        .in('site_id', siteIds)
+        .order('created_at', { ascending: false });
 
-    if (devicesError) {
-      console.error('Error fetching devices:', devicesError);
+      if (devicesError) {
+        console.error('Error fetching devices:', devicesError);
+      }
+
+      devices = devicesData || [];
     }
-
-    devices = devicesData || [];
   }
 
-  // Pass data to client component
   return (
-    <DevicesClient 
+    <DevicesClient
       initialDevices={devices}
       sites={sites}
       organizations={userOrgs?.map(uo => uo.organizations) || []}
-      userRole={isSuperAdmin ? 'super_admin' : (userOrgs?.[0]?.role || 'viewer')}
+      userRole={isSuperAdmin ? 'super_admin' : role}
     />
   );
 }

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getUserOrganization } from '@/lib/auth/get-user-org';
 
 export async function GET(request: NextRequest) {
   console.log('🔧 API: Dashboard endpoint called');
@@ -51,24 +53,19 @@ export async function GET(request: NextRequest) {
         organizationId = firstOrg?.id;
       }
     } else {
-      // Get user's organization
-      const { data: userAccess } = await supabase
-        .from('organization_members')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .limit(1)
-        .maybeSingle();
+      // Get user's organization using centralized helper
+      const { organizationId: userOrgId } = await getUserOrganization(user.id);
 
-      if (!userAccess) {
-        // If no user access, try to get PLMJ organization
+      if (userOrgId) {
+        organizationId = userOrgId;
+      } else {
+        // If no user access, try to get PLMJ organization as fallback
         const { data: plmjOrg } = await supabase
           .from('organizations')
           .select('id')
           .eq('name', 'PLMJ')
           .single();
         organizationId = plmjOrg?.id;
-      } else {
-        organizationId = userAccess.organization_id;
       }
     }
 

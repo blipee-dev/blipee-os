@@ -14,6 +14,7 @@ import { MobileNavigation } from "./MobileNavigation";
 import { Message, UIComponent } from "@/types/conversation";
 import { conversationService } from "@/lib/conversations/service";
 import { jsonToMessages } from "@/lib/conversations/utils";
+import { ConversationClient } from "@/lib/conversations/client";
 import { useAPIClient } from "@/lib/api/client";
 import { useCSRF } from "@/hooks/use-csrf";
 import { useAuth } from "@/lib/auth/context";
@@ -58,35 +59,20 @@ export function ConversationInterface({
   const { settings, updateSetting } = useAppearance();
   const t = useTranslations('conversation');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(settings.sidebarAutoCollapse);
-  
+
   // Initialize collapsed state on mount and when setting changes
   useEffect(() => {
     setIsSidebarCollapsed(settings.sidebarAutoCollapse);
   }, [settings.sidebarAutoCollapse]);
-  
+
   // Handle manual toggle - update both local state and global setting
   const handleToggleCollapse = () => {
     const newCollapsedState = !isSidebarCollapsed;
     setIsSidebarCollapsed(newCollapsedState);
     updateSetting('sidebarAutoCollapse', newCollapsedState);
   };
-  const [artifacts, setArtifacts] = useState<Artifact[]>([
-    {
-      id: "sample1",
-      type: "document",
-      title: t('artifacts.sustainabilityReport'),
-      content: t('artifacts.monthlyReportContent'),
-      timestamp: new Date(),
-    },
-    {
-      id: "sample2",
-      type: "chart",
-      title: t('artifacts.energyTrends'),
-      content: t('artifacts.energyTrendsContent'),
-      timestamp: new Date(),
-    },
-  ]);
-  const [currentArtifactId, setCurrentArtifactId] = useState<string | undefined>("sample1");
+  const [artifacts, setArtifacts] = useState<Artifact[]>([]);
+  const [currentArtifactId, setCurrentArtifactId] = useState<string | undefined>();
   const [showArtifacts, setShowArtifacts] = useState(false);
   const [isArtifactsExpanded, setIsArtifactsExpanded] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
@@ -104,43 +90,79 @@ export function ConversationInterface({
     scrollToBottom();
   }, [messages]);
 
-  // Load conversations from localStorage on mount
+  // Load conversations from database on mount
   useEffect(() => {
-    const loadConversations = () => {
-      const stored = localStorage.getItem("blipee_conversations");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const convs = parsed.map((c: any) => ({
-          ...c,
-          timestamp: new Date(c.timestamp),
+    const loadConversations = async () => {
+      if (!session?.user?.id) return;
+
+      try {
+        const dbConversations = await ConversationClient.getUserConversations();
+        const convs = dbConversations.map((c: any) => ({
+          id: c.id,
+          title: c.messages?.[0]?.content?.slice(0, 50) || 'New Conversation',
+          lastMessage: c.messages?.[c.messages.length - 1]?.content?.slice(0, 100) || '',
+          timestamp: new Date(c.updated_at),
+          messageCount: c.messages?.length || 0,
+          messages: c.messages || []
         }));
         setConversations(convs);
+      } catch (error) {
+        console.error('Error loading conversations:', error);
+        // Fallback to localStorage if database fails
+        const stored = localStorage.getItem("blipee_conversations");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const convs = parsed.map((c: any) => ({
+            ...c,
+            timestamp: new Date(c.timestamp),
+          }));
+          setConversations(convs);
+        }
       }
     };
     loadConversations();
-  }, []);
+  }, [session]);
 
-  // Save conversations to localStorage whenever they change
-  useEffect(() => {
-    if (conversations.length > 0) {
-      localStorage.setItem("blipee_conversations", JSON.stringify(conversations));
+  const createNewConversation = async () => {
+    if (!session?.user?.id) {
+      console.error('User not authenticated');
+      return;
     }
-  }, [conversations]);
 
-  const createNewConversation = () => {
-    const newId = `conv_${Date.now()}`;
-    const newConversation: StoredConversation = {
-      id: newId,
-      title: t('newConversation'),
-      lastMessage: "",
-      timestamp: new Date(),
-      messageCount: 0,
-      messages: [],
-    };
-    
-    setConversations((prev) => [newConversation, ...prev]);
-    setCurrentConversationId(newId);
-    setMessages([]);
+    try {
+      const dbConversation = await ConversationClient.createConversation(
+        buildingContext?.id
+      );
+
+      const newConversation: StoredConversation = {
+        id: dbConversation.id,
+        title: t('newConversation'),
+        lastMessage: "",
+        timestamp: new Date(dbConversation.created_at),
+        messageCount: 0,
+        messages: [],
+      };
+
+      setConversations((prev) => [newConversation, ...prev]);
+      setCurrentConversationId(dbConversation.id);
+      setMessages([]);
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      // Fallback to local-only conversation
+      const newId = `local_${Date.now()}`;
+      const newConversation: StoredConversation = {
+        id: newId,
+        title: t('newConversation'),
+        lastMessage: "",
+        timestamp: new Date(),
+        messageCount: 0,
+        messages: [],
+      };
+
+      setConversations((prev) => [newConversation, ...prev]);
+      setCurrentConversationId(newId);
+      setMessages([]);
+    }
   };
 
   const selectConversation = (id: string) => {
@@ -159,9 +181,10 @@ export function ConversationInterface({
     }
   };
 
-  const updateCurrentConversation = (newMessages: Message[]) => {
+  const updateCurrentConversation = async (newMessages: Message[]) => {
     if (!currentConversationId) return;
 
+    // Update local state immediately
     setConversations((prev) =>
       prev.map((conv) => {
         if (conv.id === currentConversationId) {
@@ -169,7 +192,7 @@ export function ConversationInterface({
           const title = conv.messageCount === 0 && newMessages.length > 0
             ? newMessages[0].content.slice(0, 50) + (newMessages[0].content.length > 50 ? "..." : "")
             : conv.title;
-          
+
           return {
             ...conv,
             title,
@@ -182,6 +205,15 @@ export function ConversationInterface({
         return conv;
       })
     );
+
+    // Persist to database if not a local conversation
+    if (!currentConversationId.startsWith('local_')) {
+      try {
+        await ConversationClient.updateMessages(currentConversationId, newMessages);
+      } catch (error) {
+        console.error('Error updating conversation in database:', error);
+      }
+    }
   };
 
   const handleSend = async (message: string, files?: any[]) => {
