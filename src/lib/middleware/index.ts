@@ -77,7 +77,9 @@ export function withMiddleware(
 
       if (validation.body && (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH')) {
         try {
-          const body = await request.clone().json();
+          // Clone the request to avoid consuming the original body
+          const clonedRequest = request.clone();
+          const body = await clonedRequest.json();
 
           const bodyValidation = validateAndSanitize(validation.body, body);
           if (!bodyValidation.success) {
