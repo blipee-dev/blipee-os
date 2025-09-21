@@ -614,7 +614,7 @@ class CarbonHunter extends AutonomousAgent {
         await this.optimizeEnergyUsage();
 
         // Track carbon offsets
-        await this.manageCarbon Offsets();
+        await this.manageCarbonOffsets();
 
         this.tasksCompleted++;
         this.tasksInProgress--;
