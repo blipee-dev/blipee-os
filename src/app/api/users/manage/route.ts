@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { SimpleRoleName, LEGACY_TO_SIMPLE_MAPPING } from '@/lib/rbac/types';
 import { sendInvitationEmailViaGmail } from '@/lib/email/send-invitation-gmail';
+import { PermissionService } from '@/lib/auth/permission-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,23 +20,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, email, role, organization_id, status, site_ids, access_level } = body;
 
-    // Check if current user is super admin
-    const { data: superAdminCheck } = await supabaseAdmin
-      .from('super_admins')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
-
-    // Check if user has permission to create users based on Simple RBAC
-    // Get current user's role
-    const { data: currentUser } = await supabaseAdmin
-      .from('app_users')
-      .select('role')
-      .eq('auth_user_id', user.id)
-      .single();
-
-    // Only super admins, owners, and managers can create users
-    const canCreate = superAdminCheck || (currentUser && (currentUser.role === 'owner' || currentUser.role === 'manager'));
+    // Check if user has permission to create users using centralized permission service
+    const canCreate = await PermissionService.canManageUsers(user.id, organization_id);
 
     if (!canCreate) {
       return NextResponse.json({ error: 'Insufficient permissions to create users' }, { status: 403 });
@@ -293,22 +279,8 @@ export async function PUT(request: NextRequest) {
 
     // If not self-update, check permissions
     if (!isSelfUpdate) {
-      // Check if current user is super admin
-      const { data: superAdminCheck } = await supabaseAdmin
-        .from('super_admins')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      // Get current user's role
-      const { data: currentUser } = await supabaseAdmin
-        .from('app_users')
-        .select('role')
-        .eq('auth_user_id', user.id)
-        .single();
-
-      // Only super admins, owners, and managers can update other users
-      const canUpdate = superAdminCheck || (currentUser && (currentUser.role === 'owner' || currentUser.role === 'manager'));
+      // Check if user has permission to update users
+      const canUpdate = await PermissionService.canManageUsers(user.id, organization_id);
 
       if (!canUpdate) {
         return NextResponse.json({ error: 'Insufficient permissions to update users' }, { status: 403 });
@@ -420,23 +392,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Check if current user is super admin
-    const { data: superAdminCheck } = await supabaseAdmin
-      .from('super_admins')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
-
-    // Check if current user has permission to delete users based on Simple RBAC
-    // Get current user's role
-    const { data: currentUser } = await supabaseAdmin
-      .from('app_users')
-      .select('role')
-      .eq('auth_user_id', user.id)
-      .single();
-
-    // Only super admins, owners, and managers can delete users
-    const canDelete = superAdminCheck || (currentUser && (currentUser.role === 'owner' || currentUser.role === 'manager'));
+    // Check if user has permission to delete users using centralized permission service
+    const canDelete = await PermissionService.canManageUsers(user.id, targetUser.organization_id);
 
     if (!canDelete) {
       return NextResponse.json({ error: 'Insufficient permissions to delete users' }, { status: 403 });

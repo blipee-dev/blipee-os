@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 interface AppearanceSettings {
   theme: 'light' | 'dark' | 'system';
@@ -25,8 +26,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch appearance settings from app_users table
-    const { data: userSettings, error: fetchError } = await supabase
+    // Fetch appearance settings from app_users table using admin client to avoid RLS issues
+    const { data: userSettings, error: fetchError } = await supabaseAdmin
       .from('app_users')
       .select('appearance_settings')
       .eq('auth_user_id', user.id)
@@ -110,8 +111,8 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const settings = body as AppearanceSettings;
 
-    // Check if user profile exists
-    const { data: existingProfile } = await supabase
+    // Check if user profile exists using admin client to avoid RLS issues
+    const { data: existingProfile } = await supabaseAdmin
       .from('app_users')
       .select('id')
       .eq('auth_user_id', user.id)
@@ -120,8 +121,8 @@ export async function PUT(request: NextRequest) {
     let result;
 
     if (existingProfile) {
-      // Update existing profile with appearance settings
-      const { data, error } = await supabase
+      // Update existing profile with appearance settings using admin client
+      const { data, error } = await supabaseAdmin
         .from('app_users')
         .update({
           appearance_settings: settings,
@@ -140,13 +141,18 @@ export async function PUT(request: NextRequest) {
       }
       result = data;
     } else {
-      // Create new profile with appearance settings
-      const { data, error } = await supabase
+      // Create new profile with appearance settings using admin client
+      const { data, error } = await supabaseAdmin
         .from('app_users')
         .insert({
           auth_user_id: user.id,
           email: user.email,
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
           appearance_settings: settings,
+          role: 'viewer', // Default role
+          status: 'active',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .select('appearance_settings')
         .single();

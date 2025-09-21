@@ -204,10 +204,10 @@ export const middlewareConfigs = {
 export {
   withRateLimit,
   rateLimiters,
-  withSecurity,
-  addSecurityHeaders,
 } from './rate-limit';
 export {
+  withSecurity,
+  addSecurityHeaders,
   handleCors,
   sanitizeInput,
   detectSqlInjection,

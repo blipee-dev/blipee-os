@@ -39,9 +39,11 @@ export class RedisClient {
    * Connect to Redis
    */
   private async connect(): Promise<void> {
-    // Skip connection during build
-    if (process.env.NEXT_PHASE === 'phase-production-build') {
-      console.log('⏭️  Skipping Redis connection during build');
+    // Skip connection during build or static generation
+    if (process.env.NEXT_PHASE === 'phase-production-build' ||
+        process.env.NODE_ENV === 'development' && !process.env.REDIS_HOST) {
+      console.log('⏭️  Skipping Redis connection during build/development without Redis');
+      this.isConnected = false;
       return;
     }
 
@@ -113,8 +115,10 @@ export class RedisClient {
         });
 
         this.client.on('error', (err) => {
-          // Suppress error logging during build
-          if (process.env.NODE_ENV !== 'production' || !err.message.includes('ECONNREFUSED')) {
+          // Suppress error logging during build or when Redis is not expected
+          if (process.env.NEXT_PHASE !== 'phase-production-build' &&
+              process.env.NODE_ENV !== 'test' &&
+              !err.message.includes('ECONNREFUSED')) {
             console.error('Redis error:', err);
           }
           this.isConnected = false;

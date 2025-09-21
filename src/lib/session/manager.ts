@@ -11,13 +11,8 @@ class SessionManager {
 
   private constructor() {
     this.sessionService = new SessionService({
-      redis: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-        password: process.env.REDIS_PASSWORD,
-        tls: process.env.REDIS_TLS === 'true',
-        keyPrefix: 'blipee:session:',
-      },
+      // Temporarily disable Redis to force in-memory storage for debugging
+      redis: undefined,
       sessionTTL: parseInt(process.env.SESSION_TTL || '28800'), // 8 hours
       slidingExpiration: process.env.SESSION_SLIDING !== 'false',
       cookieName: 'blipee-session',
@@ -40,7 +35,10 @@ class SessionManager {
 
   static getInstance(): SessionManager {
     if (!SessionManager.instance) {
+      console.log('🏗️  Creating new SessionManager instance');
       SessionManager.instance = new SessionManager();
+    } else {
+      console.log('♻️  Reusing existing SessionManager instance');
     }
     return SessionManager.instance;
   }
@@ -81,10 +79,14 @@ class SessionManager {
   async getSessionFromCookies(): Promise<SessionData | null> {
     const cookieStore = await cookies();
     const sessionId = cookieStore.get('blipee-session')?.value;
-    
+
+    console.log('🔍 SessionManager.getSessionFromCookies:', { sessionId });
+
     if (!sessionId) return null;
-    
-    return this.sessionService.getSession(sessionId);
+
+    const session = await this.sessionService.getSession(sessionId);
+    console.log('🔍 Session lookup result:', { found: !!session, sessionId });
+    return session;
   }
 
   /**
@@ -133,7 +135,7 @@ class SessionManager {
     request: NextRequest,
     requiredPermissions?: string[]
   ): Promise<{ valid: boolean; session?: SessionData; reason?: string }> {
-    const session = await this.getSession(_request);
+    const session = await this.getSession(request);
     if (!session) {
       return { valid: false, reason: 'No session found' };
     }
@@ -151,18 +153,18 @@ class SessionManager {
     request: NextRequest,
     requiredPermissions?: string[]
   ): Promise<NextResponse | null> {
-    const validation = await this.validateSession(_request, requiredPermissions);
+    const validation = await this.validateSession(request, requiredPermissions);
 
     if (!validation.valid) {
       // Redirect to login or return 401
-      if (_request.nextUrl.pathname.startsWith('/api/')) {
+      if (request.nextUrl.pathname.startsWith('/api/')) {
         return NextResponse.json(
           { error: validation.reason },
           { status: 401 }
         );
       } else {
-        const url = new URL('/signin', _request.url);
-        url.searchParams.set('redirect', _request.nextUrl.pathname);
+        const url = new URL('/signin', request.url);
+        url.searchParams.set('redirect', request.nextUrl.pathname);
         if (validation.reason) {
           url.searchParams.set('reason', validation.reason);
         }
@@ -189,7 +191,8 @@ class SessionManager {
   }
 }
 
-// Export singleton instance
+// Export singleton instance with debug logging
+console.log('📦 Creating SessionManager singleton instance');
 export const sessionManager = SessionManager.getInstance();
 
 // Export types
