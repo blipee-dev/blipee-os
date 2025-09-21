@@ -123,10 +123,10 @@ export function ConversationInterface({
     loadConversations();
   }, [session]);
 
-  const createNewConversation = async () => {
+  const createNewConversation = async (): Promise<string | null> => {
     if (!session?.user?.id) {
       console.error('User not authenticated');
-      return;
+      return null;
     }
 
     try {
@@ -146,6 +146,7 @@ export function ConversationInterface({
       setConversations((prev) => [newConversation, ...prev]);
       setCurrentConversationId(dbConversation.id);
       setMessages([]);
+      return dbConversation.id;
     } catch (error) {
       console.error('Error creating conversation:', error);
       // Fallback to local-only conversation
@@ -162,6 +163,7 @@ export function ConversationInterface({
       setConversations((prev) => [newConversation, ...prev]);
       setCurrentConversationId(newId);
       setMessages([]);
+      return newId;
     }
   };
 
@@ -220,10 +222,13 @@ export function ConversationInterface({
     if ((!message.trim() && !files?.length) || isLoading) return;
 
     // Create new conversation if needed
-    if (!currentConversationId) {
-      createNewConversation();
-      // Wait for state update
-      await new Promise(resolve => setTimeout(resolve, 100));
+    let conversationId = currentConversationId;
+    if (!conversationId) {
+      conversationId = await createNewConversation();
+      if (!conversationId) {
+        console.error('Failed to create conversation');
+        return;
+      }
     }
 
     // Add user message
@@ -255,7 +260,7 @@ export function ConversationInterface({
         for (const file of files) {
           const formData = new FormData();
           formData.append("file", file.file);
-          formData.append("conversationId", currentConversationId || "demo");
+          formData.append("conversationId", conversationId);
 
           const uploadResponse = await fetch("/api/files/upload", {
             method: "POST",
@@ -296,9 +301,9 @@ export function ConversationInterface({
       // Get AI response
       const data = await apiClient.post("/api/ai/chat", {
         message,
-        conversationId: currentConversationId || "demo",
-        buildingId: buildingContext?.id || "demo-building",
-        buildingContext: buildingContext || null,
+        conversationId: conversationId,
+        buildingId: buildingContext?.id,
+        buildingContext: buildingContext,
         attachments: uploadedFiles,
         context: {
           buildingName: buildingContext?.name,
@@ -411,8 +416,8 @@ export function ConversationInterface({
             }}
             onDeleteConversation={deleteConversation}
             onBack={() => setShowChats(false)}
-            onNewConversation={() => {
-              createNewConversation();
+            onNewConversation={async () => {
+              await createNewConversation();
               setShowChats(false);
             }}
           />
