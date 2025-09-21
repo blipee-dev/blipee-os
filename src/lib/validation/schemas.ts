@@ -68,13 +68,15 @@ export const chatMessageSchema = z.object({
     metadata: z.record(z.any()).optional(),
   }).optional(),
   attachments: z.array(z.object({
-    id: uuidSchema,
-    name: z.string().max(255),
-    type: z.string().max(100),
-    size: z.number().max(10 * 1024 * 1024), // 10MB
+    id: z.string().optional(),
+    name: z.string().max(255).optional(),
+    type: z.string().max(100).optional(),
+    size: z.number().max(50 * 1024 * 1024).optional(), // 50MB
     publicUrl: z.string().url().optional(),
     extractedData: z.any().optional(),
-  })).optional(),
+    originalName: z.string().optional(),
+    fileType: z.string().optional(),
+  }).passthrough()).optional(),
 });
 
 /**
