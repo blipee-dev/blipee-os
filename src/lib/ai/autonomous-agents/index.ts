@@ -6,7 +6,7 @@
  */
 
 // Base framework
-export { AutonomousAgent, AgentRegistry, type Task, type TaskResult, type AgentContext, type AgentCapabilities } from './base/AutonomousAgent';
+export { AutonomousAgent, AgentRegistry, type AgentCapabilities } from './base/AutonomousAgent';
 export { TaskScheduler } from './base/TaskScheduler';
 export { DecisionEngine } from './base/DecisionEngine';
 export { ApprovalWorkflow } from './base/ApprovalWorkflow';
@@ -22,7 +22,7 @@ export { ReportMaster } from './employees/ReportMaster';
 export { RiskAnalyst } from './employees/RiskAnalyst';
 export { PerformanceOptimizer } from './employees/PerformanceOptimizer';
 
-// Type exports
+// Type exports - single source of truth for shared types
 export type {
   Task,
   TaskResult,
