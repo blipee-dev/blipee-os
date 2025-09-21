@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,8 +16,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch user profile from app_users table
-    const { data: profile, error: profileError } = await supabase
+    // Fetch user profile from app_users table using admin client to avoid RLS issues
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('app_users')
       .select('*')
       .eq('auth_user_id', user.id)
@@ -75,8 +76,8 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { name, email, phone, bio, department, title, location } = body;
 
-    // Check if profile exists
-    const { data: existingProfile, error: checkError } = await supabase
+    // Check if profile exists using admin client
+    const { data: existingProfile, error: checkError } = await supabaseAdmin
       .from('app_users')
       .select('id')
       .eq('auth_user_id', user.id)
@@ -92,7 +93,7 @@ export async function PUT(request: NextRequest) {
     if (existingProfile) {
       // Update existing profile
       console.log('Updating profile for user:', user.id);
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('app_users')
         .update({
           name: name || '',
@@ -139,7 +140,7 @@ export async function PUT(request: NextRequest) {
 
       console.log('Insert data:', insertData);
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('app_users')
         .insert(insertData)
         .select()
@@ -250,8 +251,8 @@ export async function POST(request: NextRequest) {
       .from('profile-images')
       .getPublicUrl(filePath);
 
-    // Update user profile with new avatar URL
-    const { error: updateError } = await supabase
+    // Update user profile with new avatar URL using admin client
+    const { error: updateError } = await supabaseAdmin
       .from('app_users')
       .update({ 
         avatar_url: publicUrl,

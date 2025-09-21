@@ -45,13 +45,13 @@ export class SessionService {
 
   constructor(config: SessionConfig = {}) {
     this.config = {
-      redis: config.redis || {
+      redis: config.redis === undefined ? undefined : (config.redis || {
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT || '6379'),
         password: process.env.REDIS_PASSWORD,
         tls: process.env.REDIS_TLS === 'true',
         keyPrefix: 'session:',
-      },
+      }),
       sessionTTL: config.sessionTTL || this.DEFAULT_TTL,
       slidingExpiration: config.slidingExpiration !== false,
       cookieName: config.cookieName || 'sessionid',
@@ -421,12 +421,21 @@ export class SessionService {
     return false; // Placeholder
   }
 
-  // In-memory fallback for development
-  private inMemorySessions = new Map<string, SessionData>();
+  // Global in-memory fallback for development (shared across all instances)
+  private static globalInMemorySessions = new Map<string, SessionData>();
+  private inMemorySessions = SessionService.globalInMemorySessions;
 
   private getInMemorySession(sessionId: string): SessionData | null {
+    console.log('🔍 Getting in-memory session:', {
+      sessionId,
+      totalSessions: this.inMemorySessions.size,
+      sessionKeys: Array.from(this.inMemorySessions.keys())
+    });
     const session = this.inMemorySessions.get(sessionId);
-    if (!session) return null;
+    if (!session) {
+      console.log('❌ Session not found in memory store');
+      return null;
+    }
 
     if (new Date(session.expiresAt) < new Date()) {
       this.inMemorySessions.delete(sessionId);
@@ -442,7 +451,13 @@ export class SessionService {
   }
 
   private setInMemorySession(sessionId: string, data: SessionData): void {
+    console.log('💾 Setting in-memory session:', {
+      sessionId,
+      userId: data.userId,
+      totalSessionsBefore: this.inMemorySessions.size
+    });
     this.inMemorySessions.set(sessionId, data);
+    console.log('✅ Session stored, total sessions now:', this.inMemorySessions.size);
     
     // Schedule cleanup
     setTimeout(() => {

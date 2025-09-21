@@ -45,16 +45,16 @@ export const LazyDynamicUIRenderer = dynamic(
 // );
 
 export const LazyMonitoringDashboard = dynamic(
-  () => import('@/app/settings/monitoring/page').then(mod => mod.default),
-  { 
+  () => import('@/app/settings/monitoring/MonitoringClient').then(mod => mod.default),
+  {
     loading: Loading,
     ssr: false,
   }
 );
 
 export const LazyPerformanceDashboard = dynamic(
-  () => import('@/app/settings/performance/page').then(mod => mod.default),
-  { 
+  () => import('@/app/settings/performance/PerformanceClient').then(mod => mod.default),
+  {
     loading: Loading,
     ssr: false,
   }

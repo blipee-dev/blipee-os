@@ -61,6 +61,12 @@ export const chatMessageSchema = z.object({
   conversationId: uuidSchema.optional(),
   buildingId: uuidSchema.optional(),
   organizationId: uuidSchema.optional(),
+  buildingContext: z.object({
+    id: z.string(),
+    name: z.string(),
+    organizationId: z.string(),
+    metadata: z.record(z.any()).optional(),
+  }).optional(),
   attachments: z.array(z.object({
     id: uuidSchema,
     name: z.string().max(255),

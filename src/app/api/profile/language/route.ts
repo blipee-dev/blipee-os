@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 interface LanguageSettings {
   displayLanguage: string;
@@ -32,8 +33,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch language settings from app_users table
-    const { data: userSettings, error: fetchError } = await supabase
+    // Fetch language settings from app_users table using admin client to avoid RLS issues
+    const { data: userSettings, error: fetchError } = await supabaseAdmin
       .from('app_users')
       .select('language_settings')
       .eq('auth_user_id', user.id)
@@ -98,8 +99,8 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const settings = body as LanguageSettings;
 
-    // Check if user profile exists
-    const { data: existingProfile } = await supabase
+    // Check if user profile exists using admin client to avoid RLS issues
+    const { data: existingProfile } = await supabaseAdmin
       .from('app_users')
       .select('id')
       .eq('auth_user_id', user.id)
@@ -108,8 +109,8 @@ export async function PUT(request: NextRequest) {
     let result;
 
     if (existingProfile) {
-      // Update existing profile with language settings
-      const { data, error } = await supabase
+      // Update existing profile with language settings using admin client
+      const { data, error } = await supabaseAdmin
         .from('app_users')
         .update({
           language_settings: settings,
@@ -128,13 +129,18 @@ export async function PUT(request: NextRequest) {
       }
       result = data;
     } else {
-      // Create new profile with language settings
-      const { data, error } = await supabase
+      // Create new profile with language settings using admin client
+      const { data, error } = await supabaseAdmin
         .from('app_users')
         .insert({
           auth_user_id: user.id,
           email: user.email,
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
           language_settings: settings,
+          role: 'viewer', // Default role
+          status: 'active',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .select('language_settings')
         .single();

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { PermissionService } from '@/lib/auth/permission-service';
+import { getUserOrganization } from '@/lib/auth/get-user-org';
 
 // GET organization's selected metrics
 export async function GET(request: NextRequest) {
@@ -11,23 +13,12 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Get user's profile from app_users
-    const { data: userProfile } = await supabase
-      .from('app_users')
-      .select('id, organization_id, role')
-      .eq('auth_user_id', user.id)
-      .single();
-
     let organizationId = null;
 
     // Check if user is super_admin
-    const { data: superAdmin } = await supabase
-      .from('super_admins')
-      .select('id')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
 
-    if (superAdmin) {
+    if (isSuperAdmin) {
       // For super_admin, get the first organization or a default one
       const { data: org } = await supabase
         .from('organizations')
@@ -37,19 +28,9 @@ export async function GET(request: NextRequest) {
 
       organizationId = org?.id;
     } else {
-      // First check direct organization assignment
-      if (userProfile?.organization_id) {
-        organizationId = userProfile.organization_id;
-      } else {
-        // Otherwise check organization_members table
-        const { data: member } = await supabase
-          .from('organization_members')
-          .select('organization_id')
-          .eq('user_id', userProfile?.id || user.id)
-          .single();
-
-        organizationId = member?.organization_id;
-      }
+      // Get user's organization using centralized helper
+      const { organizationId: userOrgId } = await getUserOrganization(user.id);
+      organizationId = userOrgId;
     }
 
     if (!organizationId) {
@@ -99,16 +80,12 @@ export async function POST(request: NextRequest) {
     const { metric_ids, template_id, organization_id: providedOrgId } = await request.json();
 
     // Check if user is super_admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+    const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
 
     let organizationId = null;
     let hasPermission = false;
 
-    if (profile?.role === 'super_admin') {
+    if (isSuperAdmin) {
       // Super admin can manage any organization
       hasPermission = true;
       // Use provided org ID or get the first organization
@@ -123,19 +100,32 @@ export async function POST(request: NextRequest) {
         organizationId = org?.id;
       }
     } else {
-      // Get user's organization and check permissions
-      const { data: member } = await supabase
-        .from('organization_members')
+      // Get user's organization from app_users using admin client
+      const { data: appUser } = await supabaseAdmin
+        .from('app_users')
         .select('organization_id, role')
-        .eq('user_id', user.id)
+        .eq('auth_user_id', user.id)
         .single();
 
-      if (!member) {
-        return NextResponse.json({ error: 'No organization found' }, { status: 404 });
-      }
+      if (!appUser?.organization_id) {
+        // Check user_access table using admin client
+        const { data: userAccess } = await supabaseAdmin
+          .from('user_access')
+          .select('resource_id, role')
+          .eq('user_id', user.id)
+          .eq('resource_type', 'org')
+          .limit(1)
+          .single();
 
-      organizationId = member.organization_id;
-      hasPermission = ['account_owner', 'sustainability_manager'].includes(member.role);
+        if (!userAccess) {
+          return NextResponse.json({ error: 'No organization found' }, { status: 404 });
+        }
+        organizationId = userAccess.resource_id;
+        hasPermission = ['owner', 'manager'].includes(userAccess.role);
+      } else {
+        organizationId = appUser.organization_id;
+        hasPermission = ['owner', 'manager'].includes(appUser.role);
+      }
     }
 
     if (!hasPermission) {
@@ -205,16 +195,12 @@ export async function DELETE(request: NextRequest) {
     const { metric_id, organization_id: providedOrgId } = await request.json();
 
     // Check if user is super_admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+    const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
 
     let organizationId = null;
     let hasPermission = false;
 
-    if (profile?.role === 'super_admin') {
+    if (isSuperAdmin) {
       // Super admin can manage any organization
       hasPermission = true;
       // Use provided org ID or get the first organization
@@ -229,19 +215,32 @@ export async function DELETE(request: NextRequest) {
         organizationId = org?.id;
       }
     } else {
-      // Get user's organization and check permissions
-      const { data: member } = await supabase
-        .from('organization_members')
+      // Get user's organization from app_users using admin client
+      const { data: appUser } = await supabaseAdmin
+        .from('app_users')
         .select('organization_id, role')
-        .eq('user_id', user.id)
+        .eq('auth_user_id', user.id)
         .single();
 
-      if (!member) {
-        return NextResponse.json({ error: 'No organization found' }, { status: 404 });
-      }
+      if (!appUser?.organization_id) {
+        // Check user_access table using admin client
+        const { data: userAccess } = await supabaseAdmin
+          .from('user_access')
+          .select('resource_id, role')
+          .eq('user_id', user.id)
+          .eq('resource_type', 'org')
+          .limit(1)
+          .single();
 
-      organizationId = member.organization_id;
-      hasPermission = ['account_owner', 'sustainability_manager'].includes(member.role);
+        if (!userAccess) {
+          return NextResponse.json({ error: 'No organization found' }, { status: 404 });
+        }
+        organizationId = userAccess.resource_id;
+        hasPermission = ['owner', 'manager'].includes(userAccess.role);
+      } else {
+        organizationId = appUser.organization_id;
+        hasPermission = ['owner', 'manager'].includes(appUser.role);
+      }
     }
 
     if (!hasPermission) {

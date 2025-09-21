@@ -1,28 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+
+// Force this route to be dynamic to ensure fresh data
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const supabaseAdmin = createAdminClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      // Add more debug info for auth failures
+      console.log('Auth failed in organizations/all:', {
+        error: authError?.message,
+        cookies: Array.from(request.cookies.getAll()).map(c => c.name)
+      });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is super admin
-    const { data: superAdminRecord } = await supabase
+    // Check if user is super admin using admin client to avoid RLS issues
+    const { data: superAdminRecord } = await supabaseAdmin
       .from('super_admins')
       .select('id')
       .eq('user_id', user.id)
       .maybeSingle();
 
     if (!superAdminRecord) {
+      console.log('Not super admin:', user.id);
       return NextResponse.json({ error: 'Forbidden - Super admin access required' }, { status: 403 });
     }
+
+    console.log('Super admin authenticated:', user.id);
 
     // Super admin - fetch ALL organizations using admin client to bypass RLS
     const { data: allOrgs, error: orgsError } = await supabaseAdmin

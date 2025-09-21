@@ -18,6 +18,12 @@ const defaultSecurityHeaders: SecurityHeaders = {
   // Content Security Policy - restrictive for APIs
   'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none';",
 
+  // Strict Transport Security (HTTPS enforcement)
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+
+  // Prevent MIME type sniffing
+  'X-Permitted-Cross-Domain-Policies': 'none',
+
   // Remove server information
   'Server': '',
 
