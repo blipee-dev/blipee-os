@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aiService } from "@/lib/ai/service";
-import { chatMessageSchema, validateAndSanitize } from "@/lib/validation/schemas";
+import { chatMessageSchema } from "@/lib/validation/schemas";
 import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
 import { agentOrchestrator } from "@/lib/ai/autonomous-agents";
 import { PredictiveIntelligence } from "@/lib/ai/predictive-intelligence";
@@ -16,22 +16,8 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
     // Debug: Log the incoming request body
     console.log('AI Chat API - Incoming request body:', JSON.stringify(body, null, 2));
 
-    // Validate request body since middleware validation is disabled
-    const validation = validateAndSanitize(chatMessageSchema, body);
-    if (!validation.success) {
-      const errors = validation.error.errors.map(err => ({
-        field: err.path.join('.'),
-        message: err.message,
-      }));
-      console.log('AI Chat API - Validation failed:', errors);
-      return NextResponse.json(
-        { error: 'Invalid message data', details: errors },
-        { status: 400 }
-      );
-    }
-
-    console.log('AI Chat API - Validation passed');
-    const { message, conversationId, buildingContext, attachments } = validation.data;
+    // Body is already validated by middleware, so we can safely destructure
+    const { message, conversationId, buildingContext, attachments } = body;
 
     // Initialize ML and predictive systems
     const mlPipeline = new MLPipeline();
@@ -355,10 +341,9 @@ function analyzeMessageIntent(message: string): {
 }
 
 // Export POST handler with AI middleware (stricter rate limiting)
-// Note: Body validation disabled in middleware due to Next.js request consumption issues
 export const POST = withMiddleware(handleChatMessage, {
   ...middlewareConfigs.ai,
-  // validation: {
-  //   body: chatMessageSchema,
-  // },
+  validation: {
+    body: chatMessageSchema,
+  },
 });
