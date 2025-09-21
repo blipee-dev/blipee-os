@@ -50,14 +50,16 @@ export class SessionAuthService {
       console.log('✅ Completed user login status update');
 
       // Create session
+      console.log('🏗️  Creating session for user:', authResult.user.id, 'auth_user_id:', authResult.user.auth_user_id, 'orgId:', authResult.session?.current_organization?.id);
       const { sessionId } = await sessionManager.createSession({
-        userId: authResult.user.id,
+        userId: authResult.user.auth_user_id, // Use auth_user_id for session storage
         organizationId: authResult.session?.current_organization?.id,
         permissions: authResult.session?.permissions.map(p => `${p.resource}:${p.action}`) || [],
         mfaVerified: true, // Already verified during sign-in
         ipAddress: request?.headers.get('x-forwarded-for') || request?.headers.get('x-real-ip') || undefined,
         userAgent: request?.headers.get('user-agent') || undefined,
       });
+      console.log('🏗️  Session created with ID:', sessionId);
 
       return {
         ...authResult,
