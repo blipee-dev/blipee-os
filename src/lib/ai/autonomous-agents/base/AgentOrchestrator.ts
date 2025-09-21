@@ -120,6 +120,40 @@ export class AgentOrchestrator {
   }
   
   /**
+   * Select optimal agent for a task type (called by chat API)
+   */
+  async selectAgent(taskType: string): Promise<AutonomousAgent | null> {
+    console.log(`🎯 Selecting agent for task type: ${taskType}`);
+
+    try {
+      // Create a temporary task to use existing agent selection logic
+      const tempTask: Task = {
+        id: `temp_${Date.now()}`,
+        type: taskType,
+        description: `Task of type ${taskType}`,
+        context: {},
+        priority: 'medium',
+        createdAt: new Date(),
+        status: 'pending'
+      };
+
+      const optimalAgent = await this.findOptimalAgent(tempTask);
+
+      if (optimalAgent) {
+        console.log(`✅ Selected agent: ${optimalAgent.agentName} for task type: ${taskType}`);
+      } else {
+        console.log(`⚠️ No suitable agent found for task type: ${taskType}`);
+      }
+
+      return optimalAgent;
+
+    } catch (error) {
+      console.error('Error selecting agent:', error);
+      return null;
+    }
+  }
+
+  /**
    * Distribute task to optimal agent
    */
   async distributeTask(task: Task): Promise<string> {
