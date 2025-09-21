@@ -129,10 +129,12 @@ export function ConversationInterface({
       return null;
     }
 
+    console.log('Creating new conversation with buildingContext:', buildingContext?.id);
     try {
       const dbConversation = await ConversationClient.createConversation(
         buildingContext?.id
       );
+      console.log('Database conversation created:', dbConversation);
 
       const newConversation: StoredConversation = {
         id: dbConversation.id,
@@ -151,6 +153,7 @@ export function ConversationInterface({
       console.error('Error creating conversation:', error);
       // Fallback to local-only conversation
       const newId = `local_${Date.now()}`;
+      console.log('Using local fallback conversation ID:', newId);
       const newConversation: StoredConversation = {
         id: newId,
         title: t('newConversation'),
@@ -299,6 +302,14 @@ export function ConversationInterface({
       }
 
       // Get AI response
+      console.log('Sending to AI API:', {
+        message: message.substring(0, 50) + '...',
+        conversationId: conversationId,
+        buildingId: buildingContext?.id,
+        buildingContext: buildingContext,
+        attachments: uploadedFiles,
+      });
+
       const data = await apiClient.post("/api/ai/chat", {
         message,
         conversationId: conversationId,
