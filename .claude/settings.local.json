@@ -73,7 +73,8 @@
       "Bash(ls:*)",
       "Bash(PORT=3002 node test-phase6-analytics.js)",
       "Bash(python3:*)",
-      "Bash(PORT=3001 node test-phase7-analytics.js)"
+      "Bash(PORT=3001 node test-phase7-analytics.js)",
+      "Read(//Users/pedro/**)"
     ],
     "deny": [],
     "ask": []
