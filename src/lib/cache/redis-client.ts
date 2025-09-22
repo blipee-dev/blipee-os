@@ -54,6 +54,11 @@ export class RedisClient {
         this.isUpstash = true;
 
         try {
+          // Validate environment variables
+          if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+            throw new Error('Missing Upstash Redis environment variables');
+          }
+
           this.client = new UpstashRedis({
             url: process.env.UPSTASH_REDIS_REST_URL,
             token: process.env.UPSTASH_REDIS_REST_TOKEN,
@@ -68,14 +73,23 @@ export class RedisClient {
             throw new Error('Failed to create Upstash Redis client');
           }
 
-          // Test connection
-          await (this.client as UpstashRedis).ping();
+          // Test connection with timeout - check client exists first
+          if (!this.client || typeof (this.client as any).ping !== 'function') {
+            throw new Error('Invalid Upstash Redis client');
+          }
+          const pingPromise = (this.client as UpstashRedis).ping();
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Redis ping timeout')), 5000)
+          );
+
+          await Promise.race([pingPromise, timeoutPromise]);
           this.isConnected = true;
           console.log('✅ Upstash Redis connected');
           return;
         } catch (error) {
           console.warn('⚠️ Failed to connect to Upstash Redis:', error);
           this.client = null;
+          this.isConnected = false;
           // Continue to fallback options
         }
       }
@@ -142,13 +156,17 @@ export class RedisClient {
       }
 
       // Connect and wait for connection (only for ioredis with lazyConnect)
-      if (!this.isUpstash && this.client instanceof Redis) {
+      if (!this.isUpstash && this.client && this.client instanceof Redis) {
         await (this.client as Redis).connect();
       }
-      
+
       // Test connection
-      await (this.client as any).ping();
-      this.isConnected = true;
+      if (this.client) {
+        await (this.client as any).ping();
+        this.isConnected = true;
+      } else {
+        throw new Error('No Redis client available');
+      }
 
     } catch (error) {
       console.log('Failed to connect to Redis, falling back to in-memory sessions:', error);

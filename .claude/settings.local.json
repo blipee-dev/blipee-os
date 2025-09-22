@@ -63,7 +63,17 @@
       "WebSearch",
       "Bash(git log:*)",
       "Bash(xargs git check-ignore:*)",
-      "Bash(xargs git add:*)"
+      "Bash(xargs git add:*)",
+      "Bash(awk:*)",
+      "Bash(npx tsx:*)",
+      "Bash(source .env.local)",
+      "Bash(tsx test-realtime-monitoring.ts:*)",
+      "Bash(tsx test-system-comprehensive.ts:*)",
+      "Bash(npm init:*)",
+      "Bash(ls:*)",
+      "Bash(PORT=3002 node test-phase6-analytics.js)",
+      "Bash(python3:*)",
+      "Bash(PORT=3001 node test-phase7-analytics.js)"
     ],
     "deny": [],
     "ask": []

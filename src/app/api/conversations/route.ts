@@ -47,14 +47,20 @@ async function POST(request: NextRequest) {
     const body = (request as any).parsedBody || await request.json();
     const { buildingId } = body;
 
+    const insertData: any = {
+      user_id: user.id,
+      messages: [],
+      context: {}
+    };
+
+    // Only add building_id if provided
+    if (buildingId) {
+      insertData.building_id = buildingId;
+    }
+
     const { data, error } = await supabaseAdmin
       .from('conversations')
-      .insert({
-        user_id: user.id,
-        building_id: buildingId,
-        messages: [],
-        context: {}
-      })
+      .insert(insertData)
       .select()
       .single();
 

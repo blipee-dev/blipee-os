@@ -85,8 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
 
-      // Bypass onboarding - always redirect to blipee-ai
-      console.log("Bypassing onboarding, redirecting to /blipee-ai");
+      // Always redirect to blipee-ai - the AI Butler will guide them
+      console.log("Sign in successful, redirecting to AI Butler at /blipee-ai");
       router.push("/blipee-ai");
     } catch (err: any) {
       setError(err.message);

@@ -73,19 +73,35 @@ export class GRIStandardsMapper {
       sectorSpecificDisclosures: this.getGRI14SpecificDisclosures()
     });
 
-    // GRI 15: Construction Sector
-    this.standards.set(GRISectorStandard.GRI_15_CONSTRUCTION, {
-      standard: GRISectorStandard.GRI_15_CONSTRUCTION,
-      name: 'Construction and Real Estate Sector',
-      industries: ['23', '236', '237', '238', '531'], // Construction and real estate
+    // GRI 15: Food Products Sector
+    this.standards.set(GRISectorStandard.GRI_15_FOOD, {
+      standard: GRISectorStandard.GRI_15_FOOD,
+      name: 'Food Products',
+      industries: ['311', '3111', '3112', '3113', '3114', '3115', '3116', '3117', '3118', '3119'], // Food manufacturing
       materialTopics: this.getGRI15MaterialTopics(),
       coreDisclosures: this.getCoreDisclosures(),
       sectorSpecificDisclosures: this.getGRI15SpecificDisclosures()
     });
 
-    // TODO: Add remaining Phase 2 standards
-    // GRI 16: Financial Services
-    // GRI 17: Public Sector
+    // GRI 16: Textiles and Apparel Sector
+    this.standards.set(GRISectorStandard.GRI_16_TEXTILES, {
+      standard: GRISectorStandard.GRI_16_TEXTILES,
+      name: 'Textiles and Apparel',
+      industries: ['313', '314', '315', '3131', '3132', '3133', '3141', '3149', '3151', '3152', '3159'], // Textile mills and apparel
+      materialTopics: this.getGRI16MaterialTopics(),
+      coreDisclosures: this.getCoreDisclosures(),
+      sectorSpecificDisclosures: this.getGRI16SpecificDisclosures()
+    });
+
+    // GRI 17: Financial Services Sector
+    this.standards.set(GRISectorStandard.GRI_17_FINANCIAL_SERVICES, {
+      standard: GRISectorStandard.GRI_17_FINANCIAL_SERVICES,
+      name: 'Financial Services',
+      industries: ['52', '521', '522', '523', '524', '525'], // Finance and insurance
+      materialTopics: this.getGRI17MaterialTopics(),
+      coreDisclosures: this.getCoreDisclosures(),
+      sectorSpecificDisclosures: this.getGRI17SpecificDisclosures()
+    });
   }
 
   /**
@@ -575,6 +591,56 @@ export class GRIStandardsMapper {
   /**
    * Get GRI 15 material topics
    */
+  private getGRI16MaterialTopics(): MaterialTopic[] {
+    return [
+      {
+        id: 'gri16-labor-practices',
+        name: 'Labor Practices in Supply Chain',
+        description: 'Working conditions and labor rights in textile supply chains',
+        griStandard: 'GRI 16',
+        relevance: 'high',
+        impactAreas: ['Social'],
+        metrics: [],
+        disclosures: []
+      },
+      {
+        id: 'gri16-chemical-management',
+        name: 'Chemical Management',
+        description: 'Use and disposal of chemicals in textile production',
+        griStandard: 'GRI 16',
+        relevance: 'high',
+        impactAreas: ['Environmental', 'Health'],
+        metrics: [],
+        disclosures: []
+      }
+    ];
+  }
+
+  private getGRI17MaterialTopics(): MaterialTopic[] {
+    return [
+      {
+        id: 'gri17-financial-inclusion',
+        name: 'Financial Inclusion',
+        description: 'Access to financial services for underserved populations',
+        griStandard: 'GRI 17',
+        relevance: 'high',
+        impactAreas: ['Social', 'Economic'],
+        metrics: [],
+        disclosures: []
+      },
+      {
+        id: 'gri17-responsible-investing',
+        name: 'Responsible Investing',
+        description: 'ESG integration in investment decisions',
+        griStandard: 'GRI 17',
+        relevance: 'high',
+        impactAreas: ['Environmental', 'Social', 'Governance'],
+        metrics: [],
+        disclosures: []
+      }
+    ];
+  }
+
   private getGRI15MaterialTopics(): MaterialTopic[] {
     return [
       {
@@ -625,6 +691,32 @@ export class GRIStandardsMapper {
   /**
    * Get GRI 15 sector-specific disclosures
    */
+  private getGRI16SpecificDisclosures(): GRIDisclosure[] {
+    return [
+      {
+        code: 'GRI 16-1',
+        title: 'Supply Chain Labor Standards',
+        description: 'Disclosure of labor standards in supply chain',
+        requirements: ['Supplier audits', 'Labor compliance'],
+        dataPoints: [],
+        reportingGuidance: 'Report on supply chain labor practices'
+      }
+    ];
+  }
+
+  private getGRI17SpecificDisclosures(): GRIDisclosure[] {
+    return [
+      {
+        code: 'GRI 17-1',
+        title: 'Sustainable Finance',
+        description: 'Disclosure of sustainable finance activities',
+        requirements: ['Green bonds', 'ESG investments'],
+        dataPoints: [],
+        reportingGuidance: 'Report on sustainable finance initiatives'
+      }
+    ];
+  }
+
   private getGRI15SpecificDisclosures(): GRIDisclosure[] {
     return [
       {
