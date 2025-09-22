@@ -4,6 +4,7 @@ import { chainOfThoughtEngine } from '../chain-of-thought';
 import { aiService } from '../service';
 import { AgentErrorHandler } from './error-handler';
 import { AgentLearningSystem } from './learning-system';
+import { DatabaseContextService } from '../database-context';
 
 interface CriticalIssue {
   title: string;
@@ -258,17 +259,32 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   }
   
   private async analyzeMetrics(task: AgentTask, knowledge: Learning[]): Promise<AgentResult> {
+    // Get REAL organization data from database
+    const orgContext = await DatabaseContextService.getUserOrganizationContext(this.organizationId);
+    const emissions = await DatabaseContextService.getEmissionsSummary(this.organizationId);
+    const compliance = await DatabaseContextService.getComplianceStatus(this.organizationId);
+
     // Get comprehensive ESG context
     const context = await esgContextEngine.buildESGContext(
       `Perform ${task.data.period} ESG analysis with focus on trends and anomalies`,
       this.organizationId
     );
-    
-    // Apply learned insights
+
+    // Apply learned insights with REAL data
     const enhancedPrompt = this.enhancePromptWithKnowledge(
-      `Analyze the organization's ESG performance for ${task.data.period}. 
-       Identify trends, anomalies, and areas needing attention.
-       ${task.data.includeForecasts ? 'Include forecasts for next period.' : ''}`,
+      `Analyze the REAL ESG performance for ${orgContext?.organization?.name || 'the organization'} (${task.data.period}).
+
+       REAL DATA:
+       - Organization: ${orgContext?.organization?.name}
+       - Sites: ${orgContext?.sites?.length || 0} locations
+       - Devices: ${orgContext?.devices?.length || 0} connected
+       - Current Month Emissions: ${emissions?.currentMonth?.total?.toFixed(2) || 0} tCO2e
+       - YTD Emissions: ${emissions?.yearToDate?.total?.toFixed(2) || 0} tCO2e
+       - Trend: ${emissions?.trend || 0}% vs last month
+       - Compliance: ${compliance?.compliant || 0} frameworks compliant, ${compliance?.inProgress || 0} in progress
+
+       Identify specific trends, anomalies, and areas needing attention based on this REAL data.
+       ${task.data.includeForecasts ? 'Include forecasts for next period based on actual historical data.' : ''}`,
       knowledge
     );
     

@@ -4,6 +4,40 @@ import { Redis as UpstashRedis } from '@upstash/redis';
 /**
  * Unified wrapper for Redis commands that works with both Upstash and ioredis
  */
+// In-memory cache fallback
+class InMemoryCache {
+  private store = new Map<string, { value: string; expiry?: number }>();
+
+  async get(key: string): Promise<string | null> {
+    const item = this.store.get(key);
+    if (!item) return null;
+    if (item.expiry && item.expiry < Date.now()) {
+      this.store.delete(key);
+      return null;
+    }
+    return item.value;
+  }
+
+  async set(key: string, value: string, ttl?: number): Promise<string> {
+    const expiry = ttl ? Date.now() + ttl * 1000 : undefined;
+    this.store.set(key, { value, expiry });
+    return 'OK';
+  }
+
+  async del(key: string): Promise<number> {
+    return this.store.delete(key) ? 1 : 0;
+  }
+}
+
+// Create cache singleton
+const inMemoryCache = new InMemoryCache();
+
+export const cache = {
+  get: async (key: string) => inMemoryCache.get(key),
+  set: async (key: string, value: string, ttl?: number) => inMemoryCache.set(key, value, ttl),
+  del: async (key: string) => inMemoryCache.del(key)
+};
+
 export class RedisWrapper {
   constructor(private client: Redis | UpstashRedis | null) {}
 
@@ -57,21 +91,25 @@ export class RedisWrapper {
   }
 
   async sadd(key: string, ...members: string[]): Promise<number> {
+    if (!this.client) return 0;
     const result = await this.client.sadd(key, ...members);
     return Number(result);
   }
 
   async smembers(key: string): Promise<string[]> {
+    if (!this.client) return [];
     const result = await this.client.smembers(key);
     return result as string[];
   }
 
   async expire(key: string, seconds: number): Promise<number> {
+    if (!this.client) return 0;
     const result = await this.client.expire(key, seconds);
     return Number(result);
   }
 
   async flushdb(): Promise<string> {
+    if (!this.client) return 'OK';
     if (this.client instanceof UpstashRedis) {
       return await this.client.flushdb();
     }
@@ -79,11 +117,13 @@ export class RedisWrapper {
   }
 
   async ping(): Promise<string> {
+    if (!this.client) return 'PONG';
     const result = await this.client.ping();
     return result as string;
   }
 
   async info(section?: string): Promise<string> {
+    if (!this.client) return 'Redis not connected';
     if (this.client instanceof UpstashRedis) {
       // Upstash doesn't support INFO command
       return 'Upstash Redis (serverless)';
@@ -93,6 +133,18 @@ export class RedisWrapper {
 
   // Pipeline support
   pipeline() {
+    if (!this.client) {
+      // Return a dummy pipeline that does nothing
+      return {
+        exec: async () => [],
+        get: () => this,
+        set: () => this,
+        del: () => this,
+        expire: () => this,
+        sadd: () => this,
+        smembers: () => this
+      };
+    }
     if (this.client instanceof UpstashRedis) {
       return this.client.pipeline();
     }
@@ -101,11 +153,12 @@ export class RedisWrapper {
 
   // Check client type
   isUpstash(): boolean {
-    return this.client instanceof UpstashRedis;
+    return !!this.client && this.client instanceof UpstashRedis;
   }
 
   // Scan support
   async scan(cursor: number, options?: { match?: string; count?: number }): Promise<{ cursor: number; keys: string[] }> {
+    if (!this.client) return { cursor: 0, keys: [] };
     if (this.client instanceof UpstashRedis) {
       // Upstash has limited scan support
       const result = await this.client.scan(cursor, options);
@@ -132,6 +185,7 @@ export class RedisWrapper {
 
   // Database size
   async dbsize(): Promise<number> {
+    if (!this.client) return 0;
     if (this.client instanceof UpstashRedis) {
       const result = await this.client.dbsize();
       return result;
@@ -139,3 +193,6 @@ export class RedisWrapper {
     return await (this.client as Redis).dbsize();
   }
 }
+
+// Export a default cache instance for convenience
+export default cache;

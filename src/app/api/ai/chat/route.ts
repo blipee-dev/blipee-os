@@ -3,8 +3,10 @@ import { aiService } from "@/lib/ai/service";
 import { chatMessageSchema } from "@/lib/validation/schemas";
 import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
 import { agentOrchestrator } from "@/lib/ai/autonomous-agents";
-import { PredictiveIntelligence } from "@/lib/ai/predictive-intelligence";
+import { predictiveIntelligence } from "@/lib/ai/predictive-intelligence";
 import { MLPipeline } from "@/lib/ai/ml-models/ml-pipeline-client";
+import { DatabaseContextService } from "@/lib/ai/database-context";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = 'force-dynamic';
 
@@ -20,16 +22,42 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
     // Body is already validated by middleware, so we can safely destructure
     const { message, conversationId, buildingContext, attachments } = body;
 
-    // Initialize ML and predictive systems
+    // Get authenticated user
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Fetch real database context
+    let organizationContext = null;
+    let emissionsSummary = null;
+    let complianceStatus = null;
+
+    if (user) {
+      // Get user's organization context
+      organizationContext = await DatabaseContextService.getUserOrganizationContext(user.id);
+
+      if (organizationContext?.organization?.id) {
+        // Get emissions and compliance data
+        const [emissions, compliance] = await Promise.all([
+          DatabaseContextService.getEmissionsSummary(organizationContext.organization.id),
+          DatabaseContextService.getComplianceStatus(organizationContext.organization.id)
+        ]);
+        emissionsSummary = emissions;
+        complianceStatus = compliance;
+      }
+    }
+
+    // Initialize ML pipeline
     const mlPipeline = new MLPipeline();
-    const predictiveIntel = new PredictiveIntelligence();
 
     // Check if message requires autonomous agent assistance
     const agentContext = {
       message,
       buildingContext,
       conversationId,
-      attachments
+      attachments,
+      organizationContext,
+      emissionsSummary,
+      complianceStatus
     };
 
     let agentResponse = null;
@@ -59,7 +87,7 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
     // Get ML predictions if relevant
     if (messageIntent.requiresPrediction && buildingContext) {
       try {
-        predictions = await predictiveIntel.generateInsights({
+        predictions = await predictiveIntelligence.generateInsights({
           buildingId: buildingContext.id,
           query: message,
           context: buildingContext.metadata
@@ -82,8 +110,8 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    // Build enhanced context for AI
-    const systemPrompt = `You are Blipee AI, an intelligent sustainability and building management assistant with access to autonomous agents and ML predictions.
+    // Build enhanced context for AI with REAL database data
+    const systemPrompt = `You are Blipee AI, an intelligent sustainability and building management assistant with access to REAL organizational data, autonomous agents and ML predictions.
 
 You help users with:
 - Real-time monitoring of energy, climate, and building operations
@@ -94,7 +122,37 @@ You help users with:
 - Predictive analytics and forecasting
 - Autonomous optimization and decision-making
 
-Be conversational, helpful, and proactive. When appropriate, suggest visualizations or actions the user might want to take.
+Be conversational, helpful, and proactive. Use the REAL data provided about the organization, sites, devices, and emissions. When appropriate, suggest visualizations or actions the user might want to take.
+
+${organizationContext ? `
+ORGANIZATION DATA:
+- Organization: ${organizationContext.organization?.name || 'Unknown'}
+- Industry: ${organizationContext.organization?.industry_primary || 'Not specified'}
+- Sites: ${organizationContext.sites?.length || 0} locations
+- Devices: ${organizationContext.devices?.length || 0} connected devices
+- Team Members: ${organizationContext.users?.length || 0} users
+
+SITES:
+${organizationContext.sites?.map(site => `- ${site.name}: ${site.address}, ${site.size_sqft || 'N/A'} sqft`).join('\n') || 'No sites configured'}
+
+EMISSIONS SUMMARY:
+${emissionsSummary ? `
+- Current Month Total: ${emissionsSummary.currentMonth?.total?.toFixed(2) || 0} tCO2e
+  - Scope 1: ${emissionsSummary.currentMonth?.byScope?.scope1?.toFixed(2) || 0} tCO2e
+  - Scope 2: ${emissionsSummary.currentMonth?.byScope?.scope2?.toFixed(2) || 0} tCO2e
+  - Scope 3: ${emissionsSummary.currentMonth?.byScope?.scope3?.toFixed(2) || 0} tCO2e
+- Last Month: ${emissionsSummary.lastMonth?.total?.toFixed(2) || 0} tCO2e
+- Year to Date: ${emissionsSummary.yearToDate?.total?.toFixed(2) || 0} tCO2e
+- Trend: ${emissionsSummary.trend || 0}% vs last month
+` : 'No emissions data available'}
+
+COMPLIANCE STATUS:
+${complianceStatus ? `
+- Compliant Frameworks: ${complianceStatus.compliant || 0}
+- In Progress: ${complianceStatus.inProgress || 0}
+- Non-Compliant: ${complianceStatus.nonCompliant || 0}
+` : 'No compliance data available'}
+` : 'No organization context available'}
 
 ${buildingContext ? `Building Context: ${JSON.stringify(buildingContext)}` : ''}
 ${attachments?.length ? `User has attached ${attachments.length} file(s)` : ''}
@@ -239,8 +297,16 @@ ${mlInsights ? `\n\nML Model Predictions:\n${JSON.stringify(mlInsights)}` : ''}`
 function extractSuggestions(response: string | any): string[] {
   const suggestions: string[] = [];
 
-  // Ensure response is a string
-  const responseText = typeof response === 'string' ? response : String(response || '');
+  // Ensure response is a string - handle different response types
+  let responseText = '';
+  if (typeof response === 'string') {
+    responseText = response;
+  } else if (response && typeof response === 'object') {
+    // If it's an object, try to get the text content
+    responseText = response.content || response.text || response.message || JSON.stringify(response);
+  } else {
+    responseText = String(response || '');
+  }
 
   // Look for bullet points or numbered lists that might be suggestions
   const bulletPoints = responseText.match(/^[•\-\*]\s+(.+)$/gm);
@@ -304,12 +370,16 @@ function analyzeMessageIntent(message: string): {
 } {
   const lowerMessage = message.toLowerCase();
 
-  // Check for agent-requiring keywords
+  // Check for agent-requiring keywords - map to actual agent capabilities
   const agentKeywords = {
-    compliance: ['compliance', 'regulation', 'audit', 'standard', 'gri', 'tcfd', 'iso'],
-    carbon: ['carbon', 'emissions', 'scope 1', 'scope 2', 'scope 3', 'ghg', 'co2'],
-    supply: ['supply chain', 'supplier', 'vendor', 'procurement', 'sourcing'],
-    strategy: ['strategy', 'plan', 'roadmap', 'target', 'goal', 'objective']
+    'compliance-monitoring': ['compliance', 'regulation', 'audit', 'standard', 'gri', 'tcfd', 'iso'],
+    'carbon-tracking': ['carbon', 'emissions', 'scope 1', 'scope 2', 'scope 3', 'ghg', 'co2'],
+    'supply-chain-analysis': ['supply chain', 'supplier', 'vendor', 'procurement', 'sourcing'],
+    'strategic-planning': ['strategy', 'plan', 'roadmap', 'target', 'goal', 'objective'],
+    'data-analysis': ['data', 'metrics', 'kpi', 'performance', 'analytics'],
+    'risk-assessment': ['risk', 'threat', 'vulnerability', 'impact', 'assessment'],
+    'report-generation': ['report', 'reporting', 'document', 'summary', 'analysis'],
+    'optimization': ['optimize', 'improve', 'efficiency', 'performance', 'cost']
   };
 
   // Check for prediction-requiring keywords

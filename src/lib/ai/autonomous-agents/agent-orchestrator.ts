@@ -12,7 +12,12 @@ import { ESGChiefOfStaffAgent } from './esg-chief-of-staff';
 import { ComplianceGuardianAgent } from './compliance-guardian';
 import { CarbonHunterAgent } from './carbon-hunter';
 import { SupplyChainInvestigatorAgent } from './supply-chain-investigator';
-import { createClient } from '@supabase/supabase-js';
+import { RegulatoryForesightAgent } from './regulatory-foresight';
+import { CostSavingFinderAgent } from './cost-saving-finder';
+import { PredictiveMaintenanceAgent } from './predictive-maintenance';
+import { AutonomousOptimizerAgent } from './autonomous-optimizer';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { EventEmitter } from 'events';
 
 export interface AgentCoordination {
   id: string;
@@ -71,31 +76,49 @@ export interface ExecutionStep {
   max_retries: number;
 }
 
-export class AgentOrchestrator {
+export class AgentOrchestrator extends EventEmitter {
   private agents: Map<string, AutonomousAgent> = new Map();
   private activeCoordinations: Map<string, AgentCoordination> = new Map();
   private resourceUsage: Map<string, AgentResourceUsage> = new Map();
   private activeWorkflows: Map<string, WorkflowExecution> = new Map();
-  private supabase = createClient(
-    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!
-  );
+  private taskQueue: Map<string, AgentTask[]> = new Map();
+  private executionPool: Map<string, Promise<AgentResult>> = new Map();
+  private isRunning: boolean = false;
+  private orchestrationInterval: NodeJS.Timeout | null = null;
+  private maxParallelExecutions: number = 10;
+  private currentParallelExecutions: number = 0;
+  private performanceMetrics = {
+    tasksProcessed: 0,
+    successfulTasks: 0,
+    failedTasks: 0,
+    avgExecutionTime: 0,
+    lastOrchestrationTime: new Date()
+  };
+  private supabase = supabaseAdmin;
 
   private coordinationRules: CoordinationRule[] = [];
   private conflictResolutionStrategies: Map<string, any> = new Map();
 
   constructor(private organizationId: string) {
+    super();
     this.setupCoordinationRules();
     this.setupConflictResolution();
+    this.setupEventHandlers();
   }
 
   async initialize(): Promise<void> {
-    // Initialize all available agents
+    console.log('🚀 Initializing Agent Orchestrator with ALL 8 agents...');
+
+    // Initialize all 8 autonomous agents
     const agents: AutonomousAgent[] = [
       new ESGChiefOfStaffAgent(this.organizationId),
       new ComplianceGuardianAgent(this.organizationId),
       new CarbonHunterAgent(this.organizationId),
-      new SupplyChainInvestigatorAgent(this.organizationId)
+      new SupplyChainInvestigatorAgent(this.organizationId),
+      new RegulatoryForesightAgent(this.organizationId),
+      new CostSavingFinderAgent(this.organizationId),
+      new PredictiveMaintenanceAgent(this.organizationId),
+      new AutonomousOptimizerAgent(this.organizationId)
     ];
 
     // Initialize each agent
@@ -118,36 +141,68 @@ export class AgentOrchestrator {
 
     // Load existing coordinations from database
     await this.loadActiveCoordinations();
-    
-    console.log(`Agent Orchestrator initialized with ${this.agents.size} agents`);
+
+    // Start the orchestration engine
+    await this.startOrchestration();
+
+    console.log(`✅ Agent Orchestrator initialized with ${this.agents.size} agents`);
   }
 
   async orchestrateAgents(): Promise<void> {
-    console.log('Starting agent orchestration cycle...');
+    if (!this.isRunning) return;
+
+    const startTime = Date.now();
+    console.log('🔄 Starting parallel agent orchestration cycle...');
 
     try {
-      // 1. Collect scheduled tasks from all agents
-      const allScheduledTasks = await this.collectScheduledTasks();
+      // 1. Collect tasks from all agents IN PARALLEL
+      const taskCollectionPromises = Array.from(this.agents.entries()).map(async ([agentId, agent]) => {
+        try {
+          const tasks = await agent.planAutonomousTasks();
+          return { agentId, tasks };
+        } catch (error) {
+          console.error(`Error collecting tasks from ${agentId}:`, error);
+          return { agentId, tasks: [] };
+        }
+      });
 
-      // 2. Detect potential conflicts and overlaps
-      const conflicts = this.detectTaskConflicts(allScheduledTasks);
+      const allTaskResults = await Promise.all(taskCollectionPromises);
+      const allScheduledTasks = new Map<string, AgentTask[]>();
 
-      // 3. Resolve conflicts using coordination rules
-      const resolvedTasks = await this.resolveConflicts(allScheduledTasks, conflicts);
-
-      // 4. Optimize task execution order and resource allocation
-      const optimizedExecution = this.optimizeExecution(resolvedTasks);
-
-      // 5. Create coordinated workflows
-      const workflows = this.createCoordinatedWorkflows(optimizedExecution);
-
-      // 6. Execute workflows with monitoring
-      for (const workflow of workflows) {
-        await this.executeWorkflow(workflow);
+      for (const { agentId, tasks } of allTaskResults) {
+        allScheduledTasks.set(agentId, tasks);
+        this.taskQueue.set(agentId, [...(this.taskQueue.get(agentId) || []), ...tasks]);
       }
 
-      // 7. Monitor and adjust based on results
+      // 2. Detect and resolve conflicts
+      const conflicts = this.detectTaskConflicts(allScheduledTasks);
+      const resolvedTasks = await this.resolveConflicts(allScheduledTasks, conflicts);
+
+      // 3. Execute tasks in PARALLEL with concurrency control
+      await this.executeTasksInParallel(resolvedTasks);
+
+      // 4. Create and execute coordinated workflows
+      const workflows = this.createCoordinatedWorkflows(resolvedTasks);
+
+      // Execute workflows in parallel
+      const workflowPromises = workflows.map(workflow =>
+        this.executeWorkflow(workflow).catch(error => {
+          console.error(`Workflow ${workflow.name} failed:`, error);
+          return workflow;
+        })
+      );
+
+      await Promise.all(workflowPromises);
+
+      // 5. Update metrics and monitor
+      const executionTime = Date.now() - startTime;
+      await this.updateOrchestrationMetrics(executionTime);
       await this.monitorAndAdjust();
+
+      this.emit('orchestration-complete', {
+        tasksProcessed: this.performanceMetrics.tasksProcessed,
+        executionTime
+      });
 
     } catch (error) {
       console.error('Error in agent orchestration:', error);
@@ -202,20 +257,88 @@ export class AgentOrchestrator {
     return await this.executeWorkflow(workflow);
   }
 
-  private async collectScheduledTasks(): Promise<Map<string, AgentTask[]>> {
-    const allTasks = new Map<string, AgentTask[]>();
+  // New method for parallel task execution
+  private async executeTasksInParallel(tasks: Map<string, AgentTask[]>): Promise<void> {
+    const allTasks: Array<{agentId: string, task: AgentTask}> = [];
 
-    for (const [agentId, agent] of Array.from(this.agents.entries())) {
-      try {
-        const tasks = await agent.getScheduledTasks();
-        allTasks.set(agentId, tasks);
-      } catch (error) {
-        console.error(`Error collecting tasks from ${agentId}:`, error);
-        allTasks.set(agentId, []);
+    // Flatten all tasks
+    for (const [agentId, agentTasks] of Array.from(tasks.entries())) {
+      for (const task of agentTasks) {
+        allTasks.push({ agentId, task });
       }
     }
 
-    return allTasks;
+    // Sort by priority
+    allTasks.sort((a, b) => {
+      const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+      return priorityOrder[b.task.priority] - priorityOrder[a.task.priority];
+    });
+
+    // Process in batches with concurrency control
+    const batchSize = this.maxParallelExecutions;
+    for (let i = 0; i < allTasks.length; i += batchSize) {
+      const batch = allTasks.slice(i, Math.min(i + batchSize, allTasks.length));
+
+      const batchPromises = batch.map(async ({ agentId, task }) => {
+        const agent = this.agents.get(agentId);
+        if (!agent) return null;
+
+        this.currentParallelExecutions++;
+        try {
+          const result = await this.executeTaskWithMonitoring(agent, task);
+          this.performanceMetrics.tasksProcessed++;
+          if (result.success) {
+            this.performanceMetrics.successfulTasks++;
+          } else {
+            this.performanceMetrics.failedTasks++;
+          }
+          return result;
+        } finally {
+          this.currentParallelExecutions--;
+        }
+      });
+
+      await Promise.all(batchPromises);
+    }
+  }
+
+  private async executeTaskWithMonitoring(agent: AutonomousAgent, task: AgentTask): Promise<AgentResult> {
+    const startTime = Date.now();
+    const executionId = `exec_${task.id}_${Date.now()}`;
+
+    try {
+      // Store execution promise for tracking
+      const executionPromise = agent.executeTask(task);
+      this.executionPool.set(executionId, executionPromise);
+
+      // Execute with timeout
+      const timeout = 60000; // 60 seconds
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Task execution timeout')), timeout);
+      });
+
+      const result = await Promise.race([executionPromise, timeoutPromise]);
+
+      // Update metrics
+      const executionTime = Date.now() - startTime;
+      this.performanceMetrics.avgExecutionTime =
+        (this.performanceMetrics.avgExecutionTime * (this.performanceMetrics.tasksProcessed - 1) + executionTime) /
+        this.performanceMetrics.tasksProcessed;
+
+      // Store result in database
+      await this.storeTaskResult(agent.id, task, result, executionTime);
+
+      return result;
+    } catch (error) {
+      console.error(`Task ${task.id} execution failed:`, error);
+      return {
+        success: false,
+        result: null,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    } finally {
+      this.executionPool.delete(executionId);
+    }
   }
 
   private detectTaskConflicts(allTasks: Map<string, AgentTask[]>): any[] {
@@ -762,20 +885,154 @@ export class AgentOrchestrator {
     // Implement error recovery strategies
   }
 
+  // Enhanced orchestration lifecycle methods
+  private async startOrchestration(): Promise<void> {
+    if (this.isRunning) return;
+
+    this.isRunning = true;
+    console.log('🎯 Starting autonomous orchestration engine...');
+
+    // Run orchestration every 5 minutes
+    this.orchestrationInterval = setInterval(() => {
+      this.orchestrateAgents();
+    }, 5 * 60 * 1000);
+
+    // Run initial orchestration
+    await this.orchestrateAgents();
+  }
+
+  async stopOrchestration(): Promise<void> {
+    this.isRunning = false;
+
+    if (this.orchestrationInterval) {
+      clearInterval(this.orchestrationInterval);
+      this.orchestrationInterval = null;
+    }
+
+    // Wait for all current executions to complete
+    if (this.executionPool.size > 0) {
+      console.log(`Waiting for ${this.executionPool.size} tasks to complete...`);
+      await Promise.all(Array.from(this.executionPool.values()));
+    }
+
+    console.log('🛑 Orchestration engine stopped');
+  }
+
+  // Setup event handlers for agent communication
+  private setupEventHandlers(): void {
+    this.on('agent-needs-data', async (data: {agentId: string, dataType: string}) => {
+      // Handle inter-agent data requests
+      await this.handleDataRequest(data.agentId, data.dataType);
+    });
+
+    this.on('agent-conflict', async (conflict: any) => {
+      // Handle real-time conflicts
+      await this.handleRealTimeConflict(conflict);
+    });
+
+    this.on('performance-degradation', async (metrics: any) => {
+      // Handle performance issues
+      await this.handlePerformanceDegradation(metrics);
+    });
+  }
+
+  private async handleDataRequest(agentId: string, dataType: string): Promise<void> {
+    // Coordinate data sharing between agents
+    console.log(`Agent ${agentId} requested ${dataType} data`);
+
+    // Find agent that can provide this data
+    const providerAgent = this.findDataProvider(dataType);
+    if (providerAgent) {
+      // Coordinate data transfer
+      this.emit('data-transfer', { from: providerAgent, to: agentId, dataType });
+    }
+  }
+
+  private findDataProvider(dataType: string): string | null {
+    const dataProviders: Record<string, string[]> = {
+      'carbon-hunter': ['emissions', 'carbon', 'ghg'],
+      'supply-chain-investigator': ['suppliers', 'scope3', 'supply_chain'],
+      'compliance-guardian': ['compliance', 'regulations', 'standards'],
+      'esg-chief-of-staff': ['reports', 'metrics', 'dashboards'],
+      'regulatory-foresight': ['regulatory_updates', 'upcoming_regulations']
+    };
+
+    for (const [agent, types] of Object.entries(dataProviders)) {
+      if (types.some(type => dataType.includes(type))) {
+        return agent;
+      }
+    }
+    return null;
+  }
+
+  private async handleRealTimeConflict(conflict: any): Promise<void> {
+    console.warn('Real-time conflict detected:', conflict);
+    // Implement real-time conflict resolution
+  }
+
+  private async handlePerformanceDegradation(metrics: any): Promise<void> {
+    console.warn('Performance degradation detected:', metrics);
+    // Reduce parallel executions if needed
+    if (metrics.avgExecutionTime > 30000) {
+      this.maxParallelExecutions = Math.max(2, this.maxParallelExecutions - 2);
+      console.log(`Reduced parallel executions to ${this.maxParallelExecutions}`);
+    }
+  }
+
+  private async updateOrchestrationMetrics(executionTime: number): Promise<void> {
+    this.performanceMetrics.lastOrchestrationTime = new Date();
+
+    // Store metrics in database
+    await supabaseAdmin
+      .from('orchestration_metrics')
+      .insert({
+        organization_id: this.organizationId,
+        tasks_processed: this.performanceMetrics.tasksProcessed,
+        successful_tasks: this.performanceMetrics.successfulTasks,
+        failed_tasks: this.performanceMetrics.failedTasks,
+        avg_execution_time: this.performanceMetrics.avgExecutionTime,
+        execution_time_ms: executionTime,
+        active_agents: this.agents.size,
+        created_at: new Date().toISOString()
+      });
+  }
+
+  private async storeTaskResult(
+    agentId: string,
+    task: AgentTask,
+    result: AgentResult,
+    executionTime: number
+  ): Promise<void> {
+    await supabaseAdmin
+      .from('agent_task_results')
+      .insert({
+        organization_id: this.organizationId,
+        agent_id: agentId,
+        task_id: task.id,
+        task_type: task.type,
+        priority: task.priority,
+        success: result.success,
+        execution_time_ms: executionTime,
+        error: result.error,
+        result: result.result,
+        created_at: new Date().toISOString()
+      });
+  }
+
   // Public methods for external control
   async pauseAgent(agentId: string): Promise<void> {
     const agent = this.agents.get(agentId);
     if (agent) {
-      // Implement pause functionality
-      console.log(`Pausing agent: ${agentId}`);
+      await agent.stop();
+      console.log(`⏸️ Paused agent: ${agentId}`);
     }
   }
 
   async resumeAgent(agentId: string): Promise<void> {
     const agent = this.agents.get(agentId);
     if (agent) {
-      // Implement resume functionality
-      console.log(`Resuming agent: ${agentId}`);
+      await agent.start();
+      console.log(`▶️ Resumed agent: ${agentId}`);
     }
   }
 
@@ -804,7 +1061,39 @@ export class AgentOrchestrator {
       active_coordinations: this.activeCoordinations.size,
       active_workflows: this.activeWorkflows.size,
       resource_usage: Object.fromEntries(Array.from(this.resourceUsage.entries())),
-      coordination_rules: this.coordinationRules.length
+      coordination_rules: this.coordinationRules.length,
+      performance: {
+        tasksProcessed: this.performanceMetrics.tasksProcessed,
+        successfulTasks: this.performanceMetrics.successfulTasks,
+        failedTasks: this.performanceMetrics.failedTasks,
+        successRate: this.performanceMetrics.tasksProcessed > 0 ?
+          this.performanceMetrics.successfulTasks / this.performanceMetrics.tasksProcessed : 0,
+        avgExecutionTime: this.performanceMetrics.avgExecutionTime,
+        currentParallelExecutions: this.currentParallelExecutions,
+        maxParallelExecutions: this.maxParallelExecutions,
+        lastOrchestrationTime: this.performanceMetrics.lastOrchestrationTime
+      },
+      taskQueue: Object.fromEntries(
+        Array.from(this.taskQueue.entries()).map(([agentId, tasks]) => [agentId, tasks.length])
+      )
+    };
+  }
+
+  // Get real-time status of all agents
+  async getRealTimeStatus(): Promise<any> {
+    const agentStatuses = await Promise.all(
+      Array.from(this.agents.entries()).map(async ([agentId, agent]) => {
+        const health = await agent.getHealth();
+        return { agentId, ...health };
+      })
+    );
+
+    return {
+      orchestrator: {
+        isRunning: this.isRunning,
+        metrics: await this.getOrchestrationMetrics()
+      },
+      agents: agentStatuses
     };
   }
 }

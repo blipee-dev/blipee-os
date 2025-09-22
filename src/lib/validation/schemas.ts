@@ -63,8 +63,8 @@ export const chatMessageSchema = z.object({
   organizationId: z.string().optional(),
   buildingContext: z.object({
     id: z.string(),
-    name: z.string(),
-    organizationId: z.string(),
+    name: z.string().optional(),
+    organizationId: z.string().optional(),
     metadata: z.record(z.any()).optional(),
   }).optional(),
   attachments: z.array(z.object({
@@ -245,7 +245,7 @@ export const metricsCatalogCreateSchema = z.object({
  * Conversation schemas
  */
 export const conversationCreateSchema = z.object({
-  buildingId: z.string().min(1, 'Building ID is required'),
+  buildingId: z.string().optional(),
 });
 
 /**

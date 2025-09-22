@@ -20,7 +20,8 @@ import { useCSRF } from "@/hooks/use-csrf";
 import { useAuth } from "@/lib/auth/context";
 import { useAppearance } from "@/providers/AppearanceProvider";
 import { useTranslations } from "@/providers/LanguageProvider";
-import { Menu, Plus, PanelRightOpen, PanelRightClose } from "lucide-react";
+import { Menu, Plus, PanelRightOpen, PanelRightClose, Bot } from "lucide-react";
+import { generateRoleSuggestions, generateFollowUpSuggestions, type DynamicSuggestion } from "@/lib/ai/client-suggestions";
 
 interface BuildingContext {
   id: string;
@@ -77,10 +78,13 @@ export function ConversationInterface({
   const [isArtifactsExpanded, setIsArtifactsExpanded] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
   const [showChats, setShowChats] = useState(false);
+  const [dynamicSuggestions, setDynamicSuggestions] = useState<DynamicSuggestion[]>([]);
+  const [currentAgent, setCurrentAgent] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const apiClient = useAPIClient();
   const { headers: csrfHeaders } = useCSRF();
   const { session } = useAuth();
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -89,6 +93,78 @@ export function ConversationInterface({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Load dynamic suggestions based on user role and context
+  useEffect(() => {
+    const loadSuggestions = async () => {
+      // Always load suggestions, even without a session
+      // Determine user role from session or default
+      let userRole = 'MEMBER'; // Default role
+
+      if (session?.user) {
+        try {
+          // Get user role from the server API (uses admin client to bypass RLS)
+          const response = await fetch('/api/auth/user-role');
+
+          if (response.ok) {
+            const data = await response.json();
+
+            if (data.isSuperAdmin) {
+              userRole = 'SUPER_ADMIN';
+              console.log('👑 Super Admin detected!');
+            } else if (data.role) {
+              // Map database roles to suggestion engine roles
+              switch(data.role) {
+                case 'account_owner':
+                case 'OWNER':
+                  userRole = 'OWNER';
+                  break;
+                case 'sustainability_manager':
+                case 'MANAGER':
+                  userRole = 'MANAGER';
+                  break;
+                case 'facility_manager':
+                  userRole = 'facility_manager';
+                  break;
+                case 'analyst':
+                case 'MEMBER':
+                  userRole = 'MEMBER';
+                  break;
+                case 'viewer':
+                case 'VIEWER':
+                  userRole = 'VIEWER';
+                  break;
+                default:
+                  userRole = 'MEMBER';
+              }
+            }
+
+            console.log('🤖 Blipee Assistant - User detected:', {
+              email: session.user.email,
+              role: userRole,
+              isSuperAdmin: data.isSuperAdmin,
+              authUserId: data.authUserId,
+              dbRole: data.role
+            });
+          } else {
+            console.error('Failed to get user role from API');
+          }
+        } catch (error) {
+          console.error('Error detecting user role:', error);
+          // Fallback to session-based detection
+          if (session.permissions && session.permissions.length > 0) {
+            const permission = session.permissions[0];
+            userRole = permission.role || 'MEMBER';
+          }
+        }
+      }
+
+      const suggestions = await generateRoleSuggestions(userRole, pathname);
+      console.log('📋 Generated suggestions for role', userRole, ':', suggestions);
+      setDynamicSuggestions(suggestions);
+    };
+    loadSuggestions();
+  }, [session, pathname, messages.length]);
 
   // Load conversations from database on mount
   useEffect(() => {
@@ -223,6 +299,11 @@ export function ConversationInterface({
 
   const handleSend = async (message: string, files?: any[]) => {
     if ((!message.trim() && !files?.length) || isLoading) return;
+
+    // Show which agent is responding if one was selected
+    if (currentAgent) {
+      console.log(`🤖 Routing to ${currentAgent} agent...`);
+    }
 
     // Create new conversation if needed
     let conversationId = currentConversationId;
@@ -479,25 +560,41 @@ export function ConversationInterface({
                     {t('welcomeSubtitle')}
                   </p>
                   
-                  {/* Quick start suggestions */}
+                  {/* Dynamic role-based suggestions */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
-                    {[
-                      t('suggestions.energyTrends'),
-                      t('suggestions.generateCode'),
-                      t('suggestions.performanceReport'),
-                      t('suggestions.sustainabilityDashboard'),
-                    ].map((suggestion, index) => (
+                    {dynamicSuggestions.slice(0, 4).map((suggestion, index) => (
                       <motion.button
-                        key={index}
+                        key={suggestion.id}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.1 }}
-                        onClick={() => handleSend(suggestion)}
-                        className="px-4 py-3 bg-gray-50 dark:bg-white/[0.02] hover:bg-gray-100 dark:hover:bg-white/[0.05] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-all"
+                        onClick={() => {
+                          setCurrentAgent(suggestion.agent);
+                          handleSend(suggestion.text);
+                        }}
+                        className="px-4 py-3 bg-gray-50 dark:bg-white/[0.02] hover:bg-gray-100 dark:hover:bg-white/[0.05] border border-gray-200 dark:border-white/[0.05] rounded-lg transition-all text-left group"
+                        title={`Powered by ${suggestion.agent}`}
                       >
-                        {suggestion}
+                        <div className="flex items-start gap-2">
+                          <span className="text-lg flex-shrink-0">{suggestion.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm text-gray-700 dark:text-gray-300 truncate">
+                              {suggestion.text}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {suggestion.agent}
+                            </p>
+                          </div>
+                        </div>
                       </motion.button>
                     ))}
+                  </div>
+
+                  {/* Show which AI employees are available */}
+                  <div className="mt-6 text-center">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      🤖 Your AI team: ESG Chief • Compliance Guardian • Carbon Hunter • Cost Finder
+                    </p>
                   </div>
                 </motion.div>
               </div>
@@ -520,12 +617,34 @@ export function ConversationInterface({
           </div>
         </div>
 
-        {/* Suggestions */}
-        {lastAssistantMessage?.suggestions && (
-          <MessageSuggestions
-            suggestions={lastAssistantMessage.suggestions}
-            onSelect={handleSuggestionClick}
-          />
+        {/* Dynamic follow-up suggestions */}
+        {messages.length > 0 && dynamicSuggestions.length > 0 && (
+          <div className="px-4 py-2 border-t border-gray-200 dark:border-white/[0.05] bg-gray-50 dark:bg-white/[0.01]">
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {dynamicSuggestions.slice(0, 3).map((suggestion) => (
+                <button
+                  key={suggestion.id}
+                  onClick={() => {
+                    setCurrentAgent(suggestion.agent);
+                    handleSuggestionClick(suggestion.text);
+                  }}
+                  className="flex-shrink-0 px-3 py-1.5 bg-white dark:bg-white/[0.05] text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-purple-50 dark:hover:bg-purple-500/[0.1] hover:text-purple-700 dark:hover:text-purple-300 transition-colors border border-gray-200 dark:border-white/[0.1] group"
+                >
+                  <span className="mr-1.5">{suggestion.icon}</span>
+                  <span>{suggestion.text}</span>
+                  <span className="ml-1.5 text-xs text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    ({suggestion.agent})
+                  </span>
+                </button>
+              ))}
+            </div>
+            {currentAgent && (
+              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                <Bot className="w-3 h-3 animate-pulse" />
+                <span>{currentAgent} is thinking...</span>
+              </div>
+            )}
+          </div>
         )}
 
           {/* Input area */}

@@ -105,11 +105,13 @@ export class CacheService {
         // Add to tags if specified
         if (options.tags && options.tags.length > 0) {
           const pipeline = client.pipeline();
-          for (const tag of options.tags) {
-            pipeline.sadd(`tag:${tag}`, key);
-            pipeline.expire(`tag:${tag}`, ttl);
+          if (pipeline) {
+            for (const tag of options.tags) {
+              pipeline.sadd(`tag:${tag}`, key);
+              pipeline.expire(`tag:${tag}`, ttl);
+            }
+            await pipeline.exec();
           }
-          await pipeline.exec();
         }
 
         return true;

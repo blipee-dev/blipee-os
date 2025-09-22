@@ -407,12 +407,12 @@ export class AgentOrchestrator {
         return { agent, score };
       })
     );
-    
+
     // Filter out overloaded agents and sort by score
     const availableAgents = scoredAgents
       .filter(({ score }) => score > 0)
       .sort((a, b) => b.score - a.score);
-    
+
     return availableAgents.length > 0 ? availableAgents[0].agent : null;
   }
   
@@ -422,23 +422,25 @@ export class AgentOrchestrator {
   private async calculateAgentSuitability(agent: AutonomousAgent, task: Task): Promise<number> {
     const status = await agent.getStatus();
     let score = 0;
-    
+
     // Base capability score
     if (agent.agentCapabilities.canTakeActions && task.type.includes('action')) score += 0.3;
     if (agent.agentCapabilities.canMakeDecisions && task.type.includes('decision')) score += 0.3;
-    
+
     // Workload factor (prefer less loaded agents)
     const taskLoad = status.metrics.tasksCompleted; // Today's tasks
     const maxLoad = this.maxTasksPerAgent;
     const loadFactor = Math.max(0, (maxLoad - taskLoad) / maxLoad);
     score += loadFactor * 0.3;
-    
+
     // Success rate factor
     score += (status.metrics.successRate / 100) * 0.1;
-    
+
     // Agent-specific specialization bonus
     const specializationBonus = await this.calculateSpecializationBonus(agent.agentName, task.type);
     score += specializationBonus;
+
+
     
     // Penalize if agent is overloaded
     if (taskLoad >= maxLoad) score = 0;
@@ -451,33 +453,84 @@ export class AgentOrchestrator {
    */
   private async calculateSpecializationBonus(agentName: string, taskType: string): Promise<number> {
     const specializations = await this.getAgentSpecializations(agentName);
-    
+
     const bonusMap: Record<string, string[]> = {
-      'ESG Chief of Staff': ['analysis', 'strategy', 'planning', 'compliance'],
-      'Carbon Hunter': ['emissions', 'carbon', 'tracking', 'measurement'],
-      'Compliance Guardian': ['regulatory', 'compliance', 'audit', 'reporting'],
-      'Supply Chain Investigator': ['supply', 'chain', 'vendor', 'procurement']
+      'ESG Chief of Staff': ['strategic', 'planning', 'analysis', 'coordination', 'esg', 'leadership', 'oversight'],
+      'Compliance Guardian': ['compliance', 'audit', 'standard', 'framework', 'current', 'existing', 'validation'],
+      'Carbon Hunter': ['carbon', 'emissions', 'tracking', 'scope', 'ghg', 'co2', 'climate', 'reduction'],
+      'Supply Chain Investigator': ['supply', 'chain', 'vendor', 'procurement', 'sourcing', 'supplier', 'investigation'],
+      'Cost Saving Finder': ['cost', 'saving', 'financial', 'energy', 'expenses', 'budget', 'roi', 'finder'],
+      'Predictive Maintenance': ['maintenance', 'predictive', 'equipment', 'device', 'failure', 'health', 'monitoring'],
+      'Autonomous Optimizer': ['autonomous', 'optimizer', 'optimization', 'performance', 'efficiency', 'operations', 'automation', 'continuous'],
+      'Regulatory Foresight': ['regulatory', 'foresight', 'regulations', 'changes', 'updates', 'monitoring', 'future', 'upcoming', 'track', 'deadlines', 'laws', 'proactive']
     };
-    
+
     const agentKeywords = bonusMap[agentName] || [];
-    const matchCount = agentKeywords.filter(keyword => 
-      taskType.toLowerCase().includes(keyword)
-    ).length;
-    
-    return matchCount * 0.1; // 10% bonus per matching specialization
+
+    // Normalize task type for better matching (handle hyphens and underscores)
+    const normalizedTaskType = taskType.toLowerCase().replace(/[-_]/g, ' ');
+    const taskWords = normalizedTaskType.split(' ').filter(word => word.length > 0);
+
+    // Count matches - both direct inclusion and word-level matching
+    let matchCount = 0;
+    const matches: string[] = [];
+
+    for (const keyword of agentKeywords) {
+      // Direct inclusion check
+      if (normalizedTaskType.includes(keyword.toLowerCase())) {
+        matchCount++;
+        matches.push(keyword);
+      }
+      // Word-level matching for compound task types
+      else if (taskWords.some(word => word === keyword.toLowerCase())) {
+        matchCount++;
+        matches.push(keyword);
+      }
+    }
+
+
+    // Special bonus for exact agent type matches
+    if (this.isExactAgentMatch(agentName, normalizedTaskType)) {
+      matchCount += 2; // Extra bonus for perfect matches
+    }
+
+    return Math.min(matchCount * 0.15, 0.8); // 15% bonus per match, max 80%
   }
-  
+
+  /**
+   * Check for exact agent-task type matches
+   */
+  private isExactAgentMatch(agentName: string, normalizedTaskType: string): boolean {
+    const exactMatches: Record<string, string[]> = {
+      'Compliance Guardian': ['compliance', 'compliance monitoring', 'audit'],
+      'Carbon Hunter': ['carbon tracking', 'carbon', 'emissions', 'emissions tracking', 'ghg'],
+      'ESG Chief of Staff': ['strategic planning', 'strategic', 'esg', 'leadership', 'coordination'],
+      'Supply Chain Investigator': ['supply chain analysis', 'supply chain', 'vendor', 'procurement', 'sourcing'],
+      'Cost Saving Finder': ['cost saving', 'energy cost', 'financial optimization', 'roi calculation'],
+      'Predictive Maintenance': ['predictive maintenance', 'device health', 'failure prediction', 'maintenance scheduling'],
+      'Autonomous Optimizer': ['autonomous optimization', 'performance optimization', 'system automation', 'operations tuning'],
+      'Regulatory Foresight': ['regulatory foresight', 'regulatory monitoring', 'compliance forecasting', 'law tracking', 'deadline management']
+    };
+
+    const agentMatches = exactMatches[agentName] || [];
+    return agentMatches.some(match => normalizedTaskType.includes(match));
+  }
+
   /**
    * Get agent specializations
    */
   private async getAgentSpecializations(agentName: string): Promise<string[]> {
     const specializationMap: Record<string, string[]> = {
       'ESG Chief of Staff': ['Strategic Planning', 'Stakeholder Management', 'ESG Analysis', 'Target Setting'],
+      'Compliance Guardian': ['Compliance Assessment', 'Risk Analysis', 'Reporting', 'Standard Frameworks'],
       'Carbon Hunter': ['Emissions Tracking', 'Carbon Accounting', 'Data Collection', 'Verification'],
-      'Compliance Guardian': ['Regulatory Monitoring', 'Compliance Assessment', 'Risk Analysis', 'Reporting'],
-      'Supply Chain Investigator': ['Vendor Assessment', 'Supply Chain Analysis', 'Procurement', 'Due Diligence']
+      'Supply Chain Investigator': ['Vendor Assessment', 'Supply Chain Analysis', 'Procurement', 'Due Diligence'],
+      'Cost Saving Finder': ['Energy Cost Analysis', 'Financial Optimization', 'ROI Calculation', 'Expense Tracking'],
+      'Predictive Maintenance': ['Device Health Monitoring', 'Failure Prediction', 'Maintenance Scheduling', 'Anomaly Detection'],
+      'Autonomous Optimizer': ['Performance Optimization', 'System Automation', 'Efficiency Analysis', 'Operations Tuning'],
+      'Regulatory Foresight': ['Regulatory Monitoring', 'Compliance Forecasting', 'Law Tracking', 'Deadline Management', 'Future Regulations']
     };
-    
+
     return specializationMap[agentName] || [];
   }
   

@@ -1,32 +1,41 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { LazyConversationInterface } from "@/components/lazy";
 import { useAuth } from "@/lib/auth/context";
 import { Leaf, TrendingDown, FileText, Target } from "lucide-react";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useTranslations } from "@/providers/LanguageProvider";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   useAuthRedirect('/blipee-ai');
-  
+
   const { session } = useAuth();
   const t = useTranslations('blipee-ai');
+  const router = useRouter();
 
-  // For now, we'll use a simplified context that focuses on sustainability
-  // In the future, this can be enhanced with actual organization/building data
-  const sustainabilityContext = {
-    id: session?.current_organization?.id || "demo",
-    name: session?.current_organization?.name || t('defaultOrganization'),
-    organizationId: session?.current_organization?.id || "demo",
+  // No redirect - AI Butler will guide users based on their state
+  useEffect(() => {
+    if (session && !session.current_organization && !session.organizations?.length) {
+      console.log('User has no organization - AI Butler will provide guidance');
+    }
+  }, [session]);
+
+  // Use real organization data - no demo values
+  const sustainabilityContext = session?.current_organization ? {
+    id: session.current_organization.id,
+    name: session.current_organization.name,
+    organizationId: session.current_organization.id,
     metadata: {
+      // These can be fetched from actual building data later
       size_sqft: 50000,
       floors: 5,
       occupancy_types: ["office", "mixed"],
       age_category: "modern",
       systems_baseline: { type: "sustainable" },
     },
-  };
+  } : undefined;
 
   // Don't show mock stats for new users
   const isNewUser = !session?.current_organization;

@@ -1,938 +1,852 @@
 /**
- * Predictive Maintenance System for Autonomous Agents
- * 
- * Enables agents to predict and prevent system failures:
- * - Equipment degradation prediction using ML models
- * - Anomaly detection in operational patterns
- * - Automated maintenance scheduling and execution
- * - Supply chain optimization for maintenance parts
- * - Integration with IoT sensors and monitoring systems
+ * Predictive Maintenance Agent
+ * Predicts equipment failures and schedules maintenance based on real sensor data
  */
 
-import { AutonomousAgent } from './agent-framework';
-import { AgentTask, AgentResult } from './agent-framework';
-import { createClient } from '@supabase/supabase-js';
+import { AutonomousAgent, AgentTask, AgentResult, ExecutedAction, Learning } from './agent-framework';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { aiService } from '../service';
 
-export interface Equipment {
-  id: string;
-  name: string;
-  type: string;
-  location: string;
-  manufacturer: string;
-  model: string;
-  serial_number: string;
-  installation_date: string;
-  last_maintenance_date: string;
-  next_scheduled_maintenance: string;
-  critical_components: CriticalComponent[];
-  operational_parameters: OperationalParameter[];
-  maintenance_history: MaintenanceRecord[];
-  status: 'operational' | 'degraded' | 'critical' | 'failed' | 'maintenance';
-  health_score: number; // 0-100
+interface DeviceHealth {
+  deviceId: string;
+  deviceName: string;
+  healthScore: number; // 0-100
+  failureProbability: number; // 0-1
+  predictedFailureDate?: Date;
+  anomalies: Anomaly[];
+  recommendations: MaintenanceRecommendation[];
 }
 
-export interface CriticalComponent {
-  component_id: string;
-  name: string;
-  type: string;
-  expected_lifespan_hours: number;
-  current_usage_hours: number;
-  degradation_rate: number;
-  failure_indicators: FailureIndicator[];
-  replacement_cost: number;
-  lead_time_days: number;
-  criticality_level: 'critical' | 'high' | 'medium' | 'low';
-}
-
-export interface OperationalParameter {
-  parameter_id: string;
-  name: string;
-  unit: string;
-  normal_range: { min: number; max: number };
-  current_value: number;
-  trend: 'stable' | 'increasing' | 'decreasing' | 'oscillating';
-  anomaly_threshold: number;
-  sensor_id?: string;
-  last_updated: string;
-}
-
-export interface FailureIndicator {
-  indicator_id: string;
-  name: string;
-  type: 'vibration' | 'temperature' | 'pressure' | 'electrical' | 'performance' | 'visual';
-  threshold_warning: number;
-  threshold_critical: number;
-  current_value: number;
-  detection_method: 'sensor' | 'manual' | 'calculated';
-  prediction_accuracy: number;
-}
-
-export interface MaintenanceRecord {
-  record_id: string;
-  equipment_id: string;
-  maintenance_type: 'preventive' | 'corrective' | 'predictive' | 'emergency';
-  date_performed: string;
-  duration_hours: number;
-  cost: number;
-  technician: string;
-  work_performed: string[];
-  parts_replaced: PartReplacement[];
-  findings: string[];
-  recommendations: string[];
-  next_maintenance_due: string;
-}
-
-export interface PartReplacement {
-  part_id: string;
-  part_name: string;
-  quantity: number;
-  cost_per_unit: number;
-  supplier: string;
-  warranty_months: number;
-}
-
-export interface PredictiveModel {
-  model_id: string;
-  equipment_type: string;
-  algorithm: 'neural_network' | 'random_forest' | 'svm' | 'time_series' | 'ensemble';
-  input_features: string[];
-  target_variable: string;
-  accuracy_score: number;
-  precision: number;
-  recall: number;
-  f1_score: number;
-  training_data_size: number;
-  last_trained: string;
-  model_version: string;
-  confidence_threshold: number;
-}
-
-export interface MaintenancePrediction {
-  prediction_id: string;
-  equipment_id: string;
-  model_id: string;
-  prediction_type: 'failure' | 'degradation' | 'performance_drop' | 'maintenance_need';
-  predicted_date: string;
-  confidence_score: number;
-  time_to_failure_days: number;
-  failure_mode: string;
-  recommended_actions: RecommendedAction[];
-  cost_implications: CostImplication;
-  risk_assessment: MaintenanceRiskAssessment;
-  generated_at: string;
-}
-
-export interface RecommendedAction {
-  action_id: string;
-  type: 'immediate' | 'scheduled' | 'conditional' | 'monitor';
-  description: string;
-  priority: 'critical' | 'high' | 'medium' | 'low';
-  estimated_cost: number;
-  estimated_duration_hours: number;
-  required_parts: string[];
-  required_skills: string[];
-  execution_window: {
-    earliest: string;
-    latest: string;
-    preferred: string;
-  };
-  dependencies: string[];
-}
-
-export interface CostImplication {
-  preventive_maintenance_cost: number;
-  failure_replacement_cost: number;
-  downtime_cost_per_hour: number;
-  potential_downtime_hours: number;
-  total_failure_cost: number;
-  cost_savings_from_prevention: number;
-  roi_percentage: number;
-}
-
-export interface MaintenanceRiskAssessment {
-  failure_probability: number; // 0-1
-  business_impact: 'critical' | 'high' | 'medium' | 'low';
-  safety_risk: 'critical' | 'high' | 'medium' | 'low' | 'none';
-  environmental_risk: 'critical' | 'high' | 'medium' | 'low' | 'none';
-  regulatory_implications: string[];
-  cascade_failure_risk: number; // 0-1
-  mitigation_urgency: 'immediate' | 'within_24h' | 'within_week' | 'planned';
-}
-
-export interface MaintenanceSchedule {
-  schedule_id: string;
-  equipment_id: string;
-  maintenance_type: 'preventive' | 'predictive' | 'corrective';
-  scheduled_date: string;
-  estimated_duration_hours: number;
-  required_resources: RequiredResource[];
-  work_orders: WorkOrder[];
-  status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'rescheduled';
-  optimization_score: number;
-}
-
-export interface RequiredResource {
-  resource_type: 'technician' | 'equipment' | 'part' | 'tool' | 'facility';
-  resource_id: string;
-  quantity: number;
-  availability_confirmed: boolean;
-  alternativeoptions: string[];
-}
-
-export interface WorkOrder {
-  work_order_id: string;
-  description: string;
-  instructions: string[];
-  safety_requirements: string[];
-  quality_checks: QualityCheck[];
-  estimated_duration_minutes: number;
-  assigned_technician?: string;
-  status: 'pending' | 'assigned' | 'in_progress' | 'completed' | 'on_hold';
-}
-
-export interface QualityCheck {
-  check_id: string;
-  description: string;
-  method: 'visual' | 'measurement' | 'test' | 'calibration';
-  acceptance_criteria: string;
-  required: boolean;
-}
-
-export interface IoTIntegration {
-  sensor_networks: SensorNetwork[];
-  data_streams: DataStream[];
-  edge_computing: EdgeComputingNode[];
-  real_time_analytics: AnalyticsEngine[];
-}
-
-export interface SensorNetwork {
-  network_id: string;
-  equipment_id: string;
-  sensors: IoTSensor[];
-  communication_protocol: 'mqtt' | 'coap' | 'http' | 'modbus' | 'opcua';
-  data_collection_frequency: number; // seconds
-  network_status: 'active' | 'degraded' | 'offline';
-}
-
-export interface IoTSensor {
-  sensor_id: string;
-  type: 'temperature' | 'vibration' | 'pressure' | 'flow' | 'current' | 'voltage' | 'humidity';
-  location: string;
-  measurement_range: { min: number; max: number };
-  accuracy: number;
-  sampling_rate_hz: number;
-  battery_level?: number;
-  last_calibration: string;
-  status: 'active' | 'maintenance_needed' | 'failed';
-}
-
-export interface DataStream {
-  stream_id: string;
-  sensor_id: string;
-  data_points: DataPoint[];
-  quality_score: number;
-  anomalies_detected: Anomaly[];
-  preprocessing_applied: string[];
-}
-
-export interface DataPoint {
-  timestamp: string;
+interface Anomaly {
+  type: 'temperature' | 'vibration' | 'power' | 'performance' | 'runtime';
+  severity: 'low' | 'medium' | 'high' | 'critical';
   value: number;
-  quality: 'good' | 'uncertain' | 'bad';
-  flags: string[];
+  threshold: number;
+  deviation: number; // percentage from normal
+  detectedAt: Date;
 }
 
-export interface Anomaly {
-  anomaly_id: string;
-  detected_at: string;
-  type: 'statistical' | 'pattern' | 'threshold' | 'trend';
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  description: string;
-  confidence_score: number;
-  potential_causes: string[];
+interface MaintenanceRecommendation {
+  action: string;
+  urgency: 'routine' | 'soon' | 'urgent' | 'critical';
+  estimatedCost: number;
+  estimatedDowntime: number; // hours
+  preventedCost: number; // cost of failure if not maintained
+  confidence: number;
 }
 
-export interface EdgeComputingNode {
-  node_id: string;
-  location: string;
-  processing_capabilities: string[];
-  connected_sensors: string[];
-  ml_models_deployed: string[];
-  status: 'operational' | 'degraded' | 'offline';
-}
-
-export interface AnalyticsEngine {
-  engine_id: string;
-  type: 'real_time' | 'batch' | 'streaming';
-  algorithms: string[];
-  input_streams: string[];
-  output_destinations: string[];
-  performance_metrics: EngineMetrics;
-}
-
-export interface EngineMetrics {
-  processing_latency_ms: number;
-  throughput_events_per_second: number;
-  accuracy: number;
-  uptime_percentage: number;
-  error_rate: number;
+interface MaintenanceSchedule {
+  deviceId: string;
+  scheduledDate: Date;
+  type: 'preventive' | 'predictive' | 'corrective';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  tasks: string[];
+  estimatedDuration: number;
 }
 
 export class PredictiveMaintenanceAgent extends AutonomousAgent {
-  private equipmentRegistry: Map<string, Equipment> = new Map();
-  private predictiveModels: Map<string, PredictiveModel> = new Map();
-  private maintenanceScheduler: MaintenanceScheduler;
-  private iotIntegration!: IoTIntegration; // Initialized in initialize()
-  private costOptimizer: MaintenanceCostOptimizer;
+  private readonly FAILURE_THRESHOLD = 0.7;
+  private readonly ANOMALY_WINDOW = 24 * 60 * 60 * 1000; // 24 hours
 
   constructor(organizationId: string) {
     super(organizationId, {
       agentId: 'predictive-maintenance',
-      capabilities: [],
-      maxAutonomyLevel: 4, // High autonomy for maintenance optimization
-      executionInterval: 900000 // Run every 15 minutes
+      capabilities: [
+        {
+          name: 'analyze_device_health',
+          description: 'Analyze device health using sensor data',
+          requiredPermissions: ['read:devices', 'read:sensors'],
+          maxExecutionTime: 30000,
+          retryable: true
+        },
+        {
+          name: 'predict_failures',
+          description: 'Predict equipment failures using ML models',
+          requiredPermissions: ['read:devices', 'write:predictions'],
+          maxExecutionTime: 45000,
+          retryable: true
+        },
+        {
+          name: 'schedule_maintenance',
+          description: 'Create optimal maintenance schedules',
+          requiredPermissions: ['write:maintenance', 'read:schedules'],
+          maxExecutionTime: 20000,
+          retryable: false
+        },
+        {
+          name: 'detect_anomalies',
+          description: 'Detect anomalies in real-time sensor data',
+          requiredPermissions: ['read:sensors'],
+          maxExecutionTime: 15000,
+          retryable: true
+        }
+      ],
+      learningEnabled: true,
+      maxConcurrentTasks: 5,
+      taskTimeout: 60000,
+      retryAttempts: 3,
+      retryDelay: 5000
     });
-    this.maintenanceScheduler = new MaintenanceScheduler(organizationId);
-    this.costOptimizer = new MaintenanceCostOptimizer(organizationId);
   }
 
-  async initialize(): Promise<void> {
-    if (super.initialize) {
-      await super.initialize();
+  protected async executeTaskInternal(task: AgentTask): Promise<AgentResult> {
+    switch (task.type) {
+      case 'analyze_device_health':
+        return await this.analyzeDeviceHealth(task);
+      case 'predict_failures':
+        return await this.predictFailures(task);
+      case 'schedule_maintenance':
+        return await this.scheduleMaintenanceTask(task);
+      case 'detect_anomalies':
+        return await this.detectAnomalies(task);
+      default:
+        return {
+          success: false,
+          error: `Unknown task type: ${task.type}`
+        };
     }
-    await this.loadEquipmentRegistry();
-    await this.loadPredictiveModels();
-    await this.initializeIoTIntegration();
-    await this.maintenanceScheduler.initialize();
-
-    console.log('predictive_maintenance_initialized', {
-      equipment_count: this.equipmentRegistry.size,
-      models_loaded: this.predictiveModels.size,
-      iot_sensors_connected: this.iotIntegration?.sensor_networks?.length || 0,
-      prediction_enabled: true
-    });
   }
 
-  async getScheduledTasks(): Promise<AgentTask[]> {
-    const now = new Date();
-    const tasks: AgentTask[] = [];
-
-    // Continuous monitoring (every 15 minutes)
-    const monitoringTask = new Date(now.getTime() + 15 * 60000);
-    tasks.push({
-      id: `equipment-monitoring-${monitoringTask.getTime()}`,
-      type: 'monitor_equipment_health',
-      scheduledFor: monitoringTask,
-      priority: 'high',
-      requiresApproval: false,
-      data: {
-        monitoring_scope: 'all_equipment',
-        include_iot_data: true,
-        anomaly_detection: true
-      }
-    });
-
-    // Failure prediction (hourly)
-    const predictionTask = new Date(now.getTime() + 60 * 60000);
-    tasks.push({
-      id: `failure-prediction-${predictionTask.getTime()}`,
-      type: 'predict_equipment_failures',
-      scheduledFor: predictionTask,
-      priority: 'critical',
-      requiresApproval: false,
-      data: {
-        prediction_horizon_days: 30,
-        confidence_threshold: 0.7,
-        include_cost_analysis: true
-      }
-    });
-
-    // Maintenance scheduling optimization (daily at 2 AM)
-    const schedulingTask = new Date(now);
-    schedulingTask.setDate(schedulingTask.getDate() + 1);
-    schedulingTask.setHours(2, 0, 0, 0);
-    tasks.push({
-      id: `maintenance-scheduling-${schedulingTask.getTime()}`,
-      type: 'optimize_maintenance_schedule',
-      scheduledFor: schedulingTask,
-      priority: 'medium',
-      requiresApproval: false,
-      data: {
-        optimization_window_days: 90,
-        consider_production_schedule: true,
-        minimize_total_cost: true
-      }
-    });
-
-    // Parts inventory optimization (weekly)
-    const inventoryTask = new Date(now);
-    inventoryTask.setDate(inventoryTask.getDate() + 7);
-    inventoryTask.setHours(1, 0, 0, 0);
-    tasks.push({
-      id: `inventory-optimization-${inventoryTask.getTime()}`,
-      type: 'optimize_parts_inventory',
-      scheduledFor: inventoryTask,
-      priority: 'medium',
-      requiresApproval: false,
-      data: {
-        lead_time_buffer_days: 14,
-        service_level_target: 0.95,
-        cost_optimization: true
-      }
-    });
-
-    // Model retraining (monthly)
-    const retrainingTask = new Date(now);
-    retrainingTask.setMonth(retrainingTask.getMonth() + 1);
-    retrainingTask.setDate(1);
-    retrainingTask.setHours(3, 0, 0, 0);
-    tasks.push({
-      id: `model-retraining-${retrainingTask.getTime()}`,
-      type: 'retrain_predictive_models',
-      scheduledFor: retrainingTask,
-      priority: 'medium',
-      requiresApproval: false,
-      data: {
-        models_to_retrain: 'all',
-        include_new_data: true,
-        performance_threshold: 0.8
-      }
-    });
-
-    return tasks;
-  }
-
-  async executeTask(task: AgentTask): Promise<AgentResult> {
-    const startTime = Date.now();
-
+  private async analyzeDeviceHealth(task: AgentTask): Promise<AgentResult> {
     try {
-      let result: AgentResult;
+      // Get devices for the organization
+      const { data: devices, error: devicesError } = await supabaseAdmin
+        .from('devices')
+        .select('*')
+        .eq('organization_id', this.organizationId);
 
-      switch (task.type) {
-        case 'monitor_equipment_health':
-          result = await this.monitorEquipmentHealth(task);
-          break;
-        case 'predict_equipment_failures':
-          result = await this.predictEquipmentFailures(task);
-          break;
-        case 'optimize_maintenance_schedule':
-          result = await this.optimizeMaintenanceSchedule(task);
-          break;
-        case 'optimize_parts_inventory':
-          result = await this.optimizePartsInventory(task);
-          break;
-        case 'retrain_predictive_models':
-          result = await this.retrainPredictiveModels(task);
-          break;
-        default:
-          throw new Error(`Unknown task type: ${task.type}`);
+      if (devicesError || !devices) {
+        throw new Error('Failed to fetch devices');
       }
 
-      result.executionTimeMs = Date.now() - startTime;
-      if (this.logResult) {
-        await this.logResult(task.id, result);
-      }
-      return result;
+      const healthReports: DeviceHealth[] = [];
 
-    } catch (error) {
-      const executionTime = Date.now() - startTime;
-      if (this.logError) {
-        await this.logError(task.id, error as Error, executionTime);
+      for (const device of devices) {
+        // Get recent sensor data
+        const { data: sensorData } = await supabaseAdmin
+          .from('sensor_readings')
+          .select('*')
+          .eq('device_id', device.id)
+          .gte('timestamp', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+          .order('timestamp', { ascending: false });
+
+        // Analyze patterns and calculate health score
+        const analysis = await this.analyzeDevicePatterns(device, sensorData || []);
+
+        // Detect anomalies
+        const anomalies = await this.detectDeviceAnomalies(device, sensorData || []);
+
+        // Generate recommendations
+        const recommendations = await this.generateMaintenanceRecommendations(
+          device,
+          analysis,
+          anomalies
+        );
+
+        const healthReport: DeviceHealth = {
+          deviceId: device.id,
+          deviceName: device.name,
+          healthScore: analysis.healthScore,
+          failureProbability: analysis.failureProbability,
+          predictedFailureDate: analysis.predictedFailureDate,
+          anomalies,
+          recommendations
+        };
+
+        healthReports.push(healthReport);
+
+        // Store health metrics
+        await supabaseAdmin
+          .from('device_health_metrics')
+          .insert({
+            device_id: device.id,
+            organization_id: this.organizationId,
+            health_score: analysis.healthScore,
+            failure_probability: analysis.failureProbability,
+            anomaly_count: anomalies.length,
+            critical_issues: anomalies.filter(a => a.severity === 'critical').length,
+            measured_at: new Date().toISOString()
+          });
+
+        // Learn from patterns
+        if (analysis.failureProbability > this.FAILURE_THRESHOLD) {
+          await this.learn({
+            context: 'high_failure_risk',
+            insight: `Device ${device.name} showing ${Math.round(analysis.failureProbability * 100)}% failure probability`,
+            impact: analysis.failureProbability,
+            confidence: 0.85,
+            metadata: {
+              device_id: device.id,
+              anomalies: anomalies.map(a => ({ type: a.type, severity: a.severity }))
+            }
+          });
+        }
       }
+
+      // Store task result
+      await this.storeTaskResult({
+        taskId: task.id,
+        success: true,
+        result: {
+          devicesAnalyzed: devices.length,
+          criticalDevices: healthReports.filter(h => h.failureProbability > this.FAILURE_THRESHOLD).length,
+          totalAnomalies: healthReports.reduce((sum, h) => sum + h.anomalies.length, 0),
+          healthReports
+        }
+      });
 
       return {
-        taskId: task.id,
-        learnings: [],
+        success: true,
+        result: {
+          healthReports,
+          summary: {
+            total: devices.length,
+            healthy: healthReports.filter(h => h.healthScore > 80).length,
+            warning: healthReports.filter(h => h.healthScore > 50 && h.healthScore <= 80).length,
+            critical: healthReports.filter(h => h.healthScore <= 50).length
+          }
+        }
+      };
+
+    } catch (error) {
+      return {
         success: false,
-        error: (error as Error).message,
-        executionTimeMs: executionTime,
-        actions: [],
-        insights: [],
-        nextSteps: ['Review predictive maintenance configuration', 'Check equipment data availability']
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
 
-  private async monitorEquipmentHealth(task: AgentTask): Promise<AgentResult> {
-    const monitoringScope = task.data.monitoring_scope || 'all_equipment';
-    const includeIoT = task.data.include_iot_data || true;
-    const anomalyDetection = task.data.anomaly_detection || true;
+  private async predictFailures(task: AgentTask): Promise<AgentResult> {
+    try {
+      const { data: devices } = await supabaseAdmin
+        .from('devices')
+        .select('*')
+        .eq('organization_id', this.organizationId);
 
-    const actions = [];
-    const insights = [];
-    let healthIssuesFound = 0;
-    let anomaliesDetected = 0;
-
-    // Monitor all equipment in scope
-    for (const [equipmentId, equipment] of Array.from(this.equipmentRegistry)) {
-      if (monitoringScope === 'critical_only' && equipment.status !== 'critical') {
-        continue;
+      if (!devices) {
+        return { success: false, error: 'No devices found' };
       }
 
-      // Check equipment health parameters
-      const healthCheck = await this.performHealthCheck(equipment);
-      
-      if (healthCheck.health_score < 70) {
-        healthIssuesFound++;
-        actions.push({
-          type: 'equipment_health_degraded',
-          description: `Equipment ${equipment.name} health score: ${healthCheck.health_score}%`,
-          impact: {
-            equipmentId: equipment.id,
-            healthScore: healthCheck.health_score,
-            issues: healthCheck.issues,
-            timestamp: new Date().toISOString()
-          },
-          reversible: false
+      const predictions: any[] = [];
+
+      for (const device of devices) {
+        // Get historical data for ML prediction
+        const { data: historicalData } = await supabaseAdmin
+          .from('sensor_readings')
+          .select('*')
+          .eq('device_id', device.id)
+          .order('timestamp', { ascending: false })
+          .limit(1000);
+
+        if (!historicalData || historicalData.length < 100) {
+          continue; // Not enough data for prediction
+        }
+
+        // Calculate failure probability using pattern analysis
+        const prediction = await this.calculateFailureProbability(device, historicalData);
+
+        if (prediction.probability > 0.5) {
+          predictions.push({
+            deviceId: device.id,
+            deviceName: device.name,
+            failureProbability: prediction.probability,
+            predictedDate: prediction.estimatedDate,
+            confidence: prediction.confidence,
+            riskFactors: prediction.riskFactors
+          });
+
+          // Store prediction
+          await supabaseAdmin
+            .from('failure_predictions')
+            .insert({
+              device_id: device.id,
+              organization_id: this.organizationId,
+              probability: prediction.probability,
+              predicted_date: prediction.estimatedDate,
+              confidence: prediction.confidence,
+              risk_factors: prediction.riskFactors,
+              created_at: new Date().toISOString()
+            });
+
+          // Create alert if critical
+          if (prediction.probability > this.FAILURE_THRESHOLD) {
+            await this.createAlert({
+              type: 'failure_prediction',
+              severity: 'critical',
+              message: `High failure risk for ${device.name}: ${Math.round(prediction.probability * 100)}% probability`
+            });
+          }
+        }
+      }
+
+      return {
+        success: true,
+        result: {
+          predictions,
+          highRisk: predictions.filter(p => p.failureProbability > this.FAILURE_THRESHOLD),
+          totalAnalyzed: devices.length
+        }
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  private async scheduleMaintenanceTask(task: AgentTask): Promise<AgentResult> {
+    try {
+      const { deviceId, urgency = 'routine' } = task.data || {};
+
+      // Get device information
+      const { data: device } = await supabaseAdmin
+        .from('devices')
+        .select('*')
+        .eq('id', deviceId)
+        .single();
+
+      if (!device) {
+        return { success: false, error: 'Device not found' };
+      }
+
+      // Get maintenance history
+      const { data: history } = await supabaseAdmin
+        .from('maintenance_history')
+        .select('*')
+        .eq('device_id', deviceId)
+        .order('performed_at', { ascending: false })
+        .limit(10);
+
+      // Calculate optimal schedule
+      const schedule = await this.calculateOptimalSchedule(device, history || [], urgency);
+
+      // Store maintenance schedule
+      const { data: scheduled, error } = await supabaseAdmin
+        .from('maintenance_schedules')
+        .insert({
+          device_id: deviceId,
+          organization_id: this.organizationId,
+          scheduled_date: schedule.scheduledDate,
+          type: schedule.type,
+          priority: schedule.priority,
+          tasks: schedule.tasks,
+          estimated_duration: schedule.estimatedDuration,
+          status: 'scheduled',
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // Create calendar event
+      await this.createMaintenanceEvent(device, schedule);
+
+      return {
+        success: true,
+        result: {
+          scheduleId: scheduled.id,
+          device: device.name,
+          scheduledDate: schedule.scheduledDate,
+          tasks: schedule.tasks,
+          estimatedDuration: schedule.estimatedDuration
+        }
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  private async detectAnomalies(task: AgentTask): Promise<AgentResult> {
+    try {
+      const { data: devices } = await supabaseAdmin
+        .from('devices')
+        .select('*')
+        .eq('organization_id', this.organizationId);
+
+      if (!devices) {
+        return { success: false, error: 'No devices found' };
+      }
+
+      const allAnomalies: any[] = [];
+
+      for (const device of devices) {
+        // Get recent sensor data
+        const { data: recentData } = await supabaseAdmin
+          .from('sensor_readings')
+          .select('*')
+          .eq('device_id', device.id)
+          .gte('timestamp', new Date(Date.now() - this.ANOMALY_WINDOW).toISOString())
+          .order('timestamp', { ascending: false });
+
+        if (!recentData || recentData.length === 0) {
+          continue;
+        }
+
+        // Detect anomalies using statistical methods
+        const anomalies = await this.detectStatisticalAnomalies(device, recentData);
+
+        if (anomalies.length > 0) {
+          allAnomalies.push({
+            deviceId: device.id,
+            deviceName: device.name,
+            anomalies,
+            detectedAt: new Date()
+          });
+
+          // Store anomalies
+          for (const anomaly of anomalies) {
+            await supabaseAdmin
+              .from('detected_anomalies')
+              .insert({
+                device_id: device.id,
+                organization_id: this.organizationId,
+                type: anomaly.type,
+                severity: anomaly.severity,
+                value: anomaly.value,
+                threshold: anomaly.threshold,
+                deviation: anomaly.deviation,
+                detected_at: anomaly.detectedAt
+              });
+          }
+
+          // Create alert for critical anomalies
+          const criticalAnomalies = anomalies.filter(a => a.severity === 'critical');
+          if (criticalAnomalies.length > 0) {
+            await this.createAlert({
+              type: 'anomaly_detected',
+              severity: 'critical',
+              message: `Critical anomalies detected on ${device.name}: ${criticalAnomalies.map(a => a.type).join(', ')}`
+            });
+          }
+        }
+      }
+
+      return {
+        success: true,
+        result: {
+          devicesMonitored: devices.length,
+          anomaliesDetected: allAnomalies.length,
+          criticalDevices: allAnomalies.filter(a =>
+            a.anomalies.some((an: Anomaly) => an.severity === 'critical')
+          ).length,
+          anomalies: allAnomalies
+        }
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  // Helper methods for analysis
+  private async analyzeDevicePatterns(device: any, sensorData: any[]): Promise<any> {
+    // Simple pattern analysis (would use ML in production)
+    const avgValues = this.calculateAverages(sensorData);
+    const trends = this.calculateTrends(sensorData);
+    const volatility = this.calculateVolatility(sensorData);
+
+    // Calculate health score (0-100)
+    let healthScore = 100;
+
+    // Reduce score based on volatility
+    healthScore -= Math.min(volatility * 10, 30);
+
+    // Reduce score based on negative trends
+    if (trends.temperature > 0.1) healthScore -= 15;
+    if (trends.vibration > 0.1) healthScore -= 20;
+    if (trends.runtime > 1.2) healthScore -= 10;
+
+    // Calculate failure probability
+    const failureProbability = 1 - (healthScore / 100);
+
+    // Predict failure date if probability is high
+    let predictedFailureDate;
+    if (failureProbability > 0.5) {
+      const daysToFailure = Math.floor((1 - failureProbability) * 90); // Simple linear projection
+      predictedFailureDate = new Date(Date.now() + daysToFailure * 24 * 60 * 60 * 1000);
+    }
+
+    return {
+      healthScore: Math.max(0, Math.min(100, healthScore)),
+      failureProbability,
+      predictedFailureDate,
+      avgValues,
+      trends,
+      volatility
+    };
+  }
+
+  private async detectDeviceAnomalies(device: any, sensorData: any[]): Promise<Anomaly[]> {
+    const anomalies: Anomaly[] = [];
+
+    if (sensorData.length === 0) return anomalies;
+
+    // Calculate statistical thresholds
+    const stats = this.calculateStatistics(sensorData);
+
+    // Check recent readings against thresholds
+    const recentReadings = sensorData.slice(0, 10);
+
+    for (const reading of recentReadings) {
+      // Temperature anomaly
+      if (reading.temperature && Math.abs(reading.temperature - stats.temperature.mean) > 2 * stats.temperature.stdDev) {
+        anomalies.push({
+          type: 'temperature',
+          severity: this.calculateSeverity(reading.temperature, stats.temperature),
+          value: reading.temperature,
+          threshold: stats.temperature.mean + 2 * stats.temperature.stdDev,
+          deviation: ((reading.temperature - stats.temperature.mean) / stats.temperature.mean) * 100,
+          detectedAt: new Date(reading.timestamp)
         });
       }
 
-      // Detect anomalies in IoT data
-      if (includeIoT && anomalyDetection) {
-        const anomalies = await this.detectAnomalies(equipment);
-        anomaliesDetected += anomalies.length;
+      // Vibration anomaly
+      if (reading.vibration && Math.abs(reading.vibration - stats.vibration.mean) > 2 * stats.vibration.stdDev) {
+        anomalies.push({
+          type: 'vibration',
+          severity: this.calculateSeverity(reading.vibration, stats.vibration),
+          value: reading.vibration,
+          threshold: stats.vibration.mean + 2 * stats.vibration.stdDev,
+          deviation: ((reading.vibration - stats.vibration.mean) / stats.vibration.mean) * 100,
+          detectedAt: new Date(reading.timestamp)
+        });
+      }
+    }
 
-        for (const anomaly of Array.from(anomalies)) {
-          if (anomaly.severity === 'critical' || anomaly.severity === 'high') {
-            actions.push({
-              type: 'critical_anomaly_detected',
-              description: `${anomaly.type} anomaly in ${equipment.name}`,
-              impact: {
-                equipmentId: equipment.id,
-                anomalyId: anomaly.anomaly_id,
-                severity: anomaly.severity,
-                timestamp: new Date().toISOString()
-              },
-              reversible: false
+    return anomalies;
+  }
+
+  private async generateMaintenanceRecommendations(
+    device: any,
+    analysis: any,
+    anomalies: Anomaly[]
+  ): Promise<MaintenanceRecommendation[]> {
+    const recommendations: MaintenanceRecommendation[] = [];
+
+    // High failure probability recommendation
+    if (analysis.failureProbability > this.FAILURE_THRESHOLD) {
+      recommendations.push({
+        action: 'Schedule immediate comprehensive inspection and preventive maintenance',
+        urgency: 'critical',
+        estimatedCost: 500,
+        estimatedDowntime: 4,
+        preventedCost: 5000,
+        confidence: 0.9
+      });
+    }
+
+    // Temperature anomaly recommendation
+    const tempAnomalies = anomalies.filter(a => a.type === 'temperature' && a.severity !== 'low');
+    if (tempAnomalies.length > 0) {
+      recommendations.push({
+        action: 'Check cooling system and clean air filters',
+        urgency: tempAnomalies.some(a => a.severity === 'critical') ? 'urgent' : 'soon',
+        estimatedCost: 150,
+        estimatedDowntime: 2,
+        preventedCost: 2000,
+        confidence: 0.85
+      });
+    }
+
+    // Vibration anomaly recommendation
+    const vibrationAnomalies = anomalies.filter(a => a.type === 'vibration' && a.severity !== 'low');
+    if (vibrationAnomalies.length > 0) {
+      recommendations.push({
+        action: 'Inspect bearings and alignment, perform vibration analysis',
+        urgency: vibrationAnomalies.some(a => a.severity === 'critical') ? 'urgent' : 'soon',
+        estimatedCost: 300,
+        estimatedDowntime: 3,
+        preventedCost: 3500,
+        confidence: 0.8
+      });
+    }
+
+    // Routine maintenance if health score is declining
+    if (analysis.healthScore < 70 && analysis.healthScore > 50) {
+      recommendations.push({
+        action: 'Schedule routine maintenance and component inspection',
+        urgency: 'routine',
+        estimatedCost: 200,
+        estimatedDowntime: 2,
+        preventedCost: 1000,
+        confidence: 0.7
+      });
+    }
+
+    return recommendations;
+  }
+
+  private async calculateFailureProbability(device: any, historicalData: any[]): Promise<any> {
+    // Simplified failure prediction (would use LSTM/ML in production)
+    const recentTrends = this.calculateTrends(historicalData.slice(0, 100));
+    const volatility = this.calculateVolatility(historicalData.slice(0, 100));
+
+    // Risk factors
+    const riskFactors = [];
+    let riskScore = 0;
+
+    if (recentTrends.temperature > 0.15) {
+      riskFactors.push('Rising temperature trend');
+      riskScore += 0.3;
+    }
+
+    if (volatility > 0.3) {
+      riskFactors.push('High operational volatility');
+      riskScore += 0.25;
+    }
+
+    if (device.age_years && device.age_years > 5) {
+      riskFactors.push('Equipment age');
+      riskScore += 0.2;
+    }
+
+    const probability = Math.min(0.95, riskScore);
+
+    // Estimate failure date
+    const daysToFailure = probability > 0.5
+      ? Math.floor((1 - probability) * 60)
+      : null;
+
+    return {
+      probability,
+      confidence: Math.min(0.9, 0.5 + (historicalData.length / 2000)),
+      estimatedDate: daysToFailure
+        ? new Date(Date.now() + daysToFailure * 24 * 60 * 60 * 1000).toISOString()
+        : null,
+      riskFactors
+    };
+  }
+
+  private async calculateOptimalSchedule(
+    device: any,
+    history: any[],
+    urgency: string
+  ): Promise<MaintenanceSchedule> {
+    // Calculate optimal maintenance window
+    const now = new Date();
+    let scheduledDate: Date;
+    let priority: 'low' | 'medium' | 'high' | 'critical';
+    let type: 'preventive' | 'predictive' | 'corrective';
+
+    switch (urgency) {
+      case 'critical':
+        scheduledDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // Next day
+        priority = 'critical';
+        type = 'corrective';
+        break;
+      case 'urgent':
+        scheduledDate = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days
+        priority = 'high';
+        type = 'predictive';
+        break;
+      case 'soon':
+        scheduledDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 1 week
+        priority = 'medium';
+        type = 'predictive';
+        break;
+      default:
+        scheduledDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 1 month
+        priority = 'low';
+        type = 'preventive';
+    }
+
+    // Define maintenance tasks based on device type and urgency
+    const tasks = this.getMaintenanceTasks(device, urgency);
+
+    return {
+      deviceId: device.id,
+      scheduledDate,
+      type,
+      priority,
+      tasks,
+      estimatedDuration: tasks.length * 0.5 // 30 minutes per task
+    };
+  }
+
+  private getMaintenanceTasks(device: any, urgency: string): string[] {
+    const baseTasks = [
+      'Visual inspection',
+      'Performance testing',
+      'Safety checks'
+    ];
+
+    const urgentTasks = [
+      'Component replacement',
+      'Calibration',
+      'Deep cleaning',
+      'Lubrication'
+    ];
+
+    const criticalTasks = [
+      'Full system diagnostic',
+      'Critical component replacement',
+      'Emergency repairs',
+      'System recertification'
+    ];
+
+    if (urgency === 'critical') {
+      return [...baseTasks, ...urgentTasks, ...criticalTasks];
+    } else if (urgency === 'urgent') {
+      return [...baseTasks, ...urgentTasks];
+    } else {
+      return baseTasks;
+    }
+  }
+
+  private async createMaintenanceEvent(device: any, schedule: MaintenanceSchedule): Promise<void> {
+    // Store maintenance event
+    await supabaseAdmin
+      .from('calendar_events')
+      .insert({
+        organization_id: this.organizationId,
+        title: `Maintenance: ${device.name}`,
+        description: `${schedule.type} maintenance - Tasks: ${schedule.tasks.join(', ')}`,
+        start_date: schedule.scheduledDate,
+        end_date: new Date(schedule.scheduledDate.getTime() + schedule.estimatedDuration * 60 * 60 * 1000),
+        type: 'maintenance',
+        priority: schedule.priority,
+        device_id: device.id
+      });
+  }
+
+  private async detectStatisticalAnomalies(device: any, sensorData: any[]): Promise<Anomaly[]> {
+    const anomalies: Anomaly[] = [];
+
+    if (sensorData.length < 10) return anomalies;
+
+    // Calculate baseline statistics from older data
+    const baseline = sensorData.slice(10);
+    const recent = sensorData.slice(0, 10);
+
+    if (baseline.length === 0) return anomalies;
+
+    const stats = this.calculateStatistics(baseline);
+
+    for (const reading of recent) {
+      // Check each metric for anomalies
+      for (const metric of ['temperature', 'vibration', 'power', 'runtime']) {
+        if (reading[metric] !== undefined && stats[metric]) {
+          const zScore = Math.abs((reading[metric] - stats[metric].mean) / stats[metric].stdDev);
+
+          if (zScore > 2) {
+            anomalies.push({
+              type: metric as any,
+              severity: zScore > 4 ? 'critical' : zScore > 3 ? 'high' : 'medium',
+              value: reading[metric],
+              threshold: stats[metric].mean + 2 * stats[metric].stdDev,
+              deviation: ((reading[metric] - stats[metric].mean) / stats[metric].mean) * 100,
+              detectedAt: new Date(reading.timestamp)
             });
           }
         }
       }
     }
 
-    insights.push(`Monitored ${this.equipmentRegistry.size} pieces of equipment`);
-    insights.push(`Identified ${healthIssuesFound} equipment with degraded health`);
-    if (includeIoT) {
-      insights.push(`Detected ${anomaliesDetected} anomalies in sensor data`);
-    }
-
-    return {
-      taskId: task.id,
-      learnings: [],
-      success: true,
-      actions,
-      insights,
-      nextSteps: healthIssuesFound > 0 ? ['Review equipment maintenance schedules'] : [],
-      metadata: {
-        equipment_monitored: this.equipmentRegistry.size,
-        health_issues: healthIssuesFound,
-        anomalies_detected: anomaliesDetected
-      }
-    };
+    return anomalies;
   }
 
-  private async predictEquipmentFailures(task: AgentTask): Promise<AgentResult> {
-    const horizonDays = task.data.prediction_horizon_days || 30;
-    const confidenceThreshold = task.data.confidence_threshold || 0.7;
-    const includeCostAnalysis = task.data.include_cost_analysis || true;
+  // Statistical helper methods
+  private calculateStatistics(data: any[]): any {
+    const stats: any = {};
+    const metrics = ['temperature', 'vibration', 'power', 'runtime'];
 
-    const actions = [];
-    const insights = [];
-    const predictions: MaintenancePrediction[] = [];
+    for (const metric of metrics) {
+      const values = data.map(d => d[metric]).filter(v => v !== undefined && v !== null);
 
-    // Generate predictions for each equipment
-    for (const [equipmentId, equipment] of Array.from(this.equipmentRegistry)) {
-      const model = this.predictiveModels.get(equipment.type);
-      if (!model) continue;
+      if (values.length > 0) {
+        const mean = values.reduce((a, b) => a + b, 0) / values.length;
+        const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
+        const stdDev = Math.sqrt(variance);
 
-      const prediction = await this.generateFailurePrediction(equipment, model, horizonDays);
-      
-      if (prediction.confidence_score >= confidenceThreshold) {
-        predictions.push(prediction);
-
-        if (prediction.time_to_failure_days <= 7) {
-          actions.push({
-            type: 'imminent_failure_predicted',
-            description: `Failure predicted for ${equipment.name} in ${prediction.time_to_failure_days} days`,
-            impact: {
-              equipmentId: equipment.id,
-              predictionId: prediction.prediction_id,
-              timeToFailure: prediction.time_to_failure_days,
-              confidence: prediction.confidence_score,
-              timestamp: new Date().toISOString()
-            },
-            reversible: false
-          });
-        }
-
-        // Generate cost analysis if requested
-        if (includeCostAnalysis) {
-          const costAnalysis = await this.analyzeCostImplications(prediction);
-          if (costAnalysis.cost_savings_from_prevention > 10000) {
-            actions.push({
-              type: 'high_value_prevention_opportunity',
-              description: `Preventive maintenance could save $${costAnalysis.cost_savings_from_prevention.toLocaleString()}`,
-              impact: {
-                equipmentId: equipment.id,
-                costSavings: costAnalysis.cost_savings_from_prevention,
-                timestamp: new Date().toISOString()
-              },
-              reversible: false
-            });
-          }
-        }
+        stats[metric] = { mean, stdDev, min: Math.min(...values), max: Math.max(...values) };
       }
     }
 
-    const imminentFailures = predictions.filter(p => p.time_to_failure_days <= 7).length;
-    const totalPotentialSavings = predictions.reduce((sum, p) => 
-      sum + (p.cost_implications?.cost_savings_from_prevention || 0), 0
-    );
-
-    insights.push(`Generated ${predictions.length} failure predictions`);
-    insights.push(`${imminentFailures} equipment require immediate attention`);
-    if (includeCostAnalysis) {
-      insights.push(`Total potential cost savings: $${totalPotentialSavings.toLocaleString()}`);
-    }
-
-    return {
-      taskId: task.id,
-      learnings: [],
-      success: true,
-      actions,
-      insights,
-      nextSteps: imminentFailures > 0 ? ['Schedule immediate maintenance for at-risk equipment'] : [],
-      metadata: {
-        predictions_generated: predictions.length,
-        imminent_failures: imminentFailures,
-        total_potential_savings: totalPotentialSavings
-      }
-    };
+    return stats;
   }
 
-  private async optimizeMaintenanceSchedule(task: AgentTask): Promise<AgentResult> {
-    const windowDays = task.data.optimization_window_days || 90;
-    const considerProduction = task.data.consider_production_schedule || true;
-    const minimizeCost = task.data.minimize_total_cost || true;
+  private calculateAverages(data: any[]): any {
+    const metrics = ['temperature', 'vibration', 'power', 'runtime'];
+    const avgs: any = {};
 
-    const actions = [];
-    const insights = [];
+    for (const metric of metrics) {
+      const values = data.map(d => d[metric]).filter(v => v !== undefined);
+      avgs[metric] = values.length > 0
+        ? values.reduce((a, b) => a + b, 0) / values.length
+        : 0;
+    }
 
-    // Get all pending maintenance tasks
-    const pendingMaintenance = await this.getPendingMaintenanceTasks(windowDays);
-    
-    // Optimize schedule
-    const optimizedSchedule = await this.maintenanceScheduler.optimizeSchedule(
-      pendingMaintenance,
-      {
-        consider_production_schedule: considerProduction,
-        minimize_total_cost: minimizeCost,
-        window_days: windowDays
+    return avgs;
+  }
+
+  private calculateTrends(data: any[]): any {
+    // Simple linear trend calculation
+    const trends: any = {};
+    const metrics = ['temperature', 'vibration', 'runtime'];
+
+    for (const metric of metrics) {
+      const values = data.map(d => d[metric]).filter(v => v !== undefined);
+
+      if (values.length > 1) {
+        const firstHalf = values.slice(0, Math.floor(values.length / 2));
+        const secondHalf = values.slice(Math.floor(values.length / 2));
+
+        const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+        const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+
+        trends[metric] = (secondAvg - firstAvg) / firstAvg;
+      } else {
+        trends[metric] = 0;
       }
-    );
+    }
 
-    const costSavings = optimizedSchedule.cost_savings;
-    const efficiencyGain = optimizedSchedule.efficiency_improvement;
+    return trends;
+  }
 
-    insights.push(`Optimized schedule for ${pendingMaintenance.length} maintenance tasks`);
-    insights.push(`Projected cost savings: $${costSavings.toLocaleString()}`);
-    insights.push(`Efficiency improvement: ${(efficiencyGain * 100).toFixed(1)}%`);
+  private calculateVolatility(data: any[]): number {
+    const values = data.map(d => d.temperature || d.power || 0).filter(v => v > 0);
 
-    if (costSavings > 5000) {
-      actions.push({
-        type: 'schedule_optimization_completed',
-        description: `Maintenance schedule optimized with $${costSavings.toLocaleString()} savings`,
-        impact: {
-          costSavings,
-          efficiencyGain,
-          timestamp: new Date().toISOString()
-        },
-        reversible: false
+    if (values.length < 2) return 0;
+
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
+
+    return Math.sqrt(variance) / mean; // Coefficient of variation
+  }
+
+  private calculateSeverity(value: number, stats: any): 'low' | 'medium' | 'high' | 'critical' {
+    const zScore = Math.abs((value - stats.mean) / stats.stdDev);
+
+    if (zScore > 4) return 'critical';
+    if (zScore > 3) return 'high';
+    if (zScore > 2) return 'medium';
+    return 'low';
+  }
+
+  protected async storeTaskResult(result: any): Promise<void> {
+    await supabaseAdmin
+      .from('agent_task_results')
+      .insert({
+        organization_id: this.organizationId,
+        agent_id: this.agentId,
+        task_id: result.taskId,
+        task_type: 'predictive_maintenance',
+        success: result.success,
+        result: result.result,
+        created_at: new Date().toISOString()
       });
-    }
-
-    return {
-      taskId: task.id,
-      learnings: [],
-      success: true,
-      actions,
-      insights,
-      nextSteps: ['Review and approve optimized maintenance schedule'],
-      metadata: {
-        tasks_optimized: pendingMaintenance.length,
-        cost_savings: costSavings,
-        efficiency_gain: efficiencyGain
-      }
-    };
-  }
-
-  private async optimizePartsInventory(task: AgentTask): Promise<AgentResult> {
-    const bufferDays = task.data.lead_time_buffer_days || 14;
-    const serviceLevel = task.data.service_level_target || 0.95;
-
-    const actions = [];
-    const insights = [];
-
-    // Analyze current inventory levels
-    const inventoryAnalysis = await this.analyzeInventoryLevels(bufferDays, serviceLevel);
-    
-    const shortages = inventoryAnalysis.potential_shortages;
-    const excesses = inventoryAnalysis.excess_inventory;
-    const reorderRecommendations = inventoryAnalysis.reorder_recommendations;
-
-    for (const shortage of Array.from(shortages) as any[]) {
-      actions.push({
-        type: 'inventory_shortage_predicted',
-        description: `Low inventory for ${shortage.part_name}`,
-        impact: {
-          partId: shortage.part_id,
-          currentStock: shortage.current_stock,
-          recommendedOrder: shortage.recommended_order_quantity,
-          timestamp: new Date().toISOString()
-        },
-        reversible: false
-      });
-    }
-
-    insights.push(`Analyzed inventory for ${inventoryAnalysis.total_parts} parts`);
-    insights.push(`Identified ${shortages.length} potential shortages`);
-    insights.push(`Found ${excesses.length} items with excess inventory`);
-
-    return {
-      taskId: task.id,
-      learnings: [],
-      success: true,
-      actions,
-      insights,
-      nextSteps: shortages.length > 0 ? ['Place urgent parts orders'] : [],
-      metadata: {
-        potential_shortages: shortages.length,
-        excess_inventory: excesses.length,
-        reorder_recommendations: reorderRecommendations.length
-      }
-    };
-  }
-
-  private async retrainPredictiveModels(task: AgentTask): Promise<AgentResult> {
-    const modelsToRetrain = task.data.models_to_retrain || 'all';
-    const performanceThreshold = task.data.performance_threshold || 0.8;
-
-    const actions = [];
-    const insights = [];
-    let modelsRetrained = 0;
-    let modelsImproved = 0;
-
-    for (const [modelId, model] of Array.from(this.predictiveModels)) {
-      if (modelsToRetrain !== 'all' && !modelsToRetrain.includes(modelId)) {
-        continue;
-      }
-
-      if (model.accuracy_score < performanceThreshold) {
-        const retrainingResult = await this.retrainModel(model);
-        modelsRetrained++;
-
-        if (retrainingResult.new_accuracy > model.accuracy_score) {
-          modelsImproved++;
-          actions.push({
-            type: 'model_performance_improved',
-            description: `Model ${model.model_id} accuracy improved from ${(model.accuracy_score * 100).toFixed(1)}% to ${(retrainingResult.new_accuracy * 100).toFixed(1)}%`,
-            impact: {
-              modelId: model.model_id,
-              oldAccuracy: model.accuracy_score,
-              newAccuracy: retrainingResult.new_accuracy,
-              timestamp: new Date().toISOString()
-            },
-            reversible: false
-          });
-        }
-      }
-    }
-
-    insights.push(`Retrained ${modelsRetrained} predictive models`);
-    insights.push(`${modelsImproved} models showed improved performance`);
-
-    return {
-      taskId: task.id,
-      learnings: [],
-      success: true,
-      actions,
-      insights,
-      nextSteps: ['Deploy improved models to production'],
-      metadata: {
-        models_retrained: modelsRetrained,
-        models_improved: modelsImproved
-      }
-    };
-  }
-
-  async learn(result: AgentResult): Promise<void> {
-    const patterns = {
-      maintenance_success_rate: result.success ? 1 : 0,
-      predictions_generated: result.metadata?.predictions_generated || 0,
-      cost_savings_achieved: result.metadata?.cost_savings || 0,
-      equipment_monitored: result.metadata?.equipment_monitored || 0
-    };
-
-    if (this.storePattern) {
-      await this.storePattern('predictive_maintenance', patterns, 0.92, {
-        timestamp: new Date().toISOString(),
-        task_type: 'predictive_maintenance_task'
-      });
-    }
-
-  }
-
-  // Helper methods - simplified implementations
-  private async loadEquipmentRegistry(): Promise<void> {
-    // Load equipment data from database
-    const mockEquipment: Equipment = {
-      id: 'eq-1',
-      name: 'HVAC System Main',
-      type: 'hvac',
-      location: 'Building A - Roof',
-      manufacturer: 'Carrier',
-      model: 'AquaSnap 30RB',
-      serial_number: 'CR2024001',
-      installation_date: '2020-01-15',
-      last_maintenance_date: '2024-06-01',
-      next_scheduled_maintenance: '2024-12-01',
-      critical_components: [],
-      operational_parameters: [],
-      maintenance_history: [],
-      status: 'operational',
-      health_score: 85
-    };
-
-    this.equipmentRegistry.set(mockEquipment.id, mockEquipment);
-  }
-
-  private async loadPredictiveModels(): Promise<void> {
-    // Load predictive models from database
-    const mockModel: PredictiveModel = {
-      model_id: 'model-hvac-1',
-      equipment_type: 'hvac',
-      algorithm: 'random_forest',
-      input_features: ['temperature', 'vibration', 'current'],
-      target_variable: 'failure_probability',
-      accuracy_score: 0.87,
-      precision: 0.82,
-      recall: 0.89,
-      f1_score: 0.85,
-      training_data_size: 10000,
-      last_trained: '2024-06-01',
-      model_version: '1.2',
-      confidence_threshold: 0.7
-    };
-
-    this.predictiveModels.set(mockModel.model_id, mockModel);
-  }
-
-  private async initializeIoTIntegration(): Promise<void> {
-    // Initialize IoT integration
-    this.iotIntegration = {
-      sensor_networks: [],
-      data_streams: [],
-      edge_computing: [],
-      real_time_analytics: []
-    };
-  }
-
-  private async performHealthCheck(equipment: Equipment): Promise<any> {
-    // Perform comprehensive health check
-    return {
-      health_score: equipment.health_score,
-      issues: []
-    };
-  }
-
-  private async detectAnomalies(equipment: Equipment): Promise<Anomaly[]> {
-    // Detect anomalies in equipment data
-    return [];
-  }
-
-  private async generateFailurePrediction(equipment: Equipment, model: PredictiveModel, horizonDays: number): Promise<MaintenancePrediction> {
-    // Generate failure prediction using ML model
-    return {
-      prediction_id: `pred-${Date.now()}`,
-      equipment_id: equipment.id,
-      model_id: model.model_id,
-      prediction_type: 'failure',
-      predicted_date: new Date(Date.now() + horizonDays * 24 * 60 * 60 * 1000).toISOString(),
-      confidence_score: 0.8,
-      time_to_failure_days: horizonDays,
-      failure_mode: 'bearing_wear',
-      recommended_actions: [],
-      cost_implications: {
-        preventive_maintenance_cost: 5000,
-        failure_replacement_cost: 25000,
-        downtime_cost_per_hour: 500,
-        potential_downtime_hours: 48,
-        total_failure_cost: 49000,
-        cost_savings_from_prevention: 44000,
-        roi_percentage: 880
-      },
-      risk_assessment: {
-        failure_probability: 0.8,
-        business_impact: 'high',
-        safety_risk: 'medium',
-        environmental_risk: 'low',
-        regulatory_implications: [],
-        cascade_failure_risk: 0.3,
-        mitigation_urgency: 'within_week'
-      },
-      generated_at: new Date().toISOString()
-    };
-  }
-
-  private async analyzeCostImplications(prediction: MaintenancePrediction): Promise<CostImplication> {
-    // Analyze cost implications of prediction
-    return prediction.cost_implications;
-  }
-
-  private async getPendingMaintenanceTasks(windowDays: number): Promise<any[]> {
-    // Get pending maintenance tasks
-    return [];
-  }
-
-  private async analyzeInventoryLevels(bufferDays: number, serviceLevel: number): Promise<any> {
-    // Analyze inventory levels
-    return {
-      total_parts: 150,
-      potential_shortages: [],
-      excess_inventory: [],
-      reorder_recommendations: []
-    };
-  }
-
-  private async retrainModel(model: PredictiveModel): Promise<any> {
-    // Retrain predictive model
-    return {
-      new_accuracy: model.accuracy_score + 0.05
-    };
   }
 }
 
-class MaintenanceScheduler {
-  constructor(private organizationId: string) {}
-
-  async initialize(): Promise<void> {
-    // Initialize maintenance scheduler
-  }
-
-  async optimizeSchedule(tasks: any[], options: any): Promise<any> {
-    // Optimize maintenance schedule
-    return {
-      cost_savings: 15000,
-      efficiency_improvement: 0.12
-    };
-  }
-}
-
-class MaintenanceCostOptimizer {
-  constructor(private organizationId: string) {}
-
-  async optimizeCosts(maintenanceData: any): Promise<any> {
-    // Optimize maintenance costs
-    return {};
-  }
-}

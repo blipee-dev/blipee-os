@@ -37,7 +37,7 @@ export async function GET(
   } catch (error: any) {
     console.error('Error:', error);
     return NextResponse.json(
-      { success: false, _error: errorerror.message || "Failed to get buildings" },
+      { success: false, _error: error.message || "Failed to get buildings" },
       { status: 500 },
     );
   }
@@ -101,7 +101,7 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { success: false, _error: errorerror.message || "Failed to create building" },
+      { success: false, _error: error.message || "Failed to create building" },
       { status: 500 },
     );
   }

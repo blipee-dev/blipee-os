@@ -137,13 +137,17 @@ export default function SignInPage() {
       }
       
       // Check if there's a redirect parameter in the URL
+      // Don't redirect here - let the auth context handle it based on organization status
+      // The auth context will redirect to /organization-setup if no org, or /blipee-ai if org exists
       if (redirectParam) {
-        console.log('Sign in successful, redirecting to requested page:', redirectParam);
-        router.push(redirectParam);
+        console.log('Sign in successful, redirect param provided:', redirectParam);
+        // Only use redirect param if it's not the default pages
+        if (redirectParam !== '/blipee-ai' && redirectParam !== '/signin') {
+          router.push(redirectParam);
+        }
       } else {
-        // Bypass onboarding for all users - always go to blipee-ai
-        console.log('Sign in successful, bypassing onboarding - redirecting to blipee-ai');
-        router.push("/blipee-ai");
+        console.log('Sign in successful, auth context will handle redirect');
+        // Don't redirect here - auth context handles it
       }
     } catch (err: any) {
       setError(err.message || "Failed to sign in");

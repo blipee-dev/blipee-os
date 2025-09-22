@@ -12,15 +12,15 @@ export { DecisionEngine } from './base/DecisionEngine';
 export { ApprovalWorkflow } from './base/ApprovalWorkflow';
 export { AgentOrchestrator, agentOrchestrator } from './base/AgentOrchestrator';
 
-// AI Employees - All 8 specialized autonomous agents
-export { ESGChiefOfStaff } from './employees/ESGChiefOfStaff';
-export { ComplianceGuardian } from './employees/ComplianceGuardian';
-export { CarbonHunter } from './employees/CarbonHunter';
-export { SupplyChainInvestigator } from './employees/SupplyChainInvestigator';
-export { DataOrchestrator } from './employees/DataOrchestrator';
-export { ReportMaster } from './employees/ReportMaster';
-export { RiskAnalyst } from './employees/RiskAnalyst';
-export { PerformanceOptimizer } from './employees/PerformanceOptimizer';
+// AI Employees - All 8 specialized autonomous agents from FULL_IMPLEMENTATION_PLAN.md
+export { EsgChiefOfStaff as ESGChiefOfStaff } from './agents/EsgChiefOfStaff';
+export { ComplianceGuardian } from './agents/ComplianceGuardian';
+export { CarbonHunter } from './agents/CarbonHunter';
+export { SupplyChainInvestigator } from './agents/SupplyChainInvestigator';
+export { CostSavingFinder } from './agents/CostSavingFinder';
+export { PredictiveMaintenance } from './agents/PredictiveMaintenance';
+export { AutonomousOptimizer } from './agents/AutonomousOptimizer';
+export { RegulatoryForesight } from './agents/RegulatoryForesight';
 
 // Type exports - single source of truth for shared types
 export type {
@@ -32,15 +32,15 @@ export type {
   AgentType
 } from './types';
 
-// Import all agents for workforce management
-import { ESGChiefOfStaff } from './employees/ESGChiefOfStaff';
-import { ComplianceGuardian } from './employees/ComplianceGuardian';
-import { CarbonHunter } from './employees/CarbonHunter';
-import { SupplyChainInvestigator } from './employees/SupplyChainInvestigator';
-import { DataOrchestrator } from './employees/DataOrchestrator';
-import { ReportMaster } from './employees/ReportMaster';
-import { RiskAnalyst } from './employees/RiskAnalyst';
-import { PerformanceOptimizer } from './employees/PerformanceOptimizer';
+// Import all agents for workforce management - The 8 agents from FULL_IMPLEMENTATION_PLAN.md
+import { EsgChiefOfStaff as ESGChiefOfStaff } from './agents/EsgChiefOfStaff';
+import { ComplianceGuardian } from './agents/ComplianceGuardian';
+import { CarbonHunter } from './agents/CarbonHunter';
+import { SupplyChainInvestigator } from './agents/SupplyChainInvestigator';
+import { CostSavingFinder } from './agents/CostSavingFinder';
+import { PredictiveMaintenance } from './agents/PredictiveMaintenance';
+import { AutonomousOptimizer } from './agents/AutonomousOptimizer';
+import { RegulatoryForesight } from './agents/RegulatoryForesight';
 import { AgentRegistry } from './base/AutonomousAgent';
 import { agentOrchestrator } from './base/AgentOrchestrator';
 
@@ -49,7 +49,8 @@ export const AI_WORKFORCE_CONFIG = {
   operationalMode: '24/7',
   autonomyLevel: 'high',
   collaborationEnabled: true,
-  learningEnabled: true
+  learningEnabled: true,
+  implementationPlan: 'FULL_IMPLEMENTATION_PLAN.md - Phase 1 Complete'
 };
 
 export const AI_EMPLOYEE_DIRECTORY = {
@@ -83,81 +84,81 @@ export const AI_EMPLOYEE_DIRECTORY = {
     autonomyLevel: 'high',
     canMakeDecisions: true,
     workingHours: '24/7',
-    reportingTo: 'Risk Analyst'
+    reportingTo: 'ESG Chief of Staff'
   },
-  'Data Orchestrator': {
-    agent: DataOrchestrator,
-    specialization: 'Data quality, integration, and governance',
+  'Cost Saving Finder': {
+    agent: CostSavingFinder,
+    specialization: 'Energy cost analysis and savings opportunities',
     autonomyLevel: 'high',
     canMakeDecisions: true,
     workingHours: '24/7',
     reportingTo: 'ESG Chief of Staff'
   },
-  'Report Master': {
-    agent: ReportMaster,
-    specialization: 'Automated reporting and stakeholder communication',
-    autonomyLevel: 'medium',
-    canMakeDecisions: true,
-    workingHours: '24/7',
-    reportingTo: 'ESG Chief of Staff'
-  },
-  'Risk Analyst': {
-    agent: RiskAnalyst,
-    specialization: 'Risk assessment and threat monitoring',
+  'Predictive Maintenance': {
+    agent: PredictiveMaintenance,
+    specialization: 'Equipment failure prediction and maintenance scheduling',
     autonomyLevel: 'high',
     canMakeDecisions: true,
     workingHours: '24/7',
     reportingTo: 'ESG Chief of Staff'
   },
-  'Performance Optimizer': {
-    agent: PerformanceOptimizer,
-    specialization: 'KPI monitoring and performance optimization',
-    autonomyLevel: 'medium',
+  'Autonomous Optimizer': {
+    agent: AutonomousOptimizer,
+    specialization: 'Autonomous operations optimization and performance tuning',
+    autonomyLevel: 'high',
     canMakeDecisions: true,
     workingHours: '24/7',
     reportingTo: 'ESG Chief of Staff'
+  },
+  'Regulatory Foresight': {
+    agent: RegulatoryForesight,
+    specialization: 'Regulatory monitoring and compliance automation',
+    autonomyLevel: 'high',
+    canMakeDecisions: true,
+    workingHours: '24/7',
+    reportingTo: 'Compliance Guardian'
   }
 };
 
-// Initialize the complete AI workforce - all 8 autonomous agents
+// Initialize the complete AI workforce - all 8 autonomous agents from FULL_IMPLEMENTATION_PLAN.md
 export async function initializeAutonomousAgents(organizationId: string) {
   console.log('🚀 Initializing BLIPEE AI Workforce...');
   console.log(`📋 Deploying ${AI_WORKFORCE_CONFIG.totalEmployees} AI employees for autonomous sustainability intelligence`);
 
-  // Create all 8 AI employees
+  // Create all 8 AI employees according to FULL_IMPLEMENTATION_PLAN.md
   const esgChiefOfStaff = new ESGChiefOfStaff();
   const complianceGuardian = new ComplianceGuardian();
   const carbonHunter = new CarbonHunter();
   const supplyChainInvestigator = new SupplyChainInvestigator();
-  const dataOrchestrator = new DataOrchestrator();
-  const reportMaster = new ReportMaster();
-  const riskAnalyst = new RiskAnalyst();
-  const performanceOptimizer = new PerformanceOptimizer();
+  const costSavingFinder = new CostSavingFinder();
+  const predictiveMaintenance = new PredictiveMaintenance();
+  const autonomousOptimizer = new AutonomousOptimizer();
+  const regulatoryForesight = new RegulatoryForesight();
 
   // Register all agents with the registry
   AgentRegistry.register(esgChiefOfStaff);
   AgentRegistry.register(complianceGuardian);
   AgentRegistry.register(carbonHunter);
   AgentRegistry.register(supplyChainInvestigator);
-  AgentRegistry.register(dataOrchestrator);
-  AgentRegistry.register(reportMaster);
-  AgentRegistry.register(riskAnalyst);
-  AgentRegistry.register(performanceOptimizer);
+  AgentRegistry.register(costSavingFinder);
+  AgentRegistry.register(predictiveMaintenance);
+  AgentRegistry.register(autonomousOptimizer);
+  AgentRegistry.register(regulatoryForesight);
 
   // Start the orchestrator
   await agentOrchestrator.start();
 
   console.log('✅ BLIPEE AI Workforce operational - 8 AI employees working 24/7');
-  console.log('🤖 AI Employees active:');
+  console.log('🤖 AI Employees active (FULL_IMPLEMENTATION_PLAN.md Phase 1 Complete):');
   console.log('  👔 ESG Chief of Staff - Strategic leadership & coordination');
   console.log('  🛡️ Compliance Guardian - Regulatory monitoring across 7 frameworks');
   console.log('  🔍 Carbon Hunter - Emissions tracking & reduction opportunities');
   console.log('  🕵️ Supply Chain Investigator - Supplier risk assessment');
-  console.log('  📊 Data Orchestrator - Data quality & integration');
-  console.log('  📋 Report Master - Automated reporting & distribution');
-  console.log('  ⚠️ Risk Analyst - Risk monitoring & threat analysis');
-  console.log('  📈 Performance Optimizer - KPI optimization & efficiency');
-  console.log('🎯 Autonomous sustainability intelligence active');
+  console.log('  💰 Cost Saving Finder - Energy cost analysis & savings opportunities');
+  console.log('  🔧 Predictive Maintenance - Equipment failure prediction & scheduling');
+  console.log('  ⚙️ Autonomous Optimizer - Operations optimization & performance tuning');
+  console.log('  📜 Regulatory Foresight - Regulatory monitoring & compliance automation');
+  console.log('🎯 Autonomous sustainability intelligence active - All 8 agents operational');
 
   return {
     orchestrator: agentOrchestrator,
@@ -166,10 +167,10 @@ export async function initializeAutonomousAgents(organizationId: string) {
       complianceGuardian,
       carbonHunter,
       supplyChainInvestigator,
-      dataOrchestrator,
-      reportMaster,
-      riskAnalyst,
-      performanceOptimizer
+      costSavingFinder,
+      predictiveMaintenance,
+      autonomousOptimizer,
+      regulatoryForesight
     },
     registry: AgentRegistry,
     config: AI_WORKFORCE_CONFIG,

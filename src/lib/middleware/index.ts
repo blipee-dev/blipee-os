@@ -86,13 +86,22 @@ export function withMiddleware(
           let bodyText: string;
 
           // Use sanitized body from security middleware if available
-          if (sanitizedBody && securityBodyText) {
+          if (sanitizedBody !== undefined) {
             body = sanitizedBody;
-            bodyText = securityBodyText;
+            bodyText = securityBodyText || JSON.stringify(sanitizedBody);
             console.log('Middleware - Using sanitized body from security middleware');
           } else {
             // Read body if not already processed by security middleware
             try {
+              // Check if request body was already read (bodyUsed property)
+              if ((request as any).bodyUsed) {
+                console.error('Middleware - Request body was already consumed');
+                return addSecurityHeaders(NextResponse.json(
+                  { error: 'Request body already consumed' },
+                  { status: 400 }
+                ));
+              }
+
               bodyText = await request.text();
               body = JSON.parse(bodyText);
               console.log('Middleware - Reading fresh body from request');
@@ -122,18 +131,12 @@ export function withMiddleware(
 
           console.log('Middleware - Validation passed');
 
-          // Create new request with the validated body for the handler
-          const newRequest = new NextRequest(request.url, {
-            method: request.method,
-            headers: request.headers,
-            body: bodyText,
-          });
+          // Attach the parsed body to the original request object for the handler to use
+          // This avoids the issue of recreating a NextRequest with a consumed body stream
+          (request as any).parsedBody = body;
 
-          // Attach the parsed body to the request object for the handler to use
-          (newRequest as any).parsedBody = body;
-
-          // Execute handler with the new request
-          const response = await handler(newRequest, context);
+          // Execute handler with the original request (which now has parsedBody attached)
+          const response = await handler(request, context);
           return addSecurityHeaders(response);
 
         } catch (error) {
