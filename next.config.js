@@ -36,7 +36,43 @@ const nextConfig = {
       // Note: Preact replacement removed due to compatibility issues
       // Consider using it only for specific components if needed
     }
-    
+
+    // TensorFlow.js and Supabase compatibility fixes
+    if (isServer) {
+      // Handle webpack compatibility issues
+      config.externals = config.externals || [];
+      config.externals.push({
+        '@tensorflow/tfjs-node': 'commonjs @tensorflow/tfjs-node',
+        'seedrandom': 'commonjs seedrandom',
+        'set-cookie-parser': 'commonjs set-cookie-parser',
+        'whatwg-url': 'commonjs whatwg-url',
+        'jose': 'commonjs jose'
+      });
+
+      // Handle Supabase auth helpers externally for server builds
+      config.externals.push(function (context, request, callback) {
+        if (request === '@supabase/auth-helpers-nextjs') {
+          return callback(null, 'commonjs @supabase/auth-helpers-nextjs');
+        }
+        callback();
+      });
+
+      // Fix for __webpack_require__.nmd issue
+      config.module = config.module || {};
+      config.module.rules = config.module.rules || [];
+      config.module.rules.push({
+        test: /\.js$/,
+        include: /node_modules\/seedrandom/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+            plugins: ['@babel/plugin-transform-modules-commonjs']
+          }
+        }
+      });
+    }
+
     // Enable webpack bundle analyzer
     if (process.env.ANALYZE === 'true') {
       const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
@@ -48,7 +84,7 @@ const nextConfig = {
         })
       );
     }
-    
+
     return config;
   },
   
