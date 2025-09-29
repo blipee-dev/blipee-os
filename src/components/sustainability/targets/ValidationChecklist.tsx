@@ -13,6 +13,7 @@ import {
   Target,
   Shield,
   Clock,
+  ChevronRight,
   TrendingUp,
   Info
 } from 'lucide-react';
