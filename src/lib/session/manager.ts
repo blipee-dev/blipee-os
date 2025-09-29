@@ -2,14 +2,19 @@ import { SessionService, SessionData, SessionConfig } from './service';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Store singleton instance in global scope to survive hot reloads
+const globalForSessionManager = global as unknown as {
+  sessionManagerInstance?: SessionManager;
+};
+
 /**
  * Singleton session manager for Next.js
  */
 class SessionManager {
-  private static instance: SessionManager;
   private sessionService: SessionService;
 
   private constructor() {
+    console.log('🏗️  Creating new SessionManager instance');
     this.sessionService = new SessionService({
       // Temporarily disable Redis to force in-memory storage for debugging
       redis: undefined,
@@ -34,13 +39,11 @@ class SessionManager {
   }
 
   static getInstance(): SessionManager {
-    if (!SessionManager.instance) {
-      console.log('🏗️  Creating new SessionManager instance');
-      SessionManager.instance = new SessionManager();
-    } else {
-      console.log('♻️  Reusing existing SessionManager instance');
+    if (!globalForSessionManager.sessionManagerInstance) {
+      console.log('📦 Creating SessionManager singleton instance');
+      globalForSessionManager.sessionManagerInstance = new SessionManager();
     }
-    return SessionManager.instance;
+    return globalForSessionManager.sessionManagerInstance;
   }
 
   /**

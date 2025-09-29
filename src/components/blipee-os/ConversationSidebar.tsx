@@ -21,6 +21,7 @@ import {
   User,
   LogOut,
   Leaf,
+  Zap,
 } from "lucide-react";
 import { format, isToday, isYesterday, isThisWeek, isThisMonth } from "date-fns";
 import { useRouter } from "next/navigation";
@@ -223,6 +224,15 @@ export function ConversationSidebar({
             <div className="w-8 h-8 accent-gradient-lr rounded-full flex items-center justify-center">
               <span className="text-white text-xs font-medium">{userInitials}</span>
             </div>
+          </button>
+
+          {/* Zero-Typing Button */}
+          <button
+            onClick={() => router.push('/zero-typing')}
+            className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+            title="Zero-Typing Dashboard"
+          >
+            <Zap className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
 
           {/* Sustainability Dashboard Button */}
@@ -594,6 +604,15 @@ export function ConversationSidebar({
             <p className="text-sm font-medium text-gray-900 dark:text-white">{userDisplayName}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || 'user@example.com'}</p>
           </div>
+        </button>
+
+        {/* Zero-Typing Dashboard Button */}
+        <button
+          onClick={() => router.push('/zero-typing')}
+          className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+        >
+          <Zap className="w-4 h-4" />
+          Zero-Typing Dashboard
         </button>
 
         {/* Sustainability Dashboard Button */}

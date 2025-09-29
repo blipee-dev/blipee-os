@@ -137,17 +137,13 @@ export default function SignInPage() {
       }
       
       // Check if there's a redirect parameter in the URL
-      // Don't redirect here - let the auth context handle it based on organization status
-      // The auth context will redirect to /organization-setup if no org, or /blipee-ai if org exists
       if (redirectParam) {
-        console.log('Sign in successful, redirect param provided:', redirectParam);
-        // Only use redirect param if it's not the default pages
-        if (redirectParam !== '/blipee-ai' && redirectParam !== '/signin') {
-          router.push(redirectParam);
-        }
+        console.log('Sign in successful, redirecting to:', redirectParam);
+        router.push(redirectParam);
       } else {
-        console.log('Sign in successful, auth context will handle redirect');
-        // Don't redirect here - auth context handles it
+        console.log('Sign in successful, redirecting to default page');
+        // Default redirect to blipee-ai if no redirect param
+        router.push('/blipee-ai');
       }
     } catch (err: any) {
       setError(err.message || "Failed to sign in");

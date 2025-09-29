@@ -2,22 +2,25 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  X, 
-  MapPin, 
-  Building2, 
-  Users, 
-  Layers, 
-  AlertCircle, 
-  CheckCircle, 
-  Plus, 
+import {
+  X,
+  MapPin,
+  Building2,
+  Users,
+  Layers,
+  AlertCircle,
+  CheckCircle,
+  Plus,
   Trash2,
   Globe,
   Home,
   Calendar,
-  Hash
+  Hash,
+  Search,
+  Loader2
 } from "lucide-react";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
+import { AddressAutocomplete } from "@/components/ui/AddressAutocomplete";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useTranslations } from "@/providers/LanguageProvider";
 import { auditLogger } from "@/lib/audit/client";
@@ -40,6 +43,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [showFloorDetails, setShowFloorDetails] = useState(false);
+  const [lookupLoading, setLookupLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -56,6 +60,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
     total_employees: "",
     floors: "",
     timezone: defaultsT('timezone'),
+    status: "active",
     floor_details: [] as Array<{ floor: number; area_sqm: number; employees: number }>,
     metadata: {} as any
   });
@@ -82,6 +87,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         total_employees: data.total_employees?.toString() || "",
         floors: data.floors?.toString() || "",
         timezone: data.timezone || defaultsT('timezone'),
+        status: data.status || "active",
         floor_details: data.floor_details || [],
         metadata: data.metadata || {}
       });
@@ -103,6 +109,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         total_employees: "",
         floors: "",
         timezone: defaultsT('timezone'),
+        status: "active",
         floor_details: [],
         metadata: {}
       });
@@ -143,6 +150,46 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
     });
   };
 
+  // Handle postal code lookup
+  const handlePostalCodeLookup = async () => {
+    const postalCode = formData.address?.postal_code?.trim();
+    if (!postalCode) return;
+
+    setLookupLoading(true);
+    try {
+      const response = await fetch('/api/address/lookup-postal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postalCode,
+          country: formData.address?.country || 'PT'
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        // Update address fields with lookup data
+        setFormData(prev => ({
+          ...prev,
+          address: {
+            ...prev.address,
+            city: result.data.city || prev.address.city,
+            country: result.data.country || prev.address.country,
+            street: result.data.street_prefix ?
+              (prev.address.street?.startsWith(result.data.street_prefix) ?
+                prev.address.street : result.data.street_prefix) :
+              prev.address.street
+          }
+        }));
+      }
+    } catch (err) {
+      console.error('Postal code lookup error:', err);
+    } finally {
+      setLookupLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -178,31 +225,52 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         throw new Error('Please select an organization');
       }
 
-      const siteData = {
-        ...formData,
+      // Build site data with only valid database columns
+      const siteData: any = {
+        name: formData.name,
+        location: formData.location,
         organization_id: organizationId,
+        type: formData.type,
+        total_area_sqm: formData.total_area_sqm ? parseInt(formData.total_area_sqm) : null,
+        total_employees: formData.total_employees ? parseInt(formData.total_employees) : null,
+        floors: formData.floors ? parseInt(formData.floors) : null,
+        timezone: formData.timezone,
+        status: formData.status || 'active',
+        floor_details: formData.floor_details,
         address: {
           street: formData.address.street || '',
           city: formData.address.city || '',
           postal_code: formData.address.postal_code || '',
           country: formData.address.country || ''
         },
-        metadata: formData.metadata || {},
-        status: 'active'
+        metadata: formData.metadata || {}
       };
 
-      if (mode === 'edit' && data?.id) {
-        // Update existing site
-        const { error: updateError } = await supabase
-          .from('sites')
-          .update(siteData)
-          .eq('id', data.id);
+      // Remove the 'organization' field that doesn't exist in the database
+      delete siteData.organization;
 
-        if (updateError) {
-          console.error('Error updating site:', updateError);
-          throw new Error(updateError.message);
+      if (mode === 'edit' && data?.id) {
+        // Update existing site via API
+        console.log('Updating site with ID:', data.id);
+        console.log('Update data being sent:', siteData);
+
+        const response = await fetch(`/api/sites?id=${data.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(siteData),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Error updating site:', errorData);
+          throw new Error(errorData.error || 'Failed to update site');
         }
-        console.log('Site updated successfully');
+
+        const { site: updatedSite } = await response.json();
+        console.log('Site updated successfully:', updatedSite);
+        console.log('New values - Area:', updatedSite.total_area_sqm, 'Employees:', updatedSite.total_employees, 'Floors:', updatedSite.floors);
 
         // Log audit event for site update
         await auditLogger.logDataOperation(
@@ -217,17 +285,22 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
           }
         );
       } else {
-        // Create new site
-        const { data: newSite, error: createError } = await supabase
-          .from('sites')
-          .insert(siteData)
-          .select()
-          .single();
+        // Create new site via API
+        const response = await fetch('/api/sites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(siteData),
+        });
 
-        if (createError) {
-          console.error('Error creating site:', createError);
-          throw new Error(createError.message);
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Error creating site:', errorData);
+          throw new Error(errorData.error || 'Failed to create site');
         }
+
+        const { site: newSite } = await response.json();
         console.log('Site created successfully:', newSite);
 
         // Log audit event for site creation
@@ -242,8 +315,11 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
 
       setSuccess(true);
       setTimeout(() => {
-        onSuccess?.();
-        onClose();
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          onClose();
+        }
       }, 1500);
       
     } catch (err: any) {
@@ -432,7 +508,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                     <Hash className="w-5 h-5 accent-text" />
                     Site Details
                   </h3>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -447,7 +523,7 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                         placeholder={t('placeholders.totalEmployees')}
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {t('fields.numberOfFloors')}
@@ -459,6 +535,140 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
                         readOnly={mode === 'view'}
                         className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
                         placeholder={t('placeholders.numberOfFloors')}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Status
+                      </label>
+                      <CustomDropdown
+                        value={formData.status || 'active'}
+                        onChange={(value) => setFormData({...formData, status: value as string})}
+                        options={[
+                          { value: "active", label: "Active" },
+                          { value: "inactive", label: "Inactive" },
+                          { value: "maintenance", label: "Under Maintenance" }
+                        ]}
+                        className="w-full"
+                        disabled={mode === 'view'}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Timezone
+                      </label>
+                      <CustomDropdown
+                        value={formData.timezone}
+                        onChange={(value) => setFormData({...formData, timezone: value as string})}
+                        options={[
+                          { value: "UTC", label: "UTC" },
+                          { value: "Europe/Lisbon", label: "Europe/Lisbon" },
+                          { value: "Europe/London", label: "Europe/London" },
+                          { value: "Europe/Madrid", label: "Europe/Madrid" },
+                          { value: "Europe/Paris", label: "Europe/Paris" },
+                          { value: "Europe/Berlin", label: "Europe/Berlin" },
+                          { value: "America/New_York", label: "America/New_York" },
+                          { value: "America/Los_Angeles", label: "America/Los_Angeles" }
+                        ]}
+                        className="w-full"
+                        disabled={mode === 'view'}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Address Section - Using same pattern as Organization Modal */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <MapPin className="w-5 h-5 accent-text" />
+                    {t('sections.address') || 'Address Details'}
+                  </h3>
+
+                  <div className="space-y-4">
+                    <AddressAutocomplete
+                      value={formData.address?.street || ''}
+                      onChange={(value) => setFormData({
+                        ...formData,
+                        address: {...formData.address, street: value}
+                      })}
+                      onSelect={(suggestion) => {
+                        // Auto-fill all address fields when a suggestion is selected
+                        setFormData({
+                          ...formData,
+                          address: {
+                            street: suggestion.address || suggestion.name,
+                            city: suggestion.city || formData.address.city,
+                            postal_code: suggestion.postalCode || formData.address.postal_code,
+                            country: suggestion.country || formData.address.country
+                          }
+                        });
+                      }}
+                      placeholder={t('placeholders.streetAddress') || 'Type address or building name...'}
+                      country={formData.address?.country || 'PT'}
+                      disabled={mode === 'view'}
+                      label=""
+                    />
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <input
+                        type="text"
+                        name="address_city"
+                        value={formData.address?.city || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          address: {...formData.address, city: e.target.value}
+                        })}
+                        placeholder={t('placeholders.city') || 'City'}
+                        readOnly={mode === 'view'}
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
+                      />
+
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="address_postal_code"
+                          value={formData.address?.postal_code || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            address: {...formData.address, postal_code: e.target.value}
+                          })}
+                          onBlur={handlePostalCodeLookup}
+                          placeholder={t('placeholders.postalCode') || 'Postal Code'}
+                          readOnly={mode === 'view'}
+                          className="w-full px-4 py-2 pr-10 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
+                        />
+                        {mode !== 'view' && (
+                          <button
+                            type="button"
+                            onClick={handlePostalCodeLookup}
+                            disabled={lookupLoading || !formData.address?.postal_code}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 accent-text hover:accent-bg-hover rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Lookup address from postal code"
+                          >
+                            {lookupLoading ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Search className="w-4 h-4" />
+                            )}
+                          </button>
+                        )}
+                      </div>
+
+                      <input
+                        type="text"
+                        name="address_country"
+                        value={formData.address?.country || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          address: {...formData.address, country: e.target.value}
+                        })}
+                        placeholder={t('placeholders.country') || 'Country (e.g., PT)'}
+                        readOnly={mode === 'view'}
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>

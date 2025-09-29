@@ -44,6 +44,9 @@ export class SessionService {
   private readonly DEFAULT_TTL = 8 * 60 * 60; // 8 hours
 
   constructor(config: SessionConfig = {}) {
+    // Initialize with global session store
+    this.inMemorySessions = ((global as any).__sessionStore__ ||= new Map<string, SessionData>());
+
     this.config = {
       redis: config.redis === undefined ? undefined : (config.redis || {
         host: process.env.REDIS_HOST || 'localhost',
@@ -422,8 +425,8 @@ export class SessionService {
   }
 
   // Global in-memory fallback for development (shared across all instances)
-  private static globalInMemorySessions = new Map<string, SessionData>();
-  private inMemorySessions = SessionService.globalInMemorySessions;
+  // Use global scope to persist sessions across hot reloads
+  private inMemorySessions: Map<string, SessionData>;
 
   private getInMemorySession(sessionId: string): SessionData | null {
     console.log('🔍 Getting in-memory session:', {

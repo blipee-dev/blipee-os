@@ -6,6 +6,14 @@
  */
 
 import { mlPipeline, MLModelConfig, MLTrainingData, MLPrediction } from './ml-pipeline';
+import {
+  initializeModels,
+  getLoadedModels,
+  predictWithLSTM
+} from './load-trained-models';
+import { inMemoryLSTM } from './in-memory-lstm';
+import { advancedForecastEngine } from './advanced-forecast-engine';
+import { spikeAwareForecast } from './spike-aware-forecast';
 
 export interface EmissionsForecastInput {
   historicalEmissions: {
@@ -107,44 +115,370 @@ export class EmissionsForecastModel {
   }
 
   /**
-   * Forecast future emissions
+   * Forecast future emissions using advanced ensemble models
    */
   async predict(input: EmissionsForecastInput): Promise<EmissionsForecastPrediction> {
-    console.log('🔮 Forecasting emissions...');
+    console.log('🔮 Forecasting emissions with advanced ensemble (tons)...');
 
+    try {
+      // Combine all historical emissions for total and convert kg to tons
+      const totalHistorical = input.historicalEmissions.scope1.map((s1, i) =>
+        (s1 + (input.historicalEmissions.scope2[i] || 0) + (input.historicalEmissions.scope3[i] || 0)) / 1000
+      );
+
+      console.log('📊 Historical data in tons (first 3):', totalHistorical.slice(0, 3).map(v => v.toFixed(1)));
+
+      // Analyze variance to detect spike patterns (business travel)
+      const mean = totalHistorical.reduce((sum, val) => sum + val, 0) / totalHistorical.length;
+      const variance = totalHistorical.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / totalHistorical.length;
+      const coefficientOfVariation = Math.sqrt(variance) / mean;
+
+      console.log(`📈 Data analysis: Mean=${mean.toFixed(1)}, CV=${(coefficientOfVariation * 100).toFixed(1)}%`);
+
+      // If high variance detected (CV > 40%), use spike-aware forecasting
+      if (coefficientOfVariation > 0.4) {
+        console.log('🚀 High variance detected - using spike-aware forecasting for travel patterns');
+
+        try {
+          const startDate = new Date('2025-08-01');
+          const spikeAwarePrediction = await spikeAwareForecast.predict(
+            totalHistorical,
+            12,
+            startDate
+          );
+
+          console.log('✅ SPIKE-AWARE prediction completed');
+          console.log(`🎯 Expected spikes: ${spikeAwarePrediction.spike_info.expected_spikes}`);
+          console.log(`📅 Spike months: ${spikeAwarePrediction.spike_info.spike_months.join(', ')}`);
+
+          return this.processEnsemblePrediction(spikeAwarePrediction, input);
+        } catch (spikeError) {
+          console.warn('⚠️ Spike-aware model failed, falling back to ensemble:', spikeError);
+        }
+      }
+
+      // Prepare external features if available
+      const externalFeatures = {
+        temperature: input.externalFactors?.seasonality === 'summer' ?
+          new Array(totalHistorical.length).fill(25) :
+          new Array(totalHistorical.length).fill(10),
+        energyPrices: new Array(totalHistorical.length).fill(input.activityData.energyConsumption || 100),
+        productionVolume: new Array(totalHistorical.length).fill(input.activityData.productionVolume || 100),
+        gridEmissionFactors: new Array(totalHistorical.length).fill(input.externalFactors?.gridEmissionFactor || 400)
+      };
+
+      // Use advanced ensemble forecasting
+      // Start predictions from August 2025 (month after last data)
+      const lastDataDate = new Date('2025-07-01'); // Last data is July 2025
+      const startDate = new Date('2025-08-01'); // Start predictions from August
+
+      const ensemblePrediction = await advancedForecastEngine.predict(
+        totalHistorical,
+        externalFeatures,
+        12,
+        startDate
+      );
+
+      console.log('✅ ENSEMBLE prediction completed with',
+        Object.keys(ensemblePrediction.model_weights).length, 'models');
+      console.log('🏆 Best model:', ensemblePrediction.best_model);
+      console.log('📊 Trend:', ensemblePrediction.trend.direction,
+        `(${ensemblePrediction.trend.rate.toFixed(1)}% per year)`);
+
+      // Convert ensemble predictions to our format
+      return this.processEnsemblePrediction(ensemblePrediction, input);
+
+    } catch (error) {
+      console.error('⚠️ Advanced ensemble failed:', error instanceof Error ? error.message : error);
+      console.log('📊 Using robust LSTM fallback...');
+
+      // Fallback to single LSTM if ensemble fails - this works well
+      try {
+        await inMemoryLSTM.initialize();
+        const features = this.prepareSequenceData(input);
+        // Convert to tons for LSTM scaler
+        const allEmissionsInTons = [
+          ...input.historicalEmissions.scope1.map(v => v / 1000),
+          ...input.historicalEmissions.scope2.map(v => v / 1000),
+          ...input.historicalEmissions.scope3.map(v => v / 1000)
+        ].filter(val => val > 0);
+
+        if (allEmissionsInTons.length > 0) {
+          inMemoryLSTM.updateScaler(allEmissionsInTons);
+        }
+
+        const lstmPrediction = await inMemoryLSTM.predict(features, 12);
+        return this.processLSTMPrediction(lstmPrediction, input);
+
+      } catch (lstmError) {
+        console.error('❌ All models failed:', lstmError);
+        throw new Error('No ML models available for prediction');
+      }
+    }
+  }
+
+  /**
+   * Use ML pipeline as fallback when disk models aren't available
+   */
+  private async useMLPipelineFallback(input: EmissionsForecastInput): Promise<EmissionsForecastPrediction> {
     // Prepare input features for LSTM (needs sequence of 12 timesteps)
     const features = this.extractFeatures(input);
-
-    // Create a sequence of 12 timesteps using the same features (for prediction)
-    // In a real scenario, you'd have historical data for these timesteps
     const sequence = Array(12).fill(features);
 
-    // Make prediction using ML pipeline
-    const prediction = await mlPipeline.predict(this.modelId, sequence);
+    // Try ML pipeline
+    try {
+      const prediction = await mlPipeline.predict(this.modelId, sequence);
+      const forecastData = this.processPredictions(prediction.prediction, input);
+      const confidenceIntervals = this.calculateConfidenceIntervals(prediction, input);
+      const trends = this.analyzeTrends(input, forecastData);
+      const targets = this.analyzeTargets(input, forecastData);
 
-    // Post-process predictions into scope-specific forecasts
-    const forecastData = this.processPredictions(prediction.prediction, input);
+      console.log('✅ Using in-memory ML pipeline for predictions');
+      return {
+        prediction: forecastData.totalEmissions,
+        scope1Forecast: forecastData.scope1,
+        scope2Forecast: forecastData.scope2,
+        scope3Forecast: forecastData.scope3,
+        confidence: prediction.confidence,
+        timestamp: prediction.timestamp,
+        confidenceIntervals,
+        trends,
+        targets
+      };
+    } catch (error) {
+      console.log('⚠️  ML pipeline not ready, using simple forecast...');
+      // Simple fallback prediction
+      return this.simpleForecast(input);
+    }
+  }
 
-    // Calculate confidence intervals
-    const confidenceIntervals = this.calculateConfidenceIntervals(prediction, input);
+  /**
+   * Prepare sequence data for LSTM prediction
+   */
+  private prepareSequenceData(input: EmissionsForecastInput): number[][] {
+    const sequence: number[][] = [];
+    const historyLength = Math.min(12, input.historicalEmissions.scope1.length);
 
-    // Analyze trends
-    const trends = this.analyzeTrends(input, forecastData);
+    for (let i = 0; i < historyLength; i++) {
+      const features = [
+        (input.historicalEmissions.scope1[i] || 0) / 1000, // Convert kg to tons
+        (input.historicalEmissions.scope2[i] || 0) / 1000, // Convert kg to tons
+        (input.historicalEmissions.scope3[i] || 0) / 1000, // Convert kg to tons
+        input.activityData.energyConsumption || 0,
+        input.activityData.fuelConsumption || 0,
+        input.activityData.productionVolume || 0,
+        input.externalFactors.gridEmissionFactor || 0,
+        this.encodeSeasonality(input.externalFactors.seasonality)
+      ];
+      sequence.push(features);
+    }
 
-    // Generate target analysis
-    const targets = this.analyzeTargets(input, forecastData);
+    // Pad sequence if needed
+    while (sequence.length < 12) {
+      sequence.unshift(sequence[0] || Array(8).fill(0));
+    }
+
+    return sequence;
+  }
+
+  /**
+   * Prepare training features from input
+   */
+  private prepareTrainingFeatures(input: EmissionsForecastInput): number[][] {
+    const features: number[][] = [];
+
+    for (let i = 0; i < input.historicalEmissions.scope1.length; i++) {
+      features.push([
+        input.historicalEmissions.scope1[i] || 0,
+        input.historicalEmissions.scope2[i] || 0,
+        input.historicalEmissions.scope3[i] || 0,
+        input.activityData.energyConsumption || 0,
+        input.activityData.fuelConsumption || 0,
+        input.activityData.productionVolume || 0,
+        input.externalFactors.gridEmissionFactor || 0,
+        Math.random() // Add some variation for seasonality
+      ]);
+    }
+
+    return features;
+  }
+
+  /**
+   * Process ensemble predictions into our format
+   */
+  private processEnsemblePrediction(ensemble: any, input: EmissionsForecastInput): EmissionsForecastPrediction {
+    console.log('🔍 Processing ensemble prediction:', {
+      ensembleKeys: Object.keys(ensemble),
+      predictionsLength: ensemble.predictions?.length,
+      firstPrediction: ensemble.predictions?.[0]
+    });
+
+    // Extract predictions array (values are already in tons from the models)
+    const predictions = ensemble.predictions.map((p: any) => p.predicted);
+
+    console.log('📊 Raw predictions in tons (first 3):', predictions.slice(0, 3));
+
+    // Calculate scope breakdowns (proportional to historical) - convert kg to tons for ratios
+    const totalCurrentKg = input.historicalEmissions.scope1[0] +
+                          input.historicalEmissions.scope2[0] +
+                          input.historicalEmissions.scope3[0];
+
+    const scope1Ratio = input.historicalEmissions.scope1[0] / totalCurrentKg || 0.3;
+    const scope2Ratio = input.historicalEmissions.scope2[0] / totalCurrentKg || 0.4;
+    const scope3Ratio = input.historicalEmissions.scope3[0] / totalCurrentKg || 0.3;
+
+    const scope1Forecast = predictions.map((p: number) => p * scope1Ratio);
+    const scope2Forecast = predictions.map((p: number) => p * scope2Ratio);
+    const scope3Forecast = predictions.map((p: number) => p * scope3Ratio);
+
+    // Extract confidence intervals
+    const confidenceIntervals = {
+      lower: ensemble.predictions.map((p: any) => p.lower_bound),
+      upper: ensemble.predictions.map((p: any) => p.upper_bound),
+      confidence: ensemble.predictions[0]?.confidence || 0.85
+    };
+
+    // Calculate targets based on SBTi (42% reduction by 2030)
+    const yearsToTarget = 2030 - new Date().getFullYear();
+    const requiredAnnualReduction = 42 / yearsToTarget;
+    const currentTrajectory = predictions[predictions.length - 1];
 
     return {
-      prediction: forecastData.totalEmissions,
-      scope1Forecast: forecastData.scope1,
-      scope2Forecast: forecastData.scope2,
-      scope3Forecast: forecastData.scope3,
-      confidence: prediction.confidence,
-      timestamp: prediction.timestamp,
+      prediction: predictions,
+      predictions: ensemble.predictions, // Include detailed predictions
+      scope1Forecast,
+      scope2Forecast,
+      scope3Forecast,
+      confidence: ensemble.predictions[0]?.confidence || 0.85,
+      timestamp: new Date(),
       confidenceIntervals,
-      trends,
-      targets
+      trends: {
+        direction: ensemble.trend.direction,
+        rate: ensemble.trend.rate,
+        drivers: [
+          `Best Model: ${ensemble.best_model}`,
+          `Seasonality detected: ${ensemble.seasonality?.monthly?.some((s: number) => Math.abs(s - 1) > 0.1) ? 'Yes' : 'No'}`,
+          `Trend acceleration: ${ensemble.trend?.acceleration > 0 ? 'Increasing' : 'Decreasing'}`
+        ]
+      },
+      targets: {
+        currentTrajectory,
+        requiredReduction: requiredAnnualReduction,
+        recommendations: this.generateRecommendations(ensemble.trend, currentTrajectory)
+      },
+      model: ensemble.best_model,
+      model_weights: ensemble.model_weights,
+      features_importance: ensemble.feature_importance
     };
+  }
+
+  /**
+   * Generate recommendations based on predictions
+   */
+  private generateRecommendations(trend: any, trajectory: number): string[] {
+    const recommendations = [];
+
+    if (trend.direction === 'increasing') {
+      recommendations.push('⚠️ Emissions trending up - immediate action required');
+      recommendations.push('🎯 Focus on energy efficiency improvements');
+      recommendations.push('🔄 Review and optimize production schedules');
+    } else if (trend.direction === 'decreasing') {
+      recommendations.push('✅ Good progress on emissions reduction');
+      recommendations.push('📊 Maintain current initiatives');
+      recommendations.push('🚀 Explore additional reduction opportunities');
+    } else {
+      recommendations.push('📈 Emissions stable - need acceleration for targets');
+      recommendations.push('💡 Consider renewable energy transition');
+      recommendations.push('🏭 Evaluate process optimization opportunities');
+    }
+
+    return recommendations;
+  }
+
+  /**
+   * Process LSTM prediction into our format
+   */
+  private processLSTMPrediction(lstmPrediction: any, input: EmissionsForecastInput): EmissionsForecastPrediction {
+    console.log('🔄 Processing LSTM prediction format:', {
+      hasLstmPredictions: !!lstmPrediction.predictions,
+      predictionsLength: lstmPrediction.predictions?.length,
+      firstPrediction: lstmPrediction.predictions?.[0]
+    });
+
+    const predictions = lstmPrediction.predictions;
+
+    // Extract total emissions from predictions
+    const totalPredictions = predictions.map((p: any) => p.predicted);
+
+    // Split into scopes based on historical ratios
+    const totalHistorical = input.historicalEmissions.scope1[0] +
+                           input.historicalEmissions.scope2[0] +
+                           input.historicalEmissions.scope3[0];
+
+    const scope1Ratio = input.historicalEmissions.scope1[0] / totalHistorical || 0.22;
+    const scope2Ratio = input.historicalEmissions.scope2[0] / totalHistorical || 0.16;
+    const scope3Ratio = input.historicalEmissions.scope3[0] / totalHistorical || 0.62;
+
+    const scope1Forecast = totalPredictions.map((t: number) => t * scope1Ratio);
+    const scope2Forecast = totalPredictions.map((t: number) => t * scope2Ratio);
+    const scope3Forecast = totalPredictions.map((t: number) => t * scope3Ratio);
+
+    // Calculate confidence intervals
+    const confidenceIntervals = {
+      lower: predictions.map((p: any) => p.lower_bound),
+      upper: predictions.map((p: any) => p.upper_bound),
+      confidence: 0.95
+    };
+
+    // Analyze trends
+    const trend = totalPredictions[totalPredictions.length - 1] < totalPredictions[0] ? 'decreasing' : 'increasing';
+    const trendRate = ((totalPredictions[totalPredictions.length - 1] - totalPredictions[0]) / totalPredictions[0]) * 100;
+
+    return {
+      prediction: totalPredictions,
+      scope1Forecast,
+      scope2Forecast,
+      scope3Forecast,
+      confidence: lstmPrediction.confidence,
+      timestamp: new Date(),
+      confidenceIntervals,
+      trends: {
+        direction: trend as any,
+        rate: Math.abs(trendRate),
+        drivers: Object.keys(lstmPrediction.features_importance)
+      },
+      targets: {
+        currentTrajectory: totalPredictions[totalPredictions.length - 1],
+        requiredReduction: 42, // SBTi target
+        recommendations: [
+          'Increase renewable energy adoption',
+          'Optimize production schedules',
+          'Improve supply chain efficiency'
+        ]
+      },
+      predictions: lstmPrediction.predictions // Include raw predictions for UI
+    } as any;
+  }
+
+  /**
+   * Encode seasonality as numeric value
+   */
+  private encodeSeasonality(season: string): number {
+    const seasonMap: Record<string, number> = {
+      'winter': 0,
+      'spring': 0.33,
+      'summer': 0.67,
+      'fall': 1
+    };
+    return seasonMap[season] || 0.5;
+  }
+
+  /**
+   * No ML model available - return null to indicate no prediction
+   */
+  private simpleForecast(input: EmissionsForecastInput): EmissionsForecastPrediction {
+    // NO FAKE PREDICTIONS - if we can't do real ML, we don't predict
+    throw new Error('ML model not available - cannot make predictions without trained model');
   }
 
   /**
