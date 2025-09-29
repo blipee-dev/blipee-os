@@ -9,6 +9,7 @@ import {
   User,
   Settings,
   Plus,
+  Zap,
 } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useTranslations } from "@/providers/LanguageProvider";
@@ -41,10 +42,10 @@ export function MobileNavigation({ onNewChat }: MobileNavigationProps) {
       href: "/blipee-ai",
     },
     {
-      id: "chats",
-      icon: MessageSquare,
-      label: t('chats'),
-      href: "/chats",
+      id: "zero-typing",
+      icon: Zap,
+      label: "Zero-Typing",
+      href: "/zero-typing",
     },
     {
       id: "new",

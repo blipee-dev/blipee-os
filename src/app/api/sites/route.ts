@@ -102,3 +102,176 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function POST(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+
+    // Remove fields that shouldn't be set directly
+    delete body.id;
+    delete body.created_at;
+    delete body.updated_at;
+    delete body.organization;
+
+    // Check if user has permission to create sites
+    const { data: superAdminRecord } = await supabaseAdmin
+      .from('super_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    const isSuperAdmin = !!superAdminRecord;
+
+    // Validate organization_id
+    if (!body.organization_id) {
+      // If not super admin, get user's organization
+      if (!isSuperAdmin) {
+        const { organizationId } = await getUserOrganization(user.id);
+        if (!organizationId) {
+          return NextResponse.json({ error: 'Organization not found' }, { status: 400 });
+        }
+        body.organization_id = organizationId;
+      } else {
+        return NextResponse.json({ error: 'Organization ID is required' }, { status: 400 });
+      }
+    }
+
+    // If not super admin, verify user has access to the organization
+    if (!isSuperAdmin) {
+      const { organizationId: userOrgId } = await getUserOrganization(user.id);
+
+      // Also check user_access table
+      const { data: userAccess } = await supabaseAdmin
+        .from('user_access')
+        .select('resource_id')
+        .eq('user_id', user.id)
+        .eq('resource_type', 'org')
+        .eq('resource_id', body.organization_id)
+        .maybeSingle();
+
+      if (body.organization_id !== userOrgId && !userAccess) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
+
+    // Create the site using admin client to bypass RLS
+    const { data: newSite, error: createError } = await supabaseAdmin
+      .from('sites')
+      .insert({
+        ...body,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (createError) {
+      console.error('Error creating site:', createError);
+      throw createError;
+    }
+
+    return NextResponse.json({ site: newSite });
+  } catch (error) {
+    console.error('Error creating site:', error);
+    return NextResponse.json(
+      { error: 'Failed to create site' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    // Get the site ID from the URL search params
+    const { searchParams } = new URL(request.url);
+    const siteId = searchParams.get('id');
+
+    if (!siteId) {
+      return NextResponse.json({ error: 'Site ID is required' }, { status: 400 });
+    }
+
+    const body = await request.json();
+
+    // Remove fields that shouldn't be updated directly
+    delete body.id;
+    delete body.created_at;
+    delete body.updated_at;
+    delete body.organization;
+
+    // Check if user has permission to update this site
+    const { data: superAdminRecord } = await supabaseAdmin
+      .from('super_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    const isSuperAdmin = !!superAdminRecord;
+
+    if (!isSuperAdmin) {
+      // Check if user has access to the site's organization
+      const { data: site } = await supabaseAdmin
+        .from('sites')
+        .select('organization_id')
+        .eq('id', siteId)
+        .single();
+
+      if (!site) {
+        return NextResponse.json({ error: 'Site not found' }, { status: 404 });
+      }
+
+      // Check if user has access to this organization
+      const { organizationId: userOrgId } = await getUserOrganization(user.id);
+
+      // Also check user_access table
+      const { data: userAccess } = await supabaseAdmin
+        .from('user_access')
+        .select('resource_id')
+        .eq('user_id', user.id)
+        .eq('resource_type', 'org')
+        .eq('resource_id', site.organization_id)
+        .maybeSingle();
+
+      if (site.organization_id !== userOrgId && !userAccess) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
+
+    // Update the site using admin client to bypass RLS
+    const { data: updatedSite, error: updateError } = await supabaseAdmin
+      .from('sites')
+      .update({
+        ...body,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', siteId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Error updating site:', updateError);
+      throw updateError;
+    }
+
+    return NextResponse.json({ site: updatedSite });
+  } catch (error) {
+    console.error('Error updating site:', error);
+    return NextResponse.json(
+      { error: 'Failed to update site' },
+      { status: 500 }
+    );
+  }
+}

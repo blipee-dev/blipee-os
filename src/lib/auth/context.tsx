@@ -85,9 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
 
-      // Always redirect to blipee-ai - the AI Butler will guide them
-      console.log("Sign in successful, redirecting to AI Butler at /blipee-ai");
-      router.push("/blipee-ai");
+      // Don't redirect here - let the signin page handle redirects based on URL params
+      console.log("Sign in successful, session established");
     } catch (err: any) {
       setError(err.message);
 
@@ -121,8 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setSession(data.data.session);
-      // Bypass onboarding - redirect to blipee-ai
-      router.push("/blipee-ai");
+      // Don't redirect here - let the component handle redirects
     } catch (err: any) {
       setError(err.message);
       throw err;

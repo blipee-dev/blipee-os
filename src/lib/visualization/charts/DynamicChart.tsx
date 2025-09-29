@@ -23,6 +23,19 @@ interface DynamicChartProps {
 }
 
 export function DynamicChart({ config, className = '' }: DynamicChartProps) {
+  // Handle undefined config
+  if (!config) {
+    return (
+      <div className={`w-full ${className}`}>
+        <div className="w-full h-[300px] bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            No chart configuration provided
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const { type, title, data, height = 300 } = config;
 
   return (
