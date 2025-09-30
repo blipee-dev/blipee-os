@@ -238,14 +238,11 @@ export function EmissionsTrend({
             <YAxis
               stroke="#999"
               style={{ fontSize: '12px' }}
-              tickFormatter={(value) => `${(value / 100).toFixed(0)}`}
+              tickFormatter={(value) => `${value.toFixed(1)}`}
             />
 
             <Tooltip content={<CustomTooltip />} />
 
-            <Legend
-              wrapperStyle={{ fontSize: '12px' }}
-            />
 
             <Area
               type="monotone"
@@ -299,15 +296,12 @@ export function EmissionsTrend({
             stroke="#999"
             style={{ fontSize: '12px' }}
             tickFormatter={(value) =>
-              selectedMetric === 'intensity' ? value.toFixed(0) : `${(value / 100).toFixed(0)}`
+              selectedMetric === 'intensity' ? value.toFixed(1) : value.toFixed(1)
             }
           />
 
           <Tooltip content={<CustomTooltip />} />
 
-          <Legend
-            wrapperStyle={{ fontSize: '12px' }}
-          />
 
           {/* Historical line */}
           <Line
