@@ -127,7 +127,7 @@ export function EmissionsTrend({
       ...d,
       type: 'historical',
       historical_total: d.total,
-      historical_intensity: d.intensity,
+      historical_intensity: d.intensity || (d.total / 100), // Calculate if missing, assuming 100m² default area
       forecast_total: null,
       forecast_intensity: null,
       sbti_target: sbtiTrajectory[index]?.sbti_target || null
@@ -139,14 +139,14 @@ export function EmissionsTrend({
       scope1: d.predicted * 0.22,
       scope2: d.predicted * 0.16,
       scope3: d.predicted * 0.62,
-      intensity: d.predicted / 12.36,
+      intensity: d.predicted / 100, // Use consistent area assumption
       lower_bound: d.lower_bound,
       upper_bound: d.upper_bound,
       type: 'forecast',
       historical_total: null,
       historical_intensity: null,
       forecast_total: d.predicted,
-      forecast_intensity: d.predicted / 12.36,
+      forecast_intensity: d.predicted / 100, // Use consistent area assumption
       sbti_target: sbtiTrajectory[historicalData.length + index]?.sbti_target || null
     }))
   ];
