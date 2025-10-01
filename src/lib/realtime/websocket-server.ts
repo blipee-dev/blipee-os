@@ -65,4 +65,7 @@ export const webSocketServer = new WebSocketServer({
   }
 });
 
+// Alias for compatibility
+export const websocketServer = webSocketServer;
+
 export default webSocketServer;
