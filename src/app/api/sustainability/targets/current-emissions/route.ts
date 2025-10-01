@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     const endOfBaseline = `${baselineYear}-12-31`;
 
     // Fetch metrics data for baseline year
-    const { data: metricsData, error: metricsError } = await supabaseAdmin
+    let { data: metricsData, error: metricsError } = await supabaseAdmin
       .from('metrics_data')
       .select(`
         co2e_emissions,
