@@ -22,15 +22,41 @@ interface EmissionsTrendProps {
   forecastData: any[];
   selectedMetric: string;
   onMetricChange: (metric: string) => void;
+  totalAreaM2?: number;
+  scope1Forecast?: number[];
+  scope2Forecast?: number[];
+  scope3Forecast?: number[];
+  sbtiTarget?: {
+    reductionPercent: number;
+    baselineYear: number;
+    targetYear: number;
+    ambition: string;
+  } | null;
 }
 
 export function EmissionsTrend({
   historicalData,
   forecastData,
   selectedMetric,
-  onMetricChange
+  onMetricChange,
+  totalAreaM2 = 0,
+  scope1Forecast = [],
+  scope2Forecast = [],
+  scope3Forecast = [],
+  sbtiTarget
 }: EmissionsTrendProps) {
-  // Calculate SBTi target trajectory (-42% by 2030) with seasonality
+  // Debug logging
+  console.log('📊 EmissionsTrend Debug:', {
+    totalAreaM2,
+    historicalDataSample: historicalData.slice(0, 2).map(d => ({
+      month: d.month,
+      total: d.total,
+      intensity: d.intensity
+    })),
+    selectedMetric
+  });
+
+  // Calculate SBTi target trajectory with seasonality
   const calculateSBTiTrajectory = () => {
     if (historicalData.length === 0) return [];
 
@@ -51,11 +77,11 @@ export function EmissionsTrend({
       seasonalMultipliers[month] = monthAverage / overallAverage;
     });
 
-    // Baseline and target calculations
+    // Use organization-specific target or default values
     const baselineData = historicalData[0];
-    const baselineYear = parseInt(baselineData.year || '2022');
-    const targetYear = 2030;
-    const targetReduction = 0.42; // 42% reduction
+    const baselineYear = sbtiTarget?.baselineYear || parseInt(baselineData.year || '2022');
+    const targetYear = sbtiTarget?.targetYear || 2030;
+    const targetReduction = sbtiTarget?.reductionPercent ? sbtiTarget.reductionPercent / 100 : 0.42; // Convert percentage to decimal
 
     // Calculate annual baseline (sum of 12 months with seasonal patterns)
     const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -127,7 +153,8 @@ export function EmissionsTrend({
       ...d,
       type: 'historical',
       historical_total: d.total,
-      historical_intensity: d.intensity || (d.total / 100), // Calculate if missing, assuming 100m² default area
+      // Use intensity from API if available, otherwise calculate with real area
+      historical_intensity: d.intensity || (totalAreaM2 > 0 ? (d.total * 1000) / totalAreaM2 : 0),
       forecast_total: null,
       forecast_intensity: null,
       sbti_target: sbtiTrajectory[index]?.sbti_target || null
@@ -136,17 +163,19 @@ export function EmissionsTrend({
       month: d.month,
       year: d.year,
       total: d.predicted,
-      scope1: d.predicted * 0.22,
-      scope2: d.predicted * 0.16,
-      scope3: d.predicted * 0.62,
-      intensity: d.predicted / 100, // Use consistent area assumption
+      // Use actual scope forecasts from ML model
+      scope1: scope1Forecast[index] || 0,
+      scope2: scope2Forecast[index] || 0,
+      scope3: scope3Forecast[index] || 0,
+      // Calculate intensity with real area (predicted is in tons, convert to kg)
+      intensity: totalAreaM2 > 0 ? (d.predicted * 1000) / totalAreaM2 : 0,
       lower_bound: d.lower_bound,
       upper_bound: d.upper_bound,
       type: 'forecast',
       historical_total: null,
       historical_intensity: null,
       forecast_total: d.predicted,
-      forecast_intensity: d.predicted / 100, // Use consistent area assumption
+      forecast_intensity: totalAreaM2 > 0 ? (d.predicted * 1000) / totalAreaM2 : 0,
       sbti_target: sbtiTrajectory[historicalData.length + index]?.sbti_target || null
     }))
   ];
@@ -192,7 +221,7 @@ export function EmissionsTrend({
           )}
           {selectedMetric === 'intensity' && (
             <p className="text-xs text-gray-400">
-              Intensity: {data.intensity.toFixed(1)} kgCO2e/m²
+              Intensity: {(data.intensity || data.historical_intensity || data.forecast_intensity || 0).toFixed(1)} kgCO2e/m²
             </p>
           )}
           {selectedMetric === 'absolute' && data.sbti_target && (
@@ -335,7 +364,7 @@ export function EmissionsTrend({
               strokeWidth={2}
               strokeDasharray="2 8"
               dot={false}
-              name="SBTi Target (-42% by 2030)"
+              name={`SBTi Target (${sbtiTarget ? `-${sbtiTarget.reductionPercent}%` : '-42%'} by ${sbtiTarget?.targetYear || 2030})`}
               connectNulls={false}
             />
           )}
@@ -400,6 +429,19 @@ export function EmissionsTrend({
     const actualAnnual = last12Months.reduce((sum, d) => sum + d.total, 0);
     const targetAnnual = last12Targets.reduce((sum, t) => sum + t.sbti_target, 0);
     const annualPerformance = ((actualAnnual - targetAnnual) / targetAnnual) * 100;
+
+    // Debug logging for SBTi performance
+    console.log('🎯 SBTi Performance Calculation:', {
+      latestActual: latestData.total.toFixed(2),
+      latestTarget: latestTarget.sbti_target.toFixed(2),
+      monthlyDifference: difference.toFixed(2),
+      monthlyPercentageOff: percentageOff.toFixed(1),
+      isOnTrack,
+      actualAnnual: actualAnnual.toFixed(1),
+      targetAnnual: targetAnnual.toFixed(1),
+      annualPerformance: annualPerformance.toFixed(1),
+      isAnnualOnTrack: actualAnnual <= targetAnnual
+    });
 
     return {
       isOnTrack,

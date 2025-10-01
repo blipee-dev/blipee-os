@@ -323,9 +323,23 @@ export class EmissionsForecastModel {
                           input.historicalEmissions.scope2[0] +
                           input.historicalEmissions.scope3[0];
 
-    const scope1Ratio = input.historicalEmissions.scope1[0] / totalCurrentKg || 0.3;
-    const scope2Ratio = input.historicalEmissions.scope2[0] / totalCurrentKg || 0.4;
-    const scope3Ratio = input.historicalEmissions.scope3[0] / totalCurrentKg || 0.3;
+    // Only use fallback ratios if we have no historical data at all
+    // If a scope has 0 emissions, keep it at 0 (don't use fallback)
+    let scope1Ratio = 0;
+    let scope2Ratio = 0;
+    let scope3Ratio = 0;
+
+    if (totalCurrentKg > 0) {
+      // Calculate actual ratios from historical data
+      scope1Ratio = input.historicalEmissions.scope1[0] / totalCurrentKg;
+      scope2Ratio = input.historicalEmissions.scope2[0] / totalCurrentKg;
+      scope3Ratio = input.historicalEmissions.scope3[0] / totalCurrentKg;
+    } else {
+      // Only use defaults if we have absolutely no data
+      scope1Ratio = 0.3;
+      scope2Ratio = 0.4;
+      scope3Ratio = 0.3;
+    }
 
     const scope1Forecast = predictions.map((p: number) => p * scope1Ratio);
     const scope2Forecast = predictions.map((p: number) => p * scope2Ratio);
@@ -415,9 +429,23 @@ export class EmissionsForecastModel {
                            input.historicalEmissions.scope2[0] +
                            input.historicalEmissions.scope3[0];
 
-    const scope1Ratio = input.historicalEmissions.scope1[0] / totalHistorical || 0.22;
-    const scope2Ratio = input.historicalEmissions.scope2[0] / totalHistorical || 0.16;
-    const scope3Ratio = input.historicalEmissions.scope3[0] / totalHistorical || 0.62;
+    // Only use fallback ratios if we have no historical data at all
+    // If a scope has 0 emissions, keep it at 0 (don't use fallback)
+    let scope1Ratio = 0;
+    let scope2Ratio = 0;
+    let scope3Ratio = 0;
+
+    if (totalHistorical > 0) {
+      // Calculate actual ratios from historical data
+      scope1Ratio = input.historicalEmissions.scope1[0] / totalHistorical;
+      scope2Ratio = input.historicalEmissions.scope2[0] / totalHistorical;
+      scope3Ratio = input.historicalEmissions.scope3[0] / totalHistorical;
+    } else {
+      // Only use defaults if we have absolutely no data
+      scope1Ratio = 0.22;
+      scope2Ratio = 0.16;
+      scope3Ratio = 0.62;
+    }
 
     const scope1Forecast = totalPredictions.map((t: number) => t * scope1Ratio);
     const scope2Forecast = totalPredictions.map((t: number) => t * scope2Ratio);

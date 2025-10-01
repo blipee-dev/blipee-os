@@ -24,6 +24,7 @@ import { ForecastingPanel } from '@/components/sustainability/emissions/Forecast
 import { ReductionScenarios } from '@/components/sustainability/emissions/ReductionScenarios';
 import { EmissionsHeatmap } from '@/components/sustainability/emissions/EmissionsHeatmap';
 import { AnomalyDetection } from '@/components/sustainability/emissions/AnomalyDetection';
+import { ManageDataButton } from '@/components/sustainability/ManageDataButton';
 
 interface EmissionsData {
   current: {
@@ -37,6 +38,7 @@ interface EmissionsData {
   historical: any[];
   forecast: any[];
   anomalies: any[];
+  totalAreaM2?: number;
 }
 
 export default function EmissionsClient() {
@@ -94,11 +96,19 @@ export default function EmissionsClient() {
 
       const data = await response.json();
 
+      console.log('🟡🟡🟡 CLIENT - API RESPONSE DATA:', {
+        totalAreaM2: data.totalAreaM2,
+        hasCurrent: !!data.current,
+        historicalCount: data.historical?.length,
+        firstHistorical: data.historical?.[0]
+      });
+
       setEmissionsData({
         current: data.current,
         historical: data.historical || [],
         forecast: [], // Will be populated by ML predictions
-        anomalies: data.anomalies || []
+        anomalies: data.anomalies || [],
+        totalAreaM2: data.totalAreaM2 || 0
       });
     } catch (error) {
       console.error('Error fetching emissions data:', error);
@@ -117,7 +127,8 @@ export default function EmissionsClient() {
         body: JSON.stringify({
           modelType: 'emissions-forecast',
           siteId: selectedSite === 'all' ? null : selectedSite,
-          period: selectedPeriod
+          period: selectedPeriod,
+          totalAreaM2: emissionsData?.totalAreaM2 || 0
         })
       });
 
@@ -324,6 +335,11 @@ export default function EmissionsClient() {
             forecastData={mlPredictions?.predictions || []}
             selectedMetric={selectedMetric}
             onMetricChange={setSelectedMetric}
+            totalAreaM2={emissionsData.totalAreaM2}
+            scope1Forecast={mlPredictions?.scope1Forecast || []}
+            scope2Forecast={mlPredictions?.scope2Forecast || []}
+            scope3Forecast={mlPredictions?.scope3Forecast || []}
+            sbtiTarget={emissionsData.sbtiTarget}
           />
 
           {/* Forecasting Panel */}
@@ -455,6 +471,9 @@ export default function EmissionsClient() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Manage Data Button */}
+            <ManageDataButton variant="compact" />
+
             {/* Site Selector */}
             <select
               value={selectedSite}

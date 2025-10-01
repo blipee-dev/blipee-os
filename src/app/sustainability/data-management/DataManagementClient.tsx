@@ -1,0 +1,735 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Database,
+  Upload,
+  Calendar,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  TrendingUp,
+  FileSpreadsheet,
+  Download,
+  Filter,
+  Search,
+  Plus,
+  ChevronRight,
+  BarChart3,
+  Activity,
+  Zap,
+  Package,
+  AlertTriangle
+} from 'lucide-react';
+import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
+import { InlineDataEntry } from '@/components/sustainability/targets/InlineDataEntry';
+import { BulkDataEntry } from '@/components/sustainability/targets/BulkDataEntry';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuthRedirect } from '@/hooks/useAuthRedirect';
+import toast from 'react-hot-toast';
+
+interface PendingMetric {
+  id: string;
+  name: string;
+  scope: number;
+  category: string;
+  unit: string;
+  lastUpdate?: string;
+  dueDate: string;
+  status: 'due' | 'overdue' | 'upcoming' | 'complete';
+  frequency: 'monthly' | 'quarterly' | 'annually';
+}
+
+export default function DataManagementClient() {
+  useAuthRedirect('/sustainability/data-management');
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'pending' | 'all' | 'historical' | 'bulk' | 'documents'>('pending');
+  const [pendingMetrics, setPendingMetrics] = useState<PendingMetric[]>([]);
+  const [selectedMetric, setSelectedMetric] = useState<PendingMetric | null>(null);
+  const [showBulkEntry, setShowBulkEntry] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterScope, setFilterScope] = useState<'all' | '1' | '2' | '3'>('all');
+  const [allMetricsData, setAllMetricsData] = useState<any>(null);
+  const [loadingAllMetrics, setLoadingAllMetrics] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchPendingMetrics();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && (activeTab === 'all' || activeTab === 'historical')) {
+      fetchAllMetricsData();
+    }
+  }, [user, activeTab]);
+
+  const fetchPendingMetrics = async () => {
+    try {
+      // Fetch real data from API - use relative path to avoid port issues
+      const response = await fetch('/api/sustainability/metrics/pending');
+
+      if (response.ok) {
+        const data = await response.json();
+        setPendingMetrics(data);
+      } else {
+        // Fallback to empty if no metrics found
+        setPendingMetrics([]);
+
+        // If no organization, show a message
+        if (response.status === 404) {
+          toast.error('Please configure your organization first');
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching pending metrics:', error);
+      toast.error('Failed to load pending metrics');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllMetricsData = async () => {
+    try {
+      setLoadingAllMetrics(true);
+      const response = await fetch('/api/sustainability/metrics/all', {
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Fetched metrics data:', data); // Debug log
+        setAllMetricsData(data);
+      } else {
+        console.error('Failed to fetch metrics data:', response.status);
+        setAllMetricsData(null);
+      }
+    } catch (error) {
+      console.error('Error fetching all metrics data:', error);
+      toast.error('Failed to load metrics data');
+      setAllMetricsData(null);
+    } finally {
+      setLoadingAllMetrics(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'overdue': return 'text-red-500';
+      case 'due': return 'text-yellow-500';
+      case 'upcoming': return 'text-blue-500';
+      case 'complete': return 'text-green-500';
+      default: return 'text-gray-500';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'overdue': return <AlertTriangle className="w-5 h-5" />;
+      case 'due': return <AlertCircle className="w-5 h-5" />;
+      case 'upcoming': return <Clock className="w-5 h-5" />;
+      case 'complete': return <CheckCircle className="w-5 h-5" />;
+      default: return null;
+    }
+  };
+
+  const getScopeIcon = (scope: number) => {
+    switch (scope) {
+      case 1: return <BarChart3 className="w-4 h-4" />;
+      case 2: return <Zap className="w-4 h-4" />;
+      case 3: return <Package className="w-4 h-4" />;
+      default: return null;
+    }
+  };
+
+  const getScopeColor = (scope: number) => {
+    switch (scope) {
+      case 1: return 'from-green-500 to-teal-500';  // GHG Protocol: Green for Scope 1 (Direct)
+      case 2: return 'from-yellow-500 to-orange-500'; // GHG Protocol: Yellow/Orange for Scope 2 (Indirect Energy)
+      case 3: return 'from-blue-500 to-purple-500';   // GHG Protocol: Blue for Scope 3 (Other Indirect)
+      default: return 'from-gray-500 to-gray-600';
+    }
+  };
+
+  const filteredMetrics = pendingMetrics.filter(metric => {
+    const matchesSearch = metric.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         metric.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesScope = filterScope === 'all' || metric.scope.toString() === filterScope;
+    return matchesSearch && matchesScope;
+  });
+
+  const stats = {
+    due: pendingMetrics.filter(m => m.status === 'due').length,
+    overdue: pendingMetrics.filter(m => m.status === 'overdue').length,
+    complete: pendingMetrics.filter(m => m.status === 'complete').length,
+    total: pendingMetrics.length
+  };
+
+  const completionRate = stats.total > 0 ? (stats.complete / stats.total * 100).toFixed(0) : 0;
+
+  const tabs = [
+    { id: 'pending', label: 'Pending Updates', icon: Clock },
+    { id: 'all', label: 'All Metrics', icon: Database },
+    { id: 'historical', label: 'Historical Data', icon: Calendar },
+    { id: 'bulk', label: 'Bulk Operations', icon: FileSpreadsheet },
+    { id: 'documents', label: 'Documents', icon: Upload }
+  ];
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <AlertCircle className="w-8 h-8 text-yellow-500" />
+              <span className="text-sm text-gray-500">Due Now</span>
+            </div>
+            <div className="text-3xl font-bold text-gray-900 dark:text-white">
+              {stats.due}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Metrics need updating
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <AlertTriangle className="w-8 h-8 text-red-500" />
+              <span className="text-sm text-gray-500">Overdue</span>
+            </div>
+            <div className="text-3xl font-bold text-red-500">
+              {stats.overdue}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Need immediate attention
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <CheckCircle className="w-8 h-8 text-green-500" />
+              <span className="text-sm text-gray-500">Complete</span>
+            </div>
+            <div className="text-3xl font-bold text-gray-900 dark:text-white">
+              {completionRate}%
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Data coverage
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <TrendingUp className="w-8 h-8 text-blue-500" />
+              <span className="text-sm text-gray-500">Total</span>
+            </div>
+            <div className="text-3xl font-bold text-gray-900 dark:text-white">
+              {stats.total}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Active metrics
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Actions Bar */}
+        <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search metrics..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+
+            {/* Scope Filter */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500 dark:text-gray-400">Scope:</span>
+              <div className="flex gap-1">
+                {['all', '1', '2', '3'].map((scope) => (
+                  <button
+                    key={scope}
+                    onClick={() => setFilterScope(scope as any)}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+                      filterScope === scope
+                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                    }`}
+                  >
+                    {scope === 'all' ? 'All' : `Scope ${scope}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex gap-2">
+              <button className="px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Templates
+              </button>
+              <button
+                onClick={() => setShowBulkEntry(!showBulkEntry)}
+                className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/25 transition-all flex items-center gap-2"
+              >
+                <Upload className="w-4 h-4" />
+                Bulk Import
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="bg-white dark:bg-gray-900/50 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-xl p-1 mb-6">
+          <div className="grid grid-cols-5 gap-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`relative px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200
+                            ${isActive
+                              ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
+                              : 'hover:bg-gray-100 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                            }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="text-sm font-medium hidden md:inline">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <AnimatePresence mode="wait">
+          {activeTab === 'pending' && (
+            <motion.div
+              key="pending"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-4"
+            >
+              {filteredMetrics.length === 0 ? (
+                <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-12 text-center">
+                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    All caught up!
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No pending metrics to update right now.
+                  </p>
+                </div>
+              ) : (
+                filteredMetrics.map((metric) => (
+                  <motion.div
+                    key={metric.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-4">
+                        <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${getScopeColor(metric.scope)} p-2`}>
+                          {getScopeIcon(metric.scope)}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            {metric.name}
+                          </h3>
+                          <div className="flex items-center gap-4 mt-1">
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              Scope {metric.scope} • {metric.category} • {metric.unit}
+                            </span>
+                            <div className={`flex items-center gap-1 ${getStatusColor(metric.status)}`}>
+                              {getStatusIcon(metric.status)}
+                              <span className="text-sm capitalize">{metric.status}</span>
+                            </div>
+                          </div>
+                          {metric.lastUpdate && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                              Last updated: {new Date(metric.lastUpdate).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setSelectedMetric(selectedMetric?.id === metric.id ? null : metric)}
+                        className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/25 transition-all flex items-center gap-2"
+                      >
+                        {selectedMetric?.id === metric.id ? 'Close' : 'Enter Data'}
+                        <ChevronRight className={`w-4 h-4 transition-transform ${selectedMetric?.id === metric.id ? 'rotate-90' : ''}`} />
+                      </button>
+                    </div>
+
+                    {/* Inline Data Entry */}
+                    {selectedMetric?.id === metric.id && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700"
+                      >
+                        <InlineDataEntry
+                          metricId={metric.id}
+                          metricName={metric.name}
+                          unit={metric.unit}
+                          scope={metric.scope}
+                          onDataSubmit={() => {
+                            toast.success(`${metric.name} data saved!`);
+                            setSelectedMetric(null);
+                            fetchPendingMetrics();
+                          }}
+                          onSkip={() => {
+                            setSelectedMetric(null);
+                          }}
+                        />
+                      </motion.div>
+                    )}
+                  </motion.div>
+                ))
+              )}
+            </motion.div>
+          )}
+
+          {activeTab === 'all' && (
+            <motion.div
+              key="all"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-6"
+            >
+              {loadingAllMetrics ? (
+                <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-12 text-center">
+                  <div className="animate-spin w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-gray-500 dark:text-gray-400">Loading metrics data...</p>
+                </div>
+              ) : allMetricsData ? (
+                <>
+                  {/* Summary Stats */}
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {allMetricsData.stats?.totalEntries || 0}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Total Entries</div>
+                    </div>
+                    <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {allMetricsData.stats?.uniqueMetrics || 0}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Unique Metrics</div>
+                    </div>
+                    <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {allMetricsData.stats?.uniqueSites || 0}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Sites</div>
+                    </div>
+                    <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-4">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {allMetricsData.stats?.dateRange?.earliest || 'N/A'} to {allMetricsData.stats?.dateRange?.latest || 'N/A'}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Date Range</div>
+                    </div>
+                  </div>
+
+                  {/* Metrics List */}
+                  <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg">
+                    <div className="p-4 border-b border-gray-200 dark:border-white/[0.05]">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">All Metrics Data</h3>
+                    </div>
+                    <div className="max-h-[600px] overflow-y-auto">
+                      {Object.entries(allMetricsData.groupedData || {}).map(([metricName, data]: any) => (
+                        <div key={metricName} className="border-b border-gray-200 dark:border-white/[0.05]">
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-gray-900 dark:text-white">{metricName}</h4>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                {data.entries?.length || 0} entries
+                              </span>
+                            </div>
+                            <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400">
+                              <span>Scope {data.metric?.scope?.replace('scope_', '') || 'N/A'}</span>
+                              <span>{data.metric?.category || 'N/A'}</span>
+                              <span>Unit: {data.metric?.unit || 'N/A'}</span>
+                            </div>
+                            {/* Show last 3 entries */}
+                            <div className="mt-3 space-y-1">
+                              {data.entries?.slice(0, 3).map((entry: any, idx: number) => (
+                                <div key={idx} className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600 dark:text-gray-400">
+                                    {entry.site} • {new Date(entry.period_end).toLocaleDateString()}
+                                  </span>
+                                  <span className="font-medium text-gray-900 dark:text-white">
+                                    {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value} {data.metric?.unit || entry.unit || ''}
+                                  </span>
+                                </div>
+                              ))}
+                              {data.entries?.length > 3 && (
+                                <button className="text-xs text-purple-500 hover:text-purple-600">
+                                  View all {data.entries.length} entries →
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-12 text-center">
+                  <Database className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Data Available</h3>
+                  <p className="text-gray-500 dark:text-gray-400">Start adding metrics data to see it here.</p>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {activeTab === 'historical' && (
+            <motion.div
+              key="historical"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-6"
+            >
+              {loadingAllMetrics ? (
+                <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-12 text-center">
+                  <div className="animate-spin w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-gray-500 dark:text-gray-400">Loading historical data...</p>
+                </div>
+              ) : allMetricsData ? (
+                <>
+                  {/* Timeline Header */}
+                  <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Historical Data Timeline</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Viewing {allMetricsData.stats?.totalEntries || 0} data points from {allMetricsData.stats?.dateRange?.earliest || 'N/A'} to {allMetricsData.stats?.dateRange?.latest || 'N/A'}
+                    </p>
+                  </div>
+
+                  {/* Timeline View */}
+                  <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg">
+                    <div className="max-h-[700px] overflow-y-auto p-6">
+                      {allMetricsData.rawData && allMetricsData.rawData.length > 0 ? (
+                        <div className="space-y-4">
+                          {/* Group data by month */}
+                          {Object.entries(
+                            allMetricsData.rawData.reduce((acc: any, entry: any) => {
+                              const monthKey = new Date(entry.period_end).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long'
+                              });
+                              if (!acc[monthKey]) acc[monthKey] = [];
+                              acc[monthKey].push(entry);
+                              return acc;
+                            }, {})
+                          )
+                            .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
+                            .map(([month, entries]: any) => (
+                              <div key={month} className="relative">
+                                <div className="sticky top-0 bg-white dark:bg-[#212121] py-2 z-10">
+                                  <h4 className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+                                    {month}
+                                  </h4>
+                                </div>
+                                <div className="pl-4 border-l-2 border-gray-200 dark:border-gray-700 ml-2 space-y-3">
+                                  {entries.sort((a: any, b: any) =>
+                                    new Date(b.period_end).getTime() - new Date(a.period_end).getTime()
+                                  ).map((entry: any, idx: number) => (
+                                    <div key={entry.id} className="relative">
+                                      <div className="absolute -left-[1.35rem] w-3 h-3 bg-purple-500 rounded-full"></div>
+                                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 ml-4">
+                                        <div className="flex items-start justify-between">
+                                          <div>
+                                            <p className="font-medium text-gray-900 dark:text-white">
+                                              {entry.metrics_catalog?.name || 'Unknown Metric'}
+                                            </p>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                              {entry.sites?.name || 'Organization-wide'} •
+                                              {new Date(entry.period_end).toLocaleDateString()}
+                                            </p>
+                                          </div>
+                                          <div className="text-right">
+                                            <p className="font-semibold text-gray-900 dark:text-white">
+                                              {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value} {entry.metrics_catalog?.unit || entry.unit || ''}
+                                            </p>
+                                            {entry.co2e_emissions && (
+                                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                {entry.co2e_emissions.toFixed(2)} kgCO2e
+                                              </p>
+                                            )}
+                                          </div>
+                                        </div>
+                                        <div className="flex gap-2 mt-2">
+                                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                            entry.verification_status === 'audited'
+                                              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                              : entry.verification_status === 'verified'
+                                              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                              : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                          }`}>
+                                            {entry.verification_status}
+                                          </span>
+                                          <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 rounded-full">
+                                            {entry.data_quality}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                            No Historical Data
+                          </h3>
+                          <p className="text-gray-500 dark:text-gray-400">
+                            Start tracking metrics to see historical data here.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-12 text-center">
+                  <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Historical Data</h3>
+                  <p className="text-gray-500 dark:text-gray-400">Historical data will appear here once you start tracking metrics.</p>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {activeTab === 'bulk' && (
+            <motion.div
+              key="bulk"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <BulkDataEntry
+                metricId="bulk"
+                metricName="Multiple Metrics"
+                unit="Various"
+                scope={0}
+                onComplete={() => {
+                  toast.success('Bulk data imported successfully!');
+                  fetchPendingMetrics();
+                }}
+              />
+            </motion.div>
+          )}
+
+          {activeTab === 'documents' && (
+            <motion.div
+              key="documents"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg p-12">
+                <div className="text-center">
+                  <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    Upload Documents
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6">
+                    Upload utility bills, invoices, or reports for automatic data extraction
+                  </p>
+                  <button className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/25 transition-all">
+                    Choose Files
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </>
+    );
+  };
+
+  return (
+    <SustainabilityLayout selectedView="data-management" onSelectView={() => {}}>
+      {/* Header */}
+      <header className="bg-white dark:bg-[#212121] border-b border-gray-200 dark:border-white/[0.05] px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Data Management
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Update metrics, manage historical data, and track completeness
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+              <Activity className="w-4 h-4" />
+              View Activity
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto p-6 bg-gray-50 dark:bg-[#0a0a0a]">
+        {renderContent()}
+      </main>
+    </SustainabilityLayout>
+  );
+}

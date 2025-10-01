@@ -91,7 +91,18 @@
       "Bash(PORT=3002 npm run dev)",
       "Bash(mkdir:*)",
       "Bash(touch:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_JGKrmm/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_LN7pCp/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_plLD2Z/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_aDlvki/**)",
+      "Bash(nc:*)",
+      "Bash(ping:*)",
+      "Bash(for port in 21 22 23 80 443 8080 8443 21202 21203 21204)",
+      "Bash(do nc -zv -w 2 88.30.28.221 $port)",
+      "Bash(do echo -n \"Port $port: \")",
+      "Bash(brew install:*)",
+      "Bash(nmap:*)"
     ],
     "deny": [],
     "ask": []

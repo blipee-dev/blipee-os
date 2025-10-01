@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export async function GET(request: NextRequest) {
+  console.log('🚀🚀🚀 EMISSIONS API CALLED');
   try {
     const supabase = await createServerSupabaseClient();
 
@@ -82,8 +83,99 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch emissions data' }, { status: 500 });
     }
 
-    // Aggregate emissions by scope and time period
-    const emissionsData = aggregateEmissionsData(metricsData || []);
+    // Fetch SBTi target - site-specific or organization-wide
+    let sbtiTarget = null;
+
+    if (siteId && siteId !== 'all') {
+      // First try to get site-specific target
+      const { data: siteTarget } = await supabaseAdmin
+        .from('sustainability_targets')
+        .select('baseline_year, baseline_value, target_year, target_value, sbti_ambition, site_id, status')
+        .eq('site_id', siteId)
+        .or('is_active.eq.true,is_active.is.null')  // Handle is_active column if exists
+        .eq('target_type', 'near-term')
+        .single();
+
+      if (siteTarget) {
+        // Calculate reduction percentage from values
+        const reduction = siteTarget.baseline_value > 0
+          ? ((siteTarget.baseline_value - siteTarget.target_value) / siteTarget.baseline_value) * 100
+          : 0;
+
+        sbtiTarget = {
+          target_reduction_percent: reduction,
+          baseline_year: siteTarget.baseline_year,
+          target_year: siteTarget.target_year,
+          sbti_ambition: siteTarget.sbti_ambition,
+          site_id: siteTarget.site_id
+        };
+      }
+    }
+
+    // If no site-specific target, fall back to org-wide target
+    if (!sbtiTarget) {
+      const { data: orgTarget } = await supabaseAdmin
+        .from('sustainability_targets')
+        .select('baseline_year, baseline_value, target_year, target_value, sbti_ambition, status')
+        .eq('organization_id', organizationId)
+        .is('site_id', null)  // Org-wide targets have null site_id
+        .or('is_active.eq.true,is_active.is.null')  // Handle is_active column if exists
+        .eq('target_type', 'near-term')
+        .single();
+
+      if (orgTarget) {
+        // Calculate reduction percentage from values
+        const reduction = orgTarget.baseline_value > 0
+          ? ((orgTarget.baseline_value - orgTarget.target_value) / orgTarget.baseline_value) * 100
+          : 0;
+
+        sbtiTarget = {
+          target_reduction_percent: reduction,
+          baseline_year: orgTarget.baseline_year,
+          target_year: orgTarget.target_year,
+          sbti_ambition: orgTarget.sbti_ambition,
+          site_id: null
+        };
+      }
+    }
+
+    // Get sites FIRST to calculate proper carbon intensity (MOVED UP FROM LINE 153)
+    let sitesQuery = supabaseAdmin
+      .from('sites')
+      .select('id, name, total_area_sqm')
+      .eq('organization_id', organizationId);
+
+    // If filtering by site, only get that site's area
+    if (siteId && siteId !== 'all') {
+      sitesQuery = sitesQuery.eq('id', siteId);
+    }
+
+    const { data: sites } = await sitesQuery;
+
+    // Calculate total area from selected sites
+    // Convert to number since Supabase returns NUMERIC as string
+    const totalAreaM2 = sites?.reduce((sum, site) => {
+      const area = typeof site.total_area_sqm === 'string'
+        ? parseFloat(site.total_area_sqm)
+        : (site.total_area_sqm || 0);
+      return sum + area;
+    }, 0) || 0;
+
+    console.log('🔴🔴🔴 INTENSITY DEBUG - SITES FETCHED:', {
+      sites: sites?.map(s => ({
+        name: s.name,
+        area: s.total_area_sqm,
+        areaType: typeof s.total_area_sqm,
+        areaValue: s.total_area_sqm
+      })),
+      totalAreaM2,
+      siteCount: sites?.length || 0,
+      metricsCount: metricsData?.length || 0,
+      organizationId
+    });
+
+    // NOW aggregate emissions by scope and time period with totalAreaM2 available
+    const emissionsData = aggregateEmissionsData(metricsData || [], totalAreaM2);
 
     // Calculate totals for the entire period (like dashboard does)
     const allEmissionsKg = metricsData?.reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) || 0;
@@ -149,21 +241,8 @@ export async function GET(request: NextRequest) {
     // Detect anomalies (simple threshold-based for now)
     const anomalies = detectAnomalies(metricsData || []);
 
-    // Get sites to calculate proper carbon intensity
-    let sitesQuery = supabaseAdmin
-      .from('sites')
-      .select('id, name, total_area_sqm')
-      .eq('organization_id', organizationId);
-
-    // If filtering by site, only get that site's area
-    if (siteId && siteId !== 'all') {
-      sitesQuery = sitesQuery.eq('id', siteId);
-    }
-
-    const { data: sites } = await sitesQuery;
-
-    // Calculate total area from selected sites
-    const totalAreaM2 = sites?.reduce((sum, site) => sum + (site.total_area_sqm || 0), 0) || 0;
+    // Sites already fetched above, no need to fetch again
+    console.log('🎯 Using totalAreaM2:', totalAreaM2, 'for', sites?.length || 0, 'sites');
 
     // Calculate carbon intensity: kgCO2e/m²
     let intensity = 0;
@@ -171,16 +250,45 @@ export async function GET(request: NextRequest) {
       intensity = allEmissionsKg / totalAreaM2; // Keep in kg for intensity
     }
 
+    // Add intensity to historical data
+    const historicalWithIntensity = emissionsData.historical.map(month => {
+      const monthIntensity = totalAreaM2 > 0 ? (month.total * 1000) / totalAreaM2 : 0;
+      return {
+        ...month,
+        intensity: monthIntensity // Convert tons back to kg for intensity calculation
+      };
+    });
+
+    console.log('📈 Historical Intensity Sample:', {
+      firstMonth: historicalWithIntensity[0] ? {
+        month: historicalWithIntensity[0].month,
+        total: historicalWithIntensity[0].total,
+        intensity: historicalWithIntensity[0].intensity
+      } : null,
+      totalAreaM2,
+      calculation: totalAreaM2 > 0 ? `(total * 1000) / ${totalAreaM2}` : 'No area'
+    });
+
+    console.log('🔵🔵🔵 FINAL RESPONSE - totalAreaM2:', totalAreaM2);
+
     return NextResponse.json({
       current: {
         ...currentEmissions,
         trend,
         intensity
       },
-      historical: emissionsData.historical,
+      historical: historicalWithIntensity,
       byCategory: emissionsData.byCategory,
       bySite: emissionsData.bySite,
       anomalies,
+      totalAreaM2, // Pass total area for client-side calculations
+      sbtiTarget: sbtiTarget ? {
+        reductionPercent: sbtiTarget.target_reduction_percent,
+        baselineYear: sbtiTarget.baseline_year,
+        targetYear: sbtiTarget.target_year,
+        ambition: sbtiTarget.sbti_ambition,
+        isSiteSpecific: siteId && siteId !== 'all' && sbtiTarget.site_id === siteId
+      } : null,
       metadata: {
         period,
         startDate: startDate.toISOString(),
@@ -198,7 +306,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function aggregateEmissionsData(metricsData: any[]) {
+function aggregateEmissionsData(metricsData: any[], totalAreaM2?: number) {
   // Group by month for historical data
   const monthlyData = new Map();
   const categoryData = new Map();

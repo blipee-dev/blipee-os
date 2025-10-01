@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { getUserOrganization } from '@/lib/auth/get-user-org';
 
 export async function GET(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -40,8 +39,14 @@ export async function GET(request: NextRequest) {
       sites = allSites || [];
       console.log('Super admin - fetched all sites:', sites.length);
     } else {
-      // Get user's primary organization using centralized helper
-      const { organizationId: primaryOrgId } = await getUserOrganization(user.id);
+      // Get user's primary organization directly with admin client
+      const { data: memberData } = await supabaseAdmin
+        .from('organization_members')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .single();
+
+      const primaryOrgId = memberData?.organization_id;
 
       const orgIds = new Set<string>();
 
