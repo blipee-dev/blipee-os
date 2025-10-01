@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { aiService } from "@/lib/ai/service";
 import { chatMessageSchema } from "@/lib/validation/schemas";
 import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
-import { agentOrchestrator } from "@/lib/ai/autonomous-agents";
+import { agentOrchestrator, initializeAutonomousAgents, getAIWorkforceStatus } from "@/lib/ai/autonomous-agents";
 import { predictiveIntelligence } from "@/lib/ai/predictive-intelligence";
 import { MLPipeline } from "@/lib/ai/ml-models/ml-pipeline-client";
 import { DatabaseContextService } from "@/lib/ai/database-context";
@@ -13,6 +13,51 @@ import { createClient } from "@/lib/supabase/server";
 import { conversationalIntelligenceOrchestrator } from "@/lib/ai/conversation-intelligence";
 
 export const dynamic = 'force-dynamic';
+
+// Analyze message intent to route to appropriate AI agents
+async function analyzeMessageIntent(message: string): Promise<string[]> {
+  const intents = [];
+  const lowerMessage = message.toLowerCase();
+
+  // Emissions and carbon tracking
+  if (lowerMessage.includes('emission') || lowerMessage.includes('carbon') ||
+      lowerMessage.includes('co2') || lowerMessage.includes('ghg')) {
+    intents.push('emissions');
+  }
+
+  // Compliance and regulations
+  if (lowerMessage.includes('compliance') || lowerMessage.includes('regulation') ||
+      lowerMessage.includes('standard') || lowerMessage.includes('gri') ||
+      lowerMessage.includes('tcfd') || lowerMessage.includes('sbti')) {
+    intents.push('compliance');
+  }
+
+  // Cost and savings
+  if (lowerMessage.includes('cost') || lowerMessage.includes('saving') ||
+      lowerMessage.includes('expense') || lowerMessage.includes('budget')) {
+    intents.push('cost');
+  }
+
+  // Supply chain
+  if (lowerMessage.includes('supplier') || lowerMessage.includes('scope 3') ||
+      lowerMessage.includes('supply chain') || lowerMessage.includes('vendor')) {
+    intents.push('supply_chain');
+  }
+
+  // Optimization
+  if (lowerMessage.includes('optimize') || lowerMessage.includes('improve') ||
+      lowerMessage.includes('efficiency') || lowerMessage.includes('performance')) {
+    intents.push('optimization');
+  }
+
+  // Predictive and maintenance
+  if (lowerMessage.includes('predict') || lowerMessage.includes('forecast') ||
+      lowerMessage.includes('maintenance') || lowerMessage.includes('failure')) {
+    intents.push('predictive');
+  }
+
+  return intents;
+}
 
 // Internal POST handler with Conversation Intelligence
 async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
@@ -41,6 +86,13 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
     const organizationContext = await DatabaseContextService.getUserOrganizationContext(user.id);
     const organizationId = organizationContext?.organization?.id || '';
 
+    // Check if AI agents are initialized
+    const workforceStatus = await getAIWorkforceStatus();
+    if (!workforceStatus.operational) {
+      console.log('🤖 AI Workforce not initialized, starting agents...');
+      await initializeAutonomousAgents(organizationId);
+    }
+
     // Get conversation history for context
     const { data: conversationHistory } = await supabase
       .from('conversation_intelligence_results')
@@ -53,9 +105,57 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
     const previousMessages = conversationHistory?.map(item => item.user_message) || [];
 
     // ===================================================================
-    // PRIMARY: Use Conversation Intelligence Orchestrator
+    // ENHANCED: Coordinate with AI Agents for specialized tasks
     // ===================================================================
-    console.log('🤖 Processing with Conversation Intelligence Orchestrator...');
+
+    // Analyze message intent to determine which agents should be involved
+    const messageIntent = await analyzeMessageIntent(message);
+    let agentInsights = {};
+
+    // Route to appropriate AI agents based on intent
+    if (messageIntent.includes('emissions') || messageIntent.includes('carbon')) {
+      const carbonHunterResult = await agentOrchestrator.executeTask({
+        id: `chat_${Date.now()}`,
+        type: 'emissions_analysis',
+        priority: 'high',
+        payload: { message, organizationId },
+        createdBy: user.id,
+        context: { conversationId },
+        scheduledFor: new Date()
+      });
+      agentInsights = { ...agentInsights, carbonHunter: carbonHunterResult };
+    }
+
+    if (messageIntent.includes('compliance') || messageIntent.includes('regulation')) {
+      const complianceResult = await agentOrchestrator.executeTask({
+        id: `chat_${Date.now()}_compliance`,
+        type: 'compliance_check',
+        priority: 'high',
+        payload: { message, organizationId },
+        createdBy: user.id,
+        context: { conversationId },
+        scheduledFor: new Date()
+      });
+      agentInsights = { ...agentInsights, compliance: complianceResult };
+    }
+
+    if (messageIntent.includes('cost') || messageIntent.includes('savings')) {
+      const costResult = await agentOrchestrator.executeTask({
+        id: `chat_${Date.now()}_cost`,
+        type: 'cost_analysis',
+        priority: 'medium',
+        payload: { message, organizationId },
+        createdBy: user.id,
+        context: { conversationId },
+        scheduledFor: new Date()
+      });
+      agentInsights = { ...agentInsights, costSavings: costResult };
+    }
+
+    // ===================================================================
+    // PRIMARY: Use Conversation Intelligence Orchestrator with Agent Insights
+    // ===================================================================
+    console.log('🤖 Processing with Conversation Intelligence Orchestrator + AI Agents...');
 
     try {
       const intelligenceResult = await conversationalIntelligenceOrchestrator.processConversation(

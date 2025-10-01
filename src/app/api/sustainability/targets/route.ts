@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's organization from organization_members table
-    const { data: memberData, error: memberError } = await supabase
+    const { data: memberData, error: memberError } = await supabaseAdmin
       .from('organization_members')
       .select('organization_id')
       .eq('user_id', user.id)
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user's organization from organization_members table
-    const { data: memberData, error: memberError } = await supabase
+    const { data: memberData, error: memberError } = await supabaseAdmin
       .from('organization_members')
       .select('organization_id, role')
       .eq('user_id', user.id)

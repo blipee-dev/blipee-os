@@ -35,11 +35,12 @@ import { useTranslations } from "@/providers/LanguageProvider";
 const getSustainabilityNavItems = (tDashboard: (key: string) => string) => [
   { id: "overview", label: tDashboard('navigation.overview'), icon: BarChart3, href: "/sustainability/dashboard", view: "overview" },
   { id: "emissions", label: tDashboard('navigation.emissions'), icon: Factory, href: "/sustainability/dashboard", view: "emissions" },
+  { id: "data-management", label: "Data Management", icon: Database, href: "/sustainability/data-management", view: null },
   { id: "energy", label: tDashboard('navigation.energy'), icon: Zap, href: "/sustainability/dashboard", view: "energy" },
   { id: "scopes", label: tDashboard('navigation.scopeAnalysis'), icon: Globe, href: "/sustainability/dashboard", view: "scopes" },
   { id: "sites", label: tDashboard('navigation.siteComparison'), icon: Building2, href: "/sustainability/dashboard", view: "sites" },
   { id: "trends", label: tDashboard('navigation.trends'), icon: TrendingUp, href: "/sustainability/dashboard", view: "trends" },
-  { id: "targets", label: tDashboard('navigation.targets'), icon: Target, href: "/sustainability/dashboard", view: "targets" },
+  { id: "targets", label: "Targets", icon: Target, href: "/sustainability/targets", view: null },
   { id: "data-entry", label: tDashboard('navigation.dataEntry'), icon: Database, href: "/sustainability/data-entry", view: null },
   { id: "data-investigation", label: tDashboard('navigation.dataInvestigation'), icon: FileSpreadsheet, href: "/sustainability/data-investigation", view: null },
   { id: "data-comparison", label: tDashboard('navigation.dataComparison'), icon: Activity, href: "/sustainability/data-comparison", view: null },

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Target,
@@ -24,6 +24,7 @@ interface TargetSettingWizardProps {
 
 export function TargetSettingWizard({ onClose, onSave }: TargetSettingWizardProps) {
   const [currentStep, setCurrentStep] = useState(1);
+  const [loadingBaseline, setLoadingBaseline] = useState(false);
   const [formData, setFormData] = useState({
     target_name: '',
     target_type: 'near-term',
@@ -37,6 +38,51 @@ export function TargetSettingWizard({ onClose, onSave }: TargetSettingWizardProp
     sectors: [] as string[],
     facilities: [] as string[]
   });
+
+  // Fetch baseline emissions from existing data when component mounts
+  useEffect(() => {
+    const fetchBaselineEmissions = async () => {
+      setLoadingBaseline(true);
+      try {
+        const response = await fetch('/api/sustainability/targets/current-emissions', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          credentials: 'same-origin', // Ensure cookies are sent
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.total > 0) {
+            // Convert from kg to tonnes (divide by 1000)
+            const baselineInTonnes = data.total / 1000;
+            setFormData(prev => ({
+              ...prev,
+              baseline_emissions: parseFloat(baselineInTonnes.toFixed(2))
+            }));
+          }
+        } else {
+          // Silently handle errors - user can still enter baseline manually
+          // Only log errors for debugging purposes
+          if (response.status !== 401) {
+            console.error('Failed to fetch baseline emissions:', response.status);
+          }
+        }
+      } catch (error) {
+        // Silently handle network errors
+        console.error('Error fetching baseline emissions:', error);
+      } finally {
+        setLoadingBaseline(false);
+      }
+    };
+
+    // Add a small delay to ensure auth context is ready
+    const timeoutId = setTimeout(fetchBaselineEmissions, 100);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const steps = [
     { id: 1, title: 'Target Type', description: 'Choose your sustainability target' },
@@ -216,14 +262,34 @@ export function TargetSettingWizard({ onClose, onSave }: TargetSettingWizardProp
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Baseline Emissions (tCO2e)
+                  {formData.baseline_emissions > 0 && !loadingBaseline && (
+                    <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                      ✓ Auto-populated from your data
+                    </span>
+                  )}
+                  {formData.baseline_emissions === 0 && !loadingBaseline && (
+                    <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
+                      Enter manually or add emissions data first
+                    </span>
+                  )}
                 </label>
-                <input
-                  type="number"
-                  value={formData.baseline_emissions}
-                  onChange={(e) => setFormData({ ...formData, baseline_emissions: parseFloat(e.target.value) })}
-                  placeholder="0"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={formData.baseline_emissions}
+                    onChange={(e) => setFormData({ ...formData, baseline_emissions: parseFloat(e.target.value) })}
+                    placeholder={loadingBaseline ? "Loading..." : "0"}
+                    disabled={loadingBaseline}
+                    className={`w-full px-4 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                      loadingBaseline ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  />
+                  {loadingBaseline && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"></div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -232,8 +298,9 @@ export function TargetSettingWizard({ onClose, onSave }: TargetSettingWizardProp
                 <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-xs text-blue-700 dark:text-blue-400">
-                    Your baseline should be from the most recent year with complete emissions data.
-                    SBTi requires at least 95% coverage of Scope 1 & 2 emissions.
+                    {formData.baseline_emissions > 0
+                      ? `Baseline automatically calculated from your organization's emissions data: ${formData.baseline_emissions.toFixed(2)} tCO2e. You can adjust this value if needed.`
+                      : 'Enter your baseline emissions manually, or add emissions data to your organization first for automatic calculation. SBTi requires at least 95% coverage of Scope 1 & 2 emissions.'}
                   </p>
                 </div>
               </div>
