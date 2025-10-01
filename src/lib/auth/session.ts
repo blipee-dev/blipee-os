@@ -46,7 +46,7 @@ export async function getSession(request: NextRequest) {
  * Require authentication - throws if not authenticated
  */
 export async function requireAuth(request: NextRequest): Promise<User> {
-  const user = await getCurrentUser(_request);
+  const user = await getCurrentUser(request);
   
   if (!user) {
     throw new Error('Authentication required');
@@ -64,14 +64,21 @@ export async function verifySession(sessionId: string): Promise<{ userId: string
     // In production, this would validate against Redis or database
     const supabase = createClient();
     const { data: { user }, error } = await supabase.auth.getUser();
-    
+
     if (error || !user) {
       return null;
     }
-    
+
     return { userId: user.id };
   } catch (error) {
     console.error('Failed to verify session:', error);
     return null;
   }
+}
+
+/**
+ * Get server session (alias for getSession for compatibility)
+ */
+export async function getServerSession(request: NextRequest) {
+  return getSession(request);
 }

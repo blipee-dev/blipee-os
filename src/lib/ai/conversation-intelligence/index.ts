@@ -25,7 +25,8 @@ import { aiService } from '../service';
 import { redisClient } from '@/lib/cache/redis-client';
 
 // Import all subsystems
-import { conversationMemorySystem, VectorMemory } from '../conversation-memory';
+import { conversationMemoryManager as conversationMemorySystem } from '../conversation-memory';
+import { VectorMemory } from '../conversation-memory/index';
 import { semanticNLUEngine, NLUResult } from '../semantic-nlu/index';
 import { dialogueStateManager, DialogueState, SystemResponse } from '../dialogue-manager';
 import { responsePersonalizationEngine, PersonalizedResponse, UserPersonalizationProfile } from '../response-personalization';

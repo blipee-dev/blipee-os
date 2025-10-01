@@ -19,7 +19,8 @@ import {
   MessageCircle,
   Send,
   ThumbsUp,
-  ThumbsDown
+  ThumbsDown,
+  Calendar
 } from 'lucide-react';
 
 interface ProactiveAICoachProps {
