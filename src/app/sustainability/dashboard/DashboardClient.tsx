@@ -41,23 +41,44 @@ export default function DashboardClient() {
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [showProactiveCoach, setShowProactiveCoach] = useState(true);
   const [organizationData, setOrganizationData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch organization data for context
     const fetchOrgData = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log('No user available yet');
+        return;
+      }
 
       try {
+        setLoading(true);
+        console.log('Fetching organization context for user:', user.id);
+
         const response = await fetch('/api/organization/context');
+        const data = await response.json();
+
+        console.log('Organization API response:', data);
+
         if (response.ok) {
-          const data = await response.json();
           // API returns { organization: {...}, sites: [...], ... }
-          setOrganizationData(data.organization);
+          if (data.organization) {
+            console.log('Organization data loaded:', data.organization);
+            setOrganizationData(data.organization);
+          } else {
+            console.error('No organization in response:', data);
+            setError('No organization found for user');
+          }
         } else {
-          console.error('Failed to fetch organization context:', response.status);
+          console.error('Failed to fetch organization context:', response.status, data);
+          setError(data.error || 'Failed to load organization');
         }
       } catch (error) {
         console.error('Error fetching organization:', error);
+        setError('Failed to connect to server');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -177,6 +198,41 @@ export default function DashboardClient() {
         return <ComplianceDashboard organizationId={orgId} />; // Default to compliance dashboard for overview
     }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <SustainabilityLayout>
+        <div className="flex items-center justify-center min-h-[600px]">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto" />
+            <p className="text-gray-400">Loading dashboard...</p>
+          </div>
+        </div>
+      </SustainabilityLayout>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <SustainabilityLayout>
+        <div className="flex items-center justify-center min-h-[600px]">
+          <div className="text-center space-y-4">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
+            <h3 className="text-xl font-semibold">Error Loading Dashboard</h3>
+            <p className="text-gray-400">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </SustainabilityLayout>
+    );
+  }
 
   return (
     <SustainabilityLayout>
