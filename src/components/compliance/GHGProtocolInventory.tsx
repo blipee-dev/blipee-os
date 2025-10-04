@@ -12,6 +12,7 @@ import {
   Shield,
   TrendingDown
 } from 'lucide-react';
+import { GHGProtocolForm } from './GHGProtocolForm';
 
 interface GHGInventoryData {
   reporting_year: number;
@@ -52,6 +53,8 @@ export function GHGProtocolInventory() {
   const [data, setData] = useState<GHGInventoryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -67,6 +70,28 @@ export function GHGProtocolInventory() {
       console.error('Error fetching GHG Protocol data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSave = async (formData: any) => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/compliance/ghg-protocol', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        setShowForm(false);
+        fetchData(); // Refresh data
+      } else {
+        console.error('Failed to save GHG Protocol settings');
+      }
+    } catch (error) {
+      console.error('Error saving GHG Protocol settings:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -114,6 +139,14 @@ export function GHGProtocolInventory() {
 
   return (
     <div className="space-y-6">
+      <GHGProtocolForm
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        onSave={handleSave}
+        initialData={data}
+        saving={saving}
+      />
+
       {/* Header */}
       <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl p-6">
         <div className="flex items-start justify-between">
@@ -135,7 +168,10 @@ export function GHGProtocolInventory() {
               <option value={2023}>2023</option>
               <option value={2022}>2022</option>
             </select>
-            <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2">
+            <button
+              onClick={() => setShowForm(true)}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+            >
               <Edit className="w-4 h-4" />
               Edit Settings
             </button>
