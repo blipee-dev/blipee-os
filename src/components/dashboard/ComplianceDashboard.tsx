@@ -64,7 +64,44 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
         const dashboardResponse = await fetch('/api/sustainability/dashboard?range=2024');
         const dashboardResult = await dashboardResponse.json();
 
-        setScopeData(scopeResult);
+        console.log('Scope analysis response:', scopeResult);
+        console.log('Dashboard response:', dashboardResult);
+
+        // Extract scopeData from nested structure
+        const extractedScopeData = scopeResult.scopeData || scopeResult;
+
+        // Transform API data structure to match component expectations
+        const transformedData = {
+          totalEmissions: (extractedScopeData.scope_1?.total || 0) +
+                         (extractedScopeData.scope_2?.total || 0) +
+                         (extractedScopeData.scope_3?.total || 0),
+          scope1: {
+            totalEmissions: extractedScopeData.scope_1?.total || 0,
+            categoryBreakdown: Object.entries(extractedScopeData.scope_1?.categories || {}).map(([key, value]) => ({
+              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              value: value as number,
+              measured: true
+            })).filter(cat => cat.value > 0)
+          },
+          scope2: {
+            totalEmissions: extractedScopeData.scope_2?.total || 0,
+            categoryBreakdown: Object.entries(extractedScopeData.scope_2?.categories || {}).map(([key, value]) => ({
+              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              value: value as number,
+              measured: true
+            })).filter(cat => cat.value > 0)
+          },
+          scope3: {
+            totalEmissions: extractedScopeData.scope_3?.total || 0,
+            categoryBreakdown: Object.entries(extractedScopeData.scope_3?.categories || {}).map(([key, value]: [string, any]) => ({
+              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              value: value.value || 0,
+              measured: value.included || false
+            })).filter(cat => cat.value > 0)
+          }
+        };
+
+        setScopeData(transformedData);
         setDashboardData(dashboardResult);
       } catch (error) {
         console.error('Error fetching compliance data:', error);
