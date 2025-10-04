@@ -125,8 +125,8 @@ export async function GET(request: NextRequest) {
       capex_green: disclosures?.capex_green || null,
       opex_green: disclosures?.opex_green || null,
 
-      // E1-4: Targets (from database)
-      targets: disclosures?.targets || null,
+      // E1-4: Targets (from sustainability_targets table)
+      targets: await fetchESRSTargets(organizationId),
 
       // E1-5: Energy Consumption (calculated from metrics)
       energy_consumption: totalEnergyConsumption > 0 ? {
@@ -162,6 +162,36 @@ export async function GET(request: NextRequest) {
     console.error('Error in esrs-e1 API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
+
+// Helper function to fetch ESRS-formatted targets from sustainability_targets table
+async function fetchESRSTargets(organizationId: string) {
+  const { data: targets, error } = await supabaseAdmin
+    .from('sustainability_targets')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .order('created_at', { ascending: false });
+
+  if (error || !targets || targets.length === 0) {
+    return null;
+  }
+
+  // Transform sustainability_targets to ESRS E1-4 format
+  return targets.map(target => ({
+    target_type: target.target_type || 'Emission reduction',
+    base_year: target.baseline_year,
+    target_year: target.target_year,
+    reduction_percentage: target.baseline_value && target.target_value
+      ? ((target.baseline_value - target.target_value) / target.baseline_value) * 100
+      : 0,
+    scopes_covered: target.scopes || [],
+    target_description: target.description || target.name,
+    sbti_validated: target.sbti_approved || false,
+    baseline_value: target.baseline_value,
+    target_value: target.target_value,
+    current_value: target.current_value,
+    status: target.status
+  }));
 }
 
 export async function POST(request: NextRequest) {

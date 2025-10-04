@@ -298,44 +298,114 @@ export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
       case 'E1-4':
         return (
           <div className="space-y-4">
-            {data.targets && data.targets.length > 0 ? (
-              data.targets.map((target, i) => (
-                <div key={i} className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white">{target.target_type}</h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{target.target_description}</p>
-                    </div>
-                    <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-lg font-semibold">
-                      -{target.reduction_percentage}%
-                    </span>
-                  </div>
+            <div className="bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-semibold text-purple-900 dark:text-purple-300 text-sm">
+                    ESRS E1-4: Climate Targets
+                  </p>
+                  <p className="text-xs text-purple-700 dark:text-purple-400 mt-1">
+                    Targets are managed in the dedicated Targets system. They automatically appear here for ESRS reporting.
+                  </p>
+                </div>
+                <a
+                  href="/sustainability/targets"
+                  className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors flex items-center gap-1 whitespace-nowrap"
+                >
+                  <Target className="w-4 h-4" />
+                  Manage Targets
+                </a>
+              </div>
+            </div>
 
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs">Base Year</p>
-                      <p className="font-semibold text-gray-900 dark:text-white">{target.base_year}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs">Target Year</p>
-                      <p className="font-semibold text-gray-900 dark:text-white">{target.target_year}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs">Scopes</p>
-                      <div className="flex gap-1">
-                        {target.scopes_covered.map((s, j) => (
-                          <span key={j} className="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-700 rounded">
-                            {s}
-                          </span>
-                        ))}
+            {data.targets && data.targets.length > 0 ? (
+              <>
+                <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between">
+                  <span>{data.targets.length} target{data.targets.length !== 1 ? 's' : ''} configured</span>
+                  <span className="text-xs">
+                    {data.targets.filter((t: any) => t.sbti_validated).length} SBTi validated
+                  </span>
+                </div>
+                {data.targets.map((target: any, i: number) => (
+                  <div key={i} className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold text-gray-900 dark:text-white">{target.target_type}</h4>
+                          {target.sbti_validated && (
+                            <span className="px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded">
+                              SBTi
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{target.target_description}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="px-3 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-lg font-semibold">
+                          -{Math.round(target.reduction_percentage)}%
+                        </div>
+                        {target.status && (
+                          <div className={`text-xs mt-1 ${
+                            target.status === 'active' ? 'text-green-600' :
+                            target.status === 'draft' ? 'text-yellow-600' :
+                            'text-gray-600'
+                          }`}>
+                            {target.status}
+                          </div>
+                        )}
                       </div>
                     </div>
+
+                    <div className="grid grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400 text-xs">Base Year</p>
+                        <p className="font-semibold text-gray-900 dark:text-white">{target.base_year}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400 text-xs">Target Year</p>
+                        <p className="font-semibold text-gray-900 dark:text-white">{target.target_year}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400 text-xs">Scopes</p>
+                        <div className="flex gap-1 flex-wrap">
+                          {target.scopes_covered?.map((s: string, j: number) => (
+                            <span key={j} className="px-1.5 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded">
+                              {s}
+                            </span>
+                          )) || <span className="text-xs text-gray-400">All</span>}
+                        </div>
+                      </div>
+                      {target.baseline_value && target.target_value && (
+                        <div>
+                          <p className="text-gray-500 dark:text-gray-400 text-xs">Target Reduction</p>
+                          <p className="font-semibold text-gray-900 dark:text-white text-xs">
+                            {target.baseline_value.toLocaleString()} → {target.target_value.toLocaleString()} tCO₂e
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </>
             ) : (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                No targets defined
+              <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-8">
+                <div className="text-center space-y-4">
+                  <Target className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto" />
+                  <div>
+                    <p className="text-gray-900 dark:text-white font-semibold mb-1">No Climate Targets Set</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Define emission reduction targets in the Targets system to complete this disclosure
+                    </p>
+                  </div>
+                  <a
+                    href="/sustainability/targets"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Create Target
+                  </a>
+                </div>
               </div>
             )}
           </div>
