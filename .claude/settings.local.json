@@ -104,7 +104,8 @@
       "Bash(brew install:*)",
       "Bash(nmap:*)",
       "Bash(xargs:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_eHABwF/**)"
     ],
     "deny": [],
     "ask": []

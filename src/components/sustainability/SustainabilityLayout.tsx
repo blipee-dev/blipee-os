@@ -24,6 +24,7 @@ import {
   Database,
   FileSpreadsheet,
   Wrench,
+  FileCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MobileNavigation } from "@/components/blipee-os/MobileNavigation";
@@ -34,6 +35,7 @@ import { useTranslations } from "@/providers/LanguageProvider";
 
 const getSustainabilityNavItems = (tDashboard: (key: string) => string) => [
   { id: "overview", label: tDashboard('navigation.overview'), icon: BarChart3, href: "/sustainability/dashboard", view: "overview" },
+  { id: "compliance", label: "Compliance", icon: FileCheck, href: "/sustainability/compliance", view: null },
   { id: "emissions", label: tDashboard('navigation.emissions'), icon: Factory, href: "/sustainability/dashboard", view: "emissions" },
   { id: "data-management", label: "Data Management", icon: Database, href: "/sustainability/data-management", view: null },
   { id: "energy", label: tDashboard('navigation.energy'), icon: Zap, href: "/sustainability/dashboard", view: "energy" },
