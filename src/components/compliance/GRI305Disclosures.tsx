@@ -12,9 +12,13 @@ import {
   CheckCircle2,
   Loader2,
   Wind,
-  Droplets
+  Droplets,
+  Plus,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import { complianceColors } from '@/styles/compliance-design-tokens';
+import { ReductionInitiativeForm } from './ReductionInitiativeForm';
 
 interface GRIData {
   scope1_total: number;
@@ -31,9 +35,12 @@ interface GRIData {
   intensity_area: number;
   intensity_fte: number;
   reduction_initiatives: {
+    id?: string;
     initiative: string;
     reduction: number;
     year: number;
+    status?: string;
+    category?: string;
   }[];
   base_year: number;
   base_year_emissions: number;
@@ -49,6 +56,10 @@ export function GRI305Disclosures() {
   const [data, setData] = useState<GRIData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showInitiativeForm, setShowInitiativeForm] = useState(false);
+  const [selectedInitiative, setSelectedInitiative] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+  const [initiatives, setInitiatives] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchGRIData() {
@@ -68,6 +79,91 @@ export function GRI305Disclosures() {
 
     fetchGRIData();
   }, []);
+
+  useEffect(() => {
+    async function fetchInitiatives() {
+      try {
+        const response = await fetch('/api/compliance/reduction-initiatives');
+        if (response.ok) {
+          const result = await response.json();
+          setInitiatives(result);
+        }
+      } catch (err) {
+        console.error('Failed to fetch initiatives:', err);
+      }
+    }
+
+    fetchInitiatives();
+  }, []);
+
+  const handleSaveInitiative = async (formData: any) => {
+    setSaving(true);
+    try {
+      const method = formData.id ? 'PUT' : 'POST';
+      const response = await fetch('/api/compliance/reduction-initiatives', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save initiative');
+      }
+
+      // Refresh initiatives list
+      const initiativesResponse = await fetch('/api/compliance/reduction-initiatives');
+      if (initiativesResponse.ok) {
+        const result = await initiativesResponse.json();
+        setInitiatives(result);
+      }
+
+      // Refresh GRI data
+      const griResponse = await fetch('/api/compliance/gri-305');
+      if (griResponse.ok) {
+        const griResult = await griResponse.json();
+        setData(griResult);
+      }
+
+      setShowInitiativeForm(false);
+      setSelectedInitiative(null);
+    } catch (err) {
+      console.error('Error saving initiative:', err);
+      alert('Failed to save initiative. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteInitiative = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this initiative?')) return;
+
+    try {
+      const response = await fetch(`/api/compliance/reduction-initiatives?id=${id}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete initiative');
+      }
+
+      // Refresh initiatives list
+      const initiativesResponse = await fetch('/api/compliance/reduction-initiatives');
+      if (initiativesResponse.ok) {
+        const result = await initiativesResponse.json();
+        setInitiatives(result);
+      }
+
+      // Refresh GRI data
+      const griResponse = await fetch('/api/compliance/gri-305');
+      if (griResponse.ok) {
+        const griResult = await griResponse.json();
+        setData(griResult);
+      }
+    } catch (err) {
+      console.error('Error deleting initiative:', err);
+      alert('Failed to delete initiative. Please try again.');
+    }
+  };
 
   if (loading) {
     return (
@@ -311,31 +407,81 @@ export function GRI305Disclosures() {
           </p>
         </div>
 
-        {data.reduction_initiatives.length > 0 ? (
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Emission Reduction Initiatives:
             </p>
-            {data.reduction_initiatives.map((initiative, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800"
-              >
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{initiative.initiative}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Year: {initiative.year}</p>
-                </div>
-                <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-                  -{initiative.reduction.toLocaleString()} tCO₂e
-                </span>
-              </div>
-            ))}
+            <button
+              onClick={() => {
+                setSelectedInitiative(null);
+                setShowInitiativeForm(true);
+              }}
+              className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Add Initiative
+            </button>
           </div>
-        ) : (
-          <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-            No emission reduction initiatives reported for this period.
-          </p>
-        )}
+
+          {initiatives.length > 0 ? (
+            <div className="space-y-2">
+              {initiatives.map((initiative) => (
+                <div
+                  key={initiative.id}
+                  className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800"
+                >
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{initiative.initiative_name}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Year: {initiative.implementation_year}</p>
+                      {initiative.category && (
+                        <span className="text-xs px-2 py-0.5 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded">
+                          {initiative.category}
+                        </span>
+                      )}
+                      {initiative.status && (
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          initiative.status === 'completed' ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300' :
+                          initiative.status === 'in_progress' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' :
+                          'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                        }`}>
+                          {initiative.status.replace('_', ' ')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                      -{initiative.reduction_tco2e.toLocaleString()} tCO₂e
+                    </span>
+                    <button
+                      onClick={() => {
+                        setSelectedInitiative(initiative);
+                        setShowInitiativeForm(true);
+                      }}
+                      className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                      title="Edit initiative"
+                    >
+                      <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteInitiative(initiative.id)}
+                      className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
+                      title="Delete initiative"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+              No emission reduction initiatives reported for this period. Click "Add Initiative" to get started.
+            </p>
+          )}
+        </div>
       </motion.div>
 
       {/* 305-6 & 305-7: Other emissions */}
@@ -380,6 +526,18 @@ export function GRI305Disclosures() {
           {new Date(data.reporting_period.end).toLocaleDateString('en-GB')}
         </p>
       </div>
+
+      {/* Reduction Initiative Form Modal */}
+      <ReductionInitiativeForm
+        isOpen={showInitiativeForm}
+        onClose={() => {
+          setShowInitiativeForm(false);
+          setSelectedInitiative(null);
+        }}
+        onSave={handleSaveInitiative}
+        initialData={selectedInitiative}
+        saving={saving}
+      />
     </div>
   );
 }
