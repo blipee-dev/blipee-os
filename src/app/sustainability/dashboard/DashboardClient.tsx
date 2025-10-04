@@ -301,17 +301,7 @@ export default function DashboardClient() {
         {/* AI Assistant Floating Interface */}
         <AnimatePresence>
           {isAIOpen && (
-            <ConversationInterface
-              isOpen={isAIOpen}
-              onClose={() => setIsAIOpen(false)}
-              userId={user?.id}
-              organizationId={organizationData?.id}
-              initialContext={{
-                currentDashboard: currentView,
-                organizationName: organizationData?.name,
-                userRole: organizationData?.role
-              }}
-            />
+            <ConversationInterface />
           )}
         </AnimatePresence>
 
@@ -320,7 +310,7 @@ export default function DashboardClient() {
           <ProactiveAICoach
             userId={user.id}
             organizationId={organizationData.id}
-            userExperience={user.metadata?.experience || 'new'}
+            userExperience={'new'}
             onInteraction={(action) => {
               if (action === 'dismiss') {
                 setShowProactiveCoach(false);
