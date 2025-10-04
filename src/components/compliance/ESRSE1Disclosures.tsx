@@ -12,9 +12,12 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChevronRight,
-  Info
+  Info,
+  Edit,
+  Plus
 } from 'lucide-react';
 import { complianceColors } from '@/styles/compliance-design-tokens';
+import { TransitionPlanForm, PoliciesForm, CarbonPricingForm } from './ESRSE1Forms';
 
 interface ESRSE1Data {
   reporting_year: number;
@@ -90,6 +93,10 @@ interface ESRSE1DisclosuresProps {
 
 export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
   const [activeTab, setActiveTab] = useState<string>('E1-1');
+  const [saving, setSaving] = useState(false);
+  const [showTransitionPlanForm, setShowTransitionPlanForm] = useState(false);
+  const [showPoliciesForm, setShowPoliciesForm] = useState(false);
+  const [showCarbonPricingForm, setShowCarbonPricingForm] = useState(false);
 
   const tabs = [
     { id: 'E1-1', label: 'Transition Plan', icon: Target, available: true, hasData: !!data.transition_plan },
@@ -151,8 +158,23 @@ export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                Transition plan not yet defined
+              <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-8">
+                <div className="text-center space-y-4">
+                  <Target className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto" />
+                  <div>
+                    <p className="text-gray-900 dark:text-white font-semibold mb-1">No Transition Plan Yet</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Define your climate transition plan including decarbonization strategy and resource allocation
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowTransitionPlanForm(true)}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Create Transition Plan
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -200,9 +222,10 @@ export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
                     </p>
                   </div>
                   <button
-                    onClick={() => alert('Policy form will be implemented here')}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                    onClick={() => setShowPoliciesForm(true)}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto"
                   >
+                    <Plus className="w-4 h-4" />
                     Add Climate Policy
                   </button>
                 </div>
@@ -475,8 +498,23 @@ export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
             </div>
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            No internal carbon price set
+          <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-8">
+            <div className="text-center space-y-4">
+              <DollarSign className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto" />
+              <div>
+                <p className="text-gray-900 dark:text-white font-semibold mb-1">No Carbon Price Set</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Set your internal carbon price to guide investment decisions and incentivize emission reductions
+                </p>
+              </div>
+              <button
+                onClick={() => setShowCarbonPricingForm(true)}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto"
+              >
+                <Plus className="w-4 h-4" />
+                Set Carbon Price
+              </button>
+            </div>
           </div>
         );
 
@@ -545,6 +583,32 @@ export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
     }
   };
 
+  const handleSave = async (formData: any) => {
+    try {
+      setSaving(true);
+      const response = await fetch('/api/compliance/esrs-e1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reporting_year: data.reporting_year,
+          ...formData
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save data');
+      }
+
+      // Reload the page to fetch fresh data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error saving ESRS E1 data:', error);
+      alert('Failed to save data. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -602,6 +666,40 @@ export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
           {renderContent()}
         </motion.div>
       </AnimatePresence>
+
+      {/* Forms */}
+      <TransitionPlanForm
+        isOpen={showTransitionPlanForm}
+        onClose={() => setShowTransitionPlanForm(false)}
+        onSave={(formData) => {
+          handleSave(formData);
+          setShowTransitionPlanForm(false);
+        }}
+        initialData={data.transition_plan}
+        saving={saving}
+      />
+
+      <PoliciesForm
+        isOpen={showPoliciesForm}
+        onClose={() => setShowPoliciesForm(false)}
+        onSave={(formData) => {
+          handleSave(formData);
+          setShowPoliciesForm(false);
+        }}
+        initialData={data.climate_policies}
+        saving={saving}
+      />
+
+      <CarbonPricingForm
+        isOpen={showCarbonPricingForm}
+        onClose={() => setShowCarbonPricingForm(false)}
+        onSave={(formData) => {
+          handleSave(formData);
+          setShowCarbonPricingForm(false);
+        }}
+        initialData={{ price: data.carbon_price_used, currency: data.carbon_price_currency }}
+        saving={saving}
+      />
     </div>
   );
 }
