@@ -196,21 +196,21 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <FileCheck className="w-6 h-6 text-green-500" />
+          <h2 className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
+            <FileCheck className="w-6 h-6 text-green-600 dark:text-green-500" />
             Compliance Dashboard
           </h2>
-          <p className="text-gray-400 mt-1">GHG Protocol & GRI Standards</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">GHG Protocol & GRI Standards</p>
         </div>
 
         {/* View Toggle */}
-        <div className="flex gap-2 bg-white/[0.03] p-1 rounded-xl">
+        <div className="flex gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
           <button
             onClick={() => setSelectedView('ghg')}
             className={`px-4 py-2 rounded-lg transition-all ${
               selectedView === 'ghg'
-                ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             GHG Protocol
@@ -219,8 +219,8 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
             onClick={() => setSelectedView('gri')}
             className={`px-4 py-2 rounded-lg transition-all ${
               selectedView === 'gri'
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             GRI Standards
@@ -230,48 +230,48 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
 
       {/* Key Metrics */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-4">
+        <div className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-400 text-sm">Total Emissions</span>
-            <Leaf className="w-4 h-4 text-green-500" />
+            <span className="text-gray-600 dark:text-gray-400 text-sm">Total Emissions</span>
+            <Leaf className="w-4 h-4 text-green-600 dark:text-green-500" />
           </div>
-          <div className="text-2xl font-bold">{Math.round(totalEmissions * 10) / 10}</div>
-          <div className="text-xs text-gray-500">tCO2e</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(totalEmissions * 10) / 10}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
         </div>
 
-        <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-4">
+        <div className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-400 text-sm">Scope 1</span>
+            <span className="text-gray-600 dark:text-gray-400 text-sm">Scope 1</span>
             <div className="w-3 h-3 bg-purple-500 rounded" />
           </div>
-          <div className="text-2xl font-bold">{Math.round(scope1Emissions * 10) / 10}</div>
-          <div className="text-xs text-gray-500">tCO2e • {scope1Percentage}%</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(scope1Emissions * 10) / 10}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e • {scope1Percentage}%</div>
         </div>
 
-        <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-4">
+        <div className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-400 text-sm">Scope 2</span>
+            <span className="text-gray-600 dark:text-gray-400 text-sm">Scope 2</span>
             <div className="w-3 h-3 bg-blue-500 rounded" />
           </div>
-          <div className="text-2xl font-bold">{Math.round(scope2Emissions * 10) / 10}</div>
-          <div className="text-xs text-gray-500">tCO2e • {scope2Percentage}%</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(scope2Emissions * 10) / 10}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e • {scope2Percentage}%</div>
         </div>
 
-        <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-4">
+        <div className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-400 text-sm">Scope 3</span>
+            <span className="text-gray-600 dark:text-gray-400 text-sm">Scope 3</span>
             <div className="w-3 h-3 bg-green-500 rounded" />
           </div>
-          <div className="text-2xl font-bold">{Math.round(scope3Emissions * 10) / 10}</div>
-          <div className="text-xs text-gray-500">tCO2e • {scope3Percentage}%</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(scope3Emissions * 10) / 10}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e • {scope3Percentage}%</div>
         </div>
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-2 gap-6">
         {/* Scope Breakdown */}
-        <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-6">
-          <h3 className="text-lg font-semibold mb-4">Scope Breakdown</h3>
+        <div className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Scope Breakdown</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -301,8 +301,8 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
         </div>
 
         {/* Category Breakdown */}
-        <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-6">
-          <h3 className="text-lg font-semibold mb-4">Top Emission Categories</h3>
+        <div className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Top Emission Categories</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={categoryData.slice(0, 8)}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -329,26 +329,26 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
       </div>
 
       {/* Category Details */}
-      <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-6">
-        <h3 className="text-lg font-semibold mb-4">Emission Categories Detail</h3>
+      <div className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Emission Categories Detail</h3>
         <div className="space-y-2">
           {categoryData.map((cat, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-3 bg-white/[0.02] rounded-lg hover:bg-white/[0.05] transition-colors"
+              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <div className={`w-2 h-2 rounded-full ${
                   cat.measured ? 'bg-green-500' : 'bg-yellow-500'
                 }`} />
                 <div>
-                  <div className="font-medium">{cat.category}</div>
-                  <div className="text-xs text-gray-500">{cat.scope}</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{cat.category}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{cat.scope}</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-semibold">{Math.round(cat.value * 10) / 10} tCO2e</div>
-                <div className="text-xs text-gray-500">
+                <div className="font-semibold text-gray-900 dark:text-white">{Math.round(cat.value * 10) / 10} tCO2e</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   {cat.measured ? 'Measured' : 'Estimated'}
                 </div>
               </div>
@@ -359,52 +359,52 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
 
       {/* Compliance Status */}
       <div className="grid grid-cols-2 gap-6">
-        <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-500" />
+        <div className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
+            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-500" />
             GHG Protocol Compliance
           </h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Scope 1 Reporting</span>
-              <span className="text-green-500 font-semibold">Complete</span>
+              <span className="text-gray-600 dark:text-gray-400">Scope 1 Reporting</span>
+              <span className="text-green-600 dark:text-green-500 font-semibold">Complete</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Scope 2 Reporting</span>
-              <span className="text-green-500 font-semibold">Complete</span>
+              <span className="text-gray-600 dark:text-gray-400">Scope 2 Reporting</span>
+              <span className="text-green-600 dark:text-green-500 font-semibold">Complete</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Scope 3 Reporting</span>
-              <span className="text-yellow-500 font-semibold">Partial</span>
+              <span className="text-gray-600 dark:text-gray-400">Scope 3 Reporting</span>
+              <span className="text-yellow-600 dark:text-yellow-500 font-semibold">Partial</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Base Year Set</span>
-              <span className="text-green-500 font-semibold">2024</span>
+              <span className="text-gray-600 dark:text-gray-400">Base Year Set</span>
+              <span className="text-green-600 dark:text-green-500 font-semibold">2024</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Target className="w-5 h-5 text-blue-500" />
+        <div className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
+            <Target className="w-5 h-5 text-blue-600 dark:text-blue-500" />
             Data Quality Score
           </h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Measured Data</span>
-              <span className="text-green-500 font-semibold">
+              <span className="text-gray-600 dark:text-gray-400">Measured Data</span>
+              <span className="text-green-600 dark:text-green-500 font-semibold">
                 {Math.round((categoryData.filter(c => c.measured).length / categoryData.length) * 100)}%
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Estimated Data</span>
-              <span className="text-yellow-500 font-semibold">
+              <span className="text-gray-600 dark:text-gray-400">Estimated Data</span>
+              <span className="text-yellow-600 dark:text-yellow-500 font-semibold">
                 {Math.round((categoryData.filter(c => !c.measured).length / categoryData.length) * 100)}%
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Coverage</span>
-              <span className="text-green-500 font-semibold">
+              <span className="text-gray-600 dark:text-gray-400">Coverage</span>
+              <span className="text-green-600 dark:text-green-500 font-semibold">
                 {Math.round((categoryData.filter(c => c.value > 0).length / 15) * 100)}%
               </span>
             </div>
