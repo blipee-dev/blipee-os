@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AboutInventory } from '@/components/compliance/AboutInventory';
 import { GRI305Disclosures } from '@/components/compliance/GRI305Disclosures';
 import { ESRSE1DisclosuresWrapper } from '@/components/compliance/ESRSE1DisclosuresWrapper';
+import { TCFDDisclosuresWrapper } from '@/components/compliance/TCFDDisclosuresWrapper';
 import { AlertCircle, FileCheck, Info } from 'lucide-react';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
 
@@ -125,14 +126,7 @@ export default function ComplianceDashboardPage() {
 
           {/* TCFD Tab */}
           <TabsContent value="tcfd" className="space-y-6 mt-6">
-            <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                TCFD Recommendations
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
-                TCFD 4-pillar disclosures (Governance, Strategy, Risk Management, Metrics & Targets) are ready to be configured.
-              </p>
-            </div>
+            <TCFDDisclosuresWrapper />
           </TabsContent>
         </Tabs>
       </div>
