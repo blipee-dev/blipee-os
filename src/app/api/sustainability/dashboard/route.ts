@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { getUserOrganization } from '@/lib/auth/get-user-org';
+import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import { SCOPE_COLORS } from '@/lib/constants/sustainability-colors';
 
 export async function GET(request: NextRequest) {
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       }
     } else {
       // Get user's organization using centralized helper
-      const { organizationId: userOrgId } = await getUserOrganization(user.id);
+      const { organizationId: userOrgId } = await getUserOrganizationById(user.id);
 
       if (userOrgId) {
         organizationId = userOrgId;
