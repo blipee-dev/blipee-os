@@ -164,19 +164,13 @@ export async function GET(request: NextRequest) {
 
     const baseYearEmissions = baseYearMetrics?.reduce((sum, m) => sum + (m.co2e_emissions || 0), 0) || totalEmissions;
 
-    // Placeholder for reduction initiatives (should come from a dedicated table)
-    const reductionInitiatives = [
-      {
-        initiative: 'LED Lighting Upgrade',
-        reduction: 12.5,
-        year: year
-      },
-      {
-        initiative: 'Renewable Energy Procurement',
-        reduction: 45.2,
-        year: year
-      }
-    ];
+    // Fetch reduction initiatives from database (if table exists)
+    // For now, return empty array - user should add reduction initiatives through a form
+    const reductionInitiatives: Array<{
+      initiative: string;
+      reduction: number;
+      year: number;
+    }> = [];
 
     const response = {
       scope1_total: parseFloat(scope1Total.toFixed(2)),
