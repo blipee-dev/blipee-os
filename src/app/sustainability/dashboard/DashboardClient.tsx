@@ -24,12 +24,12 @@ import { SustainabilityLayout } from '@/components/sustainability/Sustainability
 import toast from 'react-hot-toast';
 
 // Import all our new dashboard components
-import ComplianceDashboard from '@/components/dashboard/ComplianceDashboard';
-import EnergyDashboard from '@/components/dashboard/EnergyDashboard';
-import WaterDashboard from '@/components/dashboard/WaterDashboard';
-import WasteDashboard from '@/components/dashboard/WasteDashboard';
-import TransportationDashboard from '@/components/dashboard/TransportationDashboard';
-import MonthlyIntelligentDashboard from '@/components/dashboard/MonthlyIntelligentDashboard';
+import { ComplianceDashboard } from '@/components/dashboard/ComplianceDashboard';
+import { EnergyDashboard } from '@/components/dashboard/EnergyDashboard';
+import { WaterDashboard } from '@/components/dashboard/WaterDashboard';
+import { WasteDashboard } from '@/components/dashboard/WasteDashboard';
+import { TransportationDashboard } from '@/components/dashboard/TransportationDashboard';
+import { MonthlyIntelligentDashboard } from '@/components/dashboard/MonthlyIntelligentDashboard';
 
 // Import AI components
 import { ConversationInterface } from '@/components/blipee-os/ConversationInterface';
@@ -131,19 +131,33 @@ export default function DashboardClient() {
   ];
 
   const renderDashboard = () => {
+    const orgId = organizationData?.id;
+    const userId = user?.id;
+
+    if (!orgId || !userId) {
+      return (
+        <div className="flex items-center justify-center h-[400px]">
+          <div className="text-center space-y-2">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" />
+            <p className="text-gray-400">Loading organization data...</p>
+          </div>
+        </div>
+      );
+    }
+
     switch (currentView) {
       case 'compliance':
-        return <ComplianceDashboard />;
+        return <ComplianceDashboard organizationId={orgId} />;
       case 'energy':
-        return <EnergyDashboard />;
+        return <EnergyDashboard organizationId={orgId} />;
       case 'water':
-        return <WaterDashboard />;
+        return <WaterDashboard organizationId={orgId} />;
       case 'waste':
-        return <WasteDashboard />;
+        return <WasteDashboard organizationId={orgId} />;
       case 'transportation':
-        return <TransportationDashboard />;
+        return <TransportationDashboard organizationId={orgId} />;
       case 'monthly':
-        return <MonthlyIntelligentDashboard />;
+        return <MonthlyIntelligentDashboard organizationId={orgId} userId={userId} />;
       case 'ai':
         return (
           <div className="flex items-center justify-center h-[600px]">
@@ -164,7 +178,7 @@ export default function DashboardClient() {
         );
       case 'overview':
       default:
-        return <ComplianceDashboard />; // Default to compliance dashboard for overview
+        return <ComplianceDashboard organizationId={orgId} />; // Default to compliance dashboard for overview
     }
   };
 
