@@ -241,52 +241,52 @@ export default function DashboardClient() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-500/20 rounded-2xl p-6"
+          className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-500/20 rounded-xl">
-                <Brain className="w-6 h-6 text-purple-400" />
+              <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-xl">
+                <Brain className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">Sustainability Command Center</h1>
-                <p className="text-gray-400 mt-1">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sustainability Command Center</h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">
                   Powered by 8 AI Agents working 24/7 • Real-time monitoring active
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/20 rounded-full">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/20 rounded-full">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm text-green-400">AI Systems Online</span>
+                <span className="text-sm text-green-700 dark:text-green-400">AI Systems Online</span>
               </div>
               <button
                 onClick={() => setIsAIOpen(true)}
-                className="p-2 bg-purple-500/20 hover:bg-purple-500/30 rounded-xl transition-colors"
+                className="p-2 bg-purple-100 dark:bg-purple-900/20 hover:bg-purple-200 dark:hover:bg-purple-900/30 rounded-xl transition-colors"
                 title="Open AI Assistant"
               >
-                <Sparkles className="w-5 h-5 text-purple-400" />
+                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </button>
             </div>
           </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-4 gap-4 mt-6">
-            <div className="bg-white/[0.03] rounded-xl p-3">
-              <div className="text-2xl font-bold text-green-400">92%</div>
-              <div className="text-xs text-gray-400 mt-1">Compliance Score</div>
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">92%</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Compliance Score</div>
             </div>
-            <div className="bg-white/[0.03] rounded-xl p-3">
-              <div className="text-2xl font-bold text-blue-400">-12%</div>
-              <div className="text-xs text-gray-400 mt-1">Emissions YoY</div>
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">-12%</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Emissions YoY</div>
             </div>
-            <div className="bg-white/[0.03] rounded-xl p-3">
-              <div className="text-2xl font-bold text-yellow-400">78%</div>
-              <div className="text-xs text-gray-400 mt-1">Coverage</div>
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">78%</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Coverage</div>
             </div>
-            <div className="bg-white/[0.03] rounded-xl p-3">
-              <div className="text-2xl font-bold text-purple-400">24/7</div>
-              <div className="text-xs text-gray-400 mt-1">AI Monitoring</div>
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">24/7</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">AI Monitoring</div>
             </div>
           </div>
         </motion.div>
@@ -302,25 +302,25 @@ export default function DashboardClient() {
               className={`
                 relative p-4 rounded-xl border transition-all
                 ${currentView === tab.id
-                  ? 'bg-gradient-to-r ' + tab.color + ' border-transparent'
-                  : 'bg-white/[0.03] border-white/[0.05] hover:bg-white/[0.05]'
+                  ? 'bg-gradient-to-r ' + tab.color + ' border-transparent shadow-md'
+                  : 'bg-white dark:bg-[#2a2a2a] border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }
               `}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <tab.icon className={`w-5 h-5 ${currentView === tab.id ? 'text-white' : 'text-gray-400'}`} />
+                  <tab.icon className={`w-5 h-5 ${currentView === tab.id ? 'text-white' : 'text-gray-600 dark:text-gray-400'}`} />
                   <div className="text-left">
-                    <div className={`font-semibold ${currentView === tab.id ? 'text-white' : 'text-gray-200'}`}>
+                    <div className={`font-semibold ${currentView === tab.id ? 'text-white' : 'text-gray-900 dark:text-gray-100'}`}>
                       {tab.label}
                     </div>
-                    <div className={`text-xs mt-0.5 ${currentView === tab.id ? 'text-white/70' : 'text-gray-500'}`}>
+                    <div className={`text-xs mt-0.5 ${currentView === tab.id ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'}`}>
                       {tab.description}
                     </div>
                   </div>
                 </div>
                 {tab.badge && (
-                  <span className="px-2 py-0.5 text-xs font-bold bg-white/20 rounded-full">
+                  <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${currentView === tab.id ? 'bg-white/20 text-white' : 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400'}`}>
                     {tab.badge}
                   </span>
                 )}
