@@ -6,6 +6,7 @@ import { AboutInventory } from '@/components/compliance/AboutInventory';
 import { GRI305Disclosures } from '@/components/compliance/GRI305Disclosures';
 import { ESRSE1DisclosuresWrapper } from '@/components/compliance/ESRSE1DisclosuresWrapper';
 import { TCFDDisclosuresWrapper } from '@/components/compliance/TCFDDisclosuresWrapper';
+import { GHGProtocolInventory } from '@/components/compliance/GHGProtocolInventory';
 import { AlertCircle, FileCheck, Info } from 'lucide-react';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
 
@@ -105,13 +106,7 @@ export default function ComplianceDashboardPage() {
 
           {/* GHG Protocol Tab */}
           <TabsContent value="ghg-protocol" className="space-y-6 mt-6">
-            <AboutInventory />
-
-            <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-lg p-6">
-              <p className="text-gray-600 dark:text-gray-400">
-                GHG Protocol compliance components will display here once emissions data is configured.
-              </p>
-            </div>
+            <GHGProtocolInventory />
           </TabsContent>
 
           {/* GRI Tab */}
