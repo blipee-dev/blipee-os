@@ -164,13 +164,21 @@ export async function GET(request: NextRequest) {
 
     const baseYearEmissions = baseYearMetrics?.reduce((sum, m) => sum + (m.co2e_emissions || 0), 0) || totalEmissions;
 
-    // Fetch reduction initiatives from database (if table exists)
-    // For now, return empty array - user should add reduction initiatives through a form
-    const reductionInitiatives: Array<{
-      initiative: string;
-      reduction: number;
-      year: number;
-    }> = [];
+    // Fetch reduction initiatives from database
+    const { data: initiatives } = await supabaseAdmin
+      .from('reduction_initiatives')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .eq('implementation_year', year)
+      .order('reduction_tco2e', { ascending: false });
+
+    const reductionInitiatives = initiatives?.map(i => ({
+      initiative: i.initiative_name,
+      reduction: i.reduction_tco2e,
+      year: i.implementation_year,
+      status: i.status,
+      category: i.category
+    })) || [];
 
     const response = {
       scope1_total: parseFloat(scope1Total.toFixed(2)),
