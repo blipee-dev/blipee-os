@@ -19,9 +19,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
-import toast from 'react-hot-toast';
 
 // Import all our new dashboard components
 import { ComplianceDashboard } from '@/components/dashboard/ComplianceDashboard';
@@ -39,15 +37,10 @@ type DashboardView = 'overview' | 'compliance' | 'energy' | 'water' | 'waste' | 
 
 export default function DashboardClient() {
   const { user } = useAuth();
-  const { checkAuth, loading: authLoading } = useAuthRedirect();
   const [currentView, setCurrentView] = useState<DashboardView>('overview');
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [showProactiveCoach, setShowProactiveCoach] = useState(true);
   const [organizationData, setOrganizationData] = useState<any>(null);
-
-  useEffect(() => {
-    checkAuth('/sustainability/dashboard');
-  }, [checkAuth]);
 
   useEffect(() => {
     // Fetch organization data for context
@@ -181,14 +174,6 @@ export default function DashboardClient() {
         return <ComplianceDashboard organizationId={orgId} />; // Default to compliance dashboard for overview
     }
   };
-
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
-      </div>
-    );
-  }
 
   return (
     <SustainabilityLayout>
