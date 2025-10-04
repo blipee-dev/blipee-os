@@ -13,6 +13,12 @@ import {
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
+import {
+  GovernanceForm,
+  StrategyForm,
+  RiskManagementForm,
+  MetricsDescriptionForm
+} from './TCFDForms';
 
 interface TCFDData {
   reporting_year: number;
@@ -234,18 +240,56 @@ function getPillarDataStatus(data: TCFDData, pillarId: string): boolean {
 
 // Governance Pillar Component
 function GovernancePillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => void }) {
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
   const hasOversight = data.governance_oversight;
   const hasManagement = data.governance_management;
 
+  const handleSave = async (formData: any) => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/compliance/tcfd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          reporting_year: data.reporting_year
+        })
+      });
+
+      if (response.ok) {
+        setShowForm(false);
+        onRefresh();
+      } else {
+        console.error('Failed to save governance data');
+      }
+    } catch (error) {
+      console.error('Error saving governance data:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      <GovernanceForm
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        onSave={handleSave}
+        initialData={data}
+        saving={saving}
+      />
+
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
           Pillar 1: Governance
         </h3>
-        <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2">
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+        >
           <Plus className="w-4 h-4" />
-          Add Data
+          {hasOversight || hasManagement ? 'Edit Data' : 'Add Data'}
         </button>
       </div>
 
@@ -307,15 +351,56 @@ function GovernancePillar({ data, onRefresh }: { data: TCFDData; onRefresh: () =
 
 // Strategy Pillar Component
 function StrategyPillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => void }) {
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async (formData: any) => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/compliance/tcfd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          reporting_year: data.reporting_year
+        })
+      });
+
+      if (response.ok) {
+        setShowForm(false);
+        onRefresh();
+      } else {
+        console.error('Failed to save strategy data');
+      }
+    } catch (error) {
+      console.error('Error saving strategy data:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const hasData = data.strategy_risks || data.strategy_opportunities || data.strategy_scenarios || data.strategy_resilience;
+
   return (
     <div className="space-y-6">
+      <StrategyForm
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        onSave={handleSave}
+        initialData={data}
+        saving={saving}
+      />
+
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
           Pillar 2: Strategy
         </h3>
-        <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2">
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+        >
           <Plus className="w-4 h-4" />
-          Add Data
+          {hasData ? 'Edit Data' : 'Add Data'}
         </button>
       </div>
 
@@ -400,15 +485,56 @@ function StrategyPillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => 
 
 // Risk Management Pillar Component
 function RiskManagementPillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => void }) {
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async (formData: any) => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/compliance/tcfd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          reporting_year: data.reporting_year
+        })
+      });
+
+      if (response.ok) {
+        setShowForm(false);
+        onRefresh();
+      } else {
+        console.error('Failed to save risk management data');
+      }
+    } catch (error) {
+      console.error('Error saving risk management data:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const hasData = data.risk_identification || data.risk_assessment || data.risk_management_process || data.risk_integration;
+
   return (
     <div className="space-y-6">
+      <RiskManagementForm
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        onSave={handleSave}
+        initialData={data}
+        saving={saving}
+      />
+
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
           Pillar 3: Risk Management
         </h3>
-        <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2">
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+        >
           <Plus className="w-4 h-4" />
-          Add Data
+          {hasData ? 'Edit Data' : 'Add Data'}
         </button>
       </div>
 
@@ -487,19 +613,64 @@ function RiskManagementPillar({ data, onRefresh }: { data: TCFDData; onRefresh: 
 
 // Metrics & Targets Pillar Component
 function MetricsTargetsPillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => void }) {
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async (formData: any) => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/compliance/tcfd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          reporting_year: data.reporting_year
+        })
+      });
+
+      if (response.ok) {
+        setShowForm(false);
+        onRefresh();
+      } else {
+        console.error('Failed to save metrics description');
+      }
+    } catch (error) {
+      console.error('Error saving metrics description:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      <MetricsDescriptionForm
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        onSave={handleSave}
+        initialData={data.metrics}
+        saving={saving}
+      />
+
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
           Pillar 4: Metrics & Targets
         </h3>
-        <a
-          href="/sustainability/targets"
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
-        >
-          <Target className="w-4 h-4" />
-          Manage Targets
-        </a>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowForm(true)}
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            {data.metrics.description ? 'Edit Methodology' : 'Add Methodology'}
+          </button>
+          <a
+            href="/sustainability/targets"
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+          >
+            <Target className="w-4 h-4" />
+            Manage Targets
+          </a>
+        </div>
       </div>
 
       <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
