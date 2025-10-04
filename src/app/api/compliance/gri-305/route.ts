@@ -32,17 +32,18 @@ export async function GET(request: NextRequest) {
 
     // Fetch organization inventory settings for base year and gases
     const { data: inventorySettings } = await supabaseAdmin
-      .from('organization_inventory_settings')
-      .select('base_year, gases_covered, consolidation_approach, reporting_period_start, reporting_period_end')
+      .from('ghg_inventory_settings')
+      .select('base_year, gases_covered, consolidation_approach, period_start, period_end')
       .eq('organization_id', organizationId)
+      .eq('reporting_year', year)
       .single();
 
-    const baseYear = inventorySettings?.base_year || 2024;
+    const baseYear = inventorySettings?.base_year || year;
     const gasesCovered = inventorySettings?.gases_covered || ['CO2', 'CH4', 'N2O', 'HFCs', 'PFCs', 'SF6', 'NF3'];
     const consolidationApproach = inventorySettings?.consolidation_approach || 'operational_control';
     const reportingPeriod = {
-      start: inventorySettings?.reporting_period_start || `${year}-01-01`,
-      end: inventorySettings?.reporting_period_end || `${year}-12-31`
+      start: inventorySettings?.period_start || `${year}-01-01`,
+      end: inventorySettings?.period_end || `${year}-12-31`
     };
 
     // Fetch emissions data for the current year
@@ -136,11 +137,17 @@ export async function GET(request: NextRequest) {
     const totalArea = sites?.reduce((sum, s) => sum + (s.total_area_sqm || 0), 0) || 1;
     const totalEmployees = sites?.reduce((sum, s) => sum + (s.total_employees || 0), 0) || 1;
 
+    // Fetch organization revenue (in millions)
+    const { data: orgData } = await supabaseAdmin
+      .from('organizations')
+      .select('annual_revenue')
+      .eq('id', organizationId)
+      .single();
+
+    const revenue = (orgData?.annual_revenue || 100000000) / 1000000; // Convert to millions
+
     // Calculate total emissions for intensity
     const totalEmissions = scope1Total + scope2LocationBased + scope3Total;
-
-    // Assume revenue for intensity (you should fetch this from a revenue table)
-    const revenue = 100; // Million EUR - replace with actual revenue data
 
     // Calculate intensity metrics
     const intensityRevenue = totalEmissions / revenue;
