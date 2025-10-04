@@ -51,7 +51,10 @@ export default function DashboardClient() {
         const response = await fetch('/api/organization/context');
         if (response.ok) {
           const data = await response.json();
-          setOrganizationData(data);
+          // API returns { organization: {...}, sites: [...], ... }
+          setOrganizationData(data.organization);
+        } else {
+          console.error('Failed to fetch organization context:', response.status);
         }
       } catch (error) {
         console.error('Error fetching organization:', error);
