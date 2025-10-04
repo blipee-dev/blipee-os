@@ -102,7 +102,9 @@
       "Bash(do nc -zv -w 2 88.30.28.221 $port)",
       "Bash(do echo -n \"Port $port: \")",
       "Bash(brew install:*)",
-      "Bash(nmap:*)"
+      "Bash(nmap:*)",
+      "Bash(xargs:*)",
+      "Bash(git config:*)"
     ],
     "deny": [],
     "ask": []
