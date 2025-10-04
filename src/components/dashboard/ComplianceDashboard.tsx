@@ -100,24 +100,34 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
 
   const { totalEmissions, scope1, scope2, scope3 } = scopeData;
 
+  // Calculate safe percentages
+  const safeTotal = totalEmissions || 1; // Avoid division by zero
+  const scope1Emissions = scope1?.totalEmissions || 0;
+  const scope2Emissions = scope2?.totalEmissions || 0;
+  const scope3Emissions = scope3?.totalEmissions || 0;
+
+  const scope1Percentage = Math.round((scope1Emissions / safeTotal) * 100) || 0;
+  const scope2Percentage = Math.round((scope2Emissions / safeTotal) * 100) || 0;
+  const scope3Percentage = Math.round((scope3Emissions / safeTotal) * 100) || 0;
+
   // Prepare scope breakdown for charts
   const scopeBreakdown = [
     {
       name: 'Scope 1',
-      value: scope1?.totalEmissions || 0,
-      percentage: ((scope1?.totalEmissions || 0) / totalEmissions) * 100,
+      value: scope1Emissions,
+      percentage: scope1Percentage,
       color: '#8B5CF6'
     },
     {
       name: 'Scope 2',
-      value: scope2?.totalEmissions || 0,
-      percentage: ((scope2?.totalEmissions || 0) / totalEmissions) * 100,
+      value: scope2Emissions,
+      percentage: scope2Percentage,
       color: '#3B82F6'
     },
     {
       name: 'Scope 3',
-      value: scope3?.totalEmissions || 0,
-      percentage: ((scope3?.totalEmissions || 0) / totalEmissions) * 100,
+      value: scope3Emissions,
+      percentage: scope3Percentage,
       color: '#10B981'
     }
   ].filter(scope => scope.value > 0);
@@ -197,8 +207,8 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
             <span className="text-gray-400 text-sm">Scope 1</span>
             <div className="w-3 h-3 bg-purple-500 rounded" />
           </div>
-          <div className="text-2xl font-bold">{Math.round((scope1?.totalEmissions || 0) * 10) / 10}</div>
-          <div className="text-xs text-gray-500">tCO2e • {Math.round(scopeBreakdown[0]?.percentage || 0)}%</div>
+          <div className="text-2xl font-bold">{Math.round(scope1Emissions * 10) / 10}</div>
+          <div className="text-xs text-gray-500">tCO2e • {scope1Percentage}%</div>
         </div>
 
         <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-4">
@@ -206,8 +216,8 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
             <span className="text-gray-400 text-sm">Scope 2</span>
             <div className="w-3 h-3 bg-blue-500 rounded" />
           </div>
-          <div className="text-2xl font-bold">{Math.round((scope2?.totalEmissions || 0) * 10) / 10}</div>
-          <div className="text-xs text-gray-500">tCO2e • {Math.round(scopeBreakdown[1]?.percentage || 0)}%</div>
+          <div className="text-2xl font-bold">{Math.round(scope2Emissions * 10) / 10}</div>
+          <div className="text-xs text-gray-500">tCO2e • {scope2Percentage}%</div>
         </div>
 
         <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-4">
@@ -215,8 +225,8 @@ export function ComplianceDashboard({ organizationId }: ComplianceDashboardProps
             <span className="text-gray-400 text-sm">Scope 3</span>
             <div className="w-3 h-3 bg-green-500 rounded" />
           </div>
-          <div className="text-2xl font-bold">{Math.round((scope3?.totalEmissions || 0) * 10) / 10}</div>
-          <div className="text-xs text-gray-500">tCO2e • {Math.round(scopeBreakdown[2]?.percentage || 0)}%</div>
+          <div className="text-2xl font-bold">{Math.round(scope3Emissions * 10) / 10}</div>
+          <div className="text-xs text-gray-500">tCO2e • {scope3Percentage}%</div>
         </div>
       </div>
 
