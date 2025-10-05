@@ -4,8 +4,13 @@ import { useState } from 'react';
 import { ProfessionalDashboard } from '@/components/dashboard/professional/ProfessionalDashboard';
 import { InnovativeDashboard } from '@/components/dashboard/innovative/InnovativeDashboard';
 import { DashboardBuilder } from '@/lib/visualization/dashboards/DashboardBuilder';
+import { notFound } from 'next/navigation';
 
 export default function DashboardTestPage() {
+  // Only allow in development mode
+  if (process.env.NODE_ENV === 'production') {
+    notFound();
+  }
   const [mode, setMode] = useState<'professional' | 'innovative' | 'builder'>('professional');
 
   return (
