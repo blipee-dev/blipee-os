@@ -296,9 +296,9 @@ export default function LogsPage() {
         <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">View and monitor all system activities and changes</p>
       </header>
 
-      <main className="p-4 sm:p-6">
+      <main className="p-4 sm:p-6 space-y-6">
         {/* Filters Bar */}
-        <div className="space-y-4 mb-6">
+        <div className="space-y-4">
           {/* Search and Actions */}
           <div className="flex items-center gap-2">
             <div className="flex-1 relative">
@@ -422,7 +422,7 @@ export default function LogsPage() {
         </div>
 
         {/* Logs Table */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05] overflow-hidden">
+        <div className="bg-white dark:bg-[#212121] rounded-xl border border-gray-200 dark:border-white/[0.05] overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin accent-text" />

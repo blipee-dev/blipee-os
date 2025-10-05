@@ -139,7 +139,7 @@ export default function ProfilePage() {
   if (loading || user === undefined) {
     return (
       <ProfileLayout pageTitle={t('title')}>
-        <div className="p-6 bg-white dark:bg-[#212121] min-h-screen">
+        <div className="p-4 sm:p-6 bg-white dark:bg-[#212121] min-h-screen">
           <div className="max-w-3xl mx-auto flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
@@ -160,10 +160,10 @@ export default function ProfilePage() {
 
   return (
     <ProfileLayout pageTitle={t('title')}>
-      <div className="p-6 bg-white dark:bg-[#212121] min-h-screen">
-        <div className="max-w-3xl mx-auto">
+      <div className="p-4 sm:p-6 bg-white dark:bg-[#212121] min-h-screen">
+        <div className="max-w-3xl mx-auto space-y-6">
           {/* Profile Header - Hidden on mobile */}
-          <div className="mb-8 hidden md:block">
+          <div className="hidden md:block">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
               {t('title')}
             </h1>
@@ -173,7 +173,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Profile Picture Section */}
-          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 mb-6 border border-gray-200 dark:border-white/[0.05]">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 border border-gray-200 dark:border-white/[0.05]">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {t('sections.profilePicture.title')}
@@ -216,9 +216,9 @@ export default function ProfilePage() {
                     }
                   }}
                 />
-                <button 
+                <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2 accent-gradient-lr text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
+                  className="px-6 py-2 accent-gradient-lr text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
                 >
                   <Camera className="w-4 h-4" />
                   {t('sections.profilePicture.changePhoto')}
@@ -231,7 +231,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Personal Information */}
-          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 mb-6 border border-gray-200 dark:border-white/[0.05]">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 border border-gray-200 dark:border-white/[0.05]">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               {t('sections.personalInformation.title')}
             </h2>
@@ -347,7 +347,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Quick Settings */}
-          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 mb-6 border border-gray-200 dark:border-white/[0.05]">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 border border-gray-200 dark:border-white/[0.05]">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               {t('sections.quickSettings.title')}
             </h2>

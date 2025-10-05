@@ -125,7 +125,7 @@ export default function ApiUsageClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black p-8">
+      <div className="min-h-screen bg-black p-4 sm:p-6">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 accent-border"></div>
         </div>
@@ -135,7 +135,7 @@ export default function ApiUsageClient() {
 
   if (!metrics) {
     return (
-      <div className="min-h-screen bg-black p-8">
+      <div className="min-h-screen bg-black p-4 sm:p-6">
         <GlassCard>
           <div className="text-center py-12">
             <BarChart3 className="h-12 w-12 text-gray-600 mx-auto mb-4" />
@@ -150,8 +150,8 @@ export default function ApiUsageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-black p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-black p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <GlassCard>
           <div className="flex items-center justify-between">

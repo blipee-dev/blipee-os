@@ -115,14 +115,14 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
 
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center">
+      <div className="p-4 sm:p-6 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="mb-8 hidden md:block">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Profile Settings
@@ -134,7 +134,7 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
 
       <div className="max-w-3xl">
         {/* Profile Picture */}
-        <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 mb-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 mb-6 border border-gray-200 dark:border-white/[0.05]">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Profile Picture
@@ -150,7 +150,7 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
               )}
             </div>
             <div>
-              <label className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center gap-2 cursor-pointer">
+              <label className="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center gap-2 cursor-pointer">
                 <Camera className="w-4 h-4" />
                 Change Photo
                 <input
@@ -168,7 +168,7 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
         </div>
 
         {/* Personal Information */}
-        <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 border border-gray-200 dark:border-white/[0.05]">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Personal Information
           </h2>
@@ -197,7 +197,7 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
                   value={profile.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   placeholder="john@example.com"
-                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
                   value={profile.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
                   placeholder="+1 (555) 123-4567"
-                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                 />
               </div>
             </div>
@@ -230,7 +230,7 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
                     value={profile.title}
                     onChange={(e) => handleInputChange('title', e.target.value)}
                     placeholder="Software Engineer"
-                    className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   />
                 </div>
               </div>
@@ -246,7 +246,7 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
                     value={profile.department}
                     onChange={(e) => handleInputChange('department', e.target.value)}
                     placeholder="Engineering"
-                    className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   />
                 </div>
               </div>
@@ -263,7 +263,7 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
                   value={profile.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
                   placeholder="San Francisco, CA"
-                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                 />
               </div>
             </div>
