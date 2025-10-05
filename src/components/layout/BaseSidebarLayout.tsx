@@ -11,6 +11,8 @@ import {
   MessageSquare,
   LogOut,
   LucideIcon,
+  User,
+  Leaf,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MobileNavigation } from "@/components/blipee-os/MobileNavigation";
@@ -182,7 +184,25 @@ export function BaseSidebarLayout({
                   className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  {t('buttons.chat')}
+                  Chat
+                </button>
+
+                {/* Profile Button */}
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                >
+                  <User className="w-4 h-4" />
+                  Profile
+                </button>
+
+                {/* Sustainability Button */}
+                <button
+                  onClick={() => router.push('/sustainability/dashboard')}
+                  className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                >
+                  <Leaf className="w-4 h-4" />
+                  Sustainability
                 </button>
 
                 {/* Settings Button */}
@@ -191,7 +211,7 @@ export function BaseSidebarLayout({
                   className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                 >
                   <Settings className="w-4 h-4" />
-                  {t('buttons.settings')}
+                  Settings
                 </button>
 
                 {/* Logout Button */}
@@ -232,19 +252,38 @@ export function BaseSidebarLayout({
                   </div>
                 </button>
 
-                {/* Chat, Settings, Logout icons */}
+                {/* Chat Button */}
                 <button
                   onClick={() => router.push('/blipee-ai')}
                   className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title={t('buttons.chat')}
+                  title="Chat"
                 >
                   <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
 
+                {/* Profile Button */}
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  title="Profile"
+                >
+                  <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
+
+                {/* Sustainability Button */}
+                <button
+                  onClick={() => router.push('/sustainability/dashboard')}
+                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  title="Sustainability"
+                >
+                  <Leaf className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
+
+                {/* Settings Button */}
                 <button
                   onClick={() => router.push('/settings/organizations')}
                   className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title={t('buttons.settings')}
+                  title="Settings"
                 >
                   <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
