@@ -11,7 +11,6 @@ import {
   MessageSquare,
   LogOut,
   LucideIcon,
-  User,
   Leaf,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -187,15 +186,6 @@ export function BaseSidebarLayout({
                   Chat
                 </button>
 
-                {/* Profile Button */}
-                <button
-                  onClick={() => router.push('/profile')}
-                  className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-                >
-                  <User className="w-4 h-4" />
-                  Profile
-                </button>
-
                 {/* Sustainability Button */}
                 <button
                   onClick={() => router.push('/sustainability/dashboard')}
@@ -259,15 +249,6 @@ export function BaseSidebarLayout({
                   title="Chat"
                 >
                   <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
-
-                {/* Profile Button */}
-                <button
-                  onClick={() => router.push('/profile')}
-                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title="Profile"
-                >
-                  <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
 
                 {/* Sustainability Button */}
