@@ -252,7 +252,7 @@ export default function DataInvestigationPage() {
   return (
     <SustainabilityLayout selectedView="data-investigation" onSelectView={() => {}}>
       {/* Header */}
-      <header className="bg-white dark:bg-[#212121] border-b border-gray-200 dark:border-white/[0.05] px-6 py-4">
+      <header className="bg-white dark:bg-[#212121] border-b border-gray-200 dark:border-white/[0.05] p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -299,7 +299,7 @@ export default function DataInvestigationPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto p-6 bg-gray-50 dark:bg-[#0a0a0a]">
+      <main className="flex-1 overflow-auto p-4 sm:p-6 bg-gray-50 dark:bg-[#0a0a0a]">
         {/* Data Quality Alert */}
         {dataAnomalies.length > 0 && (
           <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
