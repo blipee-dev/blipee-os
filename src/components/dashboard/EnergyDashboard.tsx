@@ -39,72 +39,25 @@ interface EnergySource {
 export function EnergyDashboard({ organizationId }: EnergyDashboardProps) {
   const [viewMode, setViewMode] = useState<'consumption' | 'emissions' | 'cost' | 'intensity'>('consumption');
   const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year'>('month');
+  const [energySources, setEnergySources] = useState<EnergySource[]>([]);
+  const [totalConsumption, setTotalConsumption] = useState(0);
+  const [totalEmissions, setTotalEmissions] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [renewablePercentage, setRenewablePercentage] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const [energySources, setEnergySources] = useState<EnergySource[]>([
-    {
-      name: 'Grid Electricity',
-      consumption: 40000,
-      unit: 'kWh',
-      emissions: 20.0,
-      cost: 6800,
-      renewable: false,
-      trend: 5.2,
-      icon: <Zap className="w-5 h-5" />
-    },
-    {
-      name: 'Natural Gas',
-      consumption: 10000,
-      unit: 'kWh',
-      emissions: 5.0,
-      cost: 1200,
-      renewable: false,
-      trend: -2.3,
-      icon: <Flame className="w-5 h-5" />
-    },
-    {
-      name: 'Solar (On-site)',
-      consumption: 2000,
-      unit: 'kWh',
-      emissions: 0,
-      cost: 0,
-      renewable: true,
-      trend: 15.5,
-      icon: <Sun className="w-5 h-5" />
-    },
-    {
-      name: 'EV Charging',
-      consumption: 1500,
-      unit: 'kWh',
-      emissions: 0.75,
-      cost: 255,
-      renewable: false,
-      trend: 45.2,
-      icon: <Battery className="w-5 h-5" />
-    },
-    {
-      name: 'Diesel (Backup)',
-      consumption: 200,
-      unit: 'L',
-      emissions: 0.52,
-      cost: 340,
-      renewable: false,
-      trend: -8.1,
-      icon: <Flame className="w-5 h-5" />
-    }
-  ]);
-
-  const [intensityMetrics] = useState({
-    perEmployee: { value: 520, unit: 'kWh/FTE', trend: -3.2 },
-    perSquareMeter: { value: 125, unit: 'kWh/m²', trend: -5.1 },
-    perRevenue: { value: 0.045, unit: 'MWh/$M', trend: -7.3 },
-    perProduction: { value: 2.3, unit: 'kWh/unit', trend: -4.5 }
+  const [intensityMetrics, setIntensityMetrics] = useState({
+    perEmployee: { value: 0, unit: 'kWh/FTE', trend: 0 },
+    perSquareMeter: { value: 0, unit: 'kWh/m²', trend: 0 },
+    perRevenue: { value: 0, unit: 'MWh/$M', trend: 0 },
+    perProduction: { value: 0, unit: 'kWh/unit', trend: 0 }
   });
 
-  const [peakMetrics] = useState({
-    peakDemand: { value: 185, unit: 'kW', time: '2:30 PM' },
-    offPeakUsage: { percentage: 35, savings: 1200 },
-    loadFactor: { value: 0.72, target: 0.85 },
-    powerFactor: { value: 0.92, target: 0.95 }
+  const [peakMetrics, setPeakMetrics] = useState({
+    peakDemand: { value: 0, unit: 'kW', time: 'N/A' },
+    offPeakUsage: { percentage: 0, savings: 0 },
+    loadFactor: { value: 0, target: 0.85 },
+    powerFactor: { value: 0, target: 0.95 }
   });
 
   const [aiInsights] = useState([
@@ -114,20 +67,70 @@ export function EnergyDashboard({ organizationId }: EnergyDashboardProps) {
     { type: 'alert', message: 'Power factor below optimal - consider capacitor bank' }
   ]);
 
-  // Calculate totals
-  const totalConsumption = energySources.reduce((sum, source) => {
-    // Convert all to kWh for totaling
-    if (source.unit === 'L') {
-      return sum + (source.consumption * 10); // Rough conversion
-    }
-    return sum + source.consumption;
-  }, 0);
+  // Fetch energy data
+  useEffect(() => {
+    const fetchEnergyData = async () => {
+      setLoading(true);
+      try {
+        // Fetch sources and consumption
+        const sourcesRes = await fetch(`/api/energy/sources?range=${timeRange}`);
+        const sourcesData = await sourcesRes.json();
 
-  const totalEmissions = energySources.reduce((sum, source) => sum + source.emissions, 0);
-  const totalCost = energySources.reduce((sum, source) => sum + source.cost, 0);
-  const renewablePercentage = (energySources
-    .filter(s => s.renewable)
-    .reduce((sum, s) => sum + s.consumption, 0) / totalConsumption * 100).toFixed(1);
+        if (sourcesData.sources) {
+          // Map sources to include icons
+          const getIcon = (type: string) => {
+            switch (type) {
+              case 'grid_electricity': return <Zap className="w-5 h-5" />;
+              case 'natural_gas': return <Flame className="w-5 h-5" />;
+              case 'solar': return <Sun className="w-5 h-5" />;
+              case 'wind': return <Wind className="w-5 h-5" />;
+              case 'ev_charging': return <Battery className="w-5 h-5" />;
+              case 'diesel': return <Flame className="w-5 h-5" />;
+              default: return <Zap className="w-5 h-5" />;
+            }
+          };
+
+          setEnergySources(sourcesData.sources.map((s: any) => ({
+            ...s,
+            icon: getIcon(s.type)
+          })));
+          setTotalConsumption(sourcesData.total_consumption || 0);
+          setTotalEmissions(sourcesData.total_emissions || 0);
+          setTotalCost(sourcesData.total_cost || 0);
+          setRenewablePercentage(sourcesData.renewable_percentage || 0);
+        }
+
+        // Fetch intensity metrics
+        const intensityRes = await fetch('/api/energy/intensity');
+        const intensityData = await intensityRes.json();
+        if (intensityData) {
+          setIntensityMetrics(intensityData);
+        }
+
+        // Fetch peak demand metrics
+        const peaksRes = await fetch('/api/energy/peaks');
+        const peaksData = await peaksRes.json();
+        if (peaksData) {
+          setPeakMetrics(peaksData);
+        }
+
+      } catch (error) {
+        console.error('Error fetching energy data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEnergyData();
+  }, [timeRange]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -215,7 +218,7 @@ export function EnergyDashboard({ organizationId }: EnergyDashboardProps) {
               <Sun className="w-4 h-4 text-green-500" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {renewablePercentage}%
+              {renewablePercentage.toFixed(1)}%
             </div>
             <div className="flex items-center gap-1 text-sm mt-1">
               <TrendingUp className="w-3 h-3 text-green-500" />

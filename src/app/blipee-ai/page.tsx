@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { LazyConversationInterface } from "@/components/lazy";
 import { useAuth } from "@/lib/auth/context";
 import { Leaf, TrendingDown, FileText, Target } from "lucide-react";
@@ -22,28 +22,57 @@ export default function DashboardPage() {
     }
   }, [session]);
 
-  // Use real organization data - no demo values
-  const sustainabilityContext = session?.current_organization ? {
+  // Don't show stats for new users or while loading
+  const isNewUser = !session?.current_organization;
+  const [metrics, setMetrics] = useState<any>(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
+  const [orgMetadata, setOrgMetadata] = useState<any>(null);
+  const [metadataLoading, setMetadataLoading] = useState(true);
+
+  // Fetch real-time metrics
+  useEffect(() => {
+    if (session?.current_organization) {
+      fetch('/api/sustainability/metrics/realtime')
+        .then(res => res.json())
+        .then(data => {
+          setMetrics(data);
+          setMetricsLoading(false);
+        })
+        .catch(err => {
+          console.error('Failed to load metrics:', err);
+          setMetricsLoading(false);
+        });
+    }
+  }, [session]);
+
+  // Fetch organization metadata from buildings
+  useEffect(() => {
+    if (session?.current_organization) {
+      fetch(`/api/organizations/${session.current_organization.id}/metadata`)
+        .then(res => res.json())
+        .then(data => {
+          setOrgMetadata(data);
+          setMetadataLoading(false);
+        })
+        .catch(err => {
+          console.error('Failed to load organization metadata:', err);
+          setMetadataLoading(false);
+        });
+    }
+  }, [session]);
+
+  // Use real organization data - dynamically loaded from buildings
+  const sustainabilityContext = session?.current_organization && orgMetadata ? {
     id: session.current_organization.id,
     name: session.current_organization.name,
     organizationId: session.current_organization.id,
-    metadata: {
-      // These can be fetched from actual building data later
-      size_sqft: 50000,
-      floors: 5,
-      occupancy_types: ["office", "mixed"],
-      age_category: "modern",
-      systems_baseline: { type: "sustainable" },
-    },
+    metadata: orgMetadata,
   } : undefined;
-
-  // Don't show mock stats for new users
-  const isNewUser = !session?.current_organization;
 
   return (
     <div className="h-full relative">
       {/* Quick stats banner - responsive for mobile */}
-      {!isNewUser && (
+      {!isNewUser && metrics && metrics.hasData && (
         <div className="absolute top-0 left-0 right-0 z-10 backdrop-blur-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-500/[0.05] dark:to-emerald-500/[0.05] border-b border-green-200/50 dark:border-white/[0.05]">
           <div className="px-3 sm:px-6 py-2 sm:py-3">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -58,7 +87,7 @@ export default function DashboardPage() {
                       {t('dashboard.monthlyReduction')}
                     </p>
                     <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
-                      -12.3%
+                      {metrics.monthlyReduction}
                     </p>
                   </div>
                 </div>
@@ -72,7 +101,7 @@ export default function DashboardPage() {
                       {t('dashboard.targetProgress')}
                     </p>
                     <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
-                      67%
+                      {metrics.targetProgress}
                     </p>
                   </div>
                 </div>
@@ -86,7 +115,7 @@ export default function DashboardPage() {
                       {t('dashboard.reportsReady')}
                     </p>
                     <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
-                      {t('dashboard.newReports', { count: 3 })}
+                      {t('dashboard.newReports', { count: metrics.reportsReady })}
                     </p>
                   </div>
                 </div>
