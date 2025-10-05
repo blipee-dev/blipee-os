@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase/server';
-import { getUserOrganization } from '@/lib/auth/get-user-org';
+import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import ZeroTypingClient from './ZeroTypingClient';
 
 export default async function ZeroTypingPage() {
@@ -15,7 +15,7 @@ export default async function ZeroTypingPage() {
   }
 
   // Get user's organization and role
-  const { organizationId, role } = await getUserOrganization(user.id);
+  const { organizationId, role } = await getUserOrganizationById(user.id);
 
   if (!organizationId) {
     redirect('/unauthorized?reason=no_organization');
