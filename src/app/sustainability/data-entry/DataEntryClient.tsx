@@ -173,12 +173,11 @@ export default function SustainabilityDataEntryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="p-4 sm:p-6 space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
         >
           <div className="flex items-center gap-3 mb-4">
             <Leaf className="w-8 h-8 text-green-400" />
@@ -194,7 +193,7 @@ export default function SustainabilityDataEntryPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-4 gap-4"
         >
           <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-xl p-4">
             <div className="flex items-center justify-between">

@@ -44,8 +44,8 @@ export default function NotificationsSettingsPage() {
   ];
 
   return (
-    <div className="p-6">
-      <div className="mb-8 hidden md:block">
+    <div className="p-4 sm:p-6 space-y-6">
+      <div className="hidden md:block">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Notification Preferences
         </h1>
@@ -55,7 +55,7 @@ export default function NotificationsSettingsPage() {
       </div>
 
       {/* Notification Channels */}
-      <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 border border-gray-200 dark:border-white/[0.05] mb-6">
+      <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 border border-gray-200 dark:border-white/[0.05]">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Notification Channels
         </h2>

@@ -375,7 +375,7 @@ export default function DevicesClient({ initialDevices, sites, organizations, us
         </div>
 
         {/* Table Content */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg border border-gray-200 dark:border-white/[0.05]">
+        <div className="bg-white dark:bg-[#212121] rounded-xl border border-gray-200 dark:border-white/[0.05]">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">

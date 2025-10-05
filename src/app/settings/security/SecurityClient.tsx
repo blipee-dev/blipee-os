@@ -108,7 +108,7 @@ export default function SecuritySettingsPage() {
   };
 
   return (
-    <div className="container max-w-4xl py-6 space-y-8">
+    <div className="p-4 sm:p-6 space-y-6">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -266,13 +266,13 @@ export default function SecuritySettingsPage() {
               </p>
             </div>
             <div className="space-y-3">
-              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-white/[0.05] rounded-lg bg-transparent text-[#616161] dark:text-[#757575] font-medium hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:outline-none transition-all">
+              <button className="w-full px-6 py-3 text-left border border-gray-300 dark:border-white/[0.05] rounded-lg bg-transparent text-[#616161] dark:text-[#757575] font-medium hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:outline-none transition-all">
                 Change Password
               </button>
-              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-white/[0.05] rounded-lg bg-transparent text-[#616161] dark:text-[#757575] font-medium hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:outline-none transition-all">
+              <button className="w-full px-6 py-3 text-left border border-gray-300 dark:border-white/[0.05] rounded-lg bg-transparent text-[#616161] dark:text-[#757575] font-medium hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:outline-none transition-all">
                 Manage Trusted Devices
               </button>
-              <button className="w-full px-4 py-3 text-left border border-gray-300 dark:border-white/[0.05] rounded-lg bg-transparent text-[#616161] dark:text-[#757575] font-medium hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:outline-none transition-all">
+              <button className="w-full px-6 py-3 text-left border border-gray-300 dark:border-white/[0.05] rounded-lg bg-transparent text-[#616161] dark:text-[#757575] font-medium hover:bg-gray-50 dark:hover:bg-white/[0.05] focus:outline-none transition-all">
                 View Login History
               </button>
             </div>
