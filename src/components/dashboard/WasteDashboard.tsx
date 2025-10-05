@@ -40,79 +40,68 @@ interface WasteStream {
 
 export function WasteDashboard({ organizationId }: WasteDashboardProps) {
   const [viewMode, setViewMode] = useState<'generation' | 'diversion' | 'disposal' | 'circular'>('generation');
+  const [loading, setLoading] = React.useState(true);
+  const [wasteStreams, setWasteStreams] = useState<WasteStream[]>([]);
+  const [totalGenerated, setTotalGenerated] = useState(0);
+  const [totalDiverted, setTotalDiverted] = useState(0);
+  const [totalLandfill, setTotalLandfill] = useState(0);
+  const [diversionRate, setDiversionRate] = useState(0);
 
-  const [wasteStreams] = useState<WasteStream[]>([
-    {
-      name: 'General Waste',
-      generated: 8000,
-      recycled: 0,
-      composted: 0,
-      landfill: 7500,
-      incinerated: 500,
-      hazardous: false,
-      cost: 2400,
-      revenue: 0,
-      emissions: 12.0,
-      trend: -3.2,
-      icon: <Trash2 className="w-5 h-5" />
-    },
-    {
-      name: 'Mixed Recyclables',
-      generated: 5000,
-      recycled: 4500,
-      composted: 0,
-      landfill: 500,
-      incinerated: 0,
-      hazardous: false,
-      cost: 800,
-      revenue: 1200,
-      emissions: -3.0, // Avoided emissions
-      trend: 8.5,
-      icon: <Recycle className="w-5 h-5" />
-    },
-    {
-      name: 'Organic/Food Waste',
-      generated: 1500,
-      recycled: 0,
-      composted: 1200,
-      landfill: 300,
-      incinerated: 0,
-      hazardous: false,
-      cost: 400,
-      revenue: 200,
-      emissions: 0.5,
-      trend: -12.3,
-      icon: <Leaf className="w-5 h-5" />
-    },
-    {
-      name: 'E-Waste',
-      generated: 300,
-      recycled: 280,
-      composted: 0,
-      landfill: 0,
-      incinerated: 20,
-      hazardous: true,
-      cost: 500,
-      revenue: 350,
-      emissions: 0.1,
-      trend: 15.2,
-      icon: <Factory className="w-5 h-5" />
-    },
-    {
-      name: 'Packaging',
-      generated: 1200,
-      recycled: 1000,
-      composted: 0,
-      landfill: 200,
-      incinerated: 0,
-      hazardous: false,
-      cost: 300,
-      revenue: 450,
-      emissions: -1.5,
-      trend: -5.8,
-      icon: <Package className="w-5 h-5" />
-    }
-  ]);
+  // Fetch waste data
+  React.useEffect(() => {
+    const fetchWasteData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/waste/streams');
+        const data = await res.json();
+
+        if (data.streams) {
+          const getIcon = (type: string) => {
+            if (type.toLowerCase().includes('recycl')) return <Recycle className="w-5 h-5" />;
+            if (type.toLowerCase().includes('organic') || type.toLowerCase().includes('food')) return <Leaf className="w-5 h-5" />;
+            if (type.toLowerCase().includes('e-waste') || type.toLowerCase().includes('electronic')) return <Factory className="w-5 h-5" />;
+            if (type.toLowerCase().includes('packaging')) return <Package className="w-5 h-5" />;
+            return <Trash2 className="w-5 h-5" />;
+          };
+
+          // Map API data to dashboard format
+          setWasteStreams(data.streams.map((s: any) => ({
+            name: `${s.type} (${s.disposal_method})`,
+            generated: s.quantity,
+            recycled: s.disposal_method === 'recycling' ? s.quantity : 0,
+            composted: s.disposal_method === 'composting' ? s.quantity : 0,
+            landfill: s.disposal_method === 'landfill' ? s.quantity : 0,
+            incinerated: s.disposal_method === 'incineration' ? s.quantity : 0,
+            hazardous: s.type.toLowerCase().includes('hazardous'),
+            cost: 0, // TODO: Add cost tracking
+            revenue: 0, // TODO: Add revenue tracking
+            emissions: 0, // TODO: Calculate from disposal method
+            trend: 0, // TODO: Calculate from historical data
+            icon: getIcon(s.type)
+          })));
+
+          setTotalGenerated(data.total_generated || 0);
+          setTotalDiverted(data.total_diverted || 0);
+          setTotalLandfill(data.total_landfill || 0);
+          setDiversionRate(data.diversion_rate || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching waste data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWasteData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500" />
+      </div>
+    );
+  }
 
   const [circularMetrics] = useState({
     materialsRecovered: 5780,
@@ -134,17 +123,13 @@ export function WasteDashboard({ organizationId }: WasteDashboardProps) {
     { type: 'compliance', message: 'New e-waste regulations effective next quarter' }
   ]);
 
-  // Calculate totals
-  const totalGenerated = wasteStreams.reduce((sum, stream) => sum + stream.generated, 0);
+  // Calculate additional totals from streams
   const totalRecycled = wasteStreams.reduce((sum, stream) => sum + stream.recycled, 0);
   const totalComposted = wasteStreams.reduce((sum, stream) => sum + stream.composted, 0);
-  const totalLandfill = wasteStreams.reduce((sum, stream) => sum + stream.landfill, 0);
   const totalIncinerated = wasteStreams.reduce((sum, stream) => sum + stream.incinerated, 0);
   const totalCost = wasteStreams.reduce((sum, stream) => sum + stream.cost, 0);
   const totalRevenue = wasteStreams.reduce((sum, stream) => sum + stream.revenue, 0);
   const totalEmissions = wasteStreams.reduce((sum, stream) => sum + stream.emissions, 0);
-
-  const diversionRate = (((totalRecycled + totalComposted) / totalGenerated) * 100).toFixed(1);
   const recyclingRate = ((totalRecycled / totalGenerated) * 100).toFixed(1);
   const landfillRate = ((totalLandfill / totalGenerated) * 100).toFixed(1);
 
@@ -203,7 +188,7 @@ export function WasteDashboard({ organizationId }: WasteDashboardProps) {
               <Recycle className="w-4 h-4 text-green-500" />
             </div>
             <div className="text-xl font-bold text-gray-900 dark:text-white">
-              {diversionRate}%
+              {diversionRate.toFixed(1)}%
             </div>
             <div className="flex items-center gap-1 text-sm mt-1">
               <TrendingUp className="w-3 h-3 text-green-500" />

@@ -36,49 +36,14 @@ interface WaterSource {
 
 export function WaterDashboard({ organizationId }: WaterDashboardProps) {
   const [viewMode, setViewMode] = useState<'consumption' | 'discharge' | 'quality' | 'risk'>('consumption');
-
-  const [waterSources] = useState<WaterSource[]>([
-    {
-      name: 'Municipal Supply',
-      withdrawal: 1000,
-      consumption: 800,
-      discharge: 200,
-      recycled: 0,
-      cost: 3500,
-      trend: 3.2,
-      icon: <Home className="w-5 h-5" />
-    },
-    {
-      name: 'Groundwater',
-      withdrawal: 200,
-      consumption: 180,
-      discharge: 20,
-      recycled: 0,
-      cost: 450,
-      trend: -5.1,
-      icon: <Waves className="w-5 h-5" />
-    },
-    {
-      name: 'Rainwater Harvested',
-      withdrawal: 50,
-      consumption: 45,
-      discharge: 5,
-      recycled: 50,
-      cost: 50,
-      trend: 25.3,
-      icon: <Cloud className="w-5 h-5" />
-    },
-    {
-      name: 'Recycled Water',
-      withdrawal: 0,
-      consumption: 75,
-      discharge: 0,
-      recycled: 75,
-      cost: 150,
-      trend: 18.7,
-      icon: <Recycle className="w-5 h-5" />
-    }
-  ]);
+  const [loading, setLoading] = React.useState(true);
+  const [waterSources, setWaterSources] = useState<WaterSource[]>([]);
+  const [totalWithdrawal, setTotalWithdrawal] = useState(0);
+  const [totalConsumption, setTotalConsumption] = useState(0);
+  const [totalDischarge, setTotalDischarge] = useState(0);
+  const [totalRecycled, setTotalRecycled] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [recyclingRate, setRecyclingRate] = useState(0);
 
   const [waterUse] = useState([
     { category: 'Sanitary', volume: 600, percentage: 48 },
@@ -113,13 +78,52 @@ export function WaterDashboard({ organizationId }: WaterDashboardProps) {
     { type: 'compliance', message: 'Water stress area - reduction targets recommended' }
   ]);
 
-  // Calculate totals
-  const totalWithdrawal = waterSources.reduce((sum, source) => sum + source.withdrawal, 0);
-  const totalConsumption = waterSources.reduce((sum, source) => sum + source.consumption, 0);
-  const totalDischarge = waterSources.reduce((sum, source) => sum + source.discharge, 0);
-  const totalRecycled = waterSources.reduce((sum, source) => sum + source.recycled, 0);
-  const totalCost = waterSources.reduce((sum, source) => sum + source.cost, 0);
-  const recyclingRate = ((totalRecycled / totalConsumption) * 100).toFixed(1);
+  // Fetch water data
+  React.useEffect(() => {
+    const fetchWaterData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/water/sources');
+        const data = await res.json();
+
+        if (data.sources) {
+          const getIcon = (name: string) => {
+            if (name.toLowerCase().includes('municipal')) return <Home className="w-5 h-5" />;
+            if (name.toLowerCase().includes('ground')) return <Waves className="w-5 h-5" />;
+            if (name.toLowerCase().includes('rain')) return <Cloud className="w-5 h-5" />;
+            if (name.toLowerCase().includes('recycled')) return <Recycle className="w-5 h-5" />;
+            return <Droplet className="w-5 h-5" />;
+          };
+
+          setWaterSources(data.sources.map((s: any) => ({
+            ...s,
+            trend: 0, // TODO: Calculate trend from historical data
+            icon: getIcon(s.name)
+          })));
+          setTotalWithdrawal(data.total_withdrawal || 0);
+          setTotalConsumption(data.total_consumption || 0);
+          setTotalDischarge(data.total_discharge || 0);
+          setTotalRecycled(data.total_recycled || 0);
+          setTotalCost(data.total_cost || 0);
+          setRecyclingRate(data.recycling_rate || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching water data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWaterData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -202,7 +206,7 @@ export function WaterDashboard({ organizationId }: WaterDashboardProps) {
               <Recycle className="w-4 h-4 text-green-500" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {recyclingRate}%
+              {recyclingRate.toFixed(1)}%
             </div>
             <div className="flex items-center gap-1 text-sm mt-1">
               <TrendingUp className="w-3 h-3 text-green-500" />

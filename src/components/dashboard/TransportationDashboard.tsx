@@ -41,83 +41,103 @@ interface TransportMode {
 
 export function TransportationDashboard({ organizationId }: TransportationDashboardProps) {
   const [viewMode, setViewMode] = useState<'fleet' | 'travel' | 'commute' | 'logistics'>('fleet');
+  const [loading, setLoading] = React.useState(true);
+  const [transportModes, setTransportModes] = useState<TransportMode[]>([]);
 
-  const [transportModes] = useState<TransportMode[]>([
-    // Fleet (Scope 1)
+  // Fetch transportation data
+  React.useEffect(() => {
+    const fetchTransportData = async () => {
+      setLoading(true);
+      try {
+        // Fetch fleet data
+        const fleetRes = await fetch('/api/transportation/fleet');
+        const fleetData = await fleetRes.json();
+
+        // Fetch business travel data
+        const travelRes = await fetch('/api/transportation/business-travel');
+        const travelData = await travelRes.json();
+
+        const modes: TransportMode[] = [];
+
+        // Map fleet data
+        if (fleetData.fleet) {
+          fleetData.fleet.forEach((v: any) => {
+            const getIcon = (type: string) => {
+              if (type === 'truck') return <Truck className="w-5 h-5" />;
+              if (type === 'electric' || type === 'hybrid') return <Battery className="w-5 h-5" />;
+              return <Car className="w-5 h-5" />;
+            };
+
+            modes.push({
+              name: `${v.make} ${v.model}` || v.vehicle_id,
+              category: 'fleet',
+              distance: v.distance_km || 0,
+              fuelConsumed: v.fuel_liters || 0,
+              fuelUnit: v.is_electric ? 'kWh' : 'L',
+              emissions: v.emissions_tco2e || 0,
+              cost: v.cost || 0,
+              trips: 0, // TODO: Add trip tracking
+              efficiency: v.distance_km && v.fuel_liters ? (v.fuel_liters / v.distance_km * 100) : 0,
+              trend: 0, // TODO: Calculate from historical
+              icon: getIcon(v.type)
+            });
+          });
+        }
+
+        // Map business travel data
+        if (travelData.travel) {
+          travelData.travel.forEach((t: any) => {
+            const getIcon = (type: string) => {
+              if (type === 'air') return <Plane className="w-5 h-5" />;
+              if (type === 'rail') return <Train className="w-5 h-5" />;
+              if (type === 'road') return <Car className="w-5 h-5" />;
+              return <Navigation className="w-5 h-5" />;
+            };
+
+            modes.push({
+              name: `${t.type.charAt(0).toUpperCase()}${t.type.slice(1)} Travel`,
+              category: 'business',
+              distance: t.distance_km || 0,
+              fuelConsumed: 0,
+              fuelUnit: 'trips',
+              emissions: t.emissions_tco2e || 0,
+              cost: t.cost || 0,
+              trips: t.trip_count || 0,
+              efficiency: t.distance_km ? (t.emissions_tco2e / t.distance_km) : 0,
+              trend: 0, // TODO: Calculate from historical
+              icon: getIcon(t.type)
+            });
+          });
+        }
+
+        setTransportModes(modes);
+      } catch (error) {
+        console.error('Error fetching transportation data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransportData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+      </div>
+    );
+  }
+
+  const [commuteModes] = useState<TransportMode[]>([
     {
-      name: 'Company Vehicles',
-      category: 'fleet',
-      distance: 25000,
-      fuelConsumed: 2500,
-      fuelUnit: 'L',
-      emissions: 6.5,
-      cost: 4200,
-      trips: 850,
-      efficiency: 10.0, // L/100km
-      trend: -3.2,
-      icon: <Car className="w-5 h-5" />
-    },
-    {
-      name: 'Delivery Trucks',
-      category: 'fleet',
-      distance: 18000,
-      fuelConsumed: 3600,
-      fuelUnit: 'L',
-      emissions: 9.4,
-      cost: 6100,
-      trips: 320,
-      efficiency: 20.0,
-      trend: 5.1,
-      icon: <Truck className="w-5 h-5" />
-    },
-    {
-      name: 'EV Fleet',
-      category: 'fleet',
-      distance: 8000,
-      fuelConsumed: 1600,
-      fuelUnit: 'kWh',
-      emissions: 0.8,
-      cost: 280,
-      trips: 400,
-      efficiency: 20.0, // kWh/100km
-      trend: 45.2,
-      icon: <Battery className="w-5 h-5" />
-    },
-    // Business Travel (Scope 3)
-    {
-      name: 'Air Travel',
-      category: 'business',
-      distance: 40000,
+      name: 'Placeholder for Commute Data',
+      category: 'commute',
+      distance: 0,
       fuelConsumed: 0,
       fuelUnit: 'trips',
-      emissions: 8.2,
-      cost: 15000,
-      trips: 25,
-      efficiency: 0.205, // kgCO2/km
-      trend: -12.3,
-      icon: <Plane className="w-5 h-5" />
-    },
-    {
-      name: 'Rail Travel',
-      category: 'business',
-      distance: 5000,
-      fuelConsumed: 0,
-      fuelUnit: 'trips',
-      emissions: 0.2,
-      cost: 2000,
-      trips: 50,
-      efficiency: 0.04,
-      trend: 8.5,
-      icon: <Train className="w-5 h-5" />
-    },
-    {
-      name: 'Rental Cars',
-      category: 'business',
-      distance: 3000,
-      fuelConsumed: 300,
-      fuelUnit: 'L',
-      emissions: 0.78,
-      cost: 1800,
+      emissions: 0,
+      cost: 0,
       trips: 15,
       efficiency: 10.0,
       trend: -5.1,
