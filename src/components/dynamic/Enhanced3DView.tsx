@@ -76,54 +76,20 @@ export function Enhanced3DView({
 
   const handleSetViewMode = propSetViewMode || setViewMode;
 
-  // Default building data
-  const defaultBuildingData = {
-    floors: 5,
-    zones: [
-      {
-        id: "zone-1",
-        name: "Executive Suite",
-        floor: 5,
-        type: "office",
-        metrics: { temperature: 22.5, occupancy: 12, energy: 450, co2: 420 },
-        status: "optimal" as const,
-      },
-      {
-        id: "zone-2",
-        name: "Open Office Area",
-        floor: 4,
-        type: "office",
-        metrics: { temperature: 23.1, occupancy: 45, energy: 1200, co2: 580 },
-        status: "warning" as const,
-      },
-      {
-        id: "zone-3",
-        name: "Conference Center",
-        floor: 3,
-        type: "meeting",
-        metrics: { temperature: 21.8, occupancy: 8, energy: 320, co2: 380 },
-        status: "optimal" as const,
-      },
-      {
-        id: "zone-4",
-        name: "Data Center",
-        floor: 2,
-        type: "technical",
-        metrics: { temperature: 18.5, occupancy: 2, energy: 3500, co2: 250 },
-        status: "critical" as const,
-      },
-      {
-        id: "zone-5",
-        name: "Lobby & Reception",
-        floor: 1,
-        type: "public",
-        metrics: { temperature: 22.0, occupancy: 25, energy: 680, co2: 450 },
-        status: "optimal" as const,
-      },
-    ],
-  };
+  // No default building data - require real data from API
+  const building = buildingData;
 
-  const building = buildingData || defaultBuildingData;
+  // Show message if no building data provided
+  if (!building) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="text-gray-400 mb-2">No building data available</div>
+          <div className="text-sm text-gray-500">Configure building zones to enable 3D view</div>
+        </div>
+      </div>
+    );
+  }
 
   // Simulate time progression
   useEffect(() => {
