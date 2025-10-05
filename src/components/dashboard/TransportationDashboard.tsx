@@ -44,91 +44,6 @@ export function TransportationDashboard({ organizationId }: TransportationDashbo
   const [loading, setLoading] = React.useState(true);
   const [transportModes, setTransportModes] = useState<TransportMode[]>([]);
 
-  // Fetch transportation data
-  React.useEffect(() => {
-    const fetchTransportData = async () => {
-      setLoading(true);
-      try {
-        // Fetch fleet data
-        const fleetRes = await fetch('/api/transportation/fleet');
-        const fleetData = await fleetRes.json();
-
-        // Fetch business travel data
-        const travelRes = await fetch('/api/transportation/business-travel');
-        const travelData = await travelRes.json();
-
-        const modes: TransportMode[] = [];
-
-        // Map fleet data
-        if (fleetData.fleet) {
-          fleetData.fleet.forEach((v: any) => {
-            const getIcon = (type: string) => {
-              if (type === 'truck') return <Truck className="w-5 h-5" />;
-              if (type === 'electric' || type === 'hybrid') return <Battery className="w-5 h-5" />;
-              return <Car className="w-5 h-5" />;
-            };
-
-            modes.push({
-              name: `${v.make} ${v.model}` || v.vehicle_id,
-              category: 'fleet',
-              distance: v.distance_km || 0,
-              fuelConsumed: v.fuel_liters || 0,
-              fuelUnit: v.is_electric ? 'kWh' : 'L',
-              emissions: v.emissions_tco2e || 0,
-              cost: v.cost || 0,
-              trips: 0, // TODO: Add trip tracking
-              efficiency: v.distance_km && v.fuel_liters ? (v.fuel_liters / v.distance_km * 100) : 0,
-              trend: 0, // TODO: Calculate from historical
-              icon: getIcon(v.type)
-            });
-          });
-        }
-
-        // Map business travel data
-        if (travelData.travel) {
-          travelData.travel.forEach((t: any) => {
-            const getIcon = (type: string) => {
-              if (type === 'air') return <Plane className="w-5 h-5" />;
-              if (type === 'rail') return <Train className="w-5 h-5" />;
-              if (type === 'road') return <Car className="w-5 h-5" />;
-              return <Navigation className="w-5 h-5" />;
-            };
-
-            modes.push({
-              name: `${t.type.charAt(0).toUpperCase()}${t.type.slice(1)} Travel`,
-              category: 'business',
-              distance: t.distance_km || 0,
-              fuelConsumed: 0,
-              fuelUnit: 'trips',
-              emissions: t.emissions_tco2e || 0,
-              cost: t.cost || 0,
-              trips: t.trip_count || 0,
-              efficiency: t.distance_km ? (t.emissions_tco2e / t.distance_km) : 0,
-              trend: 0, // TODO: Calculate from historical
-              icon: getIcon(t.type)
-            });
-          });
-        }
-
-        setTransportModes(modes);
-      } catch (error) {
-        console.error('Error fetching transportation data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTransportData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
-      </div>
-    );
-  }
-
   const [commuteModes] = useState<TransportMode[]>([
     {
       name: 'Placeholder for Commute Data',
@@ -226,6 +141,91 @@ export function TransportationDashboard({ organizationId }: TransportationDashbo
     { type: 'behavior', message: 'Carpooling program could reduce commute emissions by 30%' },
     { type: 'logistics', message: 'Consolidating shipments would save $2,000/month' }
   ]);
+
+  // Fetch transportation data
+  React.useEffect(() => {
+    const fetchTransportData = async () => {
+      setLoading(true);
+      try {
+        // Fetch fleet data
+        const fleetRes = await fetch('/api/transportation/fleet');
+        const fleetData = await fleetRes.json();
+
+        // Fetch business travel data
+        const travelRes = await fetch('/api/transportation/business-travel');
+        const travelData = await travelRes.json();
+
+        const modes: TransportMode[] = [];
+
+        // Map fleet data
+        if (fleetData.fleet) {
+          fleetData.fleet.forEach((v: any) => {
+            const getIcon = (type: string) => {
+              if (type === 'truck') return <Truck className="w-5 h-5" />;
+              if (type === 'electric' || type === 'hybrid') return <Battery className="w-5 h-5" />;
+              return <Car className="w-5 h-5" />;
+            };
+
+            modes.push({
+              name: `${v.make} ${v.model}` || v.vehicle_id,
+              category: 'fleet',
+              distance: v.distance_km || 0,
+              fuelConsumed: v.fuel_liters || 0,
+              fuelUnit: v.is_electric ? 'kWh' : 'L',
+              emissions: v.emissions_tco2e || 0,
+              cost: v.cost || 0,
+              trips: 0, // TODO: Add trip tracking
+              efficiency: v.distance_km && v.fuel_liters ? (v.fuel_liters / v.distance_km * 100) : 0,
+              trend: 0, // TODO: Calculate from historical
+              icon: getIcon(v.type)
+            });
+          });
+        }
+
+        // Map business travel data
+        if (travelData.travel) {
+          travelData.travel.forEach((t: any) => {
+            const getIcon = (type: string) => {
+              if (type === 'air') return <Plane className="w-5 h-5" />;
+              if (type === 'rail') return <Train className="w-5 h-5" />;
+              if (type === 'road') return <Car className="w-5 h-5" />;
+              return <Navigation className="w-5 h-5" />;
+            };
+
+            modes.push({
+              name: `${t.type.charAt(0).toUpperCase()}${t.type.slice(1)} Travel`,
+              category: 'business',
+              distance: t.distance_km || 0,
+              fuelConsumed: 0,
+              fuelUnit: 'trips',
+              emissions: t.emissions_tco2e || 0,
+              cost: t.cost || 0,
+              trips: t.trip_count || 0,
+              efficiency: t.distance_km ? (t.emissions_tco2e / t.distance_km) : 0,
+              trend: 0, // TODO: Calculate from historical
+              icon: getIcon(t.type)
+            });
+          });
+        }
+
+        setTransportModes(modes);
+      } catch (error) {
+        console.error('Error fetching transportation data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransportData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+      </div>
+    );
+  }
 
   // Calculate totals by category
   const calculateCategoryTotals = (category: string) => {
