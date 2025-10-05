@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase/server';
 import { PermissionService } from '@/lib/auth/permission-service';
-import { getUserOrganization } from '@/lib/auth/get-user-org';
+import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import OrganizationsClient from './OrganizationsClient';
 
 export default async function OrganizationsPage() {
@@ -17,7 +17,7 @@ export default async function OrganizationsPage() {
 
   // Check permissions
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
-  const { organizationId, role } = await getUserOrganization(user.id);
+  const { organizationId, role } = await getUserOrganizationById(user.id);
 
   let initialOrganizations: any[] = [];
 
