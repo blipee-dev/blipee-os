@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { PermissionService } from '@/lib/auth/permission-service';
-import { getUserOrganization } from '@/lib/auth/get-user-org';
+import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import DataInvestigationClient from './DataInvestigationClient';
 
 export default async function SustainabilityDataInvestigationPage() {
@@ -16,7 +16,7 @@ export default async function SustainabilityDataInvestigationPage() {
 
   // Check permissions
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
-  const { organizationId, role } = await getUserOrganization(user.id);
+  const { organizationId, role } = await getUserOrganizationById(user.id);
 
   // Only allow: super admins, owners, managers, and members
   // Viewers cannot investigate data
