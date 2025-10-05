@@ -236,7 +236,7 @@ export default function DashboardClient() {
 
   return (
     <SustainabilityLayout>
-      <div className="space-y-6">
+      <div className="p-4 sm:p-6 space-y-6">
         {/* Header with AI Integration Status */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
