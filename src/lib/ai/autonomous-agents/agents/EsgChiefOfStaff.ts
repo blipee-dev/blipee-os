@@ -636,28 +636,67 @@ Provide a strategic analysis and recommended actions in JSON format:
   }
   
   private async saveStrategicObjectives(): Promise<void> {
-    // Save current strategic objectives to database
+    // TODO: Implement database persistence for strategic objectives
+    console.warn('ESGChiefOfStaff.saveStrategicObjectives() not yet implemented - objectives will not be persisted');
   }
-  
+
   private async saveStakeholderInsights(): Promise<void> {
-    // Save stakeholder insights to database
+    // TODO: Implement database persistence for stakeholder insights
+    console.warn('ESGChiefOfStaff.saveStakeholderInsights() not yet implemented - insights will not be persisted');
   }
-  
+
   private async saveOpportunities(): Promise<void> {
-    // Save identified opportunities to database
+    // TODO: Implement database persistence for opportunities
+    console.warn('ESGChiefOfStaff.saveOpportunities() not yet implemented - opportunities will not be persisted');
   }
-  
+
   // Additional helper methods...
-  private async loadStakeholderInsights(): Promise<void> {}
-  private async loadOpportunities(): Promise<void> {}
-  private async analyzeStakeholderSentiment(): Promise<any> { return {}; }
-  private identifyEngagementOpportunities(analysis: any): any[] { return []; }
-  private async updateStakeholderInsights(analysis: any): Promise<void> {}
-  private calculateNextPulseCheck(frequency: string): Date { return new Date(); }
-  private async updateObjectivesBasedOnPerformance(analysis: any): Promise<void> {}
-  private async generateImplementationRoadmap(opportunities: ESGOpportunity[]): Promise<any> { return {}; }
-  private calculateTotalImpact(opportunities: ESGOpportunity[]): any { return {}; }
-  private async adjustPriorities(area: string, adjustment: number): Promise<void> {}
+  private async loadStakeholderInsights(): Promise<void> {
+    console.warn('ESGChiefOfStaff.loadStakeholderInsights() not yet implemented');
+  }
+
+  private async loadOpportunities(): Promise<void> {
+    console.warn('ESGChiefOfStaff.loadOpportunities() not yet implemented');
+  }
+
+  private async analyzeStakeholderSentiment(): Promise<any> {
+    console.warn('ESGChiefOfStaff.analyzeStakeholderSentiment() not yet implemented');
+    return {};
+  }
+
+  private identifyEngagementOpportunities(analysis: any): any[] {
+    console.warn('ESGChiefOfStaff.identifyEngagementOpportunities() not yet implemented');
+    return [];
+  }
+
+  private async updateStakeholderInsights(analysis: any): Promise<void> {
+    console.warn('ESGChiefOfStaff.updateStakeholderInsights() not yet implemented');
+  }
+
+  private calculateNextPulseCheck(frequency: string): Date {
+    // Simple implementation - add 30 days
+    const next = new Date();
+    next.setDate(next.getDate() + 30);
+    return next;
+  }
+
+  private async updateObjectivesBasedOnPerformance(analysis: any): Promise<void> {
+    console.warn('ESGChiefOfStaff.updateObjectivesBasedOnPerformance() not yet implemented');
+  }
+
+  private async generateImplementationRoadmap(opportunities: ESGOpportunity[]): Promise<any> {
+    console.warn('ESGChiefOfStaff.generateImplementationRoadmap() not yet implemented');
+    return {};
+  }
+
+  private calculateTotalImpact(opportunities: ESGOpportunity[]): any {
+    console.warn('ESGChiefOfStaff.calculateTotalImpact() not yet implemented');
+    return {};
+  }
+
+  private async adjustPriorities(area: string, adjustment: number): Promise<void> {
+    console.warn('ESGChiefOfStaff.adjustPriorities() not yet implemented');
+  }
   private async handleRiskAssessment(task: Task): Promise<TaskResult> { 
     return { taskId: task.id, status: 'success', confidence: 0.8, reasoning: ['Risk assessment completed'], completedAt: new Date() }; 
   }
