@@ -7,6 +7,12 @@ import { GradientButton } from '@/components/premium/GradientButton';
 import { createGraphQLClient, QUERIES, MUTATIONS } from '@/lib/graphql/client';
 import { createClient } from '@/lib/supabase/client';
 import { useEffect } from 'react';
+import { notFound } from 'next/navigation';
+
+// Only allow in development mode
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+  notFound();
+}
 
 interface ExampleQuery {
   name: string;

@@ -4,8 +4,13 @@ import { useState } from 'react';
 import { DynamicChart } from '@/lib/visualization/charts/DynamicChart';
 import { Widget } from '@/lib/visualization/widgets/widget-library';
 import { ExportService } from '@/lib/visualization/export/ExportService';
+import { notFound } from 'next/navigation';
 
 export default function TestVisualPage() {
+  // Only allow in development mode
+  if (process.env.NODE_ENV === 'production') {
+    notFound();
+  }
   const [testResults, setTestResults] = useState<string[]>([]);
 
   const runTests = async () => {
