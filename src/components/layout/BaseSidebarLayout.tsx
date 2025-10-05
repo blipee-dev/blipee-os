@@ -98,7 +98,7 @@ export function BaseSidebarLayout({
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text'
                   }}>
-                    {sectionTitle}
+                    blipee
                   </span>
                 </div>
               )}
@@ -299,7 +299,7 @@ export function BaseSidebarLayout({
                 {/* Header */}
                 <div className="p-4 border-b border-gray-200 dark:border-white/[0.05]">
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-semibold text-gray-900 dark:text-white">{sectionTitle}</span>
+                    <span className="text-lg font-semibold text-gray-900 dark:text-white">blipee</span>
                     <button
                       onClick={() => setIsMenuOpen(false)}
                       className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-all"
