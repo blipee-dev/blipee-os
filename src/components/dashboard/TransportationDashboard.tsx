@@ -18,11 +18,17 @@ import {
   Activity,
   Bot,
   MapPin,
-  Package
+  Package,
+  Info
 } from 'lucide-react';
+
+import type { Building } from '@/types/auth';
+import type { TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 
 interface TransportationDashboardProps {
   organizationId: string;
+  selectedSite?: Building | null;
+  selectedPeriod?: TimePeriod;
 }
 
 interface TransportMode {
@@ -44,103 +50,14 @@ export function TransportationDashboard({ organizationId }: TransportationDashbo
   const [loading, setLoading] = React.useState(true);
   const [transportModes, setTransportModes] = useState<TransportMode[]>([]);
 
-  const [commuteModes] = useState<TransportMode[]>([
-    {
-      name: 'Placeholder for Commute Data',
-      category: 'commute',
-      distance: 0,
-      fuelConsumed: 0,
-      fuelUnit: 'trips',
-      emissions: 0,
-      cost: 0,
-      trips: 15,
-      efficiency: 10.0,
-      trend: -5.1,
-      icon: <Car className="w-5 h-5" />
-    },
-    // Employee Commute (Scope 3)
-    {
-      name: 'Personal Vehicles',
-      category: 'commute',
-      distance: 45000,
-      fuelConsumed: 4500,
-      fuelUnit: 'L',
-      emissions: 11.7,
-      cost: 0, // Company doesn't pay
-      trips: 4500, // Daily trips
-      efficiency: 10.0,
-      trend: -8.2,
-      icon: <Car className="w-5 h-5" />
-    },
-    {
-      name: 'Public Transit',
-      category: 'commute',
-      distance: 20000,
-      fuelConsumed: 0,
-      fuelUnit: 'trips',
-      emissions: 0.8,
-      cost: 500, // Subsidies
-      trips: 2000,
-      efficiency: 0.04,
-      trend: 12.5,
-      icon: <Train className="w-5 h-5" />
-    },
-    {
-      name: 'Remote Work',
-      category: 'commute',
-      distance: 0,
-      fuelConsumed: 0,
-      fuelUnit: 'days',
-      emissions: -3.5, // Avoided
-      cost: -2000, // Saved
-      trips: 0,
-      efficiency: 0,
-      trend: 35.8,
-      icon: <Users className="w-5 h-5" />
-    },
-    // Logistics (Scope 3)
-    {
-      name: 'Inbound Freight',
-      category: 'logistics',
-      distance: 50000,
-      fuelConsumed: 0,
-      fuelUnit: 't-km',
-      emissions: 12.5,
-      cost: 8500,
-      trips: 120,
-      efficiency: 0.25,
-      trend: 3.2,
-      icon: <Truck className="w-5 h-5" />
-    },
-    {
-      name: 'Outbound Shipping',
-      category: 'logistics',
-      distance: 35000,
-      fuelConsumed: 0,
-      fuelUnit: 't-km',
-      emissions: 8.8,
-      cost: 6200,
-      trips: 200,
-      efficiency: 0.25,
-      trend: -2.1,
-      icon: <Package className="w-5 h-5" />
-    }
-  ]);
+  // Weighted allocation targets
+  const [categoryTargets, setCategoryTargets] = useState<any[]>([]);
+  const [overallTargetPercent, setOverallTargetPercent] = useState<number | null>(null);
 
-  const [optimizationMetrics] = useState({
-    fleetUtilization: 72,
-    emptyRunning: 18,
-    averageOccupancy: 2.3,
-    modalShift: 15, // % shifted to lower carbon modes
-    routeEfficiency: 85
-  });
-
-  const [aiInsights] = useState([
-    { type: 'optimization', message: 'Route optimization could reduce fleet emissions by 15%' },
-    { type: 'transition', message: 'EV transition for 5 vehicles would cut 80% emissions' },
-    { type: 'behavior', message: 'Carpooling program could reduce commute emissions by 30%' },
-    { type: 'logistics', message: 'Consolidating shipments would save $2,000/month' }
-  ]);
+  // TODO: Fetch commute and logistics data from API when available
+  // For now, these are empty - no mock data
+  const commuteModes: TransportMode[] = [];
+  const logisticsModes: TransportMode[] = [];
 
   // Fetch transportation data
   React.useEffect(() => {
@@ -150,10 +67,12 @@ export function TransportationDashboard({ organizationId }: TransportationDashbo
         // Fetch fleet data
         const fleetRes = await fetch('/api/transportation/fleet');
         const fleetData = await fleetRes.json();
+        console.log('🚗 Fleet API Response:', fleetData);
 
         // Fetch business travel data
         const travelRes = await fetch('/api/transportation/business-travel');
         const travelData = await travelRes.json();
+        console.log('✈️ Business Travel API Response:', travelData);
 
         const modes: TransportMode[] = [];
 
@@ -209,8 +128,31 @@ export function TransportationDashboard({ organizationId }: TransportationDashbo
         }
 
         setTransportModes(modes);
+        console.log('📊 Processed Transport Modes:', modes);
+        console.log('📈 Total modes count:', modes.length);
+
+        // Fetch weighted allocation targets for transportation categories
+        const currentYear = new Date().getFullYear();
+        const allocParams = new URLSearchParams({
+          baseline_year: (currentYear - 1).toString(),
+        });
+
+        const allocRes = await fetch(`/api/sustainability/targets/weighted-allocation?${allocParams}`);
+        const allocData = await allocRes.json();
+
+        if (allocData.allocations) {
+          // Filter for transportation-related categories (Business Travel, Employee Commuting, Transport)
+          const transportCategories = allocData.allocations.filter((alloc: any) =>
+            alloc.category === 'Business Travel' ||
+            alloc.category === 'Employee Commuting' ||
+            alloc.category === 'Transport'
+          );
+          setCategoryTargets(transportCategories);
+          setOverallTargetPercent(allocData.overallTarget);
+          console.log('📊 Transportation Category Targets:', transportCategories);
+        }
       } catch (error) {
-        console.error('Error fetching transportation data:', error);
+        console.error('❌ Error fetching transportation data:', error);
       } finally {
         setLoading(false);
       }
@@ -240,8 +182,9 @@ export function TransportationDashboard({ organizationId }: TransportationDashbo
 
   const fleetTotals = calculateCategoryTotals('fleet');
   const travelTotals = calculateCategoryTotals('business');
-  const commuteTotals = calculateCategoryTotals('commute');
-  const logisticsTotals = calculateCategoryTotals('logistics');
+  // Commute and logistics currently have no data - will be 0
+  const commuteTotals = { distance: 0, emissions: 0, cost: 0, trips: 0 };
+  const logisticsTotals = { distance: 0, emissions: 0, cost: 0, trips: 0 };
 
   const totalEmissions = transportModes.reduce((sum, mode) => sum + mode.emissions, 0);
   const totalCost = transportModes.reduce((sum, mode) => sum + mode.cost, 0);
@@ -446,91 +389,117 @@ export function TransportationDashboard({ organizationId }: TransportationDashbo
         </div>
       </div>
 
-      {/* Optimization Metrics */}
-      <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Transportation Optimization
-        </h3>
-
-        <div className="grid grid-cols-5 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {optimizationMetrics.fleetUtilization}%
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Fleet Utilization</div>
-            <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-purple-500"
-                style={{ width: `${optimizationMetrics.fleetUtilization}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {optimizationMetrics.emptyRunning}%
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Empty Running</div>
-            <div className="text-xs text-red-500 mt-1">Target: &lt;10%</div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {optimizationMetrics.averageOccupancy}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Avg Occupancy</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">people/vehicle</div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {optimizationMetrics.modalShift}%
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Modal Shift</div>
-            <div className="text-xs text-green-500 mt-1">To low-carbon</div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {optimizationMetrics.routeEfficiency}%
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Route Efficiency</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Optimized</div>
-          </div>
-        </div>
-      </div>
-
-      {/* AI Insights */}
-      <div className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 backdrop-blur-xl border border-purple-500/20 rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Bot className="w-5 h-5 text-purple-400" />
-          <h3 className="text-lg font-semibold text-white">Transportation Optimization AI</h3>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          {aiInsights.map((insight, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:bg-gray-800/70 transition-all cursor-pointer"
-            >
-              <div className="flex items-start gap-2">
-                {insight.type === 'optimization' && <Navigation className="w-4 h-4 text-purple-400 mt-0.5" />}
-                {insight.type === 'transition' && <Battery className="w-4 h-4 text-green-400 mt-0.5" />}
-                {insight.type === 'behavior' && <Users className="w-4 h-4 text-blue-400 mt-0.5" />}
-                {insight.type === 'logistics' && <Package className="w-4 h-4 text-orange-400 mt-0.5" />}
-                <p className="text-sm text-gray-300">{insight.message}</p>
+      {/* Only show optimization metrics if we have data */}
+      {transportModes.length > 0 && (
+        <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Transportation Metrics
+          </h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {totalDistance.toLocaleString()}
               </div>
-            </motion.div>
-          ))}
+              <div className="text-sm text-gray-500 dark:text-gray-400">Total Distance (km)</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {totalEmissions.toFixed(1)}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Total Emissions (tCO2e)</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {totalDistance > 0 ? ((totalEmissions * 1000) / totalDistance).toFixed(1) : '0'}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Intensity (gCO2/km)</div>
+            </div>
+          </div>
         </div>
+      )}
 
-        <button className="mt-4 px-4 py-2 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-lg hover:bg-purple-500/30 transition-all">
-          Ask AI for Fleet Optimization Plan
-        </button>
-      </div>
+      {/* Science-Based Category Targets */}
+      {categoryTargets.length > 0 && (
+        <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Science-Based Target Allocation</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Weighted by emission profile, abatement potential, and technology readiness
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                {overallTargetPercent?.toFixed(1)}%
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Overall Target</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {categoryTargets.map((target: any) => (
+              <div
+                key={target.category}
+                className={`border rounded-lg p-4 ${
+                  target.feasibility === 'high'
+                    ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                    : target.feasibility === 'medium'
+                    ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+                    : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-white">{target.category}</h4>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {target.currentEmissions.toFixed(1)} tCO2e ({target.emissionPercent.toFixed(1)}%)
+                    </div>
+                  </div>
+                  <div className={`px-2 py-1 rounded text-xs font-medium ${
+                    target.feasibility === 'high'
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                      : target.feasibility === 'medium'
+                      ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                      : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                  }`}>
+                    {target.feasibility} feasibility
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      {target.adjustedTargetPercent.toFixed(1)}%
+                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      → {target.absoluteTarget.toFixed(1)} tCO2e
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 italic">
+                    {target.reason}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="flex items-start gap-2">
+              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <h5 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                  How Weighted Allocation Works
+                </h5>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Categories with high emissions AND high abatement potential receive higher reduction targets.
+                  This ensures the overall {overallTargetPercent?.toFixed(1)}% target is achievable by focusing efforts where they matter most.
+                  Categories are weighted by emission percentage × effort factor (based on technology readiness and cost-effectiveness).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

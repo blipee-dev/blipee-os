@@ -34,6 +34,7 @@ import { ScenarioSimulator } from '@/components/sustainability/targets/ScenarioS
 import { MetricLevelScenarioSimulator } from '@/components/sustainability/targets/MetricLevelScenarioSimulator';
 import { MaterialityMatrix } from '@/components/sustainability/materiality/MaterialityMatrix';
 import { TargetSettingAssistant } from '@/components/sustainability/targets/TargetSettingAssistant';
+import { WeightedTargetBreakdown } from '@/components/sustainability/targets/WeightedTargetBreakdown';
 
 interface TargetData {
   id: string;
@@ -66,9 +67,11 @@ export default function TargetsClient() {
   const [sites, setSites] = useState<any[]>([]);
   const [organizationId, setOrganizationId] = useState<string>('');
   const [simulatorMode, setSimulatorMode] = useState<'overall' | 'metric'>('overall');
-  const [activeTab, setActiveTab] = useState<'overview' | 'assistant' | 'scenarios' | 'materiality' | 'initiatives'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'weighted' | 'assistant' | 'scenarios' | 'materiality' | 'initiatives'>('overview');
   const [showAIBanner, setShowAIBanner] = useState(false);
   const [aiAnalysisData, setAiAnalysisData] = useState<any>(null);
+  const [categoryTargets, setCategoryTargets] = useState<any[]>([]);
+  const [isInitializing, setIsInitializing] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -76,6 +79,7 @@ export default function TargetsClient() {
       fetchMLPredictions();
       fetchEmissionsData();
       fetchSites();
+      fetchCategoryTargets();
     }
   }, [user]);
 
@@ -86,15 +90,72 @@ export default function TargetsClient() {
 
   const fetchTargets = async () => {
     try {
+      // First, cleanup any duplicate targets
+      const cleanupResponse = await fetch('/api/sustainability/targets/cleanup-duplicates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (cleanupResponse.ok) {
+        const cleanupData = await cleanupResponse.json();
+        if (cleanupData.deleted > 0) {
+          console.log(`🧹 Cleaned up ${cleanupData.deleted} duplicate targets`);
+        }
+      }
+
       const response = await fetch('/api/sustainability/targets');
       if (!response.ok) throw new Error('Failed to fetch targets');
       const data = await response.json();
       setTargets(data.targets || []);
+
+      // Auto-initialize default SBTi target if none exists (with race condition protection)
+      if ((!data.targets || data.targets.length === 0) && !isInitializing) {
+        await autoInitializeTarget();
+      }
     } catch (error) {
       console.error('Error fetching targets:', error);
       toast.error('Failed to load targets');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const autoInitializeTarget = async () => {
+    if (isInitializing) {
+      console.log('⏳ Already initializing, skipping...');
+      return;
+    }
+
+    try {
+      setIsInitializing(true);
+      console.log('🎯 No targets found - auto-initializing SBTi target...');
+      const response = await fetch('/api/sustainability/targets/auto-initialize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Auto-initialized target:', data.message);
+        toast.success('Default SBTi target created!');
+
+        // Refetch targets to update UI (without triggering another auto-initialize)
+        const targetsResponse = await fetch('/api/sustainability/targets');
+        if (targetsResponse.ok) {
+          const targetsData = await targetsResponse.json();
+          setTargets(targetsData.targets || []);
+          fetchCategoryTargets(); // Refresh category targets
+        }
+      } else {
+        const error = await response.json();
+        console.error('❌ Auto-initialize failed:', error);
+        console.log('ℹ️ Auto-initialize skipped:', error.message || error.error);
+      }
+    } catch (error) {
+      console.error('Error auto-initializing target:', error);
+      // Don't show error toast - this is a background operation
+    } finally {
+      setIsInitializing(false);
     }
   };
 
@@ -148,6 +209,28 @@ export default function TargetsClient() {
       }
     } catch (error) {
       console.error('Error fetching sites:', error);
+    }
+  };
+
+  const fetchCategoryTargets = async () => {
+    try {
+      // Fetch weighted allocation based on first target or default
+      const overallTarget = targets[0]?.target_reduction_percent || 4.2;
+      const baselineYear = targets[0]?.baseline_year || new Date().getFullYear() - 1;
+
+      const params = new URLSearchParams({
+        target: overallTarget.toString(),
+        baseline_year: baselineYear.toString()
+      });
+
+      const response = await fetch(`/api/sustainability/targets/weighted-allocation?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setCategoryTargets(data.allocations || []);
+        console.log('📊 Category targets loaded:', data.allocations?.length);
+      }
+    } catch (error) {
+      console.error('Error fetching category targets:', error);
     }
   };
 
@@ -265,6 +348,7 @@ export default function TargetsClient() {
 
     const tabs = [
       { id: 'overview', label: 'Overview', icon: Target },
+      { id: 'weighted', label: 'Target Allocation', icon: TrendingDown },
       { id: 'assistant', label: 'AI Assistant', icon: Users },
       { id: 'scenarios', label: 'Scenario Planning', icon: BarChart3 },
       { id: 'materiality', label: 'Material Topics', icon: Grid3x3 },
@@ -331,7 +415,7 @@ export default function TargetsClient() {
 
         {/* Glass Morphism Tab Navigation */}
         <div className="bg-white dark:bg-gray-900/50 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-xl p-1 mb-6">
-          <div className="grid grid-cols-5 gap-1">
+          <div className="grid grid-cols-6 gap-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -453,6 +537,49 @@ export default function TargetsClient() {
           </motion.div>
             </div>
 
+            {/* Category Targets Grid */}
+            {categoryTargets.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Category-Level Targets
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {categoryTargets.slice(0, 6).map((cat) => (
+                    <motion.div
+                      key={cat.category}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {cat.category}
+                        </span>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          cat.feasibility === 'high'
+                            ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                            : cat.feasibility === 'medium'
+                            ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+                            : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                        }`}>
+                          {cat.feasibility}
+                        </span>
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+                          {cat.adjustedTargetPercent.toFixed(1)}%
+                        </span>
+                        <span className="text-xs text-gray-500">reduction</span>
+                      </div>
+                      <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                        {cat.currentEmissions.toFixed(1)} → {cat.absoluteTarget.toFixed(1)} tCO2e
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* SBTi Progress Tracker */}
@@ -460,6 +587,7 @@ export default function TargetsClient() {
                 targets={targets}
                 predictions={mlPredictions}
                 onTargetSelect={setSelectedTarget}
+                categoryTargets={categoryTargets}
               />
 
               {/* Pathway Visualization */}
@@ -467,6 +595,7 @@ export default function TargetsClient() {
                 targets={targets}
                 selectedTarget={selectedTarget}
                 predictions={mlPredictions}
+                categoryTargets={categoryTargets}
               />
             </div>
 
@@ -476,6 +605,23 @@ export default function TargetsClient() {
                 <ValidationChecklist targetId={selectedTarget} />
               </div>
             )}
+            </motion.div>
+          )}
+
+          {/* Weighted Target Allocation Tab */}
+          {activeTab === 'weighted' && (
+            <motion.div
+              key="weighted"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <WeightedTargetBreakdown
+                organizationId={organizationId}
+                overallTarget={targets[0]?.target_reduction_percent || 4.2}
+                baselineYear={targets[0]?.baseline_year}
+              />
             </motion.div>
           )}
 
@@ -537,6 +683,7 @@ export default function TargetsClient() {
                 baselineYear={targets[0]?.baseline_year || 2022}
                 sites={sites}
                 organizationId={organizationId}
+                categoryTargets={categoryTargets}
               />
             ) : (
               <MetricLevelScenarioSimulator
@@ -544,6 +691,7 @@ export default function TargetsClient() {
                 baselineYear={targets[0]?.baseline_year || 2022}
                 sites={sites}
                 organizationId={organizationId}
+                categoryTargets={categoryTargets}
               />
             )}
             </>

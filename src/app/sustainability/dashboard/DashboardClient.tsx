@@ -16,10 +16,24 @@ import {
   Target,
   AlertCircle,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Trees,
+  Wind,
+  Shield,
+  HardHat,
+  ShieldCheck,
+  AlertTriangle,
+  Landmark,
+  Users,
+  Layers,
+  MapPin,
+  Sprout,
+  Pill,
+  Apple
 } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
+import { useAppearance, useAccentGradient } from '@/providers/AppearanceProvider';
 
 // Import all our new dashboard components
 import { ComplianceDashboard } from '@/components/dashboard/ComplianceDashboard';
@@ -28,21 +42,43 @@ import { WaterDashboard } from '@/components/dashboard/WaterDashboard';
 import { WasteDashboard } from '@/components/dashboard/WasteDashboard';
 import { TransportationDashboard } from '@/components/dashboard/TransportationDashboard';
 import { MonthlyIntelligentDashboard } from '@/components/dashboard/MonthlyIntelligentDashboard';
+import { TargetsDashboard } from '@/components/dashboard/TargetsDashboard';
 
 // Import AI components
 import { ConversationInterface } from '@/components/blipee-os/ConversationInterface';
 import { ProactiveAICoach } from '@/components/ai/ProactiveAICoach';
 
+// Import filter components
+import { SiteSelector } from '@/components/zero-typing/SiteSelector';
+import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
+import type { Building } from '@/types/auth';
+
 type DashboardView = 'overview' | 'compliance' | 'energy' | 'water' | 'waste' | 'transportation' | 'monthly' | 'ai';
 
 export default function DashboardClient() {
   const { user } = useAuth();
+  const { settings } = useAppearance();
+  const accentGradientConfig = useAccentGradient();
   const [currentView, setCurrentView] = useState<DashboardView>('overview');
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [showProactiveCoach, setShowProactiveCoach] = useState(true);
   const [organizationData, setOrganizationData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // GRI sector-specific dashboards
+  const [sectorTopics, setSectorTopics] = useState<any>(null);
+  const [dynamicDashboards, setDynamicDashboards] = useState<any[]>([]);
+
+  // Global filters for all dashboards
+  const [selectedSite, setSelectedSite] = useState<Building | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>({
+    id: 'current-year',
+    label: new Date().getFullYear().toString(),
+    start: `${new Date().getFullYear()}-01-01`,
+    end: `${new Date().getFullYear()}-12-31`,
+    type: 'year'
+  });
 
   useEffect(() => {
     // Fetch organization data for context
@@ -85,67 +121,137 @@ export default function DashboardClient() {
     fetchOrgData();
   }, [user]);
 
-  // Dashboard navigation items
-  const dashboardTabs = [
+  // Fetch GRI sector-specific material topics
+  useEffect(() => {
+    const fetchSectorTopics = async () => {
+      if (!organizationData) return;
+
+      try {
+        const response = await fetch('/api/sustainability/gri-sector-topics');
+        const data = await response.json();
+
+        console.log('📊 GRI Sector Topics:', data);
+        setSectorTopics(data);
+
+        // Use recommended dashboards whether sector-specific or generic
+        if (data.recommended_dashboards && data.recommended_dashboards.length > 0) {
+          setDynamicDashboards(data.recommended_dashboards);
+        } else {
+          // Fallback to standard GRI 300 series
+          setDynamicDashboards([
+            { type: 'energy', name: 'Energy', gri: 'GRI 302' },
+            { type: 'water_management', name: 'Water & Effluents', gri: 'GRI 303' },
+            { type: 'waste_management', name: 'Waste', gri: 'GRI 306' }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching GRI sector topics:', error);
+        // Fallback to standard GRI 300 series dashboards
+        setDynamicDashboards([
+          { type: 'energy', name: 'Energy', gri: 'GRI 302' },
+          { type: 'water_management', name: 'Water & Effluents', gri: 'GRI 303' },
+          { type: 'waste_management', name: 'Waste', gri: 'GRI 306' }
+        ]);
+      }
+    };
+
+    fetchSectorTopics();
+  }, [organizationData]);
+
+  // Dashboard navigation items (using user's accent color from appearance settings)
+  const accentGradient = accentGradientConfig.gradient;
+  const accentColorHex = accentGradientConfig.from; // Use hex for dynamic styles
+
+  // Icon mapping for dashboard types
+  const iconMap: Record<string, any> = {
+    'ghg_emissions': Leaf,
+    'energy': Zap,
+    'water_management': Droplets,
+    'waste_management': Trash2,
+    'biodiversity': Trees,
+    'air_quality': Wind,
+    'climate_resilience': Shield,
+    'decommissioning': HardHat,
+    'asset_integrity': ShieldCheck,
+    'tailings_management': AlertTriangle,
+    'mine_closure': Landmark,
+    'artisanal_mining': Users,
+    'soil_health': Layers,
+    'land_conversion': MapPin,
+    'pesticides_use': Sprout,
+    'antibiotics_use': Pill,
+    'food_waste': Apple
+  };
+
+  // Color mapping for dashboard types
+  const colorMap: Record<string, string> = {
+    'ghg_emissions': '#10b981',
+    'energy': '#f59e0b',
+    'water_management': '#3b82f6',
+    'waste_management': '#92400e',
+    'biodiversity': '#059669',
+    'air_quality': '#0ea5e9',
+    'climate_resilience': '#8b5cf6',
+    'decommissioning': '#f97316',
+    'asset_integrity': '#ef4444',
+    'tailings_management': '#dc2626',
+    'mine_closure': '#92400e',
+    'artisanal_mining': '#f59e0b',
+    'soil_health': '#78350f',
+    'land_conversion': '#15803d',
+    'pesticides_use': '#facc15',
+    'antibiotics_use': '#3b82f6',
+    'food_waste': '#dc2626'
+  };
+
+  // Build dashboard tabs: fixed tabs + sector-specific dashboards
+  const fixedTabs = [
     {
       id: 'overview' as DashboardView,
       label: 'Overview',
       icon: BarChart3,
       description: 'Compliance & metrics overview',
-      color: 'from-blue-500 to-purple-500'
+      color: '#64748b'
     },
     {
       id: 'compliance' as DashboardView,
       label: 'Compliance',
       icon: FileCheck,
-      description: 'GHG Protocol & GRI Standards',
-      color: 'from-green-500 to-emerald-500'
-    },
-    {
-      id: 'energy' as DashboardView,
-      label: 'Energy',
-      icon: Zap,
-      description: 'Consumption & emissions tracking',
-      color: 'from-yellow-500 to-orange-500'
-    },
-    {
-      id: 'water' as DashboardView,
-      label: 'Water',
-      icon: Droplets,
-      description: 'Usage & efficiency metrics',
-      color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      id: 'waste' as DashboardView,
-      label: 'Waste',
-      icon: Trash2,
-      description: 'Disposal & recycling data',
-      color: 'from-purple-500 to-pink-500'
-    },
-    {
-      id: 'transportation' as DashboardView,
-      label: 'Transportation',
-      icon: Truck,
-      description: 'Fleet & travel emissions',
-      color: 'from-indigo-500 to-blue-500'
-    },
+      description: sectorTopics?.sector ? `GHG Protocol • ${sectorTopics.sector.name}` : 'GHG Protocol & GRI Standards',
+      color: '#475569',
+      badge: sectorTopics?.sector ? `GRI ${sectorTopics.sector.code.split('_')[1]}` : undefined
+    }
+  ];
+
+  const sectorDashboardTabs = (dynamicDashboards || []).map((dashboard: any) => ({
+    id: dashboard.type as DashboardView,
+    label: dashboard.name,
+    icon: iconMap[dashboard.type] || BarChart3,
+    description: dashboard.gri ? `${dashboard.gri}` : 'Sector-specific',
+    color: colorMap[dashboard.type] || '#64748b',
+    badge: dashboard.priority === 1 ? '⚠️' : undefined
+  }));
+
+  const aiTabs = [
     {
       id: 'monthly' as DashboardView,
-      label: 'Monthly Intelligence',
+      label: 'Intelligence',
       icon: Calendar,
       description: 'AI-powered monthly insights',
-      color: 'from-teal-500 to-green-500',
-      badge: 'AI'
+      badge: 'AI',
+      color: '#8b5cf6'
     },
     {
       id: 'ai' as DashboardView,
       label: 'AI Assistant',
       icon: Brain,
       description: 'Chat with your AI team',
-      color: 'from-purple-600 to-indigo-600',
-      badge: 'NEW'
+      badge: 'NEW',
+      color: '#8b5cf6'
     }
   ];
+
+  const dashboardTabs = [...fixedTabs, ...sectorDashboardTabs, ...aiTabs];
 
   const renderDashboard = () => {
     const orgId = organizationData?.id;
@@ -155,48 +261,103 @@ export default function DashboardClient() {
       return (
         <div className="flex items-center justify-center h-[400px]">
           <div className="text-center space-y-2">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" />
+            <div
+              className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto"
+              style={{ borderColor: accentColorHex }}
+            />
             <p className="text-gray-400">Loading organization data...</p>
           </div>
         </div>
       );
     }
 
-    switch (currentView) {
-      case 'compliance':
-        return <ComplianceDashboard organizationId={orgId} />;
-      case 'energy':
-        return <EnergyDashboard organizationId={orgId} />;
-      case 'water':
-        return <WaterDashboard organizationId={orgId} />;
-      case 'waste':
-        return <WasteDashboard organizationId={orgId} />;
-      case 'transportation':
-        return <TransportationDashboard organizationId={orgId} />;
-      case 'monthly':
-        return <MonthlyIntelligentDashboard organizationId={orgId} userId={userId} />;
-      case 'ai':
-        return (
-          <div className="flex items-center justify-center h-[600px]">
-            <div className="text-center space-y-4">
-              <Brain className="w-16 h-16 mx-auto text-purple-500" />
-              <h3 className="text-2xl font-bold">AI Assistant</h3>
-              <p className="text-gray-400 max-w-md">
-                Click the AI button in the bottom right to chat with your sustainability AI team
-              </p>
-              <button
-                onClick={() => setIsAIOpen(true)}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl hover:opacity-90 transition-opacity"
-              >
-                Open AI Assistant
-              </button>
-            </div>
+    // Map dashboard types to components
+    const dashboardComponents: Record<string, any> = {
+      'compliance': ComplianceDashboard,
+      'ghg_emissions': ComplianceDashboard, // GHG uses Compliance dashboard
+      'energy': EnergyDashboard,
+      'water_management': WaterDashboard,
+      'waste_management': WasteDashboard,
+      'transportation': TransportationDashboard,
+      'monthly': MonthlyIntelligentDashboard
+    };
+
+    const DashboardComponent = dashboardComponents[currentView as string];
+
+    if (currentView === 'ai') {
+      return (
+        <div className="flex items-center justify-center h-[600px]">
+          <div className="text-center space-y-4">
+            <Brain className="w-16 h-16 mx-auto" style={{ color: accentColorHex }} />
+            <h3 className="text-2xl font-bold">AI Assistant</h3>
+            <p className="text-gray-400 max-w-md">
+              Click the AI button in the bottom right to chat with your sustainability AI team
+            </p>
+            <button
+              onClick={() => setIsAIOpen(true)}
+              className={`px-6 py-3 bg-gradient-to-r ${accentGradient} rounded-xl hover:opacity-90 transition-opacity text-white`}
+            >
+              Open AI Assistant
+            </button>
           </div>
-        );
-      case 'overview':
-      default:
-        return <ComplianceDashboard organizationId={orgId} />; // Default to compliance dashboard for overview
+        </div>
+      );
     }
+
+    if (currentView === 'monthly') {
+      return <MonthlyIntelligentDashboard organizationId={orgId} userId={userId} selectedSite={selectedSite} selectedPeriod={selectedPeriod} />;
+    }
+
+    if (currentView === 'overview') {
+      return <ComplianceDashboard organizationId={orgId} selectedSite={selectedSite} selectedPeriod={selectedPeriod} />;
+    }
+
+    // If dashboard component exists, render it
+    if (DashboardComponent) {
+      return <DashboardComponent organizationId={orgId} selectedSite={selectedSite} selectedPeriod={selectedPeriod} />;
+    }
+
+    // Placeholder for not-yet-implemented dashboards
+    const currentTab = dashboardTabs.find(tab => tab.id === currentView);
+    const Icon = currentTab?.icon || BarChart3;
+
+    return (
+      <div className="flex items-center justify-center h-[600px]">
+        <div className="text-center space-y-4 max-w-2xl p-8">
+          <Icon className="w-20 h-20 mx-auto" style={{ color: currentTab?.color || accentColorHex }} />
+          <h3 className="text-3xl font-bold text-gray-900 dark:text-white">{currentTab?.label}</h3>
+          {sectorTopics?.material_topics && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+              <div className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
+                Material Topic for {sectorTopics.sector?.name}
+              </div>
+              <p className="text-blue-700 dark:text-blue-300 text-sm">
+                {currentTab?.description}
+              </p>
+              {sectorTopics.material_topics.find((topic: any) => topic.dashboard_type === currentView)?.description && (
+                <p className="text-gray-600 dark:text-gray-300 text-sm mt-3">
+                  {sectorTopics.material_topics.find((topic: any) => topic.dashboard_type === currentView).description}
+                </p>
+              )}
+            </div>
+          )}
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-6">
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              This dashboard is part of your GRI sector-specific material topics and will be implemented soon.
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              In the meantime, you can use the Compliance dashboard to track emissions data for this category.
+            </p>
+            <button
+              onClick={() => setCurrentView('compliance')}
+              className={`mt-4 px-6 py-3 bg-gradient-to-r ${accentGradient} rounded-xl hover:opacity-90 transition-opacity text-white`}
+            >
+              Go to Compliance Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // Show loading state
@@ -205,7 +366,10 @@ export default function DashboardClient() {
       <SustainabilityLayout>
         <div className="flex items-center justify-center min-h-[600px]">
           <div className="text-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto" />
+            <div
+              className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto"
+              style={{ borderColor: accentColorHex }}
+            />
             <p className="text-gray-400">Loading dashboard...</p>
           </div>
         </div>
@@ -224,7 +388,7 @@ export default function DashboardClient() {
             <p className="text-gray-400">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl transition-colors"
+              className={`px-6 py-3 bg-gradient-to-r ${accentGradient} hover:opacity-90 rounded-xl transition-opacity text-white`}
             >
               Retry
             </button>
@@ -237,96 +401,98 @@ export default function DashboardClient() {
   return (
     <SustainabilityLayout>
       <div className="p-4 sm:p-6 space-y-6">
-        {/* Header with AI Integration Status */}
+        {/* Header - Profile Style */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-xl">
-                <Brain className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sustainability Command Center</h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  Powered by 8 AI Agents working 24/7 • Real-time monitoring active
-                </p>
-              </div>
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Sustainability Dashboard
+              </h1>
+              <p className="text-[#616161] dark:text-[#757575]">
+                Powered by 8 AI Agents working 24/7 • Real-time monitoring active
+              </p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/20 rounded-full">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm text-green-700 dark:text-green-400">AI Systems Online</span>
-              </div>
-              <button
-                onClick={() => setIsAIOpen(true)}
-                className="p-2 bg-purple-100 dark:bg-purple-900/20 hover:bg-purple-200 dark:hover:bg-purple-900/30 rounded-xl transition-colors"
-                title="Open AI Assistant"
-              >
-                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              </button>
-            </div>
-          </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-4 gap-4 mt-6">
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">92%</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Compliance Score</div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">-12%</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Emissions YoY</div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
-              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">78%</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Coverage</div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">24/7</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">AI Monitoring</div>
+            {/* Selectors in top right */}
+            <div className="flex items-center gap-3">
+              <SiteSelector
+                currentSite={selectedSite}
+                onSiteChange={setSelectedSite}
+              />
+              <TimePeriodSelector
+                currentPeriod={selectedPeriod}
+                onPeriodChange={setSelectedPeriod}
+              />
+              {(selectedSite || selectedPeriod.id !== 'current-year') && (
+                <button
+                  onClick={() => {
+                    setSelectedSite(null);
+                    setSelectedPeriod({
+                      id: 'current-year',
+                      label: new Date().getFullYear().toString(),
+                      start: `${new Date().getFullYear()}-01-01`,
+                      end: `${new Date().getFullYear()}-12-31`,
+                      type: 'year'
+                    });
+                  }}
+                  className="text-sm transition-opacity hover:opacity-80"
+                  style={{ color: accentColorHex }}
+                >
+                  Clear Filters
+                </button>
+              )}
             </div>
           </div>
         </motion.div>
 
-        {/* Dashboard Tabs */}
-        <div className="grid grid-cols-4 gap-3">
-          {dashboardTabs.map((tab) => (
-            <motion.button
-              key={tab.id}
-              onClick={() => setCurrentView(tab.id)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`
-                relative p-4 rounded-xl border transition-all
-                ${currentView === tab.id
-                  ? 'bg-gradient-to-r ' + tab.color + ' border-transparent shadow-md'
-                  : 'bg-white dark:bg-[#2a2a2a] border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }
-              `}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <tab.icon className={`w-5 h-5 ${currentView === tab.id ? 'text-white' : 'text-gray-600 dark:text-gray-400'}`} />
-                  <div className="text-left">
-                    <div className={`font-semibold ${currentView === tab.id ? 'text-white' : 'text-gray-900 dark:text-gray-100'}`}>
-                      {tab.label}
-                    </div>
-                    <div className={`text-xs mt-0.5 ${currentView === tab.id ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'}`}>
-                      {tab.description}
-                    </div>
-                  </div>
-                </div>
-                {tab.badge && (
-                  <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${currentView === tab.id ? 'bg-white/20 text-white' : 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400'}`}>
-                    {tab.badge}
-                  </span>
-                )}
-              </div>
-            </motion.button>
-          ))}
+        {/* Dashboard Tabs - Border Bottom Navigation */}
+        <div className="border-b border-gray-200 dark:border-gray-700">
+          <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+            {dashboardTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = currentView === tab.id;
+              return (
+                <li key={tab.id} className="me-2">
+                  <button
+                    onClick={() => setCurrentView(tab.id)}
+                    className={`inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg group transition-colors ${
+                      isActive
+                        ? 'border-b-2 active'
+                        : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
+                    }`}
+                    style={isActive ? {
+                      color: tab.color,
+                      borderColor: tab.color
+                    } : undefined}
+                  >
+                    <Icon
+                      className={`w-4 h-4 me-2 ${
+                        isActive
+                          ? ''
+                          : 'text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300'
+                      }`}
+                      style={isActive ? { color: tab.color } : undefined}
+                    />
+                    {tab.label}
+                    {tab.badge && (
+                      <span
+                        className="ml-2 px-2 py-0.5 text-xs font-bold rounded-full"
+                        style={{
+                          backgroundColor: `${tab.color}20`,
+                          color: tab.color
+                        }}
+                      >
+                        {tab.badge}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
 
         {/* Main Dashboard Content */}
@@ -372,7 +538,7 @@ export default function DashboardClient() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsAIOpen(true)}
-          className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full shadow-2xl z-40"
+          className={`fixed bottom-8 right-8 p-4 bg-gradient-to-r ${accentGradient} rounded-full shadow-2xl z-40`}
         >
           <Brain className="w-6 h-6 text-white" />
           <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />

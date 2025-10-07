@@ -16,11 +16,14 @@ import {
   Bot,
   DollarSign,
   Activity,
-  MapPin
+  MapPin,
+  Info
 } from 'lucide-react';
 
 interface WaterDashboardProps {
   organizationId: string;
+  selectedSite?: { id: string; name: string } | null;
+  selectedPeriod?: { start: string; end: string; label: string };
 }
 
 interface WaterSource {
@@ -34,7 +37,7 @@ interface WaterSource {
   icon: React.ReactNode;
 }
 
-export function WaterDashboard({ organizationId }: WaterDashboardProps) {
+export function WaterDashboard({ organizationId, selectedSite, selectedPeriod }: WaterDashboardProps) {
   const [viewMode, setViewMode] = useState<'consumption' | 'discharge' | 'quality' | 'risk'>('consumption');
   const [loading, setLoading] = React.useState(true);
   const [waterSources, setWaterSources] = useState<WaterSource[]>([]);
@@ -45,45 +48,26 @@ export function WaterDashboard({ organizationId }: WaterDashboardProps) {
   const [totalCost, setTotalCost] = useState(0);
   const [recyclingRate, setRecyclingRate] = useState(0);
 
-  const [waterUse] = useState([
-    { category: 'Sanitary', volume: 600, percentage: 48 },
-    { category: 'Cooling Systems', volume: 400, percentage: 32 },
-    { category: 'Irrigation', volume: 150, percentage: 12 },
-    { category: 'Process Water', volume: 100, percentage: 8 }
-  ]);
-
-  const [waterRisk] = useState({
-    stressLevel: 'High',
-    score: 3.8,
-    maxScore: 5,
-    risks: [
-      'Located in water-stressed region',
-      'Increasing drought frequency',
-      'Rising water costs projected',
-      'Regulatory restrictions possible'
-    ]
-  });
-
-  const [emissions] = useState({
-    treatment: 2.5,
-    pumping: 1.2,
-    wastewater: 1.8,
-    total: 5.5
-  });
-
-  const [aiInsights] = useState([
-    { type: 'alert', message: 'Leak detected: 15% water loss in Building A' },
-    { type: 'saving', message: 'Greywater recycling could save 300 m³/month' },
-    { type: 'optimization', message: 'Smart irrigation would reduce usage by 40%' },
-    { type: 'compliance', message: 'Water stress area - reduction targets recommended' }
-  ]);
+  // Weighted allocation targets
+  const [categoryTargets, setCategoryTargets] = useState<any[]>([]);
+  const [overallTargetPercent, setOverallTargetPercent] = useState<number | null>(null);
 
   // Fetch water data
   React.useEffect(() => {
     const fetchWaterData = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/water/sources');
+        // Build query parameters
+        const params = new URLSearchParams();
+        if (selectedPeriod) {
+          params.append('start_date', selectedPeriod.start);
+          params.append('end_date', selectedPeriod.end);
+        }
+        if (selectedSite) {
+          params.append('site_id', selectedSite.id);
+        }
+
+        const res = await fetch(`/api/water/sources?${params}`);
         const data = await res.json();
 
         if (data.sources) {
@@ -107,6 +91,25 @@ export function WaterDashboard({ organizationId }: WaterDashboardProps) {
           setTotalCost(data.total_cost || 0);
           setRecyclingRate(data.recycling_rate || 0);
         }
+
+        // Fetch weighted allocation targets for water categories
+        const currentYear = new Date().getFullYear();
+        const allocParams = new URLSearchParams({
+          baseline_year: (currentYear - 1).toString(),
+        });
+
+        const allocRes = await fetch(`/api/sustainability/targets/weighted-allocation?${allocParams}`);
+        const allocData = await allocRes.json();
+
+        if (allocData.allocations) {
+          // Filter for water-related categories
+          const waterCategories = allocData.allocations.filter((alloc: any) =>
+            alloc.category === 'Water'
+          );
+          setCategoryTargets(waterCategories);
+          setOverallTargetPercent(allocData.overallTarget);
+          console.log('📊 Water Category Targets:', waterCategories);
+        }
       } catch (error) {
         console.error('Error fetching water data:', error);
       } finally {
@@ -115,7 +118,7 @@ export function WaterDashboard({ organizationId }: WaterDashboardProps) {
     };
 
     fetchWaterData();
-  }, []);
+  }, [selectedSite, selectedPeriod]);
 
   if (loading) {
     return (
@@ -133,10 +136,10 @@ export function WaterDashboard({ organizationId }: WaterDashboardProps) {
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <Droplet className="w-7 h-7 text-blue-500" />
-              Water Management Dashboard
+              Water & Effluents
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              GRI 303 compliant water withdrawal, consumption, and discharge tracking
+              GRI 303: Water and Effluents 2018 • Water withdrawal, consumption, discharge & stress
             </p>
           </div>
 
@@ -234,8 +237,11 @@ export function WaterDashboard({ organizationId }: WaterDashboardProps) {
         <>
           <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Water Balance (GRI 303-3, 303-4, 303-5)
+              Water Balance by Source
             </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              GRI 303-3 (Withdrawal) • GRI 303-4 (Discharge) • GRI 303-5 (Consumption)
+            </p>
 
             <div className="space-y-3">
               {waterSources.map((source, idx) => (
@@ -297,122 +303,93 @@ export function WaterDashboard({ organizationId }: WaterDashboardProps) {
             </div>
           </div>
 
-          {/* Water Use by Category */}
-          <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Water Use by Category
-            </h3>
-
-            <div className="grid grid-cols-4 gap-4">
-              {waterUse.map((use, idx) => (
-                <div key={use.category} className="text-center">
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                    {use.percentage}%
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">{use.category}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">{use.volume} m³</div>
-                  <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
-                      style={{ width: `${use.percentage}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </>
       )}
 
-      {/* Risk View */}
-      {viewMode === 'risk' && (
-        <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Water Risk Assessment
-          </h3>
 
-          <div className="grid grid-cols-2 gap-6">
+
+      {/* Science-Based Category Targets */}
+      {categoryTargets.length > 0 && (
+        <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <MapPin className="w-5 h-5 text-red-500" />
-                <div>
-                  <div className="font-medium text-gray-900 dark:text-white">
-                    Water Stress Level: <span className="text-red-500">{waterRisk.stressLevel}</span>
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    WRI Aqueduct Score: {waterRisk.score}/{waterRisk.maxScore}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                {waterRisk.risks.map((risk, idx) => (
-                  <div key={idx} className="flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{risk}</span>
-                  </div>
-                ))}
-              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Science-Based Target Allocation</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Weighted by emission profile, abatement potential, and technology readiness
+              </p>
             </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                {overallTargetPercent?.toFixed(1)}%
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Overall Target</div>
+            </div>
+          </div>
 
-            <div>
-              <h4 className="font-medium text-gray-900 dark:text-white mb-3">
-                Water-Related Emissions
-              </h4>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Water treatment</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">{emissions.treatment} tCO2e</span>
+          <div className="grid grid-cols-1 gap-4">
+            {categoryTargets.map((target: any) => (
+              <div
+                key={target.category}
+                className={`border rounded-lg p-4 ${
+                  target.feasibility === 'high'
+                    ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                    : target.feasibility === 'medium'
+                    ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+                    : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-white">{target.category}</h4>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {target.currentEmissions.toFixed(1)} tCO2e ({target.emissionPercent.toFixed(1)}%)
+                    </div>
+                  </div>
+                  <div className={`px-2 py-1 rounded text-xs font-medium ${
+                    target.feasibility === 'high'
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                      : target.feasibility === 'medium'
+                      ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                      : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                  }`}>
+                    {target.feasibility} feasibility
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Pumping energy</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">{emissions.pumping} tCO2e</span>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      {target.adjustedTargetPercent.toFixed(1)}%
+                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      → {target.absoluteTarget.toFixed(1)} tCO2e
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 italic">
+                    {target.reason}
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Wastewater treatment</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">{emissions.wastewater} tCO2e</span>
-                </div>
-                <div className="pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between">
-                  <span className="font-medium text-gray-900 dark:text-white">Total Emissions</span>
-                  <span className="font-bold text-gray-900 dark:text-white">{emissions.total} tCO2e</span>
-                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="flex items-start gap-2">
+              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <h5 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                  How Weighted Allocation Works
+                </h5>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Categories with high emissions AND high abatement potential receive higher reduction targets.
+                  This ensures the overall {overallTargetPercent?.toFixed(1)}% target is achievable by focusing efforts where they matter most.
+                  Categories are weighted by emission percentage × effort factor (based on technology readiness and cost-effectiveness).
+                </p>
               </div>
             </div>
           </div>
         </div>
       )}
-
-      {/* AI Insights */}
-      <div className="bg-gradient-to-r from-blue-900/20 to-cyan-900/20 backdrop-blur-xl border border-blue-500/20 rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Bot className="w-5 h-5 text-blue-400" />
-          <h3 className="text-lg font-semibold text-white">Water Conservation AI Insights</h3>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          {aiInsights.map((insight, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:bg-gray-800/70 transition-all cursor-pointer"
-            >
-              <div className="flex items-start gap-2">
-                {insight.type === 'alert' && <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5" />}
-                {insight.type === 'saving' && <DollarSign className="w-4 h-4 text-green-400 mt-0.5" />}
-                {insight.type === 'optimization' && <Droplet className="w-4 h-4 text-blue-400 mt-0.5" />}
-                {insight.type === 'compliance' && <MapPin className="w-4 h-4 text-yellow-400 mt-0.5" />}
-                <p className="text-sm text-gray-300">{insight.message}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <button className="mt-4 px-4 py-2 bg-blue-500/20 border border-blue-500/30 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-all">
-          Ask AI for Water Conservation Plan
-        </button>
-      </div>
     </div>
   );
 }

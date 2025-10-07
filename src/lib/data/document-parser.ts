@@ -277,7 +277,13 @@ export class DocumentParser {
         /(?:amount due|total):\s*[$€£]?([\d,]+\.?\d*)/i,
       ),
       emissions: {},
+      energyMix: null, // Will be populated if found
     };
+
+    // Extract energy mix if this is an electricity bill
+    if (data.utilityType === 'electricity' || text.toLowerCase().includes('energy mix') || text.toLowerCase().includes('renewable')) {
+      data.energyMix = this.extractEnergyMix(text);
+    }
 
     // Calculate emissions based on usage
     if (data.usage && data.utilityType) {
@@ -288,6 +294,80 @@ export class DocumentParser {
     }
 
     return data;
+  }
+
+  /**
+   * Extract energy mix from invoice/bill
+   * Looks for renewable percentage and source breakdown
+   */
+  private extractEnergyMix(text: string): any | null {
+    try {
+      const mix: any = {
+        renewable_percentage: null,
+        non_renewable_percentage: null,
+        sources: [],
+      };
+
+      // Extract renewable percentage
+      // Common patterns: "Renewable: 56.99%", "56.99% renewable", "Energia renovável: 56,99%"
+      const renewablePatterns = [
+        /renov[aá]vel[:\s]+(\d+[,.]\d+)\s*%/i,
+        /renewable[:\s]+(\d+[,.]\d+)\s*%/i,
+        /(\d+[,.]\d+)\s*%\s+renov[aá]vel/i,
+        /(\d+[,.]\d+)\s*%\s+renewable/i,
+      ];
+
+      for (const pattern of renewablePatterns) {
+        const match = text.match(pattern);
+        if (match) {
+          mix.renewable_percentage = parseFloat(match[1].replace(',', '.'));
+          mix.non_renewable_percentage = 100 - mix.renewable_percentage;
+          break;
+        }
+      }
+
+      // Extract source breakdown
+      // Common energy sources to look for
+      const sources = [
+        { names: ['e[óo]lica', 'wind', 'vento'], displayName: 'Wind', renewable: true },
+        { names: ['h[íi]drica', 'hydro', 'água'], displayName: 'Hydro', renewable: true },
+        { names: ['solar', 'fotovoltaica', 'pv'], displayName: 'Solar', renewable: true },
+        { names: ['biomassa', 'biomass'], displayName: 'Biomass', renewable: true },
+        { names: ['geotermia', 'geothermal'], displayName: 'Geothermal', renewable: true },
+        { names: ['nuclear'], displayName: 'Nuclear', renewable: false },
+        { names: ['g[áa]s natural', 'natural gas', 'gás'], displayName: 'Natural Gas', renewable: false },
+        { names: ['carv[ãa]o', 'coal'], displayName: 'Coal', renewable: false },
+        { names: ['diesel', 'fuel[óo]leo', 'oil', 'petróleo'], displayName: 'Oil', renewable: false },
+        { names: ['cogeração', 'cogeneration', 'chp'], displayName: 'Cogeneration', renewable: false },
+      ];
+
+      for (const source of sources) {
+        for (const name of source.names) {
+          // Look for patterns like "Wind: 25.5%", "Eólica 25,5%"
+          const pattern = new RegExp(`${name}[:\\s]+([\\d,.]+)\\s*%`, 'i');
+          const match = text.match(pattern);
+          if (match) {
+            const percentage = parseFloat(match[1].replace(',', '.'));
+            mix.sources.push({
+              name: source.displayName,
+              percentage,
+              renewable: source.renewable,
+            });
+            break; // Found this source, move to next
+          }
+        }
+      }
+
+      // Only return if we found at least renewable percentage
+      if (mix.renewable_percentage !== null) {
+        return mix;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error extracting energy mix:', error);
+      return null;
+    }
   }
 
   /**
