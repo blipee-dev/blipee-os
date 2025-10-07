@@ -133,7 +133,8 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(npx:*)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_EHaW3T/**)",
-      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_rZ1rOG/**)"
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_rZ1rOG/**)",
+      "Bash(PGPASSWORD=\"$SUPABASE_DB_PASSWORD\" psql -h \"$SUPABASE_DB_HOST\" -U postgres -d postgres)"
     ],
     "deny": [],
     "ask": []

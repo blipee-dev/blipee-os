@@ -128,25 +128,6 @@ export function WaterDashboard({
           const previousYearEnd = new Date(endDate);
           previousYearEnd.setFullYear(endDate.getFullYear() - 1);
 
-          console.log("🔍 Water YoY Fetch Details:");
-          console.log(
-            "  Current period:",
-            selectedPeriod.start,
-            "to",
-            selectedPeriod.end,
-          );
-          console.log(
-            "  Previous year:",
-            previousYearStart.toISOString().split("T")[0],
-            "to",
-            previousYearEnd.toISOString().split("T")[0],
-          );
-          console.log(
-            "  Current year trends:",
-            data.monthly_trends.length,
-            "months",
-          );
-
           const prevParams = new URLSearchParams({
             start_date: previousYearStart.toISOString().split("T")[0],
             end_date: previousYearEnd.toISOString().split("T")[0],
@@ -200,94 +181,64 @@ export function WaterDashboard({
             setYoyConsumptionChange(consumptionChange);
             setYoyDischargeChange(dischargeChange);
             setYoyRecyclingChange(recyclingChange);
-
-            console.log("📊 Water YoY Comparison:");
-            console.log(
-              "  Withdrawal Change:",
-              withdrawalChange.toFixed(1) + "%",
-            );
-            console.log(
-              "  Consumption Change:",
-              consumptionChange.toFixed(1) + "%",
-            );
-            console.log(
-              "  Discharge Change:",
-              dischargeChange.toFixed(1) + "%",
-            );
-            console.log(
-              "  Recycling Change:",
-              recyclingChange.toFixed(1) + "pp",
-            );
           }
         }
 
         // Calculate water reduction target (CDP Water Security benchmark)
-        // Using 2.5% annual reduction from 2023 baseline
+        // Only show for current year
         const baselineYear = 2023;
         const currentYear = new Date().getFullYear();
-        const yearsSinceBaseline = currentYear - baselineYear;
+        const selectedYear = selectedPeriod ? new Date(selectedPeriod.start).getFullYear() : currentYear;
 
-        // For baseline, we need full year 2023 data
-        const baseline2023Params = new URLSearchParams({
-          start_date: "2023-01-01",
-          end_date: "2023-12-31",
-        });
-        if (selectedSite) {
-          baseline2023Params.append("site_id", selectedSite.id);
+        // Only calculate target if viewing current year
+        if (selectedYear === currentYear) {
+          const yearsSinceBaseline = currentYear - baselineYear;
+
+          // For baseline, we need full year 2023 data
+          const baseline2023Params = new URLSearchParams({
+            start_date: "2023-01-01",
+            end_date: "2023-12-31",
+          });
+          if (selectedSite) {
+            baseline2023Params.append("site_id", selectedSite.id);
+          }
+
+          const baseline2023Res = await fetch(
+            `/api/water/sources?${baseline2023Params}`,
+          );
+          const baseline2023Data = await baseline2023Res.json();
+          const baseline2023Consumption = baseline2023Data.total_consumption || 0;
+
+          // Calculate target for current year using compound reduction
+          const annualReductionRate = defaultTargetPercent / 100; // 2.5% = 0.025
+          const targetConsumption =
+            baseline2023Consumption *
+            Math.pow(1 - annualReductionRate, yearsSinceBaseline);
+
+          // Project full year consumption based on current data
+          const monthsOfData = monthlyTrends.length;
+          const projectedFullYear =
+            monthsOfData > 0 ? (data.total_consumption / monthsOfData) * 12 : 0;
+
+          // Calculate progress
+          const reductionNeeded = baseline2023Consumption - targetConsumption;
+          const reductionAchieved = baseline2023Consumption - projectedFullYear;
+          const progressPercent =
+            reductionNeeded > 0 ? (reductionAchieved / reductionNeeded) * 100 : 0;
+
+          setWaterTarget({
+            baseline: baseline2023Consumption,
+            target: targetConsumption,
+            projected: projectedFullYear,
+            progressPercent,
+            annualReductionRate: defaultTargetPercent,
+            isDefault: true, // Flag to show it's using CDP default
+            targetYear: currentYear,
+          });
+        } else {
+          // Clear target when viewing past years
+          setWaterTarget(null);
         }
-
-        const baseline2023Res = await fetch(
-          `/api/water/sources?${baseline2023Params}`,
-        );
-        const baseline2023Data = await baseline2023Res.json();
-        const baseline2023Consumption = baseline2023Data.total_consumption || 0;
-
-        // Calculate target for current year using compound reduction
-        const annualReductionRate = defaultTargetPercent / 100; // 2.5% = 0.025
-        const targetConsumption =
-          baseline2023Consumption *
-          Math.pow(1 - annualReductionRate, yearsSinceBaseline);
-
-        // Project full year consumption based on current data
-        const monthsOfData = monthlyTrends.length;
-        const projectedFullYear =
-          monthsOfData > 0 ? (data.total_consumption / monthsOfData) * 12 : 0;
-
-        // Calculate progress
-        const reductionNeeded = baseline2023Consumption - targetConsumption;
-        const reductionAchieved = baseline2023Consumption - projectedFullYear;
-        const progressPercent =
-          reductionNeeded > 0 ? (reductionAchieved / reductionNeeded) * 100 : 0;
-
-        setWaterTarget({
-          baseline: baseline2023Consumption,
-          target: targetConsumption,
-          projected: projectedFullYear,
-          progressPercent,
-          annualReductionRate: defaultTargetPercent,
-          isDefault: true, // Flag to show it's using CDP default
-          targetYear: currentYear,
-        });
-
-        console.log("🎯 Water Reduction Target:");
-        console.log(
-          "  Baseline 2023:",
-          (baseline2023Consumption / 1000).toFixed(2),
-          "ML",
-        );
-        console.log(
-          "  Target",
-          currentYear + ":",
-          (targetConsumption / 1000).toFixed(2),
-          "ML",
-        );
-        console.log(
-          "  Projected",
-          currentYear + ":",
-          (projectedFullYear / 1000).toFixed(2),
-          "ML",
-        );
-        console.log("  Progress:", progressPercent.toFixed(1) + "%");
       } catch (error) {
         console.error("Error fetching water data:", error);
       } finally {
@@ -687,11 +638,11 @@ export function WaterDashboard({
         )}
       </div>
 
-      {/* Year-over-Year Comparison */}
+      {/* Year-over-Year Comparison and Water Balance */}
       {monthlyTrends.length > 0 && (
         <div className="px-6 pb-6 grid grid-cols-2 gap-4">
-          {/* Monthly YoY Comparison */}
-          {monthlyTrends.length > 0 && (
+          {/* Monthly YoY Comparison - only show when we have previous year data */}
+          {yoyWithdrawalChange !== null && prevYearMonthlyTrends.length > 0 && (
             <div
               className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 flex flex-col"
               style={{ height: "430px" }}

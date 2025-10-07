@@ -28,11 +28,11 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const siteId = searchParams.get('site_id');
 
-    // Get waste metrics from metrics_catalog with new metadata
+    // Get waste metrics from metrics_catalog
     const { data: wasteMetrics, error: metricsError } = await supabaseAdmin
       .from('metrics_catalog')
       .select('*')
-      .or('category.eq.Waste,code.like.scope3_waste%');
+      .eq('category', 'Waste');
 
     if (metricsError) {
       console.error('Error fetching waste metrics:', metricsError);
@@ -47,11 +47,9 @@ export async function GET(request: NextRequest) {
         streams: [],
         total_generated: 0,
         total_diverted: 0,
-        total_disposal: 0,
-        total_recycling: 0,
+        total_landfill: 0,
         diversion_rate: 0,
-        recycling_rate: 0,
-        total_emissions: 0
+        recycling_rate: 0
       });
     }
 
@@ -91,109 +89,107 @@ export async function GET(request: NextRequest) {
         streams: [],
         total_generated: 0,
         total_diverted: 0,
-        total_disposal: 0,
-        total_recycling: 0,
+        total_landfill: 0,
         diversion_rate: 0,
-        recycling_rate: 0,
-        total_emissions: 0
+        recycling_rate: 0
       });
     }
 
-    // Group by waste material type and disposal method using new metadata
+    // Group by waste type and disposal method
     const streamsByType = (wasteData || []).reduce((acc: any, record: any) => {
       const metric = wasteMetrics.find(m => m.id === record.metric_id);
-      if (!metric) return acc;
+      const metricCode = metric?.code || '';
+      const subcategory = metric?.subcategory || '';
 
-      const materialType = metric.waste_material_type || 'mixed';
-      const disposalMethod = metric.disposal_method || 'other';
-      const key = `${materialType}-${disposalMethod}`;
+      // Determine disposal method from subcategory or metric code
+      const disposalMethodMapping: { [key: string]: string } = {
+        'Recycling': 'recycling',
+        'Composting': 'composting',
+        'Incineration': 'incineration',
+        'Landfill': 'landfill',
+        'Hazardous': 'hazardous_treatment',
+      };
+
+      const disposalMethod = disposalMethodMapping[subcategory] || 'other';
+      const key = `${metric?.name || 'Unknown'}-${disposalMethod}`;
+
+      // Determine if diverted from landfill
+      const isDiverted = ['recycling', 'composting'].includes(disposalMethod);
 
       if (!acc[key]) {
         acc[key] = {
-          material_type: materialType,
+          type: metric?.name || 'Unknown',
           disposal_method: disposalMethod,
           quantity: 0,
-          unit: 'tons',
-          is_diverted: metric.is_diverted || false,
-          is_recycling: metric.is_recycling || false,
-          has_energy_recovery: metric.has_energy_recovery || false,
-          emissions: 0,
-          cost: 0,
-          gri_classification: metric.is_diverted ? 'GRI 306-4: Diverted' : 'GRI 306-5: Disposal'
+          unit: metric?.unit || 'tons',
+          diverted: isDiverted,
+          recycling_rate: 0,
+          emissions: 0
         };
       }
 
-      // Add quantity (all in tons now)
+      // Add quantity
       const value = parseFloat(record.value) || 0;
       acc[key].quantity += value;
 
       // Add emissions (convert from kgCO2e to tCO2e)
       acc[key].emissions += (parseFloat(record.co2e_emissions) || 0) / 1000;
 
-      // Add cost if available
-      if (metric.cost_per_ton) {
-        acc[key].cost += value * metric.cost_per_ton;
-      }
-
       return acc;
     }, {});
 
     const streams = Object.values(streamsByType);
 
-    // Calculate totals using new metadata flags
+    // Calculate totals
     const totalGenerated = streams.reduce((sum: number, s: any) => sum + s.quantity, 0);
-
     const totalDiverted = streams
-      .filter((s: any) => s.is_diverted)
+      .filter((s: any) => s.diverted)
       .reduce((sum: number, s: any) => sum + s.quantity, 0);
+    const totalLandfill = totalGenerated - totalDiverted;
 
-    const totalRecycling = streams
-      .filter((s: any) => s.is_recycling)
-      .reduce((sum: number, s: any) => sum + s.quantity, 0);
-
-    const totalDisposal = streams
-      .filter((s: any) => !s.is_diverted)
-      .reduce((sum: number, s: any) => sum + s.quantity, 0);
-
-    const totalEmissions = streams.reduce((sum: number, s: any) => sum + s.emissions, 0);
-    const totalCost = streams.reduce((sum: number, s: any) => sum + s.cost, 0);
-
-    // Calculate rates
     const diversionRate = totalGenerated > 0
       ? (totalDiverted / totalGenerated * 100)
       : 0;
 
+    // Calculate recycling rate (percentage of waste recycled)
+    const totalRecycled = streams
+      .filter((s: any) => s.disposal_method === 'recycling')
+      .reduce((sum: number, s: any) => sum + s.quantity, 0);
+
     const recyclingRate = totalGenerated > 0
-      ? (totalRecycling / totalGenerated * 100)
+      ? (totalRecycled / totalGenerated * 100)
       : 0;
 
-    // Calculate monthly trends
+    // Calculate monthly trends for charts
     const monthlyData = (wasteData || []).reduce((acc: any, record: any) => {
       const metric = wasteMetrics.find(m => m.id === record.metric_id);
-      if (!metric) return acc;
-
       const date = new Date(record.period_start);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       const monthName = date.toLocaleString('default', { month: 'short' });
+      const subcategory = metric?.subcategory || '';
+
+      const disposalMethodMapping: { [key: string]: string } = {
+        'Recycling': 'recycling',
+        'Composting': 'composting',
+        'Incineration': 'incineration',
+        'Landfill': 'landfill',
+        'Hazardous': 'hazardous_treatment',
+      };
+
+      const disposalMethod = disposalMethodMapping[subcategory] || 'other';
+      const isDiverted = ['recycling', 'composting'].includes(disposalMethod);
 
       if (!acc[monthKey]) {
         acc[monthKey] = {
           month: monthName,
           monthKey,
           generated: 0,
-          diverted: 0,
           recycled: 0,
           composted: 0,
           incinerated: 0,
           landfill: 0,
-          emissions: 0,
-          // Material breakdown
-          paper: 0,
-          plastic: 0,
-          metal: 0,
-          glass: 0,
-          organic: 0,
-          ewaste: 0
+          diverted: 0,
+          emissions: 0
         };
       }
 
@@ -203,28 +199,16 @@ export async function GET(request: NextRequest) {
       acc[monthKey].generated += value;
       acc[monthKey].emissions += emissions;
 
-      // Add to diverted/recycled based on flags
-      if (metric.is_diverted) {
-        acc[monthKey].diverted += value;
-      }
-      if (metric.is_recycling) {
+      if (disposalMethod === 'recycling') {
         acc[monthKey].recycled += value;
-      }
-
-      // Add by disposal method
-      const disposalMethod = metric.disposal_method || 'other';
-      if (disposalMethod === 'composting') {
+        acc[monthKey].diverted += value;
+      } else if (disposalMethod === 'composting') {
         acc[monthKey].composted += value;
-      } else if (disposalMethod.includes('incineration')) {
+        acc[monthKey].diverted += value;
+      } else if (disposalMethod === 'incineration') {
         acc[monthKey].incinerated += value;
       } else if (disposalMethod === 'landfill') {
         acc[monthKey].landfill += value;
-      }
-
-      // Add by material type
-      const materialType = metric.waste_material_type || 'mixed';
-      if (acc[monthKey][materialType] !== undefined) {
-        acc[monthKey][materialType] += value;
       }
 
       return acc;
@@ -235,17 +219,16 @@ export async function GET(request: NextRequest) {
       .map((m: any) => ({
         ...m,
         generated: Math.round(m.generated * 100) / 100,
-        diverted: Math.round(m.diverted * 100) / 100,
         recycled: Math.round(m.recycled * 100) / 100,
         composted: Math.round(m.composted * 100) / 100,
         incinerated: Math.round(m.incinerated * 100) / 100,
         landfill: Math.round(m.landfill * 100) / 100,
+        diverted: Math.round(m.diverted * 100) / 100,
         emissions: Math.round(m.emissions * 100) / 100,
-        diversion_rate: m.generated > 0 ? Math.round((m.diverted / m.generated * 100) * 10) / 10 : 0,
-        recycling_rate: m.generated > 0 ? Math.round((m.recycled / m.generated * 100) * 10) / 10 : 0
+        diversion_rate: m.generated > 0 ? Math.round((m.diverted / m.generated * 100) * 10) / 10 : 0
       }));
 
-    // Calculate YoY comparison
+    // Calculate YoY comparison (current year vs previous year)
     const currentYear = new Date().getFullYear();
     const prevYearMonthlyData = monthlyTrends
       .filter((m: any) => m.monthKey.startsWith(String(currentYear - 1)))
@@ -268,65 +251,25 @@ export async function GET(request: NextRequest) {
         };
       });
 
-    // Material-specific breakdown for circular economy insights
-    const materialBreakdown = streams.reduce((acc: any, stream: any) => {
-      const material = stream.material_type;
-      if (!acc[material]) {
-        acc[material] = {
-          material: material,
-          total: 0,
-          recycled: 0,
-          diverted: 0,
-          disposal: 0,
-          recycling_rate: 0,
-          diversion_rate: 0
-        };
-      }
-
-      acc[material].total += stream.quantity;
-      if (stream.is_recycling) {
-        acc[material].recycled += stream.quantity;
-      }
-      if (stream.is_diverted) {
-        acc[material].diverted += stream.quantity;
-      } else {
-        acc[material].disposal += stream.quantity;
-      }
-
-      return acc;
-    }, {});
-
-    // Calculate rates for each material
-    Object.values(materialBreakdown).forEach((mat: any) => {
-      mat.recycling_rate = mat.total > 0 ? Math.round((mat.recycled / mat.total * 100) * 10) / 10 : 0;
-      mat.diversion_rate = mat.total > 0 ? Math.round((mat.diverted / mat.total * 100) * 10) / 10 : 0;
-    });
+    // Calculate total emissions from waste (Scope 3 Category 5)
+    const totalEmissions = streams.reduce((sum: number, s: any) => sum + s.emissions, 0);
 
     return NextResponse.json({
       streams,
       total_generated: Math.round(totalGenerated * 100) / 100,
       total_diverted: Math.round(totalDiverted * 100) / 100,
-      total_recycling: Math.round(totalRecycling * 100) / 100,
-      total_disposal: Math.round(totalDisposal * 100) / 100,
-      total_landfill: Math.round(totalDisposal * 100) / 100, // For backwards compatibility
+      total_landfill: Math.round(totalLandfill * 100) / 100,
       diversion_rate: Math.round(diversionRate * 10) / 10,
       recycling_rate: Math.round(recyclingRate * 10) / 10,
       total_emissions: Math.round(totalEmissions * 100) / 100,
-      total_cost: Math.round(totalCost * 100) / 100,
       monthly_trends: monthlyTrends,
-      prev_year_monthly_trends: prevYearMonthlyTrends,
-      material_breakdown: Object.values(materialBreakdown),
-      // Compliance indicators
-      gri_306_4_diverted: Math.round(totalDiverted * 100) / 100,
-      gri_306_5_disposal: Math.round(totalDisposal * 100) / 100,
-      esrs_e5_recycling: Math.round(totalRecycling * 100) / 100,
-      circular_economy_score: Math.round(diversionRate * 10) / 10
+      prev_year_monthly_trends: prevYearMonthlyTrends
     });
 
   } catch (error) {
-    console.error('Error processing waste data:', error);
+    console.error('Error fetching waste streams:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Failed to fetch waste streams' },
       { status: 500 }
     );
   }
