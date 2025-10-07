@@ -43,16 +43,43 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
   const [lookupLoading, setLookupLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
+  const [griSectors, setGriSectors] = useState<any[]>([]);
+
   // Use the app's auth context and translations
   const { user, session } = useAuth();
   const t = useTranslations('settings.organizations.modal');
-  
+
   // For debugging - check if user is authenticated
   React.useEffect(() => {
     console.log('OrganizationModal - Current user from auth context:', user);
     console.log('OrganizationModal - Session from auth context:', session);
   }, [user, session]);
+
+  // Fetch GRI sectors for dropdown
+  React.useEffect(() => {
+    const fetchGriSectors = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('gri_sectors')
+          .select('id, code, name, published_year')
+          .order('code');
+
+        if (error) {
+          console.error('Error fetching GRI sectors:', error);
+          return;
+        }
+
+        setGriSectors(data || []);
+        console.log('✅ Loaded GRI sectors:', data);
+      } catch (error) {
+        console.error('Failed to fetch GRI sectors:', error);
+      }
+    };
+
+    if (isOpen) {
+      fetchGriSectors();
+    }
+  }, [isOpen, supabase]);
 
   const [formData, setFormData] = useState({
     // Basic Information
@@ -1089,17 +1116,24 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {t('fields.griSector')}
                       </label>
-                      <input
-                        type="text"
-                        name="gri_sector_id"
-                        value={formData.gri_sector_id || ''}
-                        onChange={handleChange}
-                        readOnly={mode === 'view'}
-                        placeholder="e.g., GRI 11 (Oil & Gas)"
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
+                      <CustomDropdown
+                        value={formData.gri_sector_id?.toString() || ''}
+                        onChange={(value) => handleChange({ target: { name: 'gri_sector_id', value: value ? parseInt(value) : null } } as any)}
+                        options={[
+                          { value: '', label: 'No GRI Sector (Generic GRI 300 Series)' },
+                          ...griSectors.map(sector => ({
+                            value: sector.id.toString(),
+                            label: `${sector.code}: ${sector.name} (${sector.published_year})`
+                          }))
+                        ]}
+                        disabled={mode === 'view'}
+                        className="w-full"
                       />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Select your industry's GRI Sector Standard for material topic dashboards
+                      </p>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {t('fields.industryConfidence')}

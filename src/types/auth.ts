@@ -49,6 +49,7 @@ export interface Building {
   longitude?: number;
   timezone?: string;
   size_sqft?: number;
+  size_sqm?: number;
   floors?: number;
   age_category?: string;
   occupancy_types?: string[];

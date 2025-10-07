@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,31 +15,73 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's organization
-    const { data: appUser } = await supabase
-      .from('app_users')
-      .select('organization_id')
-      .eq('auth_user_id', user.id)
-      .single();
-
-    if (!appUser?.organization_id) {
+    const orgInfo = await getUserOrganizationById(user.id);
+    if (!orgInfo.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
 
-    const organizationId = appUser.organization_id;
+    const organizationId = orgInfo.organizationId;
 
-    // Get current period
-    const now = new Date();
-    const currentMonth = now.toISOString().slice(0, 7);
+    // Get filter parameters
+    const searchParams = request.nextUrl.searchParams;
+    const startDate = searchParams.get('start_date');
+    const endDate = searchParams.get('end_date');
+    const siteId = searchParams.get('site_id');
 
-    // Fetch waste data
-    const { data: wasteData, error: wasteError } = await supabase
-      .from('waste_data')
+    // Get waste metrics from metrics_catalog
+    const { data: wasteMetrics, error: metricsError } = await supabaseAdmin
+      .from('metrics_catalog')
+      .select('*')
+      .eq('category', 'Waste');
+
+    if (metricsError) {
+      console.error('Error fetching waste metrics:', metricsError);
+      return NextResponse.json(
+        { error: 'Failed to fetch waste metrics', details: metricsError.message },
+        { status: 500 }
+      );
+    }
+
+    if (!wasteMetrics || wasteMetrics.length === 0) {
+      return NextResponse.json({
+        streams: [],
+        total_generated: 0,
+        total_diverted: 0,
+        total_landfill: 0,
+        diversion_rate: 0,
+        recycling_rate: 0
+      });
+    }
+
+    // Get waste data from metrics_data
+    const metricIds = wasteMetrics.map(m => m.id);
+    let query = supabaseAdmin
+      .from('metrics_data')
       .select('*')
       .eq('organization_id', organizationId)
-      .gte('period_start', `${currentMonth}-01`);
+      .in('metric_id', metricIds);
 
-    if (wasteError) {
-      throw wasteError;
+    // Apply date filters if provided
+    if (startDate) {
+      query = query.gte('period_start', startDate);
+    }
+    if (endDate) {
+      query = query.lte('period_start', endDate);
+    }
+
+    // Apply site filter if provided
+    if (siteId) {
+      query = query.eq('site_id', siteId);
+    }
+
+    const { data: wasteData, error: dataError } = await query.order('period_start', { ascending: false });
+
+    if (dataError) {
+      console.error('Error fetching waste data:', dataError);
+      return NextResponse.json(
+        { error: 'Failed to fetch waste data', details: dataError.message },
+        { status: 500 }
+      );
     }
 
     if (!wasteData || wasteData.length === 0) {
@@ -52,39 +96,68 @@ export async function GET(request: NextRequest) {
     }
 
     // Group by waste type and disposal method
-    const streamMap = new Map();
+    const streamsByType = (wasteData || []).reduce((acc: any, record: any) => {
+      const metric = wasteMetrics.find(m => m.id === record.metric_id);
+      const metricCode = metric?.code || '';
+      const subcategory = metric?.subcategory || '';
 
-    wasteData.forEach((record) => {
-      const key = `${record.waste_type}-${record.disposal_method}`;
-      if (!streamMap.has(key)) {
-        streamMap.set(key, {
-          type: record.waste_type,
-          disposal_method: record.disposal_method,
+      // Determine disposal method from subcategory or metric code
+      const disposalMethodMapping: { [key: string]: string } = {
+        'Recycling': 'recycling',
+        'Composting': 'composting',
+        'Incineration': 'incineration',
+        'Landfill': 'landfill',
+        'Hazardous': 'hazardous_treatment',
+      };
+
+      const disposalMethod = disposalMethodMapping[subcategory] || 'other';
+      const key = `${metric?.name || 'Unknown'}-${disposalMethod}`;
+
+      // Determine if diverted from landfill
+      const isDiverted = ['recycling', 'composting'].includes(disposalMethod);
+
+      if (!acc[key]) {
+        acc[key] = {
+          type: metric?.name || 'Unknown',
+          disposal_method: disposalMethod,
           quantity: 0,
-          unit: record.unit,
-          diverted: record.diverted_from_landfill || false,
-          recycling_rate: record.recycling_rate || 0
-        });
+          unit: metric?.unit || 'tons',
+          diverted: isDiverted,
+          recycling_rate: 0,
+          emissions: 0
+        };
       }
 
-      const stream = streamMap.get(key);
-      stream.quantity += record.quantity || 0;
-    });
+      // Add quantity
+      const value = parseFloat(record.value) || 0;
+      acc[key].quantity += value;
 
-    const streams = Array.from(streamMap.values());
+      // Add emissions (convert from kgCO2e to tCO2e)
+      acc[key].emissions += (parseFloat(record.co2e_emissions) || 0) / 1000;
 
-    const totalGenerated = streams.reduce((sum, s) => sum + s.quantity, 0);
+      return acc;
+    }, {});
+
+    const streams = Object.values(streamsByType);
+
+    // Calculate totals
+    const totalGenerated = streams.reduce((sum: number, s: any) => sum + s.quantity, 0);
     const totalDiverted = streams
-      .filter(s => s.diverted)
-      .reduce((sum, s) => sum + s.quantity, 0);
+      .filter((s: any) => s.diverted)
+      .reduce((sum: number, s: any) => sum + s.quantity, 0);
     const totalLandfill = totalGenerated - totalDiverted;
 
     const diversionRate = totalGenerated > 0
       ? (totalDiverted / totalGenerated * 100)
       : 0;
 
-    const avgRecyclingRate = streams.length > 0
-      ? streams.reduce((sum, s) => sum + (s.recycling_rate || 0), 0) / streams.length
+    // Calculate recycling rate (percentage of waste recycled)
+    const totalRecycled = streams
+      .filter((s: any) => s.disposal_method === 'recycling')
+      .reduce((sum: number, s: any) => sum + s.quantity, 0);
+
+    const recyclingRate = totalGenerated > 0
+      ? (totalRecycled / totalGenerated * 100)
       : 0;
 
     return NextResponse.json({
@@ -93,7 +166,7 @@ export async function GET(request: NextRequest) {
       total_diverted: Math.round(totalDiverted * 100) / 100,
       total_landfill: Math.round(totalLandfill * 100) / 100,
       diversion_rate: Math.round(diversionRate * 10) / 10,
-      recycling_rate: Math.round(avgRecyclingRate * 10) / 10
+      recycling_rate: Math.round(recyclingRate * 10) / 10
     });
 
   } catch (error) {

@@ -69,20 +69,38 @@ export class OrganizationService {
 
   /**
    * Get all buildings for an organization
+   * Note: Fetches from 'sites' table as that's what metrics_data references
    */
   async getOrganizationBuildings(organizationId: string): Promise<Building[]> {
-    const { data, error } = await this.supabase
-      .from("buildings")
+    // Use admin client to bypass RLS (sites table requires admin access)
+    const client = this.adminSupabase || this.supabase;
+
+    const { data, error } = await client
+      .from("sites")
       .select("*")
       .eq("organization_id", organizationId)
       .order("name");
 
     if (error) {
-      console.error("Error fetching buildings:", error);
+      console.error("Error fetching sites:", error);
       return [];
     }
 
-    return data || [];
+    // Map sites to Building interface
+    return (data || []).map(site => ({
+      id: site.id,
+      organization_id: site.organization_id,
+      name: site.name,
+      address: typeof site.address === 'object' ?
+        `${site.address.street || ''}, ${site.address.city || ''}`.trim() :
+        site.location || '',
+      city: typeof site.address === 'object' ? site.address.city : site.location,
+      country: typeof site.address === 'object' ? site.address.country : undefined,
+      postal_code: typeof site.address === 'object' ? site.address.postal_code : undefined,
+      size_sqm: site.total_area_sqm, // Use sqm directly (metric)
+      created_at: site.created_at,
+      updated_at: site.updated_at
+    }));
   }
 
   /**

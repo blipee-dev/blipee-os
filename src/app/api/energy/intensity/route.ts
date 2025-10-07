@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,36 +15,26 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's organization
-    const { data: appUser } = await supabase
-      .from('app_users')
-      .select('organization_id')
-      .eq('auth_user_id', user.id)
-      .single();
-
-    if (!appUser?.organization_id) {
+    const orgInfo = await getUserOrganizationById(user.id);
+    if (!orgInfo.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
 
-    const organizationId = appUser.organization_id;
+    const organizationId = orgInfo.organizationId;
 
-    // Get current period (default to current month)
-    const now = new Date();
-    const currentMonth = now.toISOString().slice(0, 7);
+    // Get filter parameters
+    const searchParams = request.nextUrl.searchParams;
+    const startDate = searchParams.get('start_date');
+    const endDate = searchParams.get('end_date');
+    const siteId = searchParams.get('site_id');
 
-    // Fetch intensity metrics for the current period
-    const { data: metrics, error: metricsError } = await supabase
-      .from('energy_intensity_metrics')
-      .select('*')
-      .eq('organization_id', organizationId)
-      .gte('period_start', `${currentMonth}-01`)
-      .order('created_at', { ascending: false });
+    // Get energy metrics from metrics_catalog
+    const { data: energyMetrics } = await supabaseAdmin
+      .from('metrics_catalog')
+      .select('id')
+      .in('category', ['Purchased Energy', 'Electricity']);
 
-    if (metricsError) {
-      throw metricsError;
-    }
-
-    // If no data, return empty metrics
-    if (!metrics || metrics.length === 0) {
+    if (!energyMetrics || energyMetrics.length === 0) {
       return NextResponse.json({
         perEmployee: { value: 0, unit: 'kWh/FTE', trend: 0 },
         perSquareMeter: { value: 0, unit: 'kWh/m²', trend: 0 },
@@ -51,42 +43,92 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Group metrics by type
-    const metricsByType = metrics.reduce((acc, metric) => {
-      if (!acc[metric.metric_type]) {
-        acc[metric.metric_type] = metric;
+    const metricIds = energyMetrics.map(m => m.id);
+
+    // Get total energy consumption (kWh) with filters
+    let query = supabaseAdmin
+      .from('metrics_data')
+      .select('value')
+      .eq('organization_id', organizationId)
+      .in('metric_id', metricIds);
+
+    // Apply date filters if provided
+    if (startDate) {
+      query = query.gte('period_start', startDate);
+    }
+    if (endDate) {
+      query = query.lte('period_start', endDate);
+    }
+
+    // Apply site filter if provided
+    if (siteId) {
+      query = query.eq('site_id', siteId);
+    }
+
+    const { data: energyData } = await query;
+
+    const totalConsumptionKwh = (energyData || []).reduce((sum, d) => sum + (parseFloat(d.value) || 0), 0);
+
+    // Get organization and sites data for intensity calculations
+    const { data: org } = await supabaseAdmin
+      .from('organizations')
+      .select('metadata')
+      .eq('id', organizationId)
+      .single();
+
+    // Get sites data to aggregate employees and area
+    let sitesQuery = supabaseAdmin
+      .from('sites')
+      .select('total_employees, total_area_sqm')
+      .eq('organization_id', organizationId);
+
+    // If filtering by specific site, only get that site's data
+    if (siteId) {
+      sitesQuery = sitesQuery.eq('id', siteId);
+    }
+
+    const { data: sites } = await sitesQuery;
+
+    // Aggregate from sites
+    const totalEmployees = (sites || []).reduce((sum, s) => sum + (s.total_employees || 0), 0);
+    const totalAreaSqm = (sites || []).reduce((sum, s) => sum + (s.total_area_sqm || 0), 0);
+    const annualRevenue = org?.metadata?.annual_revenue || 0;
+
+    // Calculate intensity metrics
+    const perEmployee = totalEmployees > 0
+      ? totalConsumptionKwh / totalEmployees
+      : 0;
+
+    const perSquareMeter = totalAreaSqm > 0
+      ? totalConsumptionKwh / totalAreaSqm
+      : 0;
+
+    const perRevenue = annualRevenue > 0
+      ? (totalConsumptionKwh / 1000) / (annualRevenue / 1000000) // MWh per $M
+      : 0;
+
+    return NextResponse.json({
+      perEmployee: {
+        value: Math.round(perEmployee * 10) / 10,
+        unit: 'kWh/FTE',
+        trend: 0
+      },
+      perSquareMeter: {
+        value: Math.round(perSquareMeter * 10) / 10,
+        unit: 'kWh/m²',
+        trend: 0
+      },
+      perRevenue: {
+        value: Math.round(perRevenue * 10) / 10,
+        unit: 'MWh/$M',
+        trend: 0
+      },
+      perProduction: {
+        value: 0,
+        unit: 'kWh/unit',
+        trend: 0
       }
-      return acc;
-    }, {} as Record<string, any>);
-
-    // Format response
-    const response = {
-      perEmployee: metricsByType.per_employee ? {
-        value: parseFloat(metricsByType.per_employee.value),
-        unit: metricsByType.per_employee.unit,
-        trend: parseFloat(metricsByType.per_employee.trend_percentage || 0)
-      } : { value: 0, unit: 'kWh/FTE', trend: 0 },
-
-      perSquareMeter: metricsByType.per_sqm ? {
-        value: parseFloat(metricsByType.per_sqm.value),
-        unit: metricsByType.per_sqm.unit,
-        trend: parseFloat(metricsByType.per_sqm.trend_percentage || 0)
-      } : { value: 0, unit: 'kWh/m²', trend: 0 },
-
-      perRevenue: metricsByType.per_revenue ? {
-        value: parseFloat(metricsByType.per_revenue.value),
-        unit: metricsByType.per_revenue.unit,
-        trend: parseFloat(metricsByType.per_revenue.trend_percentage || 0)
-      } : { value: 0, unit: 'MWh/$M', trend: 0 },
-
-      perProduction: metricsByType.per_production ? {
-        value: parseFloat(metricsByType.per_production.value),
-        unit: metricsByType.per_production.unit,
-        trend: parseFloat(metricsByType.per_production.trend_percentage || 0)
-      } : { value: 0, unit: 'kWh/unit', trend: 0 }
-    };
-
-    return NextResponse.json(response);
+    });
 
   } catch (error) {
     console.error('Error fetching energy intensity metrics:', error);
