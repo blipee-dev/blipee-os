@@ -559,61 +559,6 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
         )}
       </div>
 
-      {/* Waste Hierarchy Stacked Bar Chart */}
-      {monthlyTrends.length > 0 && (
-        <div className="px-6 pb-6">
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Waste by Disposal Method</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Waste hierarchy: Reduce → Reuse → Recycle → Recovery → Disposal
-                </p>
-              </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
-                  GRI 306-4
-                </span>
-                <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                  GRI 306-5
-                </span>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  ESRS E5
-                </span>
-              </div>
-            </div>
-
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={monthlyTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fill: '#888', fontSize: 12 }}
-                />
-                <YAxis
-                  tick={{ fill: '#888', fontSize: 12 }}
-                  label={{ value: 'tons', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
-                  tickFormatter={(value) => value.toFixed(0)}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px'
-                  }}
-                  formatter={(value: any) => [value.toFixed(2) + ' tons', '']}
-                />
-                <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="recycled" stackId="waste" fill="#10b981" name="Recycled" />
-                <Bar dataKey="composted" stackId="waste" fill="#22c55e" name="Composted" />
-                <Bar dataKey="incinerated" stackId="waste" fill="#f97316" name="Incinerated" />
-                <Bar dataKey="landfill" stackId="waste" fill="#ef4444" name="Landfill" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
-
       {/* Year-over-Year Comparison and Diversion Rate */}
       {monthlyTrends.length > 0 && yoyGeneratedChange !== null && prevYearMonthlyTrends.length > 0 && (
         <div className="px-6 pb-6 grid grid-cols-2 gap-4">
@@ -718,9 +663,22 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           </div>
 
           {/* Circular Economy Metrics */}
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Circular Economy Metrics</h3>
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 flex flex-col h-full">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-gray-900 dark:text-white">Circular Economy Metrics</h3>
+                <div
+                  className="group relative"
+                  title="Waste Hierarchy: Prevention → Reuse → Recycling → Recovery → Disposal. Diversion rate measures waste diverted from disposal through recycling and composting."
+                >
+                  <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+                  <div className="opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto absolute z-[9999] w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-2xl right-0 top-7 border border-gray-700 transition-opacity duration-200">
+                    <strong>Waste Hierarchy:</strong> Prevention → Reuse → Recycling → Recovery → Disposal.
+                    <br /><br />
+                    Diversion rate measures waste diverted from disposal through recycling and composting.
+                  </div>
+                </div>
+              </div>
               <div className="flex gap-1">
                 <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
                   ESRS E5
@@ -731,8 +689,8 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               </div>
             </div>
 
-            <div className="flex-1 space-y-6">
-              <div className="space-y-4">
+            <div className="flex-1 flex flex-col justify-between">
+              <div className="space-y-6">
                 {/* Diversion Rate */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -744,13 +702,13 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       {diversionRate.toFixed(1)}%
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
                     <div
                       className="h-2 rounded-full bg-green-500"
                       style={{ width: `${diversionRate}%` }}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {totalDiverted.toFixed(1)} tons diverted from disposal
                   </p>
                 </div>
@@ -785,13 +743,13 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       {((totalLandfill / totalGenerated) * 100).toFixed(1)}%
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
                     <div
                       className="h-2 rounded-full bg-orange-500"
                       style={{ width: `${(totalLandfill / totalGenerated) * 100}%` }}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {totalLandfill.toFixed(1)} tons to landfill
                   </p>
                 </div>
@@ -807,28 +765,73 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       {totalEmissions.toFixed(1)} tCO2e
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
                     <div
                       className="h-2 rounded-full bg-gray-500"
                       style={{ width: '100%' }}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     Category 5: Waste generated in operations
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <div className="flex items-start gap-2">
-                  <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                  <div className="text-xs text-blue-700 dark:text-blue-300">
-                    <strong>Waste Hierarchy:</strong> Prevention → Reuse → Recycling → Recovery → Disposal.
-                    Diversion rate measures waste diverted from disposal through recycling and composting.
-                  </div>
-                </div>
+      {/* Waste Hierarchy Stacked Bar Chart */}
+      {monthlyTrends.length > 0 && (
+        <div className="px-6 pb-6">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Waste by Disposal Method</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Waste hierarchy: Reduce → Reuse → Recycle → Recovery → Disposal
+                </p>
+              </div>
+              <div className="flex gap-1">
+                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
+                  GRI 306-4
+                </span>
+                <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
+                  GRI 306-5
+                </span>
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                  ESRS E5
+                </span>
               </div>
             </div>
+
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={monthlyTrends}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fill: '#888', fontSize: 12 }}
+                />
+                <YAxis
+                  tick={{ fill: '#888', fontSize: 12 }}
+                  label={{ value: 'tons', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                  tickFormatter={(value) => value.toFixed(0)}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '8px'
+                  }}
+                  formatter={(value: any) => [value.toFixed(2) + ' tons', '']}
+                />
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                <Bar dataKey="recycled" stackId="waste" fill="#10b981" name="Recycled" />
+                <Bar dataKey="composted" stackId="waste" fill="#22c55e" name="Composted" />
+                <Bar dataKey="incinerated" stackId="waste" fill="#f97316" name="Incinerated" />
+                <Bar dataKey="landfill" stackId="waste" fill="#ef4444" name="Landfill" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       )}
