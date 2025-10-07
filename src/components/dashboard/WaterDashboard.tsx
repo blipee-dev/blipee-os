@@ -6,19 +6,30 @@ import {
   Droplet,
   TrendingUp,
   TrendingDown,
-  AlertTriangle,
   Cloud,
   Waves,
   Home,
-  Factory,
-  Trees,
   Recycle,
-  Bot,
   DollarSign,
   Activity,
-  MapPin,
+  Gauge,
   Info
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 interface WaterDashboardProps {
   organizationId: string;
@@ -28,17 +39,14 @@ interface WaterDashboardProps {
 
 interface WaterSource {
   name: string;
+  type: string;
   withdrawal: number;
-  consumption: number;
   discharge: number;
-  recycled: number;
   cost: number;
-  trend: number;
-  icon: React.ReactNode;
+  isRecycled: boolean;
 }
 
 export function WaterDashboard({ organizationId, selectedSite, selectedPeriod }: WaterDashboardProps) {
-  const [viewMode, setViewMode] = useState<'consumption' | 'discharge' | 'quality' | 'risk'>('consumption');
   const [loading, setLoading] = React.useState(true);
   const [waterSources, setWaterSources] = useState<WaterSource[]>([]);
   const [totalWithdrawal, setTotalWithdrawal] = useState(0);
@@ -47,17 +55,15 @@ export function WaterDashboard({ organizationId, selectedSite, selectedPeriod }:
   const [totalRecycled, setTotalRecycled] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [recyclingRate, setRecyclingRate] = useState(0);
-
-  // Weighted allocation targets
-  const [categoryTargets, setCategoryTargets] = useState<any[]>([]);
-  const [overallTargetPercent, setOverallTargetPercent] = useState<number | null>(null);
+  const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
+  const [prevYearMonthlyTrends, setPrevYearMonthlyTrends] = useState<any[]>([]);
+  const [waterIntensity, setWaterIntensity] = useState(0);
 
   // Fetch water data
   React.useEffect(() => {
     const fetchWaterData = async () => {
       setLoading(true);
       try {
-        // Build query parameters
         const params = new URLSearchParams();
         if (selectedPeriod) {
           params.append('start_date', selectedPeriod.start);
@@ -71,44 +77,16 @@ export function WaterDashboard({ organizationId, selectedSite, selectedPeriod }:
         const data = await res.json();
 
         if (data.sources) {
-          const getIcon = (name: string) => {
-            if (name.toLowerCase().includes('municipal')) return <Home className="w-5 h-5" />;
-            if (name.toLowerCase().includes('ground')) return <Waves className="w-5 h-5" />;
-            if (name.toLowerCase().includes('rain')) return <Cloud className="w-5 h-5" />;
-            if (name.toLowerCase().includes('recycled')) return <Recycle className="w-5 h-5" />;
-            return <Droplet className="w-5 h-5" />;
-          };
-
-          setWaterSources(data.sources.map((s: any) => ({
-            ...s,
-            trend: 0, // TODO: Calculate trend from historical data
-            icon: getIcon(s.name)
-          })));
+          setWaterSources(data.sources);
           setTotalWithdrawal(data.total_withdrawal || 0);
           setTotalConsumption(data.total_consumption || 0);
           setTotalDischarge(data.total_discharge || 0);
           setTotalRecycled(data.total_recycled || 0);
           setTotalCost(data.total_cost || 0);
           setRecyclingRate(data.recycling_rate || 0);
-        }
-
-        // Fetch weighted allocation targets for water categories
-        const currentYear = new Date().getFullYear();
-        const allocParams = new URLSearchParams({
-          baseline_year: (currentYear - 1).toString(),
-        });
-
-        const allocRes = await fetch(`/api/sustainability/targets/weighted-allocation?${allocParams}`);
-        const allocData = await allocRes.json();
-
-        if (allocData.allocations) {
-          // Filter for water-related categories
-          const waterCategories = allocData.allocations.filter((alloc: any) =>
-            alloc.category === 'Water'
-          );
-          setCategoryTargets(waterCategories);
-          setOverallTargetPercent(allocData.overallTarget);
-          console.log('📊 Water Category Targets:', waterCategories);
+          setMonthlyTrends(data.monthly_trends || []);
+          setPrevYearMonthlyTrends(data.prev_year_monthly_trends || []);
+          setWaterIntensity(data.water_intensity || 0);
         }
       } catch (error) {
         console.error('Error fetching water data:', error);
@@ -128,6 +106,31 @@ export function WaterDashboard({ organizationId, selectedSite, selectedPeriod }:
     );
   }
 
+  const getSourceColor = (type: string) => {
+    const colors: { [key: string]: string } = {
+      'municipal': '#3b82f6',
+      'groundwater': '#06b6d4',
+      'surface_water': '#0ea5e9',
+      'rainwater': '#60a5fa',
+      'recycled': '#10b981',
+      'seawater': '#0284c7',
+      'wastewater': '#6b7280',
+      'other': '#94a3b8'
+    };
+    return colors[type] || colors['other'];
+  };
+
+  // Prepare data for source breakdown pie chart
+  const sourceBreakdown = waterSources.map(source => ({
+    name: source.name,
+    value: source.withdrawal,
+    type: source.type,
+    discharge: source.discharge,
+    isRecycled: source.isRecycled
+  }));
+
+  const totalWithdrawalForPie = sourceBreakdown.reduce((sum, s) => sum + s.value, 0);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -139,252 +142,390 @@ export function WaterDashboard({ organizationId, selectedSite, selectedPeriod }:
               Water & Effluents
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              GRI 303: Water and Effluents 2018 • Water withdrawal, consumption, discharge & stress
+              GRI 303: Water and Effluents 2018 • Water withdrawal, consumption, discharge & recycling
             </p>
-          </div>
-
-          {/* View Mode Toggle */}
-          <div className="flex gap-2">
-            {(['consumption', 'discharge', 'quality', 'risk'] as const).map(mode => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`px-3 py-1.5 rounded-lg text-sm capitalize transition-all ${
-                  viewMode === mode
-                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
-                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
           </div>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-5 gap-4">
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Withdrawal</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Total Withdrawal</span>
               <Droplet className="w-4 h-4 text-blue-500" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {totalWithdrawal} m³
+              {(totalWithdrawal / 1000).toFixed(1)} ML
             </div>
-            <div className="flex items-center gap-1 text-sm mt-1">
-              <TrendingUp className="w-3 h-3 text-red-500" />
-              <span className="text-red-500">+3.2%</span>
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">GRI 303-3</div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-500 dark:text-gray-400">Consumption</span>
               <Activity className="w-4 h-4 text-cyan-500" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {totalConsumption} m³
+              {(totalConsumption / 1000).toFixed(1)} ML
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {((totalConsumption / totalWithdrawal) * 100).toFixed(0)}% of withdrawal
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">GRI 303-5</div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-500 dark:text-gray-400">Discharge</span>
               <Waves className="w-4 h-4 text-blue-400" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {totalDischarge} m³
+              {(totalDischarge / 1000).toFixed(1)} ML
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Treated & released
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">GRI 303-4</div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Recycling</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Recycling Rate</span>
               <Recycle className="w-4 h-4 text-green-500" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
               {recyclingRate.toFixed(1)}%
             </div>
-            <div className="flex items-center gap-1 text-sm mt-1">
-              <TrendingUp className="w-3 h-3 text-green-500" />
-              <span className="text-green-500">+5.2%</span>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {(totalRecycled / 1000).toFixed(1)} ML recycled
             </div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Cost</span>
-              <DollarSign className="w-4 h-4 text-green-500" />
+              <span className="text-sm text-gray-500 dark:text-gray-400">Intensity</span>
+              <Gauge className="w-4 h-4 text-purple-500" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              ${(totalCost / 1000).toFixed(1)}k
+              {(waterIntensity / 1000).toFixed(2)}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              ${(totalCost / totalConsumption).toFixed(2)}/m³
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">ML consumed</div>
           </div>
         </div>
       </div>
 
-      {/* Consumption View */}
-      {viewMode === 'consumption' && (
-        <>
-          <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Water Balance by Source
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              GRI 303-3 (Withdrawal) • GRI 303-4 (Discharge) • GRI 303-5 (Consumption)
-            </p>
+      {/* Water Sources Distribution and Monthly Trends */}
+      <div className="px-6 pb-6 grid grid-cols-2 gap-4">
+        {/* Water Sources Distribution Pie Chart */}
+        {sourceBreakdown.length > 0 && (
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900 dark:text-white">Water Sources Distribution</h3>
+              <div className="flex gap-1">
+                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
+                  GRI 303-3
+                </span>
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                  ESRS E3
+                </span>
+              </div>
+            </div>
 
-            <div className="space-y-3">
-              {waterSources.map((source, idx) => (
-                <motion.div
-                  key={source.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={sourceBreakdown}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={true}
+                  label={(entry) => `${entry.name} ${((entry.value / totalWithdrawalForPie) * 100).toFixed(1)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        source.recycled > 0 ? 'bg-green-100 dark:bg-green-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
-                      }`}>
-                        {source.icon}
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">
-                          {source.name}
+                  {sourceBreakdown.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={getSourceColor(entry.type)} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '8px'
+                  }}
+                  content={({ active, payload }: any) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      const color = getSourceColor(data.type);
+
+                      return (
+                        <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
+                          <p className="text-white font-semibold mb-2">{data.name}</p>
+                          <p className="text-sm" style={{ color }}>
+                            Withdrawal: {(data.value / 1000).toFixed(2)} ML
+                          </p>
+                          <p className="text-sm" style={{ color }}>
+                            Share: {((data.value / totalWithdrawalForPie) * 100).toFixed(1)}%
+                          </p>
+                          <p className="text-sm text-gray-400 mt-1">
+                            Discharge: {(data.discharge / 1000).toFixed(2)} ML
+                          </p>
+                          {data.isRecycled && (
+                            <span className="inline-block mt-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
+                              Recycled
+                            </span>
+                          )}
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          ${source.cost.toLocaleString()} • ${(source.cost / source.consumption).toFixed(2)}/m³
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {source.trend > 0 ? (
-                        <TrendingUp className="w-4 h-4 text-red-500" />
-                      ) : (
-                        <TrendingDown className="w-4 h-4 text-green-500" />
-                      )}
-                      <span className={`text-sm ${source.trend > 0 ? 'text-red-500' : 'text-green-500'}`}>
-                        {source.trend > 0 ? '+' : ''}{source.trend}%
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">Withdrawal</span>
-                      <div className="font-semibold text-gray-900 dark:text-white">{source.withdrawal} m³</div>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">Consumption</span>
-                      <div className="font-semibold text-gray-900 dark:text-white">{source.consumption} m³</div>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">Discharge</span>
-                      <div className="font-semibold text-gray-900 dark:text-white">{source.discharge} m³</div>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">Recycled</span>
-                      <div className="font-semibold text-green-600 dark:text-green-400">{source.recycled} m³</div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
+        )}
 
-        </>
-      )}
-
-
-
-      {/* Science-Based Category Targets */}
-      {categoryTargets.length > 0 && (
-        <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Science-Based Target Allocation</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Weighted by emission profile, abatement potential, and technology readiness
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                {overallTargetPercent?.toFixed(1)}%
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Overall Target</div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            {categoryTargets.map((target: any) => (
-              <div
-                key={target.category}
-                className={`border rounded-lg p-4 ${
-                  target.feasibility === 'high'
-                    ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                    : target.feasibility === 'medium'
-                    ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
-                    : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                }`}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 dark:text-white">{target.category}</h4>
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      {target.currentEmissions.toFixed(1)} tCO2e ({target.emissionPercent.toFixed(1)}%)
-                    </div>
-                  </div>
-                  <div className={`px-2 py-1 rounded text-xs font-medium ${
-                    target.feasibility === 'high'
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                      : target.feasibility === 'medium'
-                      ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                      : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                  }`}>
-                    {target.feasibility} feasibility
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                      {target.adjustedTargetPercent.toFixed(1)}%
-                    </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      → {target.absoluteTarget.toFixed(1)} tCO2e
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 italic">
-                    {target.reason}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <div className="flex items-start gap-2">
-              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+        {/* Monthly Water Balance Trend */}
+        {monthlyTrends.length > 0 && (
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <h5 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                  How Weighted Allocation Works
-                </h5>
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  Categories with high emissions AND high abatement potential receive higher reduction targets.
-                  This ensures the overall {overallTargetPercent?.toFixed(1)}% target is achievable by focusing efforts where they matter most.
-                  Categories are weighted by emission percentage × effort factor (based on technology readiness and cost-effectiveness).
+                <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Water Balance</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Withdrawal, discharge, and consumption
                 </p>
+              </div>
+              <div className="flex gap-1">
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                  ESRS E3
+                </span>
+                <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
+                  TCFD
+                </span>
+              </div>
+            </div>
+
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={monthlyTrends}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fill: '#888', fontSize: 12 }}
+                />
+                <YAxis
+                  tick={{ fill: '#888', fontSize: 12 }}
+                  label={{ value: 'ML', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                  tickFormatter={(value) => (value / 1000).toFixed(0)}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '8px'
+                  }}
+                  formatter={(value: any) => [(value / 1000).toFixed(2) + ' ML', '']}
+                />
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                <Line
+                  type="monotone"
+                  dataKey="withdrawal"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  name="Withdrawal"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="discharge"
+                  stroke="#06b6d4"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  name="Discharge"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="consumption"
+                  stroke="#6366f1"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                  name="Consumption (Total)"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+
+      {/* Year-over-Year Comparison */}
+      {prevYearMonthlyTrends.length > 0 && (
+        <div className="px-6 pb-6 grid grid-cols-2 gap-4">
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Year-over-Year Comparison</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Monthly change vs previous year
+                </p>
+              </div>
+              <div className="flex gap-1">
+                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
+                  GRI 303-3
+                </span>
+                <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
+                  TCFD
+                </span>
+              </div>
+            </div>
+
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={prevYearMonthlyTrends}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fill: '#888', fontSize: 12 }}
+                />
+                <YAxis
+                  tick={{ fill: '#888', fontSize: 12 }}
+                  label={{ value: 'ML', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                  tickFormatter={(value) => (value / 1000).toFixed(0)}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '8px'
+                  }}
+                  content={({ active, payload }: any) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      const changePercent = data.previous > 0
+                        ? ((data.change / data.previous) * 100).toFixed(1)
+                        : '0.0';
+                      const isIncrease = data.change > 0;
+
+                      return (
+                        <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
+                          <p className="text-white font-semibold mb-2">{data.month}</p>
+                          <p className="text-sm text-blue-400">
+                            Current: {(data.current / 1000).toFixed(2)} ML
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            Previous: {(data.previous / 1000).toFixed(2)} ML
+                          </p>
+                          <p className={`text-sm font-bold mt-1 ${isIncrease ? 'text-red-400' : 'text-green-400'}`}>
+                            Change: {isIncrease ? '+' : ''}{(data.change / 1000).toFixed(2)} ML ({isIncrease ? '+' : ''}{changePercent}%)
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Bar
+                  dataKey="change"
+                  fill="#6366f1"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Water Balance Summary */}
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900 dark:text-white">Water Balance Summary</h3>
+              <div className="flex gap-1">
+                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
+                  GRI 303-5
+                </span>
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                  ESRS E3
+                </span>
+              </div>
+            </div>
+
+            <div className="flex-1 space-y-6">
+              <div className="space-y-4">
+                {/* Withdrawal */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Droplet className="w-4 h-4 text-blue-500" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">Total Withdrawal</span>
+                    </div>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {(totalWithdrawal / 1000).toFixed(1)} ML
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className="h-2 rounded-full bg-blue-500"
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Discharge */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Waves className="w-4 h-4 text-cyan-500" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">Total Discharge</span>
+                    </div>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {(totalDischarge / 1000).toFixed(1)} ML
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className="h-2 rounded-full bg-cyan-500"
+                      style={{ width: `${(totalDischarge / totalWithdrawal) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Consumption */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-4 h-4 text-indigo-500" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">Consumption (W - D)</span>
+                    </div>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {(totalConsumption / 1000).toFixed(1)} ML
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className="h-2 rounded-full bg-indigo-500"
+                      style={{ width: `${(totalConsumption / totalWithdrawal) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Recycled */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Recycle className="w-4 h-4 text-green-500" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">Recycled Water</span>
+                    </div>
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                      {(totalRecycled / 1000).toFixed(1)} ML ({recyclingRate.toFixed(1)}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className="h-2 rounded-full bg-green-500"
+                      style={{ width: `${recyclingRate}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div className="text-xs text-blue-700 dark:text-blue-300">
+                    <strong>GRI 303-5:</strong> Water consumption is calculated as total withdrawal minus total discharge.
+                    This represents water that is not returned to local ecosystems or communities.
+                  </div>
+                </div>
               </div>
             </div>
           </div>

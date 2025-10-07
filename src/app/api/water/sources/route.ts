@@ -169,6 +169,76 @@ export async function GET(request: NextRequest) {
       ? (totalRecycled / totalConsumption * 100)
       : 0;
 
+    // Calculate monthly trends for charts
+    const monthlyData = (waterData || []).reduce((acc: any, record: any) => {
+      const metric = waterMetrics.find(m => m.id === record.metric_id);
+      const date = new Date(record.period_start);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthName = date.toLocaleString('default', { month: 'short' });
+      const metricCode = metric?.code || '';
+      const isDischarge = metricCode.includes('wastewater');
+
+      if (!acc[monthKey]) {
+        acc[monthKey] = {
+          month: monthName,
+          monthKey,
+          withdrawal: 0,
+          discharge: 0,
+          consumption: 0,
+          recycled: 0
+        };
+      }
+
+      const value = parseFloat(record.value) || 0;
+
+      if (isDischarge) {
+        acc[monthKey].discharge += value;
+      } else {
+        acc[monthKey].withdrawal += value;
+        if (metricCode.includes('recycled')) {
+          acc[monthKey].recycled += value;
+        }
+      }
+
+      return acc;
+    }, {});
+
+    const monthlyTrends = Object.values(monthlyData)
+      .sort((a: any, b: any) => a.monthKey.localeCompare(b.monthKey))
+      .map((m: any) => ({
+        ...m,
+        consumption: m.withdrawal - m.discharge,
+        withdrawal: Math.round(m.withdrawal * 100) / 100,
+        discharge: Math.round(m.discharge * 100) / 100,
+        recycled: Math.round(m.recycled * 100) / 100
+      }));
+
+    // Calculate YoY comparison (current year vs previous year)
+    const currentYear = new Date().getFullYear();
+    const prevYearMonthlyData = monthlyTrends
+      .filter((m: any) => m.monthKey.startsWith(String(currentYear - 1)))
+      .reduce((acc: any, m: any) => {
+        acc[m.month] = m.withdrawal;
+        return acc;
+      }, {});
+
+    const prevYearMonthlyTrends = monthlyTrends
+      .filter((m: any) => m.monthKey.startsWith(String(currentYear)))
+      .map((m: any) => {
+        const prevYearValue = prevYearMonthlyData[m.month] || 0;
+        const change = prevYearValue > 0 ? m.withdrawal - prevYearValue : 0;
+        return {
+          month: m.month,
+          monthKey: m.monthKey,
+          change: Math.round(change * 100) / 100,
+          current: m.withdrawal,
+          previous: prevYearValue
+        };
+      });
+
+    // Calculate water intensity (if we have volume data)
+    const waterIntensity = totalConsumption > 0 ? totalConsumption : 0;
+
     return NextResponse.json({
       sources,
       total_withdrawal: Math.round(totalWithdrawal * 100) / 100,
@@ -176,7 +246,10 @@ export async function GET(request: NextRequest) {
       total_discharge: Math.round(totalDischarge * 100) / 100,
       total_recycled: Math.round(totalRecycled * 100) / 100,
       total_cost: Math.round(totalCost * 100) / 100,
-      recycling_rate: Math.round(recyclingRate * 10) / 10
+      recycling_rate: Math.round(recyclingRate * 10) / 10,
+      monthly_trends: monthlyTrends,
+      prev_year_monthly_trends: prevYearMonthlyTrends,
+      water_intensity: Math.round(waterIntensity * 100) / 100
     });
 
   } catch (error) {
