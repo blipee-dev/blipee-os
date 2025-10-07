@@ -58,6 +58,12 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
   const [prevYearMonthlyTrends, setPrevYearMonthlyTrends] = useState<any[]>([]);
 
+  // YoY comparison state
+  const [yoyGeneratedChange, setYoyGeneratedChange] = useState<number | null>(null);
+  const [yoyDiversionChange, setYoyDiversionChange] = useState<number | null>(null);
+  const [yoyRecyclingChange, setYoyRecyclingChange] = useState<number | null>(null);
+  const [yoyEmissionsChange, setYoyEmissionsChange] = useState<number | null>(null);
+
   // Fetch waste data
   React.useEffect(() => {
     const fetchWasteData = async () => {
@@ -85,6 +91,41 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           setTotalEmissions(data.total_emissions || 0);
           setMonthlyTrends(data.monthly_trends || []);
           setPrevYearMonthlyTrends(data.prev_year_monthly_trends || []);
+        }
+
+        // Fetch previous year data for YoY comparison
+        if (selectedPeriod && data.total_generated && data.total_generated > 0) {
+          const startDate = new Date(selectedPeriod.start);
+          const previousYearStart = new Date(startDate);
+          previousYearStart.setFullYear(startDate.getFullYear() - 1);
+
+          const endDate = new Date(selectedPeriod.end);
+          const previousYearEnd = new Date(endDate);
+          previousYearEnd.setFullYear(endDate.getFullYear() - 1);
+
+          const prevParams = new URLSearchParams({
+            start_date: previousYearStart.toISOString().split('T')[0],
+            end_date: previousYearEnd.toISOString().split('T')[0],
+          });
+          if (selectedSite) {
+            prevParams.append('site_id', selectedSite.id);
+          }
+
+          const prevRes = await fetch(`/api/waste/streams?${prevParams}`);
+          const prevData = await prevRes.json();
+
+          // Calculate YoY changes
+          if (prevData.total_generated && prevData.total_generated > 0) {
+            const generatedChange = ((data.total_generated - prevData.total_generated) / prevData.total_generated) * 100;
+            const diversionChange = data.diversion_rate - prevData.diversion_rate;
+            const recyclingChange = data.recycling_rate - prevData.recycling_rate;
+            const emissionsChange = ((data.total_emissions - prevData.total_emissions) / prevData.total_emissions) * 100;
+
+            setYoyGeneratedChange(generatedChange);
+            setYoyDiversionChange(diversionChange);
+            setYoyRecyclingChange(recyclingChange);
+            setYoyEmissionsChange(emissionsChange);
+          }
         }
       } catch (error) {
         console.error('Error fetching waste data:', error);
@@ -136,87 +177,157 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   const totalQuantity = disposalBreakdown.reduce((sum, d) => sum + d.quantity, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <Recycle className="w-7 h-7 text-green-500" />
-              Waste & Circular Economy
-            </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              GRI 306: Waste 2020 • Waste generated, diverted from disposal & directed to disposal
-            </p>
+      <div className="p-6 pb-0">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Recycle className="w-6 h-6 text-green-500" />
+            Waste & Circular Economy
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            GRI 306 • ESRS E5 • Waste generated, diverted from disposal & directed to disposal
+          </p>
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="px-6 pb-6 grid grid-cols-6 gap-4">
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">Generated</span>
+            <Trash2 className="w-4 h-4 text-gray-500" />
+          </div>
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {(totalGenerated / 1000).toFixed(1)}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">tons</div>
+            </div>
+            {yoyGeneratedChange !== null && (
+              <div className="flex items-center gap-1">
+                {yoyGeneratedChange >= 0 ? (
+                  <TrendingUp className={`w-3 h-3 ${yoyGeneratedChange > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                ) : (
+                  <TrendingDown className="w-3 h-3 text-green-500" />
+                )}
+                <span className={`text-xs ${yoyGeneratedChange > 0 ? 'text-red-500' : yoyGeneratedChange < 0 ? 'text-green-500' : 'text-gray-400'}`}>
+                  {yoyGeneratedChange > 0 ? '+' : ''}{yoyGeneratedChange.toFixed(1)}% YoY
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-6 gap-4">
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Generated</span>
-              <Trash2 className="w-4 h-4 text-gray-500" />
-            </div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {(totalGenerated / 1000).toFixed(1)}t
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">GRI 306-3</div>
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">Diverted</span>
+            <Recycle className="w-4 h-4 text-green-600" />
           </div>
-
-          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">Diverted</span>
-              <Recycle className="w-4 h-4 text-green-600" />
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {diversionRate.toFixed(1)}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">%</div>
             </div>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {diversionRate.toFixed(1)}%
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">GRI 306-4</div>
+            {yoyDiversionChange !== null && (
+              <div className="flex items-center gap-1">
+                {yoyDiversionChange >= 0 ? (
+                  <TrendingUp className={`w-3 h-3 ${yoyDiversionChange > 0 ? 'text-green-500' : 'text-gray-400'}`} />
+                ) : (
+                  <TrendingDown className="w-3 h-3 text-red-500" />
+                )}
+                <span className={`text-xs ${yoyDiversionChange > 0 ? 'text-green-500' : yoyDiversionChange < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                  {yoyDiversionChange > 0 ? '+' : ''}{yoyDiversionChange.toFixed(1)}pp YoY
+                </span>
+              </div>
+            )}
           </div>
+        </div>
 
-          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">To Disposal</span>
-              <AlertTriangle className="w-4 h-4 text-orange-600" />
-            </div>
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-              {(totalLandfill / 1000).toFixed(1)}t
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">GRI 306-5</div>
+        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">To Disposal</span>
+            <AlertTriangle className="w-4 h-4 text-orange-600" />
           </div>
-
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Recycling</span>
-              <Package className="w-4 h-4 text-blue-500" />
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                {(totalLandfill / 1000).toFixed(1)}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">tons</div>
             </div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {recyclingRate.toFixed(1)}%
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">ESRS E5</div>
           </div>
+        </div>
 
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Emissions</span>
-              <Cloud className="w-4 h-4 text-gray-500" />
-            </div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {totalEmissions.toFixed(1)}
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">tCO2e • Scope 3</div>
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">Recycling</span>
+            <Package className="w-4 h-4 text-blue-500" />
           </div>
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {recyclingRate.toFixed(1)}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">%</div>
+            </div>
+            {yoyRecyclingChange !== null && (
+              <div className="flex items-center gap-1">
+                {yoyRecyclingChange >= 0 ? (
+                  <TrendingUp className={`w-3 h-3 ${yoyRecyclingChange > 0 ? 'text-green-500' : 'text-gray-400'}`} />
+                ) : (
+                  <TrendingDown className="w-3 h-3 text-red-500" />
+                )}
+                <span className={`text-xs ${yoyRecyclingChange > 0 ? 'text-green-500' : yoyRecyclingChange < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                  {yoyRecyclingChange > 0 ? '+' : ''}{yoyRecyclingChange.toFixed(1)}pp YoY
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
 
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Intensity</span>
-              <Activity className="w-4 h-4 text-purple-500" />
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">Emissions</span>
+            <Cloud className="w-4 h-4 text-gray-500" />
+          </div>
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {totalEmissions.toFixed(1)}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
             </div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {totalGenerated > 0 ? (totalEmissions / (totalGenerated / 1000)).toFixed(2) : '0.00'}
+            {yoyEmissionsChange !== null && (
+              <div className="flex items-center gap-1">
+                {yoyEmissionsChange >= 0 ? (
+                  <TrendingUp className={`w-3 h-3 ${yoyEmissionsChange > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                ) : (
+                  <TrendingDown className="w-3 h-3 text-green-500" />
+                )}
+                <span className={`text-xs ${yoyEmissionsChange > 0 ? 'text-red-500' : yoyEmissionsChange < 0 ? 'text-green-500' : 'text-gray-400'}`}>
+                  {yoyEmissionsChange > 0 ? '+' : ''}{yoyEmissionsChange.toFixed(1)}% YoY
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">Intensity</span>
+            <Activity className="w-4 h-4 text-purple-500" />
+          </div>
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {totalGenerated > 0 ? (totalEmissions / (totalGenerated / 1000)).toFixed(2) : '0.00'}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e/t</div>
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">tCO2e/t waste</div>
           </div>
         </div>
       </div>
@@ -225,7 +336,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
       <div className="px-6 pb-6 grid grid-cols-2 gap-4">
         {/* Disposal Method Pie Chart */}
         {disposalBreakdown.length > 0 && (
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900 dark:text-white">Disposal Method Distribution</h3>
               <div className="flex gap-1">
@@ -295,7 +406,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
         {/* Monthly Waste Trends */}
         {monthlyTrends.length > 0 && (
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Waste Trends</h3>
@@ -367,7 +478,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
       {/* Waste Hierarchy Stacked Bar Chart */}
       {monthlyTrends.length > 0 && (
         <div className="px-6 pb-6">
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Waste by Disposal Method</h3>
@@ -422,7 +533,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
       {/* Year-over-Year Comparison and Diversion Rate */}
       {prevYearMonthlyTrends.length > 0 && (
         <div className="px-6 pb-6 grid grid-cols-2 gap-4">
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Year-over-Year Comparison</h3>
@@ -494,7 +605,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           </div>
 
           {/* Circular Economy Metrics */}
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900 dark:text-white">Circular Economy Metrics</h3>
               <div className="flex gap-1">
