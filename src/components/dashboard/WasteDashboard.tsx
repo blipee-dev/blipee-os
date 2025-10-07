@@ -15,6 +15,7 @@ import {
   Info,
   Cloud
 } from 'lucide-react';
+import { SBTiWasteTarget } from '@/components/sustainability/waste/SBTiWasteTarget';
 import {
   BarChart,
   Bar,
@@ -67,6 +68,12 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
   // Material breakdown state
   const [materialBreakdown, setMaterialBreakdown] = useState<any[]>([]);
+
+  // SBTi waste target state
+  const [wasteTargetData, setWasteTargetData] = useState<{
+    baseline2023Emissions: number;
+    baseline2023DiversionRate: number;
+  } | null>(null);
 
   // Fetch waste data
   React.useEffect(() => {
@@ -176,6 +183,42 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
     };
 
     fetchWasteData();
+  }, [selectedSite, selectedPeriod]);
+
+  // Fetch SBTi baseline data (2023) - only for current year view
+  React.useEffect(() => {
+    const fetchBaselineData = async () => {
+      const currentYear = new Date().getFullYear();
+      const selectedYear = selectedPeriod ? new Date(selectedPeriod.start).getFullYear() : currentYear;
+
+      // Only fetch baseline data when viewing current year
+      if (selectedYear !== currentYear) {
+        setWasteTargetData(null);
+        return;
+      }
+
+      try {
+        const baseline2023Params = new URLSearchParams({
+          start_date: '2023-01-01',
+          end_date: '2023-12-31',
+        });
+        if (selectedSite) {
+          baseline2023Params.append('site_id', selectedSite.id);
+        }
+
+        const baseline2023Res = await fetch(`/api/waste/streams?${baseline2023Params}`);
+        const baseline2023Data = await baseline2023Res.json();
+
+        setWasteTargetData({
+          baseline2023Emissions: baseline2023Data.total_emissions || 0,
+          baseline2023DiversionRate: baseline2023Data.diversion_rate || 0,
+        });
+      } catch (error) {
+        console.error('Error fetching baseline waste data:', error);
+      }
+    };
+
+    fetchBaselineData();
   }, [selectedSite, selectedPeriod]);
 
   // Helper functions
@@ -833,6 +876,21 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               </BarChart>
             </ResponsiveContainer>
           </div>
+        </div>
+      )}
+
+      {/* SBTi Waste Target Progress - Only for current year */}
+      {wasteTargetData && monthlyTrends.length > 0 && (
+        <div className="px-6 pb-6">
+          <SBTiWasteTarget
+            baseline2023Emissions={wasteTargetData.baseline2023Emissions}
+            currentEmissions={totalEmissions}
+            projectedFullYearEmissions={monthlyTrends.length > 0 ? (totalEmissions / monthlyTrends.length) * 12 : totalEmissions}
+            baseline2023DiversionRate={wasteTargetData.baseline2023DiversionRate}
+            currentDiversionRate={diversionRate}
+            projectedFullYearDiversionRate={monthlyTrends.length > 0 ? diversionRate : diversionRate}
+            currentYear={new Date().getFullYear()}
+          />
         </div>
       )}
 
