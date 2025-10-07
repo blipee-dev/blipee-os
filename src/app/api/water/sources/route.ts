@@ -5,6 +5,107 @@ import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 
 export const dynamic = 'force-dynamic';
 
+async function calculateEndUseYoY(
+  organizationId: string,
+  siteId: string | null,
+  startDate: string | null,
+  endDate: string | null,
+  waterMetrics: any[]
+) {
+  // Determine current and previous year ranges
+  const currentYear = new Date().getFullYear();
+  const prevYear = currentYear - 1;
+
+  const endUseCodes = [
+    'scope3_water_toilet',
+    'scope3_water_kitchen',
+    'scope3_water_cleaning',
+    'scope3_water_irrigation',
+    'scope3_water_other'
+  ];
+
+  const metricIds = waterMetrics
+    .filter(m => endUseCodes.includes(m.code))
+    .map(m => m.id);
+
+  // Get current year data
+  let currentQuery = supabaseAdmin
+    .from('metrics_data')
+    .select('value, metric_id, period_start')
+    .eq('organization_id', organizationId)
+    .in('metric_id', metricIds)
+    .gte('period_start', `${currentYear}-01-01`)
+    .lt('period_start', `${currentYear + 1}-01-01`);
+
+  if (siteId) {
+    currentQuery = currentQuery.eq('site_id', siteId);
+  }
+
+  const { data: currentData } = await currentQuery;
+
+  // Get previous year data
+  let prevQuery = supabaseAdmin
+    .from('metrics_data')
+    .select('value, metric_id, period_start')
+    .eq('organization_id', organizationId)
+    .in('metric_id', metricIds)
+    .gte('period_start', `${prevYear}-01-01`)
+    .lt('period_start', `${prevYear + 1}-01-01`);
+
+  if (siteId) {
+    prevQuery = prevQuery.eq('site_id', siteId);
+  }
+
+  const { data: prevData } = await prevQuery;
+
+  // Aggregate by end-use type
+  const currentByType: any = {};
+  const prevByType: any = {};
+
+  currentData?.forEach((r: any) => {
+    const metric = waterMetrics.find(m => m.id === r.metric_id);
+    if (metric) {
+      if (!currentByType[metric.code]) {
+        currentByType[metric.code] = { value: 0, name: metric.name, consumptionRate: metric.consumption_rate || 0 };
+      }
+      currentByType[metric.code].value += parseFloat(r.value);
+    }
+  });
+
+  prevData?.forEach((r: any) => {
+    const metric = waterMetrics.find(m => m.id === r.metric_id);
+    if (metric) {
+      if (!prevByType[metric.code]) {
+        prevByType[metric.code] = { value: 0 };
+      }
+      prevByType[metric.code].value += parseFloat(r.value);
+    }
+  });
+
+  // Calculate YoY changes
+  return endUseCodes.map(code => {
+    const current = currentByType[code] || { value: 0, name: '', consumptionRate: 0 };
+    const previous = prevByType[code] || { value: 0 };
+
+    const currentConsumption = current.value * current.consumptionRate;
+    const prevConsumption = previous.value * current.consumptionRate;
+
+    const change = currentConsumption - prevConsumption;
+    const changePercent = prevConsumption > 0
+      ? ((change / prevConsumption) * 100)
+      : 0;
+
+    return {
+      code,
+      name: current.name,
+      current_consumption: Math.round(currentConsumption * 100) / 100,
+      previous_consumption: Math.round(prevConsumption * 100) / 100,
+      change: Math.round(change * 100) / 100,
+      change_percent: Math.round(changePercent * 10) / 10
+    };
+  }).filter(item => item.name); // Only return items with data
+}
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
@@ -57,27 +158,60 @@ export async function GET(request: NextRequest) {
     }
 
     // Get water data from metrics_data
+    // Supabase has a default 1000 row limit, so we need to fetch all data with pagination
     const metricIds = waterMetrics.map(m => m.id);
-    let query = supabaseAdmin
-      .from('metrics_data')
-      .select('*')
-      .eq('organization_id', organizationId)
-      .in('metric_id', metricIds);
 
-    // Apply date filters if provided
-    if (startDate) {
-      query = query.gte('period_start', startDate);
-    }
-    if (endDate) {
-      query = query.lte('period_start', endDate);
+    let allWaterData: any[] = [];
+    let from = 0;
+    const pageSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+      let query = supabaseAdmin
+        .from('metrics_data')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .in('metric_id', metricIds)
+        .range(from, from + pageSize - 1);
+
+      // Apply date filters if provided
+      if (startDate) {
+        query = query.gte('period_start', startDate);
+      }
+      if (endDate) {
+        query = query.lte('period_start', endDate);
+      }
+
+      // Apply site filter if provided
+      if (siteId) {
+        query = query.eq('site_id', siteId);
+      }
+
+      const { data: pageData, error: pageError } = await query.order('period_start', { ascending: false });
+
+      if (pageError) {
+        console.error('Error fetching water data:', pageError);
+        return NextResponse.json(
+          { error: 'Failed to fetch water data', details: pageError.message },
+          { status: 500 }
+        );
+      }
+
+      if (!pageData || pageData.length === 0) {
+        hasMore = false;
+      } else {
+        allWaterData = [...allWaterData, ...pageData];
+        from += pageSize;
+
+        // If we got less than a full page, we're done
+        if (pageData.length < pageSize) {
+          hasMore = false;
+        }
+      }
     }
 
-    // Apply site filter if provided
-    if (siteId) {
-      query = query.eq('site_id', siteId);
-    }
-
-    const { data: waterData, error: dataError } = await query.order('period_start', { ascending: false });
+    const waterData = allWaterData;
+    const dataError = null;
 
     if (dataError) {
       console.error('Error fetching water data:', dataError);
@@ -124,6 +258,17 @@ export async function GET(request: NextRequest) {
         'scope3_water_seawater': { name: 'Seawater', type: 'seawater' },
         'scope3_water_rainwater': { name: 'Rainwater', type: 'rainwater' },
         'scope3_water_recycled': { name: 'Recycled Water', type: 'recycled' },
+        'scope3_water_recycled_toilet': { name: 'Recycled Water - Toilet Flush', type: 'recycled' },
+        // End-use breakdown (GRI 303-3 detailed)
+        'scope3_water_toilet': { name: 'Toilets & Sanitary', type: 'toilet' },
+        'scope3_water_kitchen': { name: 'Kitchen & Cafeteria', type: 'kitchen' },
+        'scope3_water_cleaning': { name: 'Cleaning & Maintenance', type: 'cleaning' },
+        'scope3_water_irrigation': { name: 'Landscaping & Irrigation', type: 'irrigation' },
+        'scope3_water_other': { name: 'Other Uses', type: 'other_use' },
+        'scope3_wastewater_toilet': { name: 'Toilet Wastewater', type: 'wastewater' },
+        'scope3_wastewater_kitchen': { name: 'Kitchen Wastewater', type: 'wastewater' },
+        'scope3_wastewater_cleaning': { name: 'Cleaning Wastewater', type: 'wastewater' },
+        'scope3_wastewater_other': { name: 'Other Wastewater', type: 'wastewater' },
       };
 
       const sourceInfo = typeMapping[metricCode] || { name: metric?.name || 'Other', type: 'other' };
@@ -236,8 +381,66 @@ export async function GET(request: NextRequest) {
         };
       });
 
-    // Calculate water intensity (if we have volume data)
-    const waterIntensity = totalConsumption > 0 ? totalConsumption : 0;
+    // Calculate water intensity per employee (m³ per employee)
+    // Get total employees from sites
+    let totalEmployees = 0;
+    if (siteId) {
+      // Single site selected
+      const { data: siteData } = await supabaseAdmin
+        .from('sites')
+        .select('total_employees')
+        .eq('id', siteId)
+        .single();
+      totalEmployees = siteData?.total_employees || 0;
+    } else {
+      // All sites in organization
+      const { data: sitesData } = await supabaseAdmin
+        .from('sites')
+        .select('total_employees')
+        .eq('organization_id', organizationId);
+      totalEmployees = sitesData?.reduce((sum, site) => sum + (site.total_employees || 0), 0) || 0;
+    }
+
+    // Water intensity = consumption per employee (m³/employee)
+    const waterIntensity = totalEmployees > 0 ? totalConsumption / totalEmployees : 0;
+
+    console.log('💧 Water Intensity Calculation:');
+    console.log('  Total Consumption:', totalConsumption, 'm³');
+    console.log('  Total Employees:', totalEmployees);
+    console.log('  Water Intensity:', waterIntensity, 'm³/employee');
+
+    // Calculate end-use breakdown for consumption visualization
+    const endUseBreakdown = sources
+      .filter((s: any) => ['toilet', 'kitchen', 'cleaning', 'irrigation', 'other_use'].includes(s.type))
+      .map((s: any) => {
+        // Get consumption rate from metrics_catalog
+        const metric = waterMetrics.find(m => {
+          const typeMap: any = {
+            'toilet': 'scope3_water_toilet',
+            'kitchen': 'scope3_water_kitchen',
+            'cleaning': 'scope3_water_cleaning',
+            'irrigation': 'scope3_water_irrigation',
+            'other_use': 'scope3_water_other'
+          };
+          return m.code === typeMap[s.type];
+        });
+
+        const consumptionRate = metric?.consumption_rate || 0;
+        const consumption = s.withdrawal * consumptionRate;
+        const discharge = s.withdrawal * (1 - consumptionRate);
+
+        return {
+          name: s.name,
+          type: s.type,
+          withdrawal: Math.round(s.withdrawal * 100) / 100,
+          consumption: Math.round(consumption * 100) / 100,
+          discharge: Math.round(discharge * 100) / 100,
+          consumption_rate: Math.round(consumptionRate * 100)
+        };
+      });
+
+    // Calculate YoY comparison for end-use breakdown
+    const endUseYoY = await calculateEndUseYoY(organizationId, siteId, startDate, endDate, waterMetrics);
 
     return NextResponse.json({
       sources,
@@ -249,7 +452,9 @@ export async function GET(request: NextRequest) {
       recycling_rate: Math.round(recyclingRate * 10) / 10,
       monthly_trends: monthlyTrends,
       prev_year_monthly_trends: prevYearMonthlyTrends,
-      water_intensity: Math.round(waterIntensity * 100) / 100
+      water_intensity: Math.round(waterIntensity * 100) / 100,
+      end_use_breakdown: endUseBreakdown,
+      end_use_yoy: endUseYoY
     });
 
   } catch (error) {
