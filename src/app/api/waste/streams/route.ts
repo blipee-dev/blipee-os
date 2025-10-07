@@ -160,13 +160,110 @@ export async function GET(request: NextRequest) {
       ? (totalRecycled / totalGenerated * 100)
       : 0;
 
+    // Calculate monthly trends for charts
+    const monthlyData = (wasteData || []).reduce((acc: any, record: any) => {
+      const metric = wasteMetrics.find(m => m.id === record.metric_id);
+      const date = new Date(record.period_start);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthName = date.toLocaleString('default', { month: 'short' });
+      const subcategory = metric?.subcategory || '';
+
+      const disposalMethodMapping: { [key: string]: string } = {
+        'Recycling': 'recycling',
+        'Composting': 'composting',
+        'Incineration': 'incineration',
+        'Landfill': 'landfill',
+        'Hazardous': 'hazardous_treatment',
+      };
+
+      const disposalMethod = disposalMethodMapping[subcategory] || 'other';
+      const isDiverted = ['recycling', 'composting'].includes(disposalMethod);
+
+      if (!acc[monthKey]) {
+        acc[monthKey] = {
+          month: monthName,
+          monthKey,
+          generated: 0,
+          recycled: 0,
+          composted: 0,
+          incinerated: 0,
+          landfill: 0,
+          diverted: 0,
+          emissions: 0
+        };
+      }
+
+      const value = parseFloat(record.value) || 0;
+      const emissions = (parseFloat(record.co2e_emissions) || 0) / 1000;
+
+      acc[monthKey].generated += value;
+      acc[monthKey].emissions += emissions;
+
+      if (disposalMethod === 'recycling') {
+        acc[monthKey].recycled += value;
+        acc[monthKey].diverted += value;
+      } else if (disposalMethod === 'composting') {
+        acc[monthKey].composted += value;
+        acc[monthKey].diverted += value;
+      } else if (disposalMethod === 'incineration') {
+        acc[monthKey].incinerated += value;
+      } else if (disposalMethod === 'landfill') {
+        acc[monthKey].landfill += value;
+      }
+
+      return acc;
+    }, {});
+
+    const monthlyTrends = Object.values(monthlyData)
+      .sort((a: any, b: any) => a.monthKey.localeCompare(b.monthKey))
+      .map((m: any) => ({
+        ...m,
+        generated: Math.round(m.generated * 100) / 100,
+        recycled: Math.round(m.recycled * 100) / 100,
+        composted: Math.round(m.composted * 100) / 100,
+        incinerated: Math.round(m.incinerated * 100) / 100,
+        landfill: Math.round(m.landfill * 100) / 100,
+        diverted: Math.round(m.diverted * 100) / 100,
+        emissions: Math.round(m.emissions * 100) / 100,
+        diversion_rate: m.generated > 0 ? Math.round((m.diverted / m.generated * 100) * 10) / 10 : 0
+      }));
+
+    // Calculate YoY comparison (current year vs previous year)
+    const currentYear = new Date().getFullYear();
+    const prevYearMonthlyData = monthlyTrends
+      .filter((m: any) => m.monthKey.startsWith(String(currentYear - 1)))
+      .reduce((acc: any, m: any) => {
+        acc[m.month] = m.generated;
+        return acc;
+      }, {});
+
+    const prevYearMonthlyTrends = monthlyTrends
+      .filter((m: any) => m.monthKey.startsWith(String(currentYear)))
+      .map((m: any) => {
+        const prevYearValue = prevYearMonthlyData[m.month] || 0;
+        const change = prevYearValue > 0 ? m.generated - prevYearValue : 0;
+        return {
+          month: m.month,
+          monthKey: m.monthKey,
+          change: Math.round(change * 100) / 100,
+          current: m.generated,
+          previous: prevYearValue
+        };
+      });
+
+    // Calculate total emissions from waste (Scope 3 Category 5)
+    const totalEmissions = streams.reduce((sum: number, s: any) => sum + s.emissions, 0);
+
     return NextResponse.json({
       streams,
       total_generated: Math.round(totalGenerated * 100) / 100,
       total_diverted: Math.round(totalDiverted * 100) / 100,
       total_landfill: Math.round(totalLandfill * 100) / 100,
       diversion_rate: Math.round(diversionRate * 10) / 10,
-      recycling_rate: Math.round(recyclingRate * 10) / 10
+      recycling_rate: Math.round(recyclingRate * 10) / 10,
+      total_emissions: Math.round(totalEmissions * 100) / 100,
+      monthly_trends: monthlyTrends,
+      prev_year_monthly_trends: prevYearMonthlyTrends
     });
 
   } catch (error) {
