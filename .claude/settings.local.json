@@ -130,7 +130,10 @@
       "WebFetch(domain:www.electricitymaps.com)",
       "WebFetch(domain:app.electricitymaps.com)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npx:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_EHaW3T/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_rZ1rOG/**)"
     ],
     "deny": [],
     "ask": []
