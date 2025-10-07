@@ -51,6 +51,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   const [wasteStreams, setWasteStreams] = useState<WasteStream[]>([]);
   const [totalGenerated, setTotalGenerated] = useState(0);
   const [totalDiverted, setTotalDiverted] = useState(0);
+  const [totalDisposal, setTotalDisposal] = useState(0);
   const [totalLandfill, setTotalLandfill] = useState(0);
   const [diversionRate, setDiversionRate] = useState(0);
   const [recyclingRate, setRecyclingRate] = useState(0);
@@ -63,6 +64,9 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   const [yoyDiversionChange, setYoyDiversionChange] = useState<number | null>(null);
   const [yoyRecyclingChange, setYoyRecyclingChange] = useState<number | null>(null);
   const [yoyEmissionsChange, setYoyEmissionsChange] = useState<number | null>(null);
+
+  // Material breakdown state
+  const [materialBreakdown, setMaterialBreakdown] = useState<any[]>([]);
 
   // Fetch waste data
   React.useEffect(() => {
@@ -85,12 +89,49 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           setWasteStreams(data.streams);
           setTotalGenerated(data.total_generated || 0);
           setTotalDiverted(data.total_diverted || 0);
+          setTotalDisposal(data.total_disposal || 0);
           setTotalLandfill(data.total_landfill || 0);
           setDiversionRate(data.diversion_rate || 0);
           setRecyclingRate(data.recycling_rate || 0);
           setTotalEmissions(data.total_emissions || 0);
-          setMonthlyTrends(data.monthly_trends || []);
-          setPrevYearMonthlyTrends(data.prev_year_monthly_trends || []);
+
+          // Filter monthly trends to only show selected period
+          const filteredTrends = (data.monthly_trends || []).filter((trend: any) => {
+            if (!selectedPeriod) return true;
+            const trendYear = parseInt(trend.monthKey.split('-')[0]);
+            const selectedYear = new Date(selectedPeriod.start).getFullYear();
+            return trendYear === selectedYear;
+          });
+          setMonthlyTrends(filteredTrends);
+          setMaterialBreakdown(data.material_breakdown || []);
+        }
+
+        // Fetch previous year data for YoY comparison (matching Water/Energy dashboard pattern)
+        if (selectedPeriod && data.monthly_trends && data.monthly_trends.length > 0) {
+          const startDate = new Date(selectedPeriod.start);
+          const previousYearStart = new Date(startDate);
+          previousYearStart.setFullYear(startDate.getFullYear() - 1);
+
+          const endDate = new Date(selectedPeriod.end);
+          const previousYearEnd = new Date(endDate);
+          previousYearEnd.setFullYear(endDate.getFullYear() - 1);
+
+          const prevParams = new URLSearchParams({
+            start_date: previousYearStart.toISOString().split('T')[0],
+            end_date: previousYearEnd.toISOString().split('T')[0]
+          });
+          if (selectedSite) {
+            prevParams.append('site_id', selectedSite.id);
+          }
+
+          const prevRes = await fetch(`/api/waste/streams?${prevParams}`);
+          const prevData = await prevRes.json();
+
+          if (prevData.monthly_trends && prevData.monthly_trends.length > 0) {
+            setPrevYearMonthlyTrends(prevData.monthly_trends);
+          } else {
+            setPrevYearMonthlyTrends([]);
+          }
         }
 
         // Fetch previous year data for YoY comparison
@@ -137,6 +178,35 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
     fetchWasteData();
   }, [selectedSite, selectedPeriod]);
 
+  // Helper functions
+  const getDisposalColor = (method: string) => {
+    const colors: { [key: string]: string } = {
+      'recycling': '#10b981',
+      'composting': '#22c55e',
+      'incineration': '#f97316',
+      'incineration_no_recovery': '#f97316',
+      'incineration_recovery': '#fb923c',
+      'landfill': '#ef4444',
+      'hazardous_treatment': '#dc2626',
+      'other': '#6b7280'
+    };
+    return colors[method] || colors['other'];
+  };
+
+  const formatDisposalMethod = (method: string) => {
+    const labels: { [key: string]: string } = {
+      'recycling': 'Recycling',
+      'composting': 'Composting',
+      'incineration_no_recovery': 'Incineration',
+      'incineration_recovery': 'Waste-to-Energy',
+      'landfill': 'Landfill',
+      'hazardous_treatment': 'Hazardous Treatment',
+      'reuse': 'Reuse',
+      'other': 'Other'
+    };
+    return labels[method] || method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -144,18 +214,6 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
       </div>
     );
   }
-
-  const getDisposalColor = (method: string) => {
-    const colors: { [key: string]: string } = {
-      'recycling': '#10b981',
-      'composting': '#22c55e',
-      'incineration': '#f97316',
-      'landfill': '#ef4444',
-      'hazardous_treatment': '#dc2626',
-      'other': '#6b7280'
-    };
-    return colors[method] || colors['other'];
-  };
 
   // Prepare disposal method breakdown
   const disposalBreakdown = wasteStreams.reduce((acc: any[], stream) => {
@@ -201,7 +259,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {(totalGenerated / 1000).toFixed(1)}
+                {totalGenerated.toFixed(1)}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">tons</div>
             </div>
@@ -255,7 +313,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                {(totalLandfill / 1000).toFixed(1)}
+                {totalDisposal.toFixed(1)}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">tons</div>
             </div>
@@ -324,7 +382,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {totalGenerated > 0 ? (totalEmissions / (totalGenerated / 1000)).toFixed(2) : '0.00'}
+                {totalGenerated > 0 ? (totalEmissions / totalGenerated).toFixed(2) : '0.00'}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e/t</div>
             </div>
@@ -349,17 +407,43 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={350}>
               <PieChart>
                 <Pie
                   data={disposalBreakdown}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  label={(entry) => `${entry.method} ${((entry.quantity / totalQuantity) * 100).toFixed(1)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
                   dataKey="quantity"
+                  nameKey="method"
+                  cx="40%"
+                  cy="50%"
+                  outerRadius={110}
+                  innerRadius={0}
+                  label={({ cx, cy, midAngle, outerRadius, method, quantity }) => {
+                    const RADIAN = Math.PI / 180;
+                    const radius = outerRadius + 30;
+                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                    const percentage = ((quantity / totalQuantity) * 100).toFixed(1);
+                    const color = getDisposalColor(method);
+                    const formattedName = formatDisposalMethod(method);
+
+                    // Determine text anchor - force right side labels to always be 'start'
+                    const textAnchor = x > cx ? 'start' : 'end';
+
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        fill={color}
+                        textAnchor={textAnchor}
+                        dominantBaseline="central"
+                        style={{ fontSize: '13px' }}
+                      >
+                        <tspan x={x} dy="0">{formattedName}</tspan>
+                        <tspan x={x} dy="14" fontWeight="bold" style={{ fontSize: '14px' }}>{percentage}%</tspan>
+                      </text>
+                    );
+                  }}
+                  labelLine={false}
                 >
                   {disposalBreakdown.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={getDisposalColor(entry.method)} />
@@ -378,9 +462,9 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
                       return (
                         <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
-                          <p className="text-white font-semibold mb-2 capitalize">{data.method}</p>
+                          <p className="text-white font-semibold mb-2">{formatDisposalMethod(data.method)}</p>
                           <p className="text-sm" style={{ color }}>
-                            Quantity: {(data.quantity / 1000).toFixed(2)} tons
+                            Quantity: {data.quantity.toFixed(2)} tons
                           </p>
                           <p className="text-sm" style={{ color }}>
                             Share: {((data.quantity / totalQuantity) * 100).toFixed(1)}%
@@ -434,7 +518,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 <YAxis
                   tick={{ fill: '#888', fontSize: 12 }}
                   label={{ value: 'tons', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
-                  tickFormatter={(value) => (value / 1000).toFixed(0)}
+                  tickFormatter={(value) => value.toFixed(0)}
                 />
                 <Tooltip
                   contentStyle={{
@@ -442,7 +526,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '8px'
                   }}
-                  formatter={(value: any) => [(value / 1000).toFixed(2) + ' tons', '']}
+                  formatter={(value: any) => [value.toFixed(2) + ' tons', '']}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
                 <Line
@@ -509,7 +593,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 <YAxis
                   tick={{ fill: '#888', fontSize: 12 }}
                   label={{ value: 'tons', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
-                  tickFormatter={(value) => (value / 1000).toFixed(0)}
+                  tickFormatter={(value) => value.toFixed(0)}
                 />
                 <Tooltip
                   contentStyle={{
@@ -517,7 +601,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '8px'
                   }}
-                  formatter={(value: any) => [(value / 1000).toFixed(2) + ' tons', '']}
+                  formatter={(value: any) => [value.toFixed(2) + ' tons', '']}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
                 <Bar dataKey="recycled" stackId="waste" fill="#10b981" name="Recycled" />
@@ -531,9 +615,9 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
       )}
 
       {/* Year-over-Year Comparison and Diversion Rate */}
-      {prevYearMonthlyTrends.length > 0 && (
+      {monthlyTrends.length > 0 && yoyGeneratedChange !== null && prevYearMonthlyTrends.length > 0 && (
         <div className="px-6 pb-6 grid grid-cols-2 gap-4">
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Year-over-Year Comparison</h3>
@@ -551,57 +635,86 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={prevYearMonthlyTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fill: '#888', fontSize: 12 }}
-                />
-                <YAxis
-                  tick={{ fill: '#888', fontSize: 12 }}
-                  label={{ value: 'tons', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
-                  tickFormatter={(value) => (value / 1000).toFixed(0)}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px'
-                  }}
-                  content={({ active, payload }: any) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload;
-                      const changePercent = data.previous > 0
-                        ? ((data.change / data.previous) * 100).toFixed(1)
-                        : '0.0';
-                      const isIncrease = data.change > 0;
+            <div className="flex-1">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={monthlyTrends.map((trend: any) => {
+                    // Find matching previous year data by month name
+                    const prevTrend = prevYearMonthlyTrends.find((prev: any) =>
+                      prev.month === trend.month
+                    );
 
-                      return (
-                        <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
-                          <p className="text-white font-semibold mb-2">{data.month}</p>
-                          <p className="text-sm text-gray-400">
-                            Current: {(data.current / 1000).toFixed(2)} tons
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            Previous: {(data.previous / 1000).toFixed(2)} tons
-                          </p>
-                          <p className={`text-sm font-bold mt-1 ${isIncrease ? 'text-red-400' : 'text-green-400'}`}>
-                            Change: {isIncrease ? '+' : ''}{(data.change / 1000).toFixed(2)} tons ({isIncrease ? '+' : ''}{changePercent}%)
-                          </p>
-                        </div>
-                      );
+                    let change = 0;
+                    let previous = 0;
+
+                    if (prevTrend && prevTrend.generated > 0) {
+                      previous = prevTrend.generated;
+                      change = ((trend.generated - prevTrend.generated) / prevTrend.generated) * 100;
                     }
-                    return null;
-                  }}
-                />
-                <Bar
-                  dataKey="change"
-                  fill="#6366f1"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+
+                    return {
+                      month: trend.month,
+                      monthKey: trend.monthKey,
+                      change: change,
+                      current: trend.generated,
+                      previous: previous
+                    };
+                  })}
+                  layout="horizontal"
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: '#888', fontSize: 12 }}
+                  />
+                  <YAxis
+                    tick={{ fill: '#888', fontSize: 12 }}
+                    tickFormatter={(value) => `${value > 0 ? '+' : ''}${value}%`}
+                    label={{ value: 'Change (%)', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '8px'
+                    }}
+                    content={({ active, payload }: any) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        const change = data.change;
+                        const current = data.current;
+                        const previous = data.previous;
+                        return (
+                          <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
+                            <p className="text-white font-semibold mb-2">{data.month}</p>
+                            <div className="space-y-1 text-xs mb-2">
+                              <p className="text-gray-300">
+                                Current: <span className="font-medium text-white">{current.toFixed(1)} tons</span>
+                              </p>
+                              <p className="text-gray-300">
+                                Last Year: <span className="font-medium text-white">{previous.toFixed(1)} tons</span>
+                              </p>
+                            </div>
+                            <p className={`text-sm font-bold ${change >= 0 ? 'text-red-400' : 'text-green-400'}`}>
+                              {change > 0 ? '+' : ''}{change.toFixed(1)}% YoY
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {change >= 0 ? 'Increase' : 'Decrease'} in waste generated
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar
+                    dataKey="change"
+                    fill="#6366f1"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           {/* Circular Economy Metrics */}
@@ -638,7 +751,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     />
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {(totalDiverted / 1000).toFixed(1)} tons diverted from disposal
+                    {totalDiverted.toFixed(1)} tons diverted from disposal
                   </p>
                 </div>
 
@@ -679,7 +792,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     />
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {(totalLandfill / 1000).toFixed(1)} tons to landfill
+                    {totalLandfill.toFixed(1)} tons to landfill
                   </p>
                 </div>
 
@@ -713,6 +826,141 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     <strong>Waste Hierarchy:</strong> Prevention → Reuse → Recycling → Recovery → Disposal.
                     Diversion rate measures waste diverted from disposal through recycling and composting.
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Material Breakdown */}
+      {materialBreakdown.length > 0 && (
+        <div className="px-6 pb-6">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Package className="w-5 h-5 text-purple-500" />
+                  Material-Specific Breakdown
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Recycling and diversion rates by waste material type
+                </p>
+              </div>
+              <div className="flex gap-1">
+                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
+                  GRI 306-4
+                </span>
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                  ESRS E5
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {materialBreakdown
+                .filter((m: any) => m.total > 0)
+                .sort((a: any, b: any) => b.total - a.total)
+                .map((material: any) => {
+                  const materialRecyclingRate = material.total > 0
+                    ? (material.recycled / material.total) * 100
+                    : 0;
+                  const materialDiversionRate = material.total > 0
+                    ? (material.diverted / material.total) * 100
+                    : 0;
+
+                  const getMaterialIcon = (materialType: string) => {
+                    switch (materialType.toLowerCase()) {
+                      case 'paper': return '📄';
+                      case 'plastic': return '♻️';
+                      case 'metal': return '🔩';
+                      case 'glass': return '🍾';
+                      case 'organic': return '🌱';
+                      case 'food': return '🍎';
+                      case 'garden': return '🌿';
+                      case 'ewaste': return '💻';
+                      case 'hazardous': return '⚠️';
+                      default: return '📦';
+                    }
+                  };
+
+                  return (
+                    <div key={material.material} className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{getMaterialIcon(material.material)}</span>
+                          <div>
+                            <h4 className="font-medium text-gray-900 dark:text-white capitalize">
+                              {material.material}
+                            </h4>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {material.total.toFixed(2)} tons total
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Recycling Rate */}
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Recycling Rate</span>
+                          <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                            {materialRecyclingRate.toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                          <div
+                            className="h-1.5 rounded-full bg-blue-500"
+                            style={{ width: `${Math.min(materialRecyclingRate, 100)}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          {material.recycled.toFixed(2)} tons recycled
+                        </p>
+                      </div>
+
+                      {/* Diversion Rate */}
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Diversion Rate</span>
+                          <span className="text-xs font-bold text-green-600 dark:text-green-400">
+                            {materialDiversionRate.toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                          <div
+                            className="h-1.5 rounded-full bg-green-500"
+                            style={{ width: `${Math.min(materialDiversionRate, 100)}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          {material.diverted.toFixed(2)} tons diverted
+                        </p>
+                      </div>
+
+                      {/* Disposal */}
+                      {material.disposal > 0 && (
+                        <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">To Disposal</span>
+                            <span className="text-xs font-medium text-orange-600 dark:text-orange-400">
+                              {material.disposal.toFixed(2)} tons
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+
+            <div className="mt-4 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Info className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+                <div className="text-xs text-purple-700 dark:text-purple-300">
+                  <strong>Material Insights:</strong> Track recycling and diversion rates by specific material types.
+                  Historical data (2022-2024) has been split using industry-standard composition ratios.
+                  Future data can be entered at the material level for precise tracking.
                 </div>
               </div>
             </div>
