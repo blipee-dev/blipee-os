@@ -29,7 +29,8 @@ import {
   MapPin,
   Sprout,
   Pill,
-  Apple
+  Apple,
+  Cloud
 } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
@@ -38,6 +39,7 @@ import { useAppearance, useAccentGradient } from '@/providers/AppearanceProvider
 // Import all our new dashboard components
 import { OverviewDashboard } from '@/components/dashboard/OverviewDashboard';
 import { ComplianceDashboard } from '@/components/dashboard/ComplianceDashboard';
+import { EmissionsDashboard } from '@/components/dashboard/EmissionsDashboard';
 import { EnergyDashboard } from '@/components/dashboard/EnergyDashboard';
 import { WaterDashboard } from '@/components/dashboard/WaterDashboard';
 import { WasteDashboard } from '@/components/dashboard/WasteDashboard';
@@ -54,7 +56,7 @@ import { SiteSelector } from '@/components/zero-typing/SiteSelector';
 import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import type { Building } from '@/types/auth';
 
-type DashboardView = 'overview' | 'compliance' | 'energy' | 'water' | 'waste' | 'transportation' | 'monthly' | 'ai';
+type DashboardView = 'overview' | 'compliance' | 'emissions' | 'energy' | 'water' | 'waste' | 'transportation' | 'monthly' | 'ai';
 
 export default function DashboardClient() {
   const { user } = useAuth();
@@ -221,6 +223,13 @@ export default function DashboardClient() {
       description: sectorTopics?.sector ? `GHG Protocol • ${sectorTopics.sector.name}` : 'GHG Protocol & GRI Standards',
       color: '#475569',
       badge: sectorTopics?.sector ? `GRI ${sectorTopics.sector.code.split('_')[1]}` : undefined
+    },
+    {
+      id: 'emissions' as DashboardView,
+      label: 'Emissions',
+      icon: Cloud,
+      description: 'GHG Protocol • GRI 305 • ESRS E1 • TCFD',
+      color: '#10b981'
     }
   ];
 
@@ -275,6 +284,7 @@ export default function DashboardClient() {
     // Map dashboard types to components
     const dashboardComponents: Record<string, any> = {
       'compliance': ComplianceDashboard,
+      'emissions': EmissionsDashboard,
       'ghg_emissions': ComplianceDashboard, // GHG uses Compliance dashboard
       'energy': EnergyDashboard,
       'water_management': WaterDashboard,
