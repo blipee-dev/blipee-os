@@ -461,7 +461,7 @@ async function getOrganizationContext(organizationId: string) {
         consolidationApproach: 'Operational Control',
         sitesIncluded: 0,
         sitesTotal: 0,
-        baseYear: 2019,
+        baseYear: 2023,
         coverage: 100,
         employees: 0,
         industry: 'Not specified'
@@ -486,7 +486,7 @@ async function getOrganizationContext(organizationId: string) {
       consolidationApproach: org?.consolidation_approach || 'Operational Control',
       sitesIncluded: activeSites,
       sitesTotal: totalSites,
-      baseYear: org?.base_year || 2019,
+      baseYear: org?.base_year || 2023,
       coverage,
       employees: totalEmployees,
       industry: org?.industry_primary || 'Not specified'
@@ -497,7 +497,7 @@ async function getOrganizationContext(organizationId: string) {
       consolidationApproach: 'Operational Control',
       sitesIncluded: 0,
       sitesTotal: 0,
-      baseYear: 2019,
+      baseYear: 2023,
       coverage: 100,
       employees: 0,
       industry: 'Not specified'

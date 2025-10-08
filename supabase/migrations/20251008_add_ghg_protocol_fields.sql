@@ -2,7 +2,7 @@
 
 -- GHG Protocol Organizational Boundary fields
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS employees INTEGER;
-ALTER TABLE organizations ADD COLUMN IF NOT EXISTS base_year INTEGER DEFAULT 2019;
+ALTER TABLE organizations ADD COLUMN IF NOT EXISTS base_year INTEGER DEFAULT 2023;
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS consolidation_approach TEXT DEFAULT 'Operational Control';
 
 -- Add validation check for consolidation approach
