@@ -7,18 +7,15 @@ import {
   TrendingDown,
   Leaf,
   Target,
-  Info,
   Factory,
+  Info,
   AlertTriangle,
-  MapPin,
-  Gauge,
   Flame,
   Zap,
   Wind,
-  Recycle,
-  CheckCircle,
-  XCircle,
-  Download
+  MapPin,
+  Users,
+  Building2
 } from 'lucide-react';
 import {
   LineChart,
@@ -44,249 +41,279 @@ interface EmissionsDashboardProps {
   selectedPeriod: TimePeriod;
 }
 
+// Helper function to get action recommendations for emission sources
+const getActionRecommendation = (categoryName: string): string => {
+  const nameLower = categoryName.toLowerCase();
+
+  if (nameLower.includes('electricity') || nameLower.includes('grid')) {
+    return '💡 Switch to renewable energy contracts';
+  }
+  if (nameLower.includes('natural gas') || nameLower.includes('gas') || nameLower.includes('stationary')) {
+    return '🔥 Install heat pump or upgrade boilers';
+  }
+  if (nameLower.includes('business travel') || nameLower.includes('travel')) {
+    return '✈️ Implement virtual meetings policy';
+  }
+  if (nameLower.includes('fleet') || nameLower.includes('vehicle') || nameLower.includes('mobile')) {
+    return '🚗 Transition to electric vehicles';
+  }
+  if (nameLower.includes('commut')) {
+    return '🚲 Promote public transit & remote work';
+  }
+  if (nameLower.includes('fugitive')) {
+    return '🔧 Improve refrigerant leak detection';
+  }
+  if (nameLower.includes('waste')) {
+    return '♻️ Increase recycling & composting';
+  }
+  if (nameLower.includes('purchase') || nameLower.includes('supply')) {
+    return '🏭 Engage suppliers on emissions reduction';
+  }
+
+  return '📊 Review and optimize this source';
+};
+
+// Function to get category-specific colors
+const getCategoryColor = (name: string): string => {
+  const nameLower = name.toLowerCase();
+
+  if (nameLower.includes('electricity') || nameLower.includes('grid')) {
+    return '#3B82F6'; // Blue
+  }
+  if (nameLower.includes('gas') || nameLower.includes('heating') || nameLower.includes('stationary')) {
+    return '#F97316'; // Orange
+  }
+  if (nameLower.includes('transport') || nameLower.includes('vehicle') || nameLower.includes('fleet') || nameLower.includes('mobile')) {
+    return '#8B5CF6'; // Purple
+  }
+  if (nameLower.includes('waste')) {
+    return '#92400E'; // Brown
+  }
+  if (nameLower.includes('travel') || nameLower.includes('flight')) {
+    return '#4F46E5'; // Indigo
+  }
+  if (nameLower.includes('fugitive') || nameLower.includes('refrigerant')) {
+    return '#06B6D4'; // Cyan
+  }
+  if (nameLower.includes('commut')) {
+    return '#10B981'; // Green
+  }
+  if (nameLower.includes('purchase') || nameLower.includes('supply')) {
+    return '#EC4899'; // Pink
+  }
+
+  return '#6B7280'; // Gray
+};
+
 export function EmissionsDashboard({ organizationId, selectedSite, selectedPeriod }: EmissionsDashboardProps) {
   const [loading, setLoading] = useState(true);
-  const [emissionsData, setEmissionsData] = useState<any>(null);
 
-  // Summary metrics (will be populated from API)
+  // Summary metrics
   const [totalEmissions, setTotalEmissions] = useState(0);
   const [totalEmissionsYoY, setTotalEmissionsYoY] = useState(0);
+  const [intensityMetric, setIntensityMetric] = useState(0);
+  const [intensityYoY, setIntensityYoY] = useState(0);
+
+  // Scope breakdown
   const [scope1Total, setScope1Total] = useState(0);
-  const [scope1YoY, setScope1YoY] = useState(0);
   const [scope2Total, setScope2Total] = useState(0);
-  const [scope2YoY, setScope2YoY] = useState(0);
   const [scope3Total, setScope3Total] = useState(0);
-  const [scope3YoY, setScope3YoY] = useState(0);
+  const [scopeYoY, setScopeYoY] = useState({ scope1: 0, scope2: 0, scope3: 0 });
 
-  // Scope 1 breakdown by gas type (GRI 305-1) - use real data when available
-  const gasTypeBreakdown = emissionsData?.scope1?.byGasType ? [
-    { name: 'CO₂', value: emissionsData.scope1.byGasType.co2 || 0, percentage: 0, color: '#6B7280' },
-    { name: 'CH₄', value: emissionsData.scope1.byGasType.ch4 || 0, percentage: 0, color: '#F97316' },
-    { name: 'N₂O', value: emissionsData.scope1.byGasType.n2o || 0, percentage: 0, color: '#EF4444' },
-    { name: 'HFCs', value: emissionsData.scope1.byGasType.hfcs || 0, percentage: 0, color: '#8B5CF6' },
-    { name: 'PFCs', value: emissionsData.scope1.byGasType.pfcs || 0, percentage: 0, color: '#8B5CF6' },
-    { name: 'SF₆', value: emissionsData.scope1.byGasType.sf6 || 0, percentage: 0, color: '#EF4444' },
-    { name: 'NF₃', value: emissionsData.scope1.byGasType.nf3 || 0, percentage: 0, color: '#F97316' }
-  ].map(item => {
-    const total = scope1Total || 1;
-    return { ...item, percentage: Math.round((item.value / total) * 100) };
-  }).filter(item => item.value > 0) : [
-    { name: 'CO₂', value: 68.5, percentage: 91, color: '#6B7280' },
-    { name: 'CH₄', value: 4.2, percentage: 6, color: '#F97316' },
-    { name: 'N₂O', value: 1.8, percentage: 2, color: '#EF4444' },
-    { name: 'HFCs', value: 0.6, percentage: 1, color: '#8B5CF6' }
-  ];
+  // Scope 2 dual reporting
+  const [scope2LocationBased, setScope2LocationBased] = useState(0);
+  const [scope2MarketBased, setScope2MarketBased] = useState(0);
+  const [renewablePercentage, setRenewablePercentage] = useState(0);
 
-  // Scope 1 by source - use real data when available
-  const scope1Sources = emissionsData?.scope1?.sources ? [
-    { name: 'Stationary Combustion', value: emissionsData.scope1.sources.stationaryCombustion || 0, icon: Flame, color: '#F97316' },
-    { name: 'Mobile Combustion', value: emissionsData.scope1.sources.mobileCombustion || 0, icon: Factory, color: '#3B82F6' },
-    { name: 'Fugitive Emissions', value: emissionsData.scope1.sources.fugitiveEmissions || 0, icon: Wind, color: '#06B6D4' },
-    { name: 'Process Emissions', value: emissionsData.scope1.sources.processEmissions || 0, icon: Factory, color: '#8B5CF6' }
-  ].filter(item => item.value > 0) : [
-    { name: 'Stationary Combustion', value: 45.2, icon: Flame, color: '#F97316' },
-    { name: 'Mobile Combustion', value: 22.8, icon: Factory, color: '#3B82F6' },
-    { name: 'Fugitive Emissions', value: 7.1, icon: Wind, color: '#06B6D4' }
-  ];
+  // Scope 3 coverage
+  const [scope3Coverage, setScope3Coverage] = useState<any>(null);
 
-  // Scope 2 dual reporting (GRI 305-2) - use real data when available
-  const scope2Data = emissionsData?.scope2 ? {
-    locationBased: emissionsData.scope2.locationBased || scope2Total,
-    marketBased: emissionsData.scope2.marketBased || scope2Total,
-    renewableImpact: (emissionsData.scope2.locationBased || 0) - (emissionsData.scope2.marketBased || 0),
-    renewablePercentage: emissionsData.scope2.renewableImpact ? Math.abs(Math.round((emissionsData.scope2.renewableImpact / (emissionsData.scope2.locationBased || 1)) * 100)) : 0,
-    eacs: 0, // MWh - would come from separate tracking
-    gridEmissionFactor: emissionsData.scope2.gridEmissionFactor || 0.385 // kgCO2e/kWh
-  } : {
-    locationBased: 310.2,
-    marketBased: 288.8,
-    renewableImpact: -21.4,
-    renewablePercentage: 35,
-    eacs: 1250, // MWh
-    gridEmissionFactor: 0.385 // kgCO2e/kWh
-  };
+  // Trends
+  const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
 
-  // Scope 3 categories (GRI 305-3) - use real data when available
-  const scope3CategoriesRaw = emissionsData?.scope3?.categories || {};
-  const scope3Categories = Object.entries(scope3CategoriesRaw).map(([catNum, catData]: [string, any]) => ({
-    category: `Cat ${catNum}: ${catData.name}`,
-    value: catData.emissions || 0,
-    tracked: catData.tracked || false,
-    upstream: parseInt(catNum) <= 8
-  }));
+  // Top emission sources
+  const [topEmitters, setTopEmitters] = useState<Array<{ name: string; emissions: number; percentage: number }>>([]);
 
-  // If no data, use mock data
-  const scope3CategoriesFinal = scope3Categories.length > 0 ? scope3Categories : [
-    { category: 'Cat 1: Purchased Goods & Services', value: 85.2, tracked: true, upstream: true },
-    { category: 'Cat 2: Capital Goods', value: 12.5, tracked: true, upstream: true },
-    { category: 'Cat 3: Fuel & Energy Activities', value: 0, tracked: false, upstream: true },
-    { category: 'Cat 4: Upstream Transportation', value: 0, tracked: false, upstream: true },
-    { category: 'Cat 5: Waste Generated', value: 0, tracked: false, upstream: true },
-    { category: 'Cat 6: Business Travel', value: 81.3, tracked: true, upstream: true },
-    { category: 'Cat 7: Employee Commuting', value: 0, tracked: false, upstream: true },
-    { category: 'Cat 8: Upstream Leased Assets', value: 0, tracked: false, upstream: true },
-    { category: 'Cat 9: Downstream Transportation', value: 0, tracked: false, upstream: false },
-    { category: 'Cat 10: Processing of Sold Products', value: 0, tracked: false, upstream: false },
-    { category: 'Cat 11: Use of Sold Products', value: 0, tracked: false, upstream: false },
-    { category: 'Cat 12: End-of-Life Treatment', value: 0, tracked: false, upstream: false },
-    { category: 'Cat 13: Downstream Leased Assets', value: 0, tracked: false, upstream: false },
-    { category: 'Cat 14: Franchises', value: 0, tracked: false, upstream: false },
-    { category: 'Cat 15: Investments', value: 0, tracked: false, upstream: false }
-  ];
+  // Scope 1 detailed breakdown
+  const [scope1Sources, setScope1Sources] = useState<any[]>([]);
+  const [scope1ByGas, setScope1ByGas] = useState<any[]>([]);
 
-  const scope3Coverage = emissionsData?.scope3?.coverage ? {
-    tracked: Math.round((emissionsData.scope3.coverage / 100) * 15),
-    total: 15,
-    percentage: emissionsData.scope3.coverage
-  } : {
-    tracked: scope3CategoriesFinal.filter(c => c.tracked).length,
-    total: 15,
-    percentage: (scope3CategoriesFinal.filter(c => c.tracked).length / 15) * 100
-  };
+  // Geographic breakdown
+  const [geographicBreakdown, setGeographicBreakdown] = useState<any[]>([]);
 
-  // Intensity metrics (GRI 305-4) - use real data when available
-  const intensityMetrics = emissionsData?.intensityMetrics ? [
-    {
-      name: 'Per Employee',
-      value: emissionsData.intensityMetrics.perEmployee || 0,
-      unit: 'tCO2e/FTE',
-      yoyChange: 0,
-      icon: Leaf
-    },
-    {
-      name: 'Per Revenue',
-      value: emissionsData.intensityMetrics.perRevenue || 0,
-      unit: 'tCO2e/M€',
-      yoyChange: 0,
-      icon: Target
-    },
-    {
-      name: 'Per Square Meter',
-      value: emissionsData.intensityMetrics.perSqm || 0,
-      unit: 'kgCO2e/m²',
-      yoyChange: 0,
-      icon: Factory
-    }
-  ] : [
-    { name: 'Per Employee', value: 2.85, unit: 'tCO2e/FTE', yoyChange: -15, icon: Leaf },
-    { name: 'Per Revenue', value: 0.12, unit: 'tCO2e/€', yoyChange: -18, icon: Target },
-    { name: 'Per Square Meter', value: 0.024, unit: 'tCO2e/m²', yoyChange: -10, icon: Factory }
-  ];
+  // Targets
+  const [targetData, setTargetData] = useState<any>(null);
 
-  // Geographic breakdown - use real data when available
-  const geographicBreakdownRaw = emissionsData?.geographic || [];
-  const geographicBreakdown = geographicBreakdownRaw.length > 0 ? geographicBreakdownRaw.map((item: any, idx: number) => {
-    const colors = ['#3B82F6', '#8B5CF6', '#F97316', '#10B981', '#6B7280'];
-    return {
-      location: item.location,
-      value: item.emissions || 0,
-      percentage: Math.round(((item.emissions || 0) / (totalEmissions || 1)) * 100),
-      color: colors[idx % colors.length]
-    };
-  }) : [
-    { location: 'Portugal', value: 465.2, percentage: 86, color: '#3B82F6' },
-    { location: 'Spain', value: 52.1, percentage: 10, color: '#8B5CF6' },
-    { location: 'Other', value: 25.6, percentage: 4, color: '#6B7280' }
-  ];
+  // Data quality
+  const [dataQuality, setDataQuality] = useState<any>(null);
 
-  // Facility breakdown - mock for now as not in API
-  const facilityBreakdown = [
-    { name: 'HQ Lisbon', value: 380.5 },
-    { name: 'Office Porto', value: 84.7 },
-    { name: 'Remote Work', value: 77.7 }
-  ];
-
-  // Multi-year trend data (TCFD, ESRS E1) - use real data when available
-  const multiYearTrendsRaw = emissionsData?.multiYearTrends || {};
-  const multiYearTrends = Object.keys(multiYearTrendsRaw).length > 0
-    ? Object.entries(multiYearTrendsRaw)
-        .map(([year, data]: [string, any]) => ({
-          year,
-          scope1: data.scope1 || 0,
-          scope2: data.scope2 || 0,
-          scope3: data.scope3 || 0,
-          total: data.total || 0,
-          projected: parseInt(year) === new Date().getFullYear()
-        }))
-        .sort((a, b) => parseInt(a.year) - parseInt(b.year))
-    : [
-      { year: '2020', scope1: 85.2, scope2: 380.5, scope3: 210.3, total: 676.0 },
-      { year: '2021', scope1: 82.1, scope2: 365.2, scope3: 198.5, total: 645.8 },
-      { year: '2022', scope1: 78.5, scope2: 340.1, scope3: 185.2, total: 603.8 },
-      { year: '2023', scope1: 76.2, scope2: 325.4, scope3: 213.7, total: 615.3 },
-      { year: '2024', scope1: 74.8, scope2: 305.2, scope3: 195.5, total: 575.5 },
-      { year: '2025', scope1: 75.1, scope2: 288.8, scope3: 179.0, total: 542.9, projected: true }
-    ];
-
-  // Reductions breakdown (GRI 305-5)
-  const reductionsData = [
-    { initiative: 'Energy Efficiency', reduction: 35.2, color: '#10B981' },
-    { initiative: 'Renewable Energy', reduction: 28.6, color: '#3B82F6' },
-    { initiative: 'Process Improvements', reduction: 8.6, color: '#8B5CF6' }
-  ];
-
-  const totalReductions = reductionsData.reduce((sum, r) => sum + r.reduction, 0);
-
-  // Data quality metrics - use real data when available
-  const dataQuality = emissionsData?.dataQuality ? {
-    primaryData: Math.round((emissionsData.dataQuality.measured / (emissionsData.dataQuality.totalRecords || 1)) * 100),
-    secondaryData: Math.round((emissionsData.dataQuality.estimated / (emissionsData.dataQuality.totalRecords || 1)) * 100),
-    verified: Math.round((emissionsData.dataQuality.verified / (emissionsData.dataQuality.totalRecords || 1)) * 100),
-    estimated: Math.round((emissionsData.dataQuality.estimated / (emissionsData.dataQuality.totalRecords || 1)) * 100),
-    uncertainty: Math.max(0, 100 - emissionsData.dataQuality.qualityScore).toFixed(1)
-  } : {
-    primaryData: 85,
-    secondaryData: 15,
-    verified: 92,
-    estimated: 8,
-    uncertainty: 5.2
-  };
-
-  // Other emissions (GRI 305-6, 305-7)
-  const otherEmissions = {
-    biogenicCO2: 0,
-    odsKg: 0.02,
-    noxTonnes: 0.15,
-    soxTonnes: 0.02
-  };
-
-  // Fetch emissions data from API
   useEffect(() => {
     const fetchEmissionsData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-
+        // Build params
         const params = new URLSearchParams({
           start_date: selectedPeriod.start,
-          end_date: selectedPeriod.end
+          end_date: selectedPeriod.end,
         });
-
-        if (selectedSite?.id) {
+        if (selectedSite) {
           params.append('site_id', selectedSite.id);
         }
 
-        const response = await fetch(`/api/sustainability/emissions-detailed?${params.toString()}`);
+        // Fetch scope analysis (main API)
+        const scopeResponse = await fetch(`/api/sustainability/scope-analysis?${params}`);
+        const scopeData = await scopeResponse.json();
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch emissions data');
+        // Fetch dashboard data for trends
+        const dashboardResponse = await fetch(`/api/sustainability/dashboard?${params}`);
+        const dashboardData = await dashboardResponse.json();
+
+        // Fetch targets
+        const targetsResponse = await fetch('/api/sustainability/targets');
+        const targetsResult = await targetsResponse.json();
+        setTargetData(targetsResult);
+
+        // Fetch previous year for YoY comparison
+        const currentYear = new Date(selectedPeriod.start).getFullYear();
+        const previousYear = currentYear - 1;
+
+        const prevYearStart = new Date(selectedPeriod.start);
+        prevYearStart.setFullYear(previousYear);
+        const prevYearEnd = new Date(selectedPeriod.end);
+        prevYearEnd.setFullYear(previousYear);
+
+        const prevParams = new URLSearchParams({
+          start_date: prevYearStart.toISOString().split('T')[0],
+          end_date: prevYearEnd.toISOString().split('T')[0],
+        });
+        if (selectedSite) {
+          prevParams.append('site_id', selectedSite.id);
         }
 
-        const data = await response.json();
-        console.log('📊 Emissions detailed data:', data);
+        const prevScopeResponse = await fetch(`/api/sustainability/scope-analysis?${prevParams}`);
+        const prevScopeData = await prevScopeResponse.json();
 
-        setEmissionsData(data);
+        console.log('📊 Emissions Dashboard Data:', { scopeData, dashboardData, targetsResult });
 
-        // Update summary metrics
-        if (data.summary) {
-          setTotalEmissions(data.summary.total || 0);
-          setScope1Total(data.summary.scope1 || 0);
-          setScope2Total(data.summary.scope2 || 0);
-          setScope3Total(data.summary.scope3 || 0);
-          setTotalEmissionsYoY(data.summary.trend || 0);
-          // YoY for individual scopes would come from comparison logic
-          setScope1YoY(0);
-          setScope2YoY(0);
-          setScope3YoY(0);
+        // Extract scope totals
+        const extractedScopeData = scopeData.scopeData || scopeData;
+        const prevExtractedScopeData = prevScopeData.scopeData || prevScopeData;
+
+        const s1Current = extractedScopeData.scope_1?.total || 0;
+        const s2Current = extractedScopeData.scope_2?.total || 0;
+        const s3Current = extractedScopeData.scope_3?.total || 0;
+
+        const s1Previous = prevExtractedScopeData.scope_1?.total || 0;
+        const s2Previous = prevExtractedScopeData.scope_2?.total || 0;
+        const s3Previous = prevExtractedScopeData.scope_3?.total || 0;
+
+        const currentTotal = s1Current + s2Current + s3Current;
+        const previousTotal = s1Previous + s2Previous + s3Previous;
+
+        setScope1Total(s1Current);
+        setScope2Total(s2Current);
+        setScope3Total(s3Current);
+        setTotalEmissions(currentTotal);
+
+        // Calculate YoY changes
+        const totalYoY = previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
+        const s1YoY = s1Previous > 0 ? ((s1Current - s1Previous) / s1Previous) * 100 : 0;
+        const s2YoY = s2Previous > 0 ? ((s2Current - s2Previous) / s2Previous) * 100 : 0;
+        const s3YoY = s3Previous > 0 ? ((s3Current - s3Previous) / s3Previous) * 100 : 0;
+
+        setTotalEmissionsYoY(totalYoY);
+        setScopeYoY({ scope1: s1YoY, scope2: s2YoY, scope3: s3YoY });
+
+        // Intensity metric (using employee count - can be extended)
+        const employees = scopeData.organizationEmployees || 200;
+        const intensity = currentTotal / employees;
+        const prevIntensity = previousTotal / employees;
+        const intensityYoYCalc = prevIntensity > 0 ? ((intensity - prevIntensity) / prevIntensity) * 100 : 0;
+
+        setIntensityMetric(intensity);
+        setIntensityYoY(intensityYoYCalc);
+
+        // Scope 2 dual reporting
+        setScope2LocationBased(extractedScopeData.scope_2?.locationBased || s2Current);
+        setScope2MarketBased(extractedScopeData.scope_2?.marketBased || s2Current);
+        setRenewablePercentage(extractedScopeData.scope_2?.renewablePercentage || 0);
+
+        // Scope 3 coverage
+        const scope3Categories = extractedScopeData.scope_3?.categories || [];
+        const trackedCategories = scope3Categories.filter((c: any) => c.emissions > 0).length;
+        setScope3Coverage({
+          tracked: trackedCategories,
+          missing: 15 - trackedCategories,
+          percentage: (trackedCategories / 15) * 100
+        });
+
+        // Monthly trends from dashboard API
+        if (dashboardData.trends) {
+          setMonthlyTrends(dashboardData.trends);
+        }
+
+        // Top emission sources
+        const allCategories: any[] = [];
+
+        if (extractedScopeData.scope_1?.categories) {
+          allCategories.push(...extractedScopeData.scope_1.categories.map((c: any) => ({
+            name: c.name,
+            emissions: c.emissions,
+            scope: 'Scope 1'
+          })));
+        }
+
+        if (extractedScopeData.scope_2?.categories) {
+          allCategories.push(...extractedScopeData.scope_2.categories.map((c: any) => ({
+            name: c.name,
+            emissions: c.emissions,
+            scope: 'Scope 2'
+          })));
+        }
+
+        if (extractedScopeData.scope_3?.categories) {
+          allCategories.push(...extractedScopeData.scope_3.categories.map((c: any) => ({
+            name: c.name,
+            emissions: c.emissions,
+            scope: 'Scope 3'
+          })));
+        }
+
+        const topFive = allCategories
+          .filter(c => c.emissions > 0)
+          .sort((a, b) => b.emissions - a.emissions)
+          .slice(0, 5)
+          .map(cat => ({
+            ...cat,
+            percentage: currentTotal > 0 ? (cat.emissions / currentTotal) * 100 : 0
+          }));
+
+        setTopEmitters(topFive);
+
+        // Scope 1 detailed breakdown
+        if (extractedScopeData.scope_1?.categories) {
+          setScope1Sources(extractedScopeData.scope_1.categories.filter((c: any) => c.emissions > 0));
+        }
+
+        // Scope 1 by gas type (if available)
+        if (extractedScopeData.scope_1?.byGasType) {
+          const gasData = Object.entries(extractedScopeData.scope_1.byGasType)
+            .filter(([_, value]) => (value as number) > 0)
+            .map(([name, emissions]) => ({
+              name: name.toUpperCase(),
+              value: emissions as number
+            }));
+          setScope1ByGas(gasData);
+        }
+
+        // Geographic breakdown (if available)
+        if (scopeData.geographic) {
+          setGeographicBreakdown(scopeData.geographic);
+        }
+
+        // Data quality
+        if (scopeData.dataQuality) {
+          setDataQuality(scopeData.dataQuality);
         }
 
       } catch (error) {
@@ -301,7 +328,6 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
     }
   }, [organizationId, selectedSite, selectedPeriod]);
 
-  // Show loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[400px]">
@@ -313,6 +339,19 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
     );
   }
 
+  // Scope breakdown data for pie chart
+  const scopeBreakdown = [
+    { name: 'Scope 1', value: scope1Total, color: '#EF4444' },
+    { name: 'Scope 2', value: scope2Total, color: '#3B82F6' },
+    { name: 'Scope 3', value: scope3Total, color: '#6B7280' }
+  ].filter(s => s.value > 0);
+
+  const scopePercentages = {
+    scope1: totalEmissions > 0 ? (scope1Total / totalEmissions) * 100 : 0,
+    scope2: totalEmissions > 0 ? (scope2Total / totalEmissions) * 100 : 0,
+    scope3: totalEmissions > 0 ? (scope3Total / totalEmissions) * 100 : 0
+  };
+
   return (
     <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
       {/* Header */}
@@ -323,7 +362,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
             GHG Emissions Reporting
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            GHG Protocol • GRI 305 • ESRS E1 • TCFD • SBTi • Comprehensive emissions disclosure
+            GHG Protocol • GRI 305 • ESRS E1 • TCFD • Comprehensive emissions analysis
           </p>
         </div>
       </div>
@@ -356,429 +395,202 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           </div>
         </div>
 
-        {/* Scope 1 */}
+        {/* Emissions Intensity */}
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Scope 1 Direct</span>
-            <Flame className="w-4 h-4 text-red-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">Intensity</span>
+            <Leaf className="w-4 h-4 text-green-500" />
           </div>
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {scope1Total.toFixed(1)}
+                {intensityMetric.toFixed(2)}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e/FTE</div>
             </div>
             <div className="flex items-center gap-1">
-              {scope1YoY < 0 ? (
+              {intensityYoY < 0 ? (
                 <TrendingDown className="w-3 h-3 text-green-500" />
               ) : (
-                <TrendingUp className={`w-3 h-3 ${scope1YoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                <TrendingUp className={`w-3 h-3 ${intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
               )}
-              <span className={`text-xs ${scope1YoY < 0 ? 'text-green-500' : scope1YoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                {scope1YoY > 0 ? '+' : ''}{scope1YoY.toFixed(1)}% YoY
+              <span className={`text-xs ${intensityYoY < 0 ? 'text-green-500' : intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                {intensityYoY > 0 ? '+' : ''}{intensityYoY.toFixed(1)}% YoY
               </span>
+            </div>
+          </div>
+          <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <span className="text-xs text-gray-400">GRI 305-4</span>
+          </div>
+        </div>
+
+        {/* Scope 3 Coverage */}
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">Scope 3 Coverage</span>
+            <Target className="w-4 h-4 text-blue-500" />
+          </div>
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {scope3Coverage?.tracked || 0}/15
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">categories</div>
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="flex items-center justify-between text-xs mb-1">
+              <span className="text-gray-500 dark:text-gray-400">Coverage</span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                {scope3Coverage?.percentage?.toFixed(0) || 0}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+              <div
+                className="bg-blue-500 h-1.5 rounded-full transition-all"
+                style={{ width: `${scope3Coverage?.percentage || 0}%` }}
+              />
             </div>
           </div>
         </div>
 
-        {/* Scope 2 */}
+        {/* Data Quality */}
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Scope 2 Indirect</span>
-            <Zap className="w-4 h-4 text-blue-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">Data Quality</span>
+            <Info className="w-4 h-4 text-blue-500" />
           </div>
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {scope2Total.toFixed(1)}
+                {dataQuality?.primaryDataPercentage || 85}%
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
-            </div>
-            <div className="flex items-center gap-1">
-              {scope2YoY < 0 ? (
-                <TrendingDown className="w-3 h-3 text-green-500" />
-              ) : (
-                <TrendingUp className={`w-3 h-3 ${scope2YoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
-              )}
-              <span className={`text-xs ${scope2YoY < 0 ? 'text-green-500' : scope2YoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                {scope2YoY > 0 ? '+' : ''}{scope2YoY.toFixed(1)}% YoY
-              </span>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Primary Data</div>
             </div>
           </div>
-        </div>
-
-        {/* Scope 3 */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Scope 3 Value Chain</span>
-            <Recycle className="w-4 h-4 text-gray-500" />
-          </div>
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {scope3Total.toFixed(1)}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
-            </div>
-            <div className="flex items-center gap-1">
-              {scope3YoY < 0 ? (
-                <TrendingDown className="w-3 h-3 text-green-500" />
-              ) : (
-                <TrendingUp className={`w-3 h-3 ${scope3YoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
-              )}
-              <span className={`text-xs ${scope3YoY < 0 ? 'text-green-500' : scope3YoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                {scope3YoY > 0 ? '+' : ''}{scope3YoY.toFixed(1)}% YoY
+          <div className="mt-3">
+            <div className="flex items-center justify-between text-xs mb-1">
+              <span className="text-gray-500 dark:text-gray-400">Verified</span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                {dataQuality?.verifiedPercentage || 92}%
               </span>
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+              <div
+                className="bg-green-500 h-1.5 rounded-full transition-all"
+                style={{ width: `${dataQuality?.verifiedPercentage || 92}%` }}
+              />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scope 1 Breakdown & Scope 2 Dual Reporting */}
+      {/* Scope Breakdown & Trend */}
       <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Scope 1 Breakdown by Gas Type (GRI 305-1) */}
+        {/* Scope Breakdown */}
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Scope 1: By Gas Type</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Emissions by Scope</h3>
             <div className="flex gap-1 flex-wrap justify-end">
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-1
-              </span>
               <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
                 GHG Protocol
+              </span>
+              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                GRI 305-1/2/3
+              </span>
+              <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
+                ESRS E1
               </span>
             </div>
           </div>
 
           <div className="flex items-center justify-center mb-6">
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
-                  data={gasTypeBreakdown}
+                  data={scopeBreakdown}
                   cx="50%"
                   cy="50%"
                   innerRadius={0}
-                  outerRadius={80}
+                  outerRadius={100}
                   paddingAngle={2}
                   dataKey="value"
-                  label={({ name, percentage }) => `${name}: ${percentage}%`}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   labelLine={true}
                 >
-                  {gasTypeBreakdown.map((entry, index) => (
+                  {scopeBreakdown.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => `${value.toFixed(1)} tCO2e`}
-                  contentStyle={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: 'white'
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0];
+                      const scopeName = data.name;
+
+                      if (scopeName === 'Scope 1') {
+                        return (
+                          <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl">
+                            <div className="font-semibold mb-1">Scope 1: Direct Emissions</div>
+                            <div className="text-gray-300 mb-2">
+                              Direct GHG emissions from owned/controlled sources (vehicles, facilities, equipment)
+                            </div>
+                            <div className="font-medium">{scope1Total.toFixed(1)} tCO2e ({scopePercentages.scope1.toFixed(0)}%)</div>
+                            <div className="text-gray-400 text-[10px] mt-1">GRI 305-1 • GHG Protocol Scope 1</div>
+                          </div>
+                        );
+                      } else if (scopeName === 'Scope 2') {
+                        return (
+                          <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
+                            <div className="font-semibold mb-2">Scope 2: Energy Indirect</div>
+                            <div className="space-y-1 text-gray-300 mb-2">
+                              <div><span className="font-medium">Location-Based:</span> {scope2LocationBased.toFixed(1)} tCO2e</div>
+                              <div><span className="font-medium">Market-Based:</span> {scope2MarketBased.toFixed(1)} tCO2e</div>
+                              {renewablePercentage > 0 && (
+                                <div><span className="font-medium">Renewable:</span> {renewablePercentage.toFixed(0)}%</div>
+                              )}
+                            </div>
+                            <div className="text-gray-300 mb-2">
+                              Purchased electricity, heat, steam, cooling. Dual reporting per GRI 305-2.
+                            </div>
+                            <div className="font-medium">{scope2Total.toFixed(1)} tCO2e ({scopePercentages.scope2.toFixed(0)}%)</div>
+                          </div>
+                        );
+                      } else if (scopeName === 'Scope 3') {
+                        return (
+                          <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
+                            <div className="font-semibold mb-2">Scope 3: Value Chain</div>
+                            <div className="space-y-1 text-gray-300 mb-2">
+                              <div><span className="font-medium">Total:</span> {scope3Total.toFixed(1)} tCO2e</div>
+                              <div><span className="font-medium">Share:</span> {scopePercentages.scope3.toFixed(0)}%</div>
+                              <div className="pt-1 border-t border-gray-700 mt-1">
+                                <div className="font-medium mb-1">Coverage: {scope3Coverage?.tracked || 0}/15 categories</div>
+                                <div className="flex items-center justify-between text-[10px]">
+                                  <span className="text-green-400">✓ {scope3Coverage?.tracked || 0} Tracked</span>
+                                  <span className="text-orange-400">⚠ {scope3Coverage?.missing || 15} Missing</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-gray-400 text-[10px]">
+                              All upstream & downstream value chain emissions • GRI 305-3
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }
+                    return null;
                   }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
-
-          <div className="space-y-2">
-            <div className="text-sm font-medium text-gray-900 dark:text-white mb-2">By Source:</div>
-            {scope1Sources.map((source, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-2 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <source.icon className="w-4 h-4" style={{ color: source.color }} />
-                  <span className="text-sm text-gray-900 dark:text-white">{source.name}</span>
-                </div>
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {source.value.toFixed(1)} tCO2e
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
 
-        {/* Scope 2 Dual Reporting (GRI 305-2) */}
+        {/* Emissions Trend */}
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Scope 2: Dual Reporting</h3>
-            <div className="flex gap-1 flex-wrap justify-end">
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-2
-              </span>
-              <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                GHG Protocol
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {/* Location-Based */}
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-900 dark:text-white">Location-Based Method</span>
-                <Info className="w-4 h-4 text-gray-400" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {scope2Data.locationBased.toFixed(1)} tCO2e
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Using regional grid average emission factors
-              </div>
-            </div>
-
-            {/* Market-Based */}
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-900 dark:text-white">Market-Based Method</span>
-                <Info className="w-4 h-4 text-gray-400" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {scope2Data.marketBased.toFixed(1)} tCO2e
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Reflecting contractual instruments (EACs)
-              </div>
-            </div>
-
-            {/* Renewable Impact */}
-            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <div className="text-gray-600 dark:text-gray-400 mb-1">Renewable Impact</div>
-                  <div className="font-semibold text-green-600 dark:text-green-400">
-                    {scope2Data.renewableImpact.toFixed(1)} tCO2e
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-600 dark:text-gray-400 mb-1">Renewable %</div>
-                  <div className="font-semibold text-green-600 dark:text-green-400">
-                    {scope2Data.renewablePercentage}%
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-600 dark:text-gray-400 mb-1">EACs/RECs</div>
-                  <div className="font-semibold text-gray-900 dark:text-white">
-                    {scope2Data.eacs.toLocaleString()} MWh
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-600 dark:text-gray-400 mb-1">Grid Factor</div>
-                  <div className="font-semibold text-gray-900 dark:text-white">
-                    {scope2Data.gridEmissionFactor} kg/kWh
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Scope 3 Category Coverage */}
-      <div className="px-6 pb-6">
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Scope 3: Category Coverage</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {scope3Coverage.tracked}/15 categories tracked ({scope3Coverage.percentage.toFixed(0)}% coverage)
-              </p>
-            </div>
-            <div className="flex gap-1 flex-wrap justify-end">
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-3
-              </span>
-              <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                GHG Protocol
-              </span>
-              <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                ESRS E1
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {/* Upstream */}
-            <div>
-              <div className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                Upstream Categories
-                <span className="text-xs text-gray-500">(8 categories)</span>
-              </div>
-              <div className="space-y-2">
-                {scope3CategoriesFinal.filter(c => c.upstream).map((cat, index) => (
-                  <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {cat.tracked ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-orange-400" />
-                      )}
-                      <span className="text-sm text-gray-900 dark:text-white">{cat.category}</span>
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {cat.tracked ? `${cat.value.toFixed(1)} tCO2e` : 'Not tracked'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Downstream */}
-            <div>
-              <div className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                Downstream Categories
-                <span className="text-xs text-gray-500">(7 categories)</span>
-              </div>
-              <div className="space-y-2">
-                {scope3CategoriesFinal.filter(c => !c.upstream).map((cat, index) => (
-                  <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {cat.tracked ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-orange-400" />
-                      )}
-                      <span className="text-sm text-gray-900 dark:text-white">{cat.category}</span>
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {cat.tracked ? `${cat.value.toFixed(1)} tCO2e` : 'Not tracked'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {scope3Coverage.percentage < 80 && (
-            <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
-              <div className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
-                <AlertTriangle className="w-4 h-4" />
-                <span className="text-sm font-medium">Scope 3 Materiality Assessment Recommended</span>
-              </div>
-              <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                GRI 305-3 requires reporting on all material categories. Consider conducting a materiality assessment for untracted categories.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Intensity Metrics & Geographic Breakdown */}
-      <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Intensity Metrics (GRI 305-4) */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Intensity Metrics</h3>
-            <div className="flex gap-1 flex-wrap justify-end">
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-4
-              </span>
-              <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                ESRS E1
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {intensityMetrics.map((metric, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <metric.icon className="w-5 h-5 text-blue-500" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">{metric.name}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {metric.yoyChange < 0 ? (
-                      <TrendingDown className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <TrendingUp className="w-3 h-3 text-red-500" />
-                    )}
-                    <span className={`text-xs ${metric.yoyChange < 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {metric.yoyChange > 0 ? '+' : ''}{metric.yoyChange}% YoY
-                    </span>
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {metric.value.toFixed(metric.name.includes('Revenue') ? 2 : 3)}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {metric.unit}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Geographic & Facility Breakdown */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Geographic Distribution</h3>
-            <div className="flex gap-1 flex-wrap justify-end">
-              <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                GHG Protocol
-              </span>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="text-sm font-medium text-gray-900 dark:text-white mb-3">By Geography</div>
-            <div className="space-y-2">
-              {geographicBreakdown.map((geo, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-blue-500" />
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{geo.location}</span>
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {geo.value.toFixed(1)} tCO2e
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
-                      <div
-                        className="h-2 rounded-full"
-                        style={{ width: `${geo.percentage}%`, backgroundColor: geo.color }}
-                      />
-                    </div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                      {geo.percentage}%
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="text-sm font-medium text-gray-900 dark:text-white mb-3">By Facility</div>
-            <div className="space-y-2">
-              {facilityBreakdown.map((facility, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Factory className="w-4 h-4 text-purple-500" />
-                    <span className="text-sm text-gray-900 dark:text-white">{facility.name}</span>
-                  </div>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {facility.value.toFixed(1)} tCO2e
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Multi-Year Trends (TCFD, ESRS E1) */}
-      <div className="px-6 pb-6">
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Multi-Year Emissions Trends</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Base Year: 2023 (615.3 tCO2e) • Current: 2025 (542.9 tCO2e) • Change: -72.4 tCO2e (-12%)
-              </p>
-            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Emissions Trend</h3>
             <div className="flex gap-1 flex-wrap justify-end">
               <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
                 TCFD
@@ -789,284 +601,203 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
             </div>
           </div>
 
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={multiYearTrends}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
+          <ResponsiveContainer width="100%" height={350}>
+            <LineChart data={monthlyTrends}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis
-                dataKey="year"
+                dataKey="month"
                 stroke="#9CA3AF"
                 style={{ fontSize: '10px' }}
               />
               <YAxis
                 stroke="#9CA3AF"
                 style={{ fontSize: '10px' }}
-                label={{ value: 'tCO2e', angle: -90, position: 'insideLeft', style: { fill: '#9CA3AF', fontSize: '10px' } }}
+                label={{ value: 'tCO2e', angle: -90, position: 'insideLeft', style: { fontSize: '10px' } }}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  backgroundColor: '#1F2937',
                   border: 'none',
                   borderRadius: '8px',
-                  color: 'white'
+                  color: '#fff',
+                  fontSize: '12px'
                 }}
               />
               <Legend wrapperStyle={{ fontSize: '11px' }} />
-              <Line
-                type="monotone"
-                dataKey="scope1"
-                stroke="#EF4444"
-                strokeWidth={2}
-                name="Scope 1"
-                dot={{ r: 3 }}
-                strokeDasharray={multiYearTrends[multiYearTrends.length - 1].projected ? "5 5" : "0"}
-              />
-              <Line
-                type="monotone"
-                dataKey="scope2"
-                stroke="#3B82F6"
-                strokeWidth={2}
-                name="Scope 2"
-                dot={{ r: 3 }}
-                strokeDasharray={multiYearTrends[multiYearTrends.length - 1].projected ? "5 5" : "0"}
-              />
-              <Line
-                type="monotone"
-                dataKey="scope3"
-                stroke="#6B7280"
-                strokeWidth={2}
-                name="Scope 3"
-                dot={{ r: 3 }}
-                strokeDasharray={multiYearTrends[multiYearTrends.length - 1].projected ? "5 5" : "0"}
-              />
-              <Line
-                type="monotone"
-                dataKey="total"
-                stroke="#8B5CF6"
-                strokeWidth={2.5}
-                name="Total"
-                dot={{ r: 4, fill: "#8B5CF6" }}
-                strokeDasharray={multiYearTrends[multiYearTrends.length - 1].projected ? "5 5" : "0"}
-              />
+              <Line type="monotone" dataKey="scope1" stroke="#EF4444" name="Scope 1" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="scope2" stroke="#3B82F6" name="Scope 2" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="scope3" stroke="#6B7280" name="Scope 3" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="total" stroke="#8B5CF6" name="Total" strokeWidth={3} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Reductions & Data Quality */}
+      {/* Top Emission Sources & Scope 1 Breakdown */}
       <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Reductions & Removals (GRI 305-5) */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[320px]">
+        {/* Top Emission Sources */}
+        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Reductions & Removals</h3>
-            <div className="flex gap-1 flex-wrap justify-end">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Top Emission Sources</h3>
+            <div className="flex gap-1">
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-5
-              </span>
-              <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                ESRS E1
+                GRI 305-1/2/3
               </span>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 mb-4">
-            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Reductions from Baseline</div>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {totalReductions.toFixed(1)} tCO2e
-            </div>
-          </div>
-
-          <div className="space-y-2 mb-4">
-            {reductionsData.map((reduction, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-2">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-gray-900 dark:text-white">{reduction.initiative}</span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {reduction.reduction.toFixed(1)} tCO2e
-                  </span>
+          <div className="space-y-3">
+            {topEmitters.map((source, index) => (
+              <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: getCategoryColor(source.name) }}
+                    />
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">{source.name}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">({source.scope})</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-bold text-gray-900 dark:text-white">
+                      {source.emissions.toFixed(1)} tCO2e
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {source.percentage.toFixed(1)}%
+                    </div>
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                   <div
-                    className="h-1.5 rounded-full"
+                    className="h-2 rounded-full transition-all"
                     style={{
-                      width: `${(reduction.reduction / totalReductions) * 100}%`,
-                      backgroundColor: reduction.color
+                      width: `${source.percentage}%`,
+                      backgroundColor: getCategoryColor(source.name)
                     }}
                   />
+                </div>
+                <div className="mt-2 text-xs text-gray-500 dark:text-gray-400" title={getActionRecommendation(source.name)}>
+                  💡 {getActionRecommendation(source.name)}
                 </div>
               </div>
             ))}
           </div>
-
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-2">
-              <div className="text-gray-500 dark:text-gray-400 text-xs">Carbon Removals</div>
-              <div className="font-semibold text-gray-900 dark:text-white">0 tCO2e</div>
-            </div>
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-2">
-              <div className="text-gray-500 dark:text-gray-400 text-xs">Credits Retired</div>
-              <div className="font-semibold text-gray-900 dark:text-white">0 tCO2e</div>
-            </div>
-          </div>
         </div>
 
-        {/* Data Quality & Uncertainty */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[320px]">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Data Quality & Uncertainty</h3>
-            <div className="flex gap-1 flex-wrap justify-end">
-              <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                GHG Protocol
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Primary Data</div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {dataQuality.primaryData}%
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-green-500 h-2 rounded-full"
-                  style={{ width: `${dataQuality.primaryData}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Secondary Data</div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {dataQuality.secondaryData}%
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-orange-500 h-2 rounded-full"
-                  style={{ width: `${dataQuality.secondaryData}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Verified</div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {dataQuality.verified}%
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-blue-500 h-2 rounded-full"
-                  style={{ width: `${dataQuality.verified}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Estimated</div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {dataQuality.estimated}%
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-yellow-500 h-2 rounded-full"
-                  style={{ width: `${dataQuality.estimated}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-blue-900 dark:text-blue-300">Uncertainty Level</span>
-              <span className="text-lg font-bold text-blue-900 dark:text-blue-300">
-                ±{dataQuality.uncertainty}%
-              </span>
-            </div>
-            <div className="text-xs text-blue-700 dark:text-blue-400">
-              Calculation methodologies: Distance-based, Spend-based, Supplier-specific
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Other Emissions (GRI 305-6, 305-7) */}
-      <div className="px-6 pb-6">
+        {/* Scope 1 Detailed Breakdown */}
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Biogenic CO₂ & Other Emissions</h3>
-            <div className="flex gap-1 flex-wrap justify-end">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Scope 1 Breakdown</h3>
+            <div className="flex gap-1">
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-6
-              </span>
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-7
+                GRI 305-1
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Biogenic CO₂</div>
-              <div className="text-xl font-bold text-gray-900 dark:text-white">
-                {otherEmissions.biogenicCO2} tCO₂
-              </div>
+          {scope1Sources.length > 0 ? (
+            <div className="space-y-3">
+              {scope1Sources.map((source: any, index: number) => (
+                <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {source.name.toLowerCase().includes('stationary') && <Flame className="w-4 h-4 text-orange-500" />}
+                      {source.name.toLowerCase().includes('mobile') && <Factory className="w-4 h-4 text-blue-500" />}
+                      {source.name.toLowerCase().includes('fugitive') && <Wind className="w-4 h-4 text-cyan-500" />}
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{source.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-bold text-gray-900 dark:text-white">
+                        {source.emissions.toFixed(1)} tCO2e
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {scope1Total > 0 ? ((source.emissions / scope1Total) * 100).toFixed(1) : 0}%
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className="bg-red-500 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${scope1Total > 0 ? (source.emissions / scope1Total) * 100 : 0}%`
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">ODS (CFC-11 eq)</div>
-              <div className="text-xl font-bold text-gray-900 dark:text-white">
-                {otherEmissions.odsKg} kg
-              </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <Factory className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No Scope 1 emissions data available</p>
             </div>
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">NOₓ</div>
-              <div className="text-xl font-bold text-gray-900 dark:text-white">
-                {otherEmissions.noxTonnes} tonnes
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">SOₓ</div>
-              <div className="text-xl font-bold text-gray-900 dark:text-white">
-                {otherEmissions.soxTonnes} tonnes
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Export Options */}
-      <div className="px-6 pb-6">
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Export Reporting Templates</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Download pre-filled templates for major sustainability frameworks
-              </p>
+      {/* SBTi Target Progress (if exists and current year) */}
+      {targetData?.targets && targetData.targets.length > 0 &&
+       new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
+        <div className="px-6 pb-6">
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Target className="w-6 h-6 text-green-600 dark:text-green-400" />
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    SBTi Target Progress
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Science Based Targets initiative • Net-Zero commitment
+                  </p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded-full font-medium">
+                SBTi Validated
+              </span>
             </div>
-            <div className="flex gap-2 flex-wrap">
-              <button className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                GHG Protocol
-              </button>
-              <button className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                GRI Report
-              </button>
-              <button className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                ESRS Format
-              </button>
-              <button className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                TCFD Disclosure
-              </button>
-              <button className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                CDP Response
-              </button>
-            </div>
+
+            {targetData.targets.map((target: any, index: number) => (
+              <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-4 mb-3">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">{target.name}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Baseline: {target.baseline_year} • Target: {target.target_year}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {target.progress?.toFixed(0) || 0}%
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Progress</div>
+                  </div>
+                </div>
+
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
+                  <div
+                    className={`h-3 rounded-full transition-all ${
+                      (target.progress || 0) >= 100 ? 'bg-green-500' :
+                      (target.progress || 0) >= 70 ? 'bg-blue-500' :
+                      (target.progress || 0) >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}
+                    style={{ width: `${Math.min(target.progress || 0, 100)}%` }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Baseline: {target.baseline_emissions?.toFixed(1) || 0} tCO2e
+                  </span>
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Target: {target.target_emissions?.toFixed(1) || 0} tCO2e (-{target.reduction_percent || 0}%)
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
