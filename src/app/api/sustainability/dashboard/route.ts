@@ -19,8 +19,10 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const range = searchParams.get('range') || 'year';
-    const siteId = searchParams.get('site') || 'all';
+    const range = searchParams.get('range') || null;
+    const startDateParam = searchParams.get('start_date');
+    const endDateParam = searchParams.get('end_date');
+    const siteId = searchParams.get('site') || searchParams.get('site_id') || 'all';
 
     // Get user's organization
     let organizationId: string | null = null;
@@ -98,50 +100,62 @@ export async function GET(request: NextRequest) {
       area: s.total_area_sqm
     })));
 
-    // Calculate date range
+    // Calculate date range - support both explicit dates and range parameter
     const now = new Date();
     console.log('📊 Dashboard API: Current date (now):', now.toISOString());
 
-    let startDate = new Date();
-    let endDate = new Date();
+    let startDate: Date;
+    let endDate: Date;
 
-    switch (range) {
-      case 'month':
-        startDate.setMonth(now.getMonth() - 1);
-        endDate = now;
-        break;
-      case 'quarter':
-        startDate.setMonth(now.getMonth() - 3);
-        endDate = now;
-        break;
-      case 'year':
-        startDate.setFullYear(now.getFullYear() - 1);
-        endDate = now;
-        break;
-      case '2025':
-        startDate = new Date('2025-01-01');
-        endDate = new Date('2025-12-31'); // Query full year, DB will return what exists
-        break;
-      case '2024':
-        startDate = new Date('2024-01-01');
-        endDate = new Date('2024-12-31');
-        break;
-      case '2023':
-        startDate = new Date('2023-01-01');
-        endDate = new Date('2023-12-31');
-        break;
-      case '2022':
-        startDate = new Date('2022-01-01');
-        endDate = new Date('2022-12-31');
-        break;
-      case 'all':
-        startDate = new Date('2020-01-01');
-        endDate = now;
-        break;
-      default:
-        // Default to all available data
-        startDate = new Date('2020-01-01');
-        endDate = now;
+    // If explicit dates provided, use them (like Energy API does)
+    if (startDateParam && endDateParam) {
+      startDate = new Date(startDateParam);
+      endDate = new Date(endDateParam);
+      console.log('📊 Dashboard API: Using explicit dates:', startDateParam, 'to', endDateParam);
+    } else {
+      // Fallback to range-based calculation
+      startDate = new Date();
+      endDate = new Date();
+
+      switch (range) {
+        case 'month':
+          startDate.setMonth(now.getMonth() - 1);
+          endDate = now;
+          break;
+        case 'quarter':
+          startDate.setMonth(now.getMonth() - 3);
+          endDate = now;
+          break;
+        case 'year':
+          startDate.setFullYear(now.getFullYear() - 1);
+          endDate = now;
+          break;
+        case '2025':
+          startDate = new Date('2025-01-01');
+          endDate = new Date('2025-12-31');
+          break;
+        case '2024':
+          startDate = new Date('2024-01-01');
+          endDate = new Date('2024-12-31');
+          break;
+        case '2023':
+          startDate = new Date('2023-01-01');
+          endDate = new Date('2023-12-31');
+          break;
+        case '2022':
+          startDate = new Date('2022-01-01');
+          endDate = new Date('2022-12-31');
+          break;
+        case 'all':
+          startDate = new Date('2020-01-01');
+          endDate = now;
+          break;
+        default:
+          // Default to current year
+          startDate = new Date(now.getFullYear(), 0, 1);
+          endDate = now;
+      }
+      console.log('📊 Dashboard API: Using range-based dates:', range);
     }
 
     // Build query for metrics data - use admin client for full data access
@@ -431,13 +445,27 @@ function generateTrendData(data: any[], range: string) {
     if (!monthlyData[monthKey]) {
       monthlyData[monthKey] = {
         emissions: 0,
+        scope1: 0,
+        scope2: 0,
+        scope3: 0,
         energy: 0,
         water: 0,
         count: 0
       };
     }
 
-    monthlyData[monthKey].emissions += d.co2e_emissions || 0;
+    const emissionsKg = d.co2e_emissions || 0;
+    monthlyData[monthKey].emissions += emissionsKg;
+
+    // Track emissions by scope
+    const scope = d.metrics_catalog?.scope;
+    if (scope === 'scope_1') {
+      monthlyData[monthKey].scope1 += emissionsKg;
+    } else if (scope === 'scope_2') {
+      monthlyData[monthKey].scope2 += emissionsKg;
+    } else if (scope === 'scope_3') {
+      monthlyData[monthKey].scope3 += emissionsKg;
+    }
 
     // Add metric-specific values
     const category = d.metrics_catalog?.category;
@@ -466,6 +494,9 @@ function generateTrendData(data: any[], range: string) {
       return {
         month: `${months[parseInt(month) - 1]} ${year.slice(2)}`,
         emissions: Math.round((values.emissions / 1000) * 10) / 10, // Convert kg to tons
+        scope1: Math.round((values.scope1 / 1000) * 10) / 10, // Convert kg to tons
+        scope2: Math.round((values.scope2 / 1000) * 10) / 10, // Convert kg to tons
+        scope3: Math.round((values.scope3 / 1000) * 10) / 10, // Convert kg to tons
         energy: Math.round(values.energy / 1000 * 10) / 10, // Convert to MWh
         water: Math.round(values.water),
         target: 50 // More realistic monthly target
