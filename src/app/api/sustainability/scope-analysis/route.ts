@@ -374,8 +374,8 @@ function calculateDataQuality(metricsData: any[]) {
   let verifiedCount = 0;
 
   metricsData.forEach(record => {
-    // Check data_quality field (assuming 1 = primary, < 1 = estimated)
-    if (record.data_quality >= 0.9) {
+    // Check data_quality field (string: 'measured', 'calculated', 'estimated')
+    if (record.data_quality === 'measured' || record.data_quality === 'calculated') {
       primaryCount++;
     } else {
       estimatedCount++;
