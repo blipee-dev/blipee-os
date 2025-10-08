@@ -238,11 +238,9 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         setScope2MarketBased(extractedScopeData.scope_2?.marketBased || s2Current);
         setRenewablePercentage(extractedScopeData.scope_2?.renewablePercentage || 0);
 
-        // Scope 3 coverage
-        const scope3Categories = extractedScopeData.scope_3?.categories || [];
-        // Ensure it's an array before filtering
-        const categoriesArray = Array.isArray(scope3Categories) ? scope3Categories : [];
-        const trackedCategories = categoriesArray.filter((c: any) => c.emissions > 0).length;
+        // Scope 3 coverage - categories is an object
+        const scope3Categories = extractedScopeData.scope_3?.categories || {};
+        const trackedCategories = Object.values(scope3Categories).filter((emissions: any) => emissions > 0).length;
         setScope3Coverage({
           tracked: trackedCategories,
           missing: 15 - trackedCategories,
@@ -257,37 +255,35 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         // Top emission sources
         const allCategories: any[] = [];
 
+        // Categories is an object, not an array - use Object.entries like Overview does
         if (extractedScopeData.scope_1?.categories) {
-          const scope1Cats = Array.isArray(extractedScopeData.scope_1.categories)
-            ? extractedScopeData.scope_1.categories
-            : [];
-          allCategories.push(...scope1Cats.map((c: any) => ({
-            name: c.name,
-            emissions: c.emissions,
-            scope: 'Scope 1'
-          })));
+          Object.entries(extractedScopeData.scope_1.categories).forEach(([key, value]) => {
+            allCategories.push({
+              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              emissions: value as number,
+              scope: 'Scope 1'
+            });
+          });
         }
 
         if (extractedScopeData.scope_2?.categories) {
-          const scope2Cats = Array.isArray(extractedScopeData.scope_2.categories)
-            ? extractedScopeData.scope_2.categories
-            : [];
-          allCategories.push(...scope2Cats.map((c: any) => ({
-            name: c.name,
-            emissions: c.emissions,
-            scope: 'Scope 2'
-          })));
+          Object.entries(extractedScopeData.scope_2.categories).forEach(([key, value]) => {
+            allCategories.push({
+              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              emissions: value as number,
+              scope: 'Scope 2'
+            });
+          });
         }
 
         if (extractedScopeData.scope_3?.categories) {
-          const scope3Cats = Array.isArray(extractedScopeData.scope_3.categories)
-            ? extractedScopeData.scope_3.categories
-            : [];
-          allCategories.push(...scope3Cats.map((c: any) => ({
-            name: c.name,
-            emissions: c.emissions,
-            scope: 'Scope 3'
-          })));
+          Object.entries(extractedScopeData.scope_3.categories).forEach(([key, value]) => {
+            allCategories.push({
+              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              emissions: value as number,
+              scope: 'Scope 3'
+            });
+          });
         }
 
         const topFive = allCategories
@@ -303,10 +299,16 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
         // Scope 1 detailed breakdown
         if (extractedScopeData.scope_1?.categories) {
-          const scope1Categories = Array.isArray(extractedScopeData.scope_1.categories)
-            ? extractedScopeData.scope_1.categories
-            : [];
-          setScope1Sources(scope1Categories.filter((c: any) => c.emissions > 0));
+          const scope1CategoriesArray: any[] = [];
+          Object.entries(extractedScopeData.scope_1.categories).forEach(([key, value]) => {
+            if ((value as number) > 0) {
+              scope1CategoriesArray.push({
+                name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                emissions: value as number
+              });
+            }
+          });
+          setScope1Sources(scope1CategoriesArray);
         }
 
         // Scope 1 by gas type (if available)
