@@ -240,7 +240,9 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
         // Scope 3 coverage
         const scope3Categories = extractedScopeData.scope_3?.categories || [];
-        const trackedCategories = scope3Categories.filter((c: any) => c.emissions > 0).length;
+        // Ensure it's an array before filtering
+        const categoriesArray = Array.isArray(scope3Categories) ? scope3Categories : [];
+        const trackedCategories = categoriesArray.filter((c: any) => c.emissions > 0).length;
         setScope3Coverage({
           tracked: trackedCategories,
           missing: 15 - trackedCategories,
