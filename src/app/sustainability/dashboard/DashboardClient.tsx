@@ -36,6 +36,7 @@ import { SustainabilityLayout } from '@/components/sustainability/Sustainability
 import { useAppearance, useAccentGradient } from '@/providers/AppearanceProvider';
 
 // Import all our new dashboard components
+import { OverviewDashboard } from '@/components/dashboard/OverviewDashboard';
 import { ComplianceDashboard } from '@/components/dashboard/ComplianceDashboard';
 import { EnergyDashboard } from '@/components/dashboard/EnergyDashboard';
 import { WaterDashboard } from '@/components/dashboard/WaterDashboard';
@@ -309,7 +310,7 @@ export default function DashboardClient() {
     }
 
     if (currentView === 'overview') {
-      return <ComplianceDashboard organizationId={orgId} selectedSite={selectedSite} selectedPeriod={selectedPeriod} />;
+      return <OverviewDashboard organizationId={orgId} selectedSite={selectedSite} selectedPeriod={selectedPeriod} />;
     }
 
     // If dashboard component exists, render it

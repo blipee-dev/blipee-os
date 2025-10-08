@@ -191,7 +191,8 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
 
   // Process each metrics record
   metricsData.forEach(record => {
-    const emissions = record.co2e_emissions || 0;
+    // IMPORTANT: co2e_emissions is stored in kgCO2e, convert to tCO2e
+    const emissions = (record.co2e_emissions || 0) / 1000;
     const scope = record.metrics_catalog?.scope;
     const category = record.metrics_catalog?.category;
     const subcategory = record.metrics_catalog?.subcategory;
