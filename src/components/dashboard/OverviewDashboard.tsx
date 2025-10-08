@@ -43,6 +43,41 @@ interface ScopeData {
   categories: Array<{ name: string; value: number }>;
 }
 
+// Helper function to get action recommendations
+const getActionRecommendation = (categoryName: string): string => {
+  const nameLower = categoryName.toLowerCase();
+
+  if (nameLower.includes('electricity') || nameLower.includes('grid')) {
+    return '💡 Increase renewable energy procurement to 50%';
+  }
+  if (nameLower.includes('natural gas') || nameLower.includes('gas')) {
+    return '🔥 Install heat pump system for efficiency';
+  }
+  if (nameLower.includes('business travel') || nameLower.includes('travel')) {
+    return '✈️ Implement virtual meetings policy (+30%)';
+  }
+  if (nameLower.includes('fleet') || nameLower.includes('vehicle')) {
+    return '🚗 Transition fleet to electric vehicles';
+  }
+  if (nameLower.includes('waste') || nameLower.includes('disposal')) {
+    return '♻️ Increase waste diversion rate to 90%';
+  }
+  if (nameLower.includes('heating')) {
+    return '🌡️ Upgrade to efficient heating system';
+  }
+  if (nameLower.includes('cooling')) {
+    return '❄️ Optimize HVAC system controls';
+  }
+  if (nameLower.includes('commut')) {
+    return '🚲 Promote public transit & cycling';
+  }
+  if (nameLower.includes('water')) {
+    return '💧 Install water efficiency measures';
+  }
+
+  return '📊 Review and optimize this category';
+};
+
 export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod }: OverviewDashboardProps) {
   const [loading, setLoading] = useState(true);
 
@@ -326,7 +361,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       </div>
 
       {/* Executive Summary Cards */}
-      <div className="p-6 grid grid-cols-3 gap-4">
+      <div className="p-6 grid grid-cols-4 gap-4">
         {/* Total Emissions */}
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
@@ -409,6 +444,36 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
             </div>
           </div>
         </div>
+
+        {/* Data Quality */}
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">Data Quality</span>
+            <Info className="w-4 h-4 text-blue-500" />
+          </div>
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {dataQuality?.primaryDataPercentage || 0}%
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Primary Data</div>
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="flex items-center justify-between text-xs mb-1">
+              <span className="text-gray-500 dark:text-gray-400">Verified</span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                {dataQuality?.verifiedPercentage || 0}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+              <div
+                className="bg-green-500 h-1.5 rounded-full transition-all"
+                style={{ width: `${dataQuality?.verifiedPercentage || 0}%` }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Scope Breakdown & Trend */}
@@ -469,47 +534,126 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </div>
             </div>
 
-            {/* Scope 2 */}
-            <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800/50 rounded-lg">
-              <div className="flex items-center gap-2">
+            {/* Scope 2 - Enhanced with Dual Reporting */}
+            <div className="p-3 bg-white dark:bg-gray-800/50 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
                 <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Scope 2</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Purchased energy</p>
-                </div>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">Scope 2: Purchased Energy</p>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">{scope2Total.toFixed(1)} tCO2e</p>
-                <div className="flex items-center gap-1 justify-end">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{scopePercentages.scope2.toFixed(0)}%</span>
-                  {scopeYoY.scope2 !== 0 && (
-                    <span className={`text-xs ${scopeYoY.scope2 < 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      ({scopeYoY.scope2 > 0 ? '+' : ''}{scopeYoY.scope2.toFixed(1)}%)
-                    </span>
-                  )}
+
+              {/* Dual Reporting */}
+              <div className="space-y-2 mb-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Location-Based</span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {scope2LocationBased.toFixed(1)} tCO2e
+                  </span>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Market-Based</span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {scope2MarketBased.toFixed(1)} tCO2e
+                  </span>
+                </div>
+                {(scope2LocationBased - scope2MarketBased) > 0 && (
+                  <div className="flex justify-between items-center text-green-600 dark:text-green-400">
+                    <span className="text-xs font-medium">Renewable Impact</span>
+                    <span className="text-xs font-semibold">
+                      -{(scope2LocationBased - scope2MarketBased).toFixed(1)} tCO2e
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Renewable Percentage */}
+              {renewablePercentage > 0 && (
+                <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-600 dark:text-gray-400">Renewable Energy</span>
+                    <span className="text-xs font-semibold text-green-700 dark:text-green-400">
+                      {renewablePercentage}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+                    <div
+                      className="bg-green-500 h-1 rounded-full"
+                      style={{ width: `${renewablePercentage}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Standards Badge */}
+              <div className="mt-2 flex items-center gap-1">
+                <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] rounded">
+                  GRI 305-2 ✓
+                </span>
+                <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] rounded">
+                  GHG Protocol ✓
+                </span>
               </div>
             </div>
 
-            {/* Scope 3 */}
-            <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800/50 rounded-lg">
-              <div className="flex items-center gap-2">
+            {/* Scope 3 - Enhanced with Coverage */}
+            <div className="p-3 bg-white dark:bg-gray-800/50 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
                 <div className="w-2 h-2 rounded-full bg-gray-500" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Scope 3</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Value chain</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">Scope 3: Value Chain</p>
+              </div>
+
+              <div className="mb-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Total Emissions</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">
+                    {scope3Total.toFixed(1)} tCO2e
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {scopePercentages.scope3.toFixed(0)}% of total
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">{scope3Total.toFixed(1)} tCO2e</p>
-                <div className="flex items-center gap-1 justify-end">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{scopePercentages.scope3.toFixed(0)}%</span>
-                  {scopeYoY.scope3 !== 0 && (
-                    <span className={`text-xs ${scopeYoY.scope3 < 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      ({scopeYoY.scope3 > 0 ? '+' : ''}{scopeYoY.scope3.toFixed(1)}%)
+
+              {/* Coverage Indicator */}
+              {scope3Coverage && (
+                <div className="mt-3 p-2 bg-gray-50 dark:bg-gray-800/70 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-900 dark:text-white">
+                      Category Coverage
                     </span>
-                  )}
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {scope3Coverage.tracked}/15
+                    </span>
+                  </div>
+
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-2">
+                    <div
+                      className="bg-blue-500 h-1.5 rounded-full"
+                      style={{ width: `${scope3Coverage.coveragePercentage}%` }}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-green-600 dark:text-green-400">
+                      ✓ {scope3Coverage.tracked} Tracked
+                    </span>
+                    {scope3Coverage.missing > 0 && (
+                      <span className="text-xs text-orange-600 dark:text-orange-400">
+                        ⚠ {scope3Coverage.missing} Missing
+                      </span>
+                    )}
+                  </div>
                 </div>
+              )}
+
+              {/* Standards Badge */}
+              <div className="mt-2 flex items-center gap-1">
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
+                  scope3Coverage?.coveragePercentage >= 80
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                }`}>
+                  GRI 305-3 {scope3Coverage?.coveragePercentage >= 80 ? '✓' : '⚠'}
+                </span>
               </div>
             </div>
           </div>
@@ -588,6 +732,75 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         </div>
       </div>
 
+      {/* Organizational Boundaries */}
+      <div className="p-6 pt-0">
+        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Factory className="w-5 h-5 text-purple-500" />
+            Organizational Boundaries
+          </h3>
+
+          {orgBoundaries ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                  Consolidation Approach
+                </div>
+                <div className="text-base font-semibold text-gray-900 dark:text-white">
+                  {orgBoundaries.consolidationApproach}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                  Sites Included
+                </div>
+                <div className="text-base font-semibold text-gray-900 dark:text-white">
+                  {orgBoundaries.sitesIncluded}/{orgBoundaries.sitesTotal}
+                  <span className="text-sm text-green-600 dark:text-green-400 ml-2">
+                    ({orgBoundaries.coverage}%)
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                  Base Year
+                </div>
+                <div className="text-base font-semibold text-gray-900 dark:text-white">
+                  {orgBoundaries.baseYear}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                  Employees (FTE)
+                </div>
+                <div className="text-base font-semibold text-gray-900 dark:text-white">
+                  {orgBoundaries.employees?.toLocaleString() || 'Not set'}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-4 text-gray-400 text-sm">
+              Loading organizational data...
+            </div>
+          )}
+
+          {/* Standards Compliance */}
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
+                GHG Protocol ✓
+              </span>
+              <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
+                GRI 2-6 ✓
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Top Emitters */}
       <div className="p-6 pt-0">
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
@@ -600,17 +813,30 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
             {topEmitters.map((emitter, index) => (
               <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">{emitter.name}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {index + 1}. {emitter.name}
+                  </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-900 dark:text-white font-semibold">{emitter.emissions.toFixed(1)} tCO2e</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">({emitter.percentage.toFixed(0)}%)</span>
+                    <span className="text-sm text-gray-900 dark:text-white font-semibold">
+                      {emitter.emissions.toFixed(1)} tCO2e
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      ({emitter.percentage.toFixed(0)}%)
+                    </span>
                   </div>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+
+                {/* Progress bar */}
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-2">
                   <div
                     className="bg-gradient-to-r from-orange-500 to-red-500 h-1.5 rounded-full transition-all"
                     style={{ width: `${emitter.percentage}%` }}
                   />
+                </div>
+
+                {/* Action Recommendation */}
+                <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                  {getActionRecommendation(emitter.name)}
                 </div>
               </div>
             ))}
