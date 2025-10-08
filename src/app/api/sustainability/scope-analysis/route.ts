@@ -107,9 +107,21 @@ export async function GET(request: NextRequest) {
     // Calculate GHG Protocol compliance score
     const complianceScore = calculateComplianceScore(scopeData);
 
+    // Calculate data quality metrics
+    const dataQuality = calculateDataQuality(metricsData || []);
+
+    // Calculate Scope 3 coverage
+    const scope3Coverage = calculateScope3Coverage(scopeData.scope_3.categories);
+
+    // Get organization context for boundaries
+    const orgContext = await getOrganizationContext(organizationId);
+
     return NextResponse.json({
       scopeData,
       complianceScore,
+      dataQuality,
+      scope3Coverage,
+      organizationalBoundaries: orgContext,
       period: {
         start: startDate.toISOString(),
         end: endDate.toISOString()
@@ -239,7 +251,20 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
     else if (scope === 'scope_2' || scope === 2) {
       scopeData.scope_2.total += emissions;
       scopeData.scope_2.location_based += emissions;
-      scopeData.scope_2.market_based += emissions * 0.73; // Assume some renewable
+
+      // Market-based calculation:
+      // Check if energy has renewable attributes (RECs, GOs, PPAs)
+      const isRenewable = record.metadata?.is_renewable || false;
+      const renewablePercentage = record.metadata?.renewable_percentage || 0;
+
+      if (isRenewable || renewablePercentage > 0) {
+        // Apply renewable discount to market-based
+        const renewableDiscount = renewablePercentage / 100;
+        scopeData.scope_2.market_based += emissions * (1 - renewableDiscount);
+      } else {
+        // No renewable attributes, same as location-based
+        scopeData.scope_2.market_based += emissions;
+      }
 
       // Map to specific category
       const mappedCategory = scope2CategoryMap[subcategory] || scope2CategoryMap[category];
@@ -272,6 +297,16 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
   // Convert sources to arrays
   scopeData.scope_1.sources = Array.from(scope1Sources).slice(0, 10);
   scopeData.scope_2.sources = Array.from(scope2Sources).slice(0, 10);
+
+  // Calculate renewable energy percentage for Scope 2
+  if (scopeData.scope_2.location_based > 0) {
+    const renewableImpact = scopeData.scope_2.location_based - scopeData.scope_2.market_based;
+    scopeData.scope_2.renewable_percentage = Math.round((renewableImpact / scopeData.scope_2.location_based) * 100);
+    scopeData.scope_2.renewable_impact = renewableImpact;
+  } else {
+    scopeData.scope_2.renewable_percentage = 0;
+    scopeData.scope_2.renewable_impact = 0;
+  }
 
   // Calculate trends (mock for now - would need historical comparison)
   scopeData.scope_1.trend = -5.2;
@@ -317,4 +352,145 @@ function calculateComplianceScore(scopeData: any): number {
   score += 8; // Partial credit for reporting
 
   return Math.round(score);
+}
+
+function calculateDataQuality(metricsData: any[]) {
+  if (metricsData.length === 0) {
+    return {
+      primaryDataPercentage: 0,
+      estimatedDataPercentage: 0,
+      verifiedPercentage: 0,
+      pendingVerification: 0,
+      totalRecords: 0
+    };
+  }
+
+  let primaryCount = 0;
+  let estimatedCount = 0;
+  let verifiedCount = 0;
+
+  metricsData.forEach(record => {
+    // Check data_quality field (assuming 1 = primary, < 1 = estimated)
+    if (record.data_quality >= 0.9) {
+      primaryCount++;
+    } else {
+      estimatedCount++;
+    }
+
+    // Check verification_status
+    if (record.verification_status === 'verified') {
+      verifiedCount++;
+    }
+  });
+
+  const total = metricsData.length;
+  const primaryPercentage = (primaryCount / total) * 100;
+  const estimatedPercentage = (estimatedCount / total) * 100;
+  const verifiedPercentage = (verifiedCount / total) * 100;
+
+  return {
+    primaryDataPercentage: Math.round(primaryPercentage),
+    estimatedDataPercentage: Math.round(estimatedPercentage),
+    verifiedPercentage: Math.round(verifiedPercentage),
+    pendingVerification: Math.round(100 - verifiedPercentage),
+    totalRecords: total
+  };
+}
+
+function calculateScope3Coverage(scope3Categories: any) {
+  const allCategories = [
+    'purchased_goods',
+    'capital_goods',
+    'fuel_energy',
+    'upstream_transportation',
+    'waste',
+    'business_travel',
+    'employee_commuting',
+    'upstream_leased',
+    'downstream_transportation',
+    'processing',
+    'use_of_products',
+    'end_of_life',
+    'downstream_leased',
+    'franchises',
+    'investments'
+  ];
+
+  let tracked = 0;
+  let notMaterial = 0;
+  let missing = 0;
+
+  const trackedCategories: string[] = [];
+  const missingCategories: string[] = [];
+
+  allCategories.forEach(category => {
+    const categoryData = scope3Categories[category];
+    if (categoryData && categoryData.included) {
+      tracked++;
+      trackedCategories.push(category);
+    } else {
+      // For now, assume missing categories are "missing" not "not material"
+      // In production, this would come from a materiality assessment
+      missing++;
+      missingCategories.push(category);
+    }
+  });
+
+  return {
+    total: 15,
+    tracked,
+    notMaterial,
+    missing,
+    trackedCategories,
+    missingCategories,
+    coveragePercentage: Math.round((tracked / 15) * 100)
+  };
+}
+
+async function getOrganizationContext(organizationId: string) {
+  try {
+    const { data: org, error } = await supabaseAdmin
+      .from('organizations')
+      .select('name, industry, employees, base_year')
+      .eq('id', organizationId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching organization:', error);
+      return {
+        consolidationApproach: 'Operational Control',
+        sitesIncluded: 0,
+        sitesTotal: 0,
+        baseYear: 2019,
+        coverage: 100
+      };
+    }
+
+    // Get site count
+    const { data: sites } = await supabaseAdmin
+      .from('sites')
+      .select('id')
+      .eq('organization_id', organizationId);
+
+    return {
+      consolidationApproach: 'Operational Control', // Default - would come from org settings
+      sitesIncluded: sites?.length || 0,
+      sitesTotal: sites?.length || 0,
+      baseYear: org?.base_year || 2019,
+      coverage: 100, // Percentage of operations covered
+      employees: org?.employees || 0,
+      industry: org?.industry || 'Not specified'
+    };
+  } catch (error) {
+    console.error('Error in getOrganizationContext:', error);
+    return {
+      consolidationApproach: 'Operational Control',
+      sitesIncluded: 0,
+      sitesTotal: 0,
+      baseYear: 2019,
+      coverage: 100,
+      employees: 0,
+      industry: 'Not specified'
+    };
+  }
 }
