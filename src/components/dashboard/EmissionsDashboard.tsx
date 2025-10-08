@@ -15,7 +15,8 @@ import {
   Wind,
   MapPin,
   Users,
-  Building2
+  Building2,
+  CheckCircle
 } from 'lucide-react';
 import {
   LineChart,
@@ -748,6 +749,158 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <p className="text-sm">No Scope 1 emissions data available</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Scope 2 & Scope 3 Detailed Breakdown */}
+      <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Scope 2 Detailed Breakdown */}
+        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Scope 2 Breakdown</h3>
+            <div className="flex gap-1">
+              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                GRI 305-2
+              </span>
+            </div>
+          </div>
+
+          {/* Dual Reporting */}
+          <div className="bg-white dark:bg-gray-800/50 rounded-lg p-4 mb-3">
+            <div className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+              Dual Reporting Method
+            </div>
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Location-Based</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">
+                    {scope2LocationBased.toFixed(1)} tCO2e
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-blue-500 h-2 rounded-full transition-all"
+                    style={{
+                      width: `${totalEmissions > 0 ? (scope2LocationBased / totalEmissions) * 100 : 0}%`
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Average grid emission factor
+                </p>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Market-Based</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">
+                    {scope2MarketBased.toFixed(1)} tCO2e
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-green-500 h-2 rounded-full transition-all"
+                    style={{
+                      width: `${totalEmissions > 0 ? (scope2MarketBased / totalEmissions) * 100 : 0}%`
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Contractual instruments (RECs, GOs)
+                </p>
+              </div>
+
+              {renewablePercentage > 0 && (
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Renewable Energy</span>
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                      {renewablePercentage.toFixed(0)}%
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Impact: {(scope2LocationBased - scope2MarketBased).toFixed(1)} tCO2e reduction
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Scope 3 Detailed Breakdown */}
+        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Scope 3 Coverage</h3>
+            <div className="flex gap-1">
+              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                GRI 305-3
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800/50 rounded-lg p-4 mb-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                15 Categories (GHG Protocol)
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {scope3Coverage?.tracked || 0}/15
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Tracked</div>
+              </div>
+            </div>
+
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
+              <div
+                className="bg-blue-500 h-3 rounded-full transition-all"
+                style={{ width: `${scope3Coverage?.percentage || 0}%` }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-xs mb-3">
+              <span className="text-green-600 dark:text-green-400">
+                ✓ {scope3Coverage?.tracked || 0} tracked
+              </span>
+              <span className="text-orange-600 dark:text-orange-400">
+                ⚠ {scope3Coverage?.missing || 15} missing
+              </span>
+            </div>
+
+            {scope3Coverage && scope3Coverage.percentage < 80 && (
+              <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-xs font-medium text-orange-900 dark:text-orange-200 mb-1">
+                      Coverage Below 80%
+                    </div>
+                    <div className="text-xs text-orange-700 dark:text-orange-300">
+                      GRI 305-3 recommends tracking all material Scope 3 categories.
+                      Current coverage: {scope3Coverage.percentage.toFixed(0)}%
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {scope3Coverage && scope3Coverage.percentage >= 80 && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-xs font-medium text-green-900 dark:text-green-200 mb-1">
+                      Good Coverage
+                    </div>
+                    <div className="text-xs text-green-700 dark:text-green-300">
+                      Tracking {scope3Coverage.tracked} of 15 categories ({scope3Coverage.percentage.toFixed(0)}%)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
