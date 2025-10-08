@@ -119,6 +119,9 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
   // Organizational Boundaries
   const [orgBoundaries, setOrgBoundaries] = useState<any>(null);
 
+  // SBTi Targets
+  const [sbtiTargets, setSbtiTargets] = useState<any>(null);
+
   // Organization context for intensity
   const [orgEmployees, setOrgEmployees] = useState(200); // Will be updated from API
 
@@ -206,6 +209,11 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
           if (scopeData.organizationalBoundaries.employees) {
             setOrgEmployees(scopeData.organizationalBoundaries.employees);
           }
+        }
+
+        // Extract SBTi targets
+        if (scopeData.sbtiTargets) {
+          setSbtiTargets(scopeData.sbtiTargets);
         }
 
         // Scope 2 dual reporting
@@ -787,15 +795,73 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
             </div>
           )}
 
+          {/* SBTi Targets Section */}
+          {sbtiTargets && sbtiTargets.hasTargets && (
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                  Science Based Targets
+                </h4>
+                {sbtiTargets.validated && (
+                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded font-medium">
+                    SBTi Validated ✓
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {sbtiTargets.ambition && (
+                  <div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      Ambition
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {sbtiTargets.ambition === '1.5C' ? '1.5°C aligned' :
+                       sbtiTargets.ambition === 'well-below-2C' ? 'Well-below 2°C' :
+                       sbtiTargets.ambition === 'net-zero' ? 'Net-Zero' : sbtiTargets.ambition}
+                    </div>
+                  </div>
+                )}
+
+                {sbtiTargets.nearTermTarget && (
+                  <div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      Near-term Target
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                      -{sbtiTargets.nearTermTarget.reductionPercent}% by {sbtiTargets.nearTermTarget.targetYear}
+                    </div>
+                  </div>
+                )}
+
+                {sbtiTargets.netZeroTarget && (
+                  <div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      Net-Zero Target
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {sbtiTargets.netZeroTarget.targetYear}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Standards Compliance */}
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
                 GHG Protocol ✓
               </span>
               <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
                 GRI 2-6 ✓
               </span>
+              {sbtiTargets?.validated && (
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                  SBTi {sbtiTargets.ambition === '1.5C' ? '1.5°C' : ''} ✓
+                </span>
+              )}
             </div>
           </div>
         </div>
