@@ -258,7 +258,10 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         const allCategories: any[] = [];
 
         if (extractedScopeData.scope_1?.categories) {
-          allCategories.push(...extractedScopeData.scope_1.categories.map((c: any) => ({
+          const scope1Cats = Array.isArray(extractedScopeData.scope_1.categories)
+            ? extractedScopeData.scope_1.categories
+            : [];
+          allCategories.push(...scope1Cats.map((c: any) => ({
             name: c.name,
             emissions: c.emissions,
             scope: 'Scope 1'
@@ -266,7 +269,10 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         }
 
         if (extractedScopeData.scope_2?.categories) {
-          allCategories.push(...extractedScopeData.scope_2.categories.map((c: any) => ({
+          const scope2Cats = Array.isArray(extractedScopeData.scope_2.categories)
+            ? extractedScopeData.scope_2.categories
+            : [];
+          allCategories.push(...scope2Cats.map((c: any) => ({
             name: c.name,
             emissions: c.emissions,
             scope: 'Scope 2'
@@ -274,7 +280,10 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         }
 
         if (extractedScopeData.scope_3?.categories) {
-          allCategories.push(...extractedScopeData.scope_3.categories.map((c: any) => ({
+          const scope3Cats = Array.isArray(extractedScopeData.scope_3.categories)
+            ? extractedScopeData.scope_3.categories
+            : [];
+          allCategories.push(...scope3Cats.map((c: any) => ({
             name: c.name,
             emissions: c.emissions,
             scope: 'Scope 3'
@@ -294,7 +303,10 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
         // Scope 1 detailed breakdown
         if (extractedScopeData.scope_1?.categories) {
-          setScope1Sources(extractedScopeData.scope_1.categories.filter((c: any) => c.emissions > 0));
+          const scope1Categories = Array.isArray(extractedScopeData.scope_1.categories)
+            ? extractedScopeData.scope_1.categories
+            : [];
+          setScope1Sources(scope1Categories.filter((c: any) => c.emissions > 0));
         }
 
         // Scope 1 by gas type (if available)
