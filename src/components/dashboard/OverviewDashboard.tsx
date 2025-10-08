@@ -143,10 +143,10 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         const scopeResponse = await fetch(`/api/sustainability/scope-analysis?${params}`);
         const scopeData = await scopeResponse.json();
 
-        // Fetch SBTi targets data
-        const targetsResponse = await fetch('/api/sustainability/targets');
-        const targetsResult = await targetsResponse.json();
-        setTargetData(targetsResult);
+        // Fetch SBTi targets data (will be used later for both target card and progress calculations)
+        const sbtiTargetsResponse = await fetch('/api/sustainability/targets');
+        const sbtiTargetsResult = await sbtiTargetsResponse.json();
+        setTargetData(sbtiTargetsResult);
 
         // Fetch previous year for YoY comparison
         const currentYear = new Date(selectedPeriod.start).getFullYear();
@@ -254,12 +254,9 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
           setMonthlyTrends(trends);
         }
 
-        // Fetch targets summary
-        const targetsResponse = await fetch('/api/sustainability/targets');
-        const targetsData = await targetsResponse.json();
-
-        if (targetsData.targets) {
-          const activeTargets = targetsData.targets.filter((t: any) => t.status === 'active');
+        // Use targets data already fetched above
+        if (sbtiTargetsResult.targets) {
+          const activeTargets = sbtiTargetsResult.targets.filter((t: any) => t.status === 'active');
           setTotalTargets(activeTargets.length);
 
           // TODO: Calculate targets on track based on progress
