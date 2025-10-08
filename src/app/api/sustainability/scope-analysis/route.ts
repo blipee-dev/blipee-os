@@ -116,12 +116,16 @@ export async function GET(request: NextRequest) {
     // Get organization context for boundaries
     const orgContext = await getOrganizationContext(organizationId);
 
+    // Get SBTi targets information
+    const sbtiInfo = await getSBTiTargets(organizationId);
+
     return NextResponse.json({
       scopeData,
       complianceScore,
       dataQuality,
       scope3Coverage,
       organizationalBoundaries: orgContext,
+      sbtiTargets: sbtiInfo,
       period: {
         start: startDate.toISOString(),
         end: endDate.toISOString()
@@ -501,6 +505,68 @@ async function getOrganizationContext(organizationId: string) {
       coverage: 100,
       employees: 0,
       industry: 'Not specified'
+    };
+  }
+}
+
+async function getSBTiTargets(organizationId: string) {
+  try {
+    // Get active SBTi targets
+    const { data: targets, error } = await supabaseAdmin
+      .from('sustainability_targets')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .eq('is_active', true)
+      .order('priority', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching SBTi targets:', error);
+      return {
+        hasTargets: false,
+        validated: false,
+        ambition: null,
+        targetCount: 0
+      };
+    }
+
+    if (!targets || targets.length === 0) {
+      return {
+        hasTargets: false,
+        validated: false,
+        ambition: null,
+        targetCount: 0
+      };
+    }
+
+    // Find the most ambitious validated target
+    const validatedTargets = targets.filter(t => t.sbti_validated);
+    const nearTermTarget = targets.find(t => t.target_type === 'near-term');
+    const netZeroTarget = targets.find(t => t.target_type === 'net-zero');
+
+    return {
+      hasTargets: true,
+      validated: validatedTargets.length > 0,
+      validationDate: validatedTargets[0]?.sbti_validation_date || null,
+      ambition: validatedTargets[0]?.sbti_ambition || nearTermTarget?.sbti_ambition || null,
+      targetCount: targets.length,
+      nearTermTarget: nearTermTarget ? {
+        targetYear: nearTermTarget.target_year,
+        reductionPercent: nearTermTarget.target_reduction_percent,
+        baselineYear: nearTermTarget.baseline_year,
+        scope: nearTermTarget.target_scope
+      } : null,
+      netZeroTarget: netZeroTarget ? {
+        targetYear: netZeroTarget.target_year,
+        baselineYear: netZeroTarget.baseline_year
+      } : null
+    };
+  } catch (error) {
+    console.error('Error in getSBTiTargets:', error);
+    return {
+      hasTargets: false,
+      validated: false,
+      ambition: null,
+      targetCount: 0
     };
   }
 }
