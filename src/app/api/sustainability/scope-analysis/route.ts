@@ -451,7 +451,7 @@ async function getOrganizationContext(organizationId: string) {
   try {
     const { data: org, error } = await supabaseAdmin
       .from('organizations')
-      .select('name, industry, employees, base_year')
+      .select('name, industry_primary, base_year, consolidation_approach')
       .eq('id', organizationId)
       .single();
 
@@ -462,24 +462,34 @@ async function getOrganizationContext(organizationId: string) {
         sitesIncluded: 0,
         sitesTotal: 0,
         baseYear: 2019,
-        coverage: 100
+        coverage: 100,
+        employees: 0,
+        industry: 'Not specified'
       };
     }
 
-    // Get site count
+    // Get sites with employee count
     const { data: sites } = await supabaseAdmin
       .from('sites')
-      .select('id')
+      .select('id, total_employees, status')
       .eq('organization_id', organizationId);
 
+    // Calculate total employees from all sites
+    const totalEmployees = sites?.reduce((sum, site) => sum + (site.total_employees || 0), 0) || 0;
+
+    // Count active sites
+    const activeSites = sites?.filter(s => s.status === 'active').length || 0;
+    const totalSites = sites?.length || 0;
+    const coverage = totalSites > 0 ? Math.round((activeSites / totalSites) * 100) : 100;
+
     return {
-      consolidationApproach: 'Operational Control', // Default - would come from org settings
-      sitesIncluded: sites?.length || 0,
-      sitesTotal: sites?.length || 0,
+      consolidationApproach: org?.consolidation_approach || 'Operational Control',
+      sitesIncluded: activeSites,
+      sitesTotal: totalSites,
       baseYear: org?.base_year || 2019,
-      coverage: 100, // Percentage of operations covered
-      employees: org?.employees || 0,
-      industry: org?.industry || 'Not specified'
+      coverage,
+      employees: totalEmployees,
+      industry: org?.industry_primary || 'Not specified'
     };
   } catch (error) {
     console.error('Error in getOrganizationContext:', error);
