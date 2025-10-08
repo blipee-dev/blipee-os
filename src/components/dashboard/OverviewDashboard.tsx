@@ -76,31 +76,37 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
     const fetchOverviewData = async () => {
       setLoading(true);
       try {
-        const currentYear = selectedPeriod?.start ? new Date(selectedPeriod.start).getFullYear() : new Date().getFullYear();
-        const previousYear = currentYear - 1;
-
-        // Fetch scope analysis (current year)
-        const scopeParams = new URLSearchParams({
-          period: 'year',
-          year: currentYear.toString()
+        // Build params exactly like Energy dashboard
+        const params = new URLSearchParams({
+          start_date: selectedPeriod.start,
+          end_date: selectedPeriod.end,
         });
         if (selectedSite) {
-          scopeParams.append('site_id', selectedSite.id);
+          params.append('site_id', selectedSite.id);
         }
 
-        const scopeResponse = await fetch(`/api/sustainability/scope-analysis?${scopeParams}`);
+        // Fetch scope analysis for current period
+        const scopeResponse = await fetch(`/api/sustainability/scope-analysis?${params}`);
         const scopeData = await scopeResponse.json();
 
         // Fetch previous year for YoY comparison
-        const prevScopeParams = new URLSearchParams({
-          period: 'year',
-          year: previousYear.toString()
+        const currentYear = new Date(selectedPeriod.start).getFullYear();
+        const previousYear = currentYear - 1;
+
+        const prevYearStart = new Date(selectedPeriod.start);
+        prevYearStart.setFullYear(previousYear);
+        const prevYearEnd = new Date(selectedPeriod.end);
+        prevYearEnd.setFullYear(previousYear);
+
+        const prevParams = new URLSearchParams({
+          start_date: prevYearStart.toISOString().split('T')[0],
+          end_date: prevYearEnd.toISOString().split('T')[0],
         });
         if (selectedSite) {
-          prevScopeParams.append('site_id', selectedSite.id);
+          prevParams.append('site_id', selectedSite.id);
         }
 
-        const prevScopeResponse = await fetch(`/api/sustainability/scope-analysis?${prevScopeParams}`);
+        const prevScopeResponse = await fetch(`/api/sustainability/scope-analysis?${prevParams}`);
         const prevScopeData = await prevScopeResponse.json();
 
         console.log('Current year scope data:', scopeData);
