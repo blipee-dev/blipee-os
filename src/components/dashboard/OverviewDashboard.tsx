@@ -620,7 +620,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       </div>
 
       {/* Scope Breakdown & Trend */}
-      <div className="p-6 pt-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Scope Breakdown */}
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
           <div className="flex items-center justify-between mb-4">
@@ -660,8 +660,8 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   data={scopeBreakdown}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={0}
+                  outerRadius={100}
                   paddingAngle={2}
                   dataKey="value"
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
@@ -861,7 +861,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       </div>
 
       {/* Organizational Boundaries */}
-      <div className="p-6 pt-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -1038,9 +1038,10 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         </div>
       </div>
 
-      {/* SBTi Target Progress */}
-      {targetData?.targets && targetData.targets.length > 0 && (
-        <div className="p-6 pt-0">
+      {/* SBTi Target Progress - Only show for current year */}
+      {targetData?.targets && targetData.targets.length > 0 &&
+       new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
+        <div className="px-6 pb-6">
           <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
