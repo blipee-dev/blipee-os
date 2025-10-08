@@ -121,7 +121,7 @@ export const TimePeriodSelector: React.FC<TimePeriodSelectorProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.15 }}
-              className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-xl shadow-lg z-20"
+              className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-[#212121] border border-gray-200 dark:border-white/[0.05] rounded-xl shadow-lg z-20"
             >
               <div className="p-2">
                 <div className="text-xs font-medium text-gray-500 dark:text-white/50 px-3 py-2 mb-1">
