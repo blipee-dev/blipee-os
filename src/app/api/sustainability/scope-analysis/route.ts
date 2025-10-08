@@ -26,36 +26,53 @@ export async function GET(request: NextRequest) {
     const organizationId = memberData.organization_id;
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'year';
+    const siteId = searchParams.get('site_id');
+
+    // Support custom date ranges
+    const startDateParam = searchParams.get('start_date');
+    const endDateParam = searchParams.get('end_date');
+    const yearParam = searchParams.get('year');
 
     // Get current year and period boundaries
     const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
+    const currentYear = parseInt(yearParam || currentDate.getFullYear().toString());
     const currentMonth = currentDate.getMonth() + 1;
     const currentQuarter = Math.floor((currentMonth - 1) / 3) + 1;
 
     let startDate: Date;
     let endDate: Date;
 
-    switch (period) {
-      case 'month':
-        startDate = new Date(currentYear, currentMonth - 1, 1);
-        endDate = new Date(currentYear, currentMonth, 0);
-        break;
-      case 'quarter':
-        startDate = new Date(currentYear, (currentQuarter - 1) * 3, 1);
-        endDate = new Date(currentYear, currentQuarter * 3, 0);
-        break;
-      case 'year':
-        startDate = new Date(currentYear, 0, 1);
-        endDate = new Date(currentYear, 11, 31);
-        break;
-      default:
-        startDate = new Date(2020, 0, 1);
-        endDate = currentDate;
+    // If custom dates provided, use those
+    if (startDateParam && endDateParam) {
+      startDate = new Date(startDateParam);
+      endDate = new Date(endDateParam);
+    } else if (yearParam) {
+      // If year provided, use full year
+      startDate = new Date(currentYear, 0, 1);
+      endDate = new Date(currentYear, 11, 31);
+    } else {
+      // Otherwise use period-based logic
+      switch (period) {
+        case 'month':
+          startDate = new Date(currentYear, currentMonth - 1, 1);
+          endDate = new Date(currentYear, currentMonth, 0);
+          break;
+        case 'quarter':
+          startDate = new Date(currentYear, (currentQuarter - 1) * 3, 1);
+          endDate = new Date(currentYear, currentQuarter * 3, 0);
+          break;
+        case 'year':
+          startDate = new Date(currentYear, 0, 1);
+          endDate = new Date(currentYear, 11, 31);
+          break;
+        default:
+          startDate = new Date(2020, 0, 1);
+          endDate = currentDate;
+      }
     }
 
     // Fetch metrics data with catalog info
-    const { data: metricsData, error: metricsError } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('metrics_data')
       .select(`
         *,
@@ -72,6 +89,13 @@ export async function GET(request: NextRequest) {
       .eq('organization_id', organizationId)
       .gte('period_start', startDate.toISOString())
       .lte('period_end', endDate.toISOString());
+
+    // Apply site filter if provided
+    if (siteId) {
+      query = query.eq('site_id', siteId);
+    }
+
+    const { data: metricsData, error: metricsError } = await query;
 
     if (metricsError) {
       console.error('Error fetching metrics data:', metricsError);
