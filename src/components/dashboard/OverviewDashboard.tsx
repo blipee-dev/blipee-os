@@ -69,8 +69,23 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
   // Hotspots (biggest offenders)
   const [topEmitters, setTopEmitters] = useState<Array<{ name: string; emissions: number; percentage: number }>>([]);
 
+  // NEW: Enhanced data from API
+  // Data Quality
+  const [dataQuality, setDataQuality] = useState<any>(null);
+
+  // Scope 2 Dual Reporting
+  const [scope2LocationBased, setScope2LocationBased] = useState(0);
+  const [scope2MarketBased, setScope2MarketBased] = useState(0);
+  const [renewablePercentage, setRenewablePercentage] = useState(0);
+
+  // Scope 3 Coverage
+  const [scope3Coverage, setScope3Coverage] = useState<any>(null);
+
+  // Organizational Boundaries
+  const [orgBoundaries, setOrgBoundaries] = useState<any>(null);
+
   // Organization context for intensity
-  const [orgEmployees, setOrgEmployees] = useState(200); // TODO: Fetch from org settings
+  const [orgEmployees, setOrgEmployees] = useState(200); // Will be updated from API
 
   useEffect(() => {
     const fetchOverviewData = async () => {
@@ -141,9 +156,34 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         setTotalEmissionsYoY(totalYoY);
         setScopeYoY({ scope1: s1YoY, scope2: s2YoY, scope3: s3YoY });
 
-        // Calculate intensity (tCO2e per employee)
-        const currentIntensity = orgEmployees > 0 ? currentTotal / orgEmployees : 0;
-        const previousIntensity = orgEmployees > 0 ? previousTotal / orgEmployees : 0;
+        // Extract new enhanced data from API
+        if (scopeData.dataQuality) {
+          setDataQuality(scopeData.dataQuality);
+        }
+
+        if (scopeData.scope3Coverage) {
+          setScope3Coverage(scopeData.scope3Coverage);
+        }
+
+        if (scopeData.organizationalBoundaries) {
+          setOrgBoundaries(scopeData.organizationalBoundaries);
+          // Update org employees from API
+          if (scopeData.organizationalBoundaries.employees) {
+            setOrgEmployees(scopeData.organizationalBoundaries.employees);
+          }
+        }
+
+        // Scope 2 dual reporting
+        if (extractedScopeData.scope_2) {
+          setScope2LocationBased(extractedScopeData.scope_2.location_based || 0);
+          setScope2MarketBased(extractedScopeData.scope_2.market_based || 0);
+          setRenewablePercentage(extractedScopeData.scope_2.renewable_percentage || 0);
+        }
+
+        // Calculate intensity (tCO2e per employee) - use employees from API if available
+        const employees = scopeData.organizationalBoundaries?.employees || orgEmployees;
+        const currentIntensity = employees > 0 ? currentTotal / employees : 0;
+        const previousIntensity = employees > 0 ? previousTotal / employees : 0;
         const intensityYoYCalc = previousIntensity > 0 ? ((currentIntensity - previousIntensity) / previousIntensity) * 100 : 0;
 
         setIntensityMetric(currentIntensity);
