@@ -1445,105 +1445,173 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         {siteComparison.length > 1 && (
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Site Performance Comparison</h3>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                Site Performance Comparison
+                <div className="group relative">
+                  <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                  <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                    Sites are ranked by emissions intensity (kgCO2e/m²). Lower intensity indicates better energy efficiency and emissions performance per unit area.
+                  </div>
+                </div>
+              </h3>
+              <div className="flex gap-1 flex-nowrap">
+                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded whitespace-nowrap">
                   GRI 305-4
                 </span>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded whitespace-nowrap">
                   Intensity per m²
                 </span>
               </div>
             </div>
 
-            <div className="space-y-3">
-              {siteComparison.map((site, index) => {
-                // Determine performance color
-                let performanceColor = 'text-gray-400';
-                let performanceBg = 'bg-gray-100 dark:bg-gray-700';
+            <div>
+              {/* Podium - Top 3 */}
+              {siteComparison.length >= 3 && (
+                <div className="flex items-end justify-center gap-3 mb-6 mt-8">
+                  {(() => {
+                    const first = siteComparison[siteComparison.length - 1];
+                    const second = siteComparison[siteComparison.length - 2];
+                    const third = siteComparison[siteComparison.length - 3];
 
-                if (index === 0) {
-                  performanceColor = 'text-red-600 dark:text-red-400';
-                  performanceBg = 'bg-red-100 dark:bg-red-900/30';
-                } else if (index === siteComparison.length - 1) {
-                  performanceColor = 'text-green-600 dark:text-green-400';
-                  performanceBg = 'bg-green-100 dark:bg-green-900/30';
-                }
+                    // Benchmark from sector-intensity.ts for Professional Services: perArea
+                    const benchmark = { low: 20.0, average: 35.0, high: 60.0 };
 
-                // Calculate max intensity for bar width
-                const maxIntensity = siteComparison[0]?.intensity || 1;
-                const barWidth = (site.intensity / maxIntensity) * 100;
+                    const getPerformanceStyle = (intensity: number) => {
+                      if (intensity <= benchmark.low) {
+                        return {
+                          bg: 'bg-green-100 dark:bg-green-900/30',
+                          border: 'border-green-500',
+                          text: 'text-green-700 dark:text-green-400',
+                          unit: 'text-green-600 dark:text-green-500'
+                        };
+                      } else if (intensity <= benchmark.average) {
+                        return {
+                          bg: 'bg-yellow-100 dark:bg-yellow-900/30',
+                          border: 'border-yellow-500',
+                          text: 'text-yellow-700 dark:text-yellow-400',
+                          unit: 'text-yellow-600 dark:text-yellow-500'
+                        };
+                      } else {
+                        return {
+                          bg: 'bg-red-100 dark:bg-red-900/30',
+                          border: 'border-red-500',
+                          text: 'text-red-700 dark:text-red-400',
+                          unit: 'text-red-600 dark:text-red-500'
+                        };
+                      }
+                    };
 
-                return (
-                  <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Building2 className={`w-4 h-4 ${performanceColor}`} />
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">{site.name}</span>
-                        {index === 0 && (
-                          <span className={`px-2 py-0.5 ${performanceBg} ${performanceColor} text-xs rounded`}>
-                            Highest
-                          </span>
-                        )}
-                        {index === siteComparison.length - 1 && (
-                          <span className={`px-2 py-0.5 ${performanceBg} ${performanceColor} text-xs rounded`}>
-                            Best Performer
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                    const firstStyle = getPerformanceStyle(first.intensity);
+                    const secondStyle = getPerformanceStyle(second.intensity);
+                    const thirdStyle = getPerformanceStyle(third.intensity);
 
-                    <div className="space-y-2">
-                      {/* Emissions Intensity */}
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">Intensity</span>
-                          <span className="text-sm font-bold text-gray-900 dark:text-white">
-                            {site.intensity.toFixed(2)} kgCO2e/m²
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full transition-all ${
-                              index === 0
-                                ? 'bg-red-500'
-                                : index === siteComparison.length - 1
-                                  ? 'bg-green-500'
-                                  : 'bg-blue-500'
-                            }`}
-                            style={{ width: `${barWidth}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Total Emissions & Area */}
-                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-                        <div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">Total Emissions</div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {site.emissions.toFixed(1)} tCO2e
+                    return (
+                      <>
+                        {/* 2nd Place */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div className="text-4xl mb-3">🥈</div>
+                          <div className={`w-full ${secondStyle.bg} rounded-t-lg p-4 text-center border-2 ${secondStyle.border} flex flex-col justify-between`} style={{ height: '110px' }}>
+                            <div className="text-xs font-medium text-gray-900 dark:text-white mb-2 truncate px-1">
+                              {second.name}
+                            </div>
+                            <div>
+                              <div className={`text-2xl font-bold ${secondStyle.text}`}>
+                                {second.intensity.toFixed(1)}
+                              </div>
+                              <div className={`text-[10px] ${secondStyle.unit} mt-1`}>
+                                kgCO2e/m²
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">Area</div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {site.area.toLocaleString()} m²
+
+                        {/* 1st Place */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div className="text-5xl mb-3">🥇</div>
+                          <div className={`w-full ${firstStyle.bg} rounded-t-lg p-4 text-center border-2 ${firstStyle.border} flex flex-col justify-between`} style={{ height: '140px' }}>
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white mb-2 truncate px-1">
+                              {first.name}
+                            </div>
+                            <div>
+                              <div className={`text-3xl font-bold ${firstStyle.text}`}>
+                                {first.intensity.toFixed(1)}
+                              </div>
+                              <div className={`text-xs ${firstStyle.unit} mt-1`}>
+                                kgCO2e/m²
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
 
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <div className="flex items-start gap-2">
-                <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5" />
-                <div className="text-xs text-blue-700 dark:text-blue-300">
-                  Sites are ranked by emissions intensity (kgCO2e/m²). Lower intensity indicates better energy efficiency and emissions performance per unit area.
+                        {/* 3rd Place */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div className="text-4xl mb-3">🥉</div>
+                          <div className={`w-full ${thirdStyle.bg} rounded-t-lg p-4 text-center border-2 ${thirdStyle.border} flex flex-col justify-between`} style={{ height: '90px' }}>
+                            <div className="text-xs font-medium text-gray-900 dark:text-white mb-2 truncate px-1">
+                              {third.name}
+                            </div>
+                            <div>
+                              <div className={`text-xl font-bold ${thirdStyle.text}`}>
+                                {third.intensity.toFixed(1)}
+                              </div>
+                              <div className={`text-[10px] ${thirdStyle.unit} mt-1`}>
+                                kgCO2e/m²
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
-              </div>
+              )}
+
+              {/* Remaining sites - Simple list */}
+              {siteComparison.length > 3 && (
+                <div className="space-y-1.5 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  {siteComparison.slice(0, siteComparison.length - 3).reverse().map((site, index) => {
+                    const actualRank = siteComparison.length - 3 - index;
+                    return (
+                      <div key={index} className="flex items-center justify-between py-2 px-3 bg-gray-50 dark:bg-gray-800/50 rounded">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 w-6">
+                            #{actualRank + 1}
+                          </span>
+                          <span className="text-sm text-gray-900 dark:text-white truncate">
+                            {site.name}
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                          {site.intensity.toFixed(1)} <span className="text-xs text-gray-500">kgCO2e/m²</span>
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* If less than 3 sites, show simple list */}
+              {siteComparison.length < 3 && (
+                <div className="space-y-2">
+                  {siteComparison.map((site, index) => {
+                    const rank = siteComparison.length - index;
+                    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
+                    return (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{medal}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            {site.name}
+                          </span>
+                        </div>
+                        <span className="text-sm font-bold text-gray-900 dark:text-white">
+                          {site.intensity.toFixed(1)} <span className="text-xs font-normal text-gray-500">kgCO2e/m²</span>
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
         </div>
         )}
