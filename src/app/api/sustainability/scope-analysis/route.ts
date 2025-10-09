@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { calculateSectorIntensity, getProductionUnitLabel, getSBTiPathway, getGRISectorStandard, calculateBenchmarkForMetric } from '@/lib/sustainability/sector-intensity';
 
 export async function GET(request: NextRequest) {
   try {
@@ -119,6 +120,59 @@ export async function GET(request: NextRequest) {
     // Get SBTi targets information
     const sbtiInfo = await getSBTiTargets(organizationId);
 
+    // Get organization data for intensity calculations (including sector-specific fields)
+    const { data: orgData } = await supabaseAdmin
+      .from('organizations')
+      .select(`
+        employees,
+        annual_revenue,
+        value_added,
+        annual_operating_hours,
+        annual_customers,
+        industry_sector,
+        sector_category,
+        annual_production_volume,
+        production_unit
+      `)
+      .eq('id', organizationId)
+      .single();
+
+    // Get sites data for area calculations and employee aggregation
+    let sitesQuery = supabaseAdmin
+      .from('sites')
+      .select('id, name, total_area_sqm, total_employees')
+      .eq('organization_id', organizationId);
+
+    if (siteId) {
+      sitesQuery = sitesQuery.eq('id', siteId);
+    }
+
+    const { data: sites } = await sitesQuery;
+
+    // Aggregate employee count from sites (more accurate than org-level field)
+    const totalEmployeesFromSites = sites?.reduce((sum, site) => sum + (site.total_employees || 0), 0) || 0;
+
+    // Enhanced orgData with aggregated employees
+    const enhancedOrgData = {
+      ...orgData,
+      employee_count: totalEmployeesFromSites || orgData?.employees || 0
+    };
+
+    // Calculate comprehensive intensity metrics
+    const intensityMetrics = calculateIntensityMetrics(scopeData, enhancedOrgData, sites || []);
+
+    console.log('[Intensity Metrics API] Returning intensity metrics:', JSON.stringify({
+      perEmployee: intensityMetrics.perEmployee,
+      perRevenue: intensityMetrics.perRevenue,
+      perValueAdded: intensityMetrics.perValueAdded,
+      sectorSpecific: intensityMetrics.sectorSpecific ? {
+        intensity: intensityMetrics.sectorSpecific.intensity,
+        unit: intensityMetrics.sectorSpecific.unit,
+        industrySector: intensityMetrics.sectorSpecific.industrySector,
+        benchmark: intensityMetrics.sectorSpecific.benchmark
+      } : null
+    }, null, 2));
+
     return NextResponse.json({
       scopeData,
       complianceScore,
@@ -126,6 +180,7 @@ export async function GET(request: NextRequest) {
       scope3Coverage,
       organizationalBoundaries: orgContext,
       sbtiTargets: sbtiInfo,
+      intensityMetrics, // Add comprehensive intensity metrics
       period: {
         start: startDate.toISOString(),
         end: endDate.toISOString()
@@ -270,8 +325,20 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
         scopeData.scope_2.market_based += emissions;
       }
 
-      // Map to specific category
-      const mappedCategory = scope2CategoryMap[subcategory] || scope2CategoryMap[category];
+      // Map to specific category - check name, subcategory, then category
+      let mappedCategory = scope2CategoryMap[subcategory] || scope2CategoryMap[category];
+
+      // Also check the metric name for better mapping
+      if (!mappedCategory && name) {
+        if (name.toLowerCase().includes('heating') || name.toLowerCase().includes('heat')) {
+          mappedCategory = 'purchased_heat';
+        } else if (name.toLowerCase().includes('cooling') || name.toLowerCase().includes('cool')) {
+          mappedCategory = 'purchased_cooling';
+        } else if (name.toLowerCase().includes('steam')) {
+          mappedCategory = 'purchased_steam';
+        }
+      }
+
       if (mappedCategory) {
         scopeData.scope_2.categories[mappedCategory] += emissions;
       } else {
@@ -569,4 +636,203 @@ async function getSBTiTargets(organizationId: string) {
       targetCount: 0
     };
   }
+}
+
+function calculateIntensityMetrics(scopeData: any, orgData: any, sites: any[]) {
+  // Get total emissions in tonnes
+  const scope1Total = scopeData.scope_1?.total || 0;
+  const scope2Total = scopeData.scope_2?.total || 0;
+  const scope3Total = scopeData.scope_3?.total || 0;
+  const totalEmissions = scope1Total + scope2Total + scope3Total;
+
+  // Get organization context data (NO MOCK/ESTIMATED VALUES)
+  const employees = orgData?.employee_count || 0;
+  const revenue = orgData?.annual_revenue || 0;
+  const valueAddedActual = orgData?.value_added || 0;
+  const operatingHoursActual = orgData?.annual_operating_hours || 0;
+  const customers = orgData?.annual_customers || 0;
+
+  // Automatic calculations based on available data (with quality flags)
+  // Operating hours: Standard 40h/week * 52 weeks = 2,080 hours/year per FTE
+  const operatingHoursCalculated = employees > 0 ? employees * 2080 : 0;
+  const operatingHours = operatingHoursActual || operatingHoursCalculated;
+  const operatingHoursIsEstimated = operatingHoursActual === 0 && operatingHoursCalculated > 0;
+
+  // Value added: Cannot be estimated reliably, only use if provided
+  const valueAdded = valueAddedActual;
+  const valueAddedIsEstimated = false; // Never estimate this
+
+  // Sector-specific data
+  const industrySector = orgData?.industry_sector;
+  const productionVolume = orgData?.annual_production_volume || 0;
+  const productionUnit = orgData?.production_unit;
+
+  // Calculate total area from sites
+  const totalAreaM2 = sites?.reduce((sum, site) => {
+    const area = typeof site.total_area_sqm === 'string'
+      ? parseFloat(site.total_area_sqm)
+      : (site.total_area_sqm || 0);
+    return sum + area;
+  }, 0) || 0;
+
+  // Initialize comprehensive intensity metrics structure with data quality flags
+  const intensityMetrics: any = {
+    // GRI 305-4 & TCFD - Common denominators
+    perEmployee: 0,        // tCO2e/FTE
+    perRevenue: 0,         // tCO2e/M€ (ESRS E1 mandatory)
+    perSqm: 0,             // kgCO2e/m²
+
+    // SBTi - Economic intensity (GEVA method)
+    perValueAdded: 0,      // tCO2e/M€ value added
+
+    // Additional metrics for comprehensive reporting
+    perOperatingHour: 0,   // kgCO2e/operating hour
+    perCustomer: 0,        // kgCO2e/customer served
+
+    // Data quality indicators
+    dataQuality: {
+      employees: { available: employees > 0, source: 'sites_aggregation' },
+      revenue: { available: revenue > 0, source: revenue > 0 ? 'organization_data' : 'missing', missingReason: revenue === 0 ? 'not_provided' : null },
+      area: { available: totalAreaM2 > 0, source: totalAreaM2 > 0 ? 'sites_aggregation' : 'missing' },
+      valueAdded: { available: valueAdded > 0, source: valueAdded > 0 ? 'organization_data' : 'missing', missingReason: valueAdded === 0 ? 'not_provided' : null },
+      operatingHours: { available: operatingHours > 0, source: operatingHoursIsEstimated ? 'calculated_40h_week' : 'organization_data', isEstimated: operatingHoursIsEstimated },
+      customers: { available: customers > 0, source: customers > 0 ? 'organization_data' : 'missing', missingReason: customers === 0 ? 'not_provided' : null },
+      productionVolume: { available: productionVolume > 0, source: productionVolume > 0 ? 'organization_data' : 'missing' }
+    },
+
+    // Scope-specific intensities (GRI 305-4 recommendation)
+    scope1: {
+      perEmployee: 0,
+      perRevenue: 0,
+      perSqm: 0
+    },
+    scope2: {
+      perEmployee: 0,
+      perRevenue: 0,
+      perSqm: 0
+    },
+    scope3: {
+      perEmployee: 0,
+      perRevenue: 0,
+      perSqm: 0
+    }
+  };
+
+  // Total emissions intensities (GRI 305-4, ESRS E1, TCFD) with sector benchmarks
+  if (employees > 0) {
+    intensityMetrics.perEmployee = totalEmissions / employees;
+
+    // Add benchmark if sector is known
+    if (industrySector) {
+      const benchmark = calculateBenchmarkForMetric(intensityMetrics.perEmployee, industrySector, 'perEmployee');
+      intensityMetrics.perEmployeeBenchmark = benchmark.benchmark;
+      intensityMetrics.perEmployeeBenchmarkValue = benchmark.benchmarkValue;
+    }
+  }
+
+  if (revenue > 0) {
+    intensityMetrics.perRevenue = (totalEmissions * 1000000) / revenue; // tCO2e per M€
+
+    // Add benchmark if sector is known
+    if (industrySector) {
+      const benchmark = calculateBenchmarkForMetric(intensityMetrics.perRevenue, industrySector, 'perRevenue');
+      intensityMetrics.perRevenueBenchmark = benchmark.benchmark;
+      intensityMetrics.perRevenueBenchmarkValue = benchmark.benchmarkValue;
+    }
+  }
+
+  if (totalAreaM2 > 0) {
+    intensityMetrics.perSqm = (totalEmissions * 1000) / totalAreaM2; // kgCO2e per m²
+
+    // Add benchmark if sector is known
+    if (industrySector) {
+      const benchmark = calculateBenchmarkForMetric(intensityMetrics.perSqm, industrySector, 'perArea');
+      intensityMetrics.perSqmBenchmark = benchmark.benchmark;
+      intensityMetrics.perSqmBenchmarkValue = benchmark.benchmarkValue;
+    }
+  }
+
+  // SBTi - Economic intensity (GEVA method)
+  if (valueAdded > 0) {
+    intensityMetrics.perValueAdded = (totalEmissions * 1000000) / valueAdded; // tCO2e per M€ value added
+
+    // Add benchmark if sector is known
+    if (industrySector) {
+      const benchmark = calculateBenchmarkForMetric(intensityMetrics.perValueAdded, industrySector, 'perValueAdded');
+      intensityMetrics.perValueAddedBenchmark = benchmark.benchmark;
+      intensityMetrics.perValueAddedBenchmarkValue = benchmark.benchmarkValue;
+    }
+  }
+
+  // Additional comprehensive metrics
+  if (operatingHours > 0) {
+    intensityMetrics.perOperatingHour = (totalEmissions * 1000) / operatingHours; // kgCO2e per operating hour
+  }
+
+  if (customers > 0) {
+    intensityMetrics.perCustomer = (totalEmissions * 1000) / customers; // kgCO2e per customer
+  }
+
+  // Scope-specific intensities (GRI 305-4 separate reporting recommendation)
+  if (employees > 0) {
+    intensityMetrics.scope1.perEmployee = scope1Total / employees;
+    intensityMetrics.scope2.perEmployee = scope2Total / employees;
+    intensityMetrics.scope3.perEmployee = scope3Total / employees;
+  }
+
+  if (revenue > 0) {
+    intensityMetrics.scope1.perRevenue = (scope1Total * 1000000) / revenue;
+    intensityMetrics.scope2.perRevenue = (scope2Total * 1000000) / revenue;
+    intensityMetrics.scope3.perRevenue = (scope3Total * 1000000) / revenue;
+  }
+
+  if (totalAreaM2 > 0) {
+    intensityMetrics.scope1.perSqm = (scope1Total * 1000) / totalAreaM2;
+    intensityMetrics.scope2.perSqm = (scope2Total * 1000) / totalAreaM2;
+    intensityMetrics.scope3.perSqm = (scope3Total * 1000) / totalAreaM2;
+  }
+
+  // Sector-specific physical intensity (SBTi sector pathways & GRI production-based)
+  if (productionVolume > 0 && productionUnit && industrySector) {
+    const sectorIntensity = calculateSectorIntensity(
+      totalEmissions,
+      productionVolume,
+      productionUnit,
+      industrySector
+    );
+
+    intensityMetrics.sectorSpecific = {
+      intensity: sectorIntensity.intensity,
+      unit: sectorIntensity.unit,
+      productionVolume: productionVolume,
+      productionUnit: productionUnit,
+      productionUnitLabel: getProductionUnitLabel(productionUnit),
+      industrySector: industrySector,
+      benchmark: sectorIntensity.benchmark,
+      benchmarkValue: sectorIntensity.benchmarkValue,
+      sbtiPathway: getSBTiPathway(industrySector),
+      griStandard: getGRISectorStandard(industrySector)
+    };
+  }
+
+  // Add benchmark values for metrics even when data is missing (for UI reference)
+  if (industrySector) {
+    // Per Revenue benchmark (even if no revenue data)
+    if (!intensityMetrics.perRevenueBenchmarkValue) {
+      const revenueBenchmark = calculateBenchmarkForMetric(0, industrySector, 'perRevenue');
+      if (revenueBenchmark.benchmarkValue) {
+        intensityMetrics.perRevenueBenchmarkValue = revenueBenchmark.benchmarkValue;
+      }
+    }
+
+    // Per Value Added benchmark (even if no value added data)
+    if (!intensityMetrics.perValueAddedBenchmarkValue) {
+      const valueAddedBenchmark = calculateBenchmarkForMetric(0, industrySector, 'perValueAdded');
+      if (valueAddedBenchmark.benchmarkValue) {
+        intensityMetrics.perValueAddedBenchmarkValue = valueAddedBenchmark.benchmarkValue;
+      }
+    }
+  }
+
+  return intensityMetrics;
 }
