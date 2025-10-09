@@ -183,11 +183,40 @@ function processEmissionsData(metricsData: any[], sites: any[], orgData: any) {
     15: { name: 'Investments', emissions: 0, tracked: false }
   };
 
-  // Intensity metrics
+  // Comprehensive intensity metrics for all standards compliance
   const intensityMetrics = {
-    perEmployee: 0,
-    perRevenue: 0,
-    perSqm: 0
+    // GRI 305-4 & TCFD - Common denominators
+    perEmployee: 0,        // tCO2e/FTE
+    perRevenue: 0,         // tCO2e/M€ (ESRS E1 mandatory)
+    perSqm: 0,             // kgCO2e/m²
+
+    // SBTi - Economic intensity (GEVA method)
+    perValueAdded: 0,      // tCO2e/M€ value added
+
+    // Sector-specific physical intensity (SBTi & GRI 305-4)
+    perProduction: 0,      // tCO2e/unit (if applicable)
+    productionUnit: '',    // The unit being measured (e.g., 'ton', 'MWh', 'room-night')
+
+    // Additional metrics for comprehensive reporting
+    perOperatingHour: 0,   // kgCO2e/operating hour
+    perCustomer: 0,        // kgCO2e/customer served
+
+    // Scope-specific intensities (GRI 305-4 recommendation)
+    scope1: {
+      perEmployee: 0,
+      perRevenue: 0,
+      perSqm: 0
+    },
+    scope2: {
+      perEmployee: 0,
+      perRevenue: 0,
+      perSqm: 0
+    },
+    scope3: {
+      perEmployee: 0,
+      perRevenue: 0,
+      perSqm: 0
+    }
   };
 
   // Geographic breakdown
@@ -319,14 +348,12 @@ function processEmissionsData(metricsData: any[], sites: any[], orgData: any) {
     multiYearTrends[year].scope3 = multiYearTrends[year].scope3 / 1000;
   });
 
-  // Calculate intensity metrics
-  if (orgData?.employee_count && orgData.employee_count > 0) {
-    intensityMetrics.perEmployee = summary.total / orgData.employee_count;
-  }
-
-  if (orgData?.annual_revenue && orgData.annual_revenue > 0) {
-    intensityMetrics.perRevenue = (summary.total * 1000000) / orgData.annual_revenue; // tCO2e per million revenue
-  }
+  // Calculate comprehensive intensity metrics
+  const employees = orgData?.employee_count || 0;
+  const revenue = orgData?.annual_revenue || 0;
+  const valueAdded = orgData?.value_added || (revenue * 0.4); // Estimate as 40% of revenue if not available
+  const operatingHours = orgData?.annual_operating_hours || (employees * 2000); // Estimate 2000 hours/employee/year
+  const customers = orgData?.annual_customers || 0;
 
   const totalAreaM2 = sites?.reduce((sum, site) => {
     const area = typeof site.total_area_sqm === 'string'
@@ -335,8 +362,50 @@ function processEmissionsData(metricsData: any[], sites: any[], orgData: any) {
     return sum + area;
   }, 0) || 0;
 
+  // Total emissions intensities (GRI 305-4, ESRS E1, TCFD)
+  if (employees > 0) {
+    intensityMetrics.perEmployee = summary.total / employees;
+  }
+
+  if (revenue > 0) {
+    intensityMetrics.perRevenue = (summary.total * 1000000) / revenue; // tCO2e per M€ (ESRS E1 mandatory)
+  }
+
   if (totalAreaM2 > 0) {
     intensityMetrics.perSqm = (summary.total * 1000) / totalAreaM2; // kgCO2e per m²
+  }
+
+  // SBTi - Economic intensity (GEVA method)
+  if (valueAdded > 0) {
+    intensityMetrics.perValueAdded = (summary.total * 1000000) / valueAdded; // tCO2e per M€ value added
+  }
+
+  // Additional comprehensive metrics
+  if (operatingHours > 0) {
+    intensityMetrics.perOperatingHour = (summary.total * 1000) / operatingHours; // kgCO2e per operating hour
+  }
+
+  if (customers > 0) {
+    intensityMetrics.perCustomer = (summary.total * 1000) / customers; // kgCO2e per customer
+  }
+
+  // Scope-specific intensities (GRI 305-4 separate reporting recommendation)
+  if (employees > 0) {
+    intensityMetrics.scope1.perEmployee = summary.scope1 / employees;
+    intensityMetrics.scope2.perEmployee = summary.scope2 / employees;
+    intensityMetrics.scope3.perEmployee = summary.scope3 / employees;
+  }
+
+  if (revenue > 0) {
+    intensityMetrics.scope1.perRevenue = (summary.scope1 * 1000000) / revenue;
+    intensityMetrics.scope2.perRevenue = (summary.scope2 * 1000000) / revenue;
+    intensityMetrics.scope3.perRevenue = (summary.scope3 * 1000000) / revenue;
+  }
+
+  if (totalAreaM2 > 0) {
+    intensityMetrics.scope1.perSqm = (summary.scope1 * 1000) / totalAreaM2;
+    intensityMetrics.scope2.perSqm = (summary.scope2 * 1000) / totalAreaM2;
+    intensityMetrics.scope3.perSqm = (summary.scope3 * 1000) / totalAreaM2;
   }
 
   // Calculate Scope 3 coverage
