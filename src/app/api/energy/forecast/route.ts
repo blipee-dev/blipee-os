@@ -47,19 +47,44 @@ export async function GET(request: NextRequest) {
     }
 
     const metricIds = energyMetrics.map(m => m.id);
-    let query = supabaseAdmin
-      .from('metrics_data')
-      .select('*')
-      .eq('organization_id', orgInfo.organizationId)
-      .in('metric_id', metricIds)
-      .gte('period_start', historicalStartDate.toISOString().split('T')[0])
-      .order('period_start', { ascending: true });
 
-    if (siteId) {
-      query = query.eq('site_id', siteId);
+    // Fetch ALL data with pagination to avoid 1000-record limit
+    let allData: any[] = [];
+    let rangeStart = 0;
+    const batchSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+      let query = supabaseAdmin
+        .from('metrics_data')
+        .select('*')
+        .eq('organization_id', orgInfo.organizationId)
+        .in('metric_id', metricIds)
+        .gte('period_start', historicalStartDate.toISOString().split('T')[0])
+        .order('period_start', { ascending: true })
+        .range(rangeStart, rangeStart + batchSize - 1);
+
+      if (siteId) {
+        query = query.eq('site_id', siteId);
+      }
+
+      const { data: batchData, error } = await query;
+
+      if (error || !batchData || batchData.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      allData = allData.concat(batchData);
+
+      if (batchData.length < batchSize) {
+        hasMore = false;
+      } else {
+        rangeStart += batchSize;
+      }
     }
 
-    const { data: historicalData } = await query;
+    const historicalData = allData;
 
     if (!historicalData || historicalData.length === 0) {
       return NextResponse.json({ forecast: [] });
@@ -80,12 +105,23 @@ export async function GET(request: NextRequest) {
       const consumption = parseFloat(record.value) || 0;
       const isRenewable = metric?.is_renewable || false;
 
+      // Check if we have grid mix metadata for this record
+      const gridMix = record.metadata?.grid_mix;
+
       monthlyData[monthKey].total += consumption;
+
       if (isRenewable) {
+        // Direct renewable energy (solar panels, wind turbines owned)
         monthlyData[monthKey].renewable += consumption;
+      } else if (gridMix && gridMix.renewable_kwh) {
+        // Grid electricity with renewable component from grid mix
+        monthlyData[monthKey].renewable += gridMix.renewable_kwh;
+        monthlyData[monthKey].fossil += gridMix.non_renewable_kwh || (consumption - gridMix.renewable_kwh);
       } else {
+        // Fossil fuel energy (no renewable component)
         monthlyData[monthKey].fossil += consumption;
       }
+
       monthlyData[monthKey].count++;
     });
 
