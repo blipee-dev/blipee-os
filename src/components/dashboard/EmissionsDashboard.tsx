@@ -304,6 +304,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
   // Trends
   const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
+  const [prevYearMonthlyTrends, setPrevYearMonthlyTrends] = useState<any[]>([]);
 
   // Top emission sources
   const [topEmitters, setTopEmitters] = useState<Array<{ name: string; emissions: number; percentage: number }>>([]);
@@ -548,6 +549,81 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           setMonthlyTrends(dashboardData.trends);
         }
 
+        // Fetch previous year data for YoY comparison (monthly trends)
+        // Find the last actual data point from the monthly trends we just fetched
+        let actualEndDate = new Date(selectedPeriod.end);
+
+        if (dashboardData.trendData && dashboardData.trendData.length > 0) {
+          // Get the last month with data
+          const lastDataPoint = dashboardData.trendData[dashboardData.trendData.length - 1];
+          const lastDataMonth = lastDataPoint.month; // Format: "Jan" or similar
+
+          // Find the month index and create proper end date
+          const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          const monthIndex = monthNames.indexOf(lastDataMonth);
+          if (monthIndex !== -1) {
+            const currentYear = new Date(selectedPeriod.start).getFullYear();
+            actualEndDate = new Date(currentYear, monthIndex + 1, 0); // Last day of the month
+            console.log('📅 Last data available:', lastDataMonth, '→', actualEndDate.toISOString().split('T')[0]);
+          }
+        }
+
+        const startDate = new Date(selectedPeriod.start);
+        const previousYearStart = new Date(startDate);
+        previousYearStart.setFullYear(startDate.getFullYear() - 1);
+        const previousYearEnd = new Date(actualEndDate);
+        previousYearEnd.setFullYear(actualEndDate.getFullYear() - 1);
+
+        const prevYearParams = new URLSearchParams({
+          start_date: previousYearStart.toISOString().split('T')[0],
+          end_date: previousYearEnd.toISOString().split('T')[0],
+        });
+
+        if (selectedSite) {
+          prevYearParams.append('site_id', selectedSite.id);
+        }
+
+        try {
+          console.log('📊 YoY Comparison Debug:');
+          console.log('  Selected Period:', selectedPeriod.start, 'to', selectedPeriod.end);
+          console.log('  Actual End Date (adjusted):', actualEndDate.toISOString().split('T')[0]);
+          console.log('  Current Period (for comparison):', selectedPeriod.start, 'to', actualEndDate.toISOString().split('T')[0]);
+          console.log('  Previous Period (for comparison):', previousYearStart.toISOString().split('T')[0], 'to', previousYearEnd.toISOString().split('T')[0]);
+
+          const prevYearUrl = `/api/sustainability/dashboard?${prevYearParams}`;
+          console.log('  📡 Fetching previous year data from:', prevYearUrl);
+          const prevDashboardRes = await fetch(prevYearUrl);
+          const prevDashboardData = await prevDashboardRes.json();
+          console.log('  📡 Previous year API response received:', prevDashboardData.trendData?.length, 'months');
+
+          console.log('  Current monthly trends count:', dashboardData.trendData?.length || 0);
+          console.log('  Previous monthly trends count:', prevDashboardData.trendData?.length || 0);
+
+          // Extract monthly trends from previous year dashboard data
+          if (prevDashboardData.trendData && prevDashboardData.trendData.length > 0) {
+            const prevTrends = prevDashboardData.trendData.map((m: any) => ({
+              month: m.month,
+              total: m.emissions || 0,
+              scope1: m.scope1 || 0,
+              scope2: m.scope2 || 0,
+              scope3: m.scope3 || 0,
+              monthKey: m.monthKey || undefined // Try to preserve monthKey if available
+            }));
+
+            console.log('✅ Previous year monthly trends extracted:', prevTrends.length, 'months');
+            console.log('📊 Previous Year Sample:', prevTrends.slice(0, 3));
+            console.log('📊 Previous Year Full Data:', prevTrends);
+            console.log('📊 Previous Year API trendData:', prevDashboardData.trendData);
+            setPrevYearMonthlyTrends(prevTrends);
+          } else {
+            console.warn('⚠️ No previous year trend data available');
+            setPrevYearMonthlyTrends([]);
+          }
+        } catch (error) {
+          console.warn('⚠️ Could not fetch previous year data for YoY comparison:', error);
+          setPrevYearMonthlyTrends([]);
+        }
+
         // Top emission sources
         const allCategories: any[] = [];
 
@@ -750,9 +826,6 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 {intensityYoY > 0 ? '+' : ''}{intensityYoY.toFixed(1)}% YoY
               </span>
             </div>
-          </div>
-          <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-            <span className="text-xs text-gray-400">GRI 305-4</span>
           </div>
         </div>
 
@@ -1438,6 +1511,166 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         </div>
       </div>
 
+      {/* Year-over-Year Comparison */}
+      {monthlyTrends.length > 0 && totalEmissionsYoY !== null && prevYearMonthlyTrends.length > 0 && (() => {
+        // Check if we have actual previous year data with values (not all zeros)
+        const hasPreviousData = prevYearMonthlyTrends.some((trend: any) => trend.total > 0);
+        console.log('🔍 YoY Chart Rendering:', {
+          monthlyTrendsCount: monthlyTrends.length,
+          prevYearTrendsCount: prevYearMonthlyTrends.length,
+          hasPreviousData,
+          totalEmissionsYoY,
+          currentSample: monthlyTrends.slice(0, 2),
+          prevSample: prevYearMonthlyTrends.slice(0, 2)
+        });
+        return hasPreviousData;
+      })() && (
+        <div className="px-6 pb-6">
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4" style={{ height: '430px' }}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Year-over-Year Comparison</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Monthly change vs previous year
+                </p>
+              </div>
+              <div className="flex gap-1">
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                  GRI 305-5
+                </span>
+                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
+                  TCFD
+                </span>
+              </div>
+            </div>
+
+            <div className="flex-1" style={{ height: 'calc(100% - 60px)' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={(() => {
+                    // Create chart data with YoY percentage change
+                    const chartData = monthlyTrends.map((trend: any) => {
+                      // Extract just the month name (e.g., "Jan" from "Jan 25")
+                      const currentMonthName = trend.month.split(' ')[0];
+
+                      // Find matching month from previous year by comparing just the month name
+                      const prevTrend = prevYearMonthlyTrends.find((prev: any) => {
+                        const prevMonthName = prev.month.split(' ')[0];
+                        return prevMonthName === currentMonthName;
+                      });
+
+                      // Calculate month-specific YoY change percentage
+                      let change = 0;
+                      let current = trend.total;
+                      let previous = 0;
+
+                      if (prevTrend && prevTrend.total > 0) {
+                        previous = prevTrend.total;
+                        change = ((trend.total - prevTrend.total) / prevTrend.total) * 100;
+                      } else if (totalEmissionsYoY !== null) {
+                        // Fallback to overall YoY if no monthly data available
+                        change = totalEmissionsYoY;
+                      }
+
+                      return {
+                        month: trend.month,
+                        change,
+                        current,
+                        previous,
+                        isForecast: trend.isForecast || false
+                      };
+                    });
+
+                    console.log('📊 YoY Chart Data:', chartData);
+                    return chartData;
+                  })()}
+                  margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
+                  <XAxis
+                    dataKey="month"
+                    stroke="#9CA3AF"
+                    fontSize={12}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    stroke="#9CA3AF"
+                    fontSize={12}
+                    tickLine={false}
+                    tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1F2937',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '12px'
+                    }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        const { current, previous, change } = data;
+
+                        return (
+                          <div className="bg-gray-800 p-3 rounded-lg border border-gray-700">
+                            <p className="font-medium text-white mb-2">{data.month}</p>
+                            <div className="space-y-1">
+                              <p className="text-gray-300">
+                                This Year: <span className="font-medium text-white">{current.toFixed(1)} tCO2e</span>
+                              </p>
+                              <p className="text-gray-300">
+                                Last Year: <span className="font-medium text-white">{previous.toFixed(1)} tCO2e</span>
+                              </p>
+                            </div>
+                            <p className={`text-sm font-bold mt-2 ${change >= 0 ? 'text-red-400' : 'text-green-400'}`}>
+                              {change > 0 ? '+' : ''}{change.toFixed(1)}% YoY
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {change >= 0 ? 'Increase' : 'Decrease'} in emissions
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar
+                    dataKey="change"
+                    radius={[4, 4, 4, 4]}
+                    fill="#8884d8"
+                  >
+                    {(() => {
+                      const chartData = monthlyTrends.map((trend: any) => {
+                        // Extract just the month name (e.g., "Jan" from "Jan 25")
+                        const currentMonthName = trend.month.split(' ')[0];
+
+                        // Find matching month from previous year by comparing just the month name
+                        const prevTrend = prevYearMonthlyTrends.find((prev: any) => {
+                          const prevMonthName = prev.month.split(' ')[0];
+                          return prevMonthName === currentMonthName;
+                        });
+
+                        let change = 0;
+                        if (prevTrend && prevTrend.total > 0) {
+                          change = ((trend.total - prevTrend.total) / prevTrend.total) * 100;
+                        } else if (totalEmissionsYoY !== null) {
+                          change = totalEmissionsYoY;
+                        }
+                        return change;
+                      });
+
+                      return chartData.map((change: number, index: number) => (
+                        <Cell key={`cell-${index}`} fill={change >= 0 ? '#EF4444' : '#10B981'} />
+                      ));
+                    })()}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* All Detailed Breakdown Sections */}
       {(siteComparison.length > 1 || topEmitters.length > 0 || scope1Sources.length > 0 || scope2Total > 0 || scope3Total > 0) && (
       <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -2049,7 +2282,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
       {/* SBTi Target Progress - Only show for current year */}
       {targetData?.targets && targetData.targets.length > 0 &&
        new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-12">
           <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
