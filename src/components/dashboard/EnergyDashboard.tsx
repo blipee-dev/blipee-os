@@ -356,11 +356,16 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           console.log('🔮 ML Forecast loaded:', forecastDataRes.forecast.length, 'months');
           console.log('📊 Forecast method:', forecastDataRes.model);
           console.log('📊 Last actual month:', forecastDataRes.lastActualMonth);
-          console.log('📈 Forecast values:', forecastDataRes.forecast.map((f: any) => `${f.month}: ${(f.total / 1000).toFixed(1)} MWh`));
+          console.log('📈 Forecast values (Total):', forecastDataRes.forecast.map((f: any) => `${f.month}: ${(f.total / 1000).toFixed(1)} MWh`));
+          console.log('📈 Forecast values (Renewable):', forecastDataRes.forecast.map((f: any) => `${f.month}: ${(f.renewable / 1000).toFixed(1)} MWh`));
+          console.log('📈 Forecast values (Fossil):', forecastDataRes.forecast.map((f: any) => `${f.month}: ${(f.fossil / 1000).toFixed(1)} MWh`));
           console.log('📅 Forecast months:', currentForecastData.map((f: any) => f.monthKey));
+          console.log('🔍 First forecast object full:', forecastDataRes.forecast[0]);
           if (forecastDataRes.metadata) {
             console.log('📊 R²:', forecastDataRes.metadata.r2?.toFixed(3));
             console.log('📈 Total trend:', forecastDataRes.metadata.totalTrend?.toFixed(3), 'kWh/month');
+            console.log('📈 Renewable trend:', forecastDataRes.metadata.renewableTrend?.toFixed(3), 'kWh/month');
+            console.log('📈 Fossil trend:', forecastDataRes.metadata.fossilTrend?.toFixed(3), 'kWh/month');
           }
 
           // Map isForecast to forecast for consistency in the chart
@@ -899,6 +904,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   }}
                 />
                 <Legend />
+                {/* Actual data - solid lines */}
                 <Line
                   type="monotone"
                   dataKey="renewable"
@@ -906,6 +912,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   strokeWidth={2}
                   dot={{ fill: COLORS.renewable, r: 2 }}
                   name="Renewable"
+                  connectNulls
                 />
                 <Line
                   type="monotone"
@@ -914,6 +921,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   strokeWidth={2}
                   dot={{ fill: COLORS.fossil, r: 2 }}
                   name="Fossil"
+                  connectNulls
                 />
                 <Line
                   type="monotone"
@@ -922,7 +930,46 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   strokeWidth={3}
                   dot={{ fill: '#6366f1', r: 3 }}
                   name="Total"
+                  connectNulls
                 />
+                {/* Forecast data - dashed lines with hollow dots */}
+                {forecastData.length > 0 && (
+                  <>
+                    <Line
+                      type="monotone"
+                      dataKey="renewable"
+                      stroke={COLORS.renewable}
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ fill: '#fff', stroke: COLORS.renewable, strokeWidth: 2, r: 3 }}
+                      name="Renewable (Forecast)"
+                      data={forecastData}
+                      connectNulls
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="fossil"
+                      stroke={COLORS.fossil}
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ fill: '#fff', stroke: COLORS.fossil, strokeWidth: 2, r: 3 }}
+                      name="Fossil (Forecast)"
+                      data={forecastData}
+                      connectNulls
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="total"
+                      stroke="#6366f1"
+                      strokeWidth={3}
+                      strokeDasharray="5 5"
+                      dot={{ fill: '#fff', stroke: '#6366f1', strokeWidth: 2, r: 4 }}
+                      name="Total (Forecast)"
+                      data={forecastData}
+                      connectNulls
+                    />
+                  </>
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>
