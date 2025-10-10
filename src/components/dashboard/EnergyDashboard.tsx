@@ -880,11 +880,33 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
 
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={(() => {
-                // Combine actual and forecast data with bridging
+                // Combine actual and forecast data with bridging point
                 const combinedData = [...monthlyTrends];
 
                 if (forecastData.length > 0) {
-                  // Add forecast data with separate keys
+                  console.log('🔮 Adding forecast to chart:', forecastData.length, 'points');
+                  console.log('🔍 First forecast item:', forecastData[0]);
+
+                  // Get last actual data point to create bridge
+                  const lastActual = monthlyTrends[monthlyTrends.length - 1];
+
+                  // Add bridge point: has both actual and forecast keys with same values
+                  // This connects the solid line to the dashed line
+                  combinedData.push({
+                    month: lastActual.month,
+                    monthKey: lastActual.monthKey,
+                    // Actual data (for solid line endpoint)
+                    renewable: lastActual.renewable,
+                    fossil: lastActual.fossil,
+                    total: lastActual.total,
+                    // Forecast data (for dashed line startpoint) - same values
+                    renewableForecast: lastActual.renewable,
+                    fossilForecast: lastActual.fossil,
+                    totalForecast: lastActual.total,
+                    bridge: true
+                  });
+
+                  // Add remaining forecast data with only forecast keys
                   forecastData.forEach((f: any) => {
                     combinedData.push({
                       month: f.month,
@@ -895,6 +917,10 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                       forecast: true
                     });
                   });
+
+                  console.log('📊 Combined data length:', combinedData.length);
+                  console.log('🌉 Bridge point:', combinedData[monthlyTrends.length]);
+                  console.log('📊 Last 3 items:', combinedData.slice(-3));
                 }
 
                 return combinedData;
@@ -964,36 +990,40 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   connectNulls
                 />
                 {/* Forecast data - dashed lines */}
-                <Line
-                  type="monotone"
-                  dataKey="renewableForecast"
-                  stroke={COLORS.renewable}
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  dot={{ fill: 'transparent', stroke: COLORS.renewable, strokeWidth: 2, r: 3 }}
-                  name="Renewable (Forecast)"
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="fossilForecast"
-                  stroke={COLORS.fossil}
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  dot={{ fill: 'transparent', stroke: COLORS.fossil, strokeWidth: 2, r: 3 }}
-                  name="Fossil (Forecast)"
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="totalForecast"
-                  stroke="#6366f1"
-                  strokeWidth={3}
-                  strokeDasharray="5 5"
-                  dot={{ fill: 'transparent', stroke: '#6366f1', strokeWidth: 2, r: 4 }}
-                  name="Total (Forecast)"
-                  connectNulls
-                />
+                {forecastData.length > 0 && (
+                  <>
+                    <Line
+                      type="monotone"
+                      dataKey="renewableForecast"
+                      stroke={COLORS.renewable}
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ fill: 'transparent', stroke: COLORS.renewable, strokeWidth: 2, r: 3 }}
+                      name="Renewable (Forecast)"
+                      connectNulls
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="fossilForecast"
+                      stroke={COLORS.fossil}
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ fill: 'transparent', stroke: COLORS.fossil, strokeWidth: 2, r: 3 }}
+                      name="Fossil (Forecast)"
+                      connectNulls
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="totalForecast"
+                      stroke="#6366f1"
+                      strokeWidth={3}
+                      strokeDasharray="5 5"
+                      dot={{ fill: 'transparent', stroke: '#6366f1', strokeWidth: 2, r: 4 }}
+                      name="Total (Forecast)"
+                      connectNulls
+                    />
+                  </>
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>
