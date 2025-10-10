@@ -59,6 +59,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   const [totalEmissions, setTotalEmissions] = useState(0);
   const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
   const [prevYearMonthlyTrends, setPrevYearMonthlyTrends] = useState<any[]>([]);
+  const [forecastData, setForecastData] = useState<any>(null);
 
   // YoY comparison state
   const [yoyGeneratedChange, setYoyGeneratedChange] = useState<number | null>(null);
@@ -183,6 +184,39 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
     };
 
     fetchWasteData();
+  }, [selectedSite, selectedPeriod]);
+
+  // Fetch waste forecast data
+  React.useEffect(() => {
+    const fetchForecastData = async () => {
+      if (!selectedPeriod) return;
+
+      try {
+        const forecastParams = new URLSearchParams({
+          start_date: selectedPeriod.start,
+          end_date: selectedPeriod.end,
+        });
+        if (selectedSite) {
+          forecastParams.append('site_id', selectedSite.id);
+        }
+
+        const forecastRes = await fetch(`/api/waste/forecast?${forecastParams}`);
+        const forecastData = await forecastRes.json();
+
+        if (forecastData.forecast && forecastData.forecast.length > 0) {
+          console.log(`🔮 Waste Forecast: ${forecastData.forecast.length} months, Method: ${forecastData.model}`);
+          setForecastData(forecastData);
+        } else {
+          console.log('⚠️ No waste forecast data available');
+          setForecastData(null);
+        }
+      } catch (error) {
+        console.error('Error fetching waste forecast:', error);
+        setForecastData(null);
+      }
+    };
+
+    fetchForecastData();
   }, [selectedSite, selectedPeriod]);
 
   // Fetch SBTi baseline data (2023) - only for current year view
@@ -552,7 +586,40 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
             </div>
 
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyTrends}>
+              <LineChart data={(() => {
+                // Prepare chart data with separate keys for actual and forecast
+                const actualData = monthlyTrends;
+
+                if (!forecastData || !forecastData.forecast || forecastData.forecast.length === 0) {
+                  return actualData;
+                }
+
+                // Create forecast months with separate keys
+                const forecastMonths = forecastData.forecast.map((f: any) => ({
+                  month: f.month,
+                  generatedForecast: f.generated || 0,
+                  divertedForecast: f.diverted || 0,
+                  emissionsForecast: f.emissions || 0,
+                  forecast: true
+                }));
+
+                // Create bridge point to connect actual and forecast lines
+                const lastActual = actualData[actualData.length - 1];
+                const bridgePoint = {
+                  month: lastActual.month,
+                  // Actual data keys (for solid lines)
+                  generated: lastActual.generated,
+                  diverted: lastActual.diverted,
+                  emissions: lastActual.emissions,
+                  // Forecast data keys with same values (for dashed lines)
+                  generatedForecast: lastActual.generated,
+                  divertedForecast: lastActual.diverted,
+                  emissionsForecast: lastActual.emissions,
+                  bridge: true
+                };
+
+                return [...actualData, bridgePoint, ...forecastMonths];
+              })()}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                 <XAxis
                   dataKey="month"
@@ -569,33 +636,111 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '8px'
                   }}
-                  formatter={(value: any) => [value.toFixed(2) + ' tons', '']}
+                  content={({ active, payload }: any) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      const isForecast = data.forecast;
+
+                      // Get values from either actual or forecast keys
+                      const generated = data.generated ?? data.generatedForecast;
+                      const diverted = data.diverted ?? data.divertedForecast;
+                      const emissions = data.emissions ?? data.emissionsForecast;
+
+                      // Skip if all values are null
+                      if (!generated && !diverted && !emissions) {
+                        return null;
+                      }
+
+                      return (
+                        <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
+                          <p className="text-white font-semibold mb-2">
+                            {data.month}
+                            {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
+                          </p>
+                          <div className="space-y-1">
+                            <p className="text-sm" style={{ color: "#6b7280" }}>
+                              Generated: {(generated || 0).toFixed(2)} tons
+                            </p>
+                            <p className="text-sm" style={{ color: "#10b981" }}>
+                              Diverted: {(diverted || 0).toFixed(2)} tons
+                            </p>
+                            <p className="text-sm" style={{ color: "#ef4444" }}>
+                              Emissions: {(emissions || 0).toFixed(2)} tCO2e
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
+                {/* Actual data - solid lines */}
                 <Line
                   type="monotone"
                   dataKey="generated"
                   stroke="#6b7280"
                   strokeWidth={2}
-                  dot={{ r: 3 }}
+                  dot={{ r: 3, fill: "#6b7280" }}
                   name="Generated"
+                  connectNulls
                 />
                 <Line
                   type="monotone"
                   dataKey="diverted"
                   stroke="#10b981"
                   strokeWidth={2}
-                  dot={{ r: 3 }}
+                  dot={{ r: 3, fill: "#10b981" }}
                   name="Diverted"
+                  connectNulls
                 />
                 <Line
                   type="monotone"
                   dataKey="emissions"
                   stroke="#ef4444"
                   strokeWidth={2}
-                  dot={{ r: 3 }}
+                  dot={{ r: 3, fill: "#ef4444" }}
                   name="Emissions (tCO2e)"
+                  connectNulls
                 />
+                {/* Forecast data - dashed lines (hidden from legend) */}
+                {forecastData && forecastData.forecast && forecastData.forecast.length > 0 && (
+                  <>
+                    <Line
+                      type="monotone"
+                      dataKey="generatedForecast"
+                      stroke="#6b7280"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ fill: 'transparent', stroke: "#6b7280", strokeWidth: 2, r: 3 }}
+                      name="Generated"
+                      connectNulls
+                      legendType="none"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="divertedForecast"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ fill: 'transparent', stroke: "#10b981", strokeWidth: 2, r: 3 }}
+                      name="Diverted"
+                      connectNulls
+                      legendType="none"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="emissionsForecast"
+                      stroke="#ef4444"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ fill: 'transparent', stroke: "#ef4444", strokeWidth: 2, r: 3 }}
+                      name="Emissions (tCO2e)"
+                      connectNulls
+                      legendType="none"
+                    />
+                  </>
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>
