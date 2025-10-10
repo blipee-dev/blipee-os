@@ -56,44 +56,78 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Get waste data from metrics_data
+    // Get waste data from metrics_data with pagination
     // NOTE: For YoY comparison, we need to fetch data for both current and previous year
     // So we expand the date range to include previous year data
     const metricIds = wasteMetrics.map(m => m.id);
-    let query = supabaseAdmin
-      .from('metrics_data')
-      .select('*')
-      .eq('organization_id', organizationId)
-      .in('metric_id', metricIds);
 
-    // For YoY comparison, extend date range to include previous year
+    // Determine date range for YoY comparison
+    let queryStartDate = null;
+    let queryEndDate = null;
+
     if (startDate && endDate) {
       const startYear = new Date(startDate).getFullYear();
-      const prevYearStart = `${startYear - 1}-01-01`;
-      query = query.gte('period_start', prevYearStart);
-      query = query.lte('period_start', endDate);
+      queryStartDate = `${startYear - 1}-01-01`;
+      queryEndDate = endDate;
     } else if (startDate) {
       const startYear = new Date(startDate).getFullYear();
-      const prevYearStart = `${startYear - 1}-01-01`;
-      query = query.gte('period_start', prevYearStart);
+      queryStartDate = `${startYear - 1}-01-01`;
     } else if (endDate) {
-      query = query.lte('period_start', endDate);
+      queryEndDate = endDate;
     }
 
-    // Apply site filter if provided
-    if (siteId) {
-      query = query.eq('site_id', siteId);
+    // Fetch ALL data with pagination to avoid 1000-record limit
+    let allData: any[] = [];
+    let rangeStart = 0;
+    const batchSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+      let query = supabaseAdmin
+        .from('metrics_data')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .in('metric_id', metricIds)
+        .order('period_start', { ascending: false })
+        .range(rangeStart, rangeStart + batchSize - 1);
+
+      if (queryStartDate) {
+        query = query.gte('period_start', queryStartDate);
+      }
+
+      if (queryEndDate) {
+        query = query.lte('period_start', queryEndDate);
+      }
+
+      if (siteId) {
+        query = query.eq('site_id', siteId);
+      }
+
+      const { data: batchData, error: batchError } = await query;
+
+      if (batchError) {
+        console.error('Error fetching waste data batch:', batchError);
+        return NextResponse.json(
+          { error: 'Failed to fetch waste data', details: batchError.message },
+          { status: 500 }
+        );
+      }
+
+      if (!batchData || batchData.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      allData = allData.concat(batchData);
+
+      if (batchData.length < batchSize) {
+        hasMore = false;
+      } else {
+        rangeStart += batchSize;
+      }
     }
 
-    const { data: wasteData, error: dataError } = await query.order('period_start', { ascending: false });
-
-    if (dataError) {
-      console.error('Error fetching waste data:', dataError);
-      return NextResponse.json(
-        { error: 'Failed to fetch waste data', details: dataError.message },
-        { status: 500 }
-      );
-    }
+    const wasteData = allData;
 
     if (!wasteData || wasteData.length === 0) {
       return NextResponse.json({

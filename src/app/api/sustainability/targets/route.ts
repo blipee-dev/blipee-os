@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
+import { getBaselineEmissions, getPeriodEmissions } from '@/lib/sustainability/baseline-calculator';
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,9 +39,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch targets' }, { status: 500 });
     }
 
+    // Get baseline emissions data for automatic target calculation
+    const baselineData = await getBaselineEmissions(organizationId);
+    console.log('📊 Baseline emissions for target calculation:', baselineData);
+
+    // Calculate recommended SBTi targets
+    const calculatedTargets = baselineData ? calculateSBTiTargets(baselineData) : null;
+
     // Transform data to match our component expectations
     // IMPORTANT: Using actual database schema (not migration schema)
-    const transformedTargets = targets?.map(target => {
+    let transformedTargets = targets?.map(target => {
       // Calculate target_reduction_percent from baseline_value and target_value
       const reductionPercent = target.baseline_value > 0
         ? ((target.baseline_value - target.target_value) / target.baseline_value) * 100
@@ -90,9 +98,15 @@ export async function GET(request: NextRequest) {
     let forecastedRemaining = 0;
 
     if (currentYearMetrics && currentYearMetrics.length > 0) {
-      // Calculate actual emissions so far this year
-      const actualEmissions = currentYearMetrics.reduce((sum, m) => sum + (m.co2e_emissions || 0), 0) / 1000; // Convert to tCO2e
+      // ✅ Using calculator for year-to-date emissions
+      const ytdEmissions = await getPeriodEmissions(
+        organizationId,
+        `${currentYear}-01-01`,
+        new Date().toISOString().split('T')[0]
+      );
+      const actualEmissions = ytdEmissions.total;
       actualYearToDate = actualEmissions;
+      console.log('📊 Using baseline-calculator for YTD emissions:', actualEmissions.toFixed(1), 'tCO2e');
 
       // Count unique months (not total records, as there may be multiple records per month)
       const uniqueMonths = new Set(currentYearMetrics.map(m => m.period_start?.substring(0, 7)));
@@ -209,6 +223,34 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Merge calculated targets with existing targets
+    // For each target type (near-term, long-term, net-zero), use existing if available, otherwise use calculated
+    if (calculatedTargets) {
+      const targetTypeMap = new Map<string, any>();
+
+      // First, add all existing targets
+      transformedTargets.forEach(target => {
+        if (target.target_type) {
+          targetTypeMap.set(target.target_type, target);
+        }
+      });
+
+      // Then, add calculated targets for types that don't exist
+      const targetTypes = ['near-term', 'long-term', 'net-zero'];
+      targetTypes.forEach(type => {
+        if (!targetTypeMap.has(type) && calculatedTargets[type as keyof typeof calculatedTargets]) {
+          targetTypeMap.set(type, calculatedTargets[type as keyof typeof calculatedTargets]);
+        }
+      });
+
+      // Convert map back to array, maintaining order: near-term, long-term, net-zero
+      transformedTargets = targetTypes
+        .map(type => targetTypeMap.get(type))
+        .filter(t => t !== undefined);
+
+      console.log('🎯 Final targets (existing + calculated):', transformedTargets.map(t => `${t.target_type}: ${t.id}`));
+    }
+
     return NextResponse.json({
       targets: transformedTargets,
       summary: {
@@ -217,7 +259,8 @@ export async function GET(request: NextRequest) {
         onTrack: transformedTargets.filter(t => t.performance_status === 'on-track' || t.performance_status === 'exceeding').length,
         atRisk: transformedTargets.filter(t => t.performance_status === 'at-risk').length,
         offTrack: transformedTargets.filter(t => t.performance_status === 'off-track').length
-      }
+      },
+      baselineData // Include baseline data for UI display
     });
 
   } catch (error) {
@@ -420,4 +463,78 @@ function calculatePerformanceStatus(
   if (progressRatio >= 0.95) return 'on-track';
   if (progressRatio >= 0.85) return 'at-risk';
   return 'off-track';
+}
+
+// Note: getBaselineEmissions is now imported from @/lib/sustainability/baseline-calculator
+// This ensures all APIs use the same calculation logic
+
+// Calculate recommended SBTi targets automatically
+function calculateSBTiTargets(baselineData: any) {
+  if (!baselineData || baselineData.total === 0) {
+    return null;
+  }
+
+  const currentYear = new Date().getFullYear();
+
+  return {
+    'near-term': {
+      id: 'calculated-near-term',
+      name: 'Near-Term Target',
+      target_type: 'near-term',
+      baseline_year: baselineData.year,
+      baseline_emissions: baselineData.total,
+      baseline_scope_1: baselineData.scope_1,
+      baseline_scope_2: baselineData.scope_2,
+      baseline_scope_3: baselineData.scope_3,
+      target_year: 2030,
+      target_reduction_percent: 42, // SBTi minimum for 1.5°C
+      target_emissions: Math.round(baselineData.total * 0.58 * 10) / 10, // 42% reduction
+      annual_reduction_rate: Math.round(42 / (2030 - baselineData.year) * 10) / 10,
+      sbti_validated: false,
+      progress_status: 'not_started',
+      scope_1_2_coverage_percent: 95, // SBTi requirement
+      scope_3_coverage_percent: baselineData.scope_3_percentage > 40 ? 67 : null, // Only required if >40%
+      description: `Reduce emissions by 42% by 2030 from ${baselineData.year} baseline (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.58).toFixed(1)} tCO2e)`
+    },
+    'long-term': {
+      id: 'calculated-long-term',
+      name: 'Long-Term Target',
+      target_type: 'long-term',
+      baseline_year: baselineData.year,
+      baseline_emissions: baselineData.total,
+      baseline_scope_1: baselineData.scope_1,
+      baseline_scope_2: baselineData.scope_2,
+      baseline_scope_3: baselineData.scope_3,
+      target_year: 2050,
+      target_reduction_percent: 90, // SBTi requirement
+      target_emissions: Math.round(baselineData.total * 0.10 * 10) / 10, // 90% reduction
+      annual_reduction_rate: Math.round(90 / (2050 - baselineData.year) * 10) / 10,
+      sbti_validated: false,
+      progress_status: 'not_started',
+      scope_1_2_coverage_percent: 95,
+      scope_3_coverage_percent: 90, // SBTi requires 90% for long-term
+      description: `Reduce emissions by 90% by 2050 from ${baselineData.year} baseline (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.10).toFixed(1)} tCO2e)`
+    },
+    'net-zero': {
+      id: 'calculated-net-zero',
+      name: 'Net-Zero Target',
+      target_type: 'net-zero',
+      baseline_year: baselineData.year,
+      baseline_emissions: baselineData.total,
+      baseline_scope_1: baselineData.scope_1,
+      baseline_scope_2: baselineData.scope_2,
+      baseline_scope_3: baselineData.scope_3,
+      target_year: 2050,
+      target_reduction_percent: 90, // 90% reduction + 10% neutralization
+      target_emissions: 0, // Net-zero means zero
+      annual_reduction_rate: Math.round(90 / (2050 - baselineData.year) * 10) / 10,
+      sbti_validated: false,
+      progress_status: 'not_started',
+      scope_1_2_coverage_percent: 95,
+      scope_3_coverage_percent: 90,
+      neutralization_plan: `Neutralize residual ${(baselineData.total * 0.10).toFixed(1)} tCO2e through permanent carbon removal`,
+      bvcm_commitment: 'Beyond Value Chain Mitigation to support global net-zero',
+      description: `Achieve net-zero emissions by 2050 through 90% reduction (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.10).toFixed(1)} tCO2e) + neutralization of residual emissions`
+    }
+  };
 }

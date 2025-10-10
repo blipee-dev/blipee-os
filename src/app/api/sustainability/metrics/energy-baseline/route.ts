@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getEnergyTotal } from '@/lib/sustainability/baseline-calculator';
 
 export async function GET() {
   try {
@@ -22,12 +23,21 @@ export async function GET() {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
     }
 
-    // Get 2024 data for annual baseline (for yearly reporting)
+    // ✅ USE CALCULATOR for energy totals (consistent with other APIs)
+    console.log('✅ Using calculator for energy baseline...');
+
+    // Get 2024 data for annual baseline
     const startOf2024 = '2024-01-01';
     const endOf2024 = '2024-12-31';
 
-    // Fetch energy-related metrics for 2024
-    const { data: energyMetrics, error } = await supabaseAdmin
+    // Use calculator to get total energy
+    const totalEnergyKWh = await getEnergyTotal(memberData.organization_id, startOf2024, endOf2024);
+
+    console.log('✅ Calculator energy total:', totalEnergyKWh, 'kWh');
+
+    // Still fetch detailed breakdown for categorization (heating, cooling, EV, etc.)
+    // This is additional detail not in calculator yet
+    const { data: energyMetrics } = await supabaseAdmin
       .from('metrics_data')
       .select(`
         value,
@@ -47,13 +57,7 @@ export async function GET() {
       .gte('period_start', startOf2024)
       .lte('period_end', endOf2024);
 
-    if (error) {
-      console.error('Error fetching energy metrics:', error);
-      return NextResponse.json({ error: 'Failed to fetch energy data' }, { status: 500 });
-    }
-
-    // Calculate total energy consumption
-    let totalEnergyKWh = 0;
+    // Categorize energy types for detailed breakdown
     let totalRenewableKWh = 0;
     let electricityKWh = 0;
     let heatingKWh = 0;
@@ -82,20 +86,13 @@ export async function GET() {
       if (name.includes('electricity') || category.includes('electricity')) {
         if (name.includes('ev') || subcategory.includes('ev')) {
           evChargingKWh += valueInKWh;
-          totalEnergyKWh += valueInKWh;
         } else {
           electricityKWh += valueInKWh;
-          totalEnergyKWh += valueInKWh;
         }
       } else if (name.includes('heating') || name.includes('heat')) {
         heatingKWh += valueInKWh;
-        totalEnergyKWh += valueInKWh;
       } else if (name.includes('cooling') || name.includes('cool')) {
         coolingKWh += valueInKWh;
-        totalEnergyKWh += valueInKWh;
-      } else if (category.includes('energy')) {
-        // Generic energy category
-        totalEnergyKWh += valueInKWh;
       }
 
       // Track renewable energy separately
@@ -113,41 +110,13 @@ export async function GET() {
       }
     });
 
-    // If no direct energy data, estimate from Scope 2 emissions
-    if (totalEnergyKWh === 0) {
-      // Get Scope 2 emissions for 2024 to estimate electricity usage
-      const { data: emissionsData } = await supabaseAdmin
-        .from('metrics_data')
-        .select('co2e_emissions, period_start, period_end, metrics_catalog(scope)')
-        .eq('organization_id', memberData.organization_id)
-        .not('co2e_emissions', 'is', null)
-        .gt('co2e_emissions', 0)
-        .gte('period_start', startOf2024)
-        .lte('period_end', endOf2024);
-
-      let scope2Emissions = 0;
-      emissionsData?.forEach(item => {
-        const scope = item.metrics_catalog?.scope;
-        if (scope === 'scope_2' || scope === 2) {
-          scope2Emissions += item.co2e_emissions || 0;
-        }
-      });
-
-      if (scope2Emissions > 0) {
-        // Estimate electricity from Scope 2 using grid factor
-        // European average: 400 gCO2/kWh = 0.4 kgCO2/kWh
-        totalEnergyKWh = Math.round(scope2Emissions / 0.4);
-        electricityKWh = totalEnergyKWh; // Assume all Scope 2 is from electricity
-      }
-    }
-
     // Calculate renewable percentage
     const renewablePercentage = totalEnergyKWh > 0
       ? Math.round((totalRenewableKWh / totalEnergyKWh) * 100)
       : 0;
 
     return NextResponse.json({
-      totalEnergy: Math.round(totalEnergyKWh),
+      totalEnergy: Math.round(totalEnergyKWh), // From calculator
       electricity: Math.round(electricityKWh),
       heating: Math.round(heatingKWh),
       cooling: Math.round(coolingKWh),
@@ -156,7 +125,6 @@ export async function GET() {
       renewablePercentage,
       gas: Math.round(gasUnits),
       unit: 'kWh',
-      estimatedFromScope2: totalEnergyKWh > 0 && energyMetrics?.length === 0,
       breakdown: {
         electricity: electricityKWh > 0 ? `${Math.round(electricityKWh).toLocaleString()} kWh` : 'No data',
         heating: heatingKWh > 0 ? `${Math.round(heatingKWh).toLocaleString()} kWh` : 'No heating data',

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getPeriodEmissions } from '@/lib/sustainability/baseline-calculator';
 
 interface MetricSimulation {
   metricId: string;
@@ -34,6 +35,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { scenario, currentEmissions, siteId } = body;
 
+    console.log('✅ Using calculator-consistent rounding for scenario simulation');
+
     // Simulate each metric individually
     const metricSimulations: MetricSimulation[] = scenario.metricReductions.map((metric: any) => {
       const reduction = metric.currentEmissions * (metric.targetReduction / 100);
@@ -61,11 +64,11 @@ export async function POST(request: NextRequest) {
       };
     });
 
-    // Aggregate results
-    const totalCurrentEmissions = metricSimulations.reduce((sum, m) => sum + m.currentEmissions, 0);
-    const totalFinalEmissions = metricSimulations.reduce((sum, m) => sum + m.finalEmissions, 0);
-    const totalInvestment = metricSimulations.reduce((sum, m) => sum + m.investment, 0);
-    const overallReduction = ((totalCurrentEmissions - totalFinalEmissions) / totalCurrentEmissions) * 100;
+    // Aggregate results with rounding (consistent with calculator pattern)
+    const totalCurrentEmissions = Math.round(metricSimulations.reduce((sum, m) => sum + m.currentEmissions, 0) * 10) / 10;
+    const totalFinalEmissions = Math.round(metricSimulations.reduce((sum, m) => sum + m.finalEmissions, 0) * 10) / 10;
+    const totalInvestment = Math.round(metricSimulations.reduce((sum, m) => sum + m.investment, 0));
+    const overallReduction = Math.round(((totalCurrentEmissions - totalFinalEmissions) / totalCurrentEmissions) * 1000) / 10;
 
     // Generate implementation timeline
     const timeline = generateImplementationTimeline(metricSimulations, scenario.targetYear);
@@ -357,10 +360,10 @@ function generateImplementationTimeline(simulations: MetricSimulation[], targetY
       .filter(m => m.feasibility > 70)
       .slice(0, 5)
       .map(m => m.metricName),
-    expectedReduction: prioritizedMetrics
+    expectedReduction: Math.round(prioritizedMetrics
       .filter(m => m.feasibility > 70)
       .slice(0, 5)
-      .reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0)
+      .reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0) * 10) / 10
   });
 
   // Phase 2: Major Initiatives (Year 2-3)
@@ -373,10 +376,10 @@ function generateImplementationTimeline(simulations: MetricSimulation[], targetY
         .filter(m => m.feasibility >= 40 && m.feasibility <= 70)
         .slice(0, 5)
         .map(m => m.metricName),
-      expectedReduction: prioritizedMetrics
+      expectedReduction: Math.round(prioritizedMetrics
         .filter(m => m.feasibility >= 40 && m.feasibility <= 70)
         .slice(0, 5)
-        .reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0)
+        .reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0) * 10) / 10
     });
   }
 
@@ -389,9 +392,9 @@ function generateImplementationTimeline(simulations: MetricSimulation[], targetY
       metrics: prioritizedMetrics
         .filter(m => m.feasibility < 40)
         .map(m => m.metricName),
-      expectedReduction: prioritizedMetrics
+      expectedReduction: Math.round(prioritizedMetrics
         .filter(m => m.feasibility < 40)
-        .reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0)
+        .reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0) * 10) / 10
     });
   }
 
@@ -404,25 +407,26 @@ function validateMetricLevelSBTi(simulations: MetricSimulation[], scenario: any,
   const scope2Metrics = simulations.filter(m => m.metricName.includes('Scope 2') || m.metricName.includes('Electricity'));
   const scope3Metrics = simulations.filter(m => !scope1Metrics.includes(m) && !scope2Metrics.includes(m));
 
+  // Use consistent rounding for all reduction calculations
   const scope1Reduction = scope1Metrics.length > 0 ?
-    (scope1Metrics.reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0) /
-     scope1Metrics.reduce((sum, m) => sum + m.currentEmissions, 0)) * 100 : 0;
+    Math.round((scope1Metrics.reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0) /
+     scope1Metrics.reduce((sum, m) => sum + m.currentEmissions, 0)) * 1000) / 10 : 0;
 
   const scope2Reduction = scope2Metrics.length > 0 ?
-    (scope2Metrics.reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0) /
-     scope2Metrics.reduce((sum, m) => sum + m.currentEmissions, 0)) * 100 : 0;
+    Math.round((scope2Metrics.reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0) /
+     scope2Metrics.reduce((sum, m) => sum + m.currentEmissions, 0)) * 1000) / 10 : 0;
 
   const scope3Reduction = scope3Metrics.length > 0 ?
-    (scope3Metrics.reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0) /
-     scope3Metrics.reduce((sum, m) => sum + m.currentEmissions, 0)) * 100 : 0;
+    Math.round((scope3Metrics.reduce((sum, m) => sum + (m.currentEmissions - m.finalEmissions), 0) /
+     scope3Metrics.reduce((sum, m) => sum + m.currentEmissions, 0)) * 1000) / 10 : 0;
 
-  const overallReduction = ((simulations.reduce((sum, m) => sum + m.currentEmissions, 0) -
+  const overallReduction = Math.round(((simulations.reduce((sum, m) => sum + m.currentEmissions, 0) -
                             simulations.reduce((sum, m) => sum + m.finalEmissions, 0)) /
-                           simulations.reduce((sum, m) => sum + m.currentEmissions, 0)) * 100;
+                           simulations.reduce((sum, m) => sum + m.currentEmissions, 0)) * 1000) / 10;
 
   // Check SBTi alignment
   const currentYear = new Date().getFullYear();
-  const annualRate = overallReduction / (scenario.targetYear - currentYear);
+  const annualRate = Math.round((overallReduction / (scenario.targetYear - currentYear)) * 10) / 10;
 
   return {
     scope1Reduction,

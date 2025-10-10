@@ -7,6 +7,7 @@ import {
   validateAndSanitize
 } from '@/lib/validation/schemas';
 import { withMiddleware, middlewareConfigs } from '@/lib/middleware';
+import { getPeriodEmissions, getScopeBreakdown } from '@/lib/sustainability/baseline-calculator';
 
 // Internal GET handler
 async function getMetricsData(request: NextRequest): Promise<NextResponse> {
@@ -86,19 +87,31 @@ async function getMetricsData(request: NextRequest): Promise<NextResponse> {
 
     if (error) throw error;
 
-    // Calculate summary statistics
-    const totalEmissions = data?.reduce((sum, item) => sum + (item.co2e_emissions || 0), 0) || 0;
-    const byScope = {
+    // Calculate summary statistics using baseline calculator for consistency
+    let totalEmissions = 0;
+    let byScope = {
       scope_1: 0,
       scope_2: 0,
       scope_3: 0
     };
 
-    data?.forEach(item => {
-      if (item.metric?.scope) {
-        byScope[item.metric.scope] += item.co2e_emissions || 0;
-      }
-    });
+    if (data && data.length > 0) {
+      // Get date range from the data
+      const periods = data.map(d => ({ start: d.period_start, end: d.period_end }));
+      const startDate = periods.reduce((min, p) => p.start < min ? p.start : min, periods[0].start);
+      const endDate = periods.reduce((max, p) => p.end > max ? p.end : max, periods[0].end);
+
+      console.log(`✅ Using baseline calculator for metrics data summary (${startDate} to ${endDate})`);
+
+      // Use calculator to get accurate emissions with scope-by-scope rounding
+      const emissions = await getPeriodEmissions(member.organization_id, startDate, endDate);
+      totalEmissions = emissions.total;
+      byScope = {
+        scope_1: emissions.scope_1,
+        scope_2: emissions.scope_2,
+        scope_3: emissions.scope_3
+      };
+    }
 
     return NextResponse.json({
       data: data || [],

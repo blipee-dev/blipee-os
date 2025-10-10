@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getPeriodEmissions } from '@/lib/sustainability/baseline-calculator';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,33 +26,31 @@ export async function GET(request: NextRequest) {
 
     const organizationId = appUser.organization_id;
 
-    // Get current month's emissions
+    // Get current month's emissions using baseline calculator for consistency
     const now = new Date();
     const currentMonth = now.toISOString().slice(0, 7); // YYYY-MM
     const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const prevMonthStr = prevMonth.toISOString().slice(0, 7);
+    const lastDayCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const lastDayPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
 
-    // Fetch current month emissions
-    const { data: currentEmissions } = await supabase
-      .from('emissions')
-      .select('scope1, scope2, scope3')
-      .eq('organization_id', organizationId)
-      .gte('date', `${currentMonth}-01`)
-      .order('date', { ascending: false });
+    console.log(`✅ Using baseline calculator for realtime metrics (current: ${currentMonth}, prev: ${prevMonthStr})`);
 
-    // Fetch previous month emissions
-    const { data: prevEmissions } = await supabase
-      .from('emissions')
-      .select('scope1, scope2, scope3')
-      .eq('organization_id', organizationId)
-      .gte('date', `${prevMonthStr}-01`)
-      .lt('date', `${currentMonth}-01`);
+    // Use calculator to get current and previous month emissions with scope-by-scope rounding
+    const currentEmissions = await getPeriodEmissions(
+      organizationId,
+      `${currentMonth}-01`,
+      `${currentMonth}-${lastDayCurrentMonth}`
+    );
 
-    // Calculate totals
-    const currentTotal = currentEmissions?.reduce((sum, e) =>
-      sum + (e.scope1 || 0) + (e.scope2 || 0) + (e.scope3 || 0), 0) || 0;
-    const prevTotal = prevEmissions?.reduce((sum, e) =>
-      sum + (e.scope1 || 0) + (e.scope2 || 0) + (e.scope3 || 0), 0) || 0;
+    const prevEmissions = await getPeriodEmissions(
+      organizationId,
+      `${prevMonthStr}-01`,
+      `${prevMonthStr}-${lastDayPrevMonth}`
+    );
+
+    const currentTotal = currentEmissions.total;
+    const prevTotal = prevEmissions.total;
 
     // Calculate monthly reduction percentage
     let monthlyReduction = 'N/A';
@@ -90,7 +89,7 @@ export async function GET(request: NextRequest) {
       targetProgress: `${targetProgress}%`,
       reportsReady: reportsCount || 0,
       lastUpdated: new Date().toISOString(),
-      hasData: currentEmissions && currentEmissions.length > 0
+      hasData: currentTotal > 0
     });
 
   } catch (error) {

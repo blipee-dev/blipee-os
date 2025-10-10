@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getPeriodEmissions } from '@/lib/sustainability/baseline-calculator';
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,31 +38,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to check targets' }, { status: 500 });
     }
 
-    // Get emissions data to check if we have data to set targets
-    const { data: metricsData, error: metricsError } = await supabaseAdmin
+    // ✅ Using calculator for total emissions check
+    // Get last 12 months of data to check if we have emissions data
+    const endDate = new Date().toISOString().split('T')[0];
+    const startDate = new Date();
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    const startDateStr = startDate.toISOString().split('T')[0];
+
+    console.log('📊 Using baseline-calculator to check emissions data');
+    const emissionsData = await getPeriodEmissions(organizationId, startDateStr, endDate);
+
+    const totalEmissions = emissionsData.total * 1000; // Convert to kg for consistency
+    const hasData = emissionsData.total > 0;
+
+    // Get record count for reference
+    const { data: metricsData } = await supabaseAdmin
       .from('metrics_data')
-      .select(`
-        co2e_emissions,
-        metrics_catalog (
-          scope
-        )
-      `)
+      .select('id')
       .eq('organization_id', organizationId)
       .limit(100);
-
-    if (metricsError) {
-      console.error('Error fetching metrics:', metricsError);
-      return NextResponse.json({ error: 'Failed to fetch metrics' }, { status: 500 });
-    }
-
-    // Calculate total emissions
-    let totalEmissions = 0;
-    let hasData = false;
-
-    if (metricsData && metricsData.length > 0) {
-      hasData = true;
-      totalEmissions = metricsData.reduce((sum, item) => sum + (item.co2e_emissions || 0), 0);
-    }
 
     return NextResponse.json({
       hasTargets: targets && targets.length > 0,

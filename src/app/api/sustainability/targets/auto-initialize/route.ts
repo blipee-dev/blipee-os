@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getYearEmissions } from '@/lib/sustainability/baseline-calculator';
 
 /**
  * Auto-initialize default SBTi target based on organization's emissions data
@@ -48,30 +49,15 @@ export async function POST(request: NextRequest) {
     // This is the last fully verified year before ESRS E1 mandatory disclosure
     const baselineYear = 2023;
 
-    // Fetch baseline year emissions
-    const { data: baselineMetrics } = await supabaseAdmin
-      .from('metrics_data')
-      .select('co2e_emissions')
-      .eq('organization_id', organizationId)
-      .gte('period_start', `${baselineYear}-01-01`)
-      .lte('period_end', `${baselineYear}-12-31`);
-
-    if (!baselineMetrics || baselineMetrics.length === 0) {
-      return NextResponse.json({
-        error: 'No emissions data found for baseline year',
-        baselineYear
-      }, { status: 404 });
-    }
-
-    // Calculate total baseline emissions (convert kg to tons)
-    const baselineEmissionsKg = baselineMetrics.reduce((sum, m) => sum + (m.co2e_emissions || 0), 0);
-    const baselineEmissions = baselineEmissionsKg / 1000; // Convert to tCO2e
+    // ✅ Using calculator for baseline year emissions (ensures consistent calculation)
+    console.log('📊 Using baseline-calculator for auto-initialize baseline emissions');
+    const baselineEmissions = await getYearEmissions(organizationId, baselineYear);
 
     if (baselineEmissions === 0) {
       return NextResponse.json({
-        error: 'Baseline emissions are zero',
+        error: 'No emissions data found for baseline year or emissions are zero',
         baselineYear
-      }, { status: 400 });
+      }, { status: 404 });
     }
 
     // Create default SBTi 1.5°C target
