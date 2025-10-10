@@ -1681,6 +1681,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                         const data = payload[0].payload;
                         const { current, previous, change } = data;
 
+                        // Skip if data is incomplete (e.g., bridge point)
+                        if (current == null || previous == null || change == null) {
+                          return null;
+                        }
+
                         return (
                           <div className="bg-gray-800 p-3 rounded-lg border border-gray-700">
                             <p className="font-medium text-white mb-2">{data.month}</p>
