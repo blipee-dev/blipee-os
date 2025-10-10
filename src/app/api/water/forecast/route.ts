@@ -37,10 +37,12 @@ export async function GET(request: NextRequest) {
     const historicalStartDate = new Date(startDate);
     historicalStartDate.setMonth(historicalStartDate.getMonth() - 36);
 
+    // Get water-related metrics (they're categorized as "Purchased Goods & Services")
     const { data: waterMetrics } = await supabaseAdmin
       .from('metrics_catalog')
       .select('*')
-      .in('category', ['Water', 'Water Consumption']);
+      .or('name.ilike.%water%,name.ilike.%wastewater%')
+      .eq('category', 'Purchased Goods & Services');
 
     if (!waterMetrics || waterMetrics.length === 0) {
       return NextResponse.json({ forecast: [] });
