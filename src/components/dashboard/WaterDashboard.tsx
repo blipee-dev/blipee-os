@@ -64,6 +64,7 @@ export function WaterDashboard({
   const [waterIntensity, setWaterIntensity] = useState(0);
   const [endUseBreakdown, setEndUseBreakdown] = useState<any[]>([]);
   const [endUseYoY, setEndUseYoY] = useState<any[]>([]);
+  const [forecastData, setForecastData] = useState<any>(null);
 
   // YoY comparison state
   const [yoyWithdrawalChange, setYoyWithdrawalChange] = useState<number | null>(
@@ -238,6 +239,28 @@ export function WaterDashboard({
         } else {
           // Clear target when viewing past years
           setWaterTarget(null);
+        }
+
+        // Fetch water forecast data
+        if (selectedPeriod) {
+          const forecastParams = new URLSearchParams({
+            start_date: selectedPeriod.start,
+            end_date: selectedPeriod.end,
+          });
+          if (selectedSite) {
+            forecastParams.append("site_id", selectedSite.id);
+          }
+
+          const forecastRes = await fetch(`/api/water/forecast?${forecastParams}`);
+          const forecastData = await forecastRes.json();
+
+          if (forecastData.forecast && forecastData.forecast.length > 0) {
+            console.log(`🔮 Water Forecast: ${forecastData.forecast.length} months, Method: ${forecastData.model}`);
+            setForecastData(forecastData);
+          } else {
+            console.log('⚠️ No water forecast data available');
+            setForecastData(null);
+          }
         }
       } catch (error) {
         console.error("Error fetching water data:", error);
@@ -567,6 +590,11 @@ export function WaterDashboard({
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Withdrawal, discharge, and consumption
+                  {forecastData && forecastData.forecast && forecastData.forecast.length > 0 && (
+                    <span className="ml-1 text-blue-400">
+                      • {forecastData.forecast.length}mo forecast ({forecastData.model})
+                    </span>
+                  )}
                 </p>
               </div>
               <div className="flex gap-1">
@@ -580,7 +608,40 @@ export function WaterDashboard({
             </div>
 
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyTrends}>
+              <LineChart data={(() => {
+                // Prepare chart data with separate keys for actual and forecast
+                const actualData = monthlyTrends;
+
+                if (!forecastData || !forecastData.forecast || forecastData.forecast.length === 0) {
+                  return actualData;
+                }
+
+                // Create forecast months with separate keys
+                const forecastMonths = forecastData.forecast.map((f: any) => ({
+                  month: f.month,
+                  withdrawalForecast: f.withdrawal || 0,
+                  dischargeForecast: f.discharge || 0,
+                  consumptionForecast: f.consumption || 0,
+                  forecast: true
+                }));
+
+                // Create bridge point to connect actual and forecast lines
+                const lastActual = actualData[actualData.length - 1];
+                const bridgePoint = {
+                  month: lastActual.month,
+                  // Actual data keys (for solid lines)
+                  withdrawal: lastActual.withdrawal,
+                  discharge: lastActual.discharge,
+                  consumption: lastActual.consumption,
+                  // Forecast data keys with same values (for dashed lines)
+                  withdrawalForecast: lastActual.withdrawal,
+                  dischargeForecast: lastActual.discharge,
+                  consumptionForecast: lastActual.consumption,
+                  bridge: true
+                };
+
+                return [...actualData, bridgePoint, ...forecastMonths];
+              })()}>
                 <CartesianGrid
                   strokeDasharray="3 3"
                   stroke="rgba(255,255,255,0.1)"
@@ -602,36 +663,111 @@ export function WaterDashboard({
                     border: "1px solid rgba(255, 255, 255, 0.1)",
                     borderRadius: "8px",
                   }}
-                  formatter={(value: any) => [
-                    (value / 1000).toFixed(2) + " ML",
-                    "",
-                  ]}
+                  content={({ active, payload }: any) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      const isForecast = data.forecast;
+
+                      // Get values from either actual or forecast keys
+                      const withdrawal = data.withdrawal ?? data.withdrawalForecast;
+                      const discharge = data.discharge ?? data.dischargeForecast;
+                      const consumption = data.consumption ?? data.consumptionForecast;
+
+                      // Skip if all values are null
+                      if (!withdrawal && !discharge && !consumption) {
+                        return null;
+                      }
+
+                      return (
+                        <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
+                          <p className="text-white font-semibold mb-2">
+                            {data.month}
+                            {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
+                          </p>
+                          <div className="space-y-1">
+                            <p className="text-sm" style={{ color: "#3b82f6" }}>
+                              Withdrawal: {((withdrawal || 0) / 1000).toFixed(2)} ML
+                            </p>
+                            <p className="text-sm" style={{ color: "#06b6d4" }}>
+                              Discharge: {((discharge || 0) / 1000).toFixed(2)} ML
+                            </p>
+                            <p className="text-sm" style={{ color: "#6366f1" }}>
+                              Consumption: {((consumption || 0) / 1000).toFixed(2)} ML
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
                 />
                 <Legend wrapperStyle={{ fontSize: "12px" }} />
+                {/* Actual data - solid lines */}
                 <Line
                   type="monotone"
                   dataKey="withdrawal"
                   stroke="#3b82f6"
                   strokeWidth={2}
-                  dot={{ r: 3 }}
+                  dot={{ r: 3, fill: "#3b82f6" }}
                   name="Withdrawal"
+                  connectNulls
                 />
                 <Line
                   type="monotone"
                   dataKey="discharge"
                   stroke="#06b6d4"
                   strokeWidth={2}
-                  dot={{ r: 3 }}
+                  dot={{ r: 3, fill: "#06b6d4" }}
                   name="Discharge"
+                  connectNulls
                 />
                 <Line
                   type="monotone"
                   dataKey="consumption"
                   stroke="#6366f1"
                   strokeWidth={3}
-                  dot={{ r: 4 }}
+                  dot={{ r: 4, fill: "#6366f1" }}
                   name="Consumption (Total)"
+                  connectNulls
                 />
+                {/* Forecast data - dashed lines (hidden from legend) */}
+                {forecastData && forecastData.forecast && forecastData.forecast.length > 0 && (
+                  <>
+                    <Line
+                      type="monotone"
+                      dataKey="withdrawalForecast"
+                      stroke="#3b82f6"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ fill: 'transparent', stroke: "#3b82f6", strokeWidth: 2, r: 3 }}
+                      name="Withdrawal"
+                      connectNulls
+                      legendType="none"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="dischargeForecast"
+                      stroke="#06b6d4"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ fill: 'transparent', stroke: "#06b6d4", strokeWidth: 2, r: 3 }}
+                      name="Discharge"
+                      connectNulls
+                      legendType="none"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="consumptionForecast"
+                      stroke="#6366f1"
+                      strokeWidth={3}
+                      strokeDasharray="5 5"
+                      dot={{ fill: 'transparent', stroke: "#6366f1", strokeWidth: 2, r: 4 }}
+                      name="Consumption (Total)"
+                      connectNulls
+                      legendType="none"
+                    />
+                  </>
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>
