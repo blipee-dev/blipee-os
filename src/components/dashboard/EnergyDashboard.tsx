@@ -878,109 +878,178 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={[...monthlyTrends, ...forecastData]}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="month" tick={{ fill: '#888', fontSize: 12 }} />
-                <YAxis
-                  tick={{ fill: '#888', fontSize: 12 }}
-                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}`}
-                  label={{ value: 'MWh', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px'
-                  }}
-                  content={({ active, payload, label }: any) => {
-                    if (active && payload && payload.length) {
-                      const isForecast = payload[0]?.payload?.forecast;
-                      return (
-                        <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
-                          <p className="text-white font-semibold mb-2">
-                            {label}
-                            {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
-                          </p>
-                          {payload.map((entry: any, index: number) => (
-                            entry.value > 0 && (
-                              <p key={index} style={{ color: entry.color }} className="text-sm">
-                                {entry.name}: {(entry.value / 1000).toFixed(1)} MWh
-                              </p>
-                            )
-                          ))}
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Legend />
-                {/* Actual data - solid lines */}
-                <Line
-                  type="monotone"
-                  dataKey="renewable"
-                  stroke={COLORS.renewable}
-                  strokeWidth={2}
-                  dot={{ fill: COLORS.renewable, r: 2 }}
-                  name="Renewable"
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="fossil"
-                  stroke={COLORS.fossil}
-                  strokeWidth={2}
-                  dot={{ fill: COLORS.fossil, r: 2 }}
-                  name="Fossil"
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="total"
-                  stroke="#6366f1"
-                  strokeWidth={3}
-                  dot={{ fill: '#6366f1', r: 3 }}
-                  name="Total"
-                  connectNulls
-                />
-                {/* Forecast data - dashed lines with hollow dots */}
-                {forecastData.length > 0 && (
-                  <>
-                    <Line
-                      type="monotone"
-                      dataKey="renewableForecast"
-                      stroke={COLORS.renewable}
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                      dot={{ fill: '#fff', stroke: COLORS.renewable, strokeWidth: 2, r: 3 }}
-                      name="Renewable (Forecast)"
-                      connectNulls
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="fossilForecast"
-                      stroke={COLORS.fossil}
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                      dot={{ fill: '#fff', stroke: COLORS.fossil, strokeWidth: 2, r: 3 }}
-                      name="Fossil (Forecast)"
-                      connectNulls
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="totalForecast"
-                      stroke="#6366f1"
-                      strokeWidth={3}
-                      strokeDasharray="5 5"
-                      dot={{ fill: '#fff', stroke: '#6366f1', strokeWidth: 2, r: 4 }}
-                      name="Total (Forecast)"
-                      connectNulls
-                    />
-                  </>
-                )}
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="relative" style={{ width: '100%', height: 300 }}>
+              {/* Historical data chart */}
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={monthlyTrends}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: '#888', fontSize: 12 }}
+                    domain={['dataMin', 'dataMax']}
+                  />
+                  <YAxis
+                    tick={{ fill: '#888', fontSize: 12 }}
+                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}`}
+                    label={{ value: 'MWh', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '8px'
+                    }}
+                    content={({ active, payload, label }: any) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
+                            <p className="text-white font-semibold mb-2">{label}</p>
+                            {payload.map((entry: any, index: number) => (
+                              entry.value > 0 && (
+                                <p key={index} style={{ color: entry.color }} className="text-sm">
+                                  {entry.name}: {(entry.value / 1000).toFixed(1)} MWh
+                                </p>
+                              )
+                            ))}
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Legend />
+                  {/* Actual data - solid lines */}
+                  <Line
+                    type="monotone"
+                    dataKey="renewable"
+                    stroke={COLORS.renewable}
+                    strokeWidth={2}
+                    dot={{ fill: COLORS.renewable, r: 3 }}
+                    name="Renewable (Actual)"
+                    connectNulls
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="fossil"
+                    stroke={COLORS.fossil}
+                    strokeWidth={2}
+                    dot={{ fill: COLORS.fossil, r: 3 }}
+                    name="Fossil (Actual)"
+                    connectNulls
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    stroke="#6366f1"
+                    strokeWidth={3}
+                    dot={{ fill: '#6366f1', r: 4 }}
+                    name="Total (Actual)"
+                    connectNulls
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+
+              {/* Forecast overlay chart */}
+              {forecastData.length > 0 && (() => {
+                // Create bridging data: last actual + forecast
+                const lastActual = monthlyTrends[monthlyTrends.length - 1];
+                const bridgedForecast = [
+                  {
+                    month: lastActual.month,
+                    renewable: lastActual.renewable,
+                    fossil: lastActual.fossil,
+                    total: lastActual.total,
+                    forecast: false
+                  },
+                  ...forecastData.map((f: any) => ({
+                    month: f.month,
+                    renewable: f.renewableForecast,
+                    fossil: f.fossilForecast,
+                    total: f.totalForecast,
+                    forecast: true
+                  }))
+                ];
+
+                return (
+                  <div className="absolute inset-0 pointer-events-none">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={[...monthlyTrends.map(t => ({ ...t, renewable: null, fossil: null, total: null })), ...bridgedForecast]}>
+                        <XAxis
+                          dataKey="month"
+                          tick={{ fill: '#888', fontSize: 12 }}
+                          domain={['dataMin', 'dataMax']}
+                          hide
+                        />
+                        <YAxis
+                          tick={{ fill: '#888', fontSize: 12 }}
+                          tickFormatter={(value) => `${(value / 1000).toFixed(0)}`}
+                          hide
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '8px'
+                          }}
+                          content={({ active, payload, label }: any) => {
+                            if (active && payload && payload.length) {
+                              const isForecast = payload[0]?.payload?.forecast;
+                              return (
+                                <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
+                                  <p className="text-white font-semibold mb-2">
+                                    {label}
+                                    {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
+                                  </p>
+                                  {payload.map((entry: any, index: number) => (
+                                    entry.value > 0 && (
+                                      <p key={index} style={{ color: entry.color }} className="text-sm">
+                                        {entry.name}: {(entry.value / 1000).toFixed(1)} MWh
+                                      </p>
+                                    )
+                                  ))}
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        {/* Forecast lines - dashed with hollow dots */}
+                        <Line
+                          type="monotone"
+                          dataKey="renewable"
+                          stroke={COLORS.renewable}
+                          strokeWidth={2}
+                          strokeDasharray="5 5"
+                          dot={{ fill: 'transparent', stroke: COLORS.renewable, strokeWidth: 2, r: 3 }}
+                          name="Renewable (Forecast)"
+                          connectNulls
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="fossil"
+                          stroke={COLORS.fossil}
+                          strokeWidth={2}
+                          strokeDasharray="5 5"
+                          dot={{ fill: 'transparent', stroke: COLORS.fossil, strokeWidth: 2, r: 3 }}
+                          name="Fossil (Forecast)"
+                          connectNulls
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="total"
+                          stroke="#6366f1"
+                          strokeWidth={3}
+                          strokeDasharray="5 5"
+                          dot={{ fill: 'transparent', stroke: '#6366f1', strokeWidth: 2, r: 4 }}
+                          name="Total (Forecast)"
+                          connectNulls
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         )}
 
