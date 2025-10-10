@@ -590,11 +590,6 @@ export function WaterDashboard({
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Withdrawal, discharge, and consumption
-                  {forecastData && forecastData.forecast && forecastData.forecast.length > 0 && (
-                    <span className="ml-1 text-blue-400">
-                      • {forecastData.forecast.length}mo forecast ({forecastData.model})
-                    </span>
-                  )}
                 </p>
               </div>
               <div className="flex gap-1">
