@@ -368,8 +368,15 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
             console.log('📈 Fossil trend:', forecastDataRes.metadata.fossilTrend?.toFixed(3), 'kWh/month');
           }
 
-          // Map isForecast to forecast for consistency in the chart
-          setForecastData(forecastDataRes.forecast.map((f: any) => ({ ...f, forecast: true })));
+          // Map forecast data with different keys to avoid overlapping with actual data
+          setForecastData(forecastDataRes.forecast.map((f: any) => ({
+            month: f.month,
+            monthKey: f.monthKey,
+            totalForecast: f.total,
+            renewableForecast: f.renewable,
+            fossilForecast: f.fossil,
+            forecast: true
+          })));
 
           // Calculate forecasted annual total
           const currentTotal = sourcesData.total_consumption || 0;
@@ -854,7 +861,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Evolution</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Includes ML forecast for {forecastData.length} remaining months
-                  {forecastData.length > 0 && forecastData[0].renewable === 0 && (
+                  {forecastData.length > 0 && forecastData[0].renewableForecast === 0 && (
                     <span className="ml-2 text-amber-500 dark:text-amber-400">
                       (Renewable forecast: 0 MWh - based on historical trend)
                     </span>
@@ -942,35 +949,32 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   <>
                     <Line
                       type="monotone"
-                      dataKey="renewable"
+                      dataKey="renewableForecast"
                       stroke={COLORS.renewable}
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: '#fff', stroke: COLORS.renewable, strokeWidth: 2, r: 3 }}
                       name="Renewable (Forecast)"
-                      data={forecastData}
                       connectNulls
                     />
                     <Line
                       type="monotone"
-                      dataKey="fossil"
+                      dataKey="fossilForecast"
                       stroke={COLORS.fossil}
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: '#fff', stroke: COLORS.fossil, strokeWidth: 2, r: 3 }}
                       name="Fossil (Forecast)"
-                      data={forecastData}
                       connectNulls
                     />
                     <Line
                       type="monotone"
-                      dataKey="total"
+                      dataKey="totalForecast"
                       stroke="#6366f1"
                       strokeWidth={3}
                       strokeDasharray="5 5"
                       dot={{ fill: '#fff', stroke: '#6366f1', strokeWidth: 2, r: 4 }}
                       name="Total (Forecast)"
-                      data={forecastData}
                       connectNulls
                     />
                   </>
