@@ -448,7 +448,7 @@ function TargetCard({ target, onRefresh }: { target: SBTiTarget; onRefresh: () =
         <div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Baseline ({target.baseline_year})</div>
           <div className="text-lg font-bold text-gray-900 dark:text-white">
-            {target.baseline_emissions.toLocaleString()}
+            {target.baseline_emissions.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
         </div>
@@ -456,28 +456,41 @@ function TargetCard({ target, onRefresh }: { target: SBTiTarget; onRefresh: () =
         <div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Current ({new Date().getFullYear()})</div>
           <div className="text-lg font-bold text-gray-900 dark:text-white">
-            {target.current_emissions ? target.current_emissions.toLocaleString() : '-'}
+            {target.current_emissions ? target.current_emissions.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '-'}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
         </div>
 
         <div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Target ({target.target_year})</div>
-          <div className="text-lg font-bold text-gray-900 dark:text-white">
-            {target.target_emissions.toLocaleString()}
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+            {target.target_type === 'net-zero' ? 'Carbon Offset' : 'Target (' + target.target_year + ')'}
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
-        </div>
-
-        <div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Annual Rate</div>
           <div className="text-lg font-bold text-gray-900 dark:text-white">
-            {target.annual_reduction_rate
-              ? `${target.annual_reduction_rate.toFixed(1)}%`
-              : `${(((target.baseline_emissions - target.target_emissions) / target.baseline_emissions * 100) / (target.target_year - target.baseline_year)).toFixed(1)}%`
+            {target.target_type === 'net-zero'
+              ? (target.baseline_emissions * 0.1).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+              : target.target_emissions.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
             }
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">per year</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            {target.target_type === 'net-zero' ? 'tCO2e to offset' : 'tCO2e'}
+          </div>
+        </div>
+
+        <div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+            {target.target_type === 'net-zero' ? 'Target (' + target.target_year + ')' : 'Annual Rate'}
+          </div>
+          <div className="text-lg font-bold text-gray-900 dark:text-white">
+            {target.target_type === 'net-zero'
+              ? '0.0'
+              : target.annual_reduction_rate
+                ? `${target.annual_reduction_rate.toFixed(1)}%`
+                : `${(((target.baseline_emissions - target.target_emissions) / target.baseline_emissions * 100) / (target.target_year - target.baseline_year)).toFixed(1)}%`
+            }
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            {target.target_type === 'net-zero' ? 'tCO2e (Net-Zero)' : 'per year'}
+          </div>
         </div>
       </div>
 

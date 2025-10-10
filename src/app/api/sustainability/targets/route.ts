@@ -82,15 +82,38 @@ export async function GET(request: NextRequest) {
 
     console.log(`🎯 Fetching emissions for ${currentYear} (current month: ${currentMonth})`);
 
-    // Get current year data (may be incomplete)
+    // Get current year data (may be incomplete) with pagination
     // Use period_start for both filters to avoid timezone/format issues
-    const { data: currentYearMetrics } = await supabaseAdmin
-      .from('metrics_data')
-      .select('co2e_emissions, period_start, period_end')
-      .eq('organization_id', organizationId)
-      .gte('period_start', `${currentYear}-01-01`)
-      .lt('period_start', `${currentYear + 1}-01-01`)
-      .order('period_start', { ascending: true });
+    let allCurrentYearMetrics: any[] = [];
+    let rangeStart = 0;
+    const batchSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+      const { data: batch } = await supabaseAdmin
+        .from('metrics_data')
+        .select('co2e_emissions, period_start, period_end')
+        .eq('organization_id', organizationId)
+        .gte('period_start', `${currentYear}-01-01`)
+        .lt('period_start', `${currentYear + 1}-01-01`)
+        .order('period_start', { ascending: true })
+        .range(rangeStart, rangeStart + batchSize - 1);
+
+      if (!batch || batch.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      allCurrentYearMetrics = allCurrentYearMetrics.concat(batch);
+
+      if (batch.length < batchSize) {
+        hasMore = false;
+      } else {
+        rangeStart += batchSize;
+      }
+    }
+
+    const currentYearMetrics = allCurrentYearMetrics;
 
     let currentYearEmissions = 0;
     let currentYearIsForecast = false;
@@ -118,14 +141,36 @@ export async function GET(request: NextRequest) {
       // If we have less than 12 months, use enterprise forecasting
       if (monthsCovered < 12) {
         try {
-          // Fetch 3 years of historical data for sophisticated forecasting
-          const { data: historicalMetrics } = await supabaseAdmin
-            .from('metrics_data')
-            .select('co2e_emissions, period_start')
-            .eq('organization_id', organizationId)
-            .gte('period_start', `${currentYear - 3}-01-01`)
-            .lt('period_start', `${currentYear + 1}-01-01`)
-            .order('period_start', { ascending: true });
+          // Fetch 3 years of historical data for sophisticated forecasting with pagination
+          let allHistoricalMetrics: any[] = [];
+          let histRangeStart = 0;
+          let histHasMore = true;
+
+          while (histHasMore) {
+            const { data: histBatch } = await supabaseAdmin
+              .from('metrics_data')
+              .select('co2e_emissions, period_start')
+              .eq('organization_id', organizationId)
+              .gte('period_start', `${currentYear - 3}-01-01`)
+              .lt('period_start', `${currentYear + 1}-01-01`)
+              .order('period_start', { ascending: true })
+              .range(histRangeStart, histRangeStart + batchSize - 1);
+
+            if (!histBatch || histBatch.length === 0) {
+              histHasMore = false;
+              break;
+            }
+
+            allHistoricalMetrics = allHistoricalMetrics.concat(histBatch);
+
+            if (histBatch.length < batchSize) {
+              histHasMore = false;
+            } else {
+              histRangeStart += batchSize;
+            }
+          }
+
+          const historicalMetrics = allHistoricalMetrics;
 
           if (historicalMetrics && historicalMetrics.length >= 12) {
             // Group by month to get monthly totals
@@ -239,7 +284,26 @@ export async function GET(request: NextRequest) {
       const targetTypes = ['near-term', 'long-term', 'net-zero'];
       targetTypes.forEach(type => {
         if (!targetTypeMap.has(type) && calculatedTargets[type as keyof typeof calculatedTargets]) {
-          targetTypeMap.set(type, calculatedTargets[type as keyof typeof calculatedTargets]);
+          const calculatedTarget = calculatedTargets[type as keyof typeof calculatedTargets];
+
+          // Add current emissions to calculated targets
+          if (currentYearEmissions > 0) {
+            calculatedTarget.current_emissions = currentYearEmissions;
+            calculatedTarget.is_forecast = currentYearIsForecast;
+            calculatedTarget.actual_ytd = actualYearToDate;
+            calculatedTarget.forecasted_remaining = forecastedRemaining;
+            calculatedTarget.bau_projection_2030 = bauProjection2030;
+            calculatedTarget.performance_status = calculatePerformanceStatus(
+              calculatedTarget.baseline_emissions,
+              currentYearEmissions,
+              calculatedTarget.target_emissions,
+              calculatedTarget.baseline_year,
+              calculatedTarget.target_year,
+              currentYear
+            );
+          }
+
+          targetTypeMap.set(type, calculatedTarget);
         }
       });
 
