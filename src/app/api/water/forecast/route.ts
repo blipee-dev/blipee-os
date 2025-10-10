@@ -109,12 +109,13 @@ export async function GET(request: NextRequest) {
       const metric = waterMetrics.find(m => m.id === record.metric_id);
       const metricName = metric?.name?.toLowerCase() || '';
 
-      if (metricName.includes('discharge') || metricName.includes('effluent')) {
+      if (metricName.includes('wastewater') || metricName.includes('discharge') || metricName.includes('effluent')) {
+        // Wastewater = discharge
         monthlyData[monthKey].discharge += value;
       } else if (metricName.includes('consumption')) {
         monthlyData[monthKey].consumption += value;
-      } else {
-        // Default to withdrawal
+      } else if (metricName.includes('water')) {
+        // Water = withdrawal
         monthlyData[monthKey].withdrawal += value;
       }
 
