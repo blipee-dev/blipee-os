@@ -18,6 +18,63 @@ import {
   getTopEmissionSources
 } from '@/lib/sustainability/baseline-calculator';
 
+/**
+ * Fetch all metrics data with pagination to avoid 1000-record limit
+ * This ensures we get complete data even for large organizations
+ */
+async function fetchAllMetricsData(
+  organizationId: string,
+  selectFields: string,
+  startDate: Date,
+  endDate: Date,
+  siteId?: string
+): Promise<any[]> {
+  let allData: any[] = [];
+  let rangeStart = 0;
+  const batchSize = 1000;
+  let hasMore = true;
+
+  console.log(`📊 Fetching metrics with pagination for org ${organizationId.slice(0, 8)}...`);
+
+  while (hasMore) {
+    let query = supabaseAdmin
+      .from('metrics_data')
+      .select(selectFields)
+      .eq('organization_id', organizationId)
+      .gte('period_start', startDate.toISOString())
+      .lte('period_end', endDate.toISOString())
+      .order('period_start', { ascending: true })
+      .range(rangeStart, rangeStart + batchSize - 1);
+
+    if (siteId && siteId !== 'all') {
+      query = query.eq('site_id', siteId);
+    }
+
+    const { data: batchData, error } = await query;
+
+    if (error) {
+      console.error('❌ Error fetching batch:', error);
+      throw error;
+    }
+
+    if (!batchData || batchData.length === 0) {
+      hasMore = false;
+      break;
+    }
+
+    allData = allData.concat(batchData);
+
+    if (batchData.length < batchSize) {
+      hasMore = false;
+    } else {
+      rangeStart += batchSize;
+    }
+  }
+
+  console.log(`✅ Fetched ${allData.length} total records (${Math.ceil(allData.length / batchSize)} batches)`);
+  return allData;
+}
+
 export async function GET(request: NextRequest) {
   console.log('🔧 API: Dashboard endpoint called');
   try {
@@ -174,25 +231,22 @@ export async function GET(request: NextRequest) {
       console.log('📊 Dashboard API: Using range-based dates:', range);
     }
 
-    // Build query for metrics data - use admin client for full data access
-    let dataQuery = supabaseAdmin
-      .from('metrics_data')
-      .select(`
+    // Fetch metrics data with pagination - use admin client for full data access
+    const metricsData = await fetchAllMetricsData(
+      organizationId,
+      `
         *,
         metrics_catalog (
           id, name, code, unit, scope, category, subcategory,
           emission_factor, emission_factor_unit
         )
-      `)
-      .eq('organization_id', organizationId)
-      .gte('period_start', startDate.toISOString())
-      .lte('period_end', endDate.toISOString());
+      `,
+      startDate,
+      endDate,
+      siteId
+    );
 
-    if (siteId !== 'all') {
-      dataQuery = dataQuery.eq('site_id', siteId);
-    }
-
-    const { data: metricsData, error: dataError } = await dataQuery;
+    const dataError = null; // Error handling is done in fetchAllMetricsData
 
     console.log('🔧 API: Query params:', { organizationId, startDate: startDate.toISOString(), endDate: endDate.toISOString(), siteId });
     console.log('🔧 API: Metrics data count:', metricsData?.length || 0);
@@ -848,14 +902,16 @@ async function calculateYearOverYearComparison(data: any[], range: string, organ
     previousYear = 2024;
   }
 
-  // Fetch previous year data
-  const { data: previousYearData } = await supabaseAdmin
-    .from('metrics_data')
-    .select('co2e_emissions, period_start')
-    .eq('organization_id', organizationId)
-    .gte('period_start', `${previousYear}-01-01`)
-    .lte('period_end', `${previousYear}-12-31`)
-    .not('co2e_emissions', 'is', null);
+  // Fetch previous year data with pagination
+  const prevYearStart = new Date(`${previousYear}-01-01`);
+  const prevYearEnd = new Date(`${previousYear}-12-31`);
+
+  const previousYearData = await fetchAllMetricsData(
+    organizationId,
+    'co2e_emissions, period_start',
+    prevYearStart,
+    prevYearEnd
+  ).then(data => data.filter(d => d.co2e_emissions !== null));
 
   // Group current year data by month
   const currentYearByMonth: { [key: number]: number } = {};

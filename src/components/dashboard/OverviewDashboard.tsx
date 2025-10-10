@@ -193,6 +193,13 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         const currentTotal = s1Current + s2Current + s3Current;
         const previousTotal = s1Previous + s2Previous + s3Previous;
 
+        console.log('📊 Calculated emissions:');
+        console.log('  Scope 1:', s1Current.toFixed(2), 'tCO2e');
+        console.log('  Scope 2:', s2Current.toFixed(2), 'tCO2e');
+        console.log('  Scope 3:', s3Current.toFixed(2), 'tCO2e');
+        console.log('  Total:', currentTotal.toFixed(2), 'tCO2e');
+        console.log('  Previous year total:', previousTotal.toFixed(2), 'tCO2e');
+
         setScope1Total(s1Current);
         setScope2Total(s2Current);
         setScope3Total(s3Current);

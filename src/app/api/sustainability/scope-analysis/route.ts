@@ -86,6 +86,14 @@ export async function GET(request: NextRequest) {
     const emissions = await getPeriodEmissions(organizationId, startDateStr, endDateStr);
     const scopes = await getScopeBreakdown(organizationId, startDateStr, endDateStr);
 
+    console.log(`🔍 [Scope Analysis API] Period: ${startDateStr} to ${endDateStr}`);
+    console.log(`🔍 [Scope Analysis API] Calculator returned:`, {
+      scope_1: scopes.scope_1.toFixed(2),
+      scope_2: scopes.scope_2.toFixed(2),
+      scope_3: scopes.scope_3.toFixed(2),
+      total: scopes.total.toFixed(2)
+    });
+
     // Get category breakdowns for each scope using calculator
     const scope1Categories = await getScopeCategoryBreakdown(organizationId, 'scope_1', startDateStr, endDateStr);
     const scope2Categories = await getScopeCategoryBreakdown(organizationId, 'scope_2', startDateStr, endDateStr);
