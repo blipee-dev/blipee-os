@@ -989,7 +989,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   name="Total"
                   connectNulls
                 />
-                {/* Forecast data - dashed lines */}
+                {/* Forecast data - dashed lines (hide from legend) */}
                 {forecastData.length > 0 && (
                   <>
                     <Line
@@ -999,8 +999,9 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: COLORS.renewable, strokeWidth: 2, r: 3 }}
-                      name="Renewable (Forecast)"
+                      name="Renewable"
                       connectNulls
+                      legendType="none"
                     />
                     <Line
                       type="monotone"
@@ -1009,8 +1010,9 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: COLORS.fossil, strokeWidth: 2, r: 3 }}
-                      name="Fossil (Forecast)"
+                      name="Fossil"
                       connectNulls
+                      legendType="none"
                     />
                     <Line
                       type="monotone"
@@ -1019,8 +1021,9 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                       strokeWidth={3}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: '#6366f1', strokeWidth: 2, r: 4 }}
-                      name="Total (Forecast)"
+                      name="Total"
                       connectNulls
+                      legendType="none"
                     />
                   </>
                 )}
