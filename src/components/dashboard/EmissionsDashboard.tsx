@@ -509,19 +509,19 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               console.log('🔮 Forecast months:', forecastData.forecast.map((f: any) => f.month));
               console.log('📊 Model:', forecastData.model, 'Confidence:', forecastData.confidence);
 
-              // Add forecast months to trends
+              // Add forecast months to trends with separate keys
               const forecastMonths = forecastData.forecast.map((f: any) => ({
                 month: f.month,
-                total: f.total || 0,
-                scope1: f.scope1 || 0,
-                scope2: f.scope2 || 0,
-                scope3: f.scope3 || 0,
+                totalForecast: f.total || 0,
+                scope1Forecast: f.scope1 || 0,
+                scope2Forecast: f.scope2 || 0,
+                scope3Forecast: f.scope3 || 0,
                 forecast: true
               }));
 
               // Calculate total projected emissions for the year (actual + forecast)
               const actualEmissions = trends.reduce((sum: number, t: any) => sum + (t.total || 0), 0);
-              const forecastedEmissionsTotal = forecastMonths.reduce((sum: number, f: any) => sum + f.total, 0);
+              const forecastedEmissionsTotal = forecastMonths.reduce((sum: number, f: any) => sum + f.totalForecast, 0);
               const projectedTotal = actualEmissions + forecastedEmissionsTotal;
 
               console.log('📊 Projected annual emissions:', {
@@ -535,8 +535,25 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               setActualEmissionsYTD(actualEmissions);
               setForecastedEmissions(forecastedEmissionsTotal);
 
-              console.log('📊 Final combined:', trends.length, 'actual +', forecastMonths.length, 'forecast =', trends.length + forecastMonths.length, 'total months');
-              setMonthlyTrends([...trends, ...forecastMonths]);
+              // Create bridge point to connect actual and forecast lines
+              const lastActual = trends[trends.length - 1];
+              const bridgePoint = {
+                month: lastActual.month,
+                // Actual data keys (for solid lines)
+                total: lastActual.total,
+                scope1: lastActual.scope1,
+                scope2: lastActual.scope2,
+                scope3: lastActual.scope3,
+                // Forecast data keys with same values (for dashed lines)
+                totalForecast: lastActual.total,
+                scope1Forecast: lastActual.scope1,
+                scope2Forecast: lastActual.scope2,
+                scope3Forecast: lastActual.scope3,
+                bridge: true
+              };
+
+              console.log('📊 Final combined:', trends.length, 'actual +', forecastMonths.length, 'forecast =', trends.length + forecastMonths.length + 1, 'total months (with bridge)');
+              setMonthlyTrends([...trends, bridgePoint, ...forecastMonths]);
             } else {
               console.log('⚠️ No forecast data returned');
               setMonthlyTrends(trends);
@@ -1031,8 +1048,15 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       const isForecast = data.forecast;
+
+                      // Get values from either actual or forecast keys
+                      const scope1 = data.scope1 ?? data.scope1Forecast;
+                      const scope2 = data.scope2 ?? data.scope2Forecast;
+                      const scope3 = data.scope3 ?? data.scope3Forecast;
+                      const total = data.total ?? data.totalForecast;
+
                       // Skip if all values are null
-                      if (!data.total && !data.scope1 && !data.scope2 && !data.scope3) {
+                      if (!total && !scope1 && !scope2 && !scope3) {
                         return null;
                       }
                       return (
@@ -1042,28 +1066,28 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                             {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
                           </p>
                           <div className="space-y-1">
-                            {data.scope1 != null && (
+                            {scope1 != null && (
                               <div className="flex items-center justify-between gap-3">
                                 <span className="text-red-400 text-sm">Scope 1:</span>
-                                <span className="text-white font-medium">{data.scope1.toFixed(1)} tCO2e</span>
+                                <span className="text-white font-medium">{scope1.toFixed(1)} tCO2e</span>
                               </div>
                             )}
-                            {data.scope2 != null && (
+                            {scope2 != null && (
                               <div className="flex items-center justify-between gap-3">
                                 <span className="text-blue-400 text-sm">Scope 2:</span>
-                                <span className="text-white font-medium">{data.scope2.toFixed(1)} tCO2e</span>
+                                <span className="text-white font-medium">{scope2.toFixed(1)} tCO2e</span>
                               </div>
                             )}
-                            {data.scope3 != null && (
+                            {scope3 != null && (
                               <div className="flex items-center justify-between gap-3">
                                 <span className="text-gray-400 text-sm">Scope 3:</span>
-                                <span className="text-white font-medium">{data.scope3.toFixed(1)} tCO2e</span>
+                                <span className="text-white font-medium">{scope3.toFixed(1)} tCO2e</span>
                               </div>
                             )}
-                            {data.total != null && (
+                            {total != null && (
                               <div className="flex items-center justify-between gap-3 pt-1 border-t border-gray-700">
                                 <span className="text-purple-400 text-sm font-semibold">Total:</span>
-                                <span className="text-white font-semibold">{data.total.toFixed(1)} tCO2e</span>
+                                <span className="text-white font-semibold">{total.toFixed(1)} tCO2e</span>
                               </div>
                             )}
                           </div>
@@ -1074,7 +1098,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: '11px' }} />
-                {/* Total Emissions */}
+                {/* Actual data - solid lines */}
                 <Line
                   type="monotone"
                   dataKey="total"
@@ -1082,8 +1106,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   strokeWidth={2.5}
                   name="Total Emissions"
                   dot={{ r: 4, fill: "#8B5CF6" }}
+                  connectNulls
                 />
-                {/* Scope 1 */}
                 <Line
                   type="monotone"
                   dataKey="scope1"
@@ -1091,8 +1115,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   strokeWidth={2}
                   name="Scope 1"
                   dot={{ r: 3, fill: "#EF4444" }}
+                  connectNulls
                 />
-                {/* Scope 2 */}
                 <Line
                   type="monotone"
                   dataKey="scope2"
@@ -1100,8 +1124,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   strokeWidth={2}
                   name="Scope 2"
                   dot={{ r: 3, fill: "#3B82F6" }}
+                  connectNulls
                 />
-                {/* Scope 3 */}
                 <Line
                   type="monotone"
                   dataKey="scope3"
@@ -1109,6 +1133,52 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   strokeWidth={2}
                   name="Scope 3"
                   dot={{ r: 3, fill: "#6B7280" }}
+                  connectNulls
+                />
+                {/* Forecast data - dashed lines (hidden from legend) */}
+                <Line
+                  type="monotone"
+                  dataKey="totalForecast"
+                  stroke="#8B5CF6"
+                  strokeWidth={2.5}
+                  strokeDasharray="5 5"
+                  name="Total Emissions"
+                  dot={{ fill: 'transparent', stroke: "#8B5CF6", strokeWidth: 2, r: 4 }}
+                  connectNulls
+                  legendType="none"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="scope1Forecast"
+                  stroke="#EF4444"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  name="Scope 1"
+                  dot={{ fill: 'transparent', stroke: "#EF4444", strokeWidth: 2, r: 3 }}
+                  connectNulls
+                  legendType="none"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="scope2Forecast"
+                  stroke="#3B82F6"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  name="Scope 2"
+                  dot={{ fill: 'transparent', stroke: "#3B82F6", strokeWidth: 2, r: 3 }}
+                  connectNulls
+                  legendType="none"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="scope3Forecast"
+                  stroke="#6B7280"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  name="Scope 3"
+                  dot={{ fill: 'transparent', stroke: "#6B7280", strokeWidth: 2, r: 3 }}
+                  connectNulls
+                  legendType="none"
                 />
               </LineChart>
             </ResponsiveContainer>
