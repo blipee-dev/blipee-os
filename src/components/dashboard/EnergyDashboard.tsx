@@ -854,6 +854,11 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Evolution</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Includes ML forecast for {forecastData.length} remaining months
+                  {forecastData.length > 0 && forecastData[0].renewable === 0 && (
+                    <span className="ml-2 text-amber-500 dark:text-amber-400">
+                      (Renewable forecast: 0 MWh - based on historical trend)
+                    </span>
+                  )}
                 </p>
               </div>
               <div className="flex gap-1">
