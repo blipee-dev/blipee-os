@@ -3,6 +3,20 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import { SCOPE_COLORS } from '@/lib/constants/sustainability-colors';
+import {
+  getBaselineEmissions,
+  getYearEmissions,
+  getPeriodEmissions,
+  getScopeBreakdown,
+  getCategoryBreakdown,
+  getMonthlyEmissions,
+  getYoYComparison,
+  getIntensityMetrics,
+  getEnergyTotal,
+  getWaterTotal,
+  getWasteTotal,
+  getTopEmissionSources
+} from '@/lib/sustainability/baseline-calculator';
 
 export async function GET(request: NextRequest) {
   console.log('🔧 API: Dashboard endpoint called');
@@ -23,6 +37,8 @@ export async function GET(request: NextRequest) {
     const startDateParam = searchParams.get('start_date');
     const endDateParam = searchParams.get('end_date');
     const siteId = searchParams.get('site') || searchParams.get('site_id') || 'all';
+
+    console.log('📅 Dashboard API: URL params - start_date:', startDateParam, 'end_date:', endDateParam, 'range:', range);
 
     // Get user's organization
     let organizationId: string | null = null;
@@ -198,7 +214,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Process data for dashboard
-    const processedData = await processDashboardData(metricsData || [], range, sitesMap, organizationId);
+    const processedData = await processDashboardData(metricsData || [], range, sitesMap, organizationId, startDate, endDate);
 
     console.log('📊 Year-over-Year data in API:', {
       hasData: !!processedData.yearOverYearComparison,
@@ -236,122 +252,161 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function processDashboardData(data: any[], range: string, sitesMap: Map<string, any>, organizationId: string) {
+async function processDashboardData(
+  data: any[],
+  range: string,
+  sitesMap: Map<string, any>,
+  organizationId: string,
+  providedStartDate: Date,
+  providedEndDate: Date
+) {
   console.log('🔧 Processing: Input data length:', data.length);
   console.log('🔧 Processing: Sites map:', Array.from(sitesMap.entries()));
 
-  // Calculate key metrics - ensure we're processing all emission data correctly
-  const totalEmissions = data.reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000; // Convert kg to tons
-  console.log('🔧 Processing: Total emissions calculated:', totalEmissions, 'tCO2e');
-  console.log('🔧 Processing: Raw emissions sum:', data.reduce((sum, d) => sum + (d.co2e_emissions || 0), 0), 'kgCO2e');
+  // ✅ USE CALCULATOR for emissions calculations (scope-by-scope rounding)
+  console.log('✅ Using calculator for all dashboard metrics...');
 
-  // Get previous period data for accurate comparison
-  let previousStart: string;
-  let previousEnd: string;
-  const now = new Date();
+  // Use provided dates (already validated and calculated in main GET function)
+  const startDate = providedStartDate instanceof Date
+    ? providedStartDate.toISOString().split('T')[0]
+    : String(providedStartDate);
+  const endDate = providedEndDate instanceof Date
+    ? providedEndDate.toISOString().split('T')[0]
+    : String(providedEndDate);
 
-  switch (range) {
-    case '2025':
-      previousStart = '2024-01-01';
-      previousEnd = '2024-12-31';
-      break;
-    case '2024':
-      previousStart = '2023-01-01';
-      previousEnd = '2023-12-31';
-      break;
-    case '2023':
-      previousStart = '2022-01-01';
-      previousEnd = '2022-12-31';
-      break;
-    case '2022':
-      previousStart = '2021-01-01';
-      previousEnd = '2021-12-31';
-      break;
-    case 'year':
-      previousStart = `${now.getFullYear() - 2}-01-01`;
-      previousEnd = `${now.getFullYear() - 1}-12-31`;
-      break;
-    case 'all':
-      // For all-time, comparison doesn't make sense - set to 0
-      previousStart = '';
-      previousEnd = '';
-      break;
-    default:
-      // Default to current year vs previous year
-      previousStart = `${now.getFullYear() - 1}-01-01`;
-      previousEnd = `${now.getFullYear() - 1}-12-31`;
-  }
+  console.log('📅 processDashboardData: Using dates', startDate, 'to', endDate);
 
-  // Fetch actual previous period data (skip if "all" range)
-  let previousData: any[] | null = null;
-  let previousEmissions = 0;
+  // Get emissions using calculator
+  const emissions = await getPeriodEmissions(organizationId, startDate, endDate);
+  const scopes = await getScopeBreakdown(organizationId, startDate, endDate);
+
+  const totalEmissions = emissions.total;
+  const scope1Emissions = emissions.scope_1;
+  const scope2Emissions = emissions.scope_2;
+  const scope3Emissions = emissions.scope_3;
+
+  console.log('✅ Calculator emissions:', totalEmissions, 'tCO2e');
+  console.log('✅ By scope - S1:', scope1Emissions, 'S2:', scope2Emissions, 'S3:', scope3Emissions);
+
+  // ✅ USE CALCULATOR for YoY comparison
   let emissionsChange = 0;
+  let previousEmissions = 0;
 
-  if (range !== 'all' && previousStart && previousEnd) {
-    const { data: prevData } = await supabaseAdmin
-      .from('metrics_data')
-      .select('co2e_emissions, value, metrics_catalog!inner(category, name, unit)')
-      .eq('organization_id', organizationId)
-      .gte('period_start', previousStart)
-      .lte('period_end', previousEnd);
-
-    previousData = prevData;
-    previousEmissions = previousData ?
-      previousData.reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 :
-      0;
-
-    emissionsChange = calculatePercentageChange(totalEmissions, previousEmissions);
+  if (range !== 'all') {
+    const yoyComparison = await getYoYComparison(organizationId, startDate, endDate, 'emissions');
+    emissionsChange = yoyComparison.percentageChange;
+    previousEmissions = yoyComparison.previousValue;
+    console.log('✅ Calculator YoY:', emissionsChange, '% (prev:', previousEmissions, 'tCO2e)');
   }
 
-  // Group by scope
-  const scopeBreakdown = calculateScopeBreakdown(data);
+  // ✅ USE CALCULATOR for scope breakdown, trends, and categories
+  // Convert scope breakdown object to array format for dashboard
+  const totalForPercentage = scopes.total || 0.001; // Avoid division by zero
+  const scopeBreakdown = [
+    {
+      name: 'Scope 1',
+      value: scopes.scope_1,
+      percentage: totalForPercentage > 0 ? Math.round((scopes.scope_1 / totalForPercentage) * 1000) / 10 : 0,
+      color: SCOPE_COLORS.scope1
+    },
+    {
+      name: 'Scope 2',
+      value: scopes.scope_2,
+      percentage: totalForPercentage > 0 ? Math.round((scopes.scope_2 / totalForPercentage) * 1000) / 10 : 0,
+      color: SCOPE_COLORS.scope2
+    },
+    {
+      name: 'Scope 3',
+      value: scopes.scope_3,
+      percentage: totalForPercentage > 0 ? Math.round((scopes.scope_3 / totalForPercentage) * 1000) / 10 : 0,
+      color: SCOPE_COLORS.scope3
+    }
+  ].filter(s => s.value > 0);
 
-  // Time series data
-  const trendData = generateTrendData(data, range);
+  // Get monthly emissions from calculator
+  // Convert Date objects to ISO date strings (YYYY-MM-DD)
+  console.log('🔍 DEBUG: startDate type:', typeof startDate, 'value:', startDate);
+  console.log('🔍 DEBUG: endDate type:', typeof endDate, 'value:', endDate);
+  console.log('🔍 DEBUG: startDate instanceof Date?', startDate instanceof Date);
 
-  // Site comparison
+  const startDateStr = typeof startDate.toISOString === 'function'
+    ? startDate.toISOString().split('T')[0]
+    : String(startDate);
+  const endDateStr = typeof endDate.toISOString === 'function'
+    ? endDate.toISOString().split('T')[0]
+    : String(endDate);
+  console.log(`📅 Dashboard API: Calling getMonthlyEmissions with startDate=${startDateStr}, endDate=${endDateStr}`);
+  const monthlyEmissions = await getMonthlyEmissions(organizationId, startDateStr, endDateStr);
+  console.log(`📊 Dashboard API: getMonthlyEmissions returned ${monthlyEmissions.length} months`);
+  console.log(`📊 Dashboard API: First 3 months from calculator:`, JSON.stringify(monthlyEmissions.slice(0, 3).map(m => ({ month: m.month, emissions: m.emissions }))));
+  const trendData = formatTrendDataFromCalculator(monthlyEmissions, range);
+  console.log(`📊 Dashboard API: First 3 formatted months:`, JSON.stringify(trendData.slice(0, 3).map(t => ({ month: t.month, emissions: t.emissions }))));
+
+  // Site comparison (still needs raw data for site-specific filtering)
   console.log('📊 Dashboard API: Generating site comparison with', data.length, 'data records and', sitesMap.size, 'sites');
   const siteComparison = generateSiteComparison(data, sitesMap);
   console.log('📊 Dashboard API: Site comparison result:', siteComparison);
 
-  // Category heatmap
-  const categoryHeatmap = generateCategoryHeatmap(data);
+  // Get category breakdown from calculator
+  const categories = await getCategoryBreakdown(organizationId, startDate, endDate);
+  const categoryHeatmap = formatCategoryHeatmap(categories);
 
-  // Calculate other metrics
-  const energyConsumption = calculateEnergyTotal(data);
-  const waterUsage = calculateWaterTotal(data);
-  const wasteGenerated = calculateMetricTotal(data, 'waste');
+  // ✅ USE CALCULATOR for energy, water, waste
+  const energyConsumption = await getEnergyTotal(organizationId, startDate, endDate);
+  const waterUsage = await getWaterTotal(organizationId, startDate, endDate);
+  const wasteGenerated = await getWasteTotal(organizationId, startDate, endDate);
 
-  // Calculate previous period metrics for accurate trends
+  console.log('✅ Calculator metrics - Energy:', energyConsumption, 'kWh, Water:', waterUsage, 'm³, Waste:', wasteGenerated, 'kg');
+
+  // ✅ USE CALCULATOR for YoY comparisons
   let energyChange = 0;
   let waterChange = 0;
   let wasteChange = 0;
 
-  if (range !== 'all' && previousData) {
-    const previousEnergy = previousData.filter(d =>
-      d.metrics_catalog?.category === 'Electricity' ||
-      d.metrics_catalog?.category === 'Purchased Energy'
-    ).reduce((sum, d) => sum + (d.value || 0), 0);
+  if (range !== 'all') {
+    const energyYoY = await getYoYComparison(organizationId, startDate, endDate, 'energy');
+    const waterYoY = await getYoYComparison(organizationId, startDate, endDate, 'water');
+    const wasteYoY = await getYoYComparison(organizationId, startDate, endDate, 'waste');
 
-    const previousWater = previousData.filter(d =>
-      d.metrics_catalog?.category === 'Purchased Goods & Services' &&
-      (d.metrics_catalog?.name === 'Water' || d.metrics_catalog?.name === 'Wastewater')
-    ).reduce((sum, d) => sum + (d.value || 0), 0);
+    energyChange = energyYoY.percentageChange;
+    waterChange = waterYoY.percentageChange;
+    wasteChange = wasteYoY.percentageChange;
 
-    const previousWaste = previousData.filter(d =>
-      d.metrics_catalog?.category === 'Waste'
-    ).reduce((sum, d) => sum + (d.value || 0), 0);
-
-    // Calculate actual percentage changes
-    energyChange = calculatePercentageChange(energyConsumption, previousEnergy);
-    waterChange = calculatePercentageChange(waterUsage, previousWater);
-    wasteChange = calculatePercentageChange(wasteGenerated, previousWaste);
+    console.log('✅ Calculator YoY changes - Energy:', energyChange, '%, Water:', waterChange, '%, Waste:', wasteChange, '%');
   }
+
+  // ✅ USE CALCULATOR for intensity metrics
+  // Calculate total area from sites
+  let totalAreaM2 = 0;
+  sitesMap.forEach(site => {
+    const area = typeof site.total_area_sqm === 'string'
+      ? parseFloat(site.total_area_sqm)
+      : (site.total_area_sqm || 0);
+    totalAreaM2 += area;
+  });
+
+  // Get organization data for employee count and revenue
+  const { data: orgData } = await supabaseAdmin
+    .from('organizations')
+    .select('employee_count, annual_revenue')
+    .eq('id', organizationId)
+    .single();
+
+  const intensityMetrics = await getIntensityMetrics(
+    organizationId,
+    startDate,
+    endDate,
+    orgData?.employee_count || 0,
+    orgData?.annual_revenue || 0,
+    totalAreaM2
+  );
+
+  console.log('✅ Calculator intensity metrics:', intensityMetrics);
 
   return {
     metrics: {
       totalEmissions: {
-        value: Math.round(totalEmissions * 10) / 10,
+        value: totalEmissions,
         unit: 'tCO2e',
         change: emissionsChange,
         trend: emissionsChange < 0 ? 'down' : emissionsChange > 0 ? 'up' : 'stable'
@@ -369,15 +424,15 @@ async function processDashboardData(data: any[], range: string, sitesMap: Map<st
         trend: waterChange < 0 ? 'down' : waterChange > 0 ? 'up' : 'stable'
       },
       wasteGenerated: {
-        value: Math.round(wasteGenerated * 10) / 10,
+        value: Math.round(wasteGenerated / 1000 * 10) / 10, // Convert kg to tons
         unit: 'tons',
         change: wasteChange,
         trend: wasteChange < 0 ? 'down' : wasteChange > 0 ? 'up' : 'stable'
       },
       carbonIntensity: {
-        value: calculateCarbonIntensity(data, sitesMap),
+        value: intensityMetrics.perArea || 0,
         unit: 'kgCO2e/m²',
-        change: emissionsChange, // Use emissions change as proxy for carbon intensity
+        change: emissionsChange, // Use emissions change as proxy
         trend: emissionsChange < 0 ? 'down' : emissionsChange > 0 ? 'up' : 'stable'
       }
     },
@@ -389,6 +444,42 @@ async function processDashboardData(data: any[], range: string, sitesMap: Map<st
   };
 }
 
+// Helper function to format monthly emissions from calculator
+function formatTrendDataFromCalculator(monthlyEmissions: any[], range: string) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  return monthlyEmissions.map(m => {
+    const [year, month] = m.month.split('-');
+    return {
+      month: `${months[parseInt(month) - 1]} ${year.slice(2)}`,
+      emissions: m.emissions,
+      scope1: m.scope_1,
+      scope2: m.scope_2,
+      scope3: m.scope_3,
+      energy: 0, // TODO: Add energy to calculator monthly emissions
+      water: 0,  // TODO: Add water to calculator monthly emissions
+      target: 50 // More realistic monthly target
+    };
+  });
+}
+
+// Helper function to format category heatmap from calculator
+function formatCategoryHeatmap(categories: any[]) {
+  return categories.map(cat => ({
+    category: cat.category,
+    scope1: cat.scope_1 || 0,
+    scope2: cat.scope_2 || 0,
+    scope3: cat.scope_3 || 0,
+    scope_1: cat.scope_1 || 0,
+    scope_2: cat.scope_2 || 0,
+    scope_3: cat.scope_3 || 0
+  }));
+}
+
+/**
+ * @deprecated Use getScopeBreakdown() from calculator instead
+ * This function does DIRECT sum which gives inconsistent rounding
+ */
 function calculateScopeBreakdown(data: any[]) {
   const scopes = { scope_1: 0, scope_2: 0, scope_3: 0 };
 
@@ -434,6 +525,10 @@ function calculateScopeBreakdown(data: any[]) {
   return breakdown;
 }
 
+/**
+ * @deprecated Use getMonthlyEmissions() from calculator and formatTrendDataFromCalculator() instead
+ * This function does manual monthly aggregation
+ */
 function generateTrendData(data: any[], range: string) {
   // Group data by month
   const monthlyData: any = {};
@@ -628,6 +723,10 @@ function generateSiteComparison(data: any[], sitesMap: Map<string, any>) {
   return result;
 }
 
+/**
+ * @deprecated Use getCategoryBreakdown() from calculator and formatCategoryHeatmap() instead
+ * This function does manual category aggregation
+ */
 function generateCategoryHeatmap(data: any[]) {
   const categoryData: any = {};
 
@@ -655,19 +754,10 @@ function generateCategoryHeatmap(data: any[]) {
   }));
 }
 
-// Helper functions - removed, will fetch actual data instead
-
-function calculatePercentageChange(current: number, previous: number) {
-  if (previous === 0) return 0;
-  return Math.round(((current - previous) / previous) * 1000) / 10;
-}
-
-function calculateMetricTotal(data: any[], category: string) {
-  return data
-    .filter(d => d.metrics_catalog?.category?.toLowerCase() === category)
-    .reduce((sum, d) => sum + (d.value || 0), 0);
-}
-
+/**
+ * @deprecated Use getIntensityMetrics() from calculator instead
+ * This function does manual carbon intensity calculation
+ */
 function calculateCarbonIntensity(data: any[], sitesMap: Map<string, any>) {
   const totalEmissions = data.reduce((sum, d) => sum + (d.co2e_emissions || 0), 0); // Keep in kg
 
@@ -701,6 +791,9 @@ function calculateCarbonIntensity(data: any[], sitesMap: Map<string, any>) {
   return Math.round(intensity * 10) / 10; // Round to 1 decimal place
 }
 
+/**
+ * @deprecated Use getEnergyTotal() from calculator instead
+ */
 function calculateEnergyTotal(data: any[]) {
   // Energy includes both "Electricity" and "Purchased Energy" categories
   return data
@@ -711,6 +804,9 @@ function calculateEnergyTotal(data: any[]) {
     .reduce((sum, d) => sum + (d.value || 0), 0);
 }
 
+/**
+ * @deprecated Use getWaterTotal() from calculator instead
+ */
 function calculateWaterTotal(data: any[]) {
   // Water data is in "Purchased Goods & Services" category with name "Water" or "Wastewater"
   // This matches the zero-typing page approach
@@ -723,8 +819,6 @@ function calculateWaterTotal(data: any[]) {
     })
     .reduce((sum, d) => sum + (d.value || 0), 0);
 }
-
-// Removed calculateEnergyChange and calculateWaterChange - now using actual data comparison
 
 async function calculateYearOverYearComparison(data: any[], range: string, organizationId: string) {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -799,8 +893,8 @@ async function calculateYearOverYearComparison(data: any[], range: string, organ
     comparison.push({
       month: months[i],
       change: Math.round(change * 10) / 10, // Round to 1 decimal
-      currentEmissions: currentMonthEmissions / 1000, // Convert to tons
-      previousEmissions: previousMonthEmissions / 1000,
+      currentEmissions: Math.round(currentMonthEmissions / 1000 * 10) / 10, // Convert to tons, round to 1 decimal
+      previousEmissions: Math.round(previousMonthEmissions / 1000 * 10) / 10,
       hasData: currentMonthEmissions > 0 || previousMonthEmissions > 0,
       hasCurrentData: currentMonthEmissions > 0,
       hasPreviousData: previousMonthEmissions > 0
