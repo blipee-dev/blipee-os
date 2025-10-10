@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getPeriodEmissions, getYearEmissions } from '@/lib/sustainability/baseline-calculator';
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,75 +27,20 @@ export async function GET(request: NextRequest) {
 
     const organizationId = memberData.organization_id;
 
+    // ✅ USE CALCULATOR for current emissions (scope-by-scope rounding)
+    console.log('✅ Using calculator for current emissions...');
+
     // Determine baseline year dynamically
-    // Use the most recent complete year of data (current year - 1)
     const currentYear = new Date().getFullYear();
     const baselineYear = currentYear - 1; // Most recent complete year
 
-    // Also check if we have data for the baseline year
-    const startOfBaseline = `${baselineYear}-01-01`;
-    const endOfBaseline = `${baselineYear}-12-31`;
-
-    // Fetch metrics data for baseline year
-    let { data: metricsData, error: metricsError } = await supabaseAdmin
-      .from('metrics_data')
-      .select(`
-        co2e_emissions,
-        period_start,
-        period_end,
-        metrics_catalog (
-          scope,
-          name,
-          category
-        )
-      `)
-      .eq('organization_id', organizationId)
-      .not('co2e_emissions', 'is', null)
-      .gt('co2e_emissions', 0)
-      .gte('period_start', startOfBaseline)
-      .lte('period_end', endOfBaseline)
-      .order('period_end', { ascending: false });
-
-    if (metricsError) {
-      console.error('Error fetching metrics:', metricsError);
-      return NextResponse.json({ error: 'Failed to fetch emissions data' }, { status: 500 });
-    }
-
-    // Calculate total emissions and try to categorize by scope if available
-    const emissionsByScope = {
-      scope1: 0,
-      scope2: 0,
-      scope3: 0,
-      total: 0,
-      unscoped: 0
-    };
-
-    metricsData?.forEach(item => {
-      const emissions = item.co2e_emissions || 0;
-      const scope = item.metrics_catalog?.scope;
-
-      if (scope === 'scope_1') {
-        emissionsByScope.scope1 += emissions;
-      } else if (scope === 'scope_2') {
-        emissionsByScope.scope2 += emissions;
-      } else if (scope === 'scope_3') {
-        emissionsByScope.scope3 += emissions;
-      } else {
-        // If no scope is defined, add to unscoped
-        emissionsByScope.unscoped += emissions;
-      }
-
-      emissionsByScope.total += emissions;
-    });
-
-    // Get the most recent period for reference
-    const latestPeriod = metricsData?.[0]?.period_end ?
-      new Date(metricsData[0].period_end).toISOString().split('T')[0] :
-      null;
+    // Try to get emissions for the baseline year using calculator
+    let emissions = await getYearEmissions(organizationId, baselineYear);
+    let actualBaselineYear = baselineYear;
+    let dataPoints = 0;
 
     // If no data for baseline year, try to find the most recent year with data
-    let actualBaselineYear = baselineYear;
-    if (!metricsData || metricsData.length === 0) {
+    if (emissions.total === 0) {
       // Query for the most recent year with data
       const { data: availableYears } = await supabaseAdmin
         .from('metrics_data')
@@ -107,42 +53,40 @@ export async function GET(request: NextRequest) {
 
       if (availableYears && availableYears.length > 0) {
         actualBaselineYear = new Date(availableYears[0].period_end).getFullYear();
-
-        // Re-fetch with the actual baseline year
-        const { data: historicalMetrics } = await supabaseAdmin
-          .from('metrics_data')
-          .select(`
-            co2e_emissions,
-            period_start,
-            period_end,
-            metrics_catalog (
-              scope,
-              name,
-              category
-            )
-          `)
-          .eq('organization_id', organizationId)
-          .not('co2e_emissions', 'is', null)
-          .gt('co2e_emissions', 0)
-          .gte('period_start', `${actualBaselineYear}-01-01`)
-          .lte('period_end', `${actualBaselineYear}-12-31`);
-
-        if (historicalMetrics) {
-          metricsData = historicalMetrics;
-        }
+        // Get emissions for the actual baseline year
+        emissions = await getYearEmissions(organizationId, actualBaselineYear);
       }
     }
 
+    // Get data point count for reference
+    const { data: metricsData } = await supabaseAdmin
+      .from('metrics_data')
+      .select('co2e_emissions, period_end')
+      .eq('organization_id', organizationId)
+      .not('co2e_emissions', 'is', null)
+      .gt('co2e_emissions', 0)
+      .gte('period_start', `${actualBaselineYear}-01-01`)
+      .lte('period_end', `${actualBaselineYear}-12-31`)
+      .order('period_end', { ascending: false });
+
+    dataPoints = metricsData?.length || 0;
+    const latestPeriod = metricsData?.[0]?.period_end ?
+      new Date(metricsData[0].period_end).toISOString().split('T')[0] :
+      null;
+
+    console.log('✅ Calculator emissions:', emissions);
+    console.log(`   Baseline year: ${actualBaselineYear}, Data points: ${dataPoints}`);
+
     return NextResponse.json({
-      scope1: emissionsByScope.scope1,
-      scope2: emissionsByScope.scope2,
-      scope3: emissionsByScope.scope3,
-      unscoped: emissionsByScope.unscoped,
-      total: emissionsByScope.total,
+      scope1: emissions.scope_1,
+      scope2: emissions.scope_2,
+      scope3: emissions.scope_3,
+      unscoped: 0, // Calculator handles all scopes properly
+      total: emissions.total,
       baselineYear: actualBaselineYear,
       latestDataDate: latestPeriod,
-      dataPoints: metricsData?.length || 0,
-      note: `Annual baseline for ${actualBaselineYear} reporting year`
+      dataPoints: dataPoints,
+      note: `Annual baseline for ${actualBaselineYear} reporting year (from calculator)`
     });
 
   } catch (error) {

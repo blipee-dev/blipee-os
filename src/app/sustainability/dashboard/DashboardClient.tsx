@@ -56,7 +56,7 @@ import { SiteSelector } from '@/components/zero-typing/SiteSelector';
 import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import type { Building } from '@/types/auth';
 
-type DashboardView = 'overview' | 'compliance' | 'emissions' | 'energy' | 'water' | 'waste' | 'transportation' | 'monthly' | 'ai';
+type DashboardView = 'overview' | 'compliance' | 'emissions' | 'energy' | 'water' | 'waste' | 'transportation' | 'targets' | 'monthly' | 'ai';
 
 export default function DashboardClient() {
   const { user } = useAuth();
@@ -242,6 +242,17 @@ export default function DashboardClient() {
     badge: dashboard.priority === 1 ? '⚠️' : undefined
   }));
 
+  const targetsTabs = [
+    {
+      id: 'targets' as DashboardView,
+      label: 'Targets',
+      icon: Target,
+      description: 'SBTi • GHG Protocol • Target tracking',
+      badge: 'SBTi',
+      color: '#10b981'
+    }
+  ];
+
   const aiTabs = [
     {
       id: 'monthly' as DashboardView,
@@ -261,7 +272,7 @@ export default function DashboardClient() {
     }
   ];
 
-  const dashboardTabs = [...fixedTabs, ...sectorDashboardTabs, ...aiTabs];
+  const dashboardTabs = [...fixedTabs, ...sectorDashboardTabs, ...targetsTabs, ...aiTabs];
 
   const renderDashboard = () => {
     const orgId = organizationData?.id;
@@ -290,6 +301,7 @@ export default function DashboardClient() {
       'water_management': WaterDashboard,
       'waste_management': WasteDashboard,
       'transportation': TransportationDashboard,
+      'targets': TargetsDashboard,
       'monthly': MonthlyIntelligentDashboard
     };
 

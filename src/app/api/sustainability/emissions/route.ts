@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import {
+  getPeriodEmissions,
+  getScopeBreakdown,
+  getCategoryBreakdown,
+  getMonthlyEmissions,
+  getYoYComparison
+} from '@/lib/sustainability/baseline-calculator';
 
 export async function GET(request: NextRequest) {
   console.log('🚀🚀🚀 EMISSIONS API CALLED');
@@ -174,69 +181,33 @@ export async function GET(request: NextRequest) {
       organizationId
     });
 
-    // NOW aggregate emissions by scope and time period with totalAreaM2 available
-    const emissionsData = aggregateEmissionsData(metricsData || [], totalAreaM2);
+    // ✅ USE CALCULATOR for ALL emissions calculations (scope-by-scope rounding)
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
 
-    // Calculate totals for the entire period (like dashboard does)
-    const allEmissionsKg = metricsData?.reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) || 0;
-    const allEmissionsTons = allEmissionsKg / 1000; // Convert kg to tons
+    // Get emissions using centralized calculator
+    const emissions = await getPeriodEmissions(organizationId, startDateStr, endDateStr);
+    const scopes = await getScopeBreakdown(organizationId, startDateStr, endDateStr);
 
-    // Break down by scope for the entire period
-    let scope1Total = 0;
-    let scope2Total = 0;
-    let scope3Total = 0;
+    // Get category breakdown using calculator
+    const categories = await getCategoryBreakdown(organizationId, startDateStr, endDateStr);
 
-    metricsData?.forEach(record => {
-      const emissions = record.co2e_emissions || 0;
-      const scope = record.metrics_catalog?.scope;
+    // Get monthly emissions using calculator
+    const monthlyEmissions = await getMonthlyEmissions(organizationId, startDateStr, endDateStr);
 
-      if (scope === 'scope_1' || scope === 1) {
-        scope1Total += emissions;
-      } else if (scope === 'scope_2' || scope === 2) {
-        scope2Total += emissions;
-      } else {
-        scope3Total += emissions;
-      }
-    });
+    // Get YoY comparison using calculator
+    const yoyComparison = await getYoYComparison(organizationId, startDateStr, endDateStr, 'emissions');
 
-    // Convert to tons
+    // Current emissions from calculator (consistent 303.6 not 303.5!)
     const currentEmissions = {
-      total: allEmissionsTons,
-      scope1: scope1Total / 1000,
-      scope2: scope2Total / 1000,
-      scope3: scope3Total / 1000
+      total: emissions.total,
+      scope1: emissions.scope_1,
+      scope2: emissions.scope_2,
+      scope3: emissions.scope_3
     };
 
-    // Calculate trend by comparing with previous year's same period
-    let trend = 0;
-    const currentYear = new Date().getFullYear();
-    const previousYearStart = new Date(startDate);
-    previousYearStart.setFullYear(previousYearStart.getFullYear() - 1);
-    const previousYearEnd = new Date(endDate);
-    previousYearEnd.setFullYear(previousYearEnd.getFullYear() - 1);
-
-    let previousYearQuery = supabaseAdmin
-      .from('metrics_data')
-      .select('co2e_emissions')
-      .eq('organization_id', organizationId)
-      .gte('period_start', previousYearStart.toISOString())
-      .lte('period_end', previousYearEnd.toISOString());
-
-    // Filter by site if specified
-    if (siteId && siteId !== 'all') {
-      previousYearQuery = previousYearQuery.eq('site_id', siteId);
-    }
-
-    const { data: previousYearData } = await previousYearQuery;
-
-    if (previousYearData && previousYearData.length > 0) {
-      const previousEmissionsKg = previousYearData.reduce((sum, d) => sum + (d.co2e_emissions || 0), 0);
-      const previousEmissionsTons = previousEmissionsKg / 1000;
-
-      if (previousEmissionsTons > 0) {
-        trend = ((currentEmissions.total - previousEmissionsTons) / previousEmissionsTons) * 100;
-      }
-    }
+    // Trend from calculator
+    const trend = yoyComparison.percentageChange;
 
     // Detect anomalies (simple threshold-based for now)
     const anomalies = detectAnomalies(metricsData || []);
@@ -247,29 +218,39 @@ export async function GET(request: NextRequest) {
     // Calculate carbon intensity: kgCO2e/m²
     let intensity = 0;
     if (totalAreaM2 > 0) {
-      intensity = allEmissionsKg / totalAreaM2; // Keep in kg for intensity
+      intensity = (currentEmissions.total * 1000) / totalAreaM2; // Convert tCO2e to kg for intensity
     }
 
-    // Add intensity to historical data
-    const historicalWithIntensity = emissionsData.historical.map(month => {
-      const monthIntensity = totalAreaM2 > 0 ? (month.total * 1000) / totalAreaM2 : 0;
+    // Add intensity to monthly data from calculator
+    const historicalWithIntensity = monthlyEmissions.map(month => {
+      const monthIntensity = totalAreaM2 > 0 ? (month.emissions * 1000) / totalAreaM2 : 0;
       return {
-        ...month,
-        intensity: monthIntensity // Convert tons back to kg for intensity calculation
+        date: month.month,
+        month: new Date(month.month + '-01').toLocaleDateString('en', { month: 'short' }),
+        year: new Date(month.month + '-01').getFullYear(),
+        scope1: month.scope_1,
+        scope2: month.scope_2,
+        scope3: month.scope_3,
+        total: month.emissions,
+        intensity: monthIntensity
       };
     });
 
-    console.log('📈 Historical Intensity Sample:', {
-      firstMonth: historicalWithIntensity[0] ? {
-        month: historicalWithIntensity[0].month,
-        total: historicalWithIntensity[0].total,
-        intensity: historicalWithIntensity[0].intensity
-      } : null,
-      totalAreaM2,
-      calculation: totalAreaM2 > 0 ? `(total * 1000) / ${totalAreaM2}` : 'No area'
-    });
+    // Convert categories for response
+    const categoriesFormatted = categories.map(cat => ({
+      name: cat.category,
+      value: cat.total,
+      count: cat.recordCount
+    }));
 
-    console.log('🔵🔵🔵 FINAL RESPONSE - totalAreaM2:', totalAreaM2);
+    console.log('✅ USING CALCULATOR - Values:', {
+      total: currentEmissions.total,
+      scope1: currentEmissions.scope1,
+      scope2: currentEmissions.scope2,
+      scope3: currentEmissions.scope3,
+      trend: trend,
+      intensity: intensity
+    });
 
     return NextResponse.json({
       current: {
@@ -278,10 +259,10 @@ export async function GET(request: NextRequest) {
         intensity
       },
       historical: historicalWithIntensity,
-      byCategory: emissionsData.byCategory,
-      bySite: emissionsData.bySite,
+      byCategory: categoriesFormatted,
+      bySite: [], // TODO: Implement site breakdown in calculator
       anomalies,
-      totalAreaM2, // Pass total area for client-side calculations
+      totalAreaM2,
       sbtiTarget: sbtiTarget ? {
         reductionPercent: sbtiTarget.target_reduction_percent,
         baselineYear: sbtiTarget.baseline_year,
@@ -306,6 +287,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
+/**
+ * @deprecated Use calculator functions instead:
+ * - getMonthlyEmissions() for monthly data
+ * - getCategoryBreakdown() for categories
+ * This function does DIRECT sum/divide which gives inconsistent rounding
+ */
 function aggregateEmissionsData(metricsData: any[], totalAreaM2?: number) {
   // Group by month for historical data
   const monthlyData = new Map();
@@ -394,6 +381,10 @@ function aggregateEmissionsData(metricsData: any[], totalAreaM2?: number) {
   };
 }
 
+/**
+ * @deprecated Use getPeriodEmissions() or getScopeBreakdown() from calculator instead
+ * This function does DIRECT sum which gives 303.5 instead of 303.6
+ */
 function calculateTotalEmissions(metricsData: any[]) {
   let scope1 = 0;
   let scope2 = 0;

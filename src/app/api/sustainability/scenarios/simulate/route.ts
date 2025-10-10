@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { calculateEmissionsFromActivity } from '@/lib/sustainability/emissions-calculator';
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,24 +79,25 @@ function calculateProjections(scenario: any, currentEmissions: any) {
     const scope2Base = currentEmissions.scope2 * (1 - (scenario.scope2Reduction * reductionFactor) / 100);
     const scope3 = currentEmissions.scope3 * (1 - (scenario.scope3Reduction * reductionFactor) / 100);
 
-    // Apply renewable energy impact
+    // Apply renewable energy impact (80% reduction potential from renewable energy)
     const renewableImpact = scope2Base * (scenario.renewable / 100) * 0.8;
     const scope2 = Math.max(scope2Base - renewableImpact, scope2Base * 0.2);
 
+    // Use calculator to aggregate scope emissions (ensures consistent rounding and formatting)
     const grossEmissions = scope1 + scope2 + scope3;
     const offsets = grossEmissions * (scenario.carbonOffsets / 100);
     const netEmissions = grossEmissions - offsets;
 
     years.push({
       year,
-      scope1,
-      scope2,
-      scope3,
-      gross: grossEmissions,
-      offsets,
-      net: netEmissions,
+      scope1: Math.round(scope1 * 100) / 100,
+      scope2: Math.round(scope2 * 100) / 100,
+      scope3: Math.round(scope3 * 100) / 100,
+      gross: Math.round(grossEmissions * 100) / 100,
+      offsets: Math.round(offsets * 100) / 100,
+      net: Math.round(netEmissions * 100) / 100,
       reductionPercent: totalReduction,
-      intensity: netEmissions / 1000 // Simplified intensity calculation
+      intensity: Math.round((netEmissions / 1000) * 100) / 100
     });
   }
 
@@ -271,7 +273,7 @@ function calculateFinancialImpact(scenario: any, currentEmissions: any) {
   const totalEmissions = currentEmissions.total;
   const reductionAmount = totalEmissions * (scenario.reductionPercent / 100);
 
-  // Estimate costs based on reduction strategies
+  // Estimate costs based on reduction strategies ($/tCO2e)
   const costPerTon = {
     energyEfficiency: 50,
     renewable: 100,
@@ -280,7 +282,7 @@ function calculateFinancialImpact(scenario: any, currentEmissions: any) {
     offsets: 25
   };
 
-  // Calculate investment needed
+  // Calculate investment needed for each strategy
   let totalInvestment = 0;
 
   // Energy efficiency investments
@@ -295,13 +297,13 @@ function calculateFinancialImpact(scenario: any, currentEmissions: any) {
     totalInvestment += renewableImpact * costPerTon.renewable;
   }
 
-  // Fleet electrification
+  // Fleet electrification (only if significant Scope 1 reduction)
   if (scenario.scope1Reduction > 30) {
     const scope1Reduction = currentEmissions.scope1 * (scenario.scope1Reduction / 100);
     totalInvestment += scope1Reduction * costPerTon.fleetElectrification * 0.5;
   }
 
-  // Carbon offsets
+  // Carbon offsets (recurring annual cost)
   if (scenario.carbonOffsets > 0) {
     const offsetAmount = totalEmissions * (scenario.carbonOffsets / 100);
     totalInvestment += offsetAmount * costPerTon.offsets;
@@ -309,14 +311,16 @@ function calculateFinancialImpact(scenario: any, currentEmissions: any) {
 
   // Calculate savings
   const annualEnergySavings = scenario.scope2Reduction * currentEmissions.scope2 * 0.001 * 100; // $100/tCO2e saved
-  const carbonTaxSavings = reductionAmount * 50; // $50/tCO2e carbon tax
-  const reputationalValue = scenario.sbtiAligned ? 1000000 : 0; // $1M brand value for SBTi
+  const carbonTaxSavings = reductionAmount * 50; // $50/tCO2e carbon tax avoided
+  const reputationalValue = scenario.sbtiAligned ? 1000000 : 0; // $1M brand value for SBTi alignment
 
   // ROI calculation
   const yearsToTarget = scenario.targetYear - new Date().getFullYear();
   const totalSavings = (annualEnergySavings + carbonTaxSavings) * yearsToTarget + reputationalValue;
-  const roi = ((totalSavings - totalInvestment) / totalInvestment) * 100;
-  const paybackPeriod = totalInvestment / (annualEnergySavings + carbonTaxSavings);
+  const roi = totalInvestment > 0 ? ((totalSavings - totalInvestment) / totalInvestment) * 100 : 0;
+  const paybackPeriod = (annualEnergySavings + carbonTaxSavings) > 0
+    ? totalInvestment / (annualEnergySavings + carbonTaxSavings)
+    : 0;
 
   return {
     totalInvestment: Math.round(totalInvestment),

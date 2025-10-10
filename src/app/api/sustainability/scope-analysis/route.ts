@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { calculateSectorIntensity, getProductionUnitLabel, getSBTiPathway, getGRISectorStandard, calculateBenchmarkForMetric } from '@/lib/sustainability/sector-intensity';
+import {
+  getPeriodEmissions,
+  getScopeBreakdown,
+  getCategoryBreakdown,
+  getScopeCategoryBreakdown
+} from '@/lib/sustainability/baseline-calculator';
 
 export async function GET(request: NextRequest) {
   try {
@@ -72,7 +78,20 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Fetch metrics data with catalog info
+    // Use the baseline calculator for ALL emissions calculations
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
+
+    // Get emissions using the centralized calculator (scope-by-scope rounding)
+    const emissions = await getPeriodEmissions(organizationId, startDateStr, endDateStr);
+    const scopes = await getScopeBreakdown(organizationId, startDateStr, endDateStr);
+
+    // Get category breakdowns for each scope using calculator
+    const scope1Categories = await getScopeCategoryBreakdown(organizationId, 'scope_1', startDateStr, endDateStr);
+    const scope2Categories = await getScopeCategoryBreakdown(organizationId, 'scope_2', startDateStr, endDateStr);
+    const scope3Categories = await getScopeCategoryBreakdown(organizationId, 'scope_3', startDateStr, endDateStr);
+
+    // Fetch metrics data for additional context (data quality, sources, etc.)
     let query = supabaseAdmin
       .from('metrics_data')
       .select(`
@@ -102,8 +121,14 @@ export async function GET(request: NextRequest) {
       console.error('Error fetching metrics data:', metricsError);
     }
 
-    // Calculate scope data from real metrics
-    const scopeData = calculateScopeDataFromMetrics(metricsData || []);
+    // Build scope data structure using calculator results
+    const scopeData = buildScopeDataFromCalculator(
+      scopes,
+      scope1Categories,
+      scope2Categories,
+      scope3Categories,
+      metricsData || []
+    );
 
     // Calculate GHG Protocol compliance score
     const complianceScore = calculateComplianceScore(scopeData);
@@ -200,6 +225,147 @@ export async function GET(request: NextRequest) {
   }
 }
 
+/**
+ * Build scope data structure using calculator results
+ * This replaces manual calculations with calculator values for consistency
+ */
+function buildScopeDataFromCalculator(
+  scopes: any,
+  scope1Categories: any[],
+  scope2Categories: any[],
+  scope3Categories: any[],
+  metricsData: any[]
+) {
+  // Map category names to keys
+  const scope1CategoryMap: { [key: string]: string } = {
+    'Stationary Combustion': 'stationary_combustion',
+    'Mobile Combustion': 'mobile_combustion',
+    'Process Emissions': 'process_emissions',
+    'Fugitive Emissions': 'fugitive_emissions'
+  };
+
+  const scope2CategoryMap: { [key: string]: string } = {
+    'Electricity': 'purchased_electricity',
+    'Purchased Energy': 'purchased_electricity',
+    'Heat': 'purchased_heat',
+    'Steam': 'purchased_steam',
+    'Cooling': 'purchased_cooling'
+  };
+
+  const scope3CategoryMap: { [key: string]: string } = {
+    'Purchased Goods & Services': 'purchased_goods',
+    'Capital Goods': 'capital_goods',
+    'Fuel & Energy Related': 'fuel_energy',
+    'Upstream Transportation': 'upstream_transportation',
+    'Waste': 'waste',
+    'Business Travel': 'business_travel',
+    'Employee Commuting': 'employee_commuting',
+    'Upstream Leased Assets': 'upstream_leased',
+    'Downstream Transportation': 'downstream_transportation',
+    'Processing of Sold Products': 'processing',
+    'Use of Sold Products': 'use_of_products',
+    'End-of-Life': 'end_of_life',
+    'Downstream Leased Assets': 'downstream_leased',
+    'Franchises': 'franchises',
+    'Investments': 'investments'
+  };
+
+  // Build Scope 1 categories
+  const scope1CategoriesObj: any = {
+    stationary_combustion: 0,
+    mobile_combustion: 0,
+    process_emissions: 0,
+    fugitive_emissions: 0
+  };
+  scope1Categories.forEach(cat => {
+    const key = scope1CategoryMap[cat.category];
+    if (key) scope1CategoriesObj[key] = cat.emissions;
+  });
+
+  // Build Scope 2 categories
+  const scope2CategoriesObj: any = {
+    purchased_electricity: 0,
+    purchased_heat: 0,
+    purchased_steam: 0,
+    purchased_cooling: 0
+  };
+  scope2Categories.forEach(cat => {
+    const key = scope2CategoryMap[cat.category];
+    if (key) scope2CategoriesObj[key] = cat.emissions;
+  });
+
+  // Build Scope 3 categories
+  const scope3CategoriesObj: any = {
+    purchased_goods: { value: 0, included: false, data_quality: 0 },
+    capital_goods: { value: 0, included: false, data_quality: 0 },
+    fuel_energy: { value: 0, included: false, data_quality: 0 },
+    upstream_transportation: { value: 0, included: false, data_quality: 0 },
+    waste: { value: 0, included: false, data_quality: 0 },
+    business_travel: { value: 0, included: false, data_quality: 0 },
+    employee_commuting: { value: 0, included: false, data_quality: 0 },
+    upstream_leased: { value: 0, included: false, data_quality: 0 },
+    downstream_transportation: { value: 0, included: false, data_quality: 0 },
+    processing: { value: 0, included: false, data_quality: 0 },
+    use_of_products: { value: 0, included: false, data_quality: 0 },
+    end_of_life: { value: 0, included: false, data_quality: 0 },
+    downstream_leased: { value: 0, included: false, data_quality: 0 },
+    franchises: { value: 0, included: false, data_quality: 0 },
+    investments: { value: 0, included: false, data_quality: 0 }
+  };
+  scope3Categories.forEach(cat => {
+    const key = scope3CategoryMap[cat.category];
+    if (key) {
+      scope3CategoriesObj[key] = {
+        value: cat.emissions,
+        included: cat.emissions > 0,
+        data_quality: cat.emissions > 0 ? 100 : 0
+      };
+    }
+  });
+
+  // Get unique sources
+  const scope1Sources = new Set<string>();
+  const scope2Sources = new Set<string>();
+  metricsData.forEach(record => {
+    const scope = record.metrics_catalog?.scope;
+    const name = record.metrics_catalog?.name;
+    if (scope === 'scope_1' && name) scope1Sources.add(name);
+    if (scope === 'scope_2' && name) scope2Sources.add(name);
+  });
+
+  // Build final structure using calculator values (NOT manual calculations!)
+  return {
+    scope_1: {
+      total: scopes.scope_1,  // From calculator
+      categories: scope1CategoriesObj,
+      trend: 0,
+      sources: Array.from(scope1Sources),
+      percentage: scopes.total > 0 ? Math.round((scopes.scope_1 / scopes.total) * 1000) / 10 : 0
+    },
+    scope_2: {
+      total: scopes.scope_2,  // From calculator
+      categories: scope2CategoriesObj,
+      location_based: scopes.scope_2,  // From calculator
+      market_based: scopes.scope_2,    // From calculator (same for now)
+      renewable_percentage: 0,
+      trend: 0,
+      sources: Array.from(scope2Sources),
+      percentage: scopes.total > 0 ? Math.round((scopes.scope_2 / scopes.total) * 1000) / 10 : 0
+    },
+    scope_3: {
+      total: scopes.scope_3,  // From calculator
+      categories: scope3CategoriesObj,
+      trend: 0,
+      coverage: 0,
+      percentage: scopes.total > 0 ? Math.round((scopes.scope_3 / scopes.total) * 1000) / 10 : 0
+    }
+  };
+}
+
+/**
+ * @deprecated Use buildScopeDataFromCalculator instead
+ * This function manually calculates emissions and will give INCONSISTENT results
+ */
 function calculateScopeDataFromMetrics(metricsData: any[]) {
   // Initialize scope data structure
   const scopeData = {

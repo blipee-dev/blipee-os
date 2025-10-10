@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getCategoryBreakdown } from '@/lib/sustainability/baseline-calculator';
 
 export async function GET(request: NextRequest) {
   try {
@@ -56,7 +57,12 @@ export async function GET(request: NextRequest) {
     const startOfBaseline = `${baselineYear}-01-01`;
     const endOfBaseline = `${baselineYear}-12-31`;
 
-    // Fetch all unique metrics with their total emissions and values
+    // ✅ Using calculator for category-level emissions (provides consistent rounding)
+    console.log('📊 Using baseline-calculator for available metrics analysis');
+    const categoryBreakdown = await getCategoryBreakdown(organizationId, startOfBaseline, endOfBaseline);
+
+    // Still need to fetch detailed metrics for metric-level aggregation
+    // (calculator doesn't provide metric-level detail yet)
     const { data: metricsData, error: metricsError } = await supabaseAdmin
       .from('metrics_data')
       .select(`

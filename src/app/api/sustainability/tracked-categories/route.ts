@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getCategoryBreakdown } from '@/lib/sustainability/baseline-calculator';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +34,14 @@ export async function GET(request: NextRequest) {
     const siteId = searchParams.get('site_id');
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
 
-    // Query metrics_data to find all categories with actual data
+    console.log('✅ Using calculator for tracked categories emissions calculation');
+
+    // Use calculator to get category breakdown with consistent rounding
+    const startDate = `${year}-01-01`;
+    const endDate = `${year}-12-31`;
+    const categoryBreakdown = await getCategoryBreakdown(organizationId, startDate, endDate);
+
+    // Query metrics_data to get additional metadata (subcategories, metric names, etc.)
     let query = supabaseAdmin
       .from('metrics_data')
       .select(`
@@ -50,7 +58,7 @@ export async function GET(request: NextRequest) {
         )
       `)
       .eq('organization_id', organizationId)
-      .gte('period_start', `${year}-01-01`)
+      .gte('period_start', startDate)
       .lt('period_start', `${year + 1}-01-01`);
 
     if (siteId) {
@@ -64,13 +72,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch metrics data' }, { status: 500 });
     }
 
-    // Aggregate data by category
-    const categoryMap = new Map<string, {
-      category: string;
+    // Build metadata map for each category
+    const categoryMetadataMap = new Map<string, {
       subcategories: Set<string>;
       scope: string;
       ghgProtocolCategory: string | null;
-      totalEmissions: number;
       metricCount: number;
       metrics: Set<string>;
     }>();
@@ -79,41 +85,39 @@ export async function GET(request: NextRequest) {
       const catalog = record.metrics_catalog;
       const category = catalog?.category || 'Other';
 
-      if (!categoryMap.has(category)) {
-        categoryMap.set(category, {
-          category,
+      if (!categoryMetadataMap.has(category)) {
+        categoryMetadataMap.set(category, {
           subcategories: new Set(),
           scope: catalog?.scope || 'scope_3',
           ghgProtocolCategory: catalog?.ghg_protocol_category || null,
-          totalEmissions: 0,
           metricCount: 0,
           metrics: new Set()
         });
       }
 
-      const categoryData = categoryMap.get(category)!;
+      const metadata = categoryMetadataMap.get(category)!;
 
       if (catalog?.subcategory) {
-        categoryData.subcategories.add(catalog.subcategory);
+        metadata.subcategories.add(catalog.subcategory);
       }
 
-      categoryData.totalEmissions += record.co2e_emissions || 0;
-      categoryData.metricCount++;
-      categoryData.metrics.add(catalog?.name || 'Unknown');
+      metadata.metricCount++;
+      metadata.metrics.add(catalog?.name || 'Unknown');
     });
 
-    // Convert to array and sort by emissions
-    const categories = Array.from(categoryMap.values())
-      .map(cat => ({
+    // Merge calculator results with metadata
+    const categories = categoryBreakdown.map(cat => {
+      const metadata = categoryMetadataMap.get(cat.category);
+      return {
         category: cat.category,
-        subcategories: Array.from(cat.subcategories),
-        scope: cat.scope,
-        ghgProtocolCategory: cat.ghgProtocolCategory,
-        totalEmissions: cat.totalEmissions / 1000, // Convert to tCO2e
-        metricCount: cat.metricCount,
-        metrics: Array.from(cat.metrics)
-      }))
-      .sort((a, b) => b.totalEmissions - a.totalEmissions);
+        subcategories: metadata ? Array.from(metadata.subcategories) : [],
+        scope: cat.scope_1 > 0 ? 'scope_1' : cat.scope_2 > 0 ? 'scope_2' : 'scope_3',
+        ghgProtocolCategory: metadata?.ghgProtocolCategory || null,
+        totalEmissions: cat.total, // Already in tCO2e from calculator
+        metricCount: metadata?.metricCount || 0,
+        metrics: metadata ? Array.from(metadata.metrics) : []
+      };
+    });
 
     // Group by scope
     const byScope = {
@@ -122,12 +126,12 @@ export async function GET(request: NextRequest) {
       scope_3: categories.filter(c => c.scope === 'scope_3')
     };
 
-    // Calculate totals
+    // Calculate totals using rounded values from calculator
     const totals = {
-      scope_1: byScope.scope_1.reduce((sum, c) => sum + c.totalEmissions, 0),
-      scope_2: byScope.scope_2.reduce((sum, c) => sum + c.totalEmissions, 0),
-      scope_3: byScope.scope_3.reduce((sum, c) => sum + c.totalEmissions, 0),
-      total: categories.reduce((sum, c) => sum + c.totalEmissions, 0)
+      scope_1: Math.round(byScope.scope_1.reduce((sum, c) => sum + c.totalEmissions, 0) * 10) / 10,
+      scope_2: Math.round(byScope.scope_2.reduce((sum, c) => sum + c.totalEmissions, 0) * 10) / 10,
+      scope_3: Math.round(byScope.scope_3.reduce((sum, c) => sum + c.totalEmissions, 0) * 10) / 10,
+      total: Math.round(categories.reduce((sum, c) => sum + c.totalEmissions, 0) * 10) / 10
     };
 
     return NextResponse.json({

@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganization } from '@/lib/auth/get-user-org';
+import { calculateEmissionsFromActivity } from '@/lib/sustainability/emissions-calculator';
 
 export async function POST(request: NextRequest) {
   try {
@@ -118,19 +119,27 @@ export async function POST(request: NextRequest) {
     // Calculate emissions if metric has emission factor
     const { data: metric } = await supabase
       .from('metrics_catalog')
-      .select('emission_factor, emission_factor_unit')
+      .select('emission_factor, emission_factor_unit, scope, category, unit')
       .eq('id', metric_id)
       .single();
 
     if (metric?.emission_factor || custom_emission_factor) {
       const emissionFactor = custom_emission_factor || metric.emission_factor;
-      const emissions = parseFloat(value) * emissionFactor;
+
+      // Use centralized calculator for consistency
+      const emissionsResult = calculateEmissionsFromActivity({
+        activityAmount: parseFloat(value),
+        emissionFactor: emissionFactor,
+        scope: metric.scope,
+        category: metric.category,
+        unit: metric.unit
+      });
 
       // Update the entry with calculated emissions
       await supabase
         .from('sustainability_data')
         .update({
-          calculated_emissions: emissions,
+          calculated_emissions: emissionsResult.co2e,
           emission_factor_used: emissionFactor
         })
         .eq('id', dataEntry.id);

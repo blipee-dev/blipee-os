@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getPeriodEmissions } from '@/lib/sustainability/baseline-calculator';
 
 export async function GET(request: NextRequest) {
   console.log('🔍 Data Comparison: Starting analysis');
@@ -79,6 +80,7 @@ export async function GET(request: NextRequest) {
     }
 
     console.log(`🔍 Data Comparison: Found ${rawData?.length || 0} total records for ${year}`);
+    console.log('✅ Using calculator for data-comparison emissions calculation');
 
     // Group data by month
     const monthlyComparison: any = {};
@@ -98,16 +100,15 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    // Process each record
+    // Process each record for metadata (not emissions - calculator handles that)
     rawData?.forEach(record => {
       const startDate = new Date(record.period_start);
       const endDate = new Date(record.period_end);
       const monthIndex = startDate.getMonth();
       const monthName = months[monthIndex];
-      
+
       if (monthlyComparison[monthName]) {
         monthlyComparison[monthName].rawRecords++;
-        monthlyComparison[monthName].totalEmissions += (record.co2e_emissions || 0) / 1000; // Convert to tons
         
         // Track date ranges to detect month spanning issues
         monthlyComparison[monthName].dataRanges.push({
@@ -135,10 +136,22 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Calculate monthly emissions using calculator for consistency
+    for (const monthName of months) {
+      const monthIndex = months.indexOf(monthName);
+      const monthStart = `${year}-${String(monthIndex + 1).padStart(2, '0')}-01`;
+      const nextMonthIndex = (monthIndex + 1) % 12;
+      const nextYear = monthIndex === 11 ? parseInt(year) + 1 : year;
+      const monthEnd = `${nextYear}-${String(nextMonthIndex + 1).padStart(2, '0')}-01`;
+
+      const monthEmissions = await getPeriodEmissions(organizationId, monthStart, monthEnd);
+      monthlyComparison[monthName].totalEmissions = monthEmissions.total;
+    }
+
     // Convert to array and add summary stats
     const comparisonData = Object.values(monthlyComparison).map((month: any) => ({
       ...month,
-      totalEmissions: Math.round(month.totalEmissions * 10) / 10,
+      totalEmissions: month.totalEmissions, // Already rounded by calculator
       electricity: {
         ...month.electricity,
         value: Math.round(month.electricity.value)
@@ -155,18 +168,19 @@ export async function GET(request: NextRequest) {
       uniqueDateRanges: [...new Set(month.dataRanges.map((r: any) => `${r.start} to ${r.end}`))].length
     }));
 
-    // Calculate dashboard aggregations for comparison
+    // Calculate dashboard aggregations using calculator for consistency
+    const yearEmissions = await getPeriodEmissions(organizationId, startDate, endDate);
     const dashboardTotals = {
-      totalEmissions: Math.round(rawData?.reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 * 10) / 10,
-      electricity: Math.round(rawData?.filter(d => 
-        d.metrics_catalog?.category === 'Electricity' || 
+      totalEmissions: yearEmissions.total, // Already rounded by calculator
+      electricity: Math.round(rawData?.filter(d =>
+        d.metrics_catalog?.category === 'Electricity' ||
         d.metrics_catalog?.category === 'Purchased Energy'
       ).reduce((sum, d) => sum + (d.value || 0), 0)),
-      water: Math.round(rawData?.filter(d => 
-        d.metrics_catalog?.category === 'Purchased Goods & Services' && 
+      water: Math.round(rawData?.filter(d =>
+        d.metrics_catalog?.category === 'Purchased Goods & Services' &&
         (d.unit?.toLowerCase() === 'm³' || d.unit?.toLowerCase() === 'm3')
       ).reduce((sum, d) => sum + (d.value || 0), 0)),
-      waste: Math.round(rawData?.filter(d => 
+      waste: Math.round(rawData?.filter(d =>
         d.metrics_catalog?.category === 'Waste'
       ).reduce((sum, d) => sum + (d.value || 0), 0) * 10) / 10
     };

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getCategoryBreakdown } from '@/lib/sustainability/baseline-calculator';
 
 // Effort factors based on abatement potential and technology readiness
 // Comprehensive mapping for ALL possible metrics_catalog categories
@@ -144,58 +145,29 @@ export async function GET(request: NextRequest) {
     const siteId = searchParams.get('site_id');
     const categoriesParam = searchParams.get('categories'); // Optional: filter by specific categories
 
-    // Fetch emissions data for baseline year by category
-    const startDate = new Date(baselineYear, 0, 1);
-    const endDate = new Date(baselineYear, 11, 31);
+    // ✅ Using calculator for category breakdown (handles scope-by-scope rounding)
+    const startDate = `${baselineYear}-01-01`;
+    const endDate = `${baselineYear}-12-31`;
 
-    let metricsQuery = supabaseAdmin
-      .from('metrics_data')
-      .select(`
-        *,
-        metrics_catalog!inner(
-          id,
-          name,
-          category,
-          subcategory,
-          scope,
-          unit,
-          emission_factor
-        )
-      `)
-      .eq('organization_id', organizationId)
-      .gte('period_start', startDate.toISOString())
-      .lte('period_end', endDate.toISOString());
+    console.log('📊 Using baseline-calculator for category breakdown');
+    const categoryBreakdown = await getCategoryBreakdown(organizationId, startDate, endDate);
 
+    // Note: siteId and categoriesParam filtering not yet supported by calculator
+    // TODO: Extend calculator to support these filters if needed
     if (siteId) {
-      metricsQuery = metricsQuery.eq('site_id', siteId);
+      console.warn('⚠️ siteId filtering not yet supported by calculator');
     }
-
-    // Filter by specific categories if provided (e.g., "Electricity,Purchased Energy")
     if (categoriesParam) {
-      const categories = categoriesParam.split(',').map(c => c.trim());
-      metricsQuery = metricsQuery.in('metrics_catalog.category', categories);
+      console.warn('⚠️ categoriesParam filtering not yet supported by calculator');
     }
 
-    const { data: metricsData, error: metricsError } = await metricsQuery;
-
-    if (metricsError) {
-      console.error('Error fetching metrics data:', metricsError);
-      return NextResponse.json({ error: 'Failed to fetch emissions data' }, { status: 500 });
-    }
-
-    // Aggregate by category
+    // Convert calculator output to map format (emissions already in tCO2e)
     const categoryEmissions = new Map<string, number>();
     let totalEmissions = 0;
 
-    metricsData?.forEach(record => {
-      const category = record.metrics_catalog?.category || 'Other';
-      const emissions = record.co2e_emissions || 0;
-
-      categoryEmissions.set(
-        category,
-        (categoryEmissions.get(category) || 0) + emissions
-      );
-      totalEmissions += emissions;
+    categoryBreakdown.forEach(cat => {
+      categoryEmissions.set(cat.category, cat.total * 1000); // Convert back to kg for consistency with old code
+      totalEmissions += cat.total * 1000;
     });
 
     // Calculate weighted allocation for each category

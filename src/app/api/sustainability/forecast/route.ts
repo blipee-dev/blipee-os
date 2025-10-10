@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
+import { getMonthlyEmissions, getProjectedAnnualEmissions } from '@/lib/sustainability/baseline-calculator';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,115 +35,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'start_date and end_date required' }, { status: 400 });
     }
 
-    // Use database aggregation to get monthly totals efficiently
-    // This avoids the 1000 record limit issue by aggregating server-side
-    const siteFilter = siteId ? `AND site_id = '${siteId}'` : '';
+    // ✅ USE CALCULATOR for monthly emissions (now with pagination support)
+    console.log('✅ Using calculator for monthly emissions...');
 
-    const { data: monthlyAggregated, error: aggError } = await supabaseAdmin.rpc('get_monthly_emissions', {
-      p_organization_id: orgInfo.organizationId,
-      p_site_id: siteId || null
-    });
+    // Get all historical data using calculator (now handles pagination internally)
+    const historicalStartDate = '2020-01-01';
+    const monthlyEmissionsData = await getMonthlyEmissions(orgInfo.organizationId, historicalStartDate, endDate);
 
-    console.log(`📊 Forecast API called: ${startDate} to ${endDate}`);
-
-    // If RPC doesn't exist, fall back to manual aggregation with all data
-    let historicalMonthly;
-
-    if (aggError || !monthlyAggregated) {
-      console.log('⚠️ RPC not available, using manual aggregation');
-
-      // Get ALL data - need to paginate or use range to get past 1000 record limit
-      // Fetch in batches to get all data
-      let allData: any[] = [];
-      let rangeStart = 0;
-      const batchSize = 1000;
-      let hasMore = true;
-
-      while (hasMore) {
-        let batchQuery = supabaseAdmin
-          .from('metrics_data')
-          .select(`
-            period_start,
-            co2e_emissions,
-            metrics_catalog!inner(scope)
-          `)
-          .eq('organization_id', orgInfo.organizationId)
-          .order('period_start', { ascending: true })
-          .range(rangeStart, rangeStart + batchSize - 1);
-
-        if (siteId) {
-          batchQuery = batchQuery.eq('site_id', siteId);
-        }
-
-        const { data: batchData, error } = await batchQuery;
-
-        if (error) {
-          console.log('⚠️ Error fetching batch:', error);
-          break;
-        }
-
-        if (!batchData || batchData.length === 0) {
-          break;
-        }
-
-        allData = allData.concat(batchData);
-
-        if (batchData.length < batchSize) {
-          hasMore = false;
-        } else {
-          rangeStart += batchSize;
-        }
-      }
-
-      console.log(`📊 Raw data records: ${allData?.length || 0}`);
-
-      if (!allData || allData.length === 0) {
-        console.log('⚠️ No historical data found');
-        return NextResponse.json({ forecast: [] });
-      }
-
-      // Group by month and scope
-      const monthlyData: { [key: string]: { total: number; scope1: number; scope2: number; scope3: number } } = {};
-
-      allData.forEach((record: any) => {
-        const date = new Date(record.period_start);
-        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-
-        if (!monthlyData[monthKey]) {
-          monthlyData[monthKey] = { total: 0, scope1: 0, scope2: 0, scope3: 0 };
-        }
-
-        const emissions = parseFloat(record.co2e_emissions) || 0;
-        const scope = record.metrics_catalog?.scope;
-
-        monthlyData[monthKey].total += emissions;
-
-        if (scope === 'scope_1') {
-          monthlyData[monthKey].scope1 += emissions;
-        } else if (scope === 'scope_2') {
-          monthlyData[monthKey].scope2 += emissions;
-        } else if (scope === 'scope_3') {
-          monthlyData[monthKey].scope3 += emissions;
-        }
-      });
-
-      const months = Object.keys(monthlyData).sort();
-      historicalMonthly = months.map(monthKey => ({
-        monthKey,
-        total: monthlyData[monthKey].total,
-        scope1: monthlyData[monthKey].scope1,
-        scope2: monthlyData[monthKey].scope2,
-        scope3: monthlyData[monthKey].scope3
-      }));
-    } else {
-      historicalMonthly = monthlyAggregated.map((m: any) => ({
-        monthKey: m.month_key,
-        total: m.total_emissions,
-        scope1: m.scope1_emissions,
-        scope2: m.scope2_emissions,
-        scope3: m.scope3_emissions
-      }));
+    if (!monthlyEmissionsData || monthlyEmissionsData.length === 0) {
+      console.log('⚠️ No historical data found');
+      return NextResponse.json({ forecast: [] });
     }
+
+    // Convert calculator format to forecast format (kg CO2e for forecaster)
+    const historicalMonthly = monthlyEmissionsData.map(m => ({
+      monthKey: m.month,
+      total: m.emissions * 1000, // Convert tCO2e to kg for forecaster
+      scope1: m.scope_1 * 1000,
+      scope2: m.scope_2 * 1000,
+      scope3: m.scope_3 * 1000
+    }));
+
+    console.log(`✅ Calculator monthly data: ${historicalMonthly.length} months (scope-by-scope rounding)`);
+    console.log(`📊 Month range: ${historicalMonthly[0]?.monthKey} to ${historicalMonthly[historicalMonthly.length - 1]?.monthKey}`);
 
     console.log(`📊 Historical monthly aggregated: ${historicalMonthly.length} months`);
     console.log(`📊 Month range: ${historicalMonthly[0]?.monthKey} to ${historicalMonthly[historicalMonthly.length - 1]?.monthKey}`);
