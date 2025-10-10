@@ -16,9 +16,11 @@ import {
   Award,
   BarChart3,
   LineChart,
-  Building2
+  Building2,
+  RefreshCw
 } from 'lucide-react';
 import { Building, TimePeriod } from '@/types/auth';
+import ReplanningModal from '@/components/sustainability/ReplanningModal';
 
 interface TargetsDashboardProps {
   organizationId: string;
@@ -53,6 +55,7 @@ export function TargetsDashboard({
   const [targets, setTargets] = useState<SBTiTarget[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [replanningTarget, setReplanningTarget] = useState<SBTiTarget | null>(null);
 
   useEffect(() => {
     fetchTargets();
@@ -130,7 +133,7 @@ export function TargetsDashboard({
       </div>
 
       {/* Targets List - Always show all three target types */}
-      <TargetsList targets={targets} onRefresh={fetchTargets} />
+      <TargetsList targets={targets} onRefresh={fetchTargets} setReplanningTarget={setReplanningTarget} />
 
       {/* Create Target Modal */}
       {showCreateModal && (
@@ -139,6 +142,27 @@ export function TargetsDashboard({
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
             setShowCreateModal(false);
+            fetchTargets();
+          }}
+        />
+      )}
+
+      {/* Replanning Modal */}
+      {replanningTarget && (
+        <ReplanningModal
+          isOpen={!!replanningTarget}
+          onClose={() => setReplanningTarget(null)}
+          organizationId={organizationId}
+          targetId={replanningTarget.id}
+          targetName={replanningTarget.name}
+          baselineYear={replanningTarget.baseline_year}
+          baselineEmissions={replanningTarget.baseline_emissions}
+          currentYear={new Date().getFullYear()}
+          currentEmissions={replanningTarget.current_emissions || replanningTarget.baseline_emissions}
+          targetYear={replanningTarget.target_year}
+          targetEmissions={replanningTarget.target_emissions}
+          onReplanComplete={() => {
+            setReplanningTarget(null);
             fetchTargets();
           }}
         />
@@ -211,7 +235,15 @@ function EmptyState({ onCreateTarget }: { onCreateTarget: () => void }) {
 }
 
 // Targets List Component
-function TargetsList({ targets, onRefresh }: { targets: SBTiTarget[]; onRefresh: () => void }) {
+function TargetsList({
+  targets,
+  onRefresh,
+  setReplanningTarget
+}: {
+  targets: SBTiTarget[];
+  onRefresh: () => void;
+  setReplanningTarget: (target: SBTiTarget | null) => void;
+}) {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
@@ -267,7 +299,7 @@ function TargetsList({ targets, onRefresh }: { targets: SBTiTarget[]; onRefresh:
       {/* Target Cards */}
       <div className="space-y-4">
         {targets.map((target) => (
-          <TargetCard key={target.id} target={target} onRefresh={onRefresh} />
+          <TargetCard key={target.id} target={target} onRefresh={onRefresh} setReplanningTarget={setReplanningTarget} />
         ))}
       </div>
     </div>
@@ -275,7 +307,15 @@ function TargetsList({ targets, onRefresh }: { targets: SBTiTarget[]; onRefresh:
 }
 
 // Individual Target Card
-function TargetCard({ target, onRefresh }: { target: SBTiTarget; onRefresh: () => void }) {
+function TargetCard({
+  target,
+  onRefresh,
+  setReplanningTarget
+}: {
+  target: SBTiTarget;
+  onRefresh: () => void;
+  setReplanningTarget: (target: SBTiTarget | null) => void;
+}) {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'achieved':
@@ -509,6 +549,13 @@ function TargetCard({ target, onRefresh }: { target: SBTiTarget; onRefresh: () =
           </>
         ) : (
           <>
+            <button
+              onClick={() => setReplanningTarget(target)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Replan Target
+            </button>
             <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
               <LineChart className="w-4 h-4" />
               View Trajectory
