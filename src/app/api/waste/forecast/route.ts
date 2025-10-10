@@ -37,7 +37,19 @@ export async function GET(request: NextRequest) {
     const historicalStartDate = new Date(startDate);
     historicalStartDate.setMonth(historicalStartDate.getMonth() - 36);
 
-    // Fetch waste streams data
+    // Get waste metrics from metrics_catalog
+    const { data: wasteMetrics } = await supabaseAdmin
+      .from('metrics_catalog')
+      .select('*')
+      .eq('category', 'Waste');
+
+    if (!wasteMetrics || wasteMetrics.length === 0) {
+      return NextResponse.json({ forecast: [] });
+    }
+
+    const metricIds = wasteMetrics.map(m => m.id);
+
+    // Fetch waste data from metrics_data with pagination
     let allData: any[] = [];
     let rangeStart = 0;
     const batchSize = 1000;
@@ -45,11 +57,12 @@ export async function GET(request: NextRequest) {
 
     while (hasMore) {
       let query = supabaseAdmin
-        .from('waste_streams')
+        .from('metrics_data')
         .select('*')
         .eq('organization_id', orgInfo.organizationId)
-        .gte('date', historicalStartDate.toISOString().split('T')[0])
-        .order('date', { ascending: true })
+        .in('metric_id', metricIds)
+        .gte('period_start', historicalStartDate.toISOString().split('T')[0])
+        .order('period_start', { ascending: true })
         .range(rangeStart, rangeStart + batchSize - 1);
 
       if (siteId) {
@@ -82,24 +95,34 @@ export async function GET(request: NextRequest) {
     const monthlyData: { [key: string]: { generated: number; diverted: number; disposal: number; emissions: number; count: number } } = {};
 
     historicalData.forEach((record: any) => {
-      const date = new Date(record.date);
+      const metric = wasteMetrics.find(m => m.id === record.metric_id);
+      if (!metric) return;
+
+      const date = new Date(record.period_start);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
       if (!monthlyData[monthKey]) {
         monthlyData[monthKey] = { generated: 0, diverted: 0, disposal: 0, emissions: 0, count: 0 };
       }
 
-      const quantity = parseFloat(record.quantity) || 0;
-      const emissions = parseFloat(record.emissions) || 0;
-      const isDiverted = record.diverted || false;
+      // Get quantity (convert to tons if needed)
+      const value = parseFloat(record.value) || 0;
+      const recordUnit = record.unit || metric.unit || 'tons';
+      const valueInTons = recordUnit === 'kg' ? value / 1000 : value;
 
-      monthlyData[monthKey].generated += quantity;
-      monthlyData[monthKey].emissions += emissions;
+      // Get emissions (convert from kgCO2e to tCO2e)
+      const emissionsInTons = (parseFloat(record.co2e_emissions) || 0) / 1000;
+
+      // Check if diverted using metric metadata
+      const isDiverted = metric.is_diverted || false;
+
+      monthlyData[monthKey].generated += valueInTons;
+      monthlyData[monthKey].emissions += emissionsInTons;
 
       if (isDiverted) {
-        monthlyData[monthKey].diverted += quantity;
+        monthlyData[monthKey].diverted += valueInTons;
       } else {
-        monthlyData[monthKey].disposal += quantity;
+        monthlyData[monthKey].disposal += valueInTons;
       }
 
       monthlyData[monthKey].count++;
