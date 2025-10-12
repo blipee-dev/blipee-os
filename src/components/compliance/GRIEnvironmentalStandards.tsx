@@ -65,7 +65,7 @@ export function GRIEnvironmentalStandards({
       code: 'GRI 302',
       title: 'Energy 2016',
       icon: Zap,
-      status: 'available',
+      status: 'implemented',
       description: 'Energy consumption within the organization, energy intensity, reduction of energy consumption',
       metricsCount: 7,
       color: 'yellow'
@@ -74,7 +74,7 @@ export function GRIEnvironmentalStandards({
       code: 'GRI 303',
       title: 'Water and Effluents 2018',
       icon: Droplets,
-      status: 'available',
+      status: 'implemented',
       description: 'Interactions with water as a shared resource, water withdrawal, discharge and consumption',
       metricsCount: 3,
       color: 'blue'
@@ -100,7 +100,7 @@ export function GRIEnvironmentalStandards({
       code: 'GRI 306',
       title: 'Waste 2020',
       icon: Trash2,
-      status: 'available',
+      status: 'implemented',
       description: 'Waste generation and significant waste-related impacts, management of waste-related impacts',
       metricsCount: 20,
       color: 'orange'
