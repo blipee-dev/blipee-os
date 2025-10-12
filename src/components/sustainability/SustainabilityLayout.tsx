@@ -15,22 +15,25 @@ import {
   FileSpreadsheet,
   Wrench,
   FileCheck,
+  Droplets,
+  Trash2,
+  Brain,
 } from "lucide-react";
 import { BaseSidebarLayout } from "@/components/layout/BaseSidebarLayout";
 import { useTranslations } from "@/providers/LanguageProvider";
 
 const getSustainabilityNavItems = (tDashboard: (key: string) => string) => [
-  { id: "overview", label: tDashboard('navigation.overview'), icon: BarChart3, href: "/sustainability/dashboard", view: "overview" },
+  // Main Dashboards
+  { id: "overview", label: tDashboard('navigation.overview'), icon: BarChart3, href: "/sustainability", view: "overview" },
   { id: "compliance", label: "Compliance", icon: FileCheck, href: "/sustainability/compliance", view: null },
-  { id: "emissions", label: tDashboard('navigation.emissions'), icon: Factory, href: "/sustainability/emissions", view: null },
-  { id: "scope-analysis", label: tDashboard('navigation.scopeAnalysis'), icon: Globe, href: "/sustainability/scope-analysis", view: null },
-  { id: "materiality", label: "Materiality", icon: Target, href: "/sustainability/materiality", view: null },
+  { id: "ghg-emissions", label: "GHG Emissions", icon: Factory, href: "/sustainability/ghg-emissions", view: null },
+  { id: "energy", label: "Energy", icon: Zap, href: "/sustainability/energy", view: null },
+  { id: "water", label: "Water & Effluents", icon: Droplets, href: "/sustainability/water", view: null },
+  { id: "waste", label: "Waste", icon: Trash2, href: "/sustainability/waste", view: null },
   { id: "targets", label: "Targets", icon: Target, href: "/sustainability/targets", view: null },
-  { id: "data-management", label: "Data Management", icon: Database, href: "/sustainability/data-management", view: null },
-  { id: "data-entry", label: tDashboard('navigation.dataEntry'), icon: Database, href: "/sustainability/data-entry", view: null },
-  { id: "data-investigation", label: tDashboard('navigation.dataInvestigation'), icon: FileSpreadsheet, href: "/sustainability/data-investigation", view: null },
-  { id: "data-comparison", label: tDashboard('navigation.dataComparison'), icon: Activity, href: "/sustainability/data-comparison", view: null },
-  { id: "data-migration", label: tDashboard('navigation.dataMigration'), icon: Wrench, href: "/sustainability/data-migration", view: null },
+  { id: "data", label: "Data Management", icon: Database, href: "/sustainability/data", view: null },
+  { id: "intelligence", label: "Intelligence", icon: Activity, href: "/sustainability/intelligence", view: null },
+  { id: "ai-assistant", label: "AI Assistant", icon: Brain, href: "/sustainability/ai-assistant", view: null },
 ];
 
 interface SustainabilityLayoutProps {
