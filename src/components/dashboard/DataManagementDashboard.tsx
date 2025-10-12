@@ -424,6 +424,226 @@ export function DataManagementDashboard({ organizationId }: DataManagementDashbo
           </motion.div>
         )}
 
+        {activeTab === 'all' && (
+          <motion.div
+            key="all"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-6"
+          >
+            {loadingAllMetrics ? (
+              <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-12 text-center">
+                <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-500 dark:text-gray-400">Loading metrics data...</p>
+              </div>
+            ) : allMetricsData ? (
+              <>
+                {/* Summary Stats */}
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-4">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {allMetricsData.stats?.totalEntries || 0}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Total Entries</div>
+                  </div>
+                  <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-4">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {allMetricsData.stats?.uniqueMetrics || 0}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Unique Metrics</div>
+                  </div>
+                  <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-4">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {allMetricsData.stats?.uniqueSites || 0}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Sites</div>
+                  </div>
+                  <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-4">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      {allMetricsData.stats?.dateRange?.earliest || 'N/A'} to {allMetricsData.stats?.dateRange?.latest || 'N/A'}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Date Range</div>
+                  </div>
+                </div>
+
+                {/* Metrics List */}
+                <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl">
+                  <div className="p-4 border-b border-gray-200 dark:border-white/[0.05]">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">All Metrics Data</h3>
+                  </div>
+                  <div className="max-h-[600px] overflow-y-auto">
+                    {Object.entries(allMetricsData.groupedData || {}).map(([metricName, data]: any) => (
+                      <div key={metricName} className="border-b border-gray-200 dark:border-white/[0.05]">
+                        <div className="p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium text-gray-900 dark:text-white">{metricName}</h4>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              {data.entries?.length || 0} entries
+                            </span>
+                          </div>
+                          <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400">
+                            <span>Scope {data.metric?.scope?.replace('scope_', '') || 'N/A'}</span>
+                            <span>{data.metric?.category || 'N/A'}</span>
+                            <span>Unit: {data.metric?.unit || 'N/A'}</span>
+                          </div>
+                          {/* Show last 3 entries */}
+                          <div className="mt-3 space-y-1">
+                            {data.entries?.slice(0, 3).map((entry: any, idx: number) => (
+                              <div key={idx} className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  {entry.site} • {new Date(entry.period_end).toLocaleDateString()}
+                                </span>
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value} {data.metric?.unit || entry.unit || ''}
+                                </span>
+                              </div>
+                            ))}
+                            {data.entries?.length > 3 && (
+                              <button className="text-xs text-blue-500 hover:text-blue-600">
+                                View all {data.entries.length} entries →
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-12 text-center">
+                <Database className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Data Available</h3>
+                <p className="text-gray-500 dark:text-gray-400">Start adding metrics data to see it here.</p>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {activeTab === 'historical' && (
+          <motion.div
+            key="historical"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-6"
+          >
+            {loadingAllMetrics ? (
+              <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-12 text-center">
+                <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-500 dark:text-gray-400">Loading historical data...</p>
+              </div>
+            ) : allMetricsData ? (
+              <>
+                {/* Timeline Header */}
+                <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Historical Data Timeline</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Viewing {allMetricsData.stats?.totalEntries || 0} data points from {allMetricsData.stats?.dateRange?.earliest || 'N/A'} to {allMetricsData.stats?.dateRange?.latest || 'N/A'}
+                  </p>
+                </div>
+
+                {/* Timeline View */}
+                <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl">
+                  <div className="max-h-[700px] overflow-y-auto p-6">
+                    {allMetricsData.rawData && allMetricsData.rawData.length > 0 ? (
+                      <div className="space-y-4">
+                        {/* Group data by month */}
+                        {Object.entries(
+                          allMetricsData.rawData.reduce((acc: any, entry: any) => {
+                            const monthKey = new Date(entry.period_end).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long'
+                            });
+                            if (!acc[monthKey]) acc[monthKey] = [];
+                            acc[monthKey].push(entry);
+                            return acc;
+                          }, {})
+                        )
+                          .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
+                          .map(([month, entries]: any) => (
+                            <div key={month} className="relative">
+                              <div className="sticky top-0 bg-white dark:bg-[#111827] py-2 z-10">
+                                <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                                  {month}
+                                </h4>
+                              </div>
+                              <div className="pl-4 border-l-2 border-gray-200 dark:border-gray-700 ml-2 space-y-3">
+                                {entries.sort((a: any, b: any) =>
+                                  new Date(b.period_end).getTime() - new Date(a.period_end).getTime()
+                                ).map((entry: any) => (
+                                  <div key={entry.id} className="relative">
+                                    <div className="absolute -left-[1.35rem] w-3 h-3 bg-blue-500 rounded-full"></div>
+                                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 ml-4">
+                                      <div className="flex items-start justify-between">
+                                        <div>
+                                          <p className="font-medium text-gray-900 dark:text-white">
+                                            {entry.metrics_catalog?.name || 'Unknown Metric'}
+                                          </p>
+                                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            {entry.sites?.name || 'Organization-wide'} •
+                                            {new Date(entry.period_end).toLocaleDateString()}
+                                          </p>
+                                        </div>
+                                        <div className="text-right">
+                                          <p className="font-semibold text-gray-900 dark:text-white">
+                                            {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value} {entry.metrics_catalog?.unit || entry.unit || ''}
+                                          </p>
+                                          {entry.co2e_emissions && (
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                              {entry.co2e_emissions.toFixed(2)} kgCO2e
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-2 mt-2">
+                                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                          entry.verification_status === 'audited'
+                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                            : entry.verification_status === 'verified'
+                                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                            : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                        }`}>
+                                          {entry.verification_status}
+                                        </span>
+                                        <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 rounded-full">
+                                          {entry.data_quality}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                          No Historical Data
+                        </h3>
+                        <p className="text-gray-500 dark:text-gray-400">
+                          Start tracking metrics to see historical data here.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-12 text-center">
+                <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Historical Data</h3>
+                <p className="text-gray-500 dark:text-gray-400">Historical data will appear here once you start tracking metrics.</p>
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {activeTab === 'bulk' && (
           <motion.div
             key="bulk"
