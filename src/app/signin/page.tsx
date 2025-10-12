@@ -142,8 +142,8 @@ export default function SignInPage() {
         router.push(redirectParam);
       } else {
         console.log('Sign in successful, redirecting to default page');
-        // Default redirect to blipee-ai if no redirect param
-        router.push('/blipee-ai');
+        // Default redirect to sustainability overview if no redirect param
+        router.push('/sustainability');
       }
     } catch (err: any) {
       setError(err.message || "Failed to sign in");
@@ -203,9 +203,9 @@ export default function SignInPage() {
 
       // Then sign in
       await signIn(demoEmail, demoPassword);
-      
-      // Demo accounts always go to blipee-ai
-      router.push("/blipee-ai");
+
+      // Demo accounts always go to sustainability overview
+      router.push("/sustainability");
     } catch (err: any) {
       setError("Demo sign in failed. Please try manual signup.");
       setLoading(false);
@@ -217,7 +217,7 @@ export default function SignInPage() {
     if (redirectParam) {
       router.push(redirectParam);
     } else {
-      router.push("/blipee-ai");
+      router.push("/sustainability");
     }
   }
 

@@ -92,8 +92,8 @@ export default function AuthCallbackPage() {
         if (isInvitation && !passwordSet) {
           router.push("/set-password");
         } else {
-          // Otherwise redirect to the main app
-          router.push("/blipee-ai");
+          // Otherwise redirect to the sustainability overview
+          router.push("/sustainability");
         }
       } else {
         console.log("No session found, redirecting to signin");
