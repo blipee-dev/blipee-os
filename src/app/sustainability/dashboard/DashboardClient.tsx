@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   BarChart3,
   Leaf,
@@ -63,7 +64,15 @@ export default function DashboardClient() {
   const { user } = useAuth();
   const { settings } = useAppearance();
   const accentGradientConfig = useAccentGradient();
-  const [currentView, setCurrentView] = useState<DashboardView>('overview');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Initialize currentView from URL or default to 'overview'
+  const [currentView, setCurrentView] = useState<DashboardView>(() => {
+    const tabFromUrl = searchParams.get('tab');
+    return (tabFromUrl as DashboardView) || 'overview';
+  });
+
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [showProactiveCoach, setShowProactiveCoach] = useState(true);
   const [organizationData, setOrganizationData] = useState<any>(null);
@@ -83,6 +92,29 @@ export default function DashboardClient() {
     end: `${new Date().getFullYear()}-12-31`,
     type: 'year'
   });
+
+  // Sync URL when tab changes
+  useEffect(() => {
+    const currentTab = searchParams.get('tab');
+    if (currentTab !== currentView) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('tab', currentView);
+      router.push(`?${params.toString()}`, { scroll: false });
+    }
+  }, [currentView, router, searchParams]);
+
+  // Sync currentView when URL changes (browser back/forward)
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab');
+    if (tabFromUrl && tabFromUrl !== currentView) {
+      setCurrentView(tabFromUrl as DashboardView);
+    }
+  }, [searchParams]);
+
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setCurrentView(value as DashboardView);
+  };
 
   useEffect(() => {
     // Fetch organization data for context
@@ -473,7 +505,7 @@ export default function DashboardClient() {
         </motion.div>
 
         {/* Dashboard Tabs - Unified Tab Component */}
-        <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as DashboardView)}>
+        <Tabs value={currentView} onValueChange={handleTabChange}>
           <TabsList variant="underline" className="w-full">
             {dashboardTabs.map((tab) => (
               <TabsTrigger

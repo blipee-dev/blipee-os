@@ -45,7 +45,9 @@
       "Bash(PGPASSWORD=\"MG5faEtcGRvBWkn1\" psql -h aws-0-eu-central-1.pooler.supabase.com -p 6543 -U postgres.yrbmmymayojycyszUnis -c \"SELECT DISTINCT mc.category, mc.name, mc.code, COUNT(md.id) as data_points, SUM(md.value) as total_value FROM metrics_catalog mc LEFT JOIN metrics_data md ON mc.id = md.metric_id AND md.organization_id = ''22647141-2ee4-4d8d-8b47-16b0cbd830b2'' WHERE mc.category = ''Waste'' GROUP BY mc.id, mc.category, mc.name, mc.code ORDER BY mc.name;\")",
       "Bash(PGPASSWORD=\"MG5faEtcGRvBWkn1\" psql -h aws-0-eu-central-1.pooler.supabase.com -p 6543 -U postgres.yrbmmymayojycyszUnis -c \"SELECT mc.name, mc.category, SUM(md.value) as total_value, mc.unit, mc.is_renewable FROM metrics_catalog mc JOIN metrics_data md ON mc.id = md.metric_id WHERE md.organization_id = ''22647141-2ee4-4d8d-8b47-16b0cbd830b2'' AND mc.category IN (''Electricity'', ''Purchased Energy'', ''Stationary Combustion'', ''Mobile Combustion'') AND EXTRACT(YEAR FROM md.period_start) = 2025 GROUP BY mc.id, mc.name, mc.category, mc.unit, mc.is_renewable ORDER BY mc.category, mc.name;\")",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_l78x1X/**)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

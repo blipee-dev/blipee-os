@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AboutInventory } from '@/components/compliance/AboutInventory';
 import { GHGProtocolInventory } from '@/components/compliance/GHGProtocolInventory';
@@ -17,6 +18,15 @@ interface ComplianceDashboardProps {
 }
 
 export function ComplianceDashboard({ organizationId, selectedSite, selectedPeriod }: ComplianceDashboardProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Initialize compliance tab from URL or default to 'overview'
+  const [complianceTab, setComplianceTab] = useState<string>(() => {
+    const subtabFromUrl = searchParams.get('subtab');
+    return subtabFromUrl || 'overview';
+  });
+
   // Use selectedPeriod to determine the year, or default to current year
   const [selectedYear, setSelectedYear] = useState(() => {
     if (selectedPeriod?.year) return selectedPeriod.year;
@@ -30,8 +40,31 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
     size: string;
   }>({ industry: 'professional_services', region: 'EU', size: '100-300' });
 
+  // Sync URL when compliance tab changes
+  useEffect(() => {
+    const currentSubtab = searchParams.get('subtab');
+    if (currentSubtab !== complianceTab) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('subtab', complianceTab);
+      router.push(`?${params.toString()}`, { scroll: false });
+    }
+  }, [complianceTab, router, searchParams]);
+
+  // Sync complianceTab when URL changes (browser back/forward)
+  useEffect(() => {
+    const subtabFromUrl = searchParams.get('subtab');
+    if (subtabFromUrl && subtabFromUrl !== complianceTab) {
+      setComplianceTab(subtabFromUrl);
+    }
+  }, [searchParams]);
+
+  // Handle compliance tab change
+  const handleComplianceTabChange = (value: string) => {
+    setComplianceTab(value);
+  };
+
   // Update selectedYear when selectedPeriod changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedPeriod?.year) {
       setSelectedYear(selectedPeriod.year);
     } else if (selectedPeriod?.start) {
@@ -40,7 +73,7 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
   }, [selectedPeriod]);
 
   // Fetch industry settings
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchIndustry = async () => {
       try {
         const industryResponse = await fetch('/api/organizations/industry');
@@ -95,7 +128,7 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
       )}
 
       {/* Main Tabs */}
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs value={complianceTab} onValueChange={handleComplianceTabChange} className="w-full">
         <TabsList variant="underline" className="w-full">
           <TabsTrigger value="overview" variant="underline" color="#64748b">Overview</TabsTrigger>
           <TabsTrigger value="ghg-protocol" variant="underline" color="#16A34A">GHG Protocol</TabsTrigger>
