@@ -25,7 +25,7 @@ import { useTranslations } from "@/providers/LanguageProvider";
 
 const getSustainabilityNavItems = (tDashboard: (key: string) => string) => [
   // Main Dashboards
-  { id: "overview", label: tDashboard('navigation.overview'), icon: BarChart3, href: "/sustainability", view: "overview" },
+  { id: "overview", label: tDashboard('navigation.overview'), icon: BarChart3, href: "/sustainability", view: null },
   { id: "compliance", label: "Compliance", icon: FileCheck, href: "/sustainability/compliance", view: null },
   { id: "emissions", label: tDashboard('navigation.emissions'), icon: Cloud, href: "/sustainability/ghg-emissions", view: null },
   { id: "energy", label: "Energy", icon: Zap, href: "/sustainability/energy", view: null },
@@ -39,11 +39,9 @@ const getSustainabilityNavItems = (tDashboard: (key: string) => string) => [
 
 interface SustainabilityLayoutProps {
   children: React.ReactNode;
-  selectedView?: string;
-  onSelectView?: (view: string) => void;
 }
 
-export function SustainabilityLayout({ children, selectedView = 'overview', onSelectView }: SustainabilityLayoutProps) {
+export function SustainabilityLayout({ children }: SustainabilityLayoutProps) {
   const tDashboard = useTranslations('settings.sustainability.dashboard');
   const sustainabilityNavItems = getSustainabilityNavItems(tDashboard);
 
@@ -51,8 +49,6 @@ export function SustainabilityLayout({ children, selectedView = 'overview', onSe
     <BaseSidebarLayout
       navItems={sustainabilityNavItems}
       sectionTitle="Sustainability"
-      selectedView={selectedView}
-      onSelectView={onSelectView}
     >
       {children}
     </BaseSidebarLayout>
