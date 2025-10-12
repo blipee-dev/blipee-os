@@ -18,7 +18,8 @@ import {
   Grid3x3,
   Rocket,
   Brain,
-  X
+  X,
+  RefreshCw
 } from 'lucide-react';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -35,6 +36,7 @@ import { MetricLevelScenarioSimulator } from '@/components/sustainability/target
 import { MaterialityMatrix } from '@/components/sustainability/materiality/MaterialityMatrix';
 import { TargetSettingAssistant } from '@/components/sustainability/targets/TargetSettingAssistant';
 import { WeightedTargetBreakdown } from '@/components/sustainability/targets/WeightedTargetBreakdown';
+import { ReplanningView } from '@/components/sustainability/targets/ReplanningView';
 
 interface TargetData {
   id: string;
@@ -67,7 +69,7 @@ export default function TargetsClient() {
   const [sites, setSites] = useState<any[]>([]);
   const [organizationId, setOrganizationId] = useState<string>('');
   const [simulatorMode, setSimulatorMode] = useState<'overall' | 'metric'>('overall');
-  const [activeTab, setActiveTab] = useState<'overview' | 'weighted' | 'assistant' | 'scenarios' | 'materiality' | 'initiatives'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'weighted' | 'assistant' | 'scenarios' | 'materiality' | 'initiatives' | 'replanning'>('overview');
   const [showAIBanner, setShowAIBanner] = useState(false);
   const [aiAnalysisData, setAiAnalysisData] = useState<any>(null);
   const [categoryTargets, setCategoryTargets] = useState<any[]>([]);
@@ -349,6 +351,7 @@ export default function TargetsClient() {
     const tabs = [
       { id: 'overview', label: 'Overview', icon: Target },
       { id: 'weighted', label: 'Target Allocation', icon: TrendingDown },
+      { id: 'replanning', label: 'Replanning', icon: RefreshCw },
       { id: 'assistant', label: 'AI Assistant', icon: Users },
       { id: 'scenarios', label: 'Scenario Planning', icon: BarChart3 },
       { id: 'materiality', label: 'Material Topics', icon: Grid3x3 },
@@ -415,7 +418,7 @@ export default function TargetsClient() {
 
         {/* Glass Morphism Tab Navigation */}
         <div className="bg-white dark:bg-gray-900/50 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-xl p-1 mb-6">
-          <div className="grid grid-cols-6 gap-1">
+          <div className="grid grid-cols-7 gap-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -621,6 +624,22 @@ export default function TargetsClient() {
                 organizationId={organizationId}
                 overallTarget={targets[0]?.target_reduction_percent || 4.2}
                 baselineYear={targets[0]?.baseline_year}
+              />
+            </motion.div>
+          )}
+
+          {/* Replanning Tab */}
+          {activeTab === 'replanning' && (
+            <motion.div
+              key="replanning"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ReplanningView
+                organizationId={organizationId}
+                targetId={targets[0]?.id}
               />
             </motion.div>
           )}

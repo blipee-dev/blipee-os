@@ -52,7 +52,19 @@ interface GRIData {
   };
 }
 
-export function GRI305Disclosures() {
+interface GRI305DisclosuresProps {
+  organizationId: string;
+  selectedYear: number;
+  selectedSite?: any;
+  selectedPeriod?: any;
+}
+
+export function GRI305Disclosures({
+  organizationId,
+  selectedYear,
+  selectedSite,
+  selectedPeriod
+}: GRI305DisclosuresProps) {
   const [data, setData] = useState<GRIData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,10 +73,22 @@ export function GRI305Disclosures() {
   const [saving, setSaving] = useState(false);
   const [initiatives, setInitiatives] = useState<any[]>([]);
 
+  // Check if viewing a past year (read-only mode)
+  const isHistoricalYear = selectedYear < new Date().getFullYear();
+  const isReadOnly = isHistoricalYear;
+
   useEffect(() => {
     async function fetchGRIData() {
       try {
-        const response = await fetch('/api/compliance/gri-305');
+        const params = new URLSearchParams({
+          year: selectedYear.toString()
+        });
+
+        if (selectedSite?.id) {
+          params.append('siteId', selectedSite.id);
+        }
+
+        const response = await fetch(`/api/compliance/gri-305?${params}`);
         if (!response.ok) {
           throw new Error('Failed to fetch GRI 305 data');
         }
@@ -78,12 +102,20 @@ export function GRI305Disclosures() {
     }
 
     fetchGRIData();
-  }, []);
+  }, [selectedYear, selectedSite]);
 
   useEffect(() => {
     async function fetchInitiatives() {
       try {
-        const response = await fetch('/api/compliance/reduction-initiatives');
+        const params = new URLSearchParams({
+          year: selectedYear.toString()
+        });
+
+        if (selectedSite?.id) {
+          params.append('siteId', selectedSite.id);
+        }
+
+        const response = await fetch(`/api/compliance/reduction-initiatives?${params}`);
         if (response.ok) {
           const result = await response.json();
           setInitiatives(result);
@@ -94,7 +126,7 @@ export function GRI305Disclosures() {
     }
 
     fetchInitiatives();
-  }, []);
+  }, [selectedYear, selectedSite]);
 
   const handleSaveInitiative = async (formData: any) => {
     setSaving(true);
@@ -412,16 +444,18 @@ export function GRI305Disclosures() {
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Emission Reduction Initiatives:
             </p>
-            <button
-              onClick={() => {
-                setSelectedInitiative(null);
-                setShowInitiativeForm(true);
-              }}
-              className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Add Initiative
-            </button>
+            {!isReadOnly && (
+              <button
+                onClick={() => {
+                  setSelectedInitiative(null);
+                  setShowInitiativeForm(true);
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add Initiative
+              </button>
+            )}
           </div>
 
           {initiatives.length > 0 ? (
@@ -455,23 +489,27 @@ export function GRI305Disclosures() {
                     <span className="text-sm font-semibold text-green-600 dark:text-green-400">
                       -{initiative.reduction_tco2e.toLocaleString()} tCO₂e
                     </span>
-                    <button
-                      onClick={() => {
-                        setSelectedInitiative(initiative);
-                        setShowInitiativeForm(true);
-                      }}
-                      className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-                      title="Edit initiative"
-                    >
-                      <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteInitiative(initiative.id)}
-                      className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
-                      title="Delete initiative"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                    </button>
+                    {!isReadOnly && (
+                      <>
+                        <button
+                          onClick={() => {
+                            setSelectedInitiative(initiative);
+                            setShowInitiativeForm(true);
+                          }}
+                          className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                          title="Edit initiative"
+                        >
+                          <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteInitiative(initiative.id)}
+                          className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
+                          title="Delete initiative"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}

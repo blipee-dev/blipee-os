@@ -46,6 +46,25 @@ export async function GET(request: NextRequest) {
     // Calculate recommended SBTi targets
     const calculatedTargets = baselineData ? calculateSBTiTargets(baselineData) : null;
 
+    // Get current year for emissions data
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1; // 1-12
+
+    // Fetch current year scope breakdown to determine which scopes are active
+    const scopeBreakdown = await getPeriodEmissions(
+      organizationId,
+      `${currentYear}-01-01`,
+      new Date().toISOString().split('T')[0]
+    );
+
+    // Determine active scopes based on actual data
+    const activeScopes: string[] = [];
+    if (scopeBreakdown.scope_1 > 0) activeScopes.push('scope_1');
+    if (scopeBreakdown.scope_2 > 0) activeScopes.push('scope_2');
+    if (scopeBreakdown.scope_3 > 0) activeScopes.push('scope_3');
+
+    console.log(`📊 Active scopes detected: ${activeScopes.join(', ')}`);
+
     // Transform data to match our component expectations
     // IMPORTANT: Using actual database schema (not migration schema)
     let transformedTargets = targets?.map(target => {
@@ -58,28 +77,48 @@ export async function GET(request: NextRequest) {
       const yearsToTarget = target.target_year - target.baseline_year;
       const annualRate = yearsToTarget > 0 ? reductionPercent / yearsToTarget : 0;
 
+      // Use database scopes if available, otherwise use detected active scopes
+      const scopeCoverage = Array.isArray(target.scopes) && target.scopes.length > 0
+        ? target.scopes
+        : activeScopes;
+
+      // Calculate progress percentage
+      const currentYear = new Date().getFullYear();
+      const yearsElapsed = currentYear - target.baseline_year;
+      const totalYears = target.target_year - target.baseline_year;
+      const targetReduction = target.baseline_value - target.target_value;
+      const actualReduction = target.current_emissions
+        ? target.baseline_value - target.current_emissions
+        : 0;
+      const progressPercentage = targetReduction > 0
+        ? (actualReduction / targetReduction) * 100
+        : 0;
+
       return {
         id: target.id,
+        name: target.name, // Frontend expects 'name'
         target_type: target.target_type || 'near-term',
-        target_name: target.name, // Database has 'name', not 'target_name'
-        target_scope: Array.isArray(target.scopes) ? target.scopes.join(',') : 'all_scopes', // Database has 'scopes' array
+        target_scope: scopeCoverage.join(','),
+        scope_coverage: scopeCoverage,
         baseline_year: target.baseline_year,
-        baseline_emissions: target.baseline_value, // Database has 'baseline_value'
+        baseline_emissions: target.baseline_value,
         target_year: target.target_year,
-        target_reduction_percent: reductionPercent,
-        target_emissions: target.target_value, // Database has 'target_value'
+        reduction_percentage: reductionPercent,
+        target_emissions: target.target_value,
         annual_reduction_rate: annualRate,
-        sbti_validated: target.sbti_approved || false, // Database has 'sbti_approved'
-        target_status: target.status || 'draft', // Database has 'status', not 'target_status'
+        sbti_validated: target.sbti_approved || false,
+        status: determinePerformanceStatus(target) === 'exceeding' || determinePerformanceStatus(target) === 'on-track'
+          ? 'on_track'
+          : determinePerformanceStatus(target) === 'at-risk'
+            ? 'at_risk'
+            : 'off_track',
         current_emissions: target.current_emissions,
+        progress_percentage: Math.max(0, Math.min(100, progressPercentage)),
         performance_status: determinePerformanceStatus(target)
       };
     }) || [];
 
     // Fetch emissions data with ML-powered forecasting for incomplete years
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1; // 1-12
-
     console.log(`🎯 Fetching emissions for ${currentYear} (current month: ${currentMonth})`);
 
     // Get current year data (may be incomplete) with pagination
@@ -248,16 +287,63 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Update targets with current emissions (actual + forecast)
-    if (currentYearEmissions > 0) {
+    // Check if metric targets exist (replanning has been done)
+    // If so, use their aggregated current values instead of forecast
+    const { data: metricTargetsExist } = await supabaseAdmin
+      .from('metric_targets')
+      .select('target_id, baseline_value, baseline_emissions')
+      .in('target_id', transformedTargets.map(t => t.id))
+      .limit(1);
+
+    const hasMetricTargets = metricTargetsExist && metricTargetsExist.length > 0;
+
+    if (hasMetricTargets) {
+      console.log('📊 Metric targets found - using aggregated values instead of forecast');
+
+      // For each target, aggregate from metric targets
+      for (const target of transformedTargets) {
+        const { data: metricTargets } = await supabaseAdmin
+          .from('metric_targets')
+          .select('baseline_value, baseline_emissions')
+          .eq('target_id', target.id)
+          .eq('status', 'active');
+
+        if (metricTargets && metricTargets.length > 0) {
+          // Sum up baseline emissions (which represent current state after replanning)
+          const aggregatedCurrent = metricTargets.reduce((sum, mt) => sum + (mt.baseline_emissions || 0), 0);
+
+          target.current_emissions = aggregatedCurrent;
+          target.is_forecast = false; // This is from metric targets, not forecast
+          target.actual_ytd = aggregatedCurrent; // All is "actual" from metric breakdown
+          target.forecasted_remaining = 0;
+
+          console.log(`   ${target.name}: Using metric targets sum = ${aggregatedCurrent.toFixed(1)} tCO2e`);
+        }
+      }
+    } else if (currentYearEmissions > 0) {
+      console.log('📊 No metric targets - using forecast-based emissions');
+
+      // Original logic: Persist current emissions to database for all targets
+      for (const target of transformedTargets) {
+        await supabaseAdmin
+          .from('sustainability_targets')
+          .update({
+            current_emissions: currentYearEmissions,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', target.id);
+      }
+
+      // Update in-memory objects for response
       transformedTargets.forEach(target => {
         target.current_emissions = currentYearEmissions;
         target.is_forecast = currentYearIsForecast;
         target.actual_ytd = actualYearToDate;
         target.forecasted_remaining = forecastedRemaining;
         target.bau_projection_2030 = bauProjection2030;
+
         // Recalculate performance status
-        target.performance_status = calculatePerformanceStatus(
+        const newPerformanceStatus = calculatePerformanceStatus(
           target.baseline_emissions,
           currentYearEmissions,
           target.target_emissions,
@@ -265,7 +351,25 @@ export async function GET(request: NextRequest) {
           target.target_year,
           currentYear
         );
+        target.performance_status = newPerformanceStatus;
+
+        // Update status based on performance_status
+        target.status = newPerformanceStatus === 'exceeding' || newPerformanceStatus === 'on-track'
+          ? 'on_track'
+          : newPerformanceStatus === 'at-risk'
+            ? 'at_risk'
+            : 'off_track';
+
+        // Recalculate progress_percentage
+        const targetReduction = target.baseline_emissions - target.target_emissions;
+        const actualReduction = target.baseline_emissions - currentYearEmissions;
+        const progressPercentage = targetReduction > 0
+          ? (actualReduction / targetReduction) * 100
+          : 0;
+        target.progress_percentage = Math.max(0, Math.min(100, progressPercentage));
       });
+
+      console.log(`✅ Updated ${transformedTargets.length} targets with current emissions: ${currentYearEmissions.toFixed(1)} tCO2e`);
     }
 
     // Merge calculated targets with existing targets
@@ -293,7 +397,8 @@ export async function GET(request: NextRequest) {
             calculatedTarget.actual_ytd = actualYearToDate;
             calculatedTarget.forecasted_remaining = forecastedRemaining;
             calculatedTarget.bau_projection_2030 = bauProjection2030;
-            calculatedTarget.performance_status = calculatePerformanceStatus(
+
+            const newPerformanceStatus = calculatePerformanceStatus(
               calculatedTarget.baseline_emissions,
               currentYearEmissions,
               calculatedTarget.target_emissions,
@@ -301,6 +406,22 @@ export async function GET(request: NextRequest) {
               calculatedTarget.target_year,
               currentYear
             );
+            calculatedTarget.performance_status = newPerformanceStatus;
+
+            // Set status based on performance_status
+            calculatedTarget.status = newPerformanceStatus === 'exceeding' || newPerformanceStatus === 'on-track'
+              ? 'on_track'
+              : newPerformanceStatus === 'at-risk'
+                ? 'at_risk'
+                : 'off_track';
+
+            // Calculate progress_percentage
+            const targetReduction = calculatedTarget.baseline_emissions - calculatedTarget.target_emissions;
+            const actualReduction = calculatedTarget.baseline_emissions - currentYearEmissions;
+            const progressPercentage = targetReduction > 0
+              ? (actualReduction / targetReduction) * 100
+              : 0;
+            calculatedTarget.progress_percentage = Math.max(0, Math.min(100, progressPercentage));
           }
 
           targetTypeMap.set(type, calculatedTarget);
@@ -540,6 +661,12 @@ function calculateSBTiTargets(baselineData: any) {
 
   const currentYear = new Date().getFullYear();
 
+  // Determine scope coverage based on baseline data
+  const scopeCoverage: string[] = [];
+  if (baselineData.scope_1 > 0) scopeCoverage.push('scope_1');
+  if (baselineData.scope_2 > 0) scopeCoverage.push('scope_2');
+  if (baselineData.scope_3 > 0) scopeCoverage.push('scope_3');
+
   return {
     'near-term': {
       id: 'calculated-near-term',
@@ -556,6 +683,7 @@ function calculateSBTiTargets(baselineData: any) {
       annual_reduction_rate: Math.round(42 / (2030 - baselineData.year) * 10) / 10,
       sbti_validated: false,
       progress_status: 'not_started',
+      scope_coverage: scopeCoverage, // Add scope coverage array
       scope_1_2_coverage_percent: 95, // SBTi requirement
       scope_3_coverage_percent: baselineData.scope_3_percentage > 40 ? 67 : null, // Only required if >40%
       description: `Reduce emissions by 42% by 2030 from ${baselineData.year} baseline (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.58).toFixed(1)} tCO2e)`
@@ -575,6 +703,7 @@ function calculateSBTiTargets(baselineData: any) {
       annual_reduction_rate: Math.round(90 / (2050 - baselineData.year) * 10) / 10,
       sbti_validated: false,
       progress_status: 'not_started',
+      scope_coverage: scopeCoverage, // Add scope coverage array
       scope_1_2_coverage_percent: 95,
       scope_3_coverage_percent: 90, // SBTi requires 90% for long-term
       description: `Reduce emissions by 90% by 2050 from ${baselineData.year} baseline (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.10).toFixed(1)} tCO2e)`
@@ -594,6 +723,7 @@ function calculateSBTiTargets(baselineData: any) {
       annual_reduction_rate: Math.round(90 / (2050 - baselineData.year) * 10) / 10,
       sbti_validated: false,
       progress_status: 'not_started',
+      scope_coverage: scopeCoverage, // Add scope coverage array
       scope_1_2_coverage_percent: 95,
       scope_3_coverage_percent: 90,
       neutralization_plan: `Neutralize residual ${(baselineData.total * 0.10).toFixed(1)} tCO2e through permanent carbon removal`,

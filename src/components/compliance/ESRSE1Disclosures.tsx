@@ -89,9 +89,10 @@ interface ESRSE1Data {
 
 interface ESRSE1DisclosuresProps {
   data: ESRSE1Data;
+  isReadOnly?: boolean;
 }
 
-export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
+export function ESRSE1Disclosures({ data, isReadOnly = false }: ESRSE1DisclosuresProps) {
   const [activeTab, setActiveTab] = useState<string>('E1-1');
   const [saving, setSaving] = useState(false);
   const [showTransitionPlanForm, setShowTransitionPlanForm] = useState(false);
@@ -167,13 +168,15 @@ export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
                       Define your climate transition plan including decarbonization strategy and resource allocation
                     </p>
                   </div>
-                  <button
-                    onClick={() => setShowTransitionPlanForm(true)}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Create Transition Plan
-                  </button>
+                  {!isReadOnly && (
+                    <button
+                      onClick={() => setShowTransitionPlanForm(true)}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Create Transition Plan
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -221,13 +224,15 @@ export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
                       Add your organization's climate-related policies to complete this disclosure
                     </p>
                   </div>
-                  <button
-                    onClick={() => setShowPoliciesForm(true)}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Climate Policy
-                  </button>
+                  {!isReadOnly && (
+                    <button
+                      onClick={() => setShowPoliciesForm(true)}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Climate Policy
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -577,13 +582,15 @@ export function ESRSE1Disclosures({ data }: ESRSE1DisclosuresProps) {
                   Set your internal carbon price to guide investment decisions and incentivize emission reductions
                 </p>
               </div>
-              <button
-                onClick={() => setShowCarbonPricingForm(true)}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto"
-              >
-                <Plus className="w-4 h-4" />
-                Set Carbon Price
-              </button>
+              {!isReadOnly && (
+                <button
+                  onClick={() => setShowCarbonPricingForm(true)}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto"
+                >
+                  <Plus className="w-4 h-4" />
+                  Set Carbon Price
+                </button>
+              )}
             </div>
           </div>
         );

@@ -17,10 +17,17 @@ import {
   BarChart3,
   LineChart,
   Building2,
-  RefreshCw
+  RefreshCw,
+  ExternalLink,
+  HelpCircle,
+  History
 } from 'lucide-react';
 import { Building, TimePeriod } from '@/types/auth';
 import ReplanningModal from '@/components/sustainability/ReplanningModal';
+import ReplanningResultsModal from '@/components/sustainability/ReplanningResultsModal';
+import TrajectoryModal from '@/components/sustainability/TrajectoryModal';
+import EditTargetModal from '@/components/sustainability/EditTargetModal';
+import RollbackHistoryModal from '@/components/sustainability/RollbackHistoryModal';
 
 interface TargetsDashboardProps {
   organizationId: string;
@@ -44,6 +51,11 @@ interface SBTiTarget {
   status?: 'on_track' | 'at_risk' | 'off_track' | 'achieved';
   current_emissions?: number;
   progress_percentage?: number;
+  performance_status?: string;
+  actual_ytd?: number;
+  forecasted_remaining?: number;
+  is_forecast?: boolean;
+  bau_projection_2030?: number;
 }
 
 export function TargetsDashboard({
@@ -56,6 +68,10 @@ export function TargetsDashboard({
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [replanningTarget, setReplanningTarget] = useState<SBTiTarget | null>(null);
+  const [actionPlanTarget, setActionPlanTarget] = useState<SBTiTarget | null>(null);
+  const [trajectoryTarget, setTrajectoryTarget] = useState<SBTiTarget | null>(null);
+  const [editTarget, setEditTarget] = useState<SBTiTarget | null>(null);
+  const [rollbackTarget, setRollbackTarget] = useState<SBTiTarget | null>(null);
 
   useEffect(() => {
     fetchTargets();
@@ -133,7 +149,16 @@ export function TargetsDashboard({
       </div>
 
       {/* Targets List - Always show all three target types */}
-      <TargetsList targets={targets} onRefresh={fetchTargets} setReplanningTarget={setReplanningTarget} />
+      <TargetsList
+        targets={targets}
+        organizationId={organizationId}
+        onRefresh={fetchTargets}
+        setReplanningTarget={setReplanningTarget}
+        setActionPlanTarget={setActionPlanTarget}
+        setTrajectoryTarget={setTrajectoryTarget}
+        setEditTarget={setEditTarget}
+        setRollbackTarget={setRollbackTarget}
+      />
 
       {/* Create Target Modal */}
       {showCreateModal && (
@@ -163,6 +188,56 @@ export function TargetsDashboard({
           targetEmissions={replanningTarget.target_emissions}
           onReplanComplete={() => {
             setReplanningTarget(null);
+            fetchTargets();
+          }}
+        />
+      )}
+
+      {/* Action Plan Modal */}
+      {actionPlanTarget && (
+        <ReplanningResultsModal
+          isOpen={!!actionPlanTarget}
+          onClose={() => setActionPlanTarget(null)}
+          organizationId={organizationId}
+          targetId={actionPlanTarget.id}
+          targetName={actionPlanTarget.name}
+        />
+      )}
+
+      {/* Trajectory Modal */}
+      {trajectoryTarget && (
+        <TrajectoryModal
+          isOpen={!!trajectoryTarget}
+          onClose={() => setTrajectoryTarget(null)}
+          organizationId={organizationId}
+          target={trajectoryTarget}
+        />
+      )}
+
+      {/* Edit Target Modal */}
+      {editTarget && (
+        <EditTargetModal
+          isOpen={!!editTarget}
+          onClose={() => setEditTarget(null)}
+          organizationId={organizationId}
+          target={editTarget}
+          onSave={() => {
+            setEditTarget(null);
+            fetchTargets();
+          }}
+        />
+      )}
+
+      {/* Rollback History Modal */}
+      {rollbackTarget && (
+        <RollbackHistoryModal
+          isOpen={!!rollbackTarget}
+          onClose={() => setRollbackTarget(null)}
+          organizationId={organizationId}
+          targetId={rollbackTarget.id}
+          targetName={rollbackTarget.name}
+          onRollbackSuccess={() => {
+            setRollbackTarget(null);
             fetchTargets();
           }}
         />
@@ -237,69 +312,188 @@ function EmptyState({ onCreateTarget }: { onCreateTarget: () => void }) {
 // Targets List Component
 function TargetsList({
   targets,
+  organizationId,
   onRefresh,
-  setReplanningTarget
+  setReplanningTarget,
+  setActionPlanTarget,
+  setTrajectoryTarget,
+  setEditTarget,
+  setRollbackTarget
 }: {
   targets: SBTiTarget[];
+  organizationId: string;
   onRefresh: () => void;
   setReplanningTarget: (target: SBTiTarget | null) => void;
+  setActionPlanTarget: (target: SBTiTarget | null) => void;
+  setTrajectoryTarget: (target: SBTiTarget | null) => void;
+  setEditTarget: (target: SBTiTarget | null) => void;
+  setRollbackTarget: (target: SBTiTarget | null) => void;
 }) {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Active Targets</span>
-            <Target className="w-5 h-5 text-green-500" />
-          </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-white">{targets.length}</div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total targets</p>
-        </div>
+      {(() => {
+        // Filter to only committed targets (not calculated recommendations)
+        const committedTargets = targets.filter(t => !t.id.startsWith('calculated-'));
 
-        <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">SBTi Validated</span>
-            <Award className="w-5 h-5 text-blue-500" />
-          </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-white">
-            {targets.filter(t => t.sbti_validated).length}
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Official validation</p>
-        </div>
+        const activeTargets = committedTargets.length;
+        const sbtiValidated = committedTargets.filter(t => t.sbti_validated).length;
+        const onTrackTargets = committedTargets.filter(t => t.status === 'on_track' || t.status === 'achieved').length;
+        const avgProgress = committedTargets.length > 0
+          ? Math.round(
+              committedTargets.reduce((sum, t) => sum + (t.progress_percentage || 0), 0) / committedTargets.length
+            )
+          : 0;
 
-        <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">On Track</span>
-            <CheckCircle2 className="w-5 h-5 text-green-500" />
-          </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-white">
-            {targets.filter(t => t.status === 'on_track' || t.status === 'achieved').length}
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Meeting targets</p>
-        </div>
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Active Targets</span>
+                <Target className="w-5 h-5 text-green-500" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">{activeTargets}</div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Committed targets</p>
+            </div>
 
-        <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Avg Progress</span>
-            <BarChart3 className="w-5 h-5 text-purple-500" />
+            <a
+              href={sbtiValidated === 0 ? "https://sciencebasedtargets.org/set-a-target" : "https://sciencebasedtargets.org/companies-taking-action"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-blue-300 dark:hover:border-blue-700 transition-all group relative"
+              title={sbtiValidated === 0 ? "Click to learn about SBTi validation" : "View SBTi validated companies"}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                  SBTi Validated
+                  {sbtiValidated === 0 && (
+                    <HelpCircle className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                  )}
+                </span>
+                <Award className={`w-5 h-5 ${sbtiValidated > 0 ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-500 transition-colors'}`} />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                {sbtiValidated}
+                {sbtiValidated === 0 && (
+                  <ExternalLink className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {sbtiValidated === 0 ? 'Learn about validation' : 'Official validation'}
+              </p>
+            </a>
+
+            <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">On Track</span>
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                {onTrackTargets}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Meeting targets</p>
+            </div>
+
+            <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Avg Progress</span>
+                <BarChart3 className="w-5 h-5 text-purple-500" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                {avgProgress}%
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Overall progress</p>
+            </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-white">
-            {targets.length > 0
-              ? Math.round(
-                  targets.reduce((sum, t) => sum + (t.progress_percentage || 0), 0) / targets.length
-                )
-              : 0}
-            %
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Overall progress</p>
-        </div>
-      </div>
+        );
+      })()}
+
+      {/* SBTi Validation Info Banner - Only show if no validated targets */}
+      {(() => {
+        const committedTargets = targets.filter(t => !t.id.startsWith('calculated-'));
+        const hasValidatedTarget = committedTargets.some(t => t.sbti_validated);
+
+        if (!hasValidatedTarget && committedTargets.length > 0) {
+          return (
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+                    <Award className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Get Your Target SBTi Validated
+                  </h3>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                    Your target aligns with SBTi's 1.5°C pathway requirements. Getting official validation demonstrates
+                    your commitment to climate science and gives your stakeholders confidence in your climate strategy.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <a
+                      href="https://sciencebasedtargets.org/set-a-target"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                    >
+                      Start SBTi Validation Process
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                    <a
+                      href="https://sciencebasedtargets.org/resources/files/SBTi-criteria.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 font-medium rounded-lg border-2 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                    >
+                      Learn More About SBTi
+                      <Info className="w-4 h-4" />
+                    </a>
+                  </div>
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-600 dark:text-gray-400">
+                        <strong className="text-gray-900 dark:text-white">Credibility:</strong> Official validation from leading climate body
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-600 dark:text-gray-400">
+                        <strong className="text-gray-900 dark:text-white">Recognition:</strong> Public listing on SBTi website
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-600 dark:text-gray-400">
+                        <strong className="text-gray-900 dark:text-white">Investment:</strong> From $9,500 depending on company size
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
 
       {/* Target Cards */}
       <div className="space-y-4">
         {targets.map((target) => (
-          <TargetCard key={target.id} target={target} onRefresh={onRefresh} setReplanningTarget={setReplanningTarget} />
+          <TargetCard
+            key={target.id}
+            target={target}
+            organizationId={organizationId}
+            onRefresh={onRefresh}
+            setReplanningTarget={setReplanningTarget}
+            setActionPlanTarget={setActionPlanTarget}
+            setTrajectoryTarget={setTrajectoryTarget}
+            setEditTarget={setEditTarget}
+            setRollbackTarget={setRollbackTarget}
+          />
         ))}
       </div>
     </div>
@@ -309,13 +503,59 @@ function TargetsList({
 // Individual Target Card
 function TargetCard({
   target,
+  organizationId,
   onRefresh,
-  setReplanningTarget
+  setReplanningTarget,
+  setActionPlanTarget,
+  setTrajectoryTarget,
+  setEditTarget,
+  setRollbackTarget
 }: {
   target: SBTiTarget;
+  organizationId: string;
   onRefresh: () => void;
   setReplanningTarget: (target: SBTiTarget | null) => void;
+  setActionPlanTarget: (target: SBTiTarget | null) => void;
+  setTrajectoryTarget: (target: SBTiTarget | null) => void;
+  setEditTarget: (target: SBTiTarget | null) => void;
+  setRollbackTarget: (target: SBTiTarget | null) => void;
 }) {
+  const [committing, setCommitting] = useState(false);
+
+  const handleCommitTarget = async () => {
+    try {
+      setCommitting(true);
+
+      const response = await fetch('/api/sustainability/targets/commit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          organization_id: organizationId,
+          name: target.name,
+          target_type: target.target_type,
+          baseline_year: target.baseline_year,
+          baseline_value: target.baseline_emissions,
+          target_year: target.target_year,
+          target_value: target.target_emissions,
+          scopes: target.scope_coverage || [],
+          methodology: 'SBTi'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to commit target');
+      }
+
+      // Refresh the targets list to show the newly committed target
+      onRefresh();
+    } catch (error) {
+      console.error('Error committing target:', error);
+      alert('Failed to commit target. Please try again.');
+    } finally {
+      setCommitting(false);
+    }
+  };
+
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'achieved':
@@ -406,9 +646,9 @@ function TargetCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+      className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
     >
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white">{target.name}</h3>
@@ -463,12 +703,12 @@ function TargetCard({
       </div>
 
       {/* Progress Bar */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between text-sm mb-2">
+      <div className="mb-3">
+        <div className="flex items-center justify-between text-sm mb-1.5">
           <span className="text-gray-600 dark:text-gray-400">Progress to Target</span>
           <span className="font-semibold text-gray-900 dark:text-white">{progress.toFixed(1)}%</span>
         </div>
-        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+        <div className="h-2.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(progress, 100)}%` }}
@@ -481,69 +721,101 @@ function TargetCard({
             }`}
           />
         </div>
+
+        {/* Gap indicator - Simplified */}
+        {!isCalculated && target.current_emissions && target.current_emissions > 0 && (() => {
+          const currentYear = new Date().getFullYear();
+          const yearsElapsed = currentYear - target.baseline_year;
+          const totalYears = target.target_year - target.baseline_year;
+
+          // Where we should be by now (linear reduction path)
+          const expectedReduction = (target.baseline_emissions - target.target_emissions) * (yearsElapsed / totalYears);
+          const expectedEmissions = target.baseline_emissions - expectedReduction;
+          const gap = target.current_emissions - expectedEmissions;
+          const status = target.performance_status || 'pending';
+
+          if (status === 'exceeding' || status === 'on-track') {
+            return null; // Don't show anything when on track
+          }
+
+          return (
+            <div className="mt-2 text-xs">
+              <div className={`flex items-center gap-2 ${
+                status === 'at-risk'
+                  ? 'text-yellow-600 dark:text-yellow-400'
+                  : 'text-red-600 dark:text-red-400'
+              }`}>
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span className="font-medium">
+                  {Math.abs(gap).toFixed(1)} tCO2e behind target
+                </span>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      {/* Metrics Grid - Compact Version */}
+      <div className="grid grid-cols-4 gap-3 py-3 border-t border-gray-200 dark:border-gray-700">
         <div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Baseline ({target.baseline_year})</div>
-          <div className="text-lg font-bold text-gray-900 dark:text-white">
-            {target.baseline_emissions.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Baseline ({target.baseline_year})</div>
+          <div className="font-bold text-gray-900 dark:text-white">
+            {target.baseline_emissions.toFixed(1)}
+            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">tCO2e</span>
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
         </div>
 
         <div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Current ({new Date().getFullYear()})</div>
-          <div className="text-lg font-bold text-gray-900 dark:text-white">
-            {target.current_emissions ? target.current_emissions.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '-'}
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Current ({new Date().getFullYear()})</div>
+          <div className="font-bold text-gray-900 dark:text-white">
+            {target.current_emissions ? target.current_emissions.toFixed(1) : '-'}
+            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">tCO2e</span>
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
         </div>
 
         <div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-            {target.target_type === 'net-zero' ? 'Carbon Offset' : 'Target (' + target.target_year + ')'}
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Target ({target.target_year})</div>
+          <div className="font-bold text-gray-900 dark:text-white">
+            {target.target_emissions.toFixed(1)}
+            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">tCO2e</span>
           </div>
-          <div className="text-lg font-bold text-gray-900 dark:text-white">
-            {target.target_type === 'net-zero'
-              ? (target.baseline_emissions * 0.1).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
-              : target.target_emissions.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+        </div>
+
+        <div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Annual Rate</div>
+          <div className="font-bold text-gray-900 dark:text-white">
+            {target.annual_reduction_rate
+              ? `${target.annual_reduction_rate.toFixed(1)}%`
+              : `${(((target.baseline_emissions - target.target_emissions) / target.baseline_emissions * 100) / (target.target_year - target.baseline_year)).toFixed(1)}%`
             }
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            {target.target_type === 'net-zero' ? 'tCO2e to offset' : 'tCO2e'}
-          </div>
-        </div>
-
-        <div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-            {target.target_type === 'net-zero' ? 'Target (' + target.target_year + ')' : 'Annual Rate'}
-          </div>
-          <div className="text-lg font-bold text-gray-900 dark:text-white">
-            {target.target_type === 'net-zero'
-              ? '0.0'
-              : target.annual_reduction_rate
-                ? `${target.annual_reduction_rate.toFixed(1)}%`
-                : `${(((target.baseline_emissions - target.target_emissions) / target.baseline_emissions * 100) / (target.target_year - target.baseline_year)).toFixed(1)}%`
-            }
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            {target.target_type === 'net-zero' ? 'tCO2e (Net-Zero)' : 'per year'}
+            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">per year</span>
           </div>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      {/* Actions - Compact */}
+      <div className="flex items-center gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
         {isCalculated ? (
           <>
-            <button className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">
-              <CheckCircle2 className="w-4 h-4" />
-              Commit This Target
+            <button
+              onClick={handleCommitTarget}
+              disabled={committing}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              {committing ? (
+                <>
+                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white" />
+                  Committing...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Commit Target
+                </>
+              )}
             </button>
-            <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-              <Edit className="w-4 h-4" />
+            <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+              <Edit className="w-3.5 h-3.5" />
               Customize
             </button>
           </>
@@ -551,21 +823,41 @@ function TargetCard({
           <>
             <button
               onClick={() => setReplanningTarget(target)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors"
             >
-              <RefreshCw className="w-4 h-4" />
-              Replan Target
+              <RefreshCw className="w-3.5 h-3.5" />
+              Replan
             </button>
-            <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-              <LineChart className="w-4 h-4" />
-              View Trajectory
+            <button
+              onClick={() => setActionPlanTarget(target)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              Action Plan
             </button>
-            <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-              <Edit className="w-4 h-4" />
+            <button
+              onClick={() => setTrajectoryTarget(target)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <LineChart className="w-3.5 h-3.5" />
+              Trajectory
+            </button>
+            <button
+              onClick={() => setEditTarget(target)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <Edit className="w-3.5 h-3.5" />
               Edit
             </button>
-            <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors ml-auto">
-              <Trash2 className="w-4 h-4" />
+            <button
+              onClick={() => setRollbackTarget(target)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <History className="w-3.5 h-3.5" />
+              History
+            </button>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors ml-auto">
+              <Trash2 className="w-3.5 h-3.5" />
               Delete
             </button>
           </>

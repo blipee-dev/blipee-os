@@ -14,7 +14,10 @@ import {
   AlertCircle,
   Info,
   Cloud,
-  Gauge
+  Gauge,
+  ChevronDown,
+  ChevronRight,
+  Plus
 } from 'lucide-react';
 import {
   LineChart,
@@ -36,6 +39,8 @@ import {
 } from 'recharts';
 import type { Building } from '@/types/auth';
 import type { TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
+import { MetricTargetsCard } from '@/components/sustainability/MetricTargetsCard';
+import { RecommendationsModal } from '@/components/sustainability/RecommendationsModal';
 
 interface EnergyDashboardProps {
   organizationId: string;
@@ -120,6 +125,13 @@ const getGridMixColor = (name: string): string => {
   return '#94A3B8'; // Slate fallback
 };
 
+// Helper function to format scope labels
+const formatScope = (scope: string): string => {
+  if (!scope) return '';
+  // Convert scope_1 -> Scope 1, scope_2 -> Scope 2, scope_3 -> Scope 3
+  return scope.replace(/scope_(\d+)/i, 'Scope $1').replace(/scope(\d+)/i, 'Scope $1');
+};
+
 export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }: EnergyDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'source' | 'type' | 'trends'>('overview');
@@ -143,6 +155,11 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
   // Weighted allocation targets
   const [categoryTargets, setCategoryTargets] = useState<any[]>([]);
   const [overallTargetPercent, setOverallTargetPercent] = useState<number | null>(null);
+
+  // Metric-level targets for expandable view
+  const [metricTargets, setMetricTargets] = useState<any[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [selectedMetricForInitiative, setSelectedMetricForInitiative] = useState<string | null>(null);
 
   // Breakdown data
   const [sourceBreakdown, setSourceBreakdown] = useState<any[]>([]);
@@ -607,6 +624,26 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               console.log(`    Actual change: ${cat.actualReductionPercent >= 0 ? cat.actualReductionPercent.toFixed(1) + '% reduction' : Math.abs(cat.actualReductionPercent).toFixed(1) + '% increase'}`);
               console.log(`    Progress: ${cat.progressPercent.toFixed(0)}%`);
             });
+
+            // Fetch metric-level targets for expandable view (all energy categories)
+            try {
+              const energyCategories = [
+                'Electricity', 'Purchased Energy', 'Purchased Heating', 'Purchased Cooling', 'Purchased Steam',
+                'Natural Gas', 'Heating Oil', 'Diesel', 'Gasoline', 'Propane',
+                'Heating', 'Cooling', 'Steam'
+              ].join(',');
+
+              const metricTargetsRes = await fetch(
+                `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(energyCategories)}`
+              );
+              const metricTargetsData = await metricTargetsRes.json();
+              if (metricTargetsData.success && metricTargetsData.data) {
+                setMetricTargets(metricTargetsData.data);
+                console.log('📊 Metric-level targets loaded:', metricTargetsData.data.length, 'targets');
+              }
+            } catch (err) {
+              console.error('Error fetching metric targets:', err);
+            }
           }
         }
 
@@ -1433,83 +1470,263 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
             </div>
 
             <div className="space-y-3">
-              {categoryTargets.map((cat: any) => (
-                <div key={cat.category} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-white text-sm">
-                        {cat.category}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {cat.annualReductionRate.toFixed(1)}% annual • {cat.reason}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-sm font-semibold ${
-                        cat.progressPercent >= 100 ? 'text-green-600 dark:text-green-400' :
-                        cat.progressPercent >= 80 ? 'text-blue-600 dark:text-blue-400' :
-                        cat.progressPercent >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
-                        'text-red-600 dark:text-red-400'
-                      }`}>
-                        {cat.progressPercent.toFixed(0)}%
-                      </div>
-                      <div className={`text-xs font-medium ${
-                        cat.progressPercent >= 100 ? 'text-green-600 dark:text-green-400' :
-                        cat.progressPercent >= 80 ? 'text-blue-600 dark:text-blue-400' :
-                        cat.progressPercent >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
-                        'text-red-600 dark:text-red-400'
-                      }`}>
-                        {cat.progressPercent >= 100 ? 'exceeding' :
-                         cat.progressPercent >= 80 ? 'on track' :
-                         cat.progressPercent >= 50 ? 'at risk' :
-                         'off track'}
-                      </div>
-                    </div>
-                  </div>
+              {categoryTargets.map((cat: any) => {
+                const isExpanded = expandedCategories.has(cat.category);
+                const categoryMetrics = metricTargets.filter(m => m.category === cat.category);
 
-                  <div className="flex items-center gap-3 text-xs">
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
-                      <span className="ml-1 text-gray-900 dark:text-white font-medium">
-                        {cat.baseline2023FullYear.toFixed(1)} tCO2e
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">Target 2025:</span>
-                      <span className="ml-1 text-gray-900 dark:text-white font-medium">
-                        {cat.expectedEmissions2025.toFixed(1)} tCO2e
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">Projected:</span>
-                      <span className={`ml-1 font-medium ${
-                        cat.projected2025FullYear <= cat.expectedEmissions2025
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-red-600 dark:text-red-400'
-                      }`}>
-                        {cat.projected2025FullYear.toFixed(1)} tCO2e
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                return (
+                  <div key={cat.category}>
+                    {/* Category Row - Click able to expand */}
                     <div
-                      className={`h-full rounded-full transition-all ${
-                        cat.progressPercent >= 100 ? 'bg-green-500' :
-                        cat.progressPercent >= 80 ? 'bg-blue-500' :
-                        cat.progressPercent >= 50 ? 'bg-yellow-500' :
-                        'bg-red-500'
-                      }`}
-                      style={{ width: `${Math.min(cat.progressPercent, 100)}%` }}
-                    />
+                      className="bg-white dark:bg-gray-800/50 rounded-lg p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors"
+                      onClick={() => {
+                        setExpandedCategories(prev => {
+                          const next = new Set(prev);
+                          if (next.has(cat.category)) {
+                            next.delete(cat.category);
+                          } else {
+                            next.add(cat.category);
+                          }
+                          return next;
+                        });
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {isExpanded ? (
+                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-gray-400" />
+                          )}
+                          <div>
+                            <div className="font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
+                              {cat.category}
+                              {categoryMetrics.length > 0 && (
+                                <span className="text-xs px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded">
+                                  {categoryMetrics.length} metrics
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {cat.annualReductionRate.toFixed(1)}% annual • {cat.reason}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className={`text-sm font-semibold ${
+                            cat.progressPercent >= 100 ? 'text-green-600 dark:text-green-400' :
+                            cat.progressPercent >= 80 ? 'text-blue-600 dark:text-blue-400' :
+                            cat.progressPercent >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
+                            'text-red-600 dark:text-red-400'
+                          }`}>
+                            {cat.progressPercent.toFixed(0)}%
+                          </div>
+                          <div className={`text-xs font-medium ${
+                            cat.progressPercent >= 100 ? 'text-green-600 dark:text-green-400' :
+                            cat.progressPercent >= 80 ? 'text-blue-600 dark:text-blue-400' :
+                            cat.progressPercent >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
+                            'text-red-600 dark:text-red-400'
+                          }`}>
+                            {cat.progressPercent >= 100 ? 'exceeding' :
+                             cat.progressPercent >= 80 ? 'on track' :
+                             cat.progressPercent >= 50 ? 'at risk' :
+                             'off track'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 text-xs">
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
+                          <span className="ml-1 text-gray-900 dark:text-white font-medium">
+                            {cat.baseline2023FullYear.toFixed(1)} tCO2e
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Target 2025:</span>
+                          <span className="ml-1 text-gray-900 dark:text-white font-medium">
+                            {cat.expectedEmissions2025.toFixed(1)} tCO2e
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Projected:</span>
+                          <span className={`ml-1 font-medium ${
+                            cat.projected2025FullYear <= cat.expectedEmissions2025
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-red-600 dark:text-red-400'
+                          }`}>
+                            {cat.projected2025FullYear.toFixed(1)} tCO2e
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            cat.progressPercent >= 100 ? 'bg-green-500' :
+                            cat.progressPercent >= 80 ? 'bg-blue-500' :
+                            cat.progressPercent >= 50 ? 'bg-yellow-500' :
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${Math.min(cat.progressPercent, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Expanded Metric-level Targets */}
+                    {isExpanded && categoryMetrics.length > 0 && (
+                      <div className="ml-6 mt-2 space-y-2">
+                        {categoryMetrics.map((metric) => (
+                          <div key={metric.id} className="bg-gray-50 dark:bg-gray-900/30 rounded-lg p-3 border-l-2 border-purple-400">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                    {metric.metricName}
+                                  </span>
+                                  <span className="text-xs px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded">
+                                    {formatScope(metric.scope)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className={`text-sm font-semibold ${
+                                metric.progress.trajectoryStatus === 'on-track' ? 'text-green-600 dark:text-green-400' :
+                                metric.progress.trajectoryStatus === 'at-risk' ? 'text-yellow-600 dark:text-yellow-400' :
+                                'text-red-600 dark:text-red-400'
+                              }`}>
+                                {metric.progress.progressPercent.toFixed(0)}%
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                              <div>
+                                <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
+                                <div className="font-medium text-gray-900 dark:text-white">
+                                  {metric.baselineEmissions?.toFixed(1)} tCO2e
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-gray-500 dark:text-gray-400">Target:</span>
+                                <div className="font-medium text-gray-900 dark:text-white">
+                                  {metric.targetEmissions?.toFixed(1)} tCO2e
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-gray-500 dark:text-gray-400">Current:</span>
+                                <div className="font-medium text-gray-900 dark:text-white">
+                                  {metric.currentEmissions?.toFixed(1)} tCO2e
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
+                              <div
+                                className={`h-full rounded-full transition-all ${
+                                  metric.progress.trajectoryStatus === 'on-track' ? 'bg-green-500' :
+                                  metric.progress.trajectoryStatus === 'at-risk' ? 'bg-yellow-500' :
+                                  'bg-red-500'
+                                }`}
+                                style={{ width: `${Math.min(100, metric.progress.progressPercent)}%` }}
+                              />
+                            </div>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedMetricForInitiative(metric.id);
+                              }}
+                              className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 rounded text-purple-300 text-xs font-medium transition-all"
+                            >
+                              <Plus className="h-3 w-3" />
+                              Add Initiative
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
       )}
 
+      {/* Recommendations Modal */}
+      {selectedMetricForInitiative && (
+        <RecommendationsModal
+          isOpen={true}
+          onClose={() => setSelectedMetricForInitiative(null)}
+          organizationId={organizationId}
+          metricTarget={metricTargets.find(mt => mt.id === selectedMetricForInitiative)}
+          onSave={async (initiative) => {
+            try {
+              console.log('⚡ Saving energy initiative:', initiative);
+
+              const selectedMetric = metricTargets.find(mt => mt.id === selectedMetricForInitiative);
+              if (!selectedMetric) {
+                throw new Error('Metric target not found');
+              }
+
+              // Calculate estimated reduction percentage
+              const baselineValue = selectedMetric.baselineEmissions || selectedMetric.baselineValue || 0;
+              const estimatedReductionPercent = baselineValue > 0
+                ? (initiative.estimatedReduction / baselineValue) * 100
+                : 0;
+
+              // Determine start and completion dates
+              const startDate = new Date().toISOString().split('T')[0];
+              const completionDate = initiative.timeline
+                ? new Date(new Date().setMonth(new Date().getMonth() + 12)).toISOString().split('T')[0]
+                : null;
+
+              // Create the initiative via API
+              const response = await fetch('/api/sustainability/initiatives', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  organization_id: organizationId,
+                  metric_target_id: selectedMetricForInitiative,
+                  sustainability_target_id: 'd4a00170-7964-41e2-a61e-3d7b0059cfe5', // SBTi target ID
+                  name: initiative.name,
+                  description: initiative.description,
+                  initiative_type: 'energy_efficiency',
+                  estimated_reduction_tco2e: initiative.estimatedReduction,
+                  estimated_reduction_percentage: estimatedReductionPercent,
+                  start_date: startDate,
+                  completion_date: completionDate,
+                  implementation_status: 'planned',
+                  capex: initiative.estimatedCost || null,
+                  annual_opex: null,
+                  annual_savings: null,
+                  roi_years: null,
+                  confidence_score: 0.7,
+                  risk_level: 'medium',
+                  risks: null,
+                  dependencies: null
+                })
+              });
+
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to save initiative');
+              }
+
+              const result = await response.json();
+              console.log('✅ Energy initiative saved successfully:', result);
+
+              // Close modal
+              setSelectedMetricForInitiative(null);
+
+              // Optionally: Show success message or refresh data
+              // You could add a toast notification here
+            } catch (error: any) {
+              console.error('❌ Error saving energy initiative:', error);
+              alert(`Failed to save initiative: ${error.message}`);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -35,6 +35,7 @@ import {
 import { useAuth } from '@/lib/hooks/useAuth';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
 import { useAppearance, useAccentGradient } from '@/providers/AppearanceProvider';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 // Import all our new dashboard components
 import { OverviewDashboard } from '@/components/dashboard/OverviewDashboard';
@@ -471,65 +472,37 @@ export default function DashboardClient() {
           </div>
         </motion.div>
 
-        {/* Dashboard Tabs - Border Bottom Navigation */}
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-            {dashboardTabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = currentView === tab.id;
-              return (
-                <li key={tab.id} className="me-2">
-                  <button
-                    onClick={() => setCurrentView(tab.id)}
-                    className={`inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg group transition-colors ${
-                      isActive
-                        ? 'border-b-2 active'
-                        : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
-                    }`}
-                    style={isActive ? {
-                      color: tab.color,
-                      borderColor: tab.color
-                    } : undefined}
-                  >
-                    <Icon
-                      className={`w-4 h-4 me-2 ${
-                        isActive
-                          ? ''
-                          : 'text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300'
-                      }`}
-                      style={isActive ? { color: tab.color } : undefined}
-                    />
-                    {tab.label}
-                    {tab.badge && (
-                      <span
-                        className="ml-2 px-2 py-0.5 text-xs font-bold rounded-full"
-                        style={{
-                          backgroundColor: `${tab.color}20`,
-                          color: tab.color
-                        }}
-                      >
-                        {tab.badge}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        {/* Dashboard Tabs - Unified Tab Component */}
+        <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as DashboardView)}>
+          <TabsList variant="underline" className="w-full">
+            {dashboardTabs.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                variant="underline"
+                icon={tab.icon}
+                badge={tab.badge}
+                color={tab.color}
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {/* Main Dashboard Content */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentView}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {renderDashboard()}
-          </motion.div>
-        </AnimatePresence>
+          {/* Main Dashboard Content */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentView}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="mt-6"
+            >
+              {renderDashboard()}
+            </motion.div>
+          </AnimatePresence>
+        </Tabs>
 
         {/* AI Assistant Floating Interface */}
         <AnimatePresence>

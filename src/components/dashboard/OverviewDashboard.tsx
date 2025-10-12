@@ -1150,7 +1150,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   </span>
                 </div>
                 <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
-                  {targetData.targets[0].target_reduction_percent.toFixed(1)}% Reduction Target
+                  {(targetData.targets[0].reduction_percentage || 0).toFixed(1)}% Reduction Target
                 </div>
               </div>
             </div>

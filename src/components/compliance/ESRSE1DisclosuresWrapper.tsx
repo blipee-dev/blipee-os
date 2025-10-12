@@ -54,15 +54,39 @@ interface ESRSE1Data {
   };
 }
 
-export function ESRSE1DisclosuresWrapper() {
+interface ESRSE1DisclosuresWrapperProps {
+  organizationId: string;
+  selectedYear: number;
+  selectedSite?: any;
+  selectedPeriod?: any;
+}
+
+export function ESRSE1DisclosuresWrapper({
+  organizationId,
+  selectedYear,
+  selectedSite,
+  selectedPeriod
+}: ESRSE1DisclosuresWrapperProps) {
   const [data, setData] = useState<ESRSE1Data | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Check if viewing a past year (read-only mode)
+  const isHistoricalYear = selectedYear < new Date().getFullYear();
+  const isReadOnly = isHistoricalYear;
+
   useEffect(() => {
     async function fetchESRSData() {
       try {
-        const response = await fetch('/api/compliance/esrs-e1');
+        const params = new URLSearchParams({
+          year: selectedYear.toString()
+        });
+
+        if (selectedSite?.id) {
+          params.append('siteId', selectedSite.id);
+        }
+
+        const response = await fetch(`/api/compliance/esrs-e1?${params}`);
         if (!response.ok) {
           throw new Error('Failed to fetch ESRS E1 data');
         }
@@ -75,7 +99,7 @@ export function ESRSE1DisclosuresWrapper() {
       }
     }
     fetchESRSData();
-  }, []);
+  }, [selectedYear, selectedSite]);
 
   if (loading) {
     return (
@@ -104,5 +128,5 @@ export function ESRSE1DisclosuresWrapper() {
     );
   }
 
-  return <ESRSE1Disclosures data={data} />;
+  return <ESRSE1Disclosures data={data} isReadOnly={isReadOnly} />;
 }

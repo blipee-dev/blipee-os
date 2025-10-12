@@ -1084,18 +1084,28 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        {t('fields.primaryIndustry')}
+                        {t('fields.primaryIndustry')} *
                       </label>
-                      <input
-                        type="text"
-                        name="industry_primary"
+                      <CustomDropdown
                         value={formData.industry_primary}
-                        onChange={handleChange}
-                        readOnly={mode === 'view'}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
+                        onChange={(value) => handleChange({ target: { name: 'industry_primary', value } } as any)}
+                        options={[
+                          { value: 'Services', label: 'Services (GRI 11) - B2B SaaS, Consulting, IT' },
+                          { value: 'Manufacturing', label: 'Manufacturing (GRI 15) - Electronics, Automotive, Industrial' },
+                          { value: 'Retail', label: 'Retail (GRI 17) - E-commerce, Physical Retail, Wholesale' },
+                          { value: 'Oil & Gas', label: 'Oil & Gas (GRI 12) - Upstream, Downstream, Refining' },
+                          { value: 'Agriculture', label: 'Agriculture (GRI 13) - Crop Production, Livestock' },
+                          { value: 'Mining', label: 'Mining (GRI 14) - Metal Mining, Quarrying, Extraction' },
+                          { value: 'Food & Beverage', label: 'Food & Beverage (GRI 16) - Food Processing, Restaurants' }
+                        ]}
+                        disabled={mode === 'view'}
+                        className="w-full"
                       />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Used for peer benchmarking and metric recommendations
+                      </p>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {t('fields.secondaryIndustry')}
@@ -1106,6 +1116,7 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
                         value={formData.industry_secondary}
                         onChange={handleChange}
                         readOnly={mode === 'view'}
+                        placeholder="e.g., Professional Services, Cloud Computing"
                         className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:accent-ring focus:accent-border disabled:opacity-60 disabled:cursor-not-allowed"
                       />
                     </div>

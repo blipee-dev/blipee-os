@@ -29,7 +29,10 @@ import {
   Thermometer,
   Clock,
   Snowflake,
-  Battery
+  Battery,
+  ChevronDown,
+  ChevronRight,
+  Plus
 } from 'lucide-react';
 import {
   LineChart,
@@ -48,6 +51,7 @@ import {
 } from 'recharts';
 import type { Building } from '@/types/auth';
 import type { TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
+import { RecommendationsModal } from '@/components/sustainability/RecommendationsModal';
 
 interface EmissionsDashboardProps {
   organizationId: string;
@@ -85,6 +89,116 @@ const getActionRecommendation = (categoryName: string): string => {
   }
 
   return '📊 Review and optimize this source';
+};
+
+// Helper function to format scope labels
+const formatScope = (scope: string): string => {
+  if (!scope) return '';
+  // Convert scope_1 -> Scope 1, scope_2 -> Scope 2, scope_3 -> Scope 3
+  return scope.replace(/scope_(\d+)/i, 'Scope $1').replace(/scope(\d+)/i, 'Scope $1');
+};
+
+// Helper function to add target reduction path to monthly trends
+const addTargetPath = (trends: any[], targetsResult: any, replanningTrajectory?: any): any[] => {
+  if (!trends || trends.length === 0) return trends;
+  if (!targetsResult || !targetsResult.targets || targetsResult.targets.length === 0) return trends;
+
+  // Find first target with valid baseline and target data (regardless of status)
+  const target = targetsResult.targets.find((t: any) =>
+    (t.baseline_emissions || 0) > 0 &&
+    (t.target_year || 0) > (t.baseline_year || 0)
+  );
+
+  if (!target) return trends;
+
+  const baselineEmissions = target.baseline_emissions || 0;
+  const targetEmissions = target.target_emissions || 0;
+  const baselineYear = target.baseline_year || 2023;
+  const targetYear = target.target_year || 2030;
+
+  console.log('🎯 Adding target path:', {
+    baselineEmissions,
+    targetEmissions,
+    baselineYear,
+    targetYear,
+    hasReplanning: !!replanningTrajectory
+  });
+
+  if (baselineEmissions === 0 || targetYear <= baselineYear) return trends;
+
+  // Map month names to numbers
+  const monthMap: { [key: string]: number } = {
+    'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+    'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+  };
+
+  // If replanning trajectory exists, create a lookup map
+  const replanningMap = new Map<string, number>();
+  if (replanningTrajectory && replanningTrajectory.trajectory) {
+    replanningTrajectory.trajectory.forEach((point: any) => {
+      const key = `${point.year}-${point.month}`;
+      replanningMap.set(key, point.plannedEmissions);
+    });
+    console.log('✅ Using replanned trajectory with', replanningMap.size, 'data points');
+  }
+
+  // Calculate linear reduction per month (fallback if no replanning)
+  const totalReduction = baselineEmissions - targetEmissions;
+  const yearsToTarget = targetYear - baselineYear;
+
+  return trends.map((dataPoint: any) => {
+    // Extract year and month from month string (e.g., "Jan 2025" or "Jan 25")
+    const monthStr = dataPoint.month || '';
+
+    // Extract month name
+    const monthNameMatch = monthStr.match(/^([A-Za-z]{3})/);
+    if (!monthNameMatch) return dataPoint;
+
+    const monthName = monthNameMatch[1];
+    const monthIndex = monthMap[monthName];
+    if (monthIndex === undefined) return dataPoint;
+
+    // Try to match 4-digit year first, then 2-digit year
+    let yearMatch = monthStr.match(/\d{4}/);
+    let pointYear = 0;
+
+    if (yearMatch) {
+      pointYear = parseInt(yearMatch[0]);
+    } else {
+      // Try 2-digit year (e.g., "25" from "Jan 25")
+      yearMatch = monthStr.match(/\b(\d{2})\b/);
+      if (yearMatch) {
+        const twoDigitYear = parseInt(yearMatch[1]);
+        // Convert 2-digit year to 4-digit (assuming 20xx for years 00-99)
+        pointYear = twoDigitYear < 50 ? 2000 + twoDigitYear : 1900 + twoDigitYear;
+      }
+    }
+
+    if (pointYear > 0) {
+      // Check if we have replanned data for this month
+      const replanningKey = `${pointYear}-${monthIndex + 1}`;
+      if (replanningMap.has(replanningKey)) {
+        const plannedEmissions = replanningMap.get(replanningKey)!;
+        return {
+          ...dataPoint,
+          targetPath: plannedEmissions,
+          isReplanned: true
+        };
+      }
+
+      // Fallback to linear calculation if no replanning data
+      // Annual target to distribute monthly
+      const annualTargetForYear = baselineEmissions - ((totalReduction / yearsToTarget) * (pointYear - baselineYear));
+      const monthlyTarget = annualTargetForYear / 12;
+
+      return {
+        ...dataPoint,
+        targetPath: Math.max(monthlyTarget, targetEmissions / 12),
+        isReplanned: false
+      };
+    }
+    return dataPoint;
+  });
 };
 
 // Function to get category-specific colors
@@ -305,6 +419,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
   // Trends
   const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
   const [prevYearMonthlyTrends, setPrevYearMonthlyTrends] = useState<any[]>([]);
+  const [replanningTrajectory, setReplanningTrajectory] = useState<any>(null);
+  const [feasibility, setFeasibility] = useState<any>(null);
 
   // Top emission sources
   const [topEmitters, setTopEmitters] = useState<Array<{ name: string; emissions: number; percentage: number }>>([]);
@@ -326,6 +442,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
   const [projectedAnnualEmissions, setProjectedAnnualEmissions] = useState(0);
   const [actualEmissionsYTD, setActualEmissionsYTD] = useState(0);
   const [forecastedEmissions, setForecastedEmissions] = useState(0);
+
+  // Metric-level targets for expandable view
+  const [metricTargets, setMetricTargets] = useState<any[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [selectedMetricForInitiative, setSelectedMetricForInitiative] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchEmissionsData = async () => {
@@ -352,6 +473,73 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         const targetsResponse = await fetch('/api/sustainability/targets');
         const targetsResult = await targetsResponse.json();
         setTargetData(targetsResult);
+
+        // Fetch replanning trajectory if it exists
+        try {
+          const trajectoryParams = new URLSearchParams({
+            organizationId: organizationId,
+          });
+          const trajectoryResponse = await fetch(`/api/sustainability/targets/trajectory?${trajectoryParams}`);
+          const trajectoryData = await trajectoryResponse.json();
+          if (trajectoryData.success && trajectoryData.hasReplanning) {
+            setReplanningTrajectory(trajectoryData);
+            console.log('📈 Loaded replanning trajectory:', trajectoryData.message);
+          } else {
+            setReplanningTrajectory(null);
+          }
+        } catch (error) {
+          console.warn('⚠️ Failed to fetch replanning trajectory:', error);
+          setReplanningTrajectory(null);
+        }
+
+        // Fetch feasibility status
+        try {
+          const feasibilityParams = new URLSearchParams({
+            organizationId: organizationId,
+          });
+          const feasibilityResponse = await fetch(`/api/sustainability/targets/feasibility?${feasibilityParams}`);
+          const feasibilityData = await feasibilityResponse.json();
+          if (feasibilityData.success) {
+            setFeasibility(feasibilityData.feasibility);
+            console.log('📊 Feasibility:', feasibilityData.feasibility.status, '-', feasibilityData.feasibility.recommendation);
+          } else {
+            setFeasibility(null);
+          }
+        } catch (error) {
+          console.warn('⚠️ Failed to fetch feasibility:', error);
+          setFeasibility(null);
+        }
+
+        // Fetch metric-level targets for expandable view (all emission categories)
+        try {
+          // Include ALL emission-related categories for comprehensive coverage
+          const emissionCategories = [
+            // Scope 1
+            'Natural Gas', 'Heating Oil', 'Diesel', 'Gasoline', 'Propane',
+            'Refrigerants', 'Fugitive Emissions', 'Heating', 'Cooling',
+            // Scope 2
+            'Electricity', 'Purchased Energy', 'Purchased Heating', 'Purchased Cooling', 'Purchased Steam',
+            // Scope 3
+            'Transportation', 'Business Travel', 'Employee Commuting',
+            'Upstream Transportation', 'Downstream Transportation',
+            'Waste', 'Purchased Goods', 'Capital Goods',
+            'Fuel and Energy Related', 'Upstream Leased Assets',
+            'Processing of Sold Products', 'Use of Sold Products',
+            'End of Life', 'Downstream Leased Assets',
+            'Franchises', 'Investments'
+          ].join(',');
+
+          const metricTargetsRes = await fetch(
+            `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(emissionCategories)}`
+          );
+          const metricTargetsData = await metricTargetsRes.json();
+          if (metricTargetsData.success && metricTargetsData.data) {
+            setMetricTargets(metricTargetsData.data);
+            console.log('📊 Emissions metric-level targets loaded:', metricTargetsData.data.length, 'targets');
+          }
+        } catch (err) {
+          console.error('Error fetching emissions metric targets:', err);
+        }
 
         // Fetch previous year for YoY comparison
         const currentYear = new Date(selectedPeriod.start).getFullYear();
@@ -553,17 +741,24 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               };
 
               console.log('📊 Final combined:', trends.length, 'actual +', forecastMonths.length, 'forecast =', trends.length + forecastMonths.length + 1, 'total months (with bridge)');
-              setMonthlyTrends([...trends, bridgePoint, ...forecastMonths]);
+
+              // Add target reduction path to each data point
+              const combinedTrends = [...trends, bridgePoint, ...forecastMonths];
+              const trendsWithTarget = addTargetPath(combinedTrends, targetsResult, replanningTrajectory);
+              setMonthlyTrends(trendsWithTarget);
             } else {
               console.log('⚠️ No forecast data returned');
-              setMonthlyTrends(trends);
+              const trendsWithTarget = addTargetPath(trends, targetsResult, replanningTrajectory);
+              setMonthlyTrends(trendsWithTarget);
             }
           } else {
             console.warn('⚠️ Forecast API not available, showing actual data only');
-            setMonthlyTrends(trends);
+            const trendsWithTarget = addTargetPath(trends, targetsResult, replanningTrajectory);
+            setMonthlyTrends(trendsWithTarget);
           }
         } else if (dashboardData.trends) {
-          setMonthlyTrends(dashboardData.trends);
+          const trendsWithTarget = addTargetPath(dashboardData.trends, targetsResult, replanningTrajectory);
+          setMonthlyTrends(trendsWithTarget);
         }
 
         // Fetch previous year data for YoY comparison (monthly trends)
@@ -1012,7 +1207,33 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         {/* Emissions Trend */}
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Emissions Trend</h3>
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Emissions Trend</h3>
+              {feasibility && (
+                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${
+                  feasibility.status === 'on-track' ? 'bg-green-500/10 text-green-400' :
+                  feasibility.status === 'challenging' ? 'bg-yellow-500/10 text-yellow-400' :
+                  feasibility.status === 'at-risk' ? 'bg-orange-500/10 text-orange-400' :
+                  'bg-red-500/10 text-red-400'
+                }`}>
+                  <span className="text-sm font-medium">
+                    {feasibility.status === 'on-track' ? '✓' :
+                     feasibility.status === 'challenging' ? '⚡' :
+                     feasibility.status === 'at-risk' ? '⚠' : '✗'}
+                  </span>
+                  <span className="text-xs font-semibold">
+                    {feasibility.status === 'on-track' ? 'On Track' :
+                     feasibility.status === 'challenging' ? 'Challenging' :
+                     feasibility.status === 'at-risk' ? 'At Risk' : 'Target Missed'}
+                  </span>
+                  {feasibility.reductionRequiredPercent > 0 && feasibility.isAchievable && (
+                    <span className="text-xs opacity-75">
+                      ({feasibility.reductionRequiredPercent.toFixed(0)}% ↓)
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
             <div className="flex gap-1 flex-wrap justify-end">
               <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
                 TCFD
@@ -1024,6 +1245,15 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           </div>
 
           {monthlyTrends.length > 0 ? (
+            <>
+              {/* Debug: Log chart data to verify targetPath is present */}
+              {console.log('📊 Chart data sample:', monthlyTrends.slice(0, 3).map(d => ({
+                month: d.month,
+                total: d.total,
+                targetPath: d.targetPath,
+                forecast: d.forecast
+              })))}
+              {console.log('📊 Chart data with targetPath:', monthlyTrends.filter(d => d.targetPath != null).length, '/', monthlyTrends.length)}
             <ResponsiveContainer width="100%" height={320}>
               <LineChart data={monthlyTrends}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
@@ -1088,6 +1318,16 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                               <div className="flex items-center justify-between gap-3 pt-1 border-t border-gray-700">
                                 <span className="text-purple-400 text-sm font-semibold">Total:</span>
                                 <span className="text-white font-semibold">{total.toFixed(1)} tCO2e</span>
+                              </div>
+                            )}
+                            {data.targetPath != null && (
+                              <div className="flex items-center justify-between gap-3 pt-1 border-t border-gray-700">
+                                <span className={`${data.isReplanned ? 'text-amber-400' : 'text-green-400'} text-sm font-semibold flex items-center gap-1`}>
+                                  {data.isReplanned ? '🎯 Replanned Target:' : 'Target Path:'}
+                                </span>
+                                <span className={`${data.isReplanned ? 'text-amber-400' : 'text-green-400'} font-semibold`}>
+                                  {data.targetPath.toFixed(1)} tCO2e
+                                </span>
                               </div>
                             )}
                           </div>
@@ -1180,8 +1420,20 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   connectNulls
                   legendType="none"
                 />
+                {/* Target reduction path line - color changes based on replanning status */}
+                <Line
+                  type="monotone"
+                  dataKey="targetPath"
+                  stroke={replanningTrajectory ? "#F59E0B" : "#10B981"}
+                  strokeWidth={replanningTrajectory ? 2.5 : 2}
+                  strokeDasharray={replanningTrajectory ? "6 3" : "8 4"}
+                  name={replanningTrajectory ? "Replanned Target" : "Target Path"}
+                  dot={false}
+                  connectNulls
+                />
               </LineChart>
             </ResponsiveContainer>
+            </>
           ) : (
             <div className="flex items-center justify-center h-[250px]">
               <p className="text-gray-400 text-sm">No trend data available</p>
@@ -1961,7 +2213,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                     <div className="flex items-center gap-2">
                       <SourceIcon className="w-4 h-4" style={{ color: sourceColor }} />
                       <span className="text-sm font-medium text-gray-900 dark:text-white">{source.name}</span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">({source.scope})</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">({formatScope(source.scope)})</span>
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-bold text-gray-900 dark:text-white">
@@ -2385,7 +2637,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   </span>
                 </div>
                 <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
-                  {targetData.targets[0].target_reduction_percent.toFixed(1)}% Reduction Target
+                  {targetData.targets[0].target_reduction_percent?.toFixed(1) || '42.0'}% Reduction Target
                 </div>
               </div>
             </div>
@@ -2691,8 +2943,228 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 </BarChart>
               </ResponsiveContainer>
             </div>
+
+            {/* Metric-level Expandable Targets */}
+            {metricTargets.length > 0 && (
+              <div className="mt-6">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Metric-Level Targets</h4>
+                <div className="space-y-2">
+                  {Array.from(new Set(metricTargets.map(mt => mt.category))).map((category) => {
+                    const isExpanded = expandedCategories.has(category);
+                    const categoryMetrics = metricTargets.filter(m => m.category === category);
+
+                    return (
+                      <div key={category}>
+                        {/* Category Row - Clickable to expand */}
+                        <div
+                          className="bg-white dark:bg-gray-800/50 rounded-lg p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors border border-gray-200 dark:border-gray-700"
+                          onClick={() => {
+                            setExpandedCategories(prev => {
+                              const next = new Set(prev);
+                              if (next.has(category)) {
+                                next.delete(category);
+                              } else {
+                                next.add(category);
+                              }
+                              return next;
+                            });
+                          }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {isExpanded ? (
+                                <ChevronDown className="h-4 w-4 text-gray-400" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 text-gray-400" />
+                              )}
+                              <div>
+                                <div className="font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
+                                  {category}
+                                  <span className="text-xs px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded">
+                                    {categoryMetrics.length} metrics
+                                  </span>
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  Click to expand and view individual metric targets
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-semibold text-green-600 dark:text-green-400">
+                                {categoryMetrics.length > 0 ? categoryMetrics[0].progress.progressPercent.toFixed(0) : 0}%
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                avg. progress
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Expanded Metric-level Targets */}
+                        {isExpanded && categoryMetrics.length > 0 && (
+                          <div className="ml-6 mt-2 space-y-2">
+                            {categoryMetrics.map((metric) => (
+                              <div key={metric.id} className="bg-gray-50 dark:bg-gray-900/30 rounded-lg p-3 border-l-2 border-blue-400">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                        {metric.metricName}
+                                      </span>
+                                      <span className="text-xs px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded">
+                                        {formatScope(metric.scope)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className={`text-sm font-semibold ${
+                                    metric.progress.trajectoryStatus === 'on-track' ? 'text-green-600 dark:text-green-400' :
+                                    metric.progress.trajectoryStatus === 'at-risk' ? 'text-yellow-600 dark:text-yellow-400' :
+                                    'text-red-600 dark:text-red-400'
+                                  }`}>
+                                    {metric.progress.progressPercent.toFixed(0)}%
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                                  <div>
+                                    <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {metric.baselineEmissions?.toFixed(1)} tCO2e
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-500 dark:text-gray-400">Target:</span>
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {metric.targetEmissions?.toFixed(1)} tCO2e
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-500 dark:text-gray-400">Current:</span>
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {metric.currentEmissions?.toFixed(1)} tCO2e
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
+                                  <div
+                                    className={`h-full rounded-full transition-all ${
+                                      metric.progress.trajectoryStatus === 'on-track' ? 'bg-green-500' :
+                                      metric.progress.trajectoryStatus === 'at-risk' ? 'bg-yellow-500' :
+                                      'bg-red-500'
+                                    }`}
+                                    style={{ width: `${Math.min(100, metric.progress.progressPercent)}%` }}
+                                  />
+                                </div>
+
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedMetricForInitiative(metric.id);
+                                  }}
+                                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded text-blue-300 text-xs font-medium transition-all"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                  Add Initiative
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
+      )}
+
+      {/* Recommendations Modal */}
+      {selectedMetricForInitiative && (
+        <RecommendationsModal
+          isOpen={true}
+          onClose={() => setSelectedMetricForInitiative(null)}
+          organizationId={organizationId}
+          metricTarget={metricTargets.find(mt => mt.id === selectedMetricForInitiative)}
+          onSave={async (initiative) => {
+            try {
+              console.log('🌍 Saving emissions initiative:', initiative);
+
+              const selectedMetric = metricTargets.find(mt => mt.id === selectedMetricForInitiative);
+              if (!selectedMetric) {
+                throw new Error('Metric target not found');
+              }
+
+              // Calculate estimated reduction percentage
+              const baselineValue = selectedMetric.baselineEmissions || selectedMetric.baselineValue || 0;
+              const estimatedReductionPercent = baselineValue > 0
+                ? (initiative.estimatedReduction / baselineValue) * 100
+                : 0;
+
+              // Determine start and completion dates
+              const startDate = new Date().toISOString().split('T')[0];
+              const completionDate = initiative.timeline
+                ? new Date(new Date().setMonth(new Date().getMonth() + 12)).toISOString().split('T')[0]
+                : null;
+
+              // Determine initiative type based on category
+              const category = selectedMetric.category?.toLowerCase() || '';
+              let initiativeType = 'emissions_reduction';
+              if (category.includes('electricity') || category.includes('energy')) {
+                initiativeType = 'renewable_energy';
+              } else if (category.includes('waste')) {
+                initiativeType = 'waste_reduction';
+              } else if (category.includes('transport')) {
+                initiativeType = 'fleet_electrification';
+              }
+
+              // Create the initiative via API
+              const response = await fetch('/api/sustainability/initiatives', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  organization_id: organizationId,
+                  metric_target_id: selectedMetricForInitiative,
+                  sustainability_target_id: 'd4a00170-7964-41e2-a61e-3d7b0059cfe5', // SBTi target ID
+                  name: initiative.name,
+                  description: initiative.description,
+                  initiative_type: initiativeType,
+                  estimated_reduction_tco2e: initiative.estimatedReduction,
+                  estimated_reduction_percentage: estimatedReductionPercent,
+                  start_date: startDate,
+                  completion_date: completionDate,
+                  implementation_status: 'planned',
+                  capex: initiative.estimatedCost || null,
+                  annual_opex: null,
+                  annual_savings: null,
+                  roi_years: null,
+                  confidence_score: 0.7,
+                  risk_level: 'medium',
+                  risks: null,
+                  dependencies: null
+                })
+              });
+
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to save initiative');
+              }
+
+              const result = await response.json();
+              console.log('✅ Emissions initiative saved successfully:', result);
+
+              // Close modal
+              setSelectedMetricForInitiative(null);
+
+              // Optionally: Show success message or refresh data
+            } catch (error: any) {
+              console.error('❌ Error saving emissions initiative:', error);
+              alert(`Failed to save initiative: ${error.message}`);
+            }
+          }}
+        />
       )}
     </div>
   );

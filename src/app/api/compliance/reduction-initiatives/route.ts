@@ -52,13 +52,21 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching reduction initiatives:', error);
+      // Return empty array if table doesn't exist, has RLS issues, or missing columns
+      // This allows the UI to gracefully handle missing data
+      // 42P01: table doesn't exist, PGRST116: RLS error, 42703: column doesn't exist
+      if (error.code === '42P01' || error.code === 'PGRST116' || error.code === '42703') {
+        return NextResponse.json([]);
+      }
       return NextResponse.json({ error: 'Failed to fetch reduction initiatives' }, { status: 500 });
     }
 
     return NextResponse.json(initiatives || []);
   } catch (error) {
     console.error('Error in reduction-initiatives API:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    // Return empty array to gracefully handle any errors
+    // The UI can function without reduction initiatives data
+    return NextResponse.json([]);
   }
 }
 

@@ -258,7 +258,20 @@ async function executeMiddleware(
   const isPublicRoute = publicRoutes.some(route => path === route || path.startsWith(route + '/'));
   if (isPublicRoute) {
     response = NextResponse.next();
-    
+
+    // Clear invalid session cookies on signin/signup pages
+    // This handles the case where dev server restart clears in-memory sessions
+    if (path === '/signin' || path === '/signup') {
+      const blipeeSession = request.cookies.get('blipee-session');
+      if (blipeeSession) {
+        // Clear the invalid session cookie
+        response.cookies.delete('blipee-session');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🧹 Cleared invalid session cookie on public route:', path);
+        }
+      }
+    }
+
     // Set CSRF token for forms on public pages (signin, signup)
     if (path === '/signin' || path === '/signup' || path === '/forgot-password') {
       setCSRFCookie(response);

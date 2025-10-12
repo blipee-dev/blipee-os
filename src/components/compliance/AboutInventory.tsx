@@ -23,13 +23,20 @@ interface InventorySettings {
   base_year_rationale: string;
   reporting_period_start: string;
   reporting_period_end: string;
-  assurance_level: 'none' | 'limited' | 'reasonable';
+  assurance_level: 'none' | 'not_verified' | 'limited' | 'reasonable';
   assurance_provider?: string;
   gwp_version: string;
   organization_name?: string;
 }
 
-export function AboutInventory() {
+interface AboutInventoryProps {
+  organizationId: string;
+  selectedYear: number;
+  selectedSite?: any;
+  selectedPeriod?: any;
+}
+
+export function AboutInventory({ organizationId, selectedYear, selectedSite, selectedPeriod }: AboutInventoryProps) {
   const [settings, setSettings] = useState<InventorySettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +45,16 @@ export function AboutInventory() {
   useEffect(() => {
     async function fetchSettings() {
       try {
-        const response = await fetch('/api/compliance/inventory-settings');
+        const params = new URLSearchParams({
+          year: selectedYear.toString(),
+          organizationId: organizationId
+        });
+
+        if (selectedSite?.id) {
+          params.append('siteId', selectedSite.id);
+        }
+
+        const response = await fetch(`/api/compliance/inventory-settings?${params}`);
         if (!response.ok) {
           throw new Error('Failed to fetch inventory settings');
         }
@@ -52,7 +68,7 @@ export function AboutInventory() {
     }
 
     fetchSettings();
-  }, []);
+  }, [organizationId, selectedYear, selectedSite]);
 
   if (loading) {
     return (
@@ -81,19 +97,21 @@ export function AboutInventory() {
     operational_control: 'Operational Control'
   };
 
-  const assuranceLabels = {
+  const assuranceLabels: Record<string, string> = {
     none: 'Not Verified',
+    not_verified: 'Not Verified',
     limited: 'Limited Assurance',
     reasonable: 'Reasonable Assurance'
   };
 
-  const assuranceColors = {
+  const assuranceColors: Record<string, typeof complianceColors.compliance.incomplete> = {
     none: complianceColors.compliance.incomplete,
+    not_verified: complianceColors.compliance.incomplete,
     limited: complianceColors.compliance.inProgress,
     reasonable: complianceColors.compliance.complete,
   };
 
-  const currentAssuranceColor = assuranceColors[settings.assurance_level];
+  const currentAssuranceColor = assuranceColors[settings.assurance_level] || complianceColors.compliance.incomplete;
 
   return (
     <motion.div
@@ -216,14 +234,14 @@ export function AboutInventory() {
                 <span
                   className="px-3 py-1 text-xs font-semibold rounded-full"
                   style={{
-                    backgroundColor: currentAssuranceColor.bg,
-                    color: currentAssuranceColor.color
+                    backgroundColor: currentAssuranceColor?.bg || '#FEE2E2',
+                    color: currentAssuranceColor?.color || '#DC2626'
                   }}
                 >
-                  {assuranceLabels[settings.assurance_level]}
+                  {assuranceLabels[settings.assurance_level] || 'Not Verified'}
                 </span>
-                {settings.assurance_level !== 'none' && (
-                  <CheckCircle2 className="w-4 h-4" style={{ color: currentAssuranceColor.color }} />
+                {settings.assurance_level !== 'none' && settings.assurance_level !== 'not_verified' && (
+                  <CheckCircle2 className="w-4 h-4" style={{ color: currentAssuranceColor?.color || '#DC2626' }} />
                 )}
               </div>
             </div>

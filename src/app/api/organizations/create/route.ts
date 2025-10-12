@@ -1,21 +1,76 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Helper function to map industry_primary to standardized industry + GRI code
+function mapIndustryToStandardized(industryPrimary: string) {
+  const industryMap: Record<string, { industry: string; gri_code: string }> = {
+    'Services': { industry: 'Services', gri_code: 'GRI_11' },
+    'Manufacturing': { industry: 'Manufacturing', gri_code: 'GRI_15' },
+    'Retail': { industry: 'Retail', gri_code: 'GRI_17' },
+    'Oil & Gas': { industry: 'Oil & Gas', gri_code: 'GRI_12' },
+    'Agriculture': { industry: 'Agriculture', gri_code: 'GRI_13' },
+    'Mining': { industry: 'Mining', gri_code: 'GRI_14' },
+    'Food & Beverage': { industry: 'Food & Beverage', gri_code: 'GRI_16' }
+  };
+
+  return industryMap[industryPrimary] || { industry: 'Services', gri_code: 'GRI_11' };
+}
+
+// Helper function to map company_size to size_category
+function mapCompanySizeToCategory(companySize: string) {
+  const sizeMap: Record<string, string> = {
+    '1-10': '1-50',
+    '11-50': '50-100',
+    '51-200': '100-300',
+    '201-500': '300-1000',
+    '501-1000': '300-1000',
+    '1001-5000': '1000-5000',
+    '5000+': '5000+'
+  };
+
+  return sizeMap[companySize] || '100-300';
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-    
+
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
     if (authError || !user) {
       return NextResponse.json(
         { error: 'User not authenticated' },
         { status: 401 }
       );
     }
-    
+
     const orgData = await request.json();
+
+    // Map industry_primary to standardized industry + GRI code
+    const industryMapping = mapIndustryToStandardized(orgData.industry_primary);
+    const sizeCategory = mapCompanySizeToCategory(orgData.company_size || '11-50');
+
+    // Detect region from headquarters address
+    let region = 'EU'; // default
+    if (orgData.headquarters_address?.country) {
+      const country = orgData.headquarters_address.country.toLowerCase();
+      if (['portugal', 'spain', 'france', 'germany', 'italy', 'uk', 'netherlands'].some(c => country.includes(c))) {
+        region = 'EU';
+      } else if (['usa', 'united states', 'canada', 'mexico'].some(c => country.includes(c))) {
+        region = 'North America';
+      } else if (['china', 'japan', 'india', 'australia', 'singapore'].some(c => country.includes(c))) {
+        region = 'Asia-Pacific';
+      } else if (['brazil', 'argentina', 'chile', 'colombia'].some(c => country.includes(c))) {
+        region = 'Latin America';
+      }
+    }
+
+    // Add standardized industry fields to orgData
+    orgData.industry = industryMapping.industry;
+    orgData.gri_sector_code = industryMapping.gri_code;
+    orgData.company_size_category = sizeCategory;
+    orgData.region = region;
     
     // Generate a unique slug
     let slug = orgData.slug || orgData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
