@@ -31,7 +31,8 @@ import {
   Sprout,
   Pill,
   Apple,
-  Cloud
+  Cloud,
+  Database
 } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
@@ -48,6 +49,7 @@ import { WasteDashboard } from '@/components/dashboard/WasteDashboard';
 import { TransportationDashboard } from '@/components/dashboard/TransportationDashboard';
 import { MonthlyIntelligentDashboard } from '@/components/dashboard/MonthlyIntelligentDashboard';
 import { TargetsDashboard } from '@/components/dashboard/TargetsDashboard';
+import { DataManagementDashboard } from '@/components/dashboard/DataManagementDashboard';
 
 // Import AI components
 import { ConversationInterface } from '@/components/blipee-os/ConversationInterface';
@@ -58,7 +60,7 @@ import { SiteSelector } from '@/components/zero-typing/SiteSelector';
 import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import type { Building } from '@/types/auth';
 
-type DashboardView = 'overview' | 'compliance' | 'emissions' | 'energy' | 'water' | 'waste' | 'transportation' | 'targets' | 'monthly' | 'ai';
+type DashboardView = 'overview' | 'compliance' | 'emissions' | 'energy' | 'water' | 'waste' | 'transportation' | 'targets' | 'data' | 'monthly' | 'ai';
 
 export default function DashboardClient() {
   const { user } = useAuth();
@@ -286,6 +288,16 @@ export default function DashboardClient() {
     }
   ];
 
+  const dataTabs = [
+    {
+      id: 'data' as DashboardView,
+      label: 'Data',
+      icon: Database,
+      description: 'Metrics data management & historical tracking',
+      color: '#6366f1'
+    }
+  ];
+
   const aiTabs = [
     {
       id: 'monthly' as DashboardView,
@@ -305,7 +317,7 @@ export default function DashboardClient() {
     }
   ];
 
-  const dashboardTabs = [...fixedTabs, ...sectorDashboardTabs, ...targetsTabs, ...aiTabs];
+  const dashboardTabs = [...fixedTabs, ...sectorDashboardTabs, ...targetsTabs, ...dataTabs, ...aiTabs];
 
   const renderDashboard = () => {
     const orgId = organizationData?.id;
@@ -366,6 +378,10 @@ export default function DashboardClient() {
 
     if (currentView === 'overview') {
       return <OverviewDashboard organizationId={orgId} selectedSite={selectedSite} selectedPeriod={selectedPeriod} />;
+    }
+
+    if (currentView === 'data') {
+      return <DataManagementDashboard organizationId={orgId} selectedSite={selectedSite} selectedPeriod={selectedPeriod} />;
     }
 
     // If dashboard component exists, render it
