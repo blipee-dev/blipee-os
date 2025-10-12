@@ -33,9 +33,10 @@ export async function GET(request: NextRequest) {
       .eq('id', organizationId)
       .single();
 
-    // Get year parameter
+    // Get query parameters
     const { searchParams } = new URL(request.url);
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
+    const siteId = searchParams.get('siteId');
 
     // Fetch GHG inventory settings
     const { data: settings } = await supabaseAdmin
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     // Fetch emissions data for the year
-    const { data: metricsData, error: metricsError } = await supabaseAdmin
+    let metricsQuery = supabaseAdmin
       .from('metrics_data')
       .select(`
         *,
@@ -60,6 +61,13 @@ export async function GET(request: NextRequest) {
       .eq('organization_id', organizationId)
       .gte('period_start', `${year}-01-01`)
       .lte('period_end', `${year}-12-31`);
+
+    // Filter by site if provided
+    if (siteId) {
+      metricsQuery = metricsQuery.eq('site_id', siteId);
+    }
+
+    const { data: metricsData, error: metricsError } = await metricsQuery;
 
     if (metricsError) {
       console.error('Error fetching metrics data:', metricsError);

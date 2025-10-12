@@ -26,9 +26,10 @@ export async function GET(request: NextRequest) {
 
     const organizationId = appUser.organization_id;
 
-    // Get current year or from query params
+    // Get query parameters
     const { searchParams } = new URL(request.url);
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
+    const siteId = searchParams.get('siteId');
 
     // Fetch organization inventory settings for base year and gases
     const { data: inventorySettings } = await supabaseAdmin
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Fetch emissions data for the current year
-    const { data: metricsData, error: metricsError } = await supabaseAdmin
+    let metricsQuery = supabaseAdmin
       .from('metrics_data')
       .select(`
         *,
@@ -61,6 +62,13 @@ export async function GET(request: NextRequest) {
       .eq('organization_id', organizationId)
       .gte('period_start', `${year}-01-01`)
       .lte('period_end', `${year}-12-31`);
+
+    // Filter by site if provided
+    if (siteId) {
+      metricsQuery = metricsQuery.eq('site_id', siteId);
+    }
+
+    const { data: metricsData, error: metricsError } = await metricsQuery;
 
     if (metricsError) {
       console.error('Error fetching metrics data:', metricsError);
@@ -129,10 +137,17 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => a.category - b.category);
 
     // Get organization data for intensity calculations
-    const { data: sites } = await supabaseAdmin
+    let sitesQuery = supabaseAdmin
       .from('sites')
       .select('total_area_sqm, total_employees')
       .eq('organization_id', organizationId);
+
+    // Filter by site if provided
+    if (siteId) {
+      sitesQuery = sitesQuery.eq('id', siteId);
+    }
+
+    const { data: sites } = await sitesQuery;
 
     const totalArea = sites?.reduce((sum, s) => sum + (s.total_area_sqm || 0), 0) || 1;
     const totalEmployees = sites?.reduce((sum, s) => sum + (s.total_employees || 0), 0) || 1;
@@ -155,12 +170,19 @@ export async function GET(request: NextRequest) {
     const intensityFte = totalEmissions / totalEmployees;
 
     // Fetch base year emissions for comparison
-    const { data: baseYearMetrics } = await supabaseAdmin
+    let baseYearQuery = supabaseAdmin
       .from('metrics_data')
       .select('co2e_emissions')
       .eq('organization_id', organizationId)
       .gte('period_start', `${baseYear}-01-01`)
       .lte('period_end', `${baseYear}-12-31`);
+
+    // Filter by site if provided
+    if (siteId) {
+      baseYearQuery = baseYearQuery.eq('site_id', siteId);
+    }
+
+    const { data: baseYearMetrics } = await baseYearQuery;
 
     const baseYearEmissions = baseYearMetrics?.reduce((sum, m) => sum + (m.co2e_emissions || 0), 0) || totalEmissions;
 

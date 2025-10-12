@@ -14,6 +14,9 @@ import {
   Activity,
   Gauge,
   Info,
+  ChevronDown,
+  ChevronRight,
+  Plus
 } from "lucide-react";
 import {
   BarChart,
@@ -30,6 +33,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { MetricTargetsCard } from '@/components/sustainability/MetricTargetsCard';
+import { RecommendationsModal } from '@/components/sustainability/RecommendationsModal';
 
 interface WaterDashboardProps {
   organizationId: string;
@@ -45,6 +50,13 @@ interface WaterSource {
   cost: number;
   isRecycled: boolean;
 }
+
+// Helper function to format scope labels
+const formatScope = (scope: string): string => {
+  if (!scope) return '';
+  // Convert scope_1 -> Scope 1, scope_2 -> Scope 2, scope_3 -> Scope 3
+  return scope.replace(/scope_(\d+)/i, 'Scope $1').replace(/scope(\d+)/i, 'Scope $1');
+};
 
 export function WaterDashboard({
   organizationId,
@@ -83,6 +95,11 @@ export function WaterDashboard({
   // Water reduction target state
   const [waterTarget, setWaterTarget] = useState<any>(null);
   const [defaultTargetPercent] = useState(2.5); // CDP Water Security benchmark: 2.5% annual reduction
+
+  // Metric-level targets for expandable view (similar to energy dashboard)
+  const [metricTargets, setMetricTargets] = useState<any[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [selectedMetricForInitiative, setSelectedMetricForInitiative] = useState<string | null>(null);
 
   // Fetch water data
   React.useEffect(() => {
@@ -185,6 +202,29 @@ export function WaterDashboard({
           }
         }
 
+        // Fetch water forecast data first (needed for target calculation)
+        let waterForecastData: any = null;
+        if (selectedPeriod) {
+          const forecastParams = new URLSearchParams({
+            start_date: selectedPeriod.start,
+            end_date: selectedPeriod.end,
+          });
+          if (selectedSite) {
+            forecastParams.append("site_id", selectedSite.id);
+          }
+
+          const forecastRes = await fetch(`/api/water/forecast?${forecastParams}`);
+          waterForecastData = await forecastRes.json();
+
+          if (waterForecastData.forecast && waterForecastData.forecast.length > 0) {
+            console.log(`🔮 Water Forecast: ${waterForecastData.forecast.length} months, Method: ${waterForecastData.model}`);
+            setForecastData(waterForecastData);
+          } else {
+            console.log('⚠️ No water forecast data available');
+            setForecastData(null);
+          }
+        }
+
         // Calculate water reduction target (CDP Water Security benchmark)
         // Only show for current year
         const baselineYear = 2023;
@@ -216,10 +256,31 @@ export function WaterDashboard({
             baseline2023Consumption *
             Math.pow(1 - annualReductionRate, yearsSinceBaseline);
 
-          // Project full year consumption based on current data
-          const monthsOfData = monthlyTrends.length;
-          const projectedFullYear =
-            monthsOfData > 0 ? (data.total_consumption / monthsOfData) * 12 : 0;
+          // Project full year consumption using YTD actual + forecast
+          let projectedFullYear = 0;
+          const currentYTD = data.total_consumption || 0;
+
+          if (waterForecastData && waterForecastData.forecast && waterForecastData.forecast.length > 0) {
+            // Sum up forecast consumption for remaining months
+            const forecastRemaining = waterForecastData.forecast.reduce((sum: number, f: any) => {
+              return sum + (f.consumption || 0);
+            }, 0);
+
+            projectedFullYear = currentYTD + forecastRemaining;
+
+            console.log('💧 Water Projection Calculation:');
+            console.log('  2023 Baseline:', baseline2023Consumption.toFixed(2), 'L');
+            console.log('  2025 YTD (Jan-Jul):', currentYTD.toFixed(2), 'L');
+            console.log('  Forecast Remaining (Aug-Dec):', forecastRemaining.toFixed(2), 'L');
+            console.log('  2025 Projected Full Year:', projectedFullYear.toFixed(2), 'L');
+            console.log('  Target:', targetConsumption.toFixed(2), 'L');
+            console.log('  Change from baseline:', ((projectedFullYear - baseline2023Consumption) / baseline2023Consumption * 100).toFixed(1), '%');
+          } else {
+            // Fallback: simple linear projection if no forecast available
+            const monthsOfData = monthlyTrends.length;
+            projectedFullYear = monthsOfData > 0 ? (currentYTD / monthsOfData) * 12 : 0;
+            console.log('⚠️ Using linear projection (no forecast): YTD', currentYTD.toFixed(2), '→ Projected', projectedFullYear.toFixed(2), 'L');
+          }
 
           // Calculate progress
           const reductionNeeded = baseline2023Consumption - targetConsumption;
@@ -236,31 +297,29 @@ export function WaterDashboard({
             isDefault: true, // Flag to show it's using CDP default
             targetYear: currentYear,
           });
+
+          // Fetch metric-level targets for expandable view (all water-related categories)
+          try {
+            const waterCategories = [
+              'Water Consumption', 'Water Withdrawal', 'Water Discharge',
+              'Water Recycling', 'Water Reuse', 'Rainwater Harvesting',
+              'Groundwater', 'Surface Water', 'Municipal Water', 'Wastewater'
+            ].join(',');
+
+            const metricTargetsRes = await fetch(
+              `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(waterCategories)}`
+            );
+            const metricTargetsData = await metricTargetsRes.json();
+            if (metricTargetsData.success && metricTargetsData.data) {
+              setMetricTargets(metricTargetsData.data);
+              console.log('💧 Water metric-level targets loaded:', metricTargetsData.data.length, 'targets');
+            }
+          } catch (err) {
+            console.error('Error fetching water metric targets:', err);
+          }
         } else {
           // Clear target when viewing past years
           setWaterTarget(null);
-        }
-
-        // Fetch water forecast data
-        if (selectedPeriod) {
-          const forecastParams = new URLSearchParams({
-            start_date: selectedPeriod.start,
-            end_date: selectedPeriod.end,
-          });
-          if (selectedSite) {
-            forecastParams.append("site_id", selectedSite.id);
-          }
-
-          const forecastRes = await fetch(`/api/water/forecast?${forecastParams}`);
-          const forecastData = await forecastRes.json();
-
-          if (forecastData.forecast && forecastData.forecast.length > 0) {
-            console.log(`🔮 Water Forecast: ${forecastData.forecast.length} months, Method: ${forecastData.model}`);
-            setForecastData(forecastData);
-          } else {
-            console.log('⚠️ No water forecast data available');
-            setForecastData(null);
-          }
         }
       } catch (error) {
         console.error("Error fetching water data:", error);
@@ -1186,6 +1245,298 @@ export function WaterDashboard({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Water Metric Targets - Expandable View with Initiatives */}
+      {metricTargets.length > 0 && (
+        <div className="px-6 pb-6">
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Water Management Initiatives</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  CDP Water Security • 2.5% annual reduction • Baseline 2023
+                </p>
+              </div>
+              <div className="flex gap-1">
+                <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
+                  GRI 303
+                </span>
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
+                  CDP Water
+                </span>
+                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
+                  ESRS E3
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {/* Group metrics by category */}
+              {Array.from(new Set(metricTargets.map(m => m.category))).map((category) => {
+                const isExpanded = expandedCategories.has(category);
+                const categoryMetrics = metricTargets.filter(m => m.category === category);
+
+                // Calculate category-level aggregate progress
+                const categoryTotalBaseline = categoryMetrics.reduce((sum, m) => sum + (m.baselineEmissions || 0), 0);
+                const categoryTotalTarget = categoryMetrics.reduce((sum, m) => sum + (m.targetEmissions || 0), 0);
+                const categoryTotalCurrent = categoryMetrics.reduce((sum, m) => sum + (m.currentEmissions || 0), 0);
+                const categoryProgress = categoryMetrics.length > 0
+                  ? categoryMetrics.reduce((sum, m) => sum + m.progress.progressPercent, 0) / categoryMetrics.length
+                  : 0;
+
+                return (
+                  <div key={category}>
+                    {/* Category Row - Clickable to expand */}
+                    <div
+                      className="bg-white dark:bg-gray-800/50 rounded-lg p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors"
+                      onClick={() => {
+                        setExpandedCategories(prev => {
+                          const next = new Set(prev);
+                          if (next.has(category)) {
+                            next.delete(category);
+                          } else {
+                            next.add(category);
+                          }
+                          return next;
+                        });
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {isExpanded ? (
+                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-gray-400" />
+                          )}
+                          <div>
+                            <div className="font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
+                              {category}
+                              {categoryMetrics.length > 0 && (
+                                <span className="text-xs px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded">
+                                  {categoryMetrics.length} metrics
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              2.5% annual reduction target
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className={`text-sm font-semibold ${
+                            categoryProgress >= 100 ? 'text-green-600 dark:text-green-400' :
+                            categoryProgress >= 80 ? 'text-blue-600 dark:text-blue-400' :
+                            categoryProgress >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
+                            'text-red-600 dark:text-red-400'
+                          }`}>
+                            {categoryProgress.toFixed(0)}%
+                          </div>
+                          <div className={`text-xs font-medium ${
+                            categoryProgress >= 100 ? 'text-green-600 dark:text-green-400' :
+                            categoryProgress >= 80 ? 'text-blue-600 dark:text-blue-400' :
+                            categoryProgress >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
+                            'text-red-600 dark:text-red-400'
+                          }`}>
+                            {categoryProgress >= 100 ? 'exceeding' :
+                             categoryProgress >= 80 ? 'on track' :
+                             categoryProgress >= 50 ? 'at risk' :
+                             'off track'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 text-xs">
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
+                          <span className="ml-1 text-gray-900 dark:text-white font-medium">
+                            {categoryTotalBaseline.toFixed(1)} m³
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Target:</span>
+                          <span className="ml-1 text-gray-900 dark:text-white font-medium">
+                            {categoryTotalTarget.toFixed(1)} m³
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Current:</span>
+                          <span className={`ml-1 font-medium ${
+                            categoryTotalCurrent <= categoryTotalTarget
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-red-600 dark:text-red-400'
+                          }`}>
+                            {categoryTotalCurrent.toFixed(1)} m³
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            categoryProgress >= 100 ? 'bg-green-500' :
+                            categoryProgress >= 80 ? 'bg-blue-500' :
+                            categoryProgress >= 50 ? 'bg-yellow-500' :
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${Math.min(categoryProgress, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Expanded Metric-level Targets */}
+                    {isExpanded && categoryMetrics.length > 0 && (
+                      <div className="ml-6 mt-2 space-y-2">
+                        {categoryMetrics.map((metric) => (
+                          <div key={metric.id} className="bg-gray-50 dark:bg-gray-900/30 rounded-lg p-3 border-l-2 border-blue-400">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                    {metric.metricName}
+                                  </span>
+                                  <span className="text-xs px-1.5 py-0.5 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 rounded">
+                                    {formatScope(metric.scope)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className={`text-sm font-semibold ${
+                                metric.progress.trajectoryStatus === 'on-track' ? 'text-green-600 dark:text-green-400' :
+                                metric.progress.trajectoryStatus === 'at-risk' ? 'text-yellow-600 dark:text-yellow-400' :
+                                'text-red-600 dark:text-red-400'
+                              }`}>
+                                {metric.progress.progressPercent.toFixed(0)}%
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                              <div>
+                                <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
+                                <div className="font-medium text-gray-900 dark:text-white">
+                                  {(metric.baselineValue || 0).toFixed(1)} m³
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-gray-500 dark:text-gray-400">Target:</span>
+                                <div className="font-medium text-gray-900 dark:text-white">
+                                  {(metric.targetValue || 0).toFixed(1)} m³
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-gray-500 dark:text-gray-400">Current:</span>
+                                <div className="font-medium text-gray-900 dark:text-white">
+                                  {(metric.currentValue || 0).toFixed(1)} m³
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
+                              <div
+                                className={`h-full rounded-full transition-all ${
+                                  metric.progress.trajectoryStatus === 'on-track' ? 'bg-green-500' :
+                                  metric.progress.trajectoryStatus === 'at-risk' ? 'bg-yellow-500' :
+                                  'bg-red-500'
+                                }`}
+                                style={{ width: `${Math.min(100, metric.progress.progressPercent)}%` }}
+                              />
+                            </div>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedMetricForInitiative(metric.id);
+                              }}
+                              className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded text-blue-300 text-xs font-medium transition-all"
+                            >
+                              <Plus className="h-3 w-3" />
+                              Add Initiative
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Recommendations Modal for Water Initiatives */}
+      {selectedMetricForInitiative && (
+        <RecommendationsModal
+          isOpen={true}
+          onClose={() => setSelectedMetricForInitiative(null)}
+          organizationId={organizationId}
+          metricTarget={metricTargets.find(mt => mt.id === selectedMetricForInitiative)}
+          onSave={async (initiative) => {
+            try {
+              console.log('💧 Saving water initiative:', initiative);
+
+              const selectedMetric = metricTargets.find(mt => mt.id === selectedMetricForInitiative);
+              if (!selectedMetric) {
+                throw new Error('Metric target not found');
+              }
+
+              // Calculate estimated reduction percentage
+              const baselineValue = selectedMetric.baselineValue || selectedMetric.baselineEmissions || 0;
+              const estimatedReductionPercent = baselineValue > 0
+                ? (initiative.estimatedReduction / baselineValue) * 100
+                : 0;
+
+              // Determine start and completion dates
+              const startDate = new Date().toISOString().split('T')[0];
+              const completionDate = initiative.timeline
+                ? new Date(new Date().setMonth(new Date().getMonth() + 12)).toISOString().split('T')[0]
+                : null;
+
+              // Create the initiative via API
+              const response = await fetch('/api/sustainability/initiatives', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  organization_id: organizationId,
+                  metric_target_id: selectedMetricForInitiative,
+                  sustainability_target_id: 'd4a00170-7964-41e2-a61e-3d7b0059cfe5', // Water target ID
+                  name: initiative.name,
+                  description: initiative.description,
+                  initiative_type: 'water_conservation',
+                  estimated_reduction_tco2e: initiative.estimatedReduction,
+                  estimated_reduction_percentage: estimatedReductionPercent,
+                  start_date: startDate,
+                  completion_date: completionDate,
+                  implementation_status: 'planned',
+                  capex: initiative.estimatedCost || null,
+                  annual_opex: null,
+                  annual_savings: null,
+                  roi_years: null,
+                  confidence_score: 0.7,
+                  risk_level: 'medium',
+                  risks: null,
+                  dependencies: null
+                })
+              });
+
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to save initiative');
+              }
+
+              const result = await response.json();
+              console.log('✅ Water initiative saved successfully:', result);
+
+              // Close modal
+              setSelectedMetricForInitiative(null);
+
+              // Optionally: Show success message or refresh data
+              // You could add a toast notification here
+            } catch (error: any) {
+              console.error('❌ Error saving water initiative:', error);
+              alert(`Failed to save initiative: ${error.message}`);
+            }
+          }}
+        />
       )}
     </div>
   );

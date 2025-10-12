@@ -98,7 +98,7 @@ export class SecureSessionManager {
   async validateSession(
     request: NextRequest
   ): Promise<{ session?: SecureSession; response?: NextResponse }> {
-    const sessionId = this.getSessionId(_request);
+    const sessionId = this.getSessionId(request);
     if (!sessionId) {
       return {};
     }

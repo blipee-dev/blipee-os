@@ -49,21 +49,44 @@ interface GHGInventoryData {
   };
 }
 
-export function GHGProtocolInventory() {
+interface GHGProtocolInventoryProps {
+  organizationId: string;
+  selectedYear: number;
+  selectedSite?: any;
+  selectedPeriod?: any;
+}
+
+export function GHGProtocolInventory({
+  organizationId,
+  selectedYear,
+  selectedSite,
+  selectedPeriod
+}: GHGProtocolInventoryProps) {
   const [data, setData] = useState<GHGInventoryData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Check if viewing a past year (read-only mode)
+  const isHistoricalYear = selectedYear < new Date().getFullYear();
+  const isReadOnly = isHistoricalYear;
+
   useEffect(() => {
     fetchData();
-  }, [selectedYear]);
+  }, [selectedYear, selectedSite]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/compliance/ghg-protocol?year=${selectedYear}`);
+      const params = new URLSearchParams({
+        year: selectedYear.toString()
+      });
+
+      if (selectedSite?.id) {
+        params.append('siteId', selectedSite.id);
+      }
+
+      const response = await fetch(`/api/compliance/ghg-protocol?${params}`);
       const result = await response.json();
       setData(result);
     } catch (error) {
@@ -158,16 +181,7 @@ export function GHGProtocolInventory() {
               GHG Protocol Corporate Standard requirements
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white"
-            >
-              <option value={2024}>2024</option>
-              <option value={2023}>2023</option>
-              <option value={2022}>2022</option>
-            </select>
+          {!isReadOnly ? (
             <button
               onClick={() => setShowForm(true)}
               className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
@@ -175,7 +189,12 @@ export function GHGProtocolInventory() {
               <Edit className="w-4 h-4" />
               Edit Settings
             </button>
-          </div>
+          ) : (
+            <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg text-sm flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Historical data (read-only)
+            </div>
+          )}
         </div>
       </div>
 

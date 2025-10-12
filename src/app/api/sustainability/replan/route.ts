@@ -1,6 +1,5 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ReplanningEngine, ReplanningRequest } from '@/lib/sustainability/replanning-engine';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +10,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(request: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerSupabaseClient();
 
     // Check authentication
     const { data: { session }, error: authError } = await supabase.auth.getSession();
@@ -71,8 +70,9 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Replanning failed',
-          validation: result.validation
+          error: result.error || 'Replanning failed',
+          validationErrors: result.validationErrors,
+          validationWarnings: result.validationWarnings
         },
         { status: 400 }
       );
@@ -81,10 +81,16 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       data: {
+        previousTarget: result.previousTarget,
+        newTarget: result.newTarget,
+        totalReductionNeeded: result.totalReductionNeeded,
         metricTargets: result.metricTargets,
-        initiatives: result.initiatives,
-        validation: result.validation,
-        uncertainty: result.uncertainty,
+        recommendedInitiatives: result.recommendedInitiatives,
+        totalInvestment: result.totalInvestment,
+        validationErrors: result.validationErrors,
+        validationWarnings: result.validationWarnings,
+        feasibilityScore: result.feasibilityScore,
+        monteCarloResults: result.monteCarloResults,
         historyId: result.historyId,
         applied: !!result.historyId
       }
@@ -105,7 +111,7 @@ export async function POST(request: Request) {
  */
 export async function GET(request: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerSupabaseClient();
 
     // Check authentication
     const { data: { session }, error: authError } = await supabase.auth.getSession();

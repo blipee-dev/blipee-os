@@ -1,8 +1,95 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
+
+/**
+ * GET /api/sustainability/replan/actuals
+ * Get actuals data for trajectory visualization
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Check authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const targetId = searchParams.get('targetId');
+
+    if (!targetId) {
+      return NextResponse.json(
+        { error: 'Missing required parameter: targetId' },
+        { status: 400 }
+      );
+    }
+
+    // Get user's organization from their membership
+    const { data: memberData, error: memberError } = await supabase
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (memberError || !memberData?.organization_id) {
+      return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
+    }
+
+    const organizationId = memberData.organization_id;
+
+    // Get metric targets for this target with full details
+    const { data: metricTargets } = await supabase
+      .from('metric_targets')
+      .select(`
+        id,
+        metric_catalog_id,
+        baseline_value,
+        baseline_emissions,
+        target_value,
+        target_emissions,
+        status,
+        metrics_catalog (
+          code,
+          name,
+          scope,
+          unit
+        )
+      `)
+      .eq('organization_id', organizationId)
+      .eq('target_id', targetId)
+      .eq('status', 'active');
+
+    // Transform for UI display
+    const transformedTargets = (metricTargets || []).map(mt => ({
+      id: mt.id,
+      metricId: mt.metric_catalog_id,
+      metricCode: mt.metrics_catalog?.code,
+      metricName: mt.metrics_catalog?.name,
+      scope: mt.metrics_catalog?.scope,
+      unit: mt.metrics_catalog?.unit,
+      baselineValue: mt.baseline_value,
+      baselineEmissions: mt.baseline_emissions,
+      targetValue: mt.target_value,
+      targetEmissions: mt.target_emissions
+    }));
+
+    return NextResponse.json({
+      success: true,
+      data: transformedTargets
+    });
+
+  } catch (error: any) {
+    console.error('Error in GET actuals API:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * POST /api/sustainability/replan/actuals
@@ -10,11 +97,11 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(request: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerSupabaseClient();
 
     // Check authentication
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-    if (authError || !session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -55,7 +142,7 @@ export async function POST(request: Request) {
       .from('organization_members')
       .select('role')
       .eq('organization_id', metricTarget.organization_id)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (!membership) {
@@ -121,11 +208,11 @@ export async function POST(request: Request) {
  */
 export async function PATCH(request: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerSupabaseClient();
 
     // Check authentication
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-    if (authError || !session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -143,7 +230,7 @@ export async function PATCH(request: Request) {
       .from('organization_members')
       .select('role')
       .eq('organization_id', organizationId)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (!membership) {
@@ -153,8 +240,11 @@ export async function PATCH(request: Request) {
       );
     }
 
+    // Use admin client for querying metrics_data (bypasses RLS)
+    const supabaseAdmin = createAdminClient();
+
     // Get all metric targets for this target
-    const { data: metricTargets } = await supabase
+    const { data: metricTargets } = await supabaseAdmin
       .from('metric_targets')
       .select('id, metric_catalog_id')
       .eq('organization_id', organizationId)
@@ -178,7 +268,7 @@ export async function PATCH(request: Request) {
         const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
         const endDate = new Date(year, month, 0).toISOString().split('T')[0]; // Last day of month
 
-        const { data: metricsData } = await supabase
+        const { data: metricsData } = await supabaseAdmin
           .from('metrics_data')
           .select('value, co2e_emissions')
           .eq('organization_id', organizationId)
@@ -193,7 +283,7 @@ export async function PATCH(request: Request) {
           // Convert kg to tCO2e
           const actualEmissions = totalEmissions / 1000;
 
-          // Update via function
+          // Update via function (using regular supabase client for RPC)
           const { data: result } = await supabase
             .rpc('update_metric_actual', {
               p_metric_target_id: mt.id,

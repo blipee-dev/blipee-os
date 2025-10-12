@@ -72,20 +72,43 @@ const pillars = [
   },
 ];
 
-export function TCFDDisclosuresWrapper() {
+interface TCFDDisclosuresWrapperProps {
+  organizationId: string;
+  selectedYear: number;
+  selectedSite?: any;
+  selectedPeriod?: any;
+}
+
+export function TCFDDisclosuresWrapper({
+  organizationId,
+  selectedYear,
+  selectedSite,
+  selectedPeriod
+}: TCFDDisclosuresWrapperProps) {
   const [activePillar, setActivePillar] = useState('governance');
   const [data, setData] = useState<TCFDData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+  // Check if viewing a past year (read-only mode)
+  const isHistoricalYear = selectedYear < new Date().getFullYear();
+  const isReadOnly = isHistoricalYear;
 
   useEffect(() => {
     fetchData();
-  }, [selectedYear]);
+  }, [selectedYear, selectedSite]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/compliance/tcfd?year=${selectedYear}`);
+      const params = new URLSearchParams({
+        year: selectedYear.toString()
+      });
+
+      if (selectedSite?.id) {
+        params.append('siteId', selectedSite.id);
+      }
+
+      const response = await fetch(`/api/compliance/tcfd?${params}`);
       const result = await response.json();
       setData(result);
     } catch (error) {
@@ -115,13 +138,13 @@ export function TCFDDisclosuresWrapper() {
 
     switch (activePillar) {
       case 'governance':
-        return <GovernancePillar data={data} onRefresh={fetchData} />;
+        return <GovernancePillar data={data} onRefresh={fetchData} isReadOnly={isReadOnly} />;
       case 'strategy':
-        return <StrategyPillar data={data} onRefresh={fetchData} />;
+        return <StrategyPillar data={data} onRefresh={fetchData} isReadOnly={isReadOnly} />;
       case 'risk':
-        return <RiskManagementPillar data={data} onRefresh={fetchData} />;
+        return <RiskManagementPillar data={data} onRefresh={fetchData} isReadOnly={isReadOnly} />;
       case 'metrics':
-        return <MetricsTargetsPillar data={data} onRefresh={fetchData} />;
+        return <MetricsTargetsPillar data={data} onRefresh={fetchData} isReadOnly={isReadOnly} />;
       default:
         return null;
     }
@@ -131,24 +154,13 @@ export function TCFDDisclosuresWrapper() {
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              TCFD Disclosures
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Task Force on Climate-related Financial Disclosures
-            </p>
-          </div>
-          <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-            className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white"
-          >
-            <option value={2024}>2024</option>
-            <option value={2023}>2023</option>
-            <option value={2022}>2022</option>
-          </select>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            TCFD Disclosures
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">
+            Task Force on Climate-related Financial Disclosures
+          </p>
         </div>
       </div>
 
@@ -239,7 +251,7 @@ function getPillarDataStatus(data: TCFDData, pillarId: string): boolean {
 }
 
 // Governance Pillar Component
-function GovernancePillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => void }) {
+function GovernancePillar({ data, onRefresh, isReadOnly }: { data: TCFDData; onRefresh: () => void; isReadOnly: boolean }) {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const hasOversight = data.governance_oversight;
@@ -284,13 +296,15 @@ function GovernancePillar({ data, onRefresh }: { data: TCFDData; onRefresh: () =
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
           Pillar 1: Governance
         </h3>
-        <button
-          onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          {hasOversight || hasManagement ? 'Edit Data' : 'Add Data'}
-        </button>
+        {!isReadOnly && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            {hasOversight || hasManagement ? 'Edit Data' : 'Add Data'}
+          </button>
+        )}
       </div>
 
       <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
@@ -350,7 +364,7 @@ function GovernancePillar({ data, onRefresh }: { data: TCFDData; onRefresh: () =
 }
 
 // Strategy Pillar Component
-function StrategyPillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => void }) {
+function StrategyPillar({ data, onRefresh, isReadOnly }: { data: TCFDData; onRefresh: () => void; isReadOnly: boolean }) {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -395,13 +409,15 @@ function StrategyPillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => 
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
           Pillar 2: Strategy
         </h3>
-        <button
-          onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          {hasData ? 'Edit Data' : 'Add Data'}
-        </button>
+        {!isReadOnly && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            {hasData ? 'Edit Data' : 'Add Data'}
+          </button>
+        )}
       </div>
 
       <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
@@ -484,7 +500,7 @@ function StrategyPillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => 
 }
 
 // Risk Management Pillar Component
-function RiskManagementPillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => void }) {
+function RiskManagementPillar({ data, onRefresh, isReadOnly }: { data: TCFDData; onRefresh: () => void; isReadOnly: boolean }) {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -529,13 +545,15 @@ function RiskManagementPillar({ data, onRefresh }: { data: TCFDData; onRefresh: 
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
           Pillar 3: Risk Management
         </h3>
-        <button
-          onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          {hasData ? 'Edit Data' : 'Add Data'}
-        </button>
+        {!isReadOnly && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            {hasData ? 'Edit Data' : 'Add Data'}
+          </button>
+        )}
       </div>
 
       <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
@@ -612,7 +630,7 @@ function RiskManagementPillar({ data, onRefresh }: { data: TCFDData; onRefresh: 
 }
 
 // Metrics & Targets Pillar Component
-function MetricsTargetsPillar({ data, onRefresh }: { data: TCFDData; onRefresh: () => void }) {
+function MetricsTargetsPillar({ data, onRefresh, isReadOnly }: { data: TCFDData; onRefresh: () => void; isReadOnly: boolean }) {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -655,22 +673,24 @@ function MetricsTargetsPillar({ data, onRefresh }: { data: TCFDData; onRefresh: 
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
           Pillar 4: Metrics & Targets
         </h3>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            {data.metrics.description ? 'Edit Methodology' : 'Add Methodology'}
-          </button>
-          <a
-            href="/sustainability/targets"
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
-          >
-            <Target className="w-4 h-4" />
-            Manage Targets
-          </a>
-        </div>
+        {!isReadOnly && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowForm(true)}
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              {data.metrics.description ? 'Edit Methodology' : 'Add Methodology'}
+            </button>
+            <a
+              href="/sustainability/targets"
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+            >
+              <Target className="w-4 h-4" />
+              Manage Targets
+            </a>
+          </div>
+        )}
       </div>
 
       <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">

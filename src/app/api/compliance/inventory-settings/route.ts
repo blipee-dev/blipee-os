@@ -13,6 +13,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const year = searchParams.get('year') || new Date().getFullYear().toString();
+    const siteId = searchParams.get('siteId');
+
     // Get user's organization with organization details using admin client
     const { data: appUser, error: appUserError } = await supabaseAdmin
       .from('app_users')
@@ -26,11 +31,12 @@ export async function GET(request: NextRequest) {
 
     const organizationName = (appUser.organizations as any)?.name || 'Your Organization';
 
-    // Fetch inventory settings using admin client
+    // Fetch GHG inventory settings for the specific year using admin client
     const { data: settings, error: settingsError } = await supabaseAdmin
-      .from('organization_inventory_settings')
+      .from('ghg_inventory_settings')
       .select('*')
       .eq('organization_id', appUser.organization_id)
+      .eq('reporting_year', parseInt(year))
       .single();
 
     if (settingsError) {
@@ -39,12 +45,12 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
           consolidation_approach: 'operational_control',
           gases_covered: ['CO2', 'CH4', 'N2O', 'HFCs', 'PFCs', 'SF6', 'NF3'],
-          base_year: 2024,
-          base_year_rationale: 'First complete year of data collection',
+          base_year: 2023,
+          base_year_rationale: 'Base year 2023 selected as the first complete year with comprehensive data collection across all facilities and emission sources.',
           assurance_level: 'none',
           gwp_version: 'AR6',
-          reporting_period_start: '2024-01-01',
-          reporting_period_end: '2024-12-31',
+          reporting_period_start: `${year}-01-01`,
+          reporting_period_end: `${year}-12-31`,
           organization_name: organizationName
         });
       }
@@ -54,7 +60,15 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      ...settings,
+      consolidation_approach: settings.consolidation_approach,
+      gases_covered: settings.gases_covered,
+      base_year: settings.base_year,
+      base_year_rationale: settings.base_year_rationale,
+      assurance_level: settings.assurance_level || 'none',
+      assurance_provider: settings.assurance_provider,
+      gwp_version: settings.gwp_standard || 'AR6',
+      reporting_period_start: settings.period_start,
+      reporting_period_end: settings.period_end,
       organization_name: organizationName
     });
   } catch (error) {
