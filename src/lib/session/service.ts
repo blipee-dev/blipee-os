@@ -473,6 +473,22 @@ export class SessionService {
   }
 
   /**
+   * List all active sessions
+   */
+  async list(): Promise<SessionData[]> {
+    // Clean up expired sessions first
+    const now = new Date();
+    for (const [sessionId, session] of this.inMemorySessions.entries()) {
+      if (new Date(session.expiresAt) < now) {
+        this.inMemorySessions.delete(sessionId);
+      }
+    }
+
+    // Return all remaining sessions
+    return Array.from(this.inMemorySessions.values());
+  }
+
+  /**
    * Parse session cookie from request headers
    */
   parseSessionCookie(cookieHeader: string | null): string | null {
