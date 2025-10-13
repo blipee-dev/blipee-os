@@ -39,30 +39,34 @@ const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   TabsTriggerProps
 >(({ className, variant = 'default', icon: Icon, badge, color, children, ...props }, ref) => {
+  // Always call hooks unconditionally (Rules of Hooks)
+  const internalRef = React.useRef<HTMLButtonElement>(null)
+  const [isActive, setIsActive] = React.useState(false)
+
+  React.useImperativeHandle(ref, () => internalRef.current!)
+
+  React.useEffect(() => {
+    // Only run effect logic for underline variant
+    if (variant !== 'underline') return
+
+    const button = internalRef.current
+    if (!button) return
+
+    const checkActive = () => {
+      setIsActive(button.getAttribute('data-state') === 'active')
+    }
+
+    // Check initially
+    checkActive()
+
+    // Use MutationObserver to watch for attribute changes
+    const observer = new MutationObserver(checkActive)
+    observer.observe(button, { attributes: true, attributeFilter: ['data-state'] })
+
+    return () => observer.disconnect()
+  }, [variant])
+
   if (variant === 'underline') {
-    const internalRef = React.useRef<HTMLButtonElement>(null)
-    const [isActive, setIsActive] = React.useState(false)
-
-    React.useImperativeHandle(ref, () => internalRef.current!)
-
-    React.useEffect(() => {
-      const button = internalRef.current
-      if (!button) return
-
-      const checkActive = () => {
-        setIsActive(button.getAttribute('data-state') === 'active')
-      }
-
-      // Check initially
-      checkActive()
-
-      // Use MutationObserver to watch for attribute changes
-      const observer = new MutationObserver(checkActive)
-      observer.observe(button, { attributes: true, attributeFilter: ['data-state'] })
-
-      return () => observer.disconnect()
-    }, [])
-
     return (
       <TabsPrimitive.Trigger
         ref={internalRef}
