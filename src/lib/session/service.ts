@@ -23,6 +23,11 @@ export interface SessionConfig {
     tls?: boolean;
     keyPrefix?: string;
   };
+  upstash?: {
+    url: string;
+    token: string;
+    keyPrefix?: string;
+  };
   sessionTTL?: number; // seconds
   slidingExpiration?: boolean;
   cookieName?: string;
@@ -48,13 +53,15 @@ export class SessionService {
     this.inMemorySessions = ((global as any).__sessionStore__ ||= new Map<string, SessionData>());
 
     this.config = {
-      redis: config.redis === undefined ? undefined : (config.redis || {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-        password: process.env.REDIS_PASSWORD,
-        tls: process.env.REDIS_TLS === 'true',
-        keyPrefix: 'session:',
-      }),
+      redis: config.redis,
+      upstash: config.upstash === undefined ? (
+        // Auto-detect Upstash from environment
+        process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN ? {
+          url: process.env.UPSTASH_REDIS_REST_URL,
+          token: process.env.UPSTASH_REDIS_REST_TOKEN,
+          keyPrefix: 'session:',
+        } : undefined
+      ) : config.upstash,
       sessionTTL: config.sessionTTL || this.DEFAULT_TTL,
       slidingExpiration: config.slidingExpiration !== false,
       cookieName: config.cookieName || 'sessionid',
@@ -72,55 +79,87 @@ export class SessionService {
 
   private async initializeRedis() {
     try {
-      if (this.config.redis && typeof window === 'undefined') {
-        // Only load Redis on server side
+      if (typeof window !== 'undefined') {
+        return; // Client-side, skip Redis initialization
+      }
+
+      // Try Upstash Redis first (REST API - works in serverless)
+      if (this.config.upstash) {
+        const { Redis } = await import('@upstash/redis');
+        this.redis = new Redis({
+          url: this.config.upstash.url,
+          token: this.config.upstash.token,
+        });
+
+        // Wrap Upstash client to match ioredis API
+        const upstashClient = this.redis;
+        const keyPrefix = this.config.upstash.keyPrefix || '';
+        this.redis = {
+          async get(key: string) {
+            return await upstashClient.get(keyPrefix + key);
+          },
+          async set(key: string, value: string, ex?: string, ttl?: number) {
+            if (ex === 'EX' && ttl) {
+              return await upstashClient.set(keyPrefix + key, value, { ex: ttl });
+            }
+            return await upstashClient.set(keyPrefix + key, value);
+          },
+          async del(key: string) {
+            return await upstashClient.del(keyPrefix + key);
+          },
+          async ping() {
+            return await upstashClient.ping();
+          }
+        };
+
+        // Test connection
+        await this.redis.ping();
+        console.log('✅ Upstash Redis session store connected');
+        return;
+      }
+
+      // Fallback to traditional ioredis (TCP - for self-hosted Redis)
+      if (this.config.redis) {
         const ioredis = await import('ioredis');
         const Redis = ioredis.default || ioredis.Redis;
-        
+
         this.redis = new Redis({
           host: this.config.redis.host,
           port: this.config.redis.port,
           password: this.config.redis.password,
           tls: this.config.redis.tls ? {} : undefined,
           keyPrefix: this.config.redis.keyPrefix,
-          maxRetriesPerRequest: 3, // Limit retries per request to prevent flooding
+          maxRetriesPerRequest: 3,
           enableReadyCheck: true,
-          connectTimeout: 5000, // 5 second connection timeout
-          commandTimeout: 5000, // 5 second command timeout
+          connectTimeout: 5000,
+          commandTimeout: 5000,
           retryStrategy: (times) => {
-            // In development, limit retries to avoid log flooding
             if (process.env.NODE_ENV !== 'production' && times > 5) {
               console.log('Redis not available after 5 attempts, using in-memory sessions');
-              return null; // Stop retrying
+              return null;
             }
-            // In production, keep retrying with exponential backoff
             if (times > 10) {
-              // After 10 attempts, retry every 30 seconds
               return 30000;
             }
-            // Exponential backoff: 50ms, 100ms, 200ms, 400ms, 800ms, 1600ms, 2000ms...
-            const delay = Math.min(times * 50, 2000);
-            return delay;
+            return Math.min(times * 50, 2000);
           },
           reconnectOnError: (err) => {
-            const targetError = 'READONLY';
-            if (err.message.includes(targetError)) {
-              // Only reconnect when the error contains "READONLY"
-              return true;
-            }
-            return false;
+            return err.message.includes('READONLY');
           },
         });
 
-        // Test connection with timeout
         await Promise.race([
           this.redis.ping(),
-          new Promise((_, reject) => 
+          new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Redis connection timeout')), 5000)
           )
         ]);
-        console.log('Redis session store connected');
+        console.log('✅ ioredis session store connected');
+        return;
       }
+
+      // No Redis configured, use in-memory
+      console.log('ℹ️ No Redis configured, using in-memory sessions');
     } catch (error) {
       console.error('Failed to connect to Redis, falling back to in-memory sessions:', error);
       this.redis = null;
