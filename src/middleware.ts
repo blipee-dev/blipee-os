@@ -136,8 +136,11 @@ export async function middleware(request: NextRequest) {
   // Handle Supabase auth redirects with tokens or code in query params
   // This is for when Supabase redirects to root with auth tokens or PKCE code
   if (path === '/' && (request.nextUrl.searchParams.has('access_token') || request.nextUrl.searchParams.has('code'))) {
+    // Check if this is a recovery flow by looking for #type=recovery in the referrer or hash
+    // For now, just redirect to callback which will handle the routing
     const callbackUrl = new URL('/auth/callback', request.url);
     callbackUrl.search = request.nextUrl.search;
+    callbackUrl.hash = request.nextUrl.hash;
     return NextResponse.redirect(callbackUrl);
   }
 

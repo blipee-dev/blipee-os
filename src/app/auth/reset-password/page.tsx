@@ -17,11 +17,34 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const checkSession = async () => {
       const supabase = createClient();
+
+      // Check for tokens in hash (email OTP flow)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const type = hashParams.get('type');
+
+      // If we have tokens in the hash, set the session
+      if (accessToken && refreshToken && type === 'recovery') {
+        console.log('Setting session from recovery tokens...');
+        const { error: setSessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (setSessionError) {
+          console.error('Error setting session:', setSessionError);
+          setError('Failed to verify reset link. Please request a new one.');
+          return;
+        }
+      }
+
+      // Check if we have a valid session
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        const errorCode = searchParams.get('error_code');
-        const errorDescription = searchParams.get('error_description');
+        const errorCode = searchParams.get('error_code') || hashParams.get('error_code');
+        const errorDescription = searchParams.get('error_description') || hashParams.get('error_description');
 
         if (errorCode === 'otp_expired') {
           setError('This password reset link has expired. Please request a new one.');
