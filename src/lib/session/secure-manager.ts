@@ -20,9 +20,8 @@ export class SecureSessionManager {
   
   private constructor() {
     this.sessionService = new SessionService({
-      // Disable Redis for now - use in-memory sessions
-      // TODO: Implement Upstash Redis REST API support
-      redis: undefined,
+      // Auto-detects Upstash Redis from UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN
+      // Falls back to in-memory sessions if not configured
       sessionTTL: SESSION_SECURITY.MAX_LIFETIME / 1000, // Convert to seconds
       slidingExpiration: true,
       cookieName: 'blipee-session',
