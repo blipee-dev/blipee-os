@@ -19,17 +19,17 @@ const getSettingsNavItems = (t: (key: string) => string, isSuperAdmin: boolean) 
     { id: "sites", label: t('navigation.sites'), icon: MapPin, href: "/settings/sites", view: null },
   ];
 
-  // Only show devices and sustainability for super admin users
+  // Only show devices, sustainability, and logs for super admin users
   if (isSuperAdmin) {
     items.push(
       { id: "devices", label: t('navigation.devices'), icon: Cpu, href: "/settings/devices", view: null },
-      { id: "sustainability", label: t('navigation.sustainability'), icon: Leaf, href: "/settings/sustainability", view: null }
+      { id: "sustainability", label: t('navigation.sustainability'), icon: Leaf, href: "/settings/sustainability", view: null },
+      { id: "logs", label: t('navigation.logs'), icon: FileText, href: "/settings/logs", view: null }
     );
   }
 
   items.push(
-    { id: "users", label: t('navigation.users'), icon: Users, href: "/settings/users", view: null },
-    { id: "logs", label: t('navigation.logs'), icon: FileText, href: "/settings/logs", view: null }
+    { id: "users", label: t('navigation.users'), icon: Users, href: "/settings/users", view: null }
   );
 
   return items;
