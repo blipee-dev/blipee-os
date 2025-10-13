@@ -51,6 +51,7 @@ const publicRoutes = [
   '/api/auth/oauth',
   '/api/health',
   '/api/version',
+  '/api/debug',  // Debug endpoints for diagnostics
   '/about',
   '/features',
   '/industries',
@@ -195,7 +196,8 @@ async function executeMiddleware(
     '/api/auth/reset-password',
     '/api/auth/oauth',
     '/api/health',
-    '/api/version'
+    '/api/version',
+    '/api/debug'
   ];
   
   if (path.startsWith('/api/') && !csrfExemptPaths.some(exempt => path.startsWith(exempt))) {
