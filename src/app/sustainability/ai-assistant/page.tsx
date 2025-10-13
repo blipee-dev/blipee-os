@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { PermissionService } from '@/lib/auth/permission-service';
-import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import AIAssistantPage from './AIAssistantPage';
 
 export default async function AIAssistantRoute() {
@@ -12,11 +11,11 @@ export default async function AIAssistantRoute() {
     redirect('/signin?redirect=/sustainability/ai-assistant');
   }
 
+  // Check if user is super admin
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
-  const { organizationId, role } = await getUserOrganizationById(user.id);
 
-  if (!isSuperAdmin && !role) {
-    redirect('/unauthorized?reason=no_organization');
+  if (!isSuperAdmin) {
+    redirect('/sustainability?error=admin_only');
   }
 
   return <AIAssistantPage />;
