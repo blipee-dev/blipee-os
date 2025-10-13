@@ -15,7 +15,7 @@ import {
   ChartOptions
 } from 'chart.js';
 import { io, Socket } from 'socket.io-client';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
@@ -57,7 +57,7 @@ export function LiveEmissionsChart({
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [isConnected, setIsConnected] = useState(false);
   const chartRef = useRef<any>(null);
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     const initSocket = async () => {

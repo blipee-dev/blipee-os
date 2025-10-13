@@ -319,10 +319,9 @@ async function testConversationManagement(userId: string, orgId: string): Promis
 async function testResponseGeneration(session: any): Promise<TestResult> {
   const start = Date.now();
   try {
-    const assistant = new BlipeeAssistant();
+    const assistant = new BlipeeAssistant(session);
     const response = await assistant.processMessage(
       'What are my total emissions?',
-      session,
       '/sustainability/dashboard'
     );
 

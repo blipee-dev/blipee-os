@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@/middleware/auth-new';
+import { withAuth } from '@/middleware/auth';
 import { withErrorHandler } from '@/lib/api/error-handler';
 import { getPerformanceMonitor } from '@/lib/monitoring/performance';
 import { getCacheService } from '@/lib/cache/cache-service';
 import { getConnectionPool } from '@/lib/db/connection-pool';
 import { getRedisClient } from '@/lib/cache/redis';
 
-export const GET = withAuth(withErrorHandler(async (_request: NextRequest, _userId: string) => {
+export const GET = withAuth(withErrorHandler(async (request: NextRequest, _userId: string) => {
   const { searchParams } = new URL(request.url);
   const timeRange = searchParams.get('range') || '1h';
   const detailed = searchParams.get('detailed') === 'true';
@@ -178,7 +178,7 @@ async function getErrorDetails() {
 }
 
 // POST endpoint to manually trigger performance optimization
-export const POST = withAuth(withErrorHandler(async (_request: NextRequest, _userId: string) => {
+export const POST = withAuth(withErrorHandler(async (request: NextRequest, _userId: string) => {
   const { action } = await request.json();
   
   switch (action) {

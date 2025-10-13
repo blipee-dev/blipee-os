@@ -212,5 +212,34 @@ async function checkBuildingAccess(
   return authService.hasPermission(session, "buildings", "view");
 }
 
+/**
+ * Higher-order function wrapper for API routes that need authentication
+ * Extracts userId from session and passes it as second parameter to handler
+ */
+export function withAuth<T extends any[]>(
+  handler: (request: NextRequest, userId: string, ...rest: T) => Promise<NextResponse>
+): (request: NextRequest, ...rest: T) => Promise<NextResponse> {
+  return async (request: NextRequest, ...rest: T) => {
+    try {
+      const session = await authService.getSession();
+
+      if (!session) {
+        return NextResponse.json(
+          { success: false, error: "Not authenticated" },
+          { status: 401 },
+        );
+      }
+
+      return handler(request, session.user.id, ...rest);
+    } catch (error: any) {
+      console.error("Auth middleware error:", error);
+      return NextResponse.json(
+        { success: false, error: "Authentication failed" },
+        { status: 401 },
+      );
+    }
+  };
+}
+
 // Backward compatibility export
-export const withAuth = requireAuth;
+export const requireAuthMiddleware = requireAuth;

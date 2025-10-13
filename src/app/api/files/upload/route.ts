@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { DocumentParser } from "@/lib/data/document-parser";
-import { withAuth } from "@/middleware/auth-new";
+import { withAuth } from "@/middleware/auth";
 import { withErrorHandler } from "@/lib/api/error-handler";
 import { rateLimit, RateLimitConfigs } from "@/lib/api/rate-limit";
 import { z } from "zod";
@@ -32,7 +32,7 @@ const uploadSchema = z.object({
 
 const limiter = rateLimit(RateLimitConfigs.files.upload);
 
-export const POST = withAuth(withErrorHandler(async (req: NextRequest, _userId: string) => {
+export const POST = withAuth(withErrorHandler(async (req: NextRequest, userId: string) => {
   // Check rate limit
   await limiter.check(req, RateLimitConfigs.files.upload.limit, userId);
 
@@ -206,7 +206,7 @@ function validateFileContent(buffer: Buffer, mimeType: string): boolean {
 /**
  * GET endpoint to retrieve file metadata (not the file itself)
  */
-export const GET = withAuth(withErrorHandler(async (req: NextRequest, _userId: string) => {
+export const GET = withAuth(withErrorHandler(async (req: NextRequest, userId: string) => {
   const fileId = req.nextUrl.searchParams.get('id');
     
     if (!fileId || !z.string().uuid().safeParse(fileId).success) {
