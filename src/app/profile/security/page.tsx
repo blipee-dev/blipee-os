@@ -92,6 +92,22 @@ export default function SecurityPage() {
   const [hasChanges, setHasChanges] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  // Check super admin status
+  useEffect(() => {
+    async function checkSuperAdmin() {
+      if (!user) return;
+      try {
+        const response = await fetch('/api/auth/user-role');
+        const data = await response.json();
+        setIsSuperAdmin(data.isSuperAdmin || false);
+      } catch (error) {
+        console.error('Error checking super admin status:', error);
+      }
+    }
+    checkSuperAdmin();
+  }, [user]);
 
   // Load real user data and settings on mount
   useEffect(() => {
@@ -641,107 +657,111 @@ export default function SecurityPage() {
           </form>
         </div>
 
-        {/* Two-Factor Authentication */}
-        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <Smartphone className="w-5 h-5 accent-text" />
-            {t('twoFactorAuth')}
-          </h2>
+        {/* Two-Factor Authentication - Only visible to super admin users */}
+        {isSuperAdmin && (
+          <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Smartphone className="w-5 h-5 accent-text" />
+              {t('twoFactorAuth')}
+            </h2>
 
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="font-medium text-gray-900 dark:text-white">
-                {settings.twoFactorEnabled ? t('twoFactorEnabled') : t('twoFactorDisabled')}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {settings.twoFactorEnabled 
-                  ? t('twoFactorEnabledDescription') 
-                  : t('twoFactorDisabledDescription')}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {settings.twoFactorEnabled ? (
-                <CheckCircle className="w-5 h-5 text-green-500" />
-              ) : (
-                <AlertTriangle className="w-5 h-5 text-orange-500" />
-              )}
-            </div>
-          </div>
-
-          {!settings.twoFactorEnabled ? (
-            <button
-              onClick={handleEnable2FA}
-              className="px-4 py-2 accent-gradient text-white rounded-lg font-medium hover:shadow-lg transition-all"
-            >
-              {t('enableTwoFactor')}
-            </button>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={handleDisable2FA}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
-                >
-                  {t('disableTwoFactor')}
-                </button>
-                <button 
-                  onClick={handleEnable2FA}
-                  className="px-4 py-2 bg-gray-200 dark:bg-white/10 text-gray-900 dark:text-white rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
-                >
-                  {t('regenerateBackupCodes')}
-                </button>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {settings.twoFactorEnabled ? t('twoFactorEnabled') : t('twoFactorDisabled')}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {settings.twoFactorEnabled
+                    ? t('twoFactorEnabledDescription')
+                    : t('twoFactorDisabledDescription')}
+                </p>
               </div>
-              {settings.backupCodes.length > 0 && (
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    {t('backupCodes')}
-                  </p>
-                  <div className="grid grid-cols-2 gap-2 text-sm font-mono">
-                    {settings.backupCodes.map((code, index) => (
-                      <div key={index} className="bg-gray-100 dark:bg-white/5 px-2 py-1 rounded">
-                        {code}
-                      </div>
-                    ))}
-                  </div>
+              <div className="flex items-center gap-2">
+                {settings.twoFactorEnabled ? (
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-orange-500" />
+                )}
+              </div>
+            </div>
+
+            {!settings.twoFactorEnabled ? (
+              <button
+                onClick={handleEnable2FA}
+                className="px-4 py-2 accent-gradient text-white rounded-lg font-medium hover:shadow-lg transition-all"
+              >
+                {t('enableTwoFactor')}
+              </button>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={handleDisable2FA}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+                  >
+                    {t('disableTwoFactor')}
+                  </button>
+                  <button
+                    onClick={handleEnable2FA}
+                    className="px-4 py-2 bg-gray-200 dark:bg-white/10 text-gray-900 dark:text-white rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
+                  >
+                    {t('regenerateBackupCodes')}
+                  </button>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Security Notifications */}
-        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            {t('securityNotifications')}
-          </h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">{t('emailNotifications')}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t('emailNotificationsDescription')}
-                </p>
+                {settings.backupCodes.length > 0 && (
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      {t('backupCodes')}
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 text-sm font-mono">
+                      {settings.backupCodes.map((code, index) => (
+                        <div key={index} className="bg-gray-100 dark:bg-white/5 px-2 py-1 rounded">
+                          {code}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <ToggleSwitch
-                enabled={settings.emailNotifications}
-                onChange={() => updateSetting("emailNotifications", !settings.emailNotifications)}
-              />
-            </div>
+            )}
+          </div>
+        )}
 
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">{t('loginAlerts')}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t('loginAlertsDescription')}
-                </p>
+        {/* Security Notifications - Only visible to super admin users */}
+        {isSuperAdmin && (
+          <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              {t('securityNotifications')}
+            </h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('emailNotifications')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('emailNotificationsDescription')}
+                  </p>
+                </div>
+                <ToggleSwitch
+                  enabled={settings.emailNotifications}
+                  onChange={() => updateSetting("emailNotifications", !settings.emailNotifications)}
+                />
               </div>
-              <ToggleSwitch
-                enabled={settings.loginAlerts}
-                onChange={() => updateSetting("loginAlerts", !settings.loginAlerts)}
-              />
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{t('loginAlerts')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('loginAlertsDescription')}
+                  </p>
+                </div>
+                <ToggleSwitch
+                  enabled={settings.loginAlerts}
+                  onChange={() => updateSetting("loginAlerts", !settings.loginAlerts)}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Active Sessions */}
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">

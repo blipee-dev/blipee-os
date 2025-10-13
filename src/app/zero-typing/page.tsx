@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase/server';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
+import { PermissionService } from '@/lib/auth/permission-service';
 import ZeroTypingClient from './ZeroTypingClient';
 
 export default async function ZeroTypingPage() {
@@ -12,6 +13,13 @@ export default async function ZeroTypingPage() {
 
   if (error || !user) {
     redirect('/signin?redirect=/zero-typing');
+  }
+
+  // Check if user is super admin
+  const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
+
+  if (!isSuperAdmin) {
+    redirect('/sustainability?error=admin_only');
   }
 
   // Get user's organization and role

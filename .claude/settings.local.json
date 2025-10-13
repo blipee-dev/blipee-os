@@ -48,7 +48,21 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm run build:*)",
+      "Bash(for file in src/components/realtime/DeviceStatusPanel.tsx src/components/realtime/EnergyMonitor.tsx src/components/realtime/LiveEmissionsChart.tsx)",
+      "Bash(do)",
+      "Bash(done)",
+      "Bash(cat:*)",
+      "Bash(git check-ignore:*)",
+      "Read(//Users/pedro/**)",
+      "WebSearch",
+      "Bash(npm uninstall:*)",
+      "Bash(for:*)",
+      "Bash(if [ -f \"$file\" ])",
+      "Bash(then)",
+      "Bash(echo \"Updated: $file\")",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []

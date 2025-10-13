@@ -3,7 +3,7 @@
  * Foundation for classification-based ML models
  */
 
-import * as tf from '@tensorflow/tfjs-node';
+import { tf } from './tensorflow-setup';
 import { BaseModel } from './base-model';
 import { TrainingData, Prediction } from '../types';
 

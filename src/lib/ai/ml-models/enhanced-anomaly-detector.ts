@@ -3,7 +3,7 @@
  * Combines Isolation Forest, AutoEncoder, and ensemble methods
  */
 
-import * as tf from '@tensorflow/tfjs-node';
+import { tf } from './tensorflow-setup';
 import { MetricData } from './types';
 
 interface AnomalyResult {

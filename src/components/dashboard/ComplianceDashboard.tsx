@@ -10,6 +10,7 @@ import { ESRSE1DisclosuresWrapper } from '@/components/compliance/ESRSE1Disclosu
 import { TCFDDisclosuresWrapper } from '@/components/compliance/TCFDDisclosuresWrapper';
 import { RecommendedMetricsPanel } from '@/components/sustainability/RecommendedMetricsPanel';
 import { FileCheck, Info } from 'lucide-react';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 interface ComplianceDashboardProps {
   organizationId: string;
@@ -20,12 +21,30 @@ interface ComplianceDashboardProps {
 export function ComplianceDashboard({ organizationId, selectedSite, selectedPeriod }: ComplianceDashboardProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
+
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   // Initialize compliance tab from URL or default to 'overview'
   const [complianceTab, setComplianceTab] = useState<string>(() => {
     const subtabFromUrl = searchParams.get('subtab');
     return subtabFromUrl || 'overview';
   });
+
+  // Check super admin status
+  useEffect(() => {
+    async function checkSuperAdmin() {
+      if (!user) return;
+      try {
+        const response = await fetch('/api/auth/user-role');
+        const data = await response.json();
+        setIsSuperAdmin(data.isSuperAdmin || false);
+      } catch (error) {
+        console.error('Error checking super admin status:', error);
+      }
+    }
+    checkSuperAdmin();
+  }, [user]);
 
   // Use selectedPeriod to determine the year, or default to current year
   const [selectedYear, setSelectedYear] = useState(() => {
@@ -57,6 +76,17 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
       setComplianceTab(subtabFromUrl);
     }
   }, [searchParams]);
+
+  // Redirect non-admins trying to access restricted tabs via URL
+  useEffect(() => {
+    const subtab = searchParams.get('subtab');
+    if (!isSuperAdmin && (subtab === 'esrs' || subtab === 'tcfd')) {
+      setComplianceTab('overview');
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('subtab', 'overview');
+      router.replace(`?${params.toString()}`);
+    }
+  }, [isSuperAdmin, searchParams, router]);
 
   // Handle compliance tab change
   const handleComplianceTabChange = (value: string) => {
@@ -133,8 +163,12 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
           <TabsTrigger value="overview" variant="underline" color="#64748b">Overview</TabsTrigger>
           <TabsTrigger value="ghg-protocol" variant="underline" color="#16A34A">GHG Protocol</TabsTrigger>
           <TabsTrigger value="gri" variant="underline" color="#16A34A">GRI</TabsTrigger>
-          <TabsTrigger value="esrs" variant="underline" color="#3B82F6">ESRS E1</TabsTrigger>
-          <TabsTrigger value="tcfd" variant="underline" color="#0EA5E9">TCFD</TabsTrigger>
+          {isSuperAdmin && (
+            <>
+              <TabsTrigger value="esrs" variant="underline" color="#3B82F6">ESRS E1</TabsTrigger>
+              <TabsTrigger value="tcfd" variant="underline" color="#0EA5E9">TCFD</TabsTrigger>
+            </>
+          )}
         </TabsList>
 
         {/* Overview Tab */}

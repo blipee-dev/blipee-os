@@ -30,6 +30,8 @@ import {
 } from "lucide-react";
 import { useTranslations } from "@/providers/LanguageProvider";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { useAuth } from "@/lib/auth/context";
+import { useRouter } from "next/navigation";
 
 interface NotificationSettings {
   channels: {
@@ -99,13 +101,17 @@ const defaultSettings: NotificationSettings = {
 
 export default function NotificationsPage() {
   useAuthRedirect('/profile/notifications');
-  
+
   const t = useTranslations('profile.notifications');
+  const { user } = useAuth();
+  const router = useRouter();
   const [settings, setSettings] = useState<NotificationSettings>(defaultSettings);
   const [hasChanges, setHasChanges] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [checkingPermissions, setCheckingPermissions] = useState(true);
 
   // Define frequency options with translations
   const frequencyOptions = [
@@ -116,10 +122,35 @@ export default function NotificationsPage() {
     { value: "never", label: t('never') },
   ];
 
+  // Check super admin status
+  useEffect(() => {
+    async function checkSuperAdmin() {
+      if (!user) return;
+      try {
+        const response = await fetch('/api/auth/user-role');
+        const data = await response.json();
+        const isAdmin = data.isSuperAdmin || false;
+        setIsSuperAdmin(isAdmin);
+
+        if (!isAdmin) {
+          router.push('/profile?error=admin_only');
+        }
+      } catch (error) {
+        console.error('Error checking super admin status:', error);
+        router.push('/profile?error=admin_only');
+      } finally {
+        setCheckingPermissions(false);
+      }
+    }
+    checkSuperAdmin();
+  }, [user, router]);
+
   // Load settings from localStorage on mount
   useEffect(() => {
-    fetchNotificationSettings();
-  }, []);
+    if (isSuperAdmin) {
+      fetchNotificationSettings();
+    }
+  }, [isSuperAdmin]);
 
   // Auto-dismiss toast after 3 seconds
   useEffect(() => {
@@ -276,6 +307,25 @@ export default function NotificationsPage() {
     }));
     setHasChanges(true);
   };
+
+  // Show loading while checking permissions
+  if (checkingPermissions) {
+    return (
+      <ProfileLayout pageTitle={t('title')}>
+        <div className="flex items-center justify-center h-full">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+            <div className="text-gray-500">Checking permissions...</div>
+          </div>
+        </div>
+      </ProfileLayout>
+    );
+  }
+
+  // Don't render if not super admin (will be redirected)
+  if (!isSuperAdmin) {
+    return null;
+  }
 
   if (isLoading) {
     return (

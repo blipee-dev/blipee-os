@@ -3,7 +3,7 @@
  * Foundation for all ML models in the pipeline
  */
 
-import * as tf from '@tensorflow/tfjs-node';
+import { tf } from './tensorflow-setup';
 import { 
   TrainingData, 
   TrainingResult, 

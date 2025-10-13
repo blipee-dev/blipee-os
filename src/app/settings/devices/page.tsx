@@ -15,8 +15,13 @@ export default async function DevicesPage() {
     redirect('/signin?redirect=/settings/devices');
   }
 
-  // Check permissions
+  // Check permissions - Only super admin can access this page
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
+
+  if (!isSuperAdmin) {
+    redirect('/unauthorized?reason=admin_only');
+  }
+
   const { organizationId, role } = await getUserOrganizationById(user.id);
 
   let userOrgs: any[] = [];

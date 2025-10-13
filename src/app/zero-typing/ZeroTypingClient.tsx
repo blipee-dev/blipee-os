@@ -148,18 +148,18 @@ export default function ZeroTypingClient({
       } else if (action === 'emissions/sources') {
         router.push('/sustainability/data-comparison?view=sources');
       } else if (action === 'emissions/reduce') {
-        router.push('/sustainability/dashboard?tab=optimization');
+        router.push('/sustainability?tab=optimization');
       }
     } else if (action.startsWith('alerts')) {
       router.push('/monitoring?view=alerts');
     } else if (action.startsWith('energy')) {
-      router.push('/sustainability/dashboard?view=energy');
+      router.push('/sustainability/energy');
     } else if (action.startsWith('summary')) {
-      router.push('/sustainability/dashboard?view=summary');
+      router.push('/sustainability');
     } else if (action.startsWith('reports')) {
-      router.push('/sustainability/dashboard?tab=reports');
+      router.push('/sustainability?tab=reports');
     } else if (action.startsWith('optimize')) {
-      router.push('/sustainability/dashboard?tab=optimization');
+      router.push('/sustainability?tab=optimization');
     } else if (action.startsWith('compare')) {
       router.push('/sustainability/data-comparison');
     } else if (action.startsWith('analyze')) {

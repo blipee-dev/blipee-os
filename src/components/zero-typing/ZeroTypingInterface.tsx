@@ -46,7 +46,7 @@ export const ZeroTypingInterface: React.FC = () => {
     // Route based on action
     switch (action) {
       case 'emissions':
-        router.push('/sustainability/dashboard');
+        router.push('/sustainability/ghg-emissions');
         break;
       case 'energy':
         router.push('/monitoring');

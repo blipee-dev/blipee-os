@@ -39,6 +39,22 @@ export default function ProfilePage() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  // Check super admin status
+  useEffect(() => {
+    async function checkSuperAdmin() {
+      if (!user) return;
+      try {
+        const response = await fetch('/api/auth/user-role');
+        const data = await response.json();
+        setIsSuperAdmin(data.isSuperAdmin || false);
+      } catch (error) {
+        console.error('Error checking super admin status:', error);
+      }
+    }
+    checkSuperAdmin();
+  }, [user]);
 
   // Fetch profile data on mount, but only if user is authenticated
   useEffect(() => {
@@ -346,55 +362,57 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Quick Settings */}
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 border border-gray-200 dark:border-white/[0.05]">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              {t('sections.quickSettings.title')}
-            </h2>
-            <div className="space-y-3">
-              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
-                <div className="flex items-center gap-3">
-                  <Bell className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
-                  <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.notifications.title')}</span>
-                </div>
-                <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.notifications.action')}</span>
-              </button>
+          {/* Quick Settings - Only visible to super admin users */}
+          {isSuperAdmin && (
+            <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 border border-gray-200 dark:border-white/[0.05]">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {t('sections.quickSettings.title')}
+              </h2>
+              <div className="space-y-3">
+                <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Bell className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
+                    <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.notifications.title')}</span>
+                  </div>
+                  <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.notifications.action')}</span>
+                </button>
 
-              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
-                <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
-                  <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.security.title')}</span>
-                </div>
-                <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.security.action')}</span>
-              </button>
+                <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
+                    <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.security.title')}</span>
+                  </div>
+                  <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.security.action')}</span>
+                </button>
 
-              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
-                <div className="flex items-center gap-3">
-                  <Palette className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
-                  <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.appearance.title')}</span>
-                </div>
-                <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.appearance.status')}</span>
-              </button>
+                <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Palette className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
+                    <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.appearance.title')}</span>
+                  </div>
+                  <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.appearance.status')}</span>
+                </button>
 
-              <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
-                <div className="flex items-center gap-3">
-                  <Globe className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
-                  <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.language.title')}</span>
-                </div>
-                <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.language.status')}</span>
-              </button>
+                <button className="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Globe className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
+                    <span className="text-gray-900 dark:text-white">{t('sections.quickSettings.language.title')}</span>
+                  </div>
+                  <span className="text-sm text-[#616161] dark:text-[#757575]">{t('sections.quickSettings.language.status')}</span>
+                </button>
 
-              <button 
-                onClick={handleLogout}
-                className="w-full flex items-center justify-between p-3 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <LogOut className="w-5 h-5 text-red-500" />
-                  <span className="text-red-500 dark:text-red-400">{t('sections.quickSettings.signOut.title')}</span>
-                </div>
-              </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-between p-3 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <LogOut className="w-5 h-5 text-red-500" />
+                    <span className="text-red-500 dark:text-red-400">{t('sections.quickSettings.signOut.title')}</span>
+                  </div>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Save Button */}
           <div className="flex justify-end">

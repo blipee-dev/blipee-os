@@ -14,23 +14,14 @@ export default async function SustainabilityPage() {
     redirect('/signin?redirect=/settings/sustainability');
   }
 
-  // Check permissions
+  // Check permissions - Only super admin can access this page
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
-  const { organizationId, role } = await getUserOrganizationById(user.id);
 
   if (!isSuperAdmin) {
-    if (!organizationId || !role) {
-      redirect('/unauthorized?reason=no_organization');
-    }
-
-    // Check if user has permission to manage sustainability metrics
-    // Allow sustainability managers, facility managers, analysts, and owners
-    const allowedRoles = ['owner', 'sustainability_manager', 'facility_manager', 'analyst'];
-
-    if (!allowedRoles.includes(role)) {
-      redirect('/unauthorized?reason=insufficient_permissions&required=sustainability_access');
-    }
+    redirect('/unauthorized?reason=admin_only');
   }
+
+  const { organizationId, role } = await getUserOrganizationById(user.id);
 
   // Fetch initial data for the client
   let initialCatalog = {};

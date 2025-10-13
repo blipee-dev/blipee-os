@@ -3,7 +3,7 @@
  * For reinforcement learning in ESG optimization scenarios
  */
 
-import * as tf from '@tensorflow/tfjs';
+import { tf } from '../tensorflow-setup';
 
 export interface DQNConfig {
   stateSize: number;
