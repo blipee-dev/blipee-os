@@ -49,14 +49,18 @@ export default function AuthCallbackPage() {
       }
 
       if (code) {
-        // OAuth/code flow
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        // OAuth/code flow (PKCE)
+        console.log("Exchanging code for session...");
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (error) {
-          console.error("Error exchanging code for session:", error);
-          router.push("/signin?error=auth_failed");
+          console.error("Error exchanging code for session:", error.message, error);
+          // Show more specific error
+          router.push(`/signin?error=auth_failed&message=${encodeURIComponent(error.message)}`);
           return;
         }
+
+        console.log("Code exchange successful, session:", !!data.session);
       } else if (accessToken && refreshToken) {
         // Magic link/invite flow with tokens
         const { error } = await supabase.auth.setSession({
