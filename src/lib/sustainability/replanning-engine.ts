@@ -771,6 +771,7 @@ export class ReplanningEngine {
 
   /**
    * AI-recommended: Machine learning optimized allocation using OptimizationEngine
+   * Falls back to cost-optimized if OptimizationEngine is unavailable (e.g., in serverless with size limits)
    */
   private static async aiRecommendedAllocation(
     currentState: CurrentState,
@@ -779,10 +780,11 @@ export class ReplanningEngine {
     targetYear: number
   ): Promise<MetricTargetPlan[]> {
 
-    console.log(`   🤖 AI-Recommended: Using OptimizationEngine with genetic algorithm`);
+    console.log(`   🤖 AI-Recommended: Attempting OptimizationEngine (with fallback to cost-optimized)`);
 
     try {
       // Lazy-load the OptimizationEngine to avoid circular dependencies
+      // This may fail in serverless environments due to TensorFlow size constraints
       const { OptimizationEngine, OptimizationScenarios } = await import('../ai/ml-models/optimization-engine');
 
       // Initialize the engine
@@ -902,8 +904,11 @@ export class ReplanningEngine {
       return plans;
 
     } catch (error) {
-      console.error('   ❌ AI optimization failed, falling back to equal allocation:', error);
-      return this.equalAllocation(currentState, totalReduction, newTarget, targetYear);
+      console.warn('   ⚠️  AI optimization unavailable (likely TensorFlow import failed in serverless), falling back to cost-optimized allocation');
+      console.warn('   Error details:', error instanceof Error ? error.message : String(error));
+
+      // Fall back to cost-optimized allocation which doesn't require TensorFlow
+      return this.costOptimizedAllocation(currentState, totalReduction, newTarget, targetYear);
     }
   }
 

@@ -16,6 +16,20 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+
+  // Exclude TensorFlow from serverless functions to stay under 250MB limit
+  // ML models will fail gracefully and fall back to simpler algorithms
+  outputFileTracingExcludes: {
+    '*': [
+      'node_modules/@tensorflow/**',
+      'node_modules/@tensorflow/tfjs-node/**',
+      'node_modules/@tensorflow/tfjs-core/**',
+      'node_modules/@tensorflow/tfjs-layers/**',
+      'node_modules/@tensorflow/tfjs-converter/**',
+      'node_modules/@tensorflow/tfjs-backend-webgl/**',
+      'node_modules/@tensorflow/tfjs-backend-cpu/**',
+    ],
+  },
   
   // Performance optimizations
   compiler: {
@@ -43,6 +57,12 @@ const nextConfig = {
       config.externals = config.externals || [];
       config.externals.push({
         '@tensorflow/tfjs-node': 'commonjs @tensorflow/tfjs-node',
+        '@tensorflow/tfjs': 'commonjs @tensorflow/tfjs',
+        '@tensorflow/tfjs-core': 'commonjs @tensorflow/tfjs-core',
+        '@tensorflow/tfjs-layers': 'commonjs @tensorflow/tfjs-layers',
+        '@tensorflow/tfjs-converter': 'commonjs @tensorflow/tfjs-converter',
+        '@tensorflow/tfjs-backend-webgl': 'commonjs @tensorflow/tfjs-backend-webgl',
+        '@tensorflow/tfjs-backend-cpu': 'commonjs @tensorflow/tfjs-backend-cpu',
         'seedrandom': 'commonjs seedrandom',
         'set-cookie-parser': 'commonjs set-cookie-parser',
         'whatwg-url': 'commonjs whatwg-url',
