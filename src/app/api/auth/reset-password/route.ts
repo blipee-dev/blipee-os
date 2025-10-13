@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
                     process.env.NEXT_PUBLIC_SITE_URL ||
                     'http://localhost:3000';
 
-    console.log('Reset password redirect URL:', `${origin}/auth/reset-password`);
+    // Redirect to callback which will handle the PKCE code exchange
+    // The callback will then redirect to /auth/reset-password
+    const redirectTo = `${origin}/auth/callback`;
+    console.log('Reset password redirect URL:', redirectTo);
 
     // Send reset password email using server client
     console.log('Creating Supabase client...');
@@ -29,7 +32,7 @@ export async function POST(request: NextRequest) {
     console.log('Supabase client created, sending reset email...');
 
     const { error } = await supabase.auth.resetPasswordForEmail(validated.email, {
-      redirectTo: `${origin}/auth/reset-password`,
+      redirectTo,
     });
 
     if (error) {
