@@ -79,6 +79,29 @@ export function Enhanced3DView({
   // No default building data - require real data from API
   const building = buildingData;
 
+  // Simulate time progression - hooks must be called before any returns
+  useEffect(() => {
+    if (isPlaying && building) {
+      const timer = setInterval(() => {
+        setTimeOfDay((prev) => (prev + 1) % 24);
+      }, 5000); // Progress 1 hour every 5 seconds
+      return () => clearInterval(timer);
+    }
+  }, [isPlaying, building]);
+
+  // 3D rotation animation - hooks must be called before any returns
+  useEffect(() => {
+    if (isRotating && interactive && building) {
+      const timer = setInterval(() => {
+        setViewAngle((prev) => ({
+          x: prev.x,
+          y: (prev.y + 1) % 360,
+        }));
+      }, 50);
+      return () => clearInterval(timer);
+    }
+  }, [isRotating, interactive, building]);
+
   // Show message if no building data provided
   if (!building) {
     return (
@@ -90,29 +113,6 @@ export function Enhanced3DView({
       </div>
     );
   }
-
-  // Simulate time progression
-  useEffect(() => {
-    if (isPlaying) {
-      const timer = setInterval(() => {
-        setTimeOfDay((prev) => (prev + 1) % 24);
-      }, 5000); // Progress 1 hour every 5 seconds
-      return () => clearInterval(timer);
-    }
-  }, [isPlaying]);
-
-  // 3D rotation animation
-  useEffect(() => {
-    if (isRotating && interactive) {
-      const timer = setInterval(() => {
-        setViewAngle((prev) => ({
-          x: prev.x,
-          y: (prev.y + 1) % 360,
-        }));
-      }, 50);
-      return () => clearInterval(timer);
-    }
-  }, [isRotating, interactive]);
 
   const getZoneColor = (zone: any) => {
     if (viewMode === "energy") {
