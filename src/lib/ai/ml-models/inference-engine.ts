@@ -3,7 +3,7 @@
  * High-performance prediction serving with batch processing and caching
  */
 
-import * as tf from '@tensorflow/tfjs-node';
+import { tf } from './tensorflow-setup';
 import {
   ModelType,
   LoadedModel,

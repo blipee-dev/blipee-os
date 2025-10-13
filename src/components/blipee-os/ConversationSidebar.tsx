@@ -75,9 +75,25 @@ export function ConversationSidebar({
   
   const userDisplayName = user ? getUserDisplayName(user) : t('defaultUser');
   const userInitials = user ? getUserInitials(
-    user?.full_name || (user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.first_name) || null,
+    user?.full_name || (user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : null),
     user?.email
   ) : 'U';
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  // Check super admin status
+  useEffect(() => {
+    async function checkSuperAdmin() {
+      if (!user) return;
+      try {
+        const response = await fetch('/api/auth/user-role');
+        const data = await response.json();
+        setIsSuperAdmin(data.isSuperAdmin || false);
+      } catch (error) {
+        console.error('Error checking super admin status:', error);
+      }
+    }
+    checkSuperAdmin();
+  }, [user]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -227,17 +243,19 @@ export function ConversationSidebar({
           </button>
 
           {/* Zero-Typing Button */}
-          <button
-            onClick={() => router.push('/zero-typing')}
-            className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-            title="Zero-Typing Dashboard"
-          >
-            <Zap className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          </button>
+          {isSuperAdmin && (
+            <button
+              onClick={() => router.push('/zero-typing')}
+              className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+              title="Zero-Typing Dashboard"
+            >
+              <Zap className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+          )}
 
           {/* Sustainability Dashboard Button */}
           <button
-            onClick={() => router.push('/sustainability/dashboard')}
+            onClick={() => router.push('/sustainability')}
             className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
             title="Sustainability Dashboard"
           >
@@ -607,17 +625,19 @@ export function ConversationSidebar({
         </button>
 
         {/* Zero-Typing Dashboard Button */}
-        <button
-          onClick={() => router.push('/zero-typing')}
-          className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-        >
-          <Zap className="w-4 h-4" />
-          Zero-Typing Dashboard
-        </button>
+        {isSuperAdmin && (
+          <button
+            onClick={() => router.push('/zero-typing')}
+            className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+          >
+            <Zap className="w-4 h-4" />
+            Zero-Typing Dashboard
+          </button>
+        )}
 
         {/* Sustainability Dashboard Button */}
         <button
-          onClick={() => router.push('/sustainability/dashboard')}
+          onClick={() => router.push('/sustainability')}
           className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
         >
           <Leaf className="w-4 h-4" />

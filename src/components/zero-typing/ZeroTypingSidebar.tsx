@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Home,
@@ -35,12 +35,28 @@ export function ZeroTypingSidebar({
 }: ZeroTypingSidebarProps) {
   const router = useRouter();
   const { user, signOut } = useAuth();
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   const userDisplayName = user ? getUserDisplayName(user) : 'User';
   const userInitials = user ? getUserInitials(
-    user?.full_name || (user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.first_name) || null,
+    user?.full_name || (user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : null),
     user?.email
   ) : 'U';
+
+  // Check super admin status
+  useEffect(() => {
+    async function checkSuperAdmin() {
+      if (!user) return;
+      try {
+        const response = await fetch('/api/auth/user-role');
+        const data = await response.json();
+        setIsSuperAdmin(data.isSuperAdmin || false);
+      } catch (error) {
+        console.error('Error checking super admin status:', error);
+      }
+    }
+    checkSuperAdmin();
+  }, [user]);
 
   const navigationItems = [
     {
@@ -122,17 +138,19 @@ export function ZeroTypingSidebar({
           </button>
 
           {/* Chat Button */}
-          <button
-            onClick={() => router.push('/blipee-ai')}
-            className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-            title="Chat"
-          >
-            <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          </button>
+          {isSuperAdmin && (
+            <button
+              onClick={() => router.push('/blipee-ai')}
+              className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+              title="Chat"
+            >
+              <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+          )}
 
           {/* Sustainability Dashboard Button */}
           <button
-            onClick={() => router.push('/sustainability/dashboard')}
+            onClick={() => router.push('/sustainability')}
             className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
             title="Sustainability Dashboard"
           >
@@ -254,17 +272,19 @@ export function ZeroTypingSidebar({
         </button>
 
         {/* Chat Button */}
-        <button
-          onClick={() => router.push('/blipee-ai')}
-          className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-        >
-          <MessageSquare className="w-4 h-4" />
-          Chat
-        </button>
+        {isSuperAdmin && (
+          <button
+            onClick={() => router.push('/blipee-ai')}
+            className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Chat
+          </button>
+        )}
 
         {/* Sustainability Dashboard Button */}
         <button
-          onClick={() => router.push('/sustainability/dashboard')}
+          onClick={() => router.push('/sustainability')}
           className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
         >
           <Leaf className="w-4 h-4" />

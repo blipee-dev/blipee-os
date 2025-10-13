@@ -52,6 +52,22 @@ export function BaseSidebarLayout({
   const [isCollapsed, setIsCollapsed] = useState(settings.sidebarAutoCollapse);
   const { user, signOut } = useAuth();
   const t = useTranslations('profile.sidebar');
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  // Check super admin status
+  useEffect(() => {
+    async function checkSuperAdmin() {
+      if (!user) return;
+      try {
+        const response = await fetch('/api/auth/user-role');
+        const data = await response.json();
+        setIsSuperAdmin(data.isSuperAdmin || false);
+      } catch (error) {
+        console.error('Error checking super admin status:', error);
+      }
+    }
+    checkSuperAdmin();
+  }, [user]);
 
   // Initialize collapsed state
   useEffect(() => {
@@ -67,7 +83,7 @@ export function BaseSidebarLayout({
 
   const userDisplayName = user ? getUserDisplayName(user) : t('defaultUser');
   const userInitials = user ? getUserInitials(
-    user?.full_name || (user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.first_name) || null,
+    user?.full_name || (user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : null),
     user?.email
   ) : 'U';
 
@@ -177,18 +193,20 @@ export function BaseSidebarLayout({
                   </div>
                 </button>
 
-                {/* Chat Button */}
-                <button
-                  onClick={() => router.push('/blipee-ai')}
-                  className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  Chat
-                </button>
+                {/* Chat Button - Only for super admins */}
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => router.push('/blipee-ai')}
+                    className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Chat
+                  </button>
+                )}
 
                 {/* Sustainability Button */}
                 <button
-                  onClick={() => router.push('/sustainability/dashboard')}
+                  onClick={() => router.push('/sustainability')}
                   className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                 >
                   <Leaf className="w-4 h-4" />
@@ -242,18 +260,20 @@ export function BaseSidebarLayout({
                   </div>
                 </button>
 
-                {/* Chat Button */}
-                <button
-                  onClick={() => router.push('/blipee-ai')}
-                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title="Chat"
-                >
-                  <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
+                {/* Chat Button - Only for super admins */}
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => router.push('/blipee-ai')}
+                    className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                    title="Chat"
+                  >
+                    <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  </button>
+                )}
 
                 {/* Sustainability Button */}
                 <button
-                  onClick={() => router.push('/sustainability/dashboard')}
+                  onClick={() => router.push('/sustainability')}
                   className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
                   title="Sustainability"
                 >
@@ -371,16 +391,18 @@ export function BaseSidebarLayout({
 
                 {/* Bottom Section */}
                 <div className="p-3 border-t border-gray-200 dark:border-white/[0.05] space-y-2">
-                  <button
-                    onClick={() => {
-                      router.push('/blipee-ai');
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    {t('buttons.backToChat')}
-                  </button>
+                  {isSuperAdmin && (
+                    <button
+                      onClick={() => {
+                        router.push('/blipee-ai');
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      {t('buttons.backToChat')}
+                    </button>
+                  )}
 
                   <button
                     onClick={() => {
@@ -404,12 +426,14 @@ export function BaseSidebarLayout({
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/[0.05] bg-white dark:bg-[#111111]">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push('/blipee-ai')}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-all"
-            >
-              <ChevronLeft className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
-            </button>
+            {isSuperAdmin && (
+              <button
+                onClick={() => router.push('/blipee-ai')}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-lg transition-all"
+              >
+                <ChevronLeft className="w-5 h-5 text-[#616161] dark:text-[#757575]" />
+              </button>
+            )}
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
               {defaultPageTitle}
             </h1>

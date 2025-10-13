@@ -11,9 +11,48 @@ import { useRouter } from "next/navigation";
 export default function DashboardPage() {
   useAuthRedirect('/blipee-ai');
 
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const t = useTranslations('blipee-ai');
   const router = useRouter();
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [checkingPermissions, setCheckingPermissions] = useState(true);
+
+  // Check if user is super admin
+  useEffect(() => {
+    async function checkSuperAdmin() {
+      if (!user) return;
+      try {
+        const response = await fetch('/api/auth/user-role');
+        const data = await response.json();
+        const isAdmin = data.isSuperAdmin || false;
+        setIsSuperAdmin(isAdmin);
+
+        if (!isAdmin) {
+          router.push('/sustainability?error=admin_only');
+        }
+      } catch (error) {
+        console.error('Error checking super admin status:', error);
+        router.push('/sustainability?error=admin_only');
+      } finally {
+        setCheckingPermissions(false);
+      }
+    }
+    checkSuperAdmin();
+  }, [user, router]);
+
+  // Show loading while checking permissions
+  if (checkingPermissions) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+      </div>
+    );
+  }
+
+  // Don't render if not super admin (will be redirected)
+  if (!isSuperAdmin) {
+    return null;
+  }
 
   // No redirect - AI Butler will guide users based on their state
   useEffect(() => {

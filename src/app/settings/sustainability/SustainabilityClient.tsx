@@ -201,7 +201,7 @@ export default function SustainabilityClient({
             setSelectedMetricForEntry(null);
             setShowDataEntry(true);
           }}
-          onDashboard={() => router.push('/sustainability/dashboard')}
+          onDashboard={() => router.push('/sustainability')}
           onCreateTestData={createTestData}
         />
 
