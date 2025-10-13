@@ -17,6 +17,12 @@ export default function DashboardPage() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [checkingPermissions, setCheckingPermissions] = useState(true);
 
+  // ALL HOOKS MUST BE CALLED BEFORE ANY EARLY RETURNS
+  const [metrics, setMetrics] = useState<any>(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
+  const [orgMetadata, setOrgMetadata] = useState<any>(null);
+  const [metadataLoading, setMetadataLoading] = useState(true);
+
   // Check if user is super admin
   useEffect(() => {
     async function checkSuperAdmin() {
@@ -40,33 +46,12 @@ export default function DashboardPage() {
     checkSuperAdmin();
   }, [user, router]);
 
-  // Show loading while checking permissions
-  if (checkingPermissions) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
-      </div>
-    );
-  }
-
-  // Don't render if not super admin (will be redirected)
-  if (!isSuperAdmin) {
-    return null;
-  }
-
   // No redirect - AI Butler will guide users based on their state
   useEffect(() => {
     if (session && !session.current_organization && !session.organizations?.length) {
       console.log('User has no organization - AI Butler will provide guidance');
     }
   }, [session]);
-
-  // Don't show stats for new users or while loading
-  const isNewUser = !session?.current_organization;
-  const [metrics, setMetrics] = useState<any>(null);
-  const [metricsLoading, setMetricsLoading] = useState(true);
-  const [orgMetadata, setOrgMetadata] = useState<any>(null);
-  const [metadataLoading, setMetadataLoading] = useState(true);
 
   // Fetch real-time metrics
   useEffect(() => {
@@ -99,6 +84,24 @@ export default function DashboardPage() {
         });
     }
   }, [session]);
+
+  // EARLY RETURNS AFTER ALL HOOKS
+  // Show loading while checking permissions
+  if (checkingPermissions) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+      </div>
+    );
+  }
+
+  // Don't render if not super admin (will be redirected)
+  if (!isSuperAdmin) {
+    return null;
+  }
+
+  // Don't show stats for new users or while loading
+  const isNewUser = !session?.current_organization;
 
   // Use real organization data - dynamically loaded from buildings
   const sustainabilityContext = session?.current_organization && orgMetadata ? {

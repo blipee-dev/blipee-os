@@ -133,7 +133,7 @@ export function BaseSidebarLayout({
           </div>
 
           {/* Navigation */}
-          <div className={`p-2 ${isCollapsed ? 'space-y-1' : ''} border-b border-gray-200 dark:border-white/[0.05]`}>
+          <div className={`p-2 ${isCollapsed ? 'space-y-2' : 'space-y-2'} border-b border-gray-200 dark:border-white/[0.05]`}>
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = selectedView ? (item.view === selectedView) : (pathname === item.href);
@@ -351,7 +351,7 @@ export function BaseSidebarLayout({
 
                 {/* Navigation */}
                 <nav className="flex-1 overflow-y-auto">
-                  <div className="p-2">
+                  <div className="p-2 space-y-2">
                     {navItems.map((item) => {
                       const Icon = item.icon;
                       const isActive = selectedView ? (item.view === selectedView) : (pathname === item.href);
