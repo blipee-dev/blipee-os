@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
                     process.env.NEXT_PUBLIC_SITE_URL ||
                     'http://localhost:3000';
 
-    // Redirect to callback which will handle the PKCE code exchange
-    // The callback will then redirect to /auth/reset-password
-    const redirectTo = `${origin}/auth/callback`;
+    // Redirect to reset password page directly
+    // Using email OTP flow instead of PKCE to avoid code verifier issues
+    const redirectTo = `${origin}/auth/reset-password`;
     console.log('Reset password redirect URL:', redirectTo);
 
     // Send reset password email using server client
@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
 
     const { error } = await supabase.auth.resetPasswordForEmail(validated.email, {
       redirectTo,
+      options: {
+        emailRedirectTo: redirectTo,
+      }
     });
 
     if (error) {
