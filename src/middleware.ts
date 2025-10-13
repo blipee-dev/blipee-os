@@ -133,9 +133,9 @@ export async function middleware(request: NextRequest) {
   // Clean corrupted cookies from the request
   cleanCorruptedCookies(request);
 
-  // Handle Supabase auth redirects with tokens in query params
-  // This is for when Supabase redirects to root with auth tokens
-  if (path === '/' && request.nextUrl.searchParams.has('access_token')) {
+  // Handle Supabase auth redirects with tokens or code in query params
+  // This is for when Supabase redirects to root with auth tokens or PKCE code
+  if (path === '/' && (request.nextUrl.searchParams.has('access_token') || request.nextUrl.searchParams.has('code'))) {
     const callbackUrl = new URL('/auth/callback', request.url);
     callbackUrl.search = request.nextUrl.search;
     return NextResponse.redirect(callbackUrl);
