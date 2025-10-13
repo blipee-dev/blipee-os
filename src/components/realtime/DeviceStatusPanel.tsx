@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -65,7 +65,7 @@ export function DeviceStatusPanel({
   const [devices, setDevices] = useState<Map<string, DeviceHealth>>(new Map());
   const [isConnected, setIsConnected] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     const initSocket = async () => {

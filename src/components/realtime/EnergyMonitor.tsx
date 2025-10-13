@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -56,7 +56,7 @@ export function EnergyMonitor({
   const [isConnected, setIsConnected] = useState(false);
   const [peakDemand, setPeakDemand] = useState(0);
   const [averageConsumption, setAverageConsumption] = useState(0);
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     const initSocket = async () => {
