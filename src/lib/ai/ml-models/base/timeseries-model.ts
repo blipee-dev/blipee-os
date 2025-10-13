@@ -3,7 +3,7 @@
  * Foundation for time series prediction models
  */
 
-import { tf } from './tensorflow-setup';
+import { tf } from '../tensorflow-setup';
 import { BaseModel } from './base-model';
 import { TrainingData, Prediction } from '../types';
 

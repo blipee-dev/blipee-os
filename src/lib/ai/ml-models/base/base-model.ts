@@ -3,7 +3,7 @@
  * Foundation for all ML models in the pipeline
  */
 
-import { tf } from './tensorflow-setup';
+import { tf } from '../tensorflow-setup';
 import { 
   TrainingData, 
   TrainingResult, 

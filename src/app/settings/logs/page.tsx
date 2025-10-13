@@ -12,18 +12,11 @@ export default async function Page() {
     redirect('/signin?redirect=/settings/logs');
   }
 
+  // Check permissions - Only super admin can access this page
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
-  const { organizationId, role } = await getUserOrganizationById(user.id);
 
   if (!isSuperAdmin) {
-    if (!organizationId || !role) {
-      redirect('/unauthorized?reason=no_organization');
-    }
-
-    const allowedRoles = ['owner', 'manager'];
-    if (!allowedRoles.includes(role)) {
-      redirect('/unauthorized?reason=insufficient_permissions');
-    }
+    redirect('/unauthorized?reason=admin_only');
   }
 
   return <LogsClient />;
