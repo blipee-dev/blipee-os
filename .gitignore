@@ -77,3 +77,8 @@ pids
 .tmp
 tmp/
 temp/
+
+# Sensitive scripts with hardcoded credentials
+scripts/set-password-*.js
+scripts/set-password-*.ts
+scripts/set-user-password.*
