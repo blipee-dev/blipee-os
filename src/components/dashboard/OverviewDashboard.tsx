@@ -11,7 +11,13 @@ import {
   AlertTriangle,
   Target,
   Leaf,
-  Info
+  Info,
+  PieChart as PieChartIcon,
+  TrendingUp as TrendingUpIcon,
+  Building2,
+  BookOpen,
+  HelpCircle,
+  Lightbulb
 } from 'lucide-react';
 import {
   BarChart,
@@ -28,7 +34,10 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { useTranslations } from '@/providers/LanguageProvider';
+import { useTranslations, useLanguage } from '@/providers/LanguageProvider';
+import { FloatingHelpButton } from '@/components/education/FloatingHelpButton';
+import { EducationalModal } from '@/components/education/EducationalModal';
+import { getCarbonEquivalent } from '@/lib/education/carbon-equivalents';
 
 interface OverviewDashboardProps {
   organizationId: string;
@@ -46,6 +55,7 @@ interface ScopeData {
 
 export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod }: OverviewDashboardProps) {
   const t = useTranslations('sustainability.dashboard');
+  const { t: tGlobal } = useLanguage(); // For carbon equivalents translations
   const [loading, setLoading] = useState(true);
 
   // Helper function to get action recommendations
@@ -102,6 +112,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
   const [projectedAnnualEmissions, setProjectedAnnualEmissions] = useState<number>(0);
   const [actualEmissionsYTD, setActualEmissionsYTD] = useState<number>(0);
   const [forecastedEmissions, setForecastedEmissions] = useState<number>(0);
+  const [previousYearTotalEmissions, setPreviousYearTotalEmissions] = useState<number>(0);
 
   // Targets
   const [targetsOnTrack, setTargetsOnTrack] = useState(0);
@@ -132,6 +143,16 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
   // Organization context for intensity
   const [orgEmployees, setOrgEmployees] = useState(200); // Will be updated from API
+
+  // Tooltip visibility state
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+
+  const toggleTooltip = (tooltipId: string) => {
+    setActiveTooltip(activeTooltip === tooltipId ? null : tooltipId);
+  };
+
+  // Educational modal state
+  const [activeEducationalModal, setActiveEducationalModal] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOverviewData = async () => {
@@ -177,12 +198,25 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         const prevScopeResponse = await fetch(`/api/sustainability/scope-analysis?${prevParams}`);
         const prevScopeData = await prevScopeResponse.json();
 
+        // Also fetch FULL previous year data for projected YoY comparison
+        const fullPrevYearParams = new URLSearchParams({
+          start_date: `${previousYear}-01-01`,
+          end_date: `${previousYear}-12-31`,
+        });
+        if (selectedSite) {
+          fullPrevYearParams.append('site_id', selectedSite.id);
+        }
+        const fullPrevYearResponse = await fetch(`/api/sustainability/scope-analysis?${fullPrevYearParams}`);
+        const fullPrevYearData = await fullPrevYearResponse.json();
+
         console.log('Current year scope data:', scopeData);
-        console.log('Previous year scope data:', prevScopeData);
+        console.log('Previous year scope data (same period):', prevScopeData);
+        console.log('Previous year scope data (full year):', fullPrevYearData);
 
         // Extract scope totals
         const extractedScopeData = scopeData.scopeData || scopeData;
         const prevExtractedScopeData = prevScopeData.scopeData || prevScopeData;
+        const fullPrevYearExtractedScopeData = fullPrevYearData.scopeData || fullPrevYearData;
 
         const s1Current = extractedScopeData.scope_1?.total || 0;
         const s2Current = extractedScopeData.scope_2?.total || 0;
@@ -192,20 +226,27 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         const s2Previous = prevExtractedScopeData.scope_2?.total || 0;
         const s3Previous = prevExtractedScopeData.scope_3?.total || 0;
 
+        const s1FullPrevYear = fullPrevYearExtractedScopeData.scope_1?.total || 0;
+        const s2FullPrevYear = fullPrevYearExtractedScopeData.scope_2?.total || 0;
+        const s3FullPrevYear = fullPrevYearExtractedScopeData.scope_3?.total || 0;
+
         const currentTotal = s1Current + s2Current + s3Current;
         const previousTotal = s1Previous + s2Previous + s3Previous;
+        const fullPreviousYearTotal = s1FullPrevYear + s2FullPrevYear + s3FullPrevYear;
 
         console.log('📊 Calculated emissions:');
         console.log('  Scope 1:', s1Current.toFixed(2), 'tCO2e');
         console.log('  Scope 2:', s2Current.toFixed(2), 'tCO2e');
         console.log('  Scope 3:', s3Current.toFixed(2), 'tCO2e');
         console.log('  Total:', currentTotal.toFixed(2), 'tCO2e');
-        console.log('  Previous year total:', previousTotal.toFixed(2), 'tCO2e');
+        console.log('  Previous year total (same period):', previousTotal.toFixed(2), 'tCO2e');
+        console.log('  Previous year total (FULL YEAR):', fullPreviousYearTotal.toFixed(2), 'tCO2e');
 
         setScope1Total(s1Current);
         setScope2Total(s2Current);
         setScope3Total(s3Current);
         setTotalEmissions(currentTotal);
+        setPreviousYearTotalEmissions(fullPreviousYearTotal);
 
         // Calculate YoY changes
         const totalYoY = previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
@@ -319,7 +360,9 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               console.log('📊 Projected annual emissions:', {
                 actual: actualEmissions.toFixed(1),
                 forecasted: forecastedEmissionsTotal.toFixed(1),
-                total: projectedTotal.toFixed(1)
+                total: projectedTotal.toFixed(1),
+                previousYearFullTotal: fullPreviousYearTotal.toFixed(1),
+                projectedYoY: fullPreviousYearTotal > 0 ? (((projectedTotal - fullPreviousYearTotal) / fullPreviousYearTotal) * 100).toFixed(1) + '%' : '0%'
               });
 
               // Store projected emissions in state for SBTi tracker and current card
@@ -346,6 +389,61 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
               console.log('📊 Final combined:', trends.length, 'actual +', forecastMonths.length, 'forecast =', trends.length + forecastMonths.length + 1, 'total months (with bridge)');
               setMonthlyTrends([...trends, bridgePoint, ...forecastMonths]);
+
+              // Calculate target tracking AFTER we have the projected total
+              // This ensures we use the ML-forecasted projection, not just YTD
+              // IMPORTANT: This must be inside the forecast block to access projectedTotal
+              if (sbtiTargetsResult.targets && sbtiTargetsResult.targets.length > 0) {
+                const allTargets = sbtiTargetsResult.targets;
+                // Filter out auto-calculated targets (they have 'calculated-' prefix in their ID)
+                // Only show committed targets that exist in the database
+                const committedTargets = allTargets.filter((t: any) =>
+                  !t.id?.toString().startsWith('calculated-')
+                );
+                // API returns 'status' field, not 'target_status'
+                const activeTargets = committedTargets.filter((t: any) =>
+                  t.status === 'on_track' || t.status === 'at_risk' || t.status === 'off_track' || t.status === 'active'
+                );
+                console.log('📊 All targets:', allTargets.length, 'Committed targets:', committedTargets.length, 'Active targets:', activeTargets.length, activeTargets);
+                setTotalTargets(activeTargets.length);
+
+                // Calculate targets on track based on projected vs required progress
+                // Use projectedTotal directly (local variable from forecast calculation)
+                const onTrack = activeTargets.filter((t: any) => {
+                  const baseline = t.baseline_emissions || 0;
+                  // Use ML-forecasted projected total (local variable, not state)
+                  const current = projectedTotal || currentTotal || 0;
+                  const target = t.target_emissions || 0;
+                  const baselineYear = t.baseline_year;
+                  const currentYear = new Date().getFullYear();
+                  const targetYear = t.target_year;
+
+                  // Calculate required emissions for current year (linear trajectory)
+                  const yearsElapsed = currentYear - baselineYear;
+                  const totalYears = targetYear - baselineYear;
+                  const totalReduction = baseline - target;
+                  const requiredReduction = (totalReduction * yearsElapsed) / totalYears;
+                  const requiredEmissions = baseline - requiredReduction;
+
+                  console.log('🎯 Target check:', {
+                    target: t.target_name,
+                    current: current.toFixed(1),
+                    required: requiredEmissions.toFixed(1),
+                    tolerance: (requiredEmissions * 1.1).toFixed(1),
+                    onTrack: current <= requiredEmissions * 1.1
+                  });
+
+                  // On track if projected emissions <= required emissions (with 10% tolerance)
+                  return current <= requiredEmissions * 1.1;
+                }).length;
+
+                setTargetsOnTrack(onTrack);
+
+                const avgProgress = activeTargets.length > 0
+                  ? (onTrack / activeTargets.length) * 100
+                  : 0;
+                setOverallProgress(avgProgress);
+              }
             } else {
               console.log('⚠️ No forecast data returned');
               setMonthlyTrends(trends);
@@ -358,86 +456,43 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
           console.log('⚠️ No trendData received');
         }
 
-        // Use targets data already fetched above
-        if (sbtiTargetsResult.targets && sbtiTargetsResult.targets.length > 0) {
-          const allTargets = sbtiTargetsResult.targets;
-          const activeTargets = allTargets.filter((t: any) => t.target_status === 'active');
-          console.log('📊 All targets:', allTargets.length, 'Active targets:', activeTargets.length, activeTargets);
-          setTotalTargets(activeTargets.length);
+        // Fetch Top Emitters at METRIC level (not category level)
+        // This shows individual metrics like "Grid Electricity", "EV Chargers", "District Heating"
+        // instead of aggregated categories like "Purchased Electricity"
+        console.log('🔍 [Top Emitters] Fetching metric-level data...');
 
-          // Calculate targets on track based on actual vs required progress
-          const onTrack = activeTargets.filter((t: any) => {
-            const baseline = t.baseline_emissions || 0;
-            const current = t.current_emissions || 0;
-            const target = t.target_emissions || 0;
-            const baselineYear = t.baseline_year;
-            const currentYear = new Date().getFullYear();
-            const targetYear = t.target_year;
-
-            // Calculate required emissions for current year (linear trajectory)
-            const yearsElapsed = currentYear - baselineYear;
-            const totalYears = targetYear - baselineYear;
-            const totalReduction = baseline - target;
-            const requiredReduction = (totalReduction * yearsElapsed) / totalYears;
-            const requiredEmissions = baseline - requiredReduction;
-
-            // On track if current emissions <= required emissions (with 10% tolerance)
-            return current <= requiredEmissions * 1.1;
-          }).length;
-
-          setTargetsOnTrack(onTrack);
-
-          const avgProgress = activeTargets.length > 0
-            ? (onTrack / activeTargets.length) * 100
-            : 0;
-          setOverallProgress(avgProgress);
+        const topMetricsParams = new URLSearchParams({
+          start_date: selectedPeriod.start,
+          end_date: selectedPeriod.end,
+        });
+        if (selectedSite) {
+          topMetricsParams.append('site_id', selectedSite.id);
         }
 
-        // Identify top emitters (biggest categories across all scopes)
-        const allCategories: Array<{ name: string; emissions: number }> = [];
+        try {
+          const topMetricsResponse = await fetch(`/api/sustainability/top-metrics?${topMetricsParams}`);
+          const topMetricsData = await topMetricsResponse.json();
 
-        // Scope 1 categories
-        if (extractedScopeData.scope_1?.categories) {
-          Object.entries(extractedScopeData.scope_1.categories).forEach(([key, value]) => {
-            allCategories.push({
-              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-              emissions: value as number
-            });
-          });
+          console.log('🔍 [Top Emitters] API response:', topMetricsData);
+
+          if (topMetricsData.metrics && topMetricsData.metrics.length > 0) {
+            // Map the metric-level data to the format expected by the UI
+            const topFive = topMetricsData.metrics.slice(0, 5).map((metric: any) => ({
+              name: metric.name,
+              emissions: metric.emissions,
+              percentage: currentTotal > 0 ? (metric.emissions / currentTotal) * 100 : 0
+            }));
+
+            console.log('🔍 [Top Emitters] Top 5 metrics:', topFive);
+            setTopEmitters(topFive);
+          } else {
+            console.log('⚠️ [Top Emitters] No metrics data returned from API');
+            setTopEmitters([]);
+          }
+        } catch (error) {
+          console.error('❌ [Top Emitters] Error fetching top metrics:', error);
+          setTopEmitters([]);
         }
-
-        // Scope 2 categories
-        if (extractedScopeData.scope_2?.categories) {
-          Object.entries(extractedScopeData.scope_2.categories).forEach(([key, value]) => {
-            allCategories.push({
-              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-              emissions: value as number
-            });
-          });
-        }
-
-        // Scope 3 categories
-        if (extractedScopeData.scope_3?.categories) {
-          Object.entries(extractedScopeData.scope_3.categories).forEach(([key, value]: [string, any]) => {
-            if (value.included && value.value > 0) {
-              allCategories.push({
-                name: value.name || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                emissions: value.value
-              });
-            }
-          });
-        }
-
-        // Sort by emissions and take top 5
-        const topFive = allCategories
-          .sort((a, b) => b.emissions - a.emissions)
-          .slice(0, 5)
-          .map(cat => ({
-            ...cat,
-            percentage: currentTotal > 0 ? (cat.emissions / currentTotal) * 100 : 0
-          }));
-
-        setTopEmitters(topFive);
 
       } catch (error) {
         console.error('Error fetching overview data:', error);
@@ -522,65 +577,162 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-      {/* Header */}
-      <div className="p-6 pb-0">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <Leaf className="w-6 h-6 text-green-500" />
-            {t('header.title')}
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {t('header.subtitle')}
-          </p>
-        </div>
-      </div>
-
+    <>
       {/* Executive Summary Cards */}
-      <div className="p-6 grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-4 mb-6">
         {/* Total Emissions */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 group relative">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.totalEmissions.title')}</span>
-              <Info className="w-3 h-3 text-gray-400 dark:text-gray-500 cursor-help" />
-            </div>
-            <Cloud className="w-4 h-4 text-purple-500" />
-          </div>
-          <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-            {t('cards.totalEmissions.tooltip')}
-          </div>
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {totalEmissions.toFixed(1)}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.totalEmissions.unit')}</div>
-            </div>
-            <div className="flex items-center gap-1">
-              {totalEmissionsYoY < 0 ? (
-                <TrendingDown className="w-3 h-3 text-green-500" />
-              ) : (
-                <TrendingUp className={`w-3 h-3 ${totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 relative shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Cloud className="w-5 h-5 text-purple-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.totalEmissions.title')}</span>
+            <div className="relative ml-auto">
+              <Info
+                className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-pointer"
+                onClick={() => toggleTooltip('totalEmissions')}
+              />
+              {activeTooltip === 'totalEmissions' && (
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50">
+                  <div className="mb-2">{t('cards.totalEmissions.tooltip')}</div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveEducationalModal('carbon-basics');
+                      setActiveTooltip(null);
+                    }}
+                    className="text-blue-400 hover:text-blue-300 underline font-medium transition-colors"
+                  >
+                    {t('education.modal.learnMore')} →
+                  </button>
+                </div>
               )}
-              <span className={`text-xs ${totalEmissionsYoY < 0 ? 'text-green-500' : totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                {totalEmissionsYoY > 0 ? '+' : ''}{totalEmissionsYoY.toFixed(1)}{t('cards.totalEmissions.yoy')}
-              </span>
             </div>
           </div>
+          <div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+              {totalEmissions.toFixed(1)}
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
+              <div className="flex items-center gap-1">
+                {totalEmissionsYoY < 0 ? (
+                  <TrendingDown className="w-3 h-3 text-green-500" />
+                ) : (
+                  <TrendingUp className={`w-3 h-3 ${totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                )}
+                <span className={`text-xs ${totalEmissionsYoY < 0 ? 'text-green-500' : totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                  {totalEmissionsYoY > 0 ? '+' : ''}{totalEmissionsYoY.toFixed(1)}% YoY
+                </span>
+              </div>
+            </div>
+            {projectedAnnualEmissions > 0 &&
+             forecastedEmissions > 0 &&
+             new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-xs text-purple-500 dark:text-purple-400">
+                  {t('cards.totalEmissions.projected')}: {projectedAnnualEmissions.toFixed(1)} tCO2e
+                </span>
+                {(() => {
+                  // Calculate YoY for projected emissions: compare projected annual vs previous year's total
+                  const projectedYoY = previousYearTotalEmissions > 0
+                    ? ((projectedAnnualEmissions - previousYearTotalEmissions) / previousYearTotalEmissions) * 100
+                    : 0;
+
+                  return (
+                    <div className="flex items-center gap-1">
+                      {projectedYoY < 0 ? (
+                        <TrendingDown className="w-3 h-3 text-green-500" />
+                      ) : (
+                        <TrendingUp className={`w-3 h-3 ${projectedYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                      )}
+                      <span className={`text-xs ${projectedYoY < 0 ? 'text-green-500' : projectedYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                        {projectedYoY > 0 ? '+' : ''}{projectedYoY.toFixed(1)}% YoY
+                      </span>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+            {/* Carbon Equivalent - Compact display */}
+            {(() => {
+              const carbonEquiv = getCarbonEquivalent(totalEmissions, orgBoundaries?.country || 'portugal', tGlobal);
+              return carbonEquiv && (
+                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="relative group">
+                    <div className="flex items-center gap-1.5 text-[10px] text-purple-600 dark:text-purple-400 cursor-help">
+                      <span className="text-sm">{carbonEquiv.icon}</span>
+                      <span className="font-medium">≈ {carbonEquiv.description}</span>
+                    </div>
+                    {/* Educational Tooltip */}
+                    {(carbonEquiv.educationalContext || carbonEquiv.didYouKnow) && (
+                      <div className="absolute left-0 top-full mt-1 w-64 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                        {carbonEquiv.educationalContext && (
+                          <div className="mb-2">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className="text-purple-300">ℹ️</span>
+                              <span className="font-semibold text-purple-200">How this works:</span>
+                            </div>
+                            <p className="text-gray-200 text-[11px] leading-relaxed">
+                              {carbonEquiv.educationalContext}
+                            </p>
+                          </div>
+                        )}
+                        {carbonEquiv.didYouKnow && (
+                          <div className="pt-2 border-t border-purple-500/30">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className="text-yellow-300">💡</span>
+                              <span className="font-semibold text-yellow-200">Did you know?</span>
+                            </div>
+                            <p className="text-gray-200 text-[11px] leading-relaxed">
+                              {carbonEquiv.didYouKnow}
+                            </p>
+                          </div>
+                        )}
+                        <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+          {/* Learn More Badge - Bottom Right */}
+          <button
+            onClick={() => setActiveEducationalModal('carbon-basics')}
+            className="absolute bottom-3 right-3 flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-[10px] font-medium transition-colors group"
+          >
+            <BookOpen className="w-3 h-3" />
+            <span className="border-b border-dashed border-blue-600 dark:border-blue-400 group-hover:border-blue-700 dark:group-hover:border-blue-300">
+              Learn More
+            </span>
+          </button>
         </div>
 
         {/* Emissions Intensity */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 group relative">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
-              <Info className="w-3 h-3 text-gray-400 dark:text-gray-500 cursor-help" />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 relative shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Leaf className="w-5 h-5 text-green-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
+            <div className="relative ml-auto">
+              <Info
+                className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-pointer"
+                onClick={() => toggleTooltip('intensity')}
+              />
+              {activeTooltip === 'intensity' && (
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50">
+                  <div className="mb-2">{t('cards.intensity.tooltip')}</div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveEducationalModal('carbon-basics');
+                      setActiveTooltip(null);
+                    }}
+                    className="text-blue-400 hover:text-blue-300 underline font-medium transition-colors"
+                  >
+                    {t('education.modal.learnMore')} →
+                  </button>
+                </div>
+              )}
             </div>
-            <Leaf className="w-4 h-4 text-green-500" />
-          </div>
-          <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-            {t('cards.intensity.tooltip')}
           </div>
           <div className="flex items-end justify-between">
             <div>
@@ -600,68 +752,152 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </span>
             </div>
           </div>
+          {/* Carbon Equivalent - Compact display */}
+          {(() => {
+            const carbonEquiv = getCarbonEquivalent(intensityMetric, orgBoundaries?.country || 'portugal', tGlobal);
+            return carbonEquiv && (
+              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <div className="relative group">
+                  <div className="flex items-center gap-1.5 text-[10px] text-purple-600 dark:text-purple-400 cursor-help">
+                    <span className="text-sm">{carbonEquiv.icon}</span>
+                    <span className="font-medium">≈ {carbonEquiv.description}</span>
+                  </div>
+                  {/* Educational Tooltip on hover */}
+                  {(carbonEquiv.educationalContext || carbonEquiv.didYouKnow) && (
+                    <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                      {carbonEquiv.educationalContext && (
+                        <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">
+                          {carbonEquiv.educationalContext}
+                        </p>
+                      )}
+                      {carbonEquiv.didYouKnow && (
+                        <div className="text-xs text-blue-700 dark:text-blue-400 flex items-start gap-1.5">
+                          <Lightbulb className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                          <span className="font-medium">{carbonEquiv.didYouKnow}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Target Progress */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 group relative">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.targetProgress.title')}</span>
-              <Info className="w-3 h-3 text-gray-400 dark:text-gray-500 cursor-help" />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 relative shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Target className="w-5 h-5 text-blue-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.targetProgress.title')}</span>
+            <div className="relative ml-auto">
+              <Info
+                className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-pointer"
+                onClick={() => toggleTooltip('targetProgress')}
+              />
+              {activeTooltip === 'targetProgress' && (
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50">
+                  <div className="mb-2">{t('cards.targetProgress.tooltip')}</div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveEducationalModal('sbti-targets');
+                      setActiveTooltip(null);
+                    }}
+                    className="text-blue-400 hover:text-blue-300 underline font-medium transition-colors"
+                  >
+                    {t('education.modal.learnMore')} →
+                  </button>
+                </div>
+              )}
             </div>
-            <Target className="w-4 h-4 text-blue-500" />
           </div>
-          <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-            {t('cards.targetProgress.tooltip')}
-          </div>
-          <div className="flex items-end justify-between">
+          <div className="flex items-end justify-between mb-3">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {targetsOnTrack}/{totalTargets}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.targetProgress.onTrack')}</div>
             </div>
-          </div>
-          <div className="mt-3">
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-gray-500 dark:text-gray-400">{t('cards.targetProgress.overallProgress')}</span>
-              <span className="font-medium text-gray-900 dark:text-white">{overallProgress.toFixed(0)}%</span>
-            </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-              <div
-                className="bg-green-500 h-1.5 rounded-full transition-all"
-                style={{ width: `${Math.min(overallProgress, 100)}%` }}
-              />
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-medium text-gray-900 dark:text-white">{overallProgress.toFixed(0)}%</span>
             </div>
           </div>
+          {/* Only show progress bar when on track */}
+          {targetsOnTrack > 0 && (
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-gray-500 dark:text-gray-400">{t('cards.targetProgress.overallProgress')}</span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                <div
+                  className="bg-green-500 h-1.5 rounded-full transition-all"
+                  style={{ width: `${Math.min(overallProgress, 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+          {/* Show off-track warning when projected > required */}
+          {targetsOnTrack === 0 && totalTargets > 0 && (
+            <div className="mt-3">
+              <div className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span className="font-medium">{t('cards.targetProgress.offTrackWarning')}</span>
+              </div>
+            </div>
+          )}
+          {/* Learn More Badge - Bottom Right */}
+          <button
+            onClick={() => setActiveEducationalModal('sbti-targets')}
+            className="absolute bottom-3 right-3 flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-[10px] font-medium transition-colors group"
+          >
+            <BookOpen className="w-3 h-3" />
+            <span className="border-b border-dashed border-blue-600 dark:border-blue-400 group-hover:border-blue-700 dark:group-hover:border-blue-300">
+              Learn More
+            </span>
+          </button>
         </div>
 
         {/* Data Quality */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 group relative">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.dataQuality.title')}</span>
-              <Info className="w-3 h-3 text-gray-400 dark:text-gray-500 cursor-help" />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 relative shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="w-5 h-5 text-yellow-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.dataQuality.title')}</span>
+            <div className="relative ml-auto">
+              <Info
+                className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-pointer"
+                onClick={() => toggleTooltip('dataQuality')}
+              />
+              {activeTooltip === 'dataQuality' && (
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50">
+                  <div className="mb-2">{t('cards.dataQuality.tooltip')}</div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveEducationalModal('carbon-basics');
+                      setActiveTooltip(null);
+                    }}
+                    className="text-blue-400 hover:text-blue-300 underline font-medium transition-colors"
+                  >
+                    {t('education.modal.learnMore')} →
+                  </button>
+                </div>
+              )}
             </div>
-            <Info className="w-4 h-4 text-blue-500" />
           </div>
-          <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-            {t('cards.dataQuality.tooltip')}
-          </div>
-          <div className="flex items-end justify-between">
+          <div className="flex items-end justify-between mb-3">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {dataQuality?.primaryDataPercentage || 0}%
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.dataQuality.primaryData')}</div>
             </div>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-medium text-gray-900 dark:text-white">{dataQuality?.verifiedPercentage || 0}%</span>
+            </div>
           </div>
           <div className="mt-3">
             <div className="flex items-center justify-between text-xs mb-1">
               <span className="text-gray-500 dark:text-gray-400">{t('cards.dataQuality.verified')}</span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {dataQuality?.verifiedPercentage || 0}%
-              </span>
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
               <div
@@ -674,37 +910,41 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       </div>
 
       {/* Scope Breakdown & Trend */}
-      <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Scope Breakdown */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[420px] shadow-sm relative">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 group relative">
+            <div className="flex items-center gap-2 relative">
+              <PieChartIcon className="w-5 h-5 text-blue-500" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('scopeBreakdown.title')}</h3>
-              <div className="relative">
-                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
-                <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  {t('scopeBreakdown.tooltip')}
-                </div>
+              <div className="relative ml-2">
+                <Info
+                  className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-pointer"
+                  onClick={() => toggleTooltip('scopeBreakdown')}
+                />
+                {activeTooltip === 'scopeBreakdown' && (
+                  <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50">
+                    <div className="mb-2">{t('scopeBreakdown.tooltip')}</div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveEducationalModal('scopes-explained');
+                        setActiveTooltip(null);
+                      }}
+                      className="text-blue-400 hover:text-blue-300 underline font-medium transition-colors"
+                    >
+                      {t('education.modal.learnMore')} →
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex gap-1 flex-wrap justify-end">
               <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                {t('scopeBreakdown.badges.ghgScope1')}
-              </span>
-              <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                {t('scopeBreakdown.badges.ghgScope2')}
-              </span>
-              <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                {t('scopeBreakdown.badges.ghgScope3')}
+                {t('scopeBreakdown.badges.ghgProtocol')}
               </span>
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                {t('scopeBreakdown.badges.gri3051')}
-              </span>
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                {t('scopeBreakdown.badges.gri3052')}
-              </span>
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                {t('scopeBreakdown.badges.gri3053')}
+                {t('scopeBreakdown.badges.gri305')}
               </span>
               <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
                 {t('scopeBreakdown.badges.tcfd')}
@@ -793,18 +1033,83 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </PieChart>
             </ResponsiveContainer>
           </div>
+
+          {/* Carbon Equivalents for Each Scope */}
+          <div className="space-y-2 px-2 mb-10">
+            {scopeBreakdown
+              .filter(scope => scope.value > 0)
+              .map((scope, idx) => {
+                const carbonEquiv = getCarbonEquivalent(scope.value, orgBoundaries?.country || 'portugal', tGlobal);
+                if (!carbonEquiv) return null;
+
+                return (
+                  <div key={idx} className="relative group">
+                    <div className="flex items-center justify-between text-[10px] cursor-help">
+                      <span className="text-gray-600 dark:text-gray-400 font-medium">{scope.name}:</span>
+                      <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
+                        <span className="text-sm">{carbonEquiv.icon}</span>
+                        <span className="font-medium">≈ {carbonEquiv.description}</span>
+                      </div>
+                    </div>
+                    {/* Educational Tooltip on hover */}
+                    {(carbonEquiv.educationalContext || carbonEquiv.didYouKnow) && (
+                      <div className="absolute right-0 top-full mt-2 w-64 p-3 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                        {carbonEquiv.educationalContext && (
+                          <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">
+                            {carbonEquiv.educationalContext}
+                          </p>
+                        )}
+                        {carbonEquiv.didYouKnow && (
+                          <div className="text-xs text-blue-700 dark:text-blue-400 flex items-start gap-1.5">
+                            <Lightbulb className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                            <span className="font-medium">{carbonEquiv.didYouKnow}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
+
+          {/* Learn More Badge - Bottom Right */}
+          <button
+            onClick={() => setActiveEducationalModal('scopes-explained')}
+            className="absolute bottom-3 right-3 flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-[10px] font-medium transition-colors group"
+          >
+            <BookOpen className="w-3 h-3" />
+            <span className="border-b border-dashed border-blue-600 dark:border-blue-400 group-hover:border-blue-700 dark:group-hover:border-blue-300">
+              Learn More
+            </span>
+          </button>
         </div>
 
         {/* Emissions Trend */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[420px] shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 group relative">
+            <div className="flex items-center gap-2 relative">
+              <TrendingUpIcon className="w-5 h-5 text-purple-500" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('emissionsTrend.title')}</h3>
               <div className="relative">
-                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
-                <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  {t('emissionsTrend.tooltip')}
-                </div>
+                <Info
+                  className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-pointer"
+                  onClick={() => toggleTooltip('emissionsTrend')}
+                />
+                {activeTooltip === 'emissionsTrend' && (
+                  <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50">
+                    <div className="mb-2">{t('emissionsTrend.tooltip')}</div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveEducationalModal('scopes-explained');
+                        setActiveTooltip(null);
+                      }}
+                      className="text-blue-400 hover:text-blue-300 underline font-medium transition-colors"
+                    >
+                      {t('education.modal.learnMore')} →
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex gap-1 flex-wrap justify-end">
@@ -985,17 +1290,32 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       </div>
 
       {/* Organizational Boundaries */}
-      <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 group relative">
-              <Factory className="w-5 h-5 text-purple-500" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[420px] flex flex-col overflow-hidden shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 relative">
+              <Building2 className="w-5 h-5 text-indigo-500" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('organizationalBoundaries.title')}</h3>
               <div className="relative">
-                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
-                <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  {t('organizationalBoundaries.tooltip')}
-                </div>
+                <Info
+                  className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-pointer"
+                  onClick={() => toggleTooltip('organizationalBoundaries')}
+                />
+                {activeTooltip === 'organizationalBoundaries' && (
+                  <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50">
+                    <div className="mb-2">{t('organizationalBoundaries.tooltip')}</div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveEducationalModal('carbon-basics');
+                        setActiveTooltip(null);
+                      }}
+                      className="text-blue-400 hover:text-blue-300 underline font-medium transition-colors"
+                    >
+                      {t('education.modal.learnMore')} →
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex gap-1 flex-wrap justify-end">
@@ -1012,70 +1332,81 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
           </div>
 
           {orgBoundaries ? (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                  {t('organizationalBoundaries.consolidationApproach')}
+            <div className="flex-1 flex flex-col min-h-0 space-y-4">
+              {/* Simplified metrics layout */}
+              <div className="space-y-3">
+                {/* Consolidation Approach */}
+                <div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    {t('organizationalBoundaries.consolidationApproach')}
+                  </div>
+                  <div className="text-base font-semibold text-gray-900 dark:text-white">
+                    {orgBoundaries.consolidationApproach}
+                  </div>
                 </div>
-                <div className="text-base font-semibold text-gray-900 dark:text-white">
-                  {orgBoundaries.consolidationApproach}
-                </div>
-              </div>
 
-              <div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                  {t('organizationalBoundaries.sitesIncluded')}
+                {/* Sites Coverage */}
+                <div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    {t('organizationalBoundaries.sitesIncluded')}
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-base font-semibold text-gray-900 dark:text-white">
+                      {orgBoundaries.sitesIncluded}/{orgBoundaries.sitesTotal}
+                    </div>
+                    <div className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded">
+                      {orgBoundaries.coverage}%
+                    </div>
+                  </div>
                 </div>
-                <div className="text-base font-semibold text-gray-900 dark:text-white">
-                  {orgBoundaries.sitesIncluded}/{orgBoundaries.sitesTotal}
-                  <span className="text-sm text-green-600 dark:text-green-400 ml-2">
-                    ({orgBoundaries.coverage}%)
-                  </span>
-                </div>
-              </div>
 
-              <div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                  {t('organizationalBoundaries.baseYear')}
-                </div>
-                <div className="text-base font-semibold text-gray-900 dark:text-white">
-                  {orgBoundaries.baseYear}
-                </div>
-              </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Base Year */}
+                  <div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      {t('organizationalBoundaries.baseYear')}
+                    </div>
+                    <div className="text-base font-semibold text-gray-900 dark:text-white">
+                      {orgBoundaries.baseYear}
+                    </div>
+                  </div>
 
-              <div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                  {t('organizationalBoundaries.employees')}
-                </div>
-                <div className="text-base font-semibold text-gray-900 dark:text-white">
-                  {orgBoundaries.employees?.toLocaleString() || t('organizationalBoundaries.notSet')}
+                  {/* Employees */}
+                  <div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      {t('organizationalBoundaries.employees')}
+                    </div>
+                    <div className="text-base font-semibold text-gray-900 dark:text-white">
+                      {orgBoundaries.employees?.toLocaleString() || t('organizationalBoundaries.notSet')}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-4 text-gray-400 text-sm">
+            <div className="text-center py-8 text-gray-400 text-sm">
               {t('organizationalBoundaries.loading')}
             </div>
           )}
 
-          {/* SBTi Targets Section */}
+          {/* SBTi Targets Section - Simplified */}
           {sbtiTargets && sbtiTargets.hasTargets && (
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
                   {t('sbtiTargets.title')}
                 </h4>
                 {sbtiTargets.validated && (
-                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded font-medium">
+                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded">
                     {t('sbtiTargets.validated')}
                   </span>
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2.5">
                 {sbtiTargets.ambition && (
                   <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
                       {t('sbtiTargets.ambition')}
                     </div>
                     <div className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -1088,7 +1419,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
                 {sbtiTargets.nearTermTarget && (
                   <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
                       {t('sbtiTargets.nearTermTarget')}
                     </div>
                     <div className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -1099,7 +1430,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
                 {sbtiTargets.netZeroTarget && (
                   <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
                       {t('sbtiTargets.netZeroTarget')}
                     </div>
                     <div className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -1113,16 +1444,31 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         </div>
 
         {/* Top Emitters */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px] flex flex-col">
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[420px] flex flex-col shadow-sm relative">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 group relative">
+            <div className="flex items-center gap-2 relative">
               <AlertTriangle className="w-5 h-5 text-orange-500" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('topEmitters.title')}</h3>
-              <div className="relative">
-                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
-                <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  {t('topEmitters.tooltip')}
-                </div>
+              <div className="relative ml-2">
+                <Info
+                  className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-pointer"
+                  onClick={() => toggleTooltip('topEmitters')}
+                />
+                {activeTooltip === 'topEmitters' && (
+                  <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50">
+                    <div className="mb-2">{t('topEmitters.tooltip')}</div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveEducationalModal('reduction-strategies');
+                        setActiveTooltip(null);
+                      }}
+                      className="text-blue-400 hover:text-blue-300 underline font-medium transition-colors"
+                    >
+                      {t('education.modal.learnMore')} →
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex gap-1 flex-wrap justify-end">
@@ -1137,15 +1483,14 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
           <div className="space-y-2 overflow-y-auto flex-1 pr-2">
             {topEmitters.map((emitter, index) => {
-              // Translate category name if available, otherwise use original name
-              const translatedName = t(`topEmitters.categories.${emitter.name}`, { defaultValue: emitter.name });
               const recommendation = getActionRecommendation(emitter.name);
+              const carbonEquivalent = getCarbonEquivalent(emitter.emissions, orgBoundaries?.country || 'portugal', tGlobal);
 
               return (
-              <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
+              <div key={index} className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {index + 1}. {translatedName}
+                    {index + 1}. {emitter.name}
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-900 dark:text-white font-semibold">
@@ -1168,6 +1513,46 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   />
                 </div>
 
+                {/* Carbon Equivalent - Enhanced with educational context */}
+                {carbonEquivalent && (
+                  <div className="relative group">
+                    <div className="flex items-center gap-1.5 mb-2 text-xs text-purple-600 dark:text-purple-400 cursor-help">
+                      <span className="text-base">{carbonEquivalent.icon}</span>
+                      <span className="font-medium">≈ {carbonEquivalent.description}</span>
+                    </div>
+
+                    {/* Educational Tooltip */}
+                    {(carbonEquivalent.educationalContext || carbonEquivalent.didYouKnow) && (
+                      <div className="absolute left-0 top-full mt-1 w-72 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                        {carbonEquivalent.educationalContext && (
+                          <div className="mb-2">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className="text-purple-300">ℹ️</span>
+                              <span className="font-semibold text-purple-200">How this works:</span>
+                            </div>
+                            <p className="text-gray-200 text-[11px] leading-relaxed">
+                              {carbonEquivalent.educationalContext}
+                            </p>
+                          </div>
+                        )}
+                        {carbonEquivalent.didYouKnow && (
+                          <div className="pt-2 border-t border-purple-500/30">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className="text-yellow-300">💡</span>
+                              <span className="font-semibold text-yellow-200">Did you know?</span>
+                            </div>
+                            <p className="text-gray-200 text-[11px] leading-relaxed">
+                              {carbonEquivalent.didYouKnow}
+                            </p>
+                          </div>
+                        )}
+                        {/* Pointer arrow */}
+                        <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Recommendation text */}
                 <div className="text-xs text-gray-600 dark:text-gray-400">
                   {recommendation}
@@ -1176,24 +1561,49 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               );
             })}
           </div>
+          {/* Learn More Badge - Bottom Right */}
+          <button
+            onClick={() => setActiveEducationalModal('reduction-strategies')}
+            className="absolute bottom-3 right-3 flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-[10px] font-medium transition-colors group"
+          >
+            <BookOpen className="w-3 h-3" />
+            <span className="border-b border-dashed border-blue-600 dark:border-blue-400 group-hover:border-blue-700 dark:group-hover:border-blue-300">
+              Learn More
+            </span>
+          </button>
         </div>
       </div>
 
       {/* SBTi Target Progress - Only show for current year */}
       {targetData?.targets && targetData.targets.length > 0 &&
        new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
-        <div className="px-6 pb-6">
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-6">
+        <div className="mb-6">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <div className="flex items-center gap-2 group relative">
+                <div className="flex items-center gap-2 relative">
                   <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('sbtiProgress.title')}</h3>
                   <div className="relative">
-                    <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
-                    <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      {t('sbtiProgress.tooltip')}
-                    </div>
+                    <Info
+                      className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-pointer"
+                      onClick={() => toggleTooltip('sbtiProgress')}
+                    />
+                    {activeTooltip === 'sbtiProgress' && (
+                      <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50">
+                        <div className="mb-2">{t('sbtiProgress.tooltip')}</div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveEducationalModal('sbti-targets');
+                            setActiveTooltip(null);
+                          }}
+                          className="text-blue-400 hover:text-blue-300 underline font-medium transition-colors"
+                        >
+                          {t('education.modal.learnMore')} →
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -1223,7 +1633,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
             <div className="grid grid-cols-5 gap-3">
               {/* Baseline */}
-              <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {t('sbtiProgress.baseline')} ({targetData.targets[0].baseline_year})
@@ -1236,7 +1646,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </div>
 
               {/* Current */}
-              <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-orange-200/50 dark:border-orange-700/50">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-orange-200/50 dark:border-orange-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {t('sbtiProgress.current')} ({new Date().getFullYear()})
@@ -1264,7 +1674,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </div>
 
               {/* Required (Current Year Target) */}
-              <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-blue-200/50 dark:border-blue-700/50">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-blue-200/50 dark:border-blue-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {t('sbtiProgress.required')} ({new Date().getFullYear()})
@@ -1291,7 +1701,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </div>
 
               {/* Target */}
-              <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {t('sbtiProgress.target')} ({targetData.targets[0].target_year})
@@ -1304,7 +1714,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </div>
 
               {/* Progress */}
-              <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">{t('sbtiProgress.progress')}</span>
                 </div>
@@ -1361,10 +1771,45 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </div>
             </div>
 
+            {/* Climate Impact Context - Carbon Equivalents */}
+            {(() => {
+              const current = projectedAnnualEmissions || targetData.targets[0].current_emissions || totalEmissions;
+              const carbonEquiv = getCarbonEquivalent(current, orgBoundaries?.country || 'portugal', tGlobal);
+
+              return carbonEquiv && (
+                <div className="mt-4 p-4 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 rounded-lg border border-blue-200/50 dark:border-blue-700/50">
+                  <div className="flex items-start gap-3">
+                    <div className="text-3xl flex-shrink-0">{carbonEquiv.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                        What does {current.toFixed(0)} tCO2e mean for the planet?
+                      </h4>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                        ≈ <span className="font-semibold">{carbonEquiv.description}</span>
+                      </p>
+                      {carbonEquiv.educationalContext && (
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                          {carbonEquiv.educationalContext}
+                        </p>
+                      )}
+                      {carbonEquiv.didYouKnow && (
+                        <div className="mt-2 flex items-start gap-1.5">
+                          <span className="text-yellow-500 dark:text-yellow-400 flex-shrink-0 mt-0.5">💡</span>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed italic">
+                            {carbonEquiv.didYouKnow}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Waterfall Chart */}
             <div className="mt-6">
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('waterfallChart.title')}</h4>
-              <ResponsiveContainer width="100%" height={220}>
+              <ResponsiveContainer width="100%" height={320}>
                 <BarChart
                   data={(() => {
                     const baseline = targetData.targets[0].baseline_emissions || 0;
@@ -1525,6 +1970,17 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
           </div>
         </div>
       )}
-    </div>
+
+      {/* Educational System */}
+      <FloatingHelpButton onTopicSelect={(topicId) => setActiveEducationalModal(topicId)} />
+      <EducationalModal
+        activeModal={activeEducationalModal}
+        onClose={() => setActiveEducationalModal(null)}
+        organizationContext={{
+          country: orgBoundaries?.country || 'Portugal',
+          sector: 'professional_services' // TODO: Get from organization data
+        }}
+      />
+    </>
   );
 }

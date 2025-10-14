@@ -447,7 +447,7 @@ export function BaseSidebarLayout({
         </div>
 
         {/* Content with consistent background */}
-        <div className="h-full overflow-y-auto bg-white dark:bg-[#212121] pb-20 md:pb-0">
+        <div className="h-full overflow-y-auto bg-gray-50 dark:bg-[#1a1a1a] pb-20 md:pb-0">
           {children}
         </div>
       </div>

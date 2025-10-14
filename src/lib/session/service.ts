@@ -104,6 +104,9 @@ export class SessionService {
             }
             return await upstashClient.set(keyPrefix + key, value);
           },
+          async setex(key: string, ttl: number, value: string) {
+            return await upstashClient.set(keyPrefix + key, value, { ex: ttl });
+          },
           async del(key: string) {
             return await upstashClient.del(keyPrefix + key);
           },

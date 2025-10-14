@@ -2748,5 +2748,171 @@
       "country": "Portugal",
       "timezone": "Europe/Lisbon"
     }
+  },
+  "education": {
+    "topics": {
+      "carbonBasics": {
+        "title": "Compreender as Emissões de Carbono",
+        "sections": {
+          "whatIsCO2e": {
+            "heading": "O que é CO2e?",
+            "content": "CO2e (Equivalente de Dióxido de Carbono) é uma unidade padrão para medir pegadas de carbono. Expressa o impacto de diferentes gases de efeito estufa em termos da quantidade equivalente de CO2."
+          },
+          "oneTonne": {
+            "heading": "Como é 1 tonelada de CO2e?",
+            "content": "Números abstratos são difíceis de visualizar. Aqui estão algumas comparações do mundo real:"
+          },
+          "whyMeasure": {
+            "heading": "Porquê medir em CO2e?",
+            "content": "Usar CO2e permite-nos somar todas as emissões de gases de efeito estufa num único número, facilitando o acompanhamento do progresso e a definição de metas."
+          }
+        },
+        "gases": {
+          "co2": "Dióxido de Carbono (CO2)",
+          "co2Comparison": "Base = 1x de impacto",
+          "methane": "Metano (CH4)",
+          "methaneComparison": "25x mais potente que o CO2",
+          "nitrousOxide": "Óxido Nitroso (N2O)",
+          "nitrousOxideComparison": "298x mais potente que o CO2"
+        },
+        "comparisons": {
+          "driving": "Conduzir 2.500 km num carro a gasolina",
+          "flight": "1 voo de ida e volta dentro da Europa",
+          "trees": "O que 1,15 árvores absorvem num ano",
+          "treesValue": "Através da fotossíntese",
+          "home": "Alimentar uma casa durante 2 meses",
+          "homeValue": "Família média da UE",
+          "smartphones": "Carregar 121.000 smartphones",
+          "smartphonesValue": "De vazio a cheio"
+        }
+      },
+      "scopesExplained": {
+        "title": "Âmbitos do Protocolo GEE",
+        "sections": {
+          "whatAreScopes": {
+            "heading": "O que são Âmbitos?",
+            "content": "O Protocolo GEE divide as emissões em 3 'âmbitos' para ajudar as organizações a compreenderem de onde vêm as suas emissões."
+          },
+          "scope1": {
+            "heading": "Âmbito 1: Emissões Diretas",
+            "content": "Emissões de fontes que a sua organização possui ou controla diretamente."
+          },
+          "scope2": {
+            "heading": "Âmbito 2: Emissões Indiretas de Energia",
+            "content": "Emissões da geração de energia comprada (eletricidade, aquecimento, arrefecimento)."
+          },
+          "scope3": {
+            "heading": "Âmbito 3: Emissões da Cadeia de Valor",
+            "content": "Todas as outras emissões indiretas na sua cadeia de valor. Frequentemente 70-80% da pegada total de uma empresa."
+          }
+        },
+        "examples": {
+          "scope1": {
+            "vehicles": "Veículos da empresa",
+            "vehiclesDesc": "Carros, camiões, frota",
+            "combustion": "Combustão no local",
+            "combustionDesc": "Caldeiras, geradores",
+            "refrigerants": "Fugas de refrigerantes",
+            "refrigerantsDesc": "Sistemas de ar condicionado"
+          },
+          "scope2": {
+            "electricity": "Eletricidade comprada",
+            "electricityDesc": "Da rede",
+            "heating": "Aquecimento urbano",
+            "heatingDesc": "Aquecimento centralizado",
+            "cooling": "Arrefecimento urbano",
+            "coolingDesc": "Arrefecimento centralizado"
+          },
+          "scope3": {
+            "travel": "Viagens de negócios",
+            "travelDesc": "Voos, hotéis, carros alugados",
+            "commuting": "Deslocações de funcionários",
+            "commutingDesc": "Viagens diárias de/para o escritório",
+            "goods": "Bens e serviços adquiridos",
+            "goodsDesc": "Fornecedores, materiais",
+            "waste": "Eliminação de resíduos",
+            "wasteDesc": "Aterro, reciclagem"
+          }
+        }
+      },
+      "whyItMatters": {
+        "title": "Porque é que a Ação Climática Importa",
+        "sections": {
+          "parisAgreement": {
+            "heading": "A Meta de 1,5°C",
+            "content": "O Acordo de Paris visa limitar o aquecimento global a 1,5°C acima dos níveis pré-industriais para evitar impactos climáticos catastróficos."
+          },
+          "warmingLevels": {
+            "heading": "O que acontece a diferentes níveis de aquecimento?",
+            "content": "Cada fração de grau importa:"
+          },
+          "localImpact": {
+            "heading": "Impacto em {location}",
+            "content": "Sem ação, {location} enfrenta consequências graves:"
+          },
+          "goodNews": {
+            "heading": "As Boas Notícias",
+            "content": "Temos a tecnologia e o conhecimento para resolver isto. A energia renovável é agora mais barata que os combustíveis fósseis."
+          }
+        },
+        "warming": {
+          "oneFive": "Aquecimento de 1,5°C",
+          "oneFiveDesc": "Impactos graves, mas geríveis com adaptação",
+          "two": "Aquecimento de 2°C",
+          "twoDesc": "Significativamente pior: mais calor extremo, secas, inundações",
+          "three": "Aquecimento de 3°C",
+          "threeDesc": "Catastrófico: extinção em massa, regiões inabitáveis"
+        }
+      },
+      "reductionStrategies": {
+        "title": "Como Reduzir Emissões",
+        "sections": {
+          "highImpact": {
+            "heading": "Focar em Ações de Alto Impacto",
+            "content": "Nem todas as ações de redução de emissões são iguais. Foque-se nestas:"
+          },
+          "hierarchy": {
+            "heading": "A Hierarquia de Redução",
+            "content": "Siga sempre esta ordem: 1) Evitar/Reduzir primeiro, 2) Mudar para alternativas de baixo carbono, 3) Compensar apenas como último recurso."
+          }
+        }
+      },
+      "sbtiTargets": {
+        "title": "Metas Baseadas na Ciência",
+        "sections": {
+          "whatIsSBTi": {
+            "heading": "O que são Metas Baseadas na Ciência?",
+            "content": "Objetivos de redução de emissões alinhados com a ciência climática - especificamente, o necessário para limitar o aquecimento a 1,5°C."
+          },
+          "whyImportant": {
+            "heading": "Porque são importantes?",
+            "content": "As metas SBTi dão-lhe credibilidade. Mais de 4.000 empresas em todo o mundo comprometeram-se com metas SBTi."
+          },
+          "types": {
+            "heading": "Tipos de Metas SBTi",
+            "content": "Existem diferentes tipos de metas baseados no prazo e na ambição:"
+          },
+          "howToStart": {
+            "heading": "Como começar",
+            "content": "Comece por medir as suas emissões de base (já está a fazê-lo!). Depois submeta as suas metas ao SBTi para validação."
+          }
+        },
+        "types": {
+          "nearTerm": "Metas de curto prazo",
+          "nearTermDesc": "5-10 anos: Tipicamente 42% de redução até 2030",
+          "longTerm": "Metas de longo prazo",
+          "longTermDesc": "Até 2050: Emissões líquidas zero em todos os âmbitos",
+          "ambition": "Níveis de ambição",
+          "ambitionDesc": "1,5°C (mais ambicioso) ou bem abaixo de 2°C"
+        }
+      }
+    },
+    "modal": {
+      "previous": "Anterior",
+      "next": "Seguinte",
+      "gotIt": "Compreendi!",
+      "sectionOf": "Secção {current} de {total}",
+      "learnMore": "📚 Saber mais"
+    }
   }
 }

@@ -442,6 +442,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
   const [projectedAnnualEmissions, setProjectedAnnualEmissions] = useState(0);
   const [actualEmissionsYTD, setActualEmissionsYTD] = useState(0);
   const [forecastedEmissions, setForecastedEmissions] = useState(0);
+  const [previousYearTotalEmissions, setPreviousYearTotalEmissions] = useState<number>(0);
 
   // Metric-level targets for expandable view
   const [metricTargets, setMetricTargets] = useState<any[]>([]);
@@ -561,12 +562,24 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         const prevScopeResponse = await fetch(`/api/sustainability/scope-analysis?${prevParams}`);
         const prevScopeData = await prevScopeResponse.json();
 
+        // Also fetch FULL previous year data for projected YoY comparison
+        const fullPrevYearParams = new URLSearchParams({
+          start_date: `${previousYear}-01-01`,
+          end_date: `${previousYear}-12-31`,
+        });
+        if (selectedSite) {
+          fullPrevYearParams.append('site_id', selectedSite.id);
+        }
+        const fullPrevYearResponse = await fetch(`/api/sustainability/scope-analysis?${fullPrevYearParams}`);
+        const fullPrevYearData = await fullPrevYearResponse.json();
+
         console.log('📊 Emissions Dashboard Data:', { scopeData, dashboardData, targetsResult });
 
         // Extract scope totals
         const extractedScopeData = scopeData.scopeData || scopeData;
         console.log('📊 Extracted Scope Data:', extractedScopeData);
         const prevExtractedScopeData = prevScopeData.scopeData || prevScopeData;
+        const fullPrevYearExtractedScopeData = fullPrevYearData.scopeData || fullPrevYearData;
 
         const s1Current = extractedScopeData.scope_1?.total || 0;
         const s2Current = extractedScopeData.scope_2?.total || 0;
@@ -576,19 +589,26 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         const s2Previous = prevExtractedScopeData.scope_2?.total || 0;
         const s3Previous = prevExtractedScopeData.scope_3?.total || 0;
 
+        const s1FullPrevYear = fullPrevYearExtractedScopeData.scope_1?.total || 0;
+        const s2FullPrevYear = fullPrevYearExtractedScopeData.scope_2?.total || 0;
+        const s3FullPrevYear = fullPrevYearExtractedScopeData.scope_3?.total || 0;
+
         const currentTotal = s1Current + s2Current + s3Current;
         const previousTotal = s1Previous + s2Previous + s3Previous;
+        const fullPreviousYearTotal = s1FullPrevYear + s2FullPrevYear + s3FullPrevYear;
 
         setScope1Total(s1Current);
         setScope2Total(s2Current);
         setScope3Total(s3Current);
         setTotalEmissions(currentTotal);
+        setPreviousYearTotalEmissions(fullPreviousYearTotal);
 
         console.log('📊 Totals Set:', {
           scope1: s1Current,
           scope2: s2Current,
           scope3: s3Current,
-          total: currentTotal
+          total: currentTotal,
+          previousYearFullTotal: fullPreviousYearTotal
         });
 
         // Calculate YoY changes
@@ -995,23 +1015,51 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
             <span className="text-sm text-gray-500 dark:text-gray-400">Total Emissions</span>
             <Cloud className="w-4 h-4 text-purple-500" />
           </div>
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {totalEmissions.toFixed(1)}
-              </div>
+          <div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+              {totalEmissions.toFixed(1)}
+            </div>
+            <div className="flex items-center justify-between">
               <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
+              <div className="flex items-center gap-1">
+                {totalEmissionsYoY < 0 ? (
+                  <TrendingDown className="w-3 h-3 text-green-500" />
+                ) : (
+                  <TrendingUp className={`w-3 h-3 ${totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                )}
+                <span className={`text-xs ${totalEmissionsYoY < 0 ? 'text-green-500' : totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                  {totalEmissionsYoY > 0 ? '+' : ''}{totalEmissionsYoY.toFixed(1)}% YoY
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              {totalEmissionsYoY < 0 ? (
-                <TrendingDown className="w-3 h-3 text-green-500" />
-              ) : (
-                <TrendingUp className={`w-3 h-3 ${totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
-              )}
-              <span className={`text-xs ${totalEmissionsYoY < 0 ? 'text-green-500' : totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                {totalEmissionsYoY > 0 ? '+' : ''}{totalEmissionsYoY.toFixed(1)}% YoY
-              </span>
-            </div>
+            {projectedAnnualEmissions > 0 &&
+             forecastedEmissions > 0 &&
+             new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-xs text-purple-500 dark:text-purple-400">
+                  Projected: {projectedAnnualEmissions.toFixed(1)} tCO2e
+                </span>
+                {(() => {
+                  // Calculate YoY for projected emissions: compare projected annual vs previous year's total
+                  const projectedYoY = previousYearTotalEmissions > 0
+                    ? ((projectedAnnualEmissions - previousYearTotalEmissions) / previousYearTotalEmissions) * 100
+                    : 0;
+
+                  return (
+                    <div className="flex items-center gap-1">
+                      {projectedYoY < 0 ? (
+                        <TrendingDown className="w-3 h-3 text-green-500" />
+                      ) : (
+                        <TrendingUp className={`w-3 h-3 ${projectedYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                      )}
+                      <span className={`text-xs ${projectedYoY < 0 ? 'text-green-500' : projectedYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                        {projectedYoY > 0 ? '+' : ''}{projectedYoY.toFixed(1)}% YoY
+                      </span>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
         </div>
 

@@ -16,8 +16,9 @@ class SessionManager {
   private constructor() {
     console.log('🏗️  Creating new SessionManager instance');
     this.sessionService = new SessionService({
-      // Temporarily disable Redis to force in-memory storage for debugging
-      redis: undefined,
+      // Upstash Redis will be auto-detected from environment variables
+      // Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to enable
+      // Falls back to in-memory storage if not configured
       sessionTTL: parseInt(process.env.SESSION_TTL || '28800'), // 8 hours
       slidingExpiration: process.env.SESSION_SLIDING !== 'false',
       cookieName: 'blipee-session',

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, BarChart3 } from 'lucide-react';
+import { AlertCircle, Leaf } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
 import { useAppearance, useAccentGradient } from '@/providers/AppearanceProvider';
@@ -18,6 +18,7 @@ export default function OverviewPage() {
   const accentGradientConfig = useAccentGradient();
   const accentColorHex = accentGradientConfig.from;
   const t = useTranslations('sustainability.overview');
+  const tDashboard = useTranslations('sustainability.dashboard');
 
   const [organizationData, setOrganizationData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -97,23 +98,24 @@ export default function OverviewPage() {
   return (
     <SustainabilityLayout>
       <div className="p-4 sm:p-6 space-y-6">
-        {/* Header */}
+        {/* Header with Title and Filters */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center justify-between gap-6 mb-6">
+            {/* Title and Subtitle */}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                <BarChart3 className="w-6 h-6" style={{ color: accentColorHex }} />
-                {t('title')}
-              </h1>
-              <p className="text-[#616161] dark:text-[#757575]">
-                {t('subtitle')}
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Leaf className="w-6 h-6 text-green-500" />
+                {tDashboard('header.title')}
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {tDashboard('header.subtitle')}
               </p>
             </div>
 
-            {/* Selectors */}
+            {/* Filters */}
             <div className="flex items-center gap-3">
               <SiteSelector
                 currentSite={selectedSite}
