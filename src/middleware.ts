@@ -51,6 +51,7 @@ const publicRoutes = [
   '/api/auth/oauth',
   '/api/health',
   '/api/version',
+  '/api/debug',  // Debug endpoints for diagnostics
   '/about',
   '/features',
   '/industries',
@@ -132,11 +133,14 @@ export async function middleware(request: NextRequest) {
   // Clean corrupted cookies from the request
   cleanCorruptedCookies(request);
 
-  // Handle Supabase auth redirects with tokens in query params
-  // This is for when Supabase redirects to root with auth tokens
-  if (path === '/' && request.nextUrl.searchParams.has('access_token')) {
+  // Handle Supabase auth redirects with tokens or code in query params
+  // This is for when Supabase redirects to root with auth tokens or PKCE code
+  if (path === '/' && (request.nextUrl.searchParams.has('access_token') || request.nextUrl.searchParams.has('code'))) {
+    // Check if this is a recovery flow by looking for #type=recovery in the referrer or hash
+    // For now, just redirect to callback which will handle the routing
     const callbackUrl = new URL('/auth/callback', request.url);
     callbackUrl.search = request.nextUrl.search;
+    callbackUrl.hash = request.nextUrl.hash;
     return NextResponse.redirect(callbackUrl);
   }
 
@@ -195,7 +199,8 @@ async function executeMiddleware(
     '/api/auth/reset-password',
     '/api/auth/oauth',
     '/api/health',
-    '/api/version'
+    '/api/version',
+    '/api/debug'
   ];
   
   if (path.startsWith('/api/') && !csrfExemptPaths.some(exempt => path.startsWith(exempt))) {

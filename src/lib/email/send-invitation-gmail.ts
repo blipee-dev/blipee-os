@@ -202,6 +202,14 @@ function generateEmailHtml(data: InvitationEmailData): string {
       </a>
     </div>
 
+    <!-- Plain text link fallback -->
+    <p style="color: #616161; font-size: 13px; text-align: center; margin: 0 0 8px 0; word-break: break-all;">
+      ${lang === 'pt' ? 'Se o botão não funcionar, copie e cole este link no seu navegador:' : lang === 'es' ? 'Si el botón no funciona, copia y pega este enlace en tu navegador:' : 'If the button doesn\'t work, copy and paste this link into your browser:'}
+    </p>
+    <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0 0 24px 0; word-break: break-all;">
+      <a href="${data.confirmationUrl}" style="color: rgb(147, 51, 234); text-decoration: underline;">${data.confirmationUrl}</a>
+    </p>
+
     <p style="color: #9ca3af; font-size: 13px; text-align: center; margin: 0 0 40px 0;">
       ${t.linkExpires}
     </p>
@@ -258,12 +266,39 @@ export async function sendInvitationEmailViaGmail(data: InvitationEmailData) {
   // Create transporter
   const transporter = createGmailTransporter();
 
+  // Plain text version
+  const plainText = `
+${t.title}
+
+${t.greeting(data.userName)}
+
+${data.inviterName} ${t.subtitle}
+
+${t.accessDetails}
+${t.emailLabel} ${data.email}
+${t.roleLabel} ${data.role}
+${t.organizationLabel} ${data.organizationName}
+
+${t.buttonText}:
+${data.confirmationUrl}
+
+${t.linkExpires}
+
+${t.whatYouCanDo}
+${t.features.map((f, i) => `${i + 1}. ${f}`).join('\n')}
+
+${t.needHelp} support@blipee.com
+
+${t.copyright}
+  `.trim();
+
   try {
     // Send email
     const info = await transporter.sendMail({
       from: process.env.FROM_EMAIL || process.env.EMAIL_FROM || '"blipee" <no-reply@blipee.com>', // sender address
       to: data.email, // recipient
       subject: t.subject, // Subject line
+      text: plainText, // plain text body
       html: generateEmailHtml(data), // html body
     });
 

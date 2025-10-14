@@ -9,34 +9,51 @@ const resetPasswordSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('Reset password request received for email:', body.email);
 
     // Validate input
     const validated = resetPasswordSchema.parse(body);
 
     // Get the origin from the request headers
-    const origin = request.headers.get('origin') || 
-                  request.headers.get('x-forwarded-host') ? 
-                    `https://${request.headers.get('x-forwarded-host')}` : 
-                    process.env.NEXT_PUBLIC_SITE_URL || 
+    const origin = request.headers.get('origin') ||
+                  request.headers.get('x-forwarded-host') ?
+                    `https://${request.headers.get('x-forwarded-host')}` :
+                    process.env.NEXT_PUBLIC_SITE_URL ||
                     'http://localhost:3000';
 
+    // Redirect to reset password page directly
+    // Using email OTP flow instead of PKCE to avoid code verifier issues
+    const redirectTo = `${origin}/auth/reset-password`;
+    console.log('Reset password redirect URL:', redirectTo);
+
     // Send reset password email using server client
+    console.log('Creating Supabase client...');
     const supabase = await createServerSupabaseClient();
+    console.log('Supabase client created, sending reset email...');
+
     const { error } = await supabase.auth.resetPasswordForEmail(validated.email, {
-      redirectTo: `${origin}/auth/reset-password`,
+      redirectTo,
+      options: {
+        emailRedirectTo: redirectTo,
+      }
     });
 
     if (error) {
-      console.error('Reset password error:', error);
+      console.error('Supabase reset password error:', error.message, error);
       throw error;
     }
 
+    console.log('Reset password email sent successfully');
     return NextResponse.json({
       success: true,
       message: "Password reset email sent",
     });
   } catch (error: any) {
-    console.error('Error:', error);
+    console.error('Reset password API error:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+    });
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -51,7 +68,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        _error: "Failed to send reset email. Please try again.",
+        _error: error.message || "Failed to send reset email. Please try again.",
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
       { status: 500 },
     );

@@ -273,6 +273,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   };
 
   const handleResendInvitation = async (user: AppUser) => {
+    console.log('🔄 Resending invitation to:', user.email, 'User ID:', user.id);
     setLoading(true);
     try {
       const response = await fetch('/api/users/resend-invitation', {
@@ -285,16 +286,20 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         })
       });
 
+      console.log('📨 Response status:', response.status);
+
       if (!response.ok) {
         const error = await response.json();
-        console.error('Error resending invitation:', error);
+        console.error('❌ Error resending invitation:', error);
         toast.error(error.error || 'Failed to resend invitation');
         return;
       }
 
+      const result = await response.json();
+      console.log('✅ Invitation resent successfully:', result);
       toast.success(t('invitationResent') || `Invitation resent to ${user.email}`);
     } catch (error) {
-      console.error('Error resending invitation:', error);
+      console.error('❌ Error resending invitation:', error);
       toast.error(t('failedToResend') || 'Failed to resend invitation');
     } finally {
       setLoading(false);
