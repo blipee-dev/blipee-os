@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { sendInvitationEmailViaGmail } from '@/lib/email/send-invitation-gmail';
+import { PermissionService } from '@/lib/auth/permission-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,38 +23,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    // Check if current user has permission to resend invitations
-    const { data: superAdminCheck } = await supabaseAdmin
-      .from('super_admins')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
-
-    const { data: currentUser } = await supabaseAdmin
+    // Get target user to check organization
+    const { data: targetUser } = await supabaseAdmin
       .from('app_users')
-      .select('role')
-      .eq('auth_user_id', user.id)
+      .select('organization_id')
+      .eq('id', userId)
       .single();
 
-    const canResend = superAdminCheck || (currentUser && (currentUser.role === 'owner' || currentUser.role === 'manager'));
+    if (!targetUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Check permission using centralized service
+    const canResend = await PermissionService.canManageUsers(user.id, targetUser.organization_id);
 
     if (!canResend) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    // Get the target user details
-    const { data: targetUser, error: fetchError } = await supabaseAdmin
+    // Get current user for audit logging
+    const { data: currentUser } = await supabaseAdmin
+      .from('app_users')
+      .select('name, email')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    // Get the full target user details
+    const { data: targetUserDetails, error: fetchError } = await supabaseAdmin
       .from('app_users')
       .select('*, organizations!inner(name)')
       .eq('id', userId)
       .single();
 
-    if (fetchError || !targetUser) {
+    if (fetchError || !targetUserDetails) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Only resend for pending users or users who haven't logged in
-    if (targetUser.status === 'active' && targetUser.last_login) {
+    if (targetUserDetails.status === 'active' && targetUserDetails.last_login) {
       return NextResponse.json({
         error: 'User has already activated their account'
       }, { status: 400 });
@@ -69,12 +76,12 @@ export async function POST(request: NextRequest) {
     // Generate new invitation link
     const { data: resetData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'invite',
-      email: targetUser.email,
+      email: targetUserDetails.email,
       options: {
         data: {
-          full_name: targetUser.name,
-          organization_id: targetUser.organization_id,
-          role: targetUser.role,
+          full_name: targetUserDetails.name,
+          organization_id: targetUserDetails.organization_id,
+          role: targetUserDetails.role,
           language: userLanguage
         }
       }
@@ -100,19 +107,19 @@ export async function POST(request: NextRequest) {
     // Send the invitation email
     try {
       await sendInvitationEmailViaGmail({
-        email: targetUser.email,
-        userName: targetUser.name,
-        organizationName: targetUser.organizations?.name || 'Your Organization',
+        email: targetUserDetails.email,
+        userName: targetUserDetails.name,
+        organizationName: targetUserDetails.organizations?.name || 'Your Organization',
         inviterName: currentUser?.name || user.email?.split('@')[0] || 'Team Admin',
-        role: targetUser.role,
+        role: targetUserDetails.role,
         confirmationUrl,
         language: userLanguage as 'en' | 'es' | 'pt'
       });
 
-      console.log(`Invitation resent to ${targetUser.email}`);
+      console.log(`Invitation resent to ${targetUserDetails.email}`);
 
       // Update user status to pending if it was inactive
-      if (targetUser.status === 'inactive') {
+      if (targetUserDetails.status === 'inactive') {
         await supabaseAdmin
           .from('app_users')
           .update({
@@ -131,8 +138,8 @@ export async function POST(request: NextRequest) {
           resource_type: 'user',
           resource_id: userId,
           details: {
-            target_email: targetUser.email,
-            target_name: targetUser.name,
+            target_email: targetUserDetails.email,
+            target_name: targetUserDetails.name,
             resent_by: currentUser?.email || user.email
           }
         });

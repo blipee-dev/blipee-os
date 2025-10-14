@@ -71,13 +71,29 @@ export default function AuthCallbackPage() {
         }
       }
 
-      // Wait a moment for session to be established
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait for session to be established using auth state change listener
+      const { data: { session } } = await new Promise<{ data: { session: any } }>((resolve) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if (event === 'SIGNED_IN' && session) {
+            subscription.unsubscribe();
+            resolve({ data: { session } });
+          }
+        });
 
-      // Check if we have a session
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+        // Fallback: check immediately in case session is already available
+        supabase.auth.getSession().then((result) => {
+          if (result.data.session) {
+            subscription.unsubscribe();
+            resolve(result);
+          }
+        });
+
+        // Timeout after 10 seconds
+        setTimeout(() => {
+          subscription.unsubscribe();
+          supabase.auth.getSession().then(resolve);
+        }, 10000);
+      });
 
       if (session) {
         // Check if this is an invitation (type=invite or recovery)
