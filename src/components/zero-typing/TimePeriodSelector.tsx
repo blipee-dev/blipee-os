@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Calendar, ChevronDown, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from '@/providers/LanguageProvider';
 
 export interface TimePeriod {
   id: string;
@@ -24,6 +25,7 @@ export const TimePeriodSelector: React.FC<TimePeriodSelectorProps> = ({
   className = ''
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations('common.filters.timePeriodSelector');
 
   // Generate time period options
   const getCurrentYear = () => new Date().getFullYear();
@@ -66,7 +68,7 @@ export const TimePeriodSelector: React.FC<TimePeriodSelectorProps> = ({
     // Last 30 days
     {
       id: 'last-30-days',
-      label: 'Last 30 Days',
+      label: t('last30Days'),
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       end: new Date().toISOString().split('T')[0],
       type: 'days'
@@ -74,7 +76,7 @@ export const TimePeriodSelector: React.FC<TimePeriodSelectorProps> = ({
     // Last 90 days
     {
       id: 'last-90-days',
-      label: 'Last 90 Days',
+      label: t('last90Days'),
       start: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       end: new Date().toISOString().split('T')[0],
       type: 'days'
@@ -82,7 +84,7 @@ export const TimePeriodSelector: React.FC<TimePeriodSelectorProps> = ({
     // Current quarter
     {
       id: 'current-quarter',
-      label: `Q${getCurrentQuarter() + 1} ${getCurrentYear()}`,
+      label: t('currentQuarter', { quarter: getCurrentQuarter() + 1, year: getCurrentYear() }),
       start: `${getCurrentYear()}-${String((getCurrentQuarter() * 3) + 1).padStart(2, '0')}-01`,
       end: `${getCurrentYear()}-${String(((getCurrentQuarter() + 1) * 3)).padStart(2, '0')}-31`,
       type: 'quarter'
@@ -125,7 +127,7 @@ export const TimePeriodSelector: React.FC<TimePeriodSelectorProps> = ({
             >
               <div className="p-2">
                 <div className="text-xs font-medium text-gray-500 dark:text-white/50 px-3 py-2 mb-1">
-                  Time Period
+                  {t('timePeriod')}
                 </div>
 
                 {timePeriods.map((period) => (
@@ -146,9 +148,9 @@ export const TimePeriodSelector: React.FC<TimePeriodSelectorProps> = ({
                       <div className="font-medium">{period.label}</div>
                       <div className="text-xs text-gray-500 dark:text-white/50">
                         {period.type === 'days' ? `${period.label}` :
-                         period.type === 'year' ? `Jan - Dec ${period.label}` :
-                         period.type === 'quarter' ? `Quarter ${getCurrentQuarter() + 1}` :
-                         'Full month'}
+                         period.type === 'year' ? t('yearRange', { year: period.label }) :
+                         period.type === 'quarter' ? t('quarterLabel', { quarter: getCurrentQuarter() + 1 }) :
+                         t('fullMonth')}
                       </div>
                     </div>
                   </button>

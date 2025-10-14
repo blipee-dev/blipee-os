@@ -2105,7 +2105,26 @@
     "pin": "Pin",
     "unpin": "Unpin",
     "star": "Star",
-    "rename": "Rename"
+    "rename": "Rename",
+    "filters": {
+      "siteSelector": {
+        "allSites": "All Sites",
+        "siteFilter": "Site Filter",
+        "organizationWide": "Organization-wide data",
+        "noLocation": "No location",
+        "noSitesFound": "No sites found"
+      },
+      "timePeriodSelector": {
+        "timePeriod": "Time Period",
+        "last30Days": "Last 30 Days",
+        "last90Days": "Last 90 Days",
+        "currentQuarter": "Q{quarter} {year}",
+        "year": "{year}",
+        "yearRange": "Jan - Dec {year}",
+        "quarterLabel": "Quarter {quarter}",
+        "fullMonth": "Full month"
+      }
+    }
   },
   "auth": {
     "signin": {
@@ -2313,7 +2332,8 @@
           "title": "Total Emissions",
           "tooltip": "Sum of all GHG emissions (Scope 1+2+3) in the selected period. Measured in tonnes of CO2 equivalent (tCO2e). Year-over-year change shows trend vs. previous period.",
           "unit": "tCO2e",
-          "yoy": "% YoY"
+          "yoy": "% YoY",
+          "projected": "Projected"
         },
         "intensity": {
           "title": "Intensity",
@@ -2325,7 +2345,8 @@
           "title": "Target Progress",
           "tooltip": "Number of targets on track vs. total active targets. Targets are considered on track when current emissions are below the required linear trajectory.",
           "onTrack": "on track",
-          "overallProgress": "Overall Progress"
+          "overallProgress": "Overall Progress",
+          "offTrackWarning": "Projected emissions exceed target trajectory"
         },
         "dataQuality": {
           "title": "Data Quality",
@@ -2338,9 +2359,11 @@
         "title": "Emissions by Scope",
         "tooltip": "GHG emissions distribution by scope. Scope 1: direct emissions. Scope 2: purchased energy. Scope 3: value chain. GRI 305-1/2/3, TCFD, ESRS E1.",
         "badges": {
+          "ghgProtocol": "GHG Protocol",
           "ghgScope1": "GHG Scope 1",
           "ghgScope2": "GHG Scope 2",
           "ghgScope3": "GHG Scope 3",
+          "gri305": "GRI 305",
           "gri3051": "GRI 305-1",
           "gri3052": "GRI 305-2",
           "gri3053": "GRI 305-3",
@@ -2402,7 +2425,7 @@
         "notSet": "Not set"
       },
       "sbtiTargets": {
-        "title": "Science Based Targets",
+        "title": "SBTi Targets",
         "validated": "SBTi Validated ✓",
         "ambition": "Ambition",
         "ambition1_5C": "1.5°C",
