@@ -1,14 +1,40 @@
 import nodemailer from 'nodemailer';
 
+// Validate SMTP configuration at module load time
+const SMTP_USER = process.env.SMTP_USER || process.env.EMAIL_USER;
+const SMTP_PASSWORD = process.env.SMTP_PASSWORD || process.env.EMAIL_PASSWORD;
+
+if (!SMTP_USER || !SMTP_PASSWORD) {
+  console.error('❌ SMTP Configuration Error:');
+  console.error('   SMTP_USER and SMTP_PASSWORD environment variables are required.');
+  console.error('   Please configure email credentials in your .env.local file.');
+  console.error('   See .env.example for reference.');
+
+  // In development, warn but don't throw
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('⚠️  Email functionality will not work until SMTP is configured.');
+  } else {
+    // In production, fail fast
+    throw new Error('SMTP credentials not configured. Email functionality is disabled.');
+  }
+}
+
 // Create reusable transporter using Gmail
 const createGmailTransporter = () => {
+  if (!SMTP_USER || !SMTP_PASSWORD) {
+    throw new Error(
+      'SMTP credentials not configured. Cannot send emails. ' +
+      'Please set SMTP_USER and SMTP_PASSWORD environment variables.'
+    );
+  }
+
   return nodemailer.createTransport({
     host: process.env.SMTP_SERVER || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
     secure: false, // true for 465, false for other ports
     auth: {
-      user: process.env.SMTP_USER || process.env.EMAIL_USER || 'pedro@blipee.com',
-      pass: process.env.SMTP_PASSWORD || process.env.EMAIL_PASSWORD || 'dptc xmxt vlwl hvgk'
+      user: SMTP_USER,
+      pass: SMTP_PASSWORD
     }
   });
 };
