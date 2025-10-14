@@ -49,14 +49,18 @@ export default function AuthCallbackPage() {
       }
 
       if (code) {
-        // OAuth/code flow
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        // OAuth/code flow (PKCE)
+        console.log("Exchanging code for session...");
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (error) {
-          console.error("Error exchanging code for session:", error);
-          router.push("/signin?error=auth_failed");
+          console.error("Error exchanging code for session:", error.message, error);
+          // Show more specific error
+          router.push(`/signin?error=auth_failed&message=${encodeURIComponent(error.message)}`);
           return;
         }
+
+        console.log("Code exchange successful, session:", !!data.session);
       } else if (accessToken && refreshToken) {
         // Magic link/invite flow with tokens
         const { error } = await supabase.auth.setSession({
@@ -96,19 +100,25 @@ export default function AuthCallbackPage() {
       });
 
       if (session) {
-        // Check if this is an invitation (type=invite or recovery)
-        const isInvitation = type === "invite" || type === "recovery";
+        // Check the type of authentication flow
+        const isPasswordRecovery = type === "recovery";
+        const isInvitation = type === "invite";
 
-        // Check if password has been set
-        const passwordSet = session.user.user_metadata?.password_set;
+        console.log("Session found - type:", type, "isPasswordRecovery:", isPasswordRecovery, "isInvitation:", isInvitation);
 
-        console.log("Session found - isInvitation:", isInvitation, "passwordSet:", passwordSet);
-
-        // If it's an invitation and password hasn't been set, redirect to set-password
-        if (isInvitation && !passwordSet) {
-          router.push("/set-password");
+        // If it's a password recovery, redirect to reset password page
+        if (isPasswordRecovery) {
+          router.push("/auth/reset-password");
+        } else if (isInvitation) {
+          // If it's an invitation, check if password has been set
+          const passwordSet = session.user.user_metadata?.password_set;
+          if (!passwordSet) {
+            router.push("/auth/accept-invitation");
+          } else {
+            router.push("/sustainability");
+          }
         } else {
-          // Otherwise redirect to the sustainability overview
+          // Regular login, redirect to sustainability overview
           router.push("/sustainability");
         }
       } else {
