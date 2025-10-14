@@ -64,7 +64,8 @@ interface DataAnomaly {
 export default function DataInvestigationPage() {
   useAuthRedirect('/sustainability/data-investigation');
   const { user } = useAuth();
-  const t = useTranslations('settings.sustainability');
+  const t = useTranslations('sustainability.dataInvestigation');
+  const tMonths = useTranslations('sustainability.months');
   
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<MetricData[]>([]);
@@ -95,9 +96,9 @@ export default function DataInvestigationPage() {
       const endDate = `${selectedYear}-12-31`;
       
       const res = await fetch(`/api/sustainability/metrics-investigation?startDate=${startDate}&endDate=${endDate}&site=${selectedSite}`);
-      
+
       if (!res.ok) {
-        throw new Error('Failed to fetch data');
+        throw new Error(t('failedToFetchData'));
       }
 
       const result = await res.json();
@@ -110,10 +111,10 @@ export default function DataInvestigationPage() {
       // Detect anomalies
       const anomalies = detectDataAnomalies(grouped, selectedYear);
       setDataAnomalies(anomalies);
-      
+
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error('Failed to load metrics data');
+      toast.error(t('failedToLoadMetricsData'));
     } finally {
       setLoading(false);
     }
@@ -169,7 +170,7 @@ export default function DataInvestigationPage() {
             metric: metricName,
             month: months[parseInt(month) - 1],
             year,
-            details: `${count} entries found`
+            details: t('details', { count })
           });
         }
       });
@@ -185,7 +186,7 @@ export default function DataInvestigationPage() {
               metric: metricName,
               month: months[parseInt(month) - 1],
               year,
-              details: 'No data recorded'
+              details: t('noDataRecorded')
             });
           }
         }
@@ -196,8 +197,8 @@ export default function DataInvestigationPage() {
   };
 
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    tMonths('jan'), tMonths('feb'), tMonths('mar'), tMonths('apr'), tMonths('may'), tMonths('jun'),
+    tMonths('jul'), tMonths('aug'), tMonths('sep'), tMonths('oct'), tMonths('nov'), tMonths('dec')
   ];
 
   const toggleMetricExpansion = (metricName: string) => {
@@ -256,10 +257,10 @@ export default function DataInvestigationPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Data Investigation
+              {t('title')}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Detailed monthly breakdown of all sustainability metrics
+              {t('subtitle')}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -280,7 +281,7 @@ export default function DataInvestigationPage() {
               onChange={(e) => setSelectedSite(e.target.value)}
               className="px-3 py-2 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 accent-ring cursor-pointer"
             >
-              <option value="all">All Sites</option>
+              <option value="all">{t('allSites')}</option>
               {sites.map(site => (
                 <option key={site.id} value={site.id}>{site.name}</option>
               ))}
@@ -292,7 +293,7 @@ export default function DataInvestigationPage() {
               className="px-4 py-2 flex items-center gap-2 bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/[0.05] rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-all"
             >
               <Download className="w-4 h-4" />
-              Export CSV
+              {t('exportCSV')}
             </button>
           </div>
         </div>
@@ -311,14 +312,14 @@ export default function DataInvestigationPage() {
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                  Data Quality Issues Detected
+                  {t('dataQualityIssues')}
                 </h3>
                 <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                  <p className="mb-2">The following anomalies were found in the {selectedYear} data:</p>
+                  <p className="mb-2">{t('anomaliesFound', { year: selectedYear })}</p>
                   <ul className="list-disc list-inside space-y-1">
                     {dataAnomalies.filter(a => a.type === 'duplicate').length > 0 && (
                       <li>
-                        <strong>Duplicate entries:</strong> {dataAnomalies.filter(a => a.type === 'duplicate').map((a, i) => (
+                        <strong>{t('duplicateEntries')}</strong> {dataAnomalies.filter(a => a.type === 'duplicate').map((a, i) => (
                           <span key={i}>
                             {i > 0 && ', '}
                             {a.metric} ({a.month} - {a.details})
@@ -328,20 +329,20 @@ export default function DataInvestigationPage() {
                     )}
                     {dataAnomalies.filter(a => a.type === 'missing').length > 0 && (
                       <li>
-                        <strong>Missing data:</strong> {dataAnomalies.filter(a => a.type === 'missing').slice(0, 5).map((a, i) => (
+                        <strong>{t('missingData')}</strong> {dataAnomalies.filter(a => a.type === 'missing').slice(0, 5).map((a, i) => (
                           <span key={i}>
                             {i > 0 && ', '}
                             {a.metric} ({a.month})
                           </span>
                         ))}
                         {dataAnomalies.filter(a => a.type === 'missing').length > 5 && (
-                          <span> and {dataAnomalies.filter(a => a.type === 'missing').length - 5} more...</span>
+                          <span> {t('andMore', { count: dataAnomalies.filter(a => a.type === 'missing').length - 5 })}</span>
                         )}
                       </li>
                     )}
                   </ul>
                   <p className="mt-2 text-xs">
-                    Note: It appears that October data may have been incorrectly recorded as March, resulting in duplicate March entries and missing October data.
+                    {t('noteOctoberMarch')}
                   </p>
                 </div>
               </div>
@@ -373,9 +374,9 @@ export default function DataInvestigationPage() {
                       {metricName}
                     </h3>
                     <div className="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      <span>Year Total: {yearTotal.toFixed(2)} {unit}</span>
+                      <span>{t('yearTotal')} {yearTotal.toFixed(2)} {unit}</span>
                       <span>•</span>
-                      <span>Emissions: {(yearEmissions / 1000).toFixed(2)} tCO2e</span>
+                      <span>{t('emissions')} {(yearEmissions / 1000).toFixed(2)} {t('totalEmissions')}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -396,22 +397,22 @@ export default function DataInvestigationPage() {
                         <thead>
                           <tr className="bg-gray-50 dark:bg-black/20">
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                              Month
+                              {t('month')}
                             </th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                              Value
+                              {t('value')}
                             </th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                              Unit
+                              {t('unit')}
                             </th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                              Emissions (kgCO2e)
+                              {t('emissionsKg')}
                             </th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                              Entries
+                              {t('entries')}
                             </th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                              Date Range
+                              {t('dateRange')}
                             </th>
                           </tr>
                         </thead>
@@ -446,11 +447,11 @@ export default function DataInvestigationPage() {
                                     {month} {selectedYear}
                                     {hasAnomaly && (
                                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                        anomalyType === 'duplicate' 
-                                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' 
+                                        anomalyType === 'duplicate'
+                                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
                                           : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
                                       }`}>
-                                        {anomalyType === 'duplicate' ? 'Duplicate' : 'Missing'}
+                                        {anomalyType === 'duplicate' ? t('duplicate') : t('missing')}
                                       </span>
                                     )}
                                   </div>
@@ -470,7 +471,7 @@ export default function DataInvestigationPage() {
                                       onClick={() => toggleEntryExpansion(`${metricName}-${monthKey}`)}
                                       className="text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
                                     >
-                                      {monthData.entries.length} entries
+                                      {t('entriesCount', { count: monthData.entries.length })}
                                       {expandedEntries.has(`${metricName}-${monthKey}`) ? ' ▼' : ' ▶'}
                                     </button>
                                   ) : (
@@ -487,20 +488,20 @@ export default function DataInvestigationPage() {
                                   <td colSpan={6} className="px-6 py-4 bg-gray-50 dark:bg-black/30">
                                     <div className="space-y-2">
                                       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Individual Entries for {month} {selectedYear}:
+                                        {t('individualEntries', { month, year: selectedYear })}
                                       </h4>
                                       <div className="overflow-x-auto">
                                         <table className="min-w-full divide-y divide-gray-200 dark:divide-white/[0.05]">
                                           <thead>
                                             <tr className="text-xs text-gray-500 dark:text-gray-400">
-                                              <th className="px-3 py-2 text-left">Entry ID</th>
-                                              <th className="px-3 py-2 text-left">Site</th>
-                                              <th className="px-3 py-2 text-right">Value</th>
-                                              <th className="px-3 py-2 text-right">Unit</th>
-                                              <th className="px-3 py-2 text-right">Emissions</th>
-                                              <th className="px-3 py-2 text-left">Period Start</th>
-                                              <th className="px-3 py-2 text-left">Period End</th>
-                                              <th className="px-3 py-2 text-left">Created At</th>
+                                              <th className="px-3 py-2 text-left">{t('entryId')}</th>
+                                              <th className="px-3 py-2 text-left">{t('site')}</th>
+                                              <th className="px-3 py-2 text-right">{t('value')}</th>
+                                              <th className="px-3 py-2 text-right">{t('unit')}</th>
+                                              <th className="px-3 py-2 text-right">{t('emissions')}</th>
+                                              <th className="px-3 py-2 text-left">{t('periodStart')}</th>
+                                              <th className="px-3 py-2 text-left">{t('periodEnd')}</th>
+                                              <th className="px-3 py-2 text-left">{t('createdAt')}</th>
                                             </tr>
                                           </thead>
                                           <tbody className="divide-y divide-gray-200 dark:divide-white/[0.05]">
@@ -510,7 +511,7 @@ export default function DataInvestigationPage() {
                                                   {entry.id.substring(0, 8)}...
                                                 </td>
                                                 <td className="px-3 py-2 text-gray-700 dark:text-gray-300">
-                                                  {entry.site?.name || 'Unknown'}
+                                                  {entry.site?.name || t('unknown')}
                                                 </td>
                                                 <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">
                                                   {entry.value.toFixed(2)}
@@ -545,7 +546,7 @@ export default function DataInvestigationPage() {
                           {/* Total Row */}
                           <tr className="bg-gray-50 dark:bg-black/20 font-semibold">
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                              Total
+                              {t('total')}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white">
                               {yearTotal.toFixed(2)}
@@ -574,7 +575,7 @@ export default function DataInvestigationPage() {
 
           {Object.keys(groupedData).length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">No data available for the selected period.</p>
+              <p className="text-gray-500 dark:text-gray-400">{t('noData')}</p>
             </div>
           )}
         </div>

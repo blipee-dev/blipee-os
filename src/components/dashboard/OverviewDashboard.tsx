@@ -28,6 +28,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import { useTranslations } from '@/providers/LanguageProvider';
 
 interface OverviewDashboardProps {
   organizationId: string;
@@ -43,43 +44,44 @@ interface ScopeData {
   categories: Array<{ name: string; value: number }>;
 }
 
-// Helper function to get action recommendations
-const getActionRecommendation = (categoryName: string): string => {
-  const nameLower = categoryName.toLowerCase();
-
-  if (nameLower.includes('electricity') || nameLower.includes('grid')) {
-    return '💡 Increase renewable energy procurement to 50%';
-  }
-  if (nameLower.includes('natural gas') || nameLower.includes('gas')) {
-    return '🔥 Install heat pump system for efficiency';
-  }
-  if (nameLower.includes('business travel') || nameLower.includes('travel')) {
-    return '✈️ Implement virtual meetings policy (+30%)';
-  }
-  if (nameLower.includes('fleet') || nameLower.includes('vehicle')) {
-    return '🚗 Transition fleet to electric vehicles';
-  }
-  if (nameLower.includes('waste') || nameLower.includes('disposal')) {
-    return '♻️ Increase waste diversion rate to 90%';
-  }
-  if (nameLower.includes('heating')) {
-    return '🌡️ Upgrade to efficient heating system';
-  }
-  if (nameLower.includes('cooling')) {
-    return '❄️ Optimize HVAC system controls';
-  }
-  if (nameLower.includes('commut')) {
-    return '🚲 Promote public transit & cycling';
-  }
-  if (nameLower.includes('water')) {
-    return '💧 Install water efficiency measures';
-  }
-
-  return '📊 Review and optimize this category';
-};
-
 export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod }: OverviewDashboardProps) {
+  const t = useTranslations('sustainability.dashboard');
   const [loading, setLoading] = useState(true);
+
+  // Helper function to get action recommendations
+  const getActionRecommendation = (categoryName: string): string => {
+    const nameLower = categoryName.toLowerCase();
+
+    if (nameLower.includes('electricity') || nameLower.includes('grid')) {
+      return t('topEmitters.recommendations.electricity');
+    }
+    if (nameLower.includes('natural gas') || nameLower.includes('gas')) {
+      return t('topEmitters.recommendations.naturalGas');
+    }
+    if (nameLower.includes('business travel') || nameLower.includes('travel')) {
+      return t('topEmitters.recommendations.businessTravel');
+    }
+    if (nameLower.includes('fleet') || nameLower.includes('vehicle')) {
+      return t('topEmitters.recommendations.fleet');
+    }
+    if (nameLower.includes('waste') || nameLower.includes('disposal')) {
+      return t('topEmitters.recommendations.waste');
+    }
+    if (nameLower.includes('heating')) {
+      return t('topEmitters.recommendations.heating');
+    }
+    if (nameLower.includes('cooling')) {
+      return t('topEmitters.recommendations.cooling');
+    }
+    if (nameLower.includes('commut')) {
+      return t('topEmitters.recommendations.commuting');
+    }
+    if (nameLower.includes('water')) {
+      return t('topEmitters.recommendations.water');
+    }
+
+    return t('topEmitters.recommendations.default');
+  };
 
   // Summary metrics
   const [totalEmissions, setTotalEmissions] = useState(0);
@@ -452,7 +454,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       <div className="flex items-center justify-center h-[400px]">
         <div className="text-center space-y-2">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto" />
-          <p className="text-gray-400">Loading overview data...</p>
+          <p className="text-gray-400">{t('loading')}</p>
         </div>
       </div>
     );
@@ -460,9 +462,9 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
   // Scope breakdown data for pie chart
   const scopeBreakdown = [
-    { name: 'Scope 1', value: scope1Total, color: '#EF4444' },
-    { name: 'Scope 2', value: scope2Total, color: '#3B82F6' },
-    { name: 'Scope 3', value: scope3Total, color: '#6B7280' }
+    { name: t('emissionsTrend.scope1'), value: scope1Total, color: '#EF4444' },
+    { name: t('emissionsTrend.scope2'), value: scope2Total, color: '#3B82F6' },
+    { name: t('emissionsTrend.scope3'), value: scope3Total, color: '#6B7280' }
   ].filter(s => s.value > 0);
 
   const scopePercentages = {
@@ -526,10 +528,10 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Leaf className="w-6 h-6 text-green-500" />
-            Sustainability Overview
+            {t('header.title')}
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            GRI 305 • GHG Protocol • Executive summary of emissions and targets
+            {t('header.subtitle')}
           </p>
         </div>
       </div>
@@ -537,17 +539,23 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       {/* Executive Summary Cards */}
       <div className="p-6 grid grid-cols-4 gap-4">
         {/* Total Emissions */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 group relative">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Total Emissions</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.totalEmissions.title')}</span>
+              <Info className="w-3 h-3 text-gray-400 dark:text-gray-500 cursor-help" />
+            </div>
             <Cloud className="w-4 h-4 text-purple-500" />
+          </div>
+          <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            {t('cards.totalEmissions.tooltip')}
           </div>
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {totalEmissions.toFixed(1)}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.totalEmissions.unit')}</div>
             </div>
             <div className="flex items-center gap-1">
               {totalEmissionsYoY < 0 ? (
@@ -556,24 +564,30 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                 <TrendingUp className={`w-3 h-3 ${totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
               )}
               <span className={`text-xs ${totalEmissionsYoY < 0 ? 'text-green-500' : totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                {totalEmissionsYoY > 0 ? '+' : ''}{totalEmissionsYoY.toFixed(1)}% YoY
+                {totalEmissionsYoY > 0 ? '+' : ''}{totalEmissionsYoY.toFixed(1)}{t('cards.totalEmissions.yoy')}
               </span>
             </div>
           </div>
         </div>
 
         {/* Emissions Intensity */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 group relative">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Intensity</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
+              <Info className="w-3 h-3 text-gray-400 dark:text-gray-500 cursor-help" />
+            </div>
             <Leaf className="w-4 h-4 text-green-500" />
+          </div>
+          <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            {t('cards.intensity.tooltip')}
           </div>
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {intensityMetric.toFixed(2)}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e/FTE</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.intensity.unit')}</div>
             </div>
             <div className="flex items-center gap-1">
               {intensityYoY < 0 ? (
@@ -582,29 +596,35 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                 <TrendingUp className={`w-3 h-3 ${intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
               )}
               <span className={`text-xs ${intensityYoY < 0 ? 'text-green-500' : intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                {intensityYoY > 0 ? '+' : ''}{intensityYoY.toFixed(1)}% YoY
+                {intensityYoY > 0 ? '+' : ''}{intensityYoY.toFixed(1)}{t('cards.intensity.yoy')}
               </span>
             </div>
           </div>
         </div>
 
         {/* Target Progress */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 group relative">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Target Progress</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.targetProgress.title')}</span>
+              <Info className="w-3 h-3 text-gray-400 dark:text-gray-500 cursor-help" />
+            </div>
             <Target className="w-4 h-4 text-blue-500" />
+          </div>
+          <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            {t('cards.targetProgress.tooltip')}
           </div>
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {targetsOnTrack}/{totalTargets}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">on track</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.targetProgress.onTrack')}</div>
             </div>
           </div>
           <div className="mt-3">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-gray-500 dark:text-gray-400">Overall Progress</span>
+              <span className="text-gray-500 dark:text-gray-400">{t('cards.targetProgress.overallProgress')}</span>
               <span className="font-medium text-gray-900 dark:text-white">{overallProgress.toFixed(0)}%</span>
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
@@ -617,22 +637,28 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         </div>
 
         {/* Data Quality */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 group relative">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Data Quality</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.dataQuality.title')}</span>
+              <Info className="w-3 h-3 text-gray-400 dark:text-gray-500 cursor-help" />
+            </div>
             <Info className="w-4 h-4 text-blue-500" />
+          </div>
+          <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            {t('cards.dataQuality.tooltip')}
           </div>
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {dataQuality?.primaryDataPercentage || 0}%
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Primary Data</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.dataQuality.primaryData')}</div>
             </div>
           </div>
           <div className="mt-3">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-gray-500 dark:text-gray-400">Verified</span>
+              <span className="text-gray-500 dark:text-gray-400">{t('cards.dataQuality.verified')}</span>
               <span className="font-medium text-gray-900 dark:text-white">
                 {dataQuality?.verifiedPercentage || 0}%
               </span>
@@ -652,31 +678,39 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         {/* Scope Breakdown */}
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Emissions by Scope</h3>
+            <div className="flex items-center gap-2 group relative">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('scopeBreakdown.title')}</h3>
+              <div className="relative">
+                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
+                <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  {t('scopeBreakdown.tooltip')}
+                </div>
+              </div>
+            </div>
             <div className="flex gap-1 flex-wrap justify-end">
               <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                GHG Scope 1
+                {t('scopeBreakdown.badges.ghgScope1')}
               </span>
               <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                GHG Scope 2
+                {t('scopeBreakdown.badges.ghgScope2')}
               </span>
               <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                GHG Scope 3
+                {t('scopeBreakdown.badges.ghgScope3')}
               </span>
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-1
+                {t('scopeBreakdown.badges.gri3051')}
               </span>
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-2
+                {t('scopeBreakdown.badges.gri3052')}
               </span>
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-3
+                {t('scopeBreakdown.badges.gri3053')}
               </span>
               <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
-                TCFD
+                {t('scopeBreakdown.badges.tcfd')}
               </span>
               <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                ESRS E1
+                {t('scopeBreakdown.badges.esrsE1')}
               </span>
             </div>
           </div>
@@ -705,47 +739,48 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                       const data = payload[0];
                       const scopeName = data.name;
 
-                      if (scopeName === 'Scope 1') {
+                      // Match translated scope names
+                      if (scopeName === t('emissionsTrend.scope1') || scopeName === 'Scope 1') {
                         return (
                           <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl">
-                            <div className="font-semibold mb-1">Scope 1: Direct Emissions</div>
+                            <div className="font-semibold mb-1">{t('scopeBreakdown.scope1Tooltip.title')}</div>
                             <div className="text-gray-300 mb-2">
-                              Direct GHG emissions from sources owned or controlled by the organization (e.g., company vehicles, on-site fuel combustion)
+                              {t('scopeBreakdown.scope1Tooltip.description')}
                             </div>
                             <div className="font-medium">{scope1Total.toFixed(1)} tCO2e ({scopePercentages.scope1.toFixed(0)}%)</div>
                           </div>
                         );
-                      } else if (scopeName === 'Scope 2') {
+                      } else if (scopeName === t('emissionsTrend.scope2') || scopeName === 'Scope 2') {
                         return (
                           <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
-                            <div className="font-semibold mb-2">Scope 2: Purchased Energy</div>
+                            <div className="font-semibold mb-2">{t('scopeBreakdown.scope2Tooltip.title')}</div>
                             <div className="space-y-1 text-gray-300 mb-2">
-                              <div><span className="font-medium">Location-Based:</span> {scope2LocationBased.toFixed(1)} tCO2e</div>
-                              <div><span className="font-medium">Market-Based:</span> {scope2MarketBased.toFixed(1)} tCO2e</div>
+                              <div><span className="font-medium">{t('scopeBreakdown.scope2Tooltip.locationBased')}</span> {scope2LocationBased.toFixed(1)} tCO2e</div>
+                              <div><span className="font-medium">{t('scopeBreakdown.scope2Tooltip.marketBased')}</span> {scope2MarketBased.toFixed(1)} tCO2e</div>
                             </div>
                             <div className="text-gray-300 mb-2">
-                              Indirect emissions from purchased electricity, heating, cooling, and steam. Dual reporting per GRI 305-2 & GHG Protocol.
+                              {t('scopeBreakdown.scope2Tooltip.description')}
                             </div>
                             <div className="font-medium">{scope2Total.toFixed(1)} tCO2e ({scopePercentages.scope2.toFixed(0)}%)</div>
                           </div>
                         );
-                      } else if (scopeName === 'Scope 3') {
+                      } else if (scopeName === t('emissionsTrend.scope3') || scopeName === 'Scope 3') {
                         return (
                           <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
-                            <div className="font-semibold mb-2">Scope 3: Value Chain Emissions</div>
+                            <div className="font-semibold mb-2">{t('scopeBreakdown.scope3Tooltip.title')}</div>
                             <div className="space-y-1 text-gray-300 mb-2">
-                              <div><span className="font-medium">Total Emissions:</span> {scope3Total.toFixed(1)} tCO2e</div>
-                              <div><span className="font-medium">Percentage:</span> {scopePercentages.scope3.toFixed(0)}%</div>
+                              <div><span className="font-medium">{t('scopeBreakdown.scope3Tooltip.totalEmissions')}</span> {scope3Total.toFixed(1)} tCO2e</div>
+                              <div><span className="font-medium">{t('scopeBreakdown.scope3Tooltip.percentage')}</span> {scopePercentages.scope3.toFixed(0)}%</div>
                               <div className="pt-1 border-t border-gray-700 mt-1">
-                                <div className="font-medium mb-1">Category Coverage: {scope3Coverage?.tracked || 0}/15</div>
+                                <div className="font-medium mb-1">{t('scopeBreakdown.scope3Tooltip.categoryCoverage')}: {scope3Coverage?.tracked || 0}/15</div>
                                 <div className="flex items-center justify-between text-[10px]">
-                                  <span className="text-green-400">✓ {scope3Coverage?.tracked || 0} Tracked</span>
-                                  <span className="text-orange-400">⚠ {scope3Coverage?.missing || 12} Missing</span>
+                                  <span className="text-green-400">✓ {scope3Coverage?.tracked || 0} {t('scopeBreakdown.scope3Tooltip.tracked')}</span>
+                                  <span className="text-orange-400">⚠ {scope3Coverage?.missing || 12} {t('scopeBreakdown.scope3Tooltip.missing')}</span>
                                 </div>
                               </div>
                             </div>
                             <div className="text-gray-300 text-[10px]">
-                              All indirect emissions in value chain (upstream & downstream). Per GRI 305-3.
+                              {t('scopeBreakdown.scope3Tooltip.description')}
                             </div>
                           </div>
                         );
@@ -763,7 +798,15 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         {/* Emissions Trend */}
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Emissions Trend</h3>
+            <div className="flex items-center gap-2 group relative">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('emissionsTrend.title')}</h3>
+              <div className="relative">
+                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
+                <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  {t('emissionsTrend.tooltip')}
+                </div>
+              </div>
+            </div>
             <div className="flex gap-1 flex-wrap justify-end">
               <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
                 TCFD
@@ -814,30 +857,30 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                         <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
                           <p className="text-white font-semibold mb-2">
                             {data.month}
-                            {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
+                            {isForecast && <span className="ml-2 text-xs text-blue-400">({t('emissionsTrend.forecast')})</span>}
                           </p>
                           <div className="space-y-1">
                             {scope1 != null && (
                               <div className="flex items-center justify-between gap-3">
-                                <span className="text-red-400 text-sm">Scope 1:</span>
+                                <span className="text-red-400 text-sm">{t('emissionsTrend.scope1')}:</span>
                                 <span className="text-white font-medium">{scope1.toFixed(1)} tCO2e</span>
                               </div>
                             )}
                             {scope2 != null && (
                               <div className="flex items-center justify-between gap-3">
-                                <span className="text-blue-400 text-sm">Scope 2:</span>
+                                <span className="text-blue-400 text-sm">{t('emissionsTrend.scope2')}:</span>
                                 <span className="text-white font-medium">{scope2.toFixed(1)} tCO2e</span>
                               </div>
                             )}
                             {scope3 != null && (
                               <div className="flex items-center justify-between gap-3">
-                                <span className="text-gray-400 text-sm">Scope 3:</span>
+                                <span className="text-gray-400 text-sm">{t('emissionsTrend.scope3')}:</span>
                                 <span className="text-white font-medium">{scope3.toFixed(1)} tCO2e</span>
                               </div>
                             )}
                             {total != null && (
                               <div className="flex items-center justify-between gap-3 pt-1 border-t border-gray-700">
-                                <span className="text-purple-400 text-sm font-semibold">Total:</span>
+                                <span className="text-purple-400 text-sm font-semibold">{t('emissionsTrend.total')}:</span>
                                 <span className="text-white font-semibold">{total.toFixed(1)} tCO2e</span>
                               </div>
                             )}
@@ -855,7 +898,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   dataKey="total"
                   stroke="#8B5CF6"
                   strokeWidth={2.5}
-                  name="Total Emissions"
+                  name={t('emissionsTrend.totalEmissions')}
                   dot={{ r: 4, fill: "#8B5CF6" }}
                   connectNulls
                 />
@@ -864,7 +907,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   dataKey="scope1"
                   stroke="#EF4444"
                   strokeWidth={2}
-                  name="Scope 1"
+                  name={t('emissionsTrend.scope1')}
                   dot={{ r: 3, fill: "#EF4444" }}
                   connectNulls
                 />
@@ -873,7 +916,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   dataKey="scope2"
                   stroke="#3B82F6"
                   strokeWidth={2}
-                  name="Scope 2"
+                  name={t('emissionsTrend.scope2')}
                   dot={{ r: 3, fill: "#3B82F6" }}
                   connectNulls
                 />
@@ -882,7 +925,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   dataKey="scope3"
                   stroke="#6B7280"
                   strokeWidth={2}
-                  name="Scope 3"
+                  name={t('emissionsTrend.scope3')}
                   dot={{ r: 3, fill: "#6B7280" }}
                   connectNulls
                 />
@@ -893,7 +936,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   stroke="#8B5CF6"
                   strokeWidth={2.5}
                   strokeDasharray="5 5"
-                  name="Total Emissions"
+                  name={t('emissionsTrend.totalEmissions')}
                   dot={{ fill: 'transparent', stroke: "#8B5CF6", strokeWidth: 2, r: 4 }}
                   connectNulls
                   legendType="none"
@@ -904,7 +947,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   stroke="#EF4444"
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  name="Scope 1"
+                  name={t('emissionsTrend.scope1')}
                   dot={{ fill: 'transparent', stroke: "#EF4444", strokeWidth: 2, r: 3 }}
                   connectNulls
                   legendType="none"
@@ -915,7 +958,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   stroke="#3B82F6"
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  name="Scope 2"
+                  name={t('emissionsTrend.scope2')}
                   dot={{ fill: 'transparent', stroke: "#3B82F6", strokeWidth: 2, r: 3 }}
                   connectNulls
                   legendType="none"
@@ -926,7 +969,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   stroke="#6B7280"
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  name="Scope 3"
+                  name={t('emissionsTrend.scope3')}
                   dot={{ fill: 'transparent', stroke: "#6B7280", strokeWidth: 2, r: 3 }}
                   connectNulls
                   legendType="none"
@@ -935,7 +978,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
             </ResponsiveContainer>
           ) : (
             <div className="flex items-center justify-center h-[250px]">
-              <p className="text-gray-400 text-sm">No trend data available</p>
+              <p className="text-gray-400 text-sm">{t('emissionsTrend.noData')}</p>
             </div>
           )}
         </div>
@@ -945,10 +988,16 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <div className="flex items-center gap-2 group relative">
               <Factory className="w-5 h-5 text-purple-500" />
-              Organizational Boundaries
-            </h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('organizationalBoundaries.title')}</h3>
+              <div className="relative">
+                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
+                <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  {t('organizationalBoundaries.tooltip')}
+                </div>
+              </div>
+            </div>
             <div className="flex gap-1 flex-wrap justify-end">
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
                 GRI 2-1
@@ -966,7 +1015,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                  Consolidation Approach
+                  {t('organizationalBoundaries.consolidationApproach')}
                 </div>
                 <div className="text-base font-semibold text-gray-900 dark:text-white">
                   {orgBoundaries.consolidationApproach}
@@ -975,7 +1024,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
               <div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                  Sites Included
+                  {t('organizationalBoundaries.sitesIncluded')}
                 </div>
                 <div className="text-base font-semibold text-gray-900 dark:text-white">
                   {orgBoundaries.sitesIncluded}/{orgBoundaries.sitesTotal}
@@ -987,7 +1036,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
               <div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                  Base Year
+                  {t('organizationalBoundaries.baseYear')}
                 </div>
                 <div className="text-base font-semibold text-gray-900 dark:text-white">
                   {orgBoundaries.baseYear}
@@ -996,16 +1045,16 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
               <div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                  Employees (FTE)
+                  {t('organizationalBoundaries.employees')}
                 </div>
                 <div className="text-base font-semibold text-gray-900 dark:text-white">
-                  {orgBoundaries.employees?.toLocaleString() || 'Not set'}
+                  {orgBoundaries.employees?.toLocaleString() || t('organizationalBoundaries.notSet')}
                 </div>
               </div>
             </div>
           ) : (
             <div className="text-center py-4 text-gray-400 text-sm">
-              Loading organizational data...
+              {t('organizationalBoundaries.loading')}
             </div>
           )}
 
@@ -1014,11 +1063,11 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-                  Science Based Targets
+                  {t('sbtiTargets.title')}
                 </h4>
                 {sbtiTargets.validated && (
                   <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded font-medium">
-                    SBTi Validated ✓
+                    {t('sbtiTargets.validated')}
                   </span>
                 )}
               </div>
@@ -1027,12 +1076,12 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                 {sbtiTargets.ambition && (
                   <div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      Ambition
+                      {t('sbtiTargets.ambition')}
                     </div>
                     <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {sbtiTargets.ambition === '1.5C' ? '1.5°C aligned' :
-                       sbtiTargets.ambition === 'well-below-2C' ? 'Well-below 2°C' :
-                       sbtiTargets.ambition === 'net-zero' ? 'Net-Zero' : sbtiTargets.ambition}
+                      {sbtiTargets.ambition === '1.5C' ? t('sbtiTargets.ambition1_5C') :
+                       sbtiTargets.ambition === 'well-below-2C' ? t('sbtiTargets.ambitionWellBelow2C') :
+                       sbtiTargets.ambition === 'net-zero' ? t('sbtiTargets.ambitionNetZero') : sbtiTargets.ambition}
                     </div>
                   </div>
                 )}
@@ -1040,10 +1089,10 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                 {sbtiTargets.nearTermTarget && (
                   <div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      Near-term Target
+                      {t('sbtiTargets.nearTermTarget')}
                     </div>
                     <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                      -{sbtiTargets.nearTermTarget.reductionPercent}% by {sbtiTargets.nearTermTarget.targetYear}
+                      -{sbtiTargets.nearTermTarget.reductionPercent}% {t('sbtiTargets.by')} {sbtiTargets.nearTermTarget.targetYear}
                     </div>
                   </div>
                 )}
@@ -1051,7 +1100,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                 {sbtiTargets.netZeroTarget && (
                   <div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      Net-Zero Target
+                      {t('sbtiTargets.netZeroTarget')}
                     </div>
                     <div className="text-sm font-semibold text-gray-900 dark:text-white">
                       {sbtiTargets.netZeroTarget.targetYear}
@@ -1064,11 +1113,17 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         </div>
 
         {/* Top Emitters */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
+        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px] flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 group relative">
               <AlertTriangle className="w-5 h-5 text-orange-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Top Emission Sources</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('topEmitters.title')}</h3>
+              <div className="relative">
+                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
+                <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  {t('topEmitters.tooltip')}
+                </div>
+              </div>
             </div>
             <div className="flex gap-1 flex-wrap justify-end">
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
@@ -1080,12 +1135,17 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
             </div>
           </div>
 
-          <div className="space-y-2">
-            {topEmitters.map((emitter, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3 group relative">
+          <div className="space-y-2 overflow-y-auto flex-1 pr-2">
+            {topEmitters.map((emitter, index) => {
+              // Translate category name if available, otherwise use original name
+              const translatedName = t(`topEmitters.categories.${emitter.name}`, { defaultValue: emitter.name });
+              const recommendation = getActionRecommendation(emitter.name);
+
+              return (
+              <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {index + 1}. {emitter.name}
+                    {index + 1}. {translatedName}
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-900 dark:text-white font-semibold">
@@ -1098,7 +1158,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-2">
                   <div
                     className="h-1.5 rounded-full transition-all"
                     style={{
@@ -1108,13 +1168,13 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   />
                 </div>
 
-                {/* Tooltip with recommendation */}
-                <div className="absolute left-0 top-full mt-2 w-full p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <div className="font-semibold mb-1 text-blue-400">Recommendation:</div>
-                  <div className="text-gray-300">{getActionRecommendation(emitter.name)}</div>
+                {/* Recommendation text */}
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  {recommendation}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -1126,10 +1186,16 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
           <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <div className="flex items-center gap-2 group relative">
                   <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  SBTi Target Progress
-                </h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('sbtiProgress.title')}</h3>
+                  <div className="relative">
+                    <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
+                    <div className="absolute left-0 top-full mt-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      {t('sbtiProgress.tooltip')}
+                    </div>
+                  </div>
+                </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   {targetData.targets[0].target_name} • {targetData.targets[0].baseline_year} → {targetData.targets[0].target_year}
                 </p>
@@ -1150,7 +1216,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   </span>
                 </div>
                 <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
-                  {(targetData.targets[0].reduction_percentage || 0).toFixed(1)}% Reduction Target
+                  {(targetData.targets[0].reduction_percentage || 0).toFixed(1)}% {t('sbtiProgress.reductionTarget')}
                 </div>
               </div>
             </div>
@@ -1160,7 +1226,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Baseline ({targetData.targets[0].baseline_year})
+                    {t('sbtiProgress.baseline')} ({targetData.targets[0].baseline_year})
                   </span>
                 </div>
                 <div className="text-xl font-bold text-gray-900 dark:text-white">
@@ -1173,7 +1239,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-orange-200/50 dark:border-orange-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Current ({new Date().getFullYear()})
+                    {t('sbtiProgress.current')} ({new Date().getFullYear()})
                     {targetData.targets[0].is_forecast && (
                       <span className="ml-1 text-purple-500">*</span>
                     )}
@@ -1190,7 +1256,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   {projectedAnnualEmissions > 0 ? (
-                    <span className="text-purple-500">Actual + ML Forecast</span>
+                    <span className="text-purple-500">{t('sbtiProgress.actualPlusForecast')}</span>
                   ) : (
                     <span>tCO2e</span>
                   )}
@@ -1201,7 +1267,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-blue-200/50 dark:border-blue-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Required ({new Date().getFullYear()})
+                    {t('sbtiProgress.required')} ({new Date().getFullYear()})
                   </span>
                 </div>
                 <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
@@ -1221,14 +1287,14 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                     return requiredEmissions.toFixed(1);
                   })()}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e on track</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{t('sbtiProgress.onTrack')}</div>
               </div>
 
               {/* Target */}
               <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Target ({targetData.targets[0].target_year})
+                    {t('sbtiProgress.target')} ({targetData.targets[0].target_year})
                   </span>
                 </div>
                 <div className="text-xl font-bold text-gray-900 dark:text-white">
@@ -1240,7 +1306,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               {/* Progress */}
               <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Progress</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{t('sbtiProgress.progress')}</span>
                 </div>
                 <div className="text-xl font-bold">
                   {(() => {
@@ -1284,10 +1350,10 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                     const requiredReduction = annualRate * yearsElapsed;
 
                     if (current > baseline) {
-                      return 'Above Baseline';
+                      return t('sbtiProgress.aboveBaseline');
                     } else {
                       const actualReduction = baseline > 0 ? ((baseline - current) / baseline) * 100 : 0;
-                      const status = actualReduction >= requiredReduction ? 'On Track' : 'At Risk';
+                      const status = actualReduction >= requiredReduction ? t('sbtiProgress.onTrackStatus') : t('sbtiProgress.atRisk');
                       return status;
                     }
                   })()}
@@ -1297,7 +1363,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
             {/* Waterfall Chart */}
             <div className="mt-6">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Emissions Trajectory</h4>
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('waterfallChart.title')}</h4>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart
                   data={(() => {
@@ -1323,14 +1389,14 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                     // Waterfall data with invisible base bars and visible change bars
                     return [
                       {
-                        name: `${baselineYear}\nBaseline`,
+                        name: `${baselineYear}\n${t('waterfallChart.baseline')}`,
                         base: 0,
                         value: baseline,
                         total: baseline,
                         label: baseline.toFixed(1)
                       },
                       {
-                        name: `Required\nReduction`,
+                        name: `${t('waterfallChart.required')}\n${t('waterfallChart.reduction')}`,
                         base: requiredEmissions, // Position at the bottom (where we should end up)
                         value: requiredReduction, // Height of the reduction bar
                         total: baseline, // Connects to baseline
@@ -1338,7 +1404,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                         isRequiredReduction: true
                       },
                       {
-                        name: `${currentYear}\nRequired`,
+                        name: `${currentYear}\n${t('waterfallChart.required')}`,
                         base: 0,
                         value: requiredEmissions,
                         total: requiredEmissions,
@@ -1346,7 +1412,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                         isRequired: true
                       },
                       {
-                        name: 'Gap from\nRequired',
+                        name: `${t('waterfallChart.gap')}\n${t('waterfallChart.required')}`,
                         base: requiredEmissions,
                         value: gapFromRequired,
                         total: current,
@@ -1354,7 +1420,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                         isGap: true
                       },
                       {
-                        name: `${currentYear}\nActual`,
+                        name: `${currentYear}\n${t('waterfallChart.actual')}`,
                         base: 0,
                         value: current,
                         total: current,
@@ -1362,7 +1428,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                         isCurrent: true
                       },
                       {
-                        name: `${targetYear}\nTarget`,
+                        name: `${targetYear}\n${t('waterfallChart.target')}`,
                         base: 0,
                         value: target,
                         total: target,
@@ -1406,15 +1472,15 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                             <div className="space-y-1 text-xs">
                               {data.label && data.label.includes('-') ? (
                                 <p className="text-green-400">
-                                  Reduction: <span className="font-medium">{value.toFixed(1)} tCO2e</span>
+                                  {t('waterfallChart.tooltip.reduction')}: <span className="font-medium">{value.toFixed(1)} tCO2e</span>
                                 </p>
                               ) : data.label && data.label.includes('+') ? (
                                 <p className="text-red-400">
-                                  Increase: <span className="font-medium">{value.toFixed(1)} tCO2e</span>
+                                  {t('waterfallChart.tooltip.increase')}: <span className="font-medium">{value.toFixed(1)} tCO2e</span>
                                 </p>
                               ) : (
                                 <p className="text-gray-300">
-                                  Total: <span className="font-medium text-white">{total.toFixed(1)} tCO2e</span>
+                                  {t('waterfallChart.tooltip.total')}: <span className="font-medium text-white">{total.toFixed(1)} tCO2e</span>
                                 </p>
                               )}
                             </div>
