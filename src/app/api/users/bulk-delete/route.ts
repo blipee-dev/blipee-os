@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { PermissionService } from '@/lib/auth/permission-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,26 +22,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User IDs are required' }, { status: 400 });
     }
 
-    // Check if current user is super admin
-    const { data: superAdminCheck } = await supabaseAdmin
-      .from('super_admins')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
-
-    // Get current user's role
-    const { data: currentUser } = await supabaseAdmin
+    // Get users to check organization
+    const { data: usersToCheck } = await supabaseAdmin
       .from('app_users')
-      .select('role')
-      .eq('auth_user_id', user.id)
-      .single();
+      .select('id, organization_id')
+      .in('id', userIds)
+      .limit(1);
 
-    // Only super admins, owners, and managers can delete users
-    const canDelete = superAdminCheck || (currentUser && (currentUser.role === 'owner' || currentUser.role === 'manager'));
+    if (!usersToCheck || usersToCheck.length === 0) {
+      return NextResponse.json({ error: 'No users found' }, { status: 404 });
+    }
+
+    // Check permission using centralized service (check against first user's org)
+    const canDelete = await PermissionService.canManageUsers(user.id, usersToCheck[0].organization_id);
 
     if (!canDelete) {
       return NextResponse.json({ error: 'Insufficient permissions to delete users' }, { status: 403 });
     }
+
+    // Get current user for audit logging
+    const { data: currentUser } = await supabaseAdmin
+      .from('app_users')
+      .select('email')
+      .eq('auth_user_id', user.id)
+      .single();
 
     // Get all users to be deleted with their auth_user_ids
     const { data: usersToDelete, error: fetchError } = await supabaseAdmin

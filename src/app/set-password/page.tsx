@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "@/providers/LanguageProvider";
 import { motion } from "framer-motion";
 import { AuthLayout } from "@/components/auth/AuthLayout";
+import { PasswordStrengthMeter } from "@/components/auth/PasswordStrengthMeter";
 import {
   Lock,
   Loader2,
@@ -32,17 +33,36 @@ export default function SetPasswordPage() {
   const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
-    // Get user info from the current session
+    // Get user info from the current session using auth state listener
     const checkSession = async () => {
       const supabase = createClient();
 
-      // Wait a bit longer for the session to be fully established
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Set up auth state listener for real-time session updates
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session?.user) {
+          console.log("Set-password: Session detected via auth state change", session.user.email);
 
+          setUserEmail(session.user.email || "");
+          setUserName(session.user.user_metadata?.full_name ||
+                      session.user.user_metadata?.name ||
+                      session.user.email?.split('@')[0] || "");
+
+          // Check if password has already been set
+          if (session.user.user_metadata?.password_set) {
+            console.log("Set-password: Password already set, redirecting to app");
+            router.push("/blipee-ai");
+          } else {
+            console.log("Set-password: Showing password setup form");
+            setSessionChecked(true);
+          }
+        }
+      });
+
+      // Also check immediately for existing session
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session?.user) {
-        console.log("Set-password: Session found for", session.user.email);
+        console.log("Set-password: Session found immediately for", session.user.email);
         setUserEmail(session.user.email || "");
         setUserName(session.user.user_metadata?.full_name ||
                     session.user.user_metadata?.name ||
@@ -57,23 +77,23 @@ export default function SetPasswordPage() {
           setSessionChecked(true);
         }
       } else {
-        // Try to get the session one more time after a longer delay
-        console.log("Set-password: No session found, retrying...");
-        setTimeout(async () => {
-          const { data: { session: retrySession } } = await supabase.auth.getSession();
-          if (retrySession?.user) {
-            console.log("Set-password: Session found on retry for", retrySession.user.email);
-            setUserEmail(retrySession.user.email || "");
-            setUserName(retrySession.user.user_metadata?.full_name ||
-                        retrySession.user.user_metadata?.name ||
-                        retrySession.user.email?.split('@')[0] || "");
-            setSessionChecked(true);
-          } else {
-            console.log("Set-password: Still no session, redirecting to signin");
-            router.push("/signin");
-          }
-        }, 2000);
+        // If no session after timeout, redirect to signin
+        const timeoutId = setTimeout(() => {
+          console.log("Set-password: No session found after timeout, redirecting to signin");
+          router.push("/signin");
+        }, 5000);
+
+        // Cleanup timeout if session is found
+        return () => {
+          clearTimeout(timeoutId);
+          subscription.unsubscribe();
+        };
       }
+
+      // Cleanup subscription
+      return () => {
+        subscription.unsubscribe();
+      };
     };
 
     checkSession();
@@ -127,19 +147,32 @@ export default function SetPasswordPage() {
       }
 
       // Update user metadata to mark as onboarded and password set
-      await supabase.auth.updateUser({
+      const { error: metadataError } = await supabase.auth.updateUser({
         data: {
           onboarded: true,
           password_set: true
         }
       });
 
+      if (metadataError) {
+        throw metadataError;
+      }
+
       setSuccess(true);
 
-      // Redirect after a short delay
+      // Wait for auth state to update, then redirect
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session?.user?.user_metadata?.password_set) {
+          subscription.unsubscribe();
+          router.push("/blipee-ai");
+        }
+      });
+
+      // Fallback redirect after 3 seconds if auth state doesn't update
       setTimeout(() => {
+        subscription.unsubscribe();
         router.push("/blipee-ai");
-      }, 2000);
+      }, 3000);
 
     } catch (err: any) {
       setError(err.message || t('failedToSetPassword') || "Failed to set password");
@@ -262,6 +295,17 @@ export default function SetPasswordPage() {
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
+
+          {/* Password strength meter */}
+          {password && (
+            <div className="mt-2">
+              <PasswordStrengthMeter
+                password={password}
+                userInputs={[userEmail, userName]}
+                showFeedback={true}
+              />
+            </div>
+          )}
         </div>
 
         {/* Confirm Password */}

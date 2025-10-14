@@ -4,6 +4,8 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { SimpleRoleName, LEGACY_TO_SIMPLE_MAPPING } from '@/lib/rbac/types';
 import { sendInvitationEmailViaGmail } from '@/lib/email/send-invitation-gmail';
 import { PermissionService } from '@/lib/auth/permission-service';
+import { checkRateLimit, getRequestIdentifier, RateLimitPresets } from '@/lib/auth/rate-limiter';
+import { validateEmail } from '@/lib/auth/email-validator';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,9 +18,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Rate limiting check
+    const identifier = getRequestIdentifier(request, user.id);
+    const rateLimitResult = await checkRateLimit(identifier, RateLimitPresets.invitation);
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Rate limit exceeded. Too many user invitations.',
+          retryAfter: Math.ceil((rateLimitResult.reset.getTime() - Date.now()) / 1000)
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': rateLimitResult.reset.toISOString(),
+            'Retry-After': Math.ceil((rateLimitResult.reset.getTime() - Date.now()) / 1000).toString()
+          }
+        }
+      );
+    }
+
     // Get request body
     const body = await request.json();
     const { name, email, role, organization_id, status, site_ids, access_level } = body;
+
+    // Validate email before processing
+    const emailValidation = validateEmail(email, false); // Set to true to require business emails
+    if (!emailValidation.isValid) {
+      return NextResponse.json({
+        error: emailValidation.error,
+        suggestion: emailValidation.suggestion,
+        warnings: emailValidation.warnings
+      }, { status: 400 });
+    }
+
+    // Log warnings if any (but continue)
+    if (emailValidation.warnings && emailValidation.warnings.length > 0) {
+      console.warn(`Email validation warnings for ${email}:`, emailValidation.warnings);
+    }
 
     // Check if user has permission to create users using centralized permission service
     const canCreate = await PermissionService.canManageUsers(user.id, organization_id);
@@ -178,67 +217,65 @@ export async function POST(request: NextRequest) {
     }
 
     // Auth user created successfully
-    // The trigger should have created the app_users record, but let's check
-    // First, wait a brief moment for the trigger to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Wait for the trigger to create app_users record (with retry logic)
+    let newUser = null;
+    let attempts = 0;
+    const maxAttempts = 5;
 
-    // Check if the trigger created the user
-    let { data: newUser, error: fetchError } = await supabaseAdmin
-      .from('app_users')
-      .select()
-      .eq('email', email)
-      .single();
+    while (attempts < maxAttempts && !newUser) {
+      attempts++;
 
-    // If the trigger didn't create it (or there was an error), create it manually
-    if (!newUser || fetchError) {
-      const { data: createdUser, error: createError } = await supabaseAdmin
+      // Wait progressively longer (50ms, 100ms, 150ms, 200ms, 250ms)
+      if (attempts > 1) {
+        await new Promise(resolve => setTimeout(resolve, attempts * 50));
+      }
+
+      const { data: fetchedUser, error: fetchError } = await supabaseAdmin
         .from('app_users')
-        .insert([{
-          name,
-          email,
-          role,
-          organization_id,
-          auth_user_id: authUser.user.id,
-          status: 'pending', // Will become active after first login
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          permissions: {
-            access_level: access_level || 'organization',
-            site_ids: access_level === 'site' ? (site_ids || []) : []
-          }
-        }])
         .select()
+        .eq('auth_user_id', authUser.user.id) // Query by auth_user_id (more reliable with unique constraint)
         .single();
 
-      if (createError) {
-        console.error('Error creating app user:', createError);
-        // If app_users creation fails, we should clean up the auth user
+      if (fetchedUser) {
+        newUser = fetchedUser;
+
+        // Update with correct metadata if needed
+        const { data: updatedUser } = await supabaseAdmin
+          .from('app_users')
+          .update({
+            name,
+            role,
+            organization_id,
+            status: 'pending',
+            permissions: {
+              access_level: access_level || 'organization',
+              site_ids: access_level === 'site' ? (site_ids || []) : []
+            }
+          })
+          .eq('id', fetchedUser.id)
+          .select()
+          .single();
+
+        if (updatedUser) {
+          newUser = updatedUser;
+        }
+        break;
+      }
+
+      if (attempts === maxAttempts) {
+        console.error(`Failed to find app_user after ${maxAttempts} attempts for auth_user_id: ${authUser.user.id}`);
+        // Clean up the auth user since app_users creation failed
         await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
-        return NextResponse.json({ error: createError.message }, { status: 500 });
+        return NextResponse.json({
+          error: 'User creation failed. The database trigger did not create the user record.'
+        }, { status: 500 });
       }
+    }
 
-      newUser = createdUser;
-    } else {
-      // If trigger created it, update it with the correct data
-      const { data: updatedUser } = await supabaseAdmin
-        .from('app_users')
-        .update({
-          name,
-          role,
-          organization_id,
-          status: 'pending',
-          permissions: {
-            access_level: access_level || 'organization',
-            site_ids: access_level === 'site' ? (site_ids || []) : []
-          }
-        })
-        .eq('email', email)
-        .select()
-        .single();
-
-      if (updatedUser) {
-        newUser = updatedUser;
-      }
+    if (!newUser) {
+      return NextResponse.json({
+        error: 'User creation failed. Could not retrieve user record.'
+      }, { status: 500 });
     }
 
     return NextResponse.json({ user: { ...newUser, site_ids, access_level } });
