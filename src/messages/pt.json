@@ -1930,6 +1930,24 @@
       "title": "Gestão de Utilizadores",
       "subtitle": "Gerir membros da equipa e suas permissões",
       "searchPlaceholder": "Pesquisar utilizadores...",
+      "filter": "Filtrar",
+      "download": "Baixar",
+      "upload": "Carregar",
+      "addUser": "Adicionar Utilizador",
+      "createFirstUser": "Adicionar o Primeiro Utilizador",
+      "noUsersFound": "Nenhum utilizador encontrado",
+      "userNotAuthenticated": "Utilizador não autenticado",
+      "failedToLoad": "Falha ao carregar utilizadores",
+      "retry": "Tentar novamente",
+      "failedToDelete": "Falha ao eliminar utilizador",
+      "invitationResent": "E-mail de convite enviado com sucesso",
+      "failedToResend": "Falha ao reenviar convite",
+      "resendInvite": "Reenviar",
+      "userDeleted": "Utilizador eliminado com sucesso",
+      "bulkDeleteSuccess": "{count} utilizadores eliminados com sucesso",
+      "bulkDeletePartialError": "Falha ao eliminar {count} utilizadores",
+      "bulkDeleteError": "Falha ao eliminar utilizadores",
+      "bulkDeleteFailed": "Eliminação em lote falhou",
       "table": {
         "user": "Utilizador",
         "organization": "Organização",
@@ -1939,7 +1957,8 @@
         "status": "Estado",
         "dailyTime": "Tempo Diário",
         "actions": "Ações",
-        "avgPerDay": "média por dia"
+        "avgPerDay": "média por dia",
+        "never": "Nunca"
       },
       "status": {
         "active": "Ativo",
@@ -1950,6 +1969,8 @@
         "createTitle": "Adicionar Novo Utilizador",
         "editTitle": "Editar Utilizador",
         "viewTitle": "Ver Utilizador",
+        "createSuccess": "Utilizador criado com sucesso!",
+        "updateSuccess": "Utilizador atualizado com sucesso!",
         "firstName": "Primeiro Nome",
         "lastName": "Apelido",
         "email": "E-mail",
@@ -1963,8 +1984,18 @@
         "save": "Guardar",
         "cancel": "Cancelar",
         "delete": "Eliminar",
-        "confirmDelete": "Tem a certeza de que deseja eliminar este utilizador?",
+        "deleteTitle": "Eliminar Utilizador",
+        "bulkDeleteTitle": "Eliminar Múltiplos Utilizadores",
+        "confirmDelete": "Tem a certeza de que deseja eliminar",
         "deleteWarning": "Esta ação não pode ser desfeita.",
+        "confirmBulkDelete": "Tem a certeza de que deseja eliminar {count} utilizadores? Esta ação não pode ser desfeita.",
+        "deleteSelected": "Eliminar Selecionados",
+        "accessLevel": "Nível de Acesso",
+        "organizationWideAccess": "Acesso a toda a organização",
+        "siteSpecificAccess": "Acesso específico ao local",
+        "selectSites": "Selecionar Locais",
+        "noSitesAvailable": "Nenhum local disponível",
+        "selectAtLeastOneSite": "Selecione pelo menos um local",
         "sections": {
           "basicInfo": "Informação Básica",
           "accessPermissions": "Acesso e Permissões",
@@ -1981,6 +2012,15 @@
           "noOrganization": "Sem organização atribuída",
           "neverLoggedIn": "Nunca iniciou sessão",
           "sendInvite": "Enviar e-mail de convite ao utilizador"
+        },
+        "placeholders": {
+          "name": "Insira o nome completo",
+          "email": "Insira o endereço de e-mail"
+        },
+        "errors": {
+          "userAlreadyExists": "Já existe um utilizador com este e-mail",
+          "failedToCreateUser": "Falha ao criar utilizador",
+          "failedToUpdateUser": "Falha ao atualizar utilizador"
         },
         "messages": {
           "userCreated": "O utilizador foi criado com sucesso!",
@@ -2225,7 +2265,26 @@
     "theme": "Tema",
     "dark": "Escuro",
     "light": "Claro",
-    "system": "Sistema"
+    "system": "Sistema",
+    "filters": {
+      "siteSelector": {
+        "allSites": "Todos os Sites",
+        "siteFilter": "Filtro de Site",
+        "organizationWide": "Dados de toda a organização",
+        "noLocation": "Sem localização",
+        "noSitesFound": "Nenhum site encontrado"
+      },
+      "timePeriodSelector": {
+        "timePeriod": "Período de Tempo",
+        "last30Days": "Últimos 30 Dias",
+        "last90Days": "Últimos 90 Dias",
+        "currentQuarter": "T{quarter} {year}",
+        "year": "{year}",
+        "yearRange": "Jan - Dez {year}",
+        "quarterLabel": "Trimestre {quarter}",
+        "fullMonth": "Mês completo"
+      }
+    }
   },
   "auth": {
     "signin": {
@@ -2432,7 +2491,8 @@
           "title": "Emissões Totais",
           "tooltip": "Soma de todas as emissões GEE (Âmbito 1+2+3) no período selecionado. Medido em toneladas de CO2 equivalente (tCO2e). Variação anual mostra tendência vs. período anterior.",
           "unit": "tCO2e",
-          "yoy": "% YoY"
+          "yoy": "% YoY",
+          "projected": "Projetado"
         },
         "intensity": {
           "title": "Intensidade",
@@ -2444,7 +2504,8 @@
           "title": "Progresso das Metas",
           "tooltip": "Número de metas no caminho certo vs. total de metas ativas. Metas são consideradas no caminho certo quando emissões atuais estão abaixo da trajetória linear necessária.",
           "onTrack": "no bom caminho",
-          "overallProgress": "Progresso Geral"
+          "overallProgress": "Progresso Geral",
+          "offTrackWarning": "Emissões projetadas excedem a trajetória da meta"
         },
         "dataQuality": {
           "title": "Qualidade dos Dados",
@@ -2457,12 +2518,8 @@
         "title": "Emissões por Âmbito",
         "tooltip": "Distribuição de emissões por âmbito GEE. Âmbito 1: emissões diretas. Âmbito 2: energia adquirida. Âmbito 3: cadeia de valor. GRI 305-1/2/3, TCFD, ESRS E1.",
         "badges": {
-          "ghgScope1": "Âmbito 1 GEE",
-          "ghgScope2": "Âmbito 2 GEE",
-          "ghgScope3": "Âmbito 3 GEE",
-          "gri3051": "GRI 305-1",
-          "gri3052": "GRI 305-2",
-          "gri3053": "GRI 305-3",
+          "ghgProtocol": "GHG Protocol",
+          "gri305": "GRI 305",
           "tcfd": "TCFD",
           "esrsE1": "ESRS E1"
         },
@@ -2521,7 +2578,7 @@
         "notSet": "Não definido"
       },
       "sbtiTargets": {
-        "title": "Metas Baseadas em Ciência",
+        "title": "Metas SBTi",
         "validated": "Validado SBTi ✓",
         "ambition": "Ambição",
         "ambition1_5C": "1,5°C",

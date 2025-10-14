@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Building2, ChevronDown, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth/context';
+import { useTranslations } from '@/providers/LanguageProvider';
 import type { Building } from '@/types/auth';
 
 interface SiteSelectorProps {
@@ -21,6 +22,7 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
   const [sites, setSites] = useState<Building[]>([]);
   const [loading, setLoading] = useState(true);
   const { session } = useAuth();
+  const t = useTranslations('common.filters.siteSelector');
 
   useEffect(() => {
     const loadSites = async () => {
@@ -53,7 +55,7 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
     );
   }
 
-  const displayLabel = currentSite ? currentSite.name : 'All Sites';
+  const displayLabel = currentSite ? currentSite.name : t('allSites');
 
   return (
     <div className={`relative ${className}`}>
@@ -91,7 +93,7 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
             >
               <div className="p-2">
                 <div className="text-xs font-medium text-gray-500 dark:text-white/50 px-3 py-2 mb-1">
-                  Site Filter
+                  {t('siteFilter')}
                 </div>
 
                 {/* All Sites Option */}
@@ -108,9 +110,9 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
                 >
                   <Building2 className="w-4 h-4" />
                   <div className="flex-1 text-left">
-                    <div className="font-medium">All Sites</div>
+                    <div className="font-medium">{t('allSites')}</div>
                     <div className="text-xs text-gray-500 dark:text-white/50">
-                      Organization-wide data
+                      {t('organizationWide')}
                     </div>
                   </div>
                 </button>
@@ -138,7 +140,7 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
                     <div className="flex-1 text-left">
                       <div className="font-medium">{site.name}</div>
                       <div className="text-xs text-gray-500 dark:text-white/50">
-                        {site.city || 'No location'}
+                        {site.city || t('noLocation')}
                         {site.size_sqm ? ` • ${Math.round(site.size_sqm).toLocaleString()} m²` : ''}
                       </div>
                     </div>
@@ -148,7 +150,7 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
                 {/* No sites message */}
                 {sites.length === 0 && (
                   <div className="px-3 py-4 text-center text-sm text-gray-500 dark:text-white/50">
-                    No sites found
+                    {t('noSitesFound')}
                   </div>
                 )}
               </div>

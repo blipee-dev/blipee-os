@@ -25,7 +25,7 @@ interface LanguageContextType {
   messages: Messages;
   setLocale: (locale: Locale) => void;
   toggleAutoDetect: () => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, any>) => string;
   resetSettings: () => void;
 }
 
@@ -56,7 +56,17 @@ function detectBrowserLanguage(): Locale {
 // Get nested value from object using dot notation
 function getNestedValue(obj: any, path: string): string {
   try {
-    return path.split('.').reduce((current, key) => current?.[key], obj) || path;
+    const keys = path.split('.');
+    let current = obj;
+
+    for (let i = 0; i < keys.length; i++) {
+      if (current === undefined || current === null) {
+        return path;
+      }
+      current = current[keys[i]];
+    }
+
+    return current || path;
   } catch {
     return path;
   }
@@ -104,14 +114,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   // Translation function with dot notation support and interpolation
   const t = (key: string, params?: Record<string, any>): string => {
     let value = getNestedValue(messages, key);
-    
+
     // Handle interpolation
     if (params && typeof value === 'string') {
       Object.keys(params).forEach(param => {
         value = value.replace(new RegExp(`\\{${param}\\}`, 'g'), String(params[param]));
       });
     }
-    
+
     return value;
   };
 
