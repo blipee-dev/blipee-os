@@ -2482,6 +2482,18 @@
     },
     "dashboard": {
       "loading": "A carregar dados da visão geral...",
+      "learnMore": "Saber Mais",
+      "intensityExplanation": "A intensidade de emissões mede a eficiência carbónica da sua organização, mostrando quantas toneladas de CO2 são emitidas por colaborador equivalente a tempo completo (ETC).",
+      "targetProgressExplanation": "Este cartão mostra quantas das suas metas de sustentabilidade estão no bom caminho para serem alcançadas. As metas são consideradas no caminho certo quando as emissões atuais estão abaixo da trajetória linear necessária para atingir o objetivo definido.",
+      "dataQualityExplanation": "Este cartão mostra a qualidade dos seus dados de emissões. Dados primários são medições diretas e reais, enquanto dados verificados foram validados por terceiros. Maior percentagem de dados primários e verificados significa maior precisão no seu inventário de emissões.",
+      "scopeBreakdownExplanation": "Este gráfico mostra a distribuição das suas emissões de gases de efeito estufa (GEE) por âmbito:",
+      "scope1Explanation": "Âmbito 1: Emissões diretas de fontes que possui ou controla, como combustão em instalações, veículos da empresa e emissões fugitivas.",
+      "scope2Explanation": "Âmbito 2: Emissões indiretas de eletricidade, aquecimento, arrefecimento ou vapor comprados e consumidos pela sua organização.",
+      "scope3Explanation": "Âmbito 3: Todas as outras emissões indiretas que ocorrem na sua cadeia de valor, incluindo viagens de negócios, deslocações pendulares, bens adquiridos e resíduos.",
+      "emissionsTrendExplanation": "Este gráfico mostra a evolução das suas emissões ao longo do tempo, permitindo identificar tendências, picos sazonais e o impacto das suas iniciativas de redução. A linha tracejada representa a previsão futura baseada em dados históricos. Uma tendência descendente indica progresso na redução de emissões.",
+      "organizationalBoundariesExplanation": "Define o perímetro do seu inventário de emissões, incluindo a abordagem de consolidação (controlo operacional, financeiro ou participação acionária), instalações incluídas, ano base para comparação e número de colaboradores.",
+      "sbtiProgressExplanation": "Monitoriza o progresso em relação às suas metas de redução de emissões validadas pela Science Based Targets initiative (SBTi). Compara as emissões atuais com a trajetória linear necessária para atingir a meta definida até ao ano alvo.",
+      "topEmittersExplanation": "Identifica as principais categorias que mais contribuem para as suas emissões totais. Concentrar esforços de redução nestas áreas terá o maior impacto na redução da sua pegada carbónica.",
       "header": {
         "title": "Visão Geral de Sustentabilidade",
         "subtitle": "GRI 305 • Protocolo GEE • Resumo executivo de emissões e metas"
@@ -2489,6 +2501,7 @@
       "cards": {
         "totalEmissions": {
           "title": "Emissões Totais",
+          "ytdTitle": "Emissões YTD",
           "tooltip": "Soma de todas as emissões GEE (Âmbito 1+2+3) no período selecionado. Medido em toneladas de CO2 equivalente (tCO2e). Variação anual mostra tendência vs. período anterior.",
           "unit": "tCO2e",
           "yoy": "% YoY",
@@ -2913,6 +2926,223 @@
       "gotIt": "Compreendi!",
       "sectionOf": "Secção {current} de {total}",
       "learnMore": "📚 Saber mais"
+    }
+  },
+  "carbonEquivalentTooltip": {
+    "intro": "Esta emissão equivale a:",
+    "howThisWorks": "Como funciona:",
+    "didYouKnow": "Sabia que?",
+    "badges": {
+      "ghgProtocol": "Protocolo GEE",
+      "gri305": "GRI 305",
+      "tcfd": "TCFD",
+      "esrsE1": "ESRS E1"
+    },
+    "compliantWith": "Em conformidade com:"
+  },
+  "carbonEquivalents": {
+    "verySmall": {
+      "smartphone": {
+        "format": "{n} carregamentos de smartphone",
+        "context": "Carregar totalmente o telemóvel usa cerca de 0,008 kg CO2e por carregamento",
+        "didYouKnow": "Um carregamento completo = ver 2 horas de Netflix no telemóvel!"
+      },
+      "coffee": {
+        "format": "{n} chávenas de café",
+        "context": "Fazer café (grãos, aquecimento de água, leite) ≈ 1,25 kg CO2e por chávena",
+        "didYouKnow": "O leite no seu latte cria mais emissões do que os grãos de café!"
+      },
+      "burger": {
+        "format": "{n} hambúrgueres de carne",
+        "format_one": "{n} hambúrguer de carne",
+        "context": "Um hambúrguer de carne cria ~10 kg CO2e (da quinta ao prato)",
+        "didYouKnow": "Um hambúrguer à base de plantas cria 90% menos emissões!"
+      },
+      "shower": {
+        "format": "{n} banhos quentes (10 minutos)",
+        "format_one": "{n} banho quente (10 minutos)",
+        "context": "Aquecer água para um banho usa ~20 kg CO2e",
+        "didYouKnow": "Reduzir o tempo de banho em 2 minutos poupa 10 kg CO2e por mês!"
+      }
+    },
+    "small": {
+      "matureTree": {
+        "format": "{n} árvores maduras absorvendo CO2 durante 1 ano",
+        "format_one": "{n} árvore madura absorvendo CO2 durante 1 ano",
+        "context": "Uma árvore madura absorve ~21 kg CO2e por ano através da fotossíntese",
+        "didYouKnow": "Uma árvore demora mais de 20 anos a tornar-se um absorvente de carbono \"maduro\"!"
+      },
+      "seedling": {
+        "format": "{n} plântulas de árvore crescendo durante 10 anos",
+        "format_one": "{n} plântula de árvore crescendo durante 10 anos",
+        "context": "Árvores jovens absorvem menos CO2 inicialmente, mas mais à medida que crescem",
+        "didYouKnow": "Uma floresta em crescimento absorve 2-3× mais CO2 do que uma floresta madura!"
+      },
+      "grassland": {
+        "format": "{n} hectares de pastagem durante 1 ano",
+        "format_one": "{n} hectare de pastagem durante 1 ano",
+        "context": "As pastagens absorvem ~2,5 toneladas CO2e por hectare anualmente",
+        "didYouKnow": "As pastagens armazenam mais carbono nas raízes do que as árvores!"
+      },
+      "oceanAlgae": {
+        "format": "{n} hectares de algas oceânicas durante 1 ano",
+        "format_one": "{n} hectare de algas oceânicas durante 1 ano",
+        "context": "O fitoplâncton oceânico absorve ~2 toneladas CO2e por hectare",
+        "didYouKnow": "Os oceanos absorvem 25% de todas as emissões humanas de CO2 todos os anos!"
+      }
+    },
+    "mediumSmall": {
+      "portugal": {
+        "driving": {
+          "format": "{n} km de condução ({trips} viagens Lisboa ↔ Porto)",
+          "format_one": "{n} km de condução ({trips} viagem Lisboa ↔ Porto)",
+          "context": "Carro médio emite ~0,4 kg CO2e por km",
+          "didYouKnow": "Ir de comboio reduz as emissões em 80%!"
+        },
+        "lisbonAlgarve": {
+          "format": "{n} viagens Lisboa ↔ Algarve de carro",
+          "format_one": "{n} viagem Lisboa ↔ Algarve de carro",
+          "context": "~300 km por viagem, carro familiar",
+          "didYouKnow": "Partilhar o carro com 3 amigos torna isto 75% mais eficiente!"
+        },
+        "scooter": {
+          "format": "{n} km de scooter",
+          "context": "Scooters emitem metade do CO2 dos carros por km",
+          "didYouKnow": "Scooters elétricos emitem 90% menos que scooters a gasolina!"
+        }
+      },
+      "spain": {
+        "driving": {
+          "format": "{n} km de condução ({trips} viagens Madrid ↔ Barcelona)",
+          "format_one": "{n} km de condução ({trips} viagem Madrid ↔ Barcelona)",
+          "context": "Carro médio emite ~0,4 kg CO2e por km",
+          "didYouKnow": "O comboio AVE de alta velocidade usa 85% menos emissões!"
+        },
+        "madridValencia": {
+          "format": "{n} viagens Madrid ↔ Valencia de carro",
+          "format_one": "{n} viagem Madrid ↔ Valencia de carro",
+          "context": "~400 km por viagem, carro familiar",
+          "didYouKnow": "Os comboios espanhóis funcionam com 60% de energia renovável!"
+        }
+      },
+      "global": {
+        "driving": {
+          "format": "{n} km de viagem de carro",
+          "context": "Carro médio: 0,4 kg CO2e por km",
+          "didYouKnow": "Carros elétricos reduzem isto em 70% (dependendo da fonte de eletricidade)!"
+        }
+      }
+    },
+    "medium": {
+      "portugal": {
+        "lisbonParis": {
+          "format": "{n} voos ida e volta Lisboa → Paris",
+          "format_one": "1 voo ida e volta Lisboa → Paris (económica, 2.900 km)",
+          "context": "Voo de curta distância: ~1,5 toneladas CO2e ida e volta",
+          "didYouKnow": "8 horas de comboio criam 95% menos emissões do que este voo!"
+        },
+        "lisbonLondon": {
+          "format": "{n} voos ida e volta Lisboa → Londres",
+          "format_one": "1 voo ida e volta Lisboa → Londres (económica, 3.200 km)",
+          "context": "Voo de curta distância: ~2 toneladas CO2e ida e volta",
+          "didYouKnow": "Lugares executivos criam 3× mais emissões (ocupam mais espaço)!"
+        },
+        "lisbonRome": {
+          "format": "{n} voos ida e volta dentro da Europa",
+          "format_one": "1 voo ida e volta Lisboa → Roma (económica, 3.000 km)",
+          "context": "Voos europeus: ~2,5 toneladas CO2e ida e volta",
+          "didYouKnow": "Aviões são 5-10× mais poluentes por km do que comboios!"
+        }
+      },
+      "spain": {
+        "madridLondon": {
+          "format": "{n} voos ida e volta Madrid → Londres",
+          "format_one": "1 voo ida e volta Madrid → Londres (económica, 2.600 km)",
+          "context": "Voo de curta distância: ~1,5 toneladas CO2e ida e volta",
+          "didYouKnow": "Uma videochamada elimina completamente esta emissão!"
+        }
+      },
+      "global": {
+        "regionalFlight": {
+          "format": "{n} voos regionais ida e volta",
+          "format_one": "1 voo regional ida e volta (económica, ~3.000 km)",
+          "context": "Curta distância média: ~2 toneladas CO2e",
+          "didYouKnow": "A aviação cria 2,5% das emissões globais de CO2!"
+        }
+      }
+    },
+    "large": {
+      "electricity": {
+        "format": "{n} meses de eletricidade doméstica",
+        "format_one": "{n} mês de eletricidade doméstica",
+        "context": "Casa média: ~10 toneladas CO2e por ano de eletricidade",
+        "didYouKnow": "Mudar para lâmpadas LED poupa 80 kg CO2e por lâmpada por ano!"
+      },
+      "hvac": {
+        "format": "{n} meses de aquecimento/arrefecimento de uma casa média",
+        "format_one": "{n} mês de aquecimento/arrefecimento de uma casa média",
+        "context": "AVAC é tipicamente 40% do uso de energia doméstica",
+        "didYouKnow": "Um termostato inteligente pode reduzir isto em 15-20%!"
+      },
+      "gasHeating": {
+        "format": "{n} meses de aquecimento a gás natural",
+        "format_one": "{n} mês de aquecimento a gás natural",
+        "context": "Aquecimento a gás: ~3,5 toneladas CO2e por ano",
+        "didYouKnow": "Bombas de calor usam 3× menos energia que aquecimento a gás!"
+      },
+      "airConditioning": {
+        "format": "{n} horas de ar condicionado (casa grande)",
+        "context": "AC pode usar 20-50 kg CO2e por mês no verão",
+        "didYouKnow": "Aumentar a temperatura do AC em 1°C poupa 7% de energia!"
+      }
+    },
+    "veryLarge": {
+      "treesYear": {
+        "format": "{n} árvores maduras absorvendo CO2 durante 1 ano",
+        "format_one": "{n} árvore madura absorvendo CO2 durante 1 ano",
+        "context": "Uma árvore madura absorve ~0,87 toneladas CO2e por ano através da fotossíntese",
+        "didYouKnow": "Uma árvore demora mais de 20 anos a tornar-se um absorvente de carbono \"maduro\"!"
+      },
+      "factoryMonths": {
+        "format": "{n} meses de emissões de uma pequena fábrica",
+        "format_one": "{n} mês de emissões de uma pequena fábrica",
+        "context": "Indústria pequena: ~1000 toneladas CO2e por ano (83 toneladas/mês)",
+        "didYouKnow": "É por isto que a eficiência industrial é tão crítica!"
+      },
+      "peopleYearly": {
+        "format": "{n} pegadas de carbono anuais médias de pessoas",
+        "format_one": "{n} pegada de carbono anual média de uma pessoa",
+        "context": "Média global: ~4 toneladas CO2e por pessoa por ano",
+        "didYouKnow": "Média dos EUA é 16 toneladas, Índia é 1,9 toneladas por pessoa!"
+      },
+      "transatlanticFlights": {
+        "format": "{n} voos transatlânticos ida e volta (económica)",
+        "format_one": "{n} voo transatlântico ida e volta (económica)",
+        "context": "Voo de longa distância: ~4 toneladas CO2e por passageiro ida e volta",
+        "didYouKnow": "Um voo de longa distância = um ano de condução para muitas pessoas!"
+      },
+      "arcticIce": {
+        "format": "{n} m² de gelo marinho ártico derretido",
+        "context": "Cada tonelada de CO2 derrete ~3 m² de gelo marinho ártico de verão",
+        "didYouKnow": "O gelo marinho ártico diminuiu 13% por década desde 1979!"
+      },
+      "seaLevel": {
+        "format": "{n} mm de subida do nível do mar global",
+        "format_less_than_one": "< 1 mm de subida do nível do mar global",
+        "context": "Cada 1000 toneladas CO2e contribui para 0,32 mm de subida do nível do mar",
+        "didYouKnow": "O nível do mar está a subir 3,4 mm por ano - 2× mais rápido que há 50 anos!"
+      },
+      "globalWarming": {
+        "format": "{n} milionésimos de grau de aquecimento global",
+        "context": "Cada tonelada de CO2e contribui ~0,00015 milionésimos °C de aquecimento",
+        "didYouKnow": "Já aquecemos 1,1°C desde a era pré-industrial - cada fração conta!"
+      },
+      "polarBearHabitat": {
+        "format": "{n} dias de perda de habitat de ursos polares",
+        "format_one": "{n} dia de perda de habitat de ursos polares",
+        "context": "Perda de gelo ártico = ~1 dia por 15 toneladas CO2e",
+        "didYouKnow": "Ursos polares precisam de gelo marinho para caçar - estão a perder 3-4 semanas de tempo de caça por década!"
+      }
     }
   }
 }
