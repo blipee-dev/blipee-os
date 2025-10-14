@@ -2272,6 +2272,281 @@
       "platformBadge": "Plataforma de Sostenibilidad Primero"
     }
   },
+  "sustainability": {
+    "overview": {
+      "title": "Visión General",
+      "subtitle": "Visión general de cumplimiento y métricas",
+      "loadingOverview": "Cargando visión general...",
+      "errorLoading": "Error al Cargar Visión General",
+      "retry": "Reintentar",
+      "clearFilters": "Limpiar Filtros",
+      "failedToLoadOrganization": "Error al cargar la organización",
+      "failedToConnectToServer": "Error al conectar con el servidor"
+    },
+    "dashboard": {
+      "loading": "Cargando datos de visión general...",
+      "header": {
+        "title": "Visión General de Sostenibilidad",
+        "subtitle": "GRI 305 • Protocolo GEI • Resumen ejecutivo de emisiones y objetivos"
+      },
+      "cards": {
+        "totalEmissions": {
+          "title": "Emisiones Totales",
+          "tooltip": "Suma de todas las emisiones GEI (Alcance 1+2+3) en el período seleccionado. Medido en toneladas de CO2 equivalente (tCO2e). Variación interanual muestra tendencia vs. período anterior.",
+          "unit": "tCO2e",
+          "yoy": "% YoY"
+        },
+        "intensity": {
+          "title": "Intensidad",
+          "tooltip": "Emisiones por empleado (tCO2e/ETC). Métrica de eficiencia que normaliza emisiones por tamaño de organización. Permite comparación a lo largo del tiempo y con pares.",
+          "unit": "tCO2e/ETC",
+          "yoy": "% YoY"
+        },
+        "targetProgress": {
+          "title": "Progreso de Objetivos",
+          "tooltip": "Número de objetivos en buen camino vs. total de objetivos activos. Los objetivos se consideran en buen camino cuando las emisiones actuales están por debajo de la trayectoria lineal requerida.",
+          "onTrack": "en buen camino",
+          "overallProgress": "Progreso General"
+        },
+        "dataQuality": {
+          "title": "Calidad de Datos",
+          "tooltip": "Porcentaje de datos primarios (mediciones directas) vs. estimaciones. Datos primarios verificados por terceros aumentan credibilidad del reporte. GRI 305, ESRS E1.",
+          "primaryData": "Datos Primarios",
+          "verified": "Verificado"
+        }
+      },
+      "scopeBreakdown": {
+        "title": "Emisiones por Alcance",
+        "tooltip": "Distribución de emisiones por alcance GEI. Alcance 1: emisiones directas. Alcance 2: energía adquirida. Alcance 3: cadena de valor. GRI 305-1/2/3, TCFD, ESRS E1.",
+        "badges": {
+          "ghgScope1": "Alcance 1 GEI",
+          "ghgScope2": "Alcance 2 GEI",
+          "ghgScope3": "Alcance 3 GEI",
+          "gri3051": "GRI 305-1",
+          "gri3052": "GRI 305-2",
+          "gri3053": "GRI 305-3",
+          "tcfd": "TCFD",
+          "esrsE1": "ESRS E1"
+        },
+        "scope1Tooltip": {
+          "title": "Alcance 1: Emisiones Directas",
+          "description": "Emisiones directas de GEI de fuentes propiedad o controladas por la organización (p. ej., vehículos de la empresa, combustión in situ)"
+        },
+        "scope2Tooltip": {
+          "title": "Alcance 2: Energía Adquirida",
+          "locationBased": "Basado en Ubicación:",
+          "marketBased": "Basado en Mercado:",
+          "description": "Emisiones indirectas de electricidad, calefacción, refrigeración y vapor adquiridos. Informes duales según GRI 305-2 y Protocolo GEI."
+        },
+        "scope3Tooltip": {
+          "title": "Alcance 3: Emisiones de Cadena de Valor",
+          "totalEmissions": "Emisiones Totales:",
+          "percentage": "Porcentaje:",
+          "categoryCoverage": "Cobertura de Categorías:",
+          "tracked": "Seguidas",
+          "missing": "Faltantes",
+          "description": "Todas las emisiones indirectas en la cadena de valor (aguas arriba y abajo). Según GRI 305-3."
+        }
+      },
+      "emissionsTrend": {
+        "title": "Tendencia de Emisiones",
+        "tooltip": "Evolución mensual de emisiones por alcance con previsión ML. Líneas sólidas: datos reales. Líneas discontinuas: previsión basada en patrones históricos. TCFD, ESRS E1.",
+        "yAxisLabel": "tCO2e",
+        "noData": "Sin datos disponibles",
+        "forecast": "Previsión",
+        "scope1": "Alcance 1",
+        "scope2": "Alcance 2",
+        "scope3": "Alcance 3",
+        "total": "Total",
+        "totalEmissions": "Total",
+        "tooltipLabels": {
+          "scope1": "Alcance 1:",
+          "scope2": "Alcance 2:",
+          "scope3": "Alcance 3:",
+          "total": "Total:"
+        },
+        "legendLabels": {
+          "totalEmissions": "Total",
+          "scope1": "Alcance 1",
+          "scope2": "Alcance 2",
+          "scope3": "Alcance 3"
+        }
+      },
+      "organizationalBoundaries": {
+        "title": "Límites Organizacionales",
+        "tooltip": "Perímetro de reporte de emisiones: consolidación, instalaciones, año base y empleados. GRI 2-1, GRI 2-6, Protocolo GEI.",
+        "consolidationApproach": "Consolidación",
+        "sitesIncluded": "Instalaciones",
+        "baseYear": "Año Base",
+        "employees": "Empleados",
+        "loading": "Cargando...",
+        "notSet": "No establecido"
+      },
+      "sbtiTargets": {
+        "title": "Objetivos Basados en la Ciencia",
+        "validated": "Validado SBTi ✓",
+        "ambition": "Ambición",
+        "ambition1_5C": "1,5°C",
+        "ambitionWellBelow2C": "<2°C",
+        "ambitionNetZero": "Net-Zero",
+        "nearTermTarget": "Corto Plazo",
+        "netZeroTarget": "Net-Zero",
+        "by": "para",
+        "ambitionLevels": {
+          "1.5C": "Alineado con 1,5°C",
+          "wellBelow2C": "Muy por debajo de 2°C",
+          "netZero": "Cero Neto"
+        },
+        "reductionBy": "para"
+      },
+      "topEmitters": {
+        "title": "Top Fuentes de Emisión",
+        "tooltip": "Sus cinco fuentes de emisión más grandes en Scope 1, 2 y 3. Enfoque sus esfuerzos de reducción en estas categorías para máximo impacto. Pase el cursor sobre cada categoría para ver recomendaciones personalizadas.",
+        "recommendation": "Recomendación:",
+        "recommendations": {
+          "electricity": "💡 Aumentar la adquisición de energía renovable al 50%",
+          "naturalGas": "🔥 Instalar sistema de bomba de calor para mayor eficiencia",
+          "businessTravel": "✈️ Implementar política de reuniones virtuales (+30%)",
+          "fleet": "🚗 Transicionar la flota a vehículos eléctricos",
+          "waste": "♻️ Aumentar la tasa de desvío de residuos al 90%",
+          "heating": "🌡️ Actualizar a sistema de calefacción eficiente",
+          "cooling": "❄️ Optimizar controles del sistema HVAC",
+          "commuting": "🚲 Promover transporte público y bicicletas",
+          "water": "💧 Instalar medidas de eficiencia hídrica",
+          "default": "📊 Revisar y optimizar esta categoría"
+        },
+        "categories": {
+          "Business Travel": "Viajes de Negocios",
+          "Purchased Electricity": "Electricidad Adquirida",
+          "Purchased Energy": "Energía Adquirida",
+          "Waste": "Residuos",
+          "Purchased Goods": "Bienes Adquiridos",
+          "Stationary Combustion": "Combustión Estacionaria",
+          "Mobile Combustion": "Combustión Móvil",
+          "Natural Gas": "Gas Natural",
+          "Heating": "Calefacción",
+          "Cooling": "Refrigeración",
+          "Employee Commuting": "Desplazamientos de Empleados",
+          "Fugitive Emissions": "Emisiones Fugitivas",
+          "Process Emissions": "Emisiones de Proceso",
+          "District Heating": "Calefacción Urbana",
+          "District Cooling": "Refrigeración Urbana",
+          "Fleet": "Flota",
+          "Water": "Agua"
+        }
+      },
+      "sbtiTargetProgress": {
+        "title": "Progreso de Objetivos SBTi",
+        "reductionTarget": "Objetivo de Reducción",
+        "baseline": "Línea Base",
+        "current": "Actual",
+        "actualMLForecast": "Real + Previsión ML",
+        "required": "Requerido",
+        "target": "Objetivo",
+        "progress": "Progreso",
+        "tco2eOnTrack": "tCO2e en buen camino",
+        "statusLabels": {
+          "aboveBaseline": "Por Encima de la Línea Base",
+          "onTrack": "En Buen Camino",
+          "atRisk": "En Riesgo"
+        },
+        "waterfallChart": {
+          "title": "Trayectoria de Emisiones",
+          "baseline": "Línea Base",
+          "requiredReduction": "Reducción\nRequerida",
+          "required": "Requerido",
+          "gap": "Brecha respecto\nal Requerido",
+          "actual": "Real",
+          "target": "Objetivo",
+          "tooltipLabels": {
+            "reduction": "Reducción:",
+            "increase": "Aumento:",
+            "total": "Total:"
+          }
+        }
+      },
+      "sbtiProgress": {
+        "title": "Progreso de Metas SBTi",
+        "tooltip": "Science Based Targets (SBTi) son objetivos de reducción de emisiones alineados con la ciencia climática para limitar el calentamiento global a 1.5°C. Esto rastrea su progreso desde el baseline hasta el año objetivo, mostrando emisiones reales, previsiones ML y la trayectoria de reducción requerida.",
+        "reductionTarget": "de reducción",
+        "baseline": "Baseline",
+        "current": "Actual",
+        "actualPlusForecast": "Real + Forecast",
+        "required": "Target",
+        "onTrack": "on track",
+        "target": "Target",
+        "progress": "Progreso",
+        "aboveBaseline": "Por Encima del Baseline",
+        "onTrackStatus": "On Track",
+        "atRisk": "At Risk"
+      },
+      "waterfallChart": {
+        "title": "Trayectoria de Emisiones",
+        "baseline": "Baseline",
+        "required": "Target",
+        "reduction": "Reducción",
+        "gap": "Gap",
+        "actual": "Actual",
+        "target": "Target",
+        "tooltip": {
+          "reduction": "Reducción:",
+          "increase": "Incremento:",
+          "total": "Total:"
+        }
+      }
+    },
+    "dataInvestigation": {
+      "title": "Investigación de Datos",
+      "subtitle": "Desglose mensual detallado de todas las métricas de sostenibilidad",
+      "exportCSV": "Exportar CSV",
+      "allSites": "Todos los Centros",
+      "failedToFetchData": "Error al obtener los datos",
+      "failedToLoadMetricsData": "Error al cargar los datos de métricas",
+      "dataQualityIssues": "Problemas de Calidad de Datos Detectados",
+      "anomaliesFound": "Se han encontrado las siguientes anomalías en los datos de {year}:",
+      "duplicateEntries": "Entradas duplicadas:",
+      "missingData": "Datos faltantes:",
+      "andMore": "y {count} más...",
+      "noteOctoberMarch": "Nota: Parece que los datos de octubre pueden haberse registrado incorrectamente como marzo, lo que ha dado lugar a entradas duplicadas de marzo y datos faltantes de octubre.",
+      "noData": "No hay datos disponibles para el periodo seleccionado.",
+      "yearTotal": "Total Anual:",
+      "emissions": "Emisiones:",
+      "totalEmissions": "tCO2e",
+      "month": "Mes",
+      "value": "Valor",
+      "unit": "Unidad",
+      "emissionsKg": "Emisiones (kgCO2e)",
+      "entries": "Entradas",
+      "dateRange": "Rango de Fechas",
+      "total": "Total",
+      "entriesCount": "{count} entradas",
+      "individualEntries": "Entradas Individuales para {month} {year}:",
+      "entryId": "ID de Entrada",
+      "site": "Centro",
+      "periodStart": "Inicio del Periodo",
+      "periodEnd": "Fin del Periodo",
+      "createdAt": "Creado el",
+      "unknown": "Desconocido",
+      "duplicate": "Duplicado",
+      "missing": "Faltante",
+      "details": "{count} entradas encontradas",
+      "noDataRecorded": "No hay datos registrados"
+    },
+    "months": {
+      "jan": "Ene",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dic"
+    }
+  },
   "defaults": {
     "organization": {
       "name": "Organización Predeterminada",

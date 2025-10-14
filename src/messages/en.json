@@ -2290,5 +2290,261 @@
       "country": "United States",
       "timezone": "America/New_York"
     }
+  },
+  "sustainability": {
+    "overview": {
+      "title": "Overview",
+      "subtitle": "Compliance & metrics overview",
+      "loadingOverview": "Loading overview...",
+      "errorLoading": "Error Loading Overview",
+      "retry": "Retry",
+      "clearFilters": "Clear Filters",
+      "failedToLoadOrganization": "Failed to load organization",
+      "failedToConnectToServer": "Failed to connect to server"
+    },
+    "dashboard": {
+      "loading": "Loading overview data...",
+      "header": {
+        "title": "Sustainability Overview",
+        "subtitle": "GRI 305 • GHG Protocol • Executive summary of emissions and targets"
+      },
+      "cards": {
+        "totalEmissions": {
+          "title": "Total Emissions",
+          "tooltip": "Sum of all GHG emissions (Scope 1+2+3) in the selected period. Measured in tonnes of CO2 equivalent (tCO2e). Year-over-year change shows trend vs. previous period.",
+          "unit": "tCO2e",
+          "yoy": "% YoY"
+        },
+        "intensity": {
+          "title": "Intensity",
+          "tooltip": "Emissions per employee (tCO2e/FTE). Efficiency metric that normalizes emissions by organization size. Enables comparison over time and with peers.",
+          "unit": "tCO2e/FTE",
+          "yoy": "% YoY"
+        },
+        "targetProgress": {
+          "title": "Target Progress",
+          "tooltip": "Number of targets on track vs. total active targets. Targets are considered on track when current emissions are below the required linear trajectory.",
+          "onTrack": "on track",
+          "overallProgress": "Overall Progress"
+        },
+        "dataQuality": {
+          "title": "Data Quality",
+          "tooltip": "Percentage of primary data (direct measurements) vs. estimates. Third-party verified primary data increases reporting credibility. GRI 305, ESRS E1.",
+          "primaryData": "Primary Data",
+          "verified": "Verified"
+        }
+      },
+      "scopeBreakdown": {
+        "title": "Emissions by Scope",
+        "tooltip": "GHG emissions distribution by scope. Scope 1: direct emissions. Scope 2: purchased energy. Scope 3: value chain. GRI 305-1/2/3, TCFD, ESRS E1.",
+        "badges": {
+          "ghgScope1": "GHG Scope 1",
+          "ghgScope2": "GHG Scope 2",
+          "ghgScope3": "GHG Scope 3",
+          "gri3051": "GRI 305-1",
+          "gri3052": "GRI 305-2",
+          "gri3053": "GRI 305-3",
+          "tcfd": "TCFD",
+          "esrsE1": "ESRS E1"
+        },
+        "scope1Tooltip": {
+          "title": "Scope 1: Direct Emissions",
+          "description": "Direct GHG emissions from sources owned or controlled by the organization (e.g., company vehicles, on-site fuel combustion)"
+        },
+        "scope2Tooltip": {
+          "title": "Scope 2: Purchased Energy",
+          "locationBased": "Location-Based:",
+          "marketBased": "Market-Based:",
+          "description": "Indirect emissions from purchased electricity, heating, cooling, and steam. Dual reporting per GRI 305-2 & GHG Protocol."
+        },
+        "scope3Tooltip": {
+          "title": "Scope 3: Value Chain Emissions",
+          "totalEmissions": "Total Emissions:",
+          "percentage": "Percentage:",
+          "categoryCoverage": "Category Coverage:",
+          "tracked": "Tracked",
+          "missing": "Missing",
+          "description": "All indirect emissions in value chain (upstream & downstream). Per GRI 305-3."
+        }
+      },
+      "emissionsTrend": {
+        "title": "Emissions Trend",
+        "tooltip": "Monthly emissions evolution by scope with ML forecast. Solid lines: actual data. Dashed lines: forecast based on historical patterns. TCFD, ESRS E1.",
+        "yAxisLabel": "tCO2e",
+        "noData": "No data available",
+        "forecast": "Forecast",
+        "scope1": "Scope 1",
+        "scope2": "Scope 2",
+        "scope3": "Scope 3",
+        "total": "Total",
+        "totalEmissions": "Total",
+        "tooltipLabels": {
+          "scope1": "Scope 1:",
+          "scope2": "Scope 2:",
+          "scope3": "Scope 3:",
+          "total": "Total:"
+        },
+        "legendLabels": {
+          "totalEmissions": "Total",
+          "scope1": "Scope 1",
+          "scope2": "Scope 2",
+          "scope3": "Scope 3"
+        }
+      },
+      "organizationalBoundaries": {
+        "title": "Organizational Boundaries",
+        "tooltip": "Emissions reporting perimeter: consolidation, facilities, base year, and employees. GRI 2-1, GRI 2-6, GHG Protocol.",
+        "consolidationApproach": "Consolidation",
+        "sitesIncluded": "Facilities",
+        "baseYear": "Base Year",
+        "employees": "Employees",
+        "loading": "Loading...",
+        "notSet": "Not set"
+      },
+      "sbtiTargets": {
+        "title": "Science Based Targets",
+        "validated": "SBTi Validated ✓",
+        "ambition": "Ambition",
+        "ambition1_5C": "1.5°C",
+        "ambitionWellBelow2C": "<2°C",
+        "ambitionNetZero": "Net-Zero",
+        "nearTermTarget": "Near-term",
+        "netZeroTarget": "Net-Zero",
+        "by": "by",
+        "ambitionLevels": {
+          "1.5C": "1.5°C aligned",
+          "wellBelow2C": "Well-below 2°C",
+          "netZero": "Net-Zero"
+        },
+        "reductionBy": "by"
+      },
+      "topEmitters": {
+        "title": "Top Emission Sources",
+        "tooltip": "Your five largest emission sources across Scope 1, 2, and 3. Focus your reduction efforts on these categories for maximum impact. Hover over each category to see tailored recommendations.",
+        "recommendation": "Recommendation:",
+        "recommendations": {
+          "electricity": "💡 Increase renewable energy procurement to 50%",
+          "naturalGas": "🔥 Install heat pump system for efficiency",
+          "businessTravel": "✈️ Implement virtual meetings policy (+30%)",
+          "fleet": "🚗 Transition fleet to electric vehicles",
+          "waste": "♻️ Increase waste diversion rate to 90%",
+          "heating": "🌡️ Upgrade to efficient heating system",
+          "cooling": "❄️ Optimize HVAC system controls",
+          "commuting": "🚲 Promote public transit & cycling",
+          "water": "💧 Install water efficiency measures",
+          "default": "📊 Review and optimize this category"
+        }
+      },
+      "sbtiTargetProgress": {
+        "title": "SBTi Target Progress",
+        "reductionTarget": "Reduction Target",
+        "baseline": "Baseline",
+        "current": "Current",
+        "actualMLForecast": "Actual + ML Forecast",
+        "required": "Required",
+        "target": "Target",
+        "progress": "Progress",
+        "tco2eOnTrack": "tCO2e on track",
+        "statusLabels": {
+          "aboveBaseline": "Above Baseline",
+          "onTrack": "On Track",
+          "atRisk": "At Risk"
+        },
+        "waterfallChart": {
+          "title": "Emissions Trajectory",
+          "baseline": "Baseline",
+          "requiredReduction": "Required\nReduction",
+          "required": "Required",
+          "gap": "Gap from\nRequired",
+          "actual": "Actual",
+          "target": "Target",
+          "tooltipLabels": {
+            "reduction": "Reduction:",
+            "increase": "Increase:",
+            "total": "Total:"
+          }
+        }
+      },
+      "sbtiProgress": {
+        "title": "SBTi Target Progress",
+        "tooltip": "Science Based Targets (SBTi) are emission reduction targets aligned with climate science to limit global warming to 1.5°C. This tracks your progress from baseline to target year, showing actual emissions, ML forecasts, and the required reduction trajectory.",
+        "reductionTarget": "Reduction Target",
+        "baseline": "Baseline",
+        "current": "Current",
+        "actualPlusForecast": "Actual + Forecast",
+        "required": "Required",
+        "onTrack": "on track",
+        "target": "Target",
+        "progress": "Progress",
+        "aboveBaseline": "Above Baseline",
+        "onTrackStatus": "On Track",
+        "atRisk": "At Risk"
+      },
+      "waterfallChart": {
+        "title": "Emissions Trajectory",
+        "baseline": "Baseline",
+        "required": "Required",
+        "reduction": "Reduction",
+        "gap": "Gap",
+        "actual": "Actual",
+        "target": "Target",
+        "tooltip": {
+          "reduction": "Reduction:",
+          "increase": "Increase:",
+          "total": "Total:"
+        }
+      }
+    },
+    "dataInvestigation": {
+      "title": "Data Investigation",
+      "subtitle": "Detailed monthly breakdown of all sustainability metrics",
+      "exportCSV": "Export CSV",
+      "allSites": "All Sites",
+      "failedToFetchData": "Failed to fetch data",
+      "failedToLoadMetricsData": "Failed to load metrics data",
+      "dataQualityIssues": "Data Quality Issues Detected",
+      "anomaliesFound": "The following anomalies were found in the {year} data:",
+      "duplicateEntries": "Duplicate entries:",
+      "missingData": "Missing data:",
+      "andMore": "and {count} more...",
+      "noteOctoberMarch": "Note: It appears that October data may have been incorrectly recorded as March, resulting in duplicate March entries and missing October data.",
+      "noData": "No data available for the selected period.",
+      "yearTotal": "Year Total:",
+      "emissions": "Emissions:",
+      "totalEmissions": "tCO2e",
+      "month": "Month",
+      "value": "Value",
+      "unit": "Unit",
+      "emissionsKg": "Emissions (kgCO2e)",
+      "entries": "Entries",
+      "dateRange": "Date Range",
+      "total": "Total",
+      "entriesCount": "{count} entries",
+      "individualEntries": "Individual Entries for {month} {year}:",
+      "entryId": "Entry ID",
+      "site": "Site",
+      "periodStart": "Period Start",
+      "periodEnd": "Period End",
+      "createdAt": "Created At",
+      "unknown": "Unknown",
+      "duplicate": "Duplicate",
+      "missing": "Missing",
+      "details": "{count} entries found",
+      "noDataRecorded": "No data recorded"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dec"
+    }
   }
 }

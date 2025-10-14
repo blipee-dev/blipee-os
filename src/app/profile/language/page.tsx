@@ -123,9 +123,8 @@ const reportingStandardOptions = [
 
 export default function LanguagePage() {
   useAuthRedirect('/profile/language');
-  
-  const t = useTranslations('profile.language');
-  const { locale, setLocale } = useLanguage();
+
+  const { locale, setLocale, t: tBase } = useLanguage();
   const [localeLoading] = useState(false);
   const [settings, setSettings] = useState<LanguageSettings>({
     ...defaultSettings,
@@ -133,6 +132,19 @@ export default function LanguagePage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
+
+  // Create translation function that's reactive to locale changes
+  const t = (key: string, params?: Record<string, any>) => {
+    return tBase(`profile.language.${key}`, params);
+  };
+
+  // Sync displayLanguage with locale from LanguageProvider
+  useEffect(() => {
+    setSettings(prev => ({
+      ...prev,
+      displayLanguage: locale
+    }));
+  }, [locale]);
 
   // Load settings on mount
   useEffect(() => {
@@ -142,16 +154,18 @@ export default function LanguagePage() {
         const response = await fetch('/api/profile/language');
         if (response.ok) {
           const { data } = await response.json();
-          setSettings(data);
+          // Merge with current locale from LanguageProvider
+          setSettings({ ...data, displayLanguage: locale });
         } else {
           // Fallback to localStorage if API fails
           const stored = localStorage.getItem("languageSettings");
           if (stored) {
             try {
               const parsed = JSON.parse(stored);
-              setSettings(prev => ({ ...prev, ...parsed }));
+              setSettings(prev => ({ ...prev, ...parsed, displayLanguage: locale }));
             } catch (error) {
-              // Failed to parse stored settings, use defaults
+              // Failed to parse stored settings, use defaults with current locale
+              setSettings(prev => ({ ...prev, displayLanguage: locale }));
             }
           }
         }
@@ -161,9 +175,10 @@ export default function LanguagePage() {
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
-            setSettings(prev => ({ ...prev, ...parsed }));
+            setSettings(prev => ({ ...prev, ...parsed, displayLanguage: locale }));
           } catch (error) {
-            // Failed to parse stored settings, use defaults
+            // Failed to parse stored settings, use defaults with current locale
+            setSettings(prev => ({ ...prev, displayLanguage: locale }));
           }
         }
       } finally {
@@ -172,9 +187,11 @@ export default function LanguagePage() {
     };
 
     loadSettings();
-  }, []);
+  }, [locale]);
 
   const saveSettings = async () => {
+    console.log('💾 Saving language settings:', settings);
+
     try {
       const response = await fetch('/api/profile/language', {
         method: 'PUT',
@@ -184,20 +201,61 @@ export default function LanguagePage() {
         body: JSON.stringify(settings),
       });
 
+      console.log('💾 API Response status:', response.status);
+
       if (response.ok) {
-        // Also save to localStorage as backup
-        localStorage.setItem("languageSettings", JSON.stringify(settings));
+        const result = await response.json();
+        console.log('💾 API Response:', result);
+
+        // Save to LanguageProvider's localStorage (for locale/autoDetect)
+        const languageProviderSettings = {
+          locale: settings.displayLanguage,
+          autoDetect: settings.autoDetectBrowser
+        };
+        localStorage.setItem("languageSettings", JSON.stringify(languageProviderSettings));
+
+        // Also save full settings to separate key as backup
+        localStorage.setItem("profileLanguageSettings", JSON.stringify(settings));
+
         setHasChanges(false);
-        // Success feedback could be added here
+        console.log('✅ Settings saved successfully');
+        console.log('  LanguageProvider settings:', languageProviderSettings);
+        console.log('  Full settings:', settings);
+
+        // Show success notification
+        alert('Settings saved successfully!');
       } else {
+        const error = await response.text();
+        console.error('❌ API Error:', error);
+
         // Still save to localStorage as fallback
-        localStorage.setItem("languageSettings", JSON.stringify(settings));
+        const languageProviderSettings = {
+          locale: settings.displayLanguage,
+          autoDetect: settings.autoDetectBrowser
+        };
+        localStorage.setItem("languageSettings", JSON.stringify(languageProviderSettings));
+        localStorage.setItem("profileLanguageSettings", JSON.stringify(settings));
+
         setHasChanges(false);
+        console.log('✅ Settings saved to localStorage (API failed)');
+
+        alert('Settings saved locally (API error)');
       }
     } catch (error) {
+      console.error('❌ Save error:', error);
+
       // Save to localStorage as fallback
-      localStorage.setItem("languageSettings", JSON.stringify(settings));
+      const languageProviderSettings = {
+        locale: settings.displayLanguage,
+        autoDetect: settings.autoDetectBrowser
+      };
+      localStorage.setItem("languageSettings", JSON.stringify(languageProviderSettings));
+      localStorage.setItem("profileLanguageSettings", JSON.stringify(settings));
+
       setHasChanges(false);
+      console.log('✅ Settings saved to localStorage (catch)');
+
+      alert('Settings saved locally');
     }
   };
 

@@ -9,6 +9,7 @@ import { useAppearance, useAccentGradient } from '@/providers/AppearanceProvider
 import { OverviewDashboard } from '@/components/dashboard/OverviewDashboard';
 import { SiteSelector } from '@/components/zero-typing/SiteSelector';
 import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
+import { useTranslations } from '@/providers/LanguageProvider';
 import type { Building } from '@/types/auth';
 
 export default function OverviewPage() {
@@ -16,6 +17,7 @@ export default function OverviewPage() {
   const { settings } = useAppearance();
   const accentGradientConfig = useAccentGradient();
   const accentColorHex = accentGradientConfig.from;
+  const t = useTranslations('sustainability.overview');
 
   const [organizationData, setOrganizationData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -43,11 +45,11 @@ export default function OverviewPage() {
         if (response.ok && data.organization) {
           setOrganizationData(data.organization);
         } else {
-          setError(data.error || 'Failed to load organization');
+          setError(data.error || t('failedToLoadOrganization'));
         }
       } catch (error) {
         console.error('Error fetching organization:', error);
-        setError('Failed to connect to server');
+        setError(t('failedToConnectToServer'));
       } finally {
         setLoading(false);
       }
@@ -65,7 +67,7 @@ export default function OverviewPage() {
               className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto"
               style={{ borderColor: accentColorHex }}
             />
-            <p className="text-gray-400">Loading overview...</p>
+            <p className="text-gray-400">{t('loadingOverview')}</p>
           </div>
         </div>
       </SustainabilityLayout>
@@ -78,13 +80,13 @@ export default function OverviewPage() {
         <div className="flex items-center justify-center min-h-[600px]">
           <div className="text-center space-y-4">
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
-            <h3 className="text-xl font-semibold">Error Loading Overview</h3>
+            <h3 className="text-xl font-semibold">{t('errorLoading')}</h3>
             <p className="text-gray-400">{error}</p>
             <button
               onClick={() => window.location.reload()}
               className={`px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 rounded-xl transition-opacity text-white`}
             >
-              Retry
+              {t('retry')}
             </button>
           </div>
         </div>
@@ -104,10 +106,10 @@ export default function OverviewPage() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                 <BarChart3 className="w-6 h-6" style={{ color: accentColorHex }} />
-                Overview
+                {t('title')}
               </h1>
               <p className="text-[#616161] dark:text-[#757575]">
-                Compliance & metrics overview
+                {t('subtitle')}
               </p>
             </div>
 
@@ -136,7 +138,7 @@ export default function OverviewPage() {
                   className="text-sm transition-opacity hover:opacity-80"
                   style={{ color: accentColorHex }}
                 >
-                  Clear Filters
+                  {t('clearFilters')}
                 </button>
               )}
             </div>
