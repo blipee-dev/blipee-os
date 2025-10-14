@@ -2323,6 +2323,18 @@
     },
     "dashboard": {
       "loading": "Loading overview data...",
+      "learnMore": "Learn More",
+      "intensityExplanation": "Emissions intensity measures your organization's carbon efficiency, showing how many tonnes of CO2 are emitted per full-time equivalent (FTE) employee.",
+      "targetProgressExplanation": "This card shows how many of your sustainability targets are on track to be achieved. Targets are considered on track when current emissions are below the linear trajectory needed to reach the defined goal.",
+      "dataQualityExplanation": "This card shows the quality of your emissions data. Primary data is direct, actual measurements, while verified data has been validated by third parties. Higher percentages of primary and verified data means greater accuracy in your emissions inventory.",
+      "scopeBreakdownExplanation": "This chart shows the distribution of your greenhouse gas (GHG) emissions by scope:",
+      "scope1Explanation": "Scope 1: Direct emissions from sources you own or control, such as combustion at facilities, company vehicles, and fugitive emissions.",
+      "scope2Explanation": "Scope 2: Indirect emissions from purchased electricity, heating, cooling, or steam consumed by your organization.",
+      "scope3Explanation": "Scope 3: All other indirect emissions occurring in your value chain, including business travel, employee commuting, purchased goods, and waste.",
+      "emissionsTrendExplanation": "This chart shows the evolution of your emissions over time, allowing you to identify trends, seasonal peaks, and the impact of your reduction initiatives. The dashed line represents future forecasts based on historical data. A downward trend indicates progress in emissions reduction.",
+      "organizationalBoundariesExplanation": "Defines the perimeter of your emissions inventory, including the consolidation approach (operational control, financial control, or equity share), included facilities, base year for comparison, and number of employees.",
+      "sbtiProgressExplanation": "Tracks progress against your Science Based Targets initiative (SBTi) validated emission reduction targets. Compares current emissions to the linear trajectory required to achieve the defined target by the target year.",
+      "topEmittersExplanation": "Identifies the main categories that contribute most to your total emissions. Focusing reduction efforts on these areas will have the greatest impact on reducing your carbon footprint.",
       "header": {
         "title": "Sustainability Overview",
         "subtitle": "GRI 305 • GHG Protocol • Executive summary of emissions and targets"
@@ -2330,6 +2342,7 @@
       "cards": {
         "totalEmissions": {
           "title": "Total Emissions",
+          "ytdTitle": "YTD Emissions",
           "tooltip": "Sum of all GHG emissions (Scope 1+2+3) in the selected period. Measured in tonnes of CO2 equivalent (tCO2e). Year-over-year change shows trend vs. previous period.",
           "unit": "tCO2e",
           "yoy": "% YoY",
@@ -2735,6 +2748,18 @@
       "sectionOf": "Section {current} of {total}",
       "learnMore": "📚 Learn more"
     }
+  },
+  "carbonEquivalentTooltip": {
+    "intro": "This emission is equivalent to:",
+    "howThisWorks": "How this works:",
+    "didYouKnow": "Did you know?",
+    "badges": {
+      "ghgProtocol": "GHG Protocol",
+      "gri305": "GRI 305",
+      "tcfd": "TCFD",
+      "esrsE1": "ESRS E1"
+    },
+    "compliantWith": "Compliant with:"
   },
   "carbonEquivalents": {
     "verySmall": {

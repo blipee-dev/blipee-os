@@ -78,7 +78,12 @@
       "Bash(NEXT_PUBLIC_SUPABASE_URL=https://quovvwrwyfkzhgqdeham.supabase.co SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgyOTIyMiwiZXhwIjoyMDY3NDA1MjIyfQ.3Tua91dJQ9obteac_y9aSD6IEGMO04rkg7Z8sM88yOI node scripts/sync-organization-members.js:*)",
       "Bash(NEXT_PUBLIC_SUPABASE_URL=https://quovvwrwyfkzhgqdeham.supabase.co SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgyOTIyMiwiZXhwIjoyMDY3NDA1MjIyfQ.3Tua91dJQ9obteac_y9aSD6IEGMO04rkg7Z8sM88yOI node scripts/fix-user-profiles.js:*)",
       "Bash(PGPASSWORD=\"MG5faEtcGRvBWkn1\" psql -h aws-0-eu-central-1.pooler.supabase.com -p 6543 -U postgres.yrbmmymayojycyszUnis -c \"\nSELECT \n  mc.name as metric_name,\n  mc.category,\n  SUM(md.co2e_emissions) / 1000 as total_emissions_tco2e,\n  COUNT(*) as records\nFROM metrics_data md\nJOIN metrics_catalog mc ON md.metric_id = mc.id\nWHERE md.organization_id = ''22647141-2ee4-4d8d-8b47-16b0cbd830b2''\n  AND mc.scope = ''scope_2''\n  AND EXTRACT(YEAR FROM md.period_start) = 2025\nGROUP BY mc.name, mc.category\nORDER BY total_emissions_tco2e DESC;\n\")",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(vercel env:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_RkQXbb/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_l6cX1Y/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_AIBDbd/**)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_8Umbc8/**)"
     ],
     "deny": [],
     "ask": []
