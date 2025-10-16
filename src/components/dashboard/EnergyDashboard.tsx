@@ -140,6 +140,98 @@ const formatScope = (scope: string): string => {
   return scope.replace(/scope_(\d+)/i, 'Scope $1').replace(/scope(\d+)/i, 'Scope $1');
 };
 
+// Helper function to translate energy source names
+const translateEnergySource = (name: string, t: (key: string) => string): string => {
+  const nameLower = name.toLowerCase().replace(/\s+/g, '');
+
+  // Map common energy source names to translation keys
+  const sourceMap: { [key: string]: string } = {
+    'purchasedcooling': 'energySources.purchasedCooling',
+    'gridelectricity': 'energySources.gridElectricity',
+    'purchasedheating': 'energySources.purchasedHeating',
+    'evcharging': 'energySources.evCharging',
+    'purchasedenergy': 'energySources.purchasedEnergy',
+    'electricity': 'energySources.electricity',
+    'solar': 'energySources.solar',
+    'wind': 'energySources.wind',
+    'hydro': 'energySources.hydro',
+    'geothermal': 'energySources.geothermal',
+    'biomass': 'energySources.biomass',
+    'coal': 'energySources.coal',
+    'naturalgas': 'energySources.naturalGas',
+    'oil': 'energySources.oil',
+    'nuclear': 'energySources.nuclear',
+    'other': 'energySources.other',
+    'unknown': 'energySources.unknown'
+  };
+
+  const key = sourceMap[nameLower];
+  if (key) {
+    const translated = t(key);
+    // If translation exists and is different from the key, return it
+    if (translated && translated !== key) {
+      return translated;
+    }
+  }
+
+  // Return original name if no translation found
+  return name;
+};
+
+// Helper function to translate category names
+const translateCategory = (name: string, t: (key: string) => string): string => {
+  const nameLower = name.toLowerCase().replace(/\s+/g, '');
+
+  const categoryMap: { [key: string]: string } = {
+    'electricity': 'categories.electricity',
+    'purchasedenergy': 'categories.purchasedEnergy',
+    'purchasedheating': 'categories.purchasedHeating',
+    'purchasedcooling': 'categories.purchasedCooling',
+    'purchasedsteam': 'categories.purchasedSteam',
+    'naturalgas': 'categories.naturalGas',
+    'heatingoil': 'categories.heatingOil',
+    'diesel': 'categories.diesel',
+    'gasoline': 'categories.gasoline',
+    'propane': 'categories.propane',
+    'heating': 'categories.heating',
+    'cooling': 'categories.cooling',
+    'steam': 'categories.steam'
+  };
+
+  const key = categoryMap[nameLower];
+  if (key) {
+    const translated = t(key);
+    if (translated && translated !== key) {
+      return translated;
+    }
+  }
+
+  return name;
+};
+
+// Helper function to translate allocation reasons
+const translateReason = (reason: string, t: (key: string) => string): string => {
+  const reasonLower = reason.toLowerCase().trim();
+
+  const reasonMap: { [key: string]: string } = {
+    'high: renewable energy, efficiency, on-site generation': 'allocationReasons.highRenewableEfficiency',
+    'high: renewable procurement, grid mix improvement, ppas': 'allocationReasons.highRenewableProcurement',
+    'medium: energy efficiency, operational improvements': 'allocationReasons.mediumEfficiency',
+    'low: baseline optimized, limited reduction potential': 'allocationReasons.lowBaselineOptimized',
+    'targeted reduction potential': 'allocationReasons.targetedReduction'
+  };
+
+  const key = reasonMap[reasonLower];
+  if (key) {
+    const translated = t(key);
+    if (translated && translated !== key) {
+      return translated;
+    }
+  }
+
+  return reason;
+};
+
 export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }: EnergyDashboardProps) {
   // Translation hooks
   const t = useTranslations('sustainability.energy');
@@ -777,7 +869,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
       <div className="grid grid-cols-2 gap-4 mb-6">
         {/* Energy Sources Pie Chart */}
         {sourceBreakdown.length > 0 && (
-          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm h-[440px]">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm h-[420px]">
             <div className="mb-4">
               <div className="flex items-center gap-2 relative group">
                 <PieChartIcon className="w-5 h-5 text-blue-500" />
@@ -814,7 +906,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={330}>
               <PieChart>
                 <Pie
                   data={sourceBreakdown}
@@ -831,6 +923,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                     const y = cy + radius * Math.sin(-midAngle * RADIAN);
                     const percentage = ((value / totalEnergy) * 100).toFixed(1);
                     const color = getSourceColor(name);
+                    const translatedName = translateEnergySource(name, t);
 
                     // Determine text anchor - force right side labels to always be 'start'
                     const textAnchor = x > cx ? 'start' : 'end';
@@ -844,7 +937,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                         dominantBaseline="central"
                         style={{ fontSize: '13px' }}
                       >
-                        <tspan x={x} dy="0">{name}</tspan>
+                        <tspan x={x} dy="0">{translatedName}</tspan>
                         <tspan x={x} dy="14" fontWeight="bold" style={{ fontSize: '14px' }}>{percentage}%</tspan>
                       </text>
                     );
@@ -877,22 +970,22 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                         <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
                           <p className="text-white font-semibold mb-2">{data.name}</p>
                           <p className="text-sm" style={{ color }}>
-                            Consumption: {(data.value / 1000).toFixed(1)} MWh
+                            {t('tooltips.consumption')} {(data.value / 1000).toFixed(1)} MWh
                           </p>
                           <p className="text-sm" style={{ color }}>
-                            Share: {((data.value / totalEnergy) * 100).toFixed(1)}%
+                            {t('tooltips.share')} {((data.value / totalEnergy) * 100).toFixed(1)}%
                           </p>
                           <p className="text-sm text-gray-400 mt-1">
-                            Emissions: {data.emissions.toFixed(2)} tCO2e
+                            {t('tooltips.emissions')} {data.emissions.toFixed(2)} tCO2e
                           </p>
                           {yoyChange !== null && (
                             <p className={`text-sm font-semibold mt-1 ${yoyChange >= 0 ? 'text-red-400' : 'text-green-400'}`}>
-                              YoY: {yoyChange > 0 ? '+' : ''}{yoyChange.toFixed(1)}%
+                              {t('units.yoy')}: {yoyChange > 0 ? '+' : ''}{yoyChange.toFixed(1)}%
                             </p>
                           )}
                           {data.renewable && (
                             <span className="inline-block mt-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
-                              Renewable
+                              {t('tooltips.renewable')}
                             </span>
                           )}
                         </div>
@@ -908,7 +1001,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
 
         {/* Monthly Evolution Chart */}
         {monthlyTrends.length > 0 && (
-          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm h-[420px]">
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-1 relative group">
                 <TrendingUpIcon className="w-5 h-5 text-purple-500" />
@@ -944,16 +1037,16 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 </div>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Includes ML forecast for {forecastData.length} remaining months
+                {t('forecast.includesMLForecast', { count: forecastData.length })}
                 {forecastData.length > 0 && forecastData[0].renewableForecast === 0 && (
                   <span className="ml-2 text-amber-500 dark:text-amber-400">
-                    (Renewable forecast: 0 MWh - based on historical trend)
+                    {t('forecast.renewableForecastZero')}
                   </span>
                 )}
               </p>
             </div>
 
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={330}>
               <LineChart data={(() => {
                 // Combine actual and forecast data
                 let combinedData = [...monthlyTrends];
@@ -991,7 +1084,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 <YAxis
                   tick={{ fill: '#888', fontSize: 12 }}
                   tickFormatter={(value) => `${(value / 1000).toFixed(0)}`}
-                  label={{ value: 'MWh', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                  label={{ value: t('axisLabels.mwh'), angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
                 />
                 <Tooltip
                   contentStyle={{
@@ -1006,7 +1099,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                         <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
                           <p className="text-white font-semibold mb-2">
                             {label}
-                            {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
+                            {isForecast && <span className="ml-2 text-xs text-blue-400">{t('tooltips.forecast')}</span>}
                           </p>
                           {payload.map((entry: any, index: number) => (
                             entry.value > 0 && (
@@ -1029,7 +1122,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   stroke={COLORS.renewable}
                   strokeWidth={2}
                   dot={{ fill: COLORS.renewable, r: 3 }}
-                  name="Renewable"
+                  name={t('legends.renewable')}
                   connectNulls
                 />
                 <Line
@@ -1038,7 +1131,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   stroke={COLORS.fossil}
                   strokeWidth={2}
                   dot={{ fill: COLORS.fossil, r: 3 }}
-                  name="Fossil"
+                  name={t('legends.fossil')}
                   connectNulls
                 />
                 <Line
@@ -1047,7 +1140,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   stroke="#6366f1"
                   strokeWidth={3}
                   dot={{ fill: '#6366f1', r: 4 }}
-                  name="Total"
+                  name={t('legends.total')}
                   connectNulls
                 />
                 {/* Forecast data - dashed lines (hide from legend) */}
@@ -1060,7 +1153,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: COLORS.renewable, strokeWidth: 2, r: 3 }}
-                      name="Renewable"
+                      name={t('legends.renewable')}
                       connectNulls
                       legendType="none"
                     />
@@ -1071,7 +1164,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: COLORS.fossil, strokeWidth: 2, r: 3 }}
-                      name="Fossil"
+                      name={t('legends.fossil')}
                       connectNulls
                       legendType="none"
                     />
@@ -1082,7 +1175,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                       strokeWidth={3}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: '#6366f1', strokeWidth: 2, r: 4 }}
-                      name="Total"
+                      name={t('legends.total')}
                       connectNulls
                       legendType="none"
                     />
@@ -1135,7 +1228,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 </div>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Monthly change vs previous year
+                {t('charts.yoyComparison.description')}
               </p>
             </div>
 
@@ -1188,7 +1281,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 <YAxis
                   tick={{ fill: '#888', fontSize: 12 }}
                   tickFormatter={(value) => `${value > 0 ? '+' : ''}${value}%`}
-                  label={{ value: 'Change (%)', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                  label={{ value: t('axisLabels.changePercent'), angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
                 />
                 <Tooltip
                   contentStyle={{
@@ -1207,17 +1300,17 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                           <p className="text-white font-semibold mb-2">{data.month}</p>
                           <div className="space-y-1 text-xs mb-2">
                             <p className="text-gray-300">
-                              Current: <span className="font-medium text-white">{(current / 1000).toFixed(1)} MWh</span>
+                              {t('tooltips.current')} <span className="font-medium text-white">{(current / 1000).toFixed(1)} MWh</span>
                             </p>
                             <p className="text-gray-300">
-                              Last Year: <span className="font-medium text-white">{(previous / 1000).toFixed(1)} MWh</span>
+                              {t('tooltips.lastYear')} <span className="font-medium text-white">{(previous / 1000).toFixed(1)} MWh</span>
                             </p>
                           </div>
                           <p className={`text-sm font-bold ${change >= 0 ? 'text-red-400' : 'text-green-400'}`}>
-                            {change > 0 ? '+' : ''}{change.toFixed(1)}% YoY
+                            {change > 0 ? '+' : ''}{change.toFixed(1)}% {t('units.yoy')}
                           </p>
                           <p className="text-xs text-gray-400 mt-1">
-                            {change >= 0 ? 'Increase' : 'Decrease'} in consumption
+                            {change >= 0 ? t('tooltips.increase') : t('tooltips.decrease')} in consumption
                           </p>
                         </div>
                       );
@@ -1242,15 +1335,15 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           const getEnergyTypeConfig = (type: string) => {
             switch (type) {
               case 'electricity':
-                return { title: t('charts.gridMix.title'), icon: Zap, color: 'text-blue-500' };
+                return { title: t('energyMixTitles.electricity'), icon: Zap, color: 'text-blue-500' };
               case 'district_heating':
-                return { title: 'District Heating Mix', icon: Flame, color: 'text-orange-500' };
+                return { title: t('energyMixTitles.districtHeating'), icon: Flame, color: 'text-orange-500' };
               case 'district_cooling':
-                return { title: 'District Cooling Mix', icon: Droplets, color: 'text-cyan-500' };
+                return { title: t('energyMixTitles.districtCooling'), icon: Droplets, color: 'text-cyan-500' };
               case 'steam':
-                return { title: 'Steam Mix', icon: Factory, color: 'text-purple-500' };
+                return { title: t('energyMixTitles.steam'), icon: Factory, color: 'text-purple-500' };
               default:
-                return { title: 'Energy Mix', icon: Zap, color: 'text-green-500' };
+                return { title: t('energyMixTitles.default'), icon: Zap, color: 'text-green-500' };
             }
           };
 
@@ -1299,7 +1392,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   </div>
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Year {mix.year}
+                  {t('tooltips.year')} {mix.year}
                 </p>
               </div>
 
@@ -1356,7 +1449,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                       <div key={sourceIdx} className="bg-white dark:bg-gray-800/50 rounded-lg p-2">
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-medium text-gray-900 dark:text-white">{source.name}</span>
+                            <span className="text-xs font-medium text-gray-900 dark:text-white">{translateEnergySource(source.name, t)}</span>
                             {source.renewable === true && (
                               <Leaf className="w-2.5 h-2.5 text-green-500" />
                             )}
@@ -1411,17 +1504,17 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
       {/* Monthly Consumption by Source - Stacked Bar Chart */}
       {monthlyTrends.length > 0 && (
         <div className="mb-6">
-          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm h-[420px]">
             <div className="mb-4">
               <div className="flex items-center gap-2 relative group">
                 <BarChart3 className="w-5 h-5 text-orange-500" />
-                <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">Monthly Consumption by Source</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts2.monthlyConsumptionBySource')}</h3>
 
                 {/* Hover Tooltip */}
                 <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <div className="mb-2">
                     <p className="text-gray-200 text-[11px] leading-relaxed">
-                      Stacked breakdown of monthly energy consumption by source, showing contribution of each energy type to total consumption over time.
+                      {t('charts2.stackedBreakdownDescription')}
                     </p>
                   </div>
 
@@ -1446,7 +1539,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={330}>
               <BarChart data={(() => {
                 // Transform data to flatten sources
                 const transformed = monthlyTrends.map((trend: any) => {
@@ -1472,7 +1565,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 />
                 <YAxis
                   tick={{ fill: '#888', fontSize: 12 }}
-                  label={{ value: 'MWh', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                  label={{ value: t('axisLabels.mwh'), angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
                   tickFormatter={(value) => (value / 1000).toFixed(0)}
                 />
                 <Tooltip
@@ -1499,7 +1592,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                               return null;
                             })}
                             <p className="text-white font-bold border-t border-gray-600 pt-1 mt-1">
-                              Total: {(data.total / 1000).toFixed(1)} MWh
+                              {t('legends.total')}: {(data.total / 1000).toFixed(1)} MWh
                             </p>
                           </div>
                         </div>
@@ -1518,7 +1611,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                     dataKey={source.name}
                     stackId="energy"
                     fill={getSourceColor(source.name)}
-                    name={source.name}
+                    name={translateEnergySource(source.name, t)}
                   />
                 ))}
               </BarChart>
@@ -1534,13 +1627,13 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-1 relative group">
                 <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
-                <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">SBTi Target Progress</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('sbti.title')}</h3>
 
                 {/* Hover Tooltip */}
                 <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <div className="mb-2">
                     <p className="text-gray-200 text-[11px] leading-relaxed">
-                      Science Based Targets initiative (SBTi) progress tracking for energy-related emissions. Shows annual reduction targets aligned with 1.5°C pathway to limit global warming.
+                      {t('sbti.description')}
                     </p>
                   </div>
 
@@ -1564,14 +1657,19 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 </div>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                1.5°C pathway • {overallTargetPercent}% annual reduction • Baseline 2023
+                {t('sbti.pathway')} • {overallTargetPercent}% {t('sbti.annualReduction')} • {t('sbti.baseline2023')}
               </p>
             </div>
 
             <div className="space-y-3">
               {categoryTargets.map((cat: any) => {
                 const isExpanded = expandedCategories.has(cat.category);
-                const categoryMetrics = metricTargets.filter(m => m.category === cat.category);
+                // More flexible category matching - match if category contains or is contained in the metric category
+                const categoryMetrics = metricTargets.filter(m =>
+                  m.category === cat.category ||
+                  m.category?.includes(cat.category) ||
+                  cat.category?.includes(m.category)
+                );
 
                 return (
                   <div key={cat.category}>
@@ -1599,15 +1697,15 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                           )}
                           <div>
                             <div className="font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
-                              {cat.category}
+                              {translateCategory(cat.category, t)}
                               {categoryMetrics.length > 0 && (
                                 <span className="text-xs px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded">
-                                  {categoryMetrics.length} metrics
+                                  {categoryMetrics.length} {t('sbti.metrics')}
                                 </span>
                               )}
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {cat.annualReductionRate.toFixed(1)}% annual • {cat.reason}
+                              {cat.annualReductionRate.toFixed(1)}% {t('targetSection.annual')} • {translateReason(cat.reason, t)}
                             </div>
                           </div>
                         </div>
@@ -1626,29 +1724,29 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                             cat.progressPercent >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
                             'text-red-600 dark:text-red-400'
                           }`}>
-                            {cat.progressPercent >= 100 ? 'exceeding' :
-                             cat.progressPercent >= 80 ? 'on track' :
-                             cat.progressPercent >= 50 ? 'at risk' :
-                             'off track'}
+                            {cat.progressPercent >= 100 ? t('progressStatus.exceeding') :
+                             cat.progressPercent >= 80 ? t('progressStatus.onTrack') :
+                             cat.progressPercent >= 50 ? t('progressStatus.atRisk') :
+                             t('progressStatus.offTrack')}
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3 text-xs">
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
+                          <span className="text-gray-500 dark:text-gray-400">{t('targetSection.baseline')}</span>
                           <span className="ml-1 text-gray-900 dark:text-white font-medium">
                             {cat.baseline2023FullYear.toFixed(1)} tCO2e
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Target 2025:</span>
+                          <span className="text-gray-500 dark:text-gray-400">{t('targetSection.target2025')}</span>
                           <span className="ml-1 text-gray-900 dark:text-white font-medium">
                             {cat.expectedEmissions2025.toFixed(1)} tCO2e
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Projected:</span>
+                          <span className="text-gray-500 dark:text-gray-400">{t('targetSection.projected')}</span>
                           <span className={`ml-1 font-medium ${
                             cat.projected2025FullYear <= cat.expectedEmissions2025
                               ? 'text-green-600 dark:text-green-400'
@@ -1699,19 +1797,19 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
 
                             <div className="grid grid-cols-3 gap-2 text-xs mb-2">
                               <div>
-                                <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
+                                <span className="text-gray-500 dark:text-gray-400">{t('targetSection.baseline')}</span>
                                 <div className="font-medium text-gray-900 dark:text-white">
                                   {metric.baselineEmissions?.toFixed(1)} tCO2e
                                 </div>
                               </div>
                               <div>
-                                <span className="text-gray-500 dark:text-gray-400">Target:</span>
+                                <span className="text-gray-500 dark:text-gray-400">{t('targetSection.target2025')}</span>
                                 <div className="font-medium text-gray-900 dark:text-white">
                                   {metric.targetEmissions?.toFixed(1)} tCO2e
                                 </div>
                               </div>
                               <div>
-                                <span className="text-gray-500 dark:text-gray-400">Current:</span>
+                                <span className="text-gray-500 dark:text-gray-400">{t('targetSection.current')}</span>
                                 <div className="font-medium text-gray-900 dark:text-white">
                                   {metric.currentEmissions?.toFixed(1)} tCO2e
                                 </div>
@@ -1737,7 +1835,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                               className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 rounded text-purple-300 text-xs font-medium transition-all"
                             >
                               <Plus className="h-3 w-3" />
-                              Add Initiative
+                              {t('sbti.addInitiative')}
                             </button>
                           </div>
                         ))}
