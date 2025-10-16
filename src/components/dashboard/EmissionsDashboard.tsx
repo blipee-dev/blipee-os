@@ -2203,20 +2203,16 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           <div className="space-y-3">
             {scope1Sources.map((source: any, index: number) => {
               const sourceName = source.name.toLowerCase();
-              let sourceColor = '#6B7280';
+              const sourceColor = getCategoryColor(source.name);
               let SourceIcon = Factory;
 
               if (sourceName.includes('stationary')) {
-                sourceColor = '#F97316'; // Orange
                 SourceIcon = Flame;
               } else if (sourceName.includes('mobile')) {
-                sourceColor = '#8B5CF6'; // Purple
                 SourceIcon = Car;
               } else if (sourceName.includes('fugitive')) {
-                sourceColor = '#06B6D4'; // Cyan
                 SourceIcon = Wind;
               } else if (sourceName.includes('process')) {
-                sourceColor = '#EF4444'; // Red
                 SourceIcon = Factory;
               }
 
@@ -2339,8 +2335,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               {Object.entries(scope2CategoriesData)
                 .filter(([_, emissions]) => (emissions as number) > 0)
                 .map(([category, emissions], index) => {
-                  const categoryColor = getScope2CategoryColor(category);
                   const categoryName = category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                  const categoryColor = getCategoryColor(categoryName);
                   const CategoryIcon = getScope2CategoryIcon(category);
 
                   return (
@@ -2504,8 +2500,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 .filter(([_, emissions]) => (emissions as number) > 0)
                 .sort((a, b) => (b[1] as number) - (a[1] as number))
                 .map(([category, emissions], index) => {
-                  const categoryColor = getScope3CategoryColor(category);
                   const categoryName = category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                  const categoryColor = getCategoryColor(categoryName);
                   const CategoryIcon = getScope3CategoryIcon(category);
 
                   return (
