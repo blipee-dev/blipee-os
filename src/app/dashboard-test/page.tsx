@@ -63,8 +63,8 @@ export default function DashboardTestPage() {
         {mode === 'builder' && (
           <DashboardBuilder
             editable={true}
-            onSave={(config) =>}
-            onExport={(config) =>}
+            onSave={(config) => {}}
+            onExport={(config) => {}}
           />
         )}
       </div>

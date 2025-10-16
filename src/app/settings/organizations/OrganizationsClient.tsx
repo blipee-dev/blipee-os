@@ -134,11 +134,7 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
           return mapped;
         });
 
-      } => ({
-        name: o.name,
-        sites: o.sites,
-        users: o.users
-      })));
+      }
 
       setOrganizations(orgs);
     } catch (err) {
