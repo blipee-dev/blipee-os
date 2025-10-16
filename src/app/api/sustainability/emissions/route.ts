@@ -165,12 +165,7 @@ export async function GET(request: NextRequest) {
         ? parseFloat(site.total_area_sqm)
         : (site.total_area_sqm || 0);
       return sum + area;
-    }, 0) || 0;),
-      totalAreaM2,
-      siteCount: sites?.length || 0,
-      metricsCount: metricsData?.length || 0,
-      organizationId
-    });
+    }, 0) || 0;
 
     // ✅ USE CALCULATOR for ALL emissions calculations (scope-by-scope rounding)
     const startDateStr = startDate.toISOString().split('T')[0];
