@@ -74,13 +74,13 @@ export async function fetchESGChiefData(): Promise<CardData> {
         {
           id: 'report',
           label: 'Generate Report',
-          action: () =>,
+          action: () => {},
           variant: 'primary'
         },
         {
           id: 'strategy',
           label: 'Strategy Session',
-          action: () =>,
+          action: () => {},
           variant: 'secondary'
         }
       ],
@@ -158,13 +158,13 @@ export async function fetchCarbonHunterData(): Promise<CardData> {
         {
           id: 'hunt',
           label: 'Start Hunt',
-          action: () =>,
+          action: () => {},
           variant: 'primary'
         },
         {
           id: 'analyze',
           label: 'Deep Analysis',
-          action: () =>,
+          action: () => {},
           variant: 'secondary'
         }
       ],
@@ -242,13 +242,13 @@ export async function fetchComplianceGuardianData(): Promise<CardData> {
         {
           id: 'audit',
           label: 'Run Audit',
-          action: () =>,
+          action: () => {},
           variant: 'primary'
         },
         {
           id: 'report',
           label: 'Compliance Report',
-          action: () =>,
+          action: () => {},
           variant: 'secondary'
         }
       ],
@@ -324,13 +324,13 @@ export async function fetchSupplyChainData(): Promise<CardData> {
         {
           id: 'investigate',
           label: 'Investigate',
-          action: () =>,
+          action: () => {},
           variant: 'primary'
         },
         {
           id: 'map',
           label: 'Supply Chain Map',
-          action: () =>,
+          action: () => {},
           variant: 'secondary'
         }
       ],

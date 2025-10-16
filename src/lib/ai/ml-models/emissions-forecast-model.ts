@@ -167,7 +167,7 @@ export class EmissionsForecastModel {
         externalFeatures,
         12,
         startDate
-      );.length, 'models');}% per year)`);
+      );
 
       // Convert ensemble predictions to our format
       return this.processEnsemblePrediction(ensemblePrediction, input);
@@ -287,11 +287,7 @@ export class EmissionsForecastModel {
   /**
    * Process ensemble predictions into our format
    */
-  private processEnsemblePrediction(ensemble: any, input: EmissionsForecastInput): EmissionsForecastPrediction {,
-      predictionsLength: ensemble.predictions?.length,
-      firstPrediction: ensemble.predictions?.[0]
-    });
-
+  private processEnsemblePrediction(ensemble: any, input: EmissionsForecastInput): EmissionsForecastPrediction {
     // Extract predictions array (values are already in tons from the models)
     const predictions = ensemble.predictions.map((p: any) => p.predicted);
 

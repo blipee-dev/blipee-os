@@ -684,11 +684,11 @@ export class MonitoringService extends EventEmitter {
     if (!this.notificationConfig.email?.enabled) return;
     
     const { emailMFAService } = await import('@/lib/auth/mfa/email');
-    
+
     for (const recipient of this.notificationConfig.email.recipients) {
-      // Reuse email service for sending alerts}] ${alert.name}`,
-        message: alert.message,
-      });
+      // Reuse email service for sending alerts
+      // TODO: Implement email notification with proper template
+      console.log(`Sending alert email to ${recipient}:`, alert.name);
     }
   }
 
@@ -697,12 +697,13 @@ export class MonitoringService extends EventEmitter {
    */
   private async sendSMSNotification(alert: Alert): Promise<void> {
     if (!this.notificationConfig.sms?.enabled) return;
-    
+
     const { smsMFAService } = await import('@/lib/auth/mfa/sms');
-    
+
     for (const recipient of this.notificationConfig.sms.recipients) {
-      // Reuse SMS service for sending alerts}] ${alert.name}: ${alert.message}`,
-      });
+      // Reuse SMS service for sending alerts
+      // TODO: Implement SMS notification with proper formatting
+      console.log(`Sending alert SMS to ${recipient}:`, `${alert.name}: ${alert.message}`);
     }
   }
 

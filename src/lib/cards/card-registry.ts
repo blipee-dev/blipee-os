@@ -345,9 +345,9 @@ class CardRegistry {
           type: 'action',
           title: 'Quick Actions',
           actions: [
-            { id: 'report', label: 'Generate Report', action: () =>, variant: 'primary' },
-            { id: 'analyze', label: 'Analyze Emissions', action: () =>, variant: 'secondary' },
-            { id: 'export', label: 'Export Data', action: () =>, variant: 'secondary' }
+            { id: 'report', label: 'Generate Report', action: () => {}, variant: 'primary' },
+            { id: 'analyze', label: 'Analyze Emissions', action: () => {}, variant: 'secondary' },
+            { id: 'export', label: 'Export Data', action: () => {}, variant: 'secondary' }
           ]
         })
       },

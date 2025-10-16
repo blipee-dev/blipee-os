@@ -319,7 +319,6 @@ export default async function ZeroTypingPage() {
     alertsCount: alerts?.length || 0,
     metricsCount: totalMetricsCount
   };
-  });
 
   return (
     <ZeroTypingClient

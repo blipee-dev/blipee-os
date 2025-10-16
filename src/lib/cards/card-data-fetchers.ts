@@ -227,7 +227,7 @@ export async function fetchCriticalAlertsData(): Promise<CardData> {
         message: a.message,
         timestamp: a.created_at,
         severity: 'critical',
-        action: () =>,
+        action: () => {},
       })),
       metadata: {
         count: alerts.length,

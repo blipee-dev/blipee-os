@@ -45,14 +45,6 @@ export function EmissionsTrend({
   scope3Forecast = [],
   sbtiTarget
 }: EmissionsTrendProps) {
-  // Debug logging.map(d => ({
-      month: d.month,
-      total: d.total,
-      intensity: d.intensity
-    })),
-    selectedMetric
-  });
-
   // Calculate SBTi target trajectory with seasonality
   const calculateSBTiTrajectory = () => {
     if (historicalData.length === 0) return [];
@@ -95,7 +87,7 @@ export function EmissionsTrend({
     const annualReductionRate = (annualBaseline - annualTarget) / yearsToTarget;
 
     // Generate trajectory maintaining seasonal patterns
-    const trajectory = [];
+    const trajectory: Array<{ month: string; year: string; sbti_target: number }> = [];
 
     // Historical period
     historicalData.forEach((d, index) => {
@@ -125,16 +117,6 @@ export function EmissionsTrend({
         sbti_target: Math.max(monthlyTarget, annualTarget / 12)
       });
     });
-
-    // Debug logging for seasonal SBTi calculation
-    if (trajectory.length > 0) {,
-        annualTarget: annualTarget.toFixed(1),
-        sampleTargets: trajectory.slice(-3).map(t => ({
-          month: t.month,
-          target: t.sbti_target.toFixed(1)
-        }))
-      });
-    }
 
     return trajectory;
   };
@@ -423,17 +405,6 @@ export function EmissionsTrend({
     const actualAnnual = last12Months.reduce((sum, d) => sum + d.total, 0);
     const targetAnnual = last12Targets.reduce((sum, t) => sum + t.sbti_target, 0);
     const annualPerformance = ((actualAnnual - targetAnnual) / targetAnnual) * 100;
-
-    // Debug logging for SBTi performance,
-      latestTarget: latestTarget.sbti_target.toFixed(2),
-      monthlyDifference: difference.toFixed(2),
-      monthlyPercentageOff: percentageOff.toFixed(1),
-      isOnTrack,
-      actualAnnual: actualAnnual.toFixed(1),
-      targetAnnual: targetAnnual.toFixed(1),
-      annualPerformance: annualPerformance.toFixed(1),
-      isAnnualOnTrack: actualAnnual <= targetAnnual
-    });
 
     return {
       isOnTrack,
