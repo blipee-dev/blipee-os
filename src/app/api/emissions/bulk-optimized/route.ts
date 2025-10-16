@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`🚀 Processing ${bulkData.length} emission records with N+1 elimination...`);
 
     const supabase = createClient();
     const nPlusOneEliminator = createNPlusOneEliminator(supabase);
@@ -51,12 +50,6 @@ export async function POST(request: NextRequest) {
       processingTime
     );
 
-    console.log(`✅ Bulk emissions processing completed:`);
-    console.log(`   - Records processed: ${bulkData.length}`);
-    console.log(`   - Successful inserts: ${result.successCount}`);
-    console.log(`   - Errors: ${result.errorCount}`);
-    console.log(`   - Processing time: ${processingTime}ms`);
-    console.log(`   - Query optimization: ${queriesEliminated} queries eliminated (${improvementPercentage.toFixed(1)}% reduction)`);
 
     return NextResponse.json({
       success: true,

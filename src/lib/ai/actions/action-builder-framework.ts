@@ -231,7 +231,6 @@ export class ActionBuilderFramework extends EventEmitter {
     this.initializeNodeLibrary();
     this.initializeTemplateLibrary();
 
-    console.log('Action Builder Framework initialized');
   }
 
   /**

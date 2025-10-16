@@ -670,18 +670,10 @@ export class SecurityManager {
 
   private async notifySecurityTeam(event: SecurityEvent): Promise<void> {
     // This would integrate with notification services (Slack, email, etc.)
-    console.log('Security alert triggered:', {
-      type: event.type,
-      severity: event.severity,
-      user: event.userId,
-      organization: event.organizationId,
-      timestamp: event.timestamp
-    });
   }
 
   private setupRealTimeAlerts(): void {
     // Set up real-time monitoring and alerting
-    console.log('Security monitoring initialized');
   }
 
   /**

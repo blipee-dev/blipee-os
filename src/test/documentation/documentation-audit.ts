@@ -65,16 +65,13 @@ export class DocumentationAuditor {
   }
 
   async auditProjectDocumentation(): Promise<DocumentationAuditReport> {
-    console.log('📚 Starting comprehensive documentation audit...\n');
 
     // Find all documentation files
     const docFiles = await this.findDocumentationFiles();
-    console.log(`Found ${docFiles.length} documentation files\n`);
 
     // Analyze each documentation file
     for (const file of docFiles) {
       try {
-        console.log(`📄 Analyzing ${path.relative(this.projectRoot, file)}...`);
         const metrics = await this.analyzeDocumentationFile(file);
         this.metrics.push(metrics);
       } catch (error) {
@@ -94,8 +91,6 @@ export class DocumentationAuditor {
     // Generate comprehensive report
     const report = await this.generateAuditReport();
 
-    console.log('\n📊 Documentation audit completed!');
-    console.log(`Documentation Score: ${report.summary.documentationScore}/100`);
 
     return report;
   }
@@ -681,10 +676,6 @@ export class DocumentationAuditor {
     const mdPath = path.join(outputDir, 'DOCUMENTATION_AUDIT_SUMMARY.md');
     fs.writeFileSync(mdPath, mdReport);
     
-    console.log(`\n📄 Documentation audit reports generated:`);
-    console.log(`   JSON: ${jsonPath}`);
-    console.log(`   HTML: ${htmlPath}`);
-    console.log(`   Markdown: ${mdPath}`);
   }
 
   private generateHTMLReport(report: DocumentationAuditReport): string {
@@ -880,7 +871,6 @@ if (require.main === module) {
   
   auditor.generateReports()
     .then(() => {
-      console.log('🎉 Documentation audit completed successfully!');
       process.exit(0);
     })
     .catch(error => {

@@ -71,13 +71,11 @@ export class SecurityTestFramework {
     // Listen for console errors and network requests
     this.page.on('console', msg => {
       if (msg.type() === 'error') {
-        console.log('Console Error:', msg.text());
       }
     });
 
     this.page.on('response', response => {
       if (!response.ok()) {
-        console.log(`HTTP Error: ${response.status()} - ${response.url()}`);
       }
     });
   }
@@ -90,11 +88,9 @@ export class SecurityTestFramework {
 
   private addVulnerability(vuln: SecurityVulnerability): void {
     this.vulnerabilities.push(vuln);
-    console.log(`🚨 ${vuln.severity.toUpperCase()}: ${vuln.type} - ${vuln.description}`);
   }
 
   async testSQLInjection(): Promise<void> {
-    console.log('\n🛡️ Testing SQL Injection vulnerabilities...');
 
     const sqlPayloads = [
       "' OR '1'='1",
@@ -171,7 +167,6 @@ export class SecurityTestFramework {
   }
 
   async testXSSVulnerabilities(): Promise<void> {
-    console.log('\n🛡️ Testing XSS vulnerabilities...');
 
     const xssPayloads = [
       '<script>alert("XSS")</script>',
@@ -227,13 +222,11 @@ export class SecurityTestFramework {
         }
 
       } catch (error) {
-        console.log(`XSS test failed for payload ${payload}:`, (error as Error).message);
       }
     }
   }
 
   async testCSRFProtection(): Promise<void> {
-    console.log('\n🛡️ Testing CSRF protection...');
 
     // First, login to get valid session
     if (this.config.testCredentials) {
@@ -297,13 +290,11 @@ export class SecurityTestFramework {
         }
 
       } catch (error) {
-        console.log(`CSRF test failed for ${endpoint.path}:`, (error as Error).message);
       }
     }
   }
 
   async testAuthenticationBypass(): Promise<void> {
-    console.log('\n🛡️ Testing authentication bypass...');
 
     const protectedEndpoints = [
       '/api/organizations',
@@ -351,13 +342,11 @@ export class SecurityTestFramework {
         }
 
       } catch (error) {
-        console.log(`Auth test failed for ${endpoint}:`, (error as Error).message);
       }
     }
   }
 
   async testPrivilegeEscalation(): Promise<void> {
-    console.log('\n🛡️ Testing privilege escalation...');
 
     // Login as regular user
     if (this.config.testCredentials) {
@@ -412,13 +401,11 @@ export class SecurityTestFramework {
         }
 
       } catch (error) {
-        console.log(`Privilege escalation test failed for ${endpoint}:`, (error as Error).message);
       }
     }
   }
 
   async testFileUploadSecurity(): Promise<void> {
-    console.log('\n🛡️ Testing file upload security...');
 
     const maliciousFiles = [
       { name: 'malicious.php', content: '<?php system($_GET["cmd"]); ?>', mimeType: 'application/x-php' },
@@ -463,16 +450,13 @@ export class SecurityTestFramework {
             }
           }
         } catch (error) {
-          console.log(`File upload test failed for ${file.name}:`, (error as Error).message);
         }
       }
     } catch (error) {
-      console.log('File upload functionality not found or accessible');
     }
   }
 
   async testSessionSecurity(): Promise<void> {
-    console.log('\n🛡️ Testing session security...');
 
     if (this.config.testCredentials) {
       // Login and get session cookie
@@ -549,7 +533,6 @@ export class SecurityTestFramework {
   }
 
   async testSecurityHeaders(): Promise<void> {
-    console.log('\n🛡️ Testing security headers...');
 
     const response = await this.page.request.get(`${this.config.baseURL}/`);
     const headers = response.headers();
@@ -673,7 +656,6 @@ export class SecurityTestFramework {
       htmlReport
     );
 
-    console.log(`\n📄 Security reports generated in ${reportDir}/`);
   }
 
   private generateHTMLReport(report: any): string {

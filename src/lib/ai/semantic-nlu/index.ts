@@ -1094,7 +1094,6 @@ Return coreference chains:
     }>
   ): Promise<void> {
     // In a full implementation, this would retrain models
-    console.log(`Updating models with ${trainingData.length} training examples`);
   }
 }
 

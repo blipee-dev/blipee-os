@@ -170,7 +170,6 @@ export default function LogsPage() {
           table: 'audit_events',
         },
         (payload) => {
-          console.log('New audit event:', payload);
           // Prepend new event to the list
           if (payload.new) {
             const newEvent = {

@@ -112,13 +112,11 @@ export async function GET(request: NextRequest) {
     );
     const needsEmissionsForecast = !isWaterCategory; // All non-water categories need emissions forecast
 
-    console.log(`🔍 Is water category? ${isWaterCategory}, needs emissions forecast? ${needsEmissionsForecast}, categories: ${categories.join(', ')}`);
 
     let forecastData: any = null;
     let emissionsForecastData: any = null;
     if (isWaterCategory) {
       try {
-        console.log('🔮 Calculating water forecast using EnterpriseForecast (Prophet model)...');
 
         // Get water metrics from catalog
         const { data: waterMetrics } = await supabaseAdmin
@@ -214,13 +212,9 @@ export async function GET(request: NextRequest) {
             }
 
             forecastData = { forecast, model: withdrawalForecast.method };
-            console.log(`✅ Generated water forecast using ${withdrawalForecast.method} (EnterpriseForecast): ${forecast.length} months`);
-            console.log(`   Sample forecast:`, JSON.stringify(forecast[0]));
           } else {
-            console.log('⚠️ No historical water data available for forecasting');
           }
         } else {
-          console.log('⚠️ No water metrics found in catalog');
         }
       } catch (err) {
         console.error('❌ Error generating water forecast:', err);
@@ -230,7 +224,6 @@ export async function GET(request: NextRequest) {
     // Calculate emissions forecast for non-water categories
     if (needsEmissionsForecast) {
       try {
-        console.log('🔮 Calculating emissions forecast using EnterpriseForecast (Prophet model) with real emissions data...');
 
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth() + 1; // 1-12
@@ -242,7 +235,6 @@ export async function GET(request: NextRequest) {
           `${currentYear}-12-31`
         );
 
-        console.log(`📊 Got ${allMonthlyEmissions.length} months of emissions data from metrics_data`);
 
         // Get monthly emissions data for the current year for each metric target
         const metricForecastMap: Record<string, any> = {};
@@ -286,7 +278,6 @@ export async function GET(request: NextRequest) {
               const lastMonthNum = parseInt(lastMonthKey.split('-')[1]);
               const monthsToForecast = 12 - lastMonthNum;
 
-              console.log(`📈 ${mt.metrics_catalog?.name}: ${emissionsHistory.length} months actual, forecasting ${monthsToForecast} months`);
 
               if (monthsToForecast > 0) {
                 // Use EnterpriseForecast to predict remaining months
@@ -299,16 +290,13 @@ export async function GET(request: NextRequest) {
                   actualMonths: emissionsHistory.length
                 };
 
-                console.log(`✅ Generated forecast for ${mt.metrics_catalog?.name}: ${monthsToForecast} months using ${forecast.method}`);
               }
             }
           } else {
-            console.log(`⚠️ No emissions data found for ${mt.metrics_catalog?.name}`);
           }
         }
 
         emissionsForecastData = metricForecastMap;
-        console.log(`✅ Generated emissions forecast for ${Object.keys(metricForecastMap).length} metrics`);
 
       } catch (err) {
         console.error('❌ Error generating emissions forecast:', err);
@@ -345,7 +333,6 @@ export async function GET(request: NextRequest) {
       let currentEmissions = ytdEmissions;
 
       const category = mt.metrics_catalog?.category;
-      console.log(`🔍 Processing ${category}: isWater=${category?.includes('Water')}, hasWaterForecast=${!!forecastData}, hasEmissionsForecast=${!!emissionsForecastData?.[mt.id]}`);
 
       // Apply water forecast for water categories
       if (forecastData && forecastData.forecast && forecastData.forecast.length > 0 && category?.includes('Water')) {
@@ -361,7 +348,6 @@ export async function GET(request: NextRequest) {
           return sum;
         }, 0);
 
-        console.log(`💧 ${category}: YTD=${ytdEmissions.toFixed(2)}, Forecast=${forecastRemaining.toFixed(2)}, Projected=${(ytdEmissions + forecastRemaining).toFixed(2)}`);
 
         currentValue = ytdValue + forecastRemaining;
         currentEmissions = ytdEmissions + forecastRemaining;
@@ -371,12 +357,10 @@ export async function GET(request: NextRequest) {
         const metricForecast = emissionsForecastData[mt.id];
         const forecastSum = metricForecast.forecasted.reduce((sum: number, val: number) => sum + val, 0);
 
-        console.log(`🔥 ${category}: YTD=${ytdEmissions.toFixed(2)} tCO2e, Forecast=${forecastSum.toFixed(2)} tCO2e, Projected=${(ytdEmissions + forecastSum).toFixed(2)} tCO2e (${metricForecast.method})`);
 
         currentValue = ytdValue + forecastSum;
         currentEmissions = ytdEmissions + forecastSum;
       } else {
-        console.log(`⚠️ No forecast data available for ${category}`);
       }
 
       // Calculate progress metrics using projected values
@@ -442,13 +426,11 @@ export async function GET(request: NextRequest) {
       const hasAnyData = hasBaseline || hasTarget || hasCurrent;
 
       if (!hasAnyData) {
-        console.log(`🚫 Filtering out ${mt.metricName} (${mt.category}): no data (baseline=${mt.baselineEmissions}, target=${mt.targetEmissions}, current=${mt.currentEmissions})`);
       }
 
       return hasAnyData;
     });
 
-    console.log(`✅ Filtered results: ${metricsWithData.length} metrics with data out of ${transformedTargets.length} total`);
 
     return NextResponse.json({
       success: true,

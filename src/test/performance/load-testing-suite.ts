@@ -233,25 +233,16 @@ export class LoadTestingSuite extends EventEmitter {
   }
 
   async runAllScenarios(): Promise<LoadTestReport> {
-    console.log('🚀 Starting Load Testing Suite...\n');
-    console.log(`Testing against: ${this.baseURL}\n`);
 
     this.results = [];
 
     for (const scenario of this.scenarios) {
-      console.log(`📊 Running scenario: ${scenario.name}`);
-      console.log(`   ${scenario.description}`);
-      console.log(`   Duration: ${scenario.duration}s | Max Users: ${scenario.maxVirtualUsers} | RPS: ${scenario.requestsPerSecond}`);
 
       try {
         const result = await this.runScenario(scenario);
         this.results.push(result);
 
         const status = result.passed ? '✅ PASS' : '❌ FAIL';
-        console.log(`   Result: ${status}`);
-        console.log(`   Avg Response Time: ${result.metrics.averageResponseTime.toFixed(2)}ms`);
-        console.log(`   Error Rate: ${result.metrics.errorRate.toFixed(2)}%`);
-        console.log(`   Throughput: ${result.metrics.throughput.toFixed(2)} RPS`);
 
       } catch (error) {
         console.error(`   ❌ Scenario failed: ${(error as Error).message}`);
@@ -268,13 +259,10 @@ export class LoadTestingSuite extends EventEmitter {
           responseTimeDistribution: []
         };
         this.results.push(failedResult);
-      }
-
-      console.log(''); // Empty line for readability
+      } // Empty line for readability
       
       // Wait between scenarios to let system recover
       if (scenario !== this.scenarios[this.scenarios.length - 1]) {
-        console.log('⏳ Waiting 30 seconds for system recovery...\n');
         await new Promise(resolve => setTimeout(resolve, 30000));
       }
     }
@@ -630,9 +618,6 @@ export class LoadTestingSuite extends EventEmitter {
     const htmlPath = path.join(outputDir, `load-test-report-${timestamp}.html`);
     fs.writeFileSync(htmlPath, htmlReport);
 
-    console.log(`\n📄 Load test reports saved:`);
-    console.log(`   JSON: ${jsonPath}`);
-    console.log(`   HTML: ${htmlPath}`);
   }
 
   private generateHTMLReport(report: LoadTestReport): string {
@@ -742,15 +727,9 @@ if (require.main === module) {
   
   suite.runAllScenarios()
     .then(async (report) => {
-      console.log('\n📊 Load Testing Summary:');
-      console.log(`Overall Score: ${report.summary.overallScore}/100`);
-      console.log(`Passed: ${report.summary.passedScenarios}/${report.summary.totalScenarios}`);
-      console.log(`Max Throughput: ${report.summary.maxThroughput.toFixed(2)} RPS`);
-      console.log(`Average Error Rate: ${report.summary.averageErrorRate.toFixed(2)}%`);
 
       await suite.saveResults();
       
-      console.log('\n🎉 Load testing completed!');
       
       const hasFailures = report.summary.failedScenarios > 0;
       process.exit(hasFailures ? 1 : 0);

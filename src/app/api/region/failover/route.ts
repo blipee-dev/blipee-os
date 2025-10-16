@@ -97,7 +97,6 @@ async function handleTriggerFailover(
     );
   }
 
-  console.log(`🚨 Manual failover triggered from ${fromRegion}: ${reason || 'Manual trigger'}`);
 
   try {
     // Trigger failover
@@ -121,7 +120,6 @@ async function handleTriggerFailover(
     }
 
     // Log the failover
-    console.log(`✅ Failover successful: ${fromRegion} → ${result.newPrimaryRegion}`);
 
     return NextResponse.json({
       success: true,

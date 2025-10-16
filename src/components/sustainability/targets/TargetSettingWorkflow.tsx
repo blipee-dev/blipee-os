@@ -373,7 +373,6 @@ export function TargetSettingWorkflow({
           industry="General" // This should come from organization data
           size="medium"
           onMetricAdd={(metric) => {
-            console.log('Adding metric:', metric);
             // Update selected topics with new metric
             const newTopic: MaterialTopic = {
               id: `metric-${metric.metric}`,

@@ -51,7 +51,6 @@ export class CarbonHunter extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('🎯 Initializing Carbon Hunter...');
 
     // Load emission sources
     await this.loadEmissionSources();
@@ -66,11 +65,9 @@ export class CarbonHunter extends AutonomousAgent {
     this.huntingActive = true;
     this.startContinuousHunting();
 
-    console.log('✅ Carbon Hunter initialized and actively hunting for emissions');
   }
 
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`🎯 Carbon Hunter executing task: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -419,7 +416,6 @@ export class CarbonHunter extends AutonomousAgent {
   }
 
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`🎯 Carbon Hunter learning from feedback: ${feedback.outcome}`);
 
     // Update optimization algorithms based on feedback
     if (feedback.outcome === 'positive') {
@@ -430,7 +426,6 @@ export class CarbonHunter extends AutonomousAgent {
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('🎯 Carbon Hunter shutting down...');
     this.huntingActive = false;
   }
 
@@ -485,11 +480,9 @@ export class CarbonHunter extends AutonomousAgent {
   }
 
   private async setupEnergyMonitoring(): Promise<void> {
-    console.log('🎯 Setting up real-time energy monitoring');
   }
 
   private async initializeOptimizationAlgorithms(): Promise<void> {
-    console.log('🎯 Initializing carbon optimization algorithms');
   }
 
   private async startContinuousHunting(): Promise<void> {

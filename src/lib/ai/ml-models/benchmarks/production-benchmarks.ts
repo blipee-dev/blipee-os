@@ -109,7 +109,6 @@ export class ProductionBenchmarkSuite {
    * Run complete production benchmark suite
    */
   async runFullBenchmarkSuite(): Promise<BenchmarkSuite> {
-    console.log('🚀 Starting Stream B Production Benchmark Suite...');
     const suiteStartTime = Date.now();
 
     // Reset results
@@ -129,8 +128,6 @@ export class ProductionBenchmarkSuite {
 
     const summary = this.generateSummary();
 
-    console.log(`🏁 Benchmark suite completed in ${(suiteDuration / 1000).toFixed(1)}s`);
-    console.log(`📊 Results: ${passedTests}/${this.results.length} tests passed`);
 
     return {
       suiteName: 'Stream B Production Readiness',
@@ -147,7 +144,6 @@ export class ProductionBenchmarkSuite {
    * Performance benchmarks
    */
   private async runPerformanceBenchmarks(): Promise<void> {
-    console.log('⚡ Running performance benchmarks...');
 
     // Latency benchmark
     await this.runBenchmark(
@@ -258,7 +254,6 @@ export class ProductionBenchmarkSuite {
    * Scalability benchmarks
    */
   private async runScalabilityBenchmarks(): Promise<void> {
-    console.log('📈 Running scalability benchmarks...');
 
     // Auto-scaling benchmark
     await this.runBenchmark(
@@ -353,7 +348,6 @@ export class ProductionBenchmarkSuite {
    * Reliability benchmarks
    */
   private async runReliabilityBenchmarks(): Promise<void> {
-    console.log('🛡️ Running reliability benchmarks...');
 
     // Error recovery benchmark
     await this.runBenchmark(
@@ -463,7 +457,6 @@ export class ProductionBenchmarkSuite {
    * Optimization benchmarks
    */
   private async runOptimizationBenchmarks(): Promise<void> {
-    console.log('🔧 Running optimization benchmarks...');
 
     // Hyperparameter optimization benchmark
     await this.runBenchmark(
@@ -542,7 +535,6 @@ export class ProductionBenchmarkSuite {
    * Monitoring benchmarks
    */
   private async runMonitoringBenchmarks(): Promise<void> {
-    console.log('📊 Running monitoring benchmarks...');
 
     // Monitoring setup benchmark
     await this.runBenchmark(
@@ -680,7 +672,6 @@ export class ProductionBenchmarkSuite {
    * Integration benchmarks
    */
   private async runIntegrationBenchmarks(): Promise<void> {
-    console.log('🔗 Running integration benchmarks...');
 
     // End-to-end pipeline benchmark
     await this.runBenchmark(
@@ -797,7 +788,6 @@ export class ProductionBenchmarkSuite {
       recommendations: string[];
     }>
   ): Promise<void> {
-    console.log(`  🧪 Running: ${testName}`);
     
     const startTime = Date.now();
     let result: BenchmarkResult;
@@ -818,7 +808,6 @@ export class ProductionBenchmarkSuite {
         recommendations: testResult.recommendations
       };
 
-      console.log(`    ${testResult.success ? '✅' : '❌'} ${testName} (${result.duration}ms)`);
       
     } catch (error) {
       const endTime = Date.now();
@@ -835,7 +824,6 @@ export class ProductionBenchmarkSuite {
         recommendations: [`Fix error: ${error.message}`]
       };
 
-      console.log(`    ❌ ${testName} failed: ${error.message}`);
     }
 
     this.results.push(result);

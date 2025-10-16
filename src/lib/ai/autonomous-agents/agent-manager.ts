@@ -40,7 +40,6 @@ export class AgentManager {
     if (this.agents.has(agentId)) {
       const existing = this.agents.get(agentId)!;
       if (existing.status === 'running') {
-        console.log(`Agent ${agentId} is already running`);
         return agentId;
       }
     }
@@ -60,7 +59,6 @@ export class AgentManager {
       // Update database
       await this.updateAgentStatus(agentId, 'running');
       
-      console.log(`✅ Agent ${agentId} started successfully`);
       return agentId;
     } catch (error) {
       console.error(`Failed to start agent ${agentId}:`, error);
@@ -84,7 +82,6 @@ export class AgentManager {
       managed.status = 'stopped';
       await this.updateAgentStatus(agentId, 'stopped');
       this.agents.delete(agentId);
-      console.log(`✅ Agent ${agentId} stopped successfully`);
     } catch (error) {
       console.error(`Failed to stop agent ${agentId}:`, error);
       managed.status = 'error';
@@ -129,7 +126,6 @@ export class AgentManager {
       this.performHealthChecks();
     }, intervalMs);
     
-    console.log(`🏥 Health monitoring started (interval: ${intervalMs}ms)`);
   }
   
   // Stop health monitoring
@@ -137,7 +133,6 @@ export class AgentManager {
     if (this.healthCheckInterval) {
       clearInterval(this.healthCheckInterval);
       this.healthCheckInterval = undefined;
-      console.log('🏥 Health monitoring stopped');
     }
   }
   
@@ -173,7 +168,6 @@ export class AgentManager {
       managed.status = 'running';
       managed.startedAt = new Date();
       await this.updateAgentStatus(agentId, 'running');
-      console.log(`🔄 Agent ${agentId} restarted successfully`);
     } catch (error) {
       console.error(`Failed to restart agent ${agentId}:`, error);
       managed.status = 'error';
@@ -277,7 +271,6 @@ export class AgentManager {
   
   // Shutdown all agents
   async shutdown(): Promise<void> {
-    console.log('🛑 Shutting down all agents...');
     
     this.stopHealthMonitoring();
     
@@ -289,6 +282,5 @@ export class AgentManager {
     
     await Promise.all(stopPromises);
     
-    console.log('✅ All agents shut down');
   }
 }

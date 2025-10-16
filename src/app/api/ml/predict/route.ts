@@ -15,7 +15,6 @@ import { predictiveMaintenanceModel } from '@/lib/ai/ml-models/predictive-mainte
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔮 ML Prediction API called');
 
     // Authenticate user
     const supabase = await createServerSupabaseClient();
@@ -54,7 +53,6 @@ export async function POST(request: NextRequest) {
     let prediction;
     const startTime = Date.now();
 
-    console.log(`🧠 Making ${modelType} prediction with real data...`);
 
     // Route to appropriate model for prediction
     switch (modelType) {
@@ -94,7 +92,6 @@ export async function POST(request: NextRequest) {
 
     const predictionTime = Date.now() - startTime;
 
-    console.log(`✅ ${modelType} prediction completed in ${predictionTime}ms`);
 
     return NextResponse.json({
       success: true,
@@ -125,7 +122,6 @@ export async function POST(request: NextRequest) {
  * Fetch real data from Supabase and transform it for ML models
  */
 async function fetchRealDataForModel(organizationId: string, modelType: string, filters: { siteId?: string, period?: string } = {}) {
-  console.log(`📊 Fetching real data for ${modelType} model...`, filters);
 
   // Build query with filters
   let query = supabaseAdmin
@@ -158,7 +154,6 @@ async function fetchRealDataForModel(organizationId: string, modelType: string, 
   } else {
     // Get all available data - don't filter by date if not specified
     // This allows us to use all historical data for better predictions
-    console.log('No period filter - fetching all available data');
   }
 
   const { data: metricsData, error: metricsError } = await query.order('period_start', { ascending: true });
@@ -188,18 +183,11 @@ async function fetchRealDataForModel(organizationId: string, modelType: string, 
  * Transform metrics data for emissions forecast model
  */
 function transformDataForEmissionsForecast(metricsData: any[]) {
-  console.log(`🔄 Transforming ${metricsData.length} records for emissions forecast...`);
 
   // Check if we have enough data for reliable predictions
   if (metricsData.length < 6) {
     console.warn(`⚠️ Insufficient data for site-specific prediction (${metricsData.length} records). Need at least 6 months.`);
-    console.log('Available data:', metricsData.slice(0, 3).map(d => ({
-      date: d.period_start,
-      emissions: d.co2e_emissions,
-      metric: d.metrics_catalog?.name
-    })));
     // Instead of throwing, return a simple forecast based on available data
-    console.log('Using simple forecast due to limited data');
     return {
       historicalEmissions: {
         scope1: [100, 105, 110, 115, 120, 125], // Dummy data for testing

@@ -2703,6 +2703,322 @@
         }
       }
     },
+    "water": {
+      "title": "Água & Efluentes",
+      "subtitle": "GRI 303 • ESRS E3 • Captação, consumo, descarga e reciclagem de água",
+      "learnMore": "Saber Mais",
+      "cards": {
+        "withdrawal": {
+          "title": "Captação Total",
+          "unit": "ML"
+        },
+        "consumption": {
+          "title": "Consumo",
+          "unit": "ML"
+        },
+        "discharge": {
+          "title": "Descarga",
+          "unit": "ML"
+        },
+        "recycling": {
+          "title": "Taxa de Reciclagem",
+          "unit": "do total"
+        },
+        "intensity": {
+          "title": "Intensidade",
+          "unit": "ML por funcionário"
+        }
+      },
+      "charts": {
+        "sourcesDistribution": {
+          "title": "Distribuição de Fontes de Água"
+        },
+        "monthlyBalance": {
+          "title": "Balanço Hídrico Mensal",
+          "description": "Captação, descarga e consumo"
+        },
+        "yoyComparison": {
+          "title": "Comparação Mensal Ano-a-Ano",
+          "description": "Consumo total vs ano anterior"
+        },
+        "balanceSummary": {
+          "title": "Resumo do Balanço Hídrico"
+        },
+        "reductionTarget": {
+          "title": "Meta de Redução de Água"
+        },
+        "initiatives": {
+          "title": "Iniciativas de Gestão Hídrica"
+        }
+      },
+      "balanceSummary": {
+        "totalWithdrawal": "Captação Total",
+        "totalDischarge": "Descarga Total",
+        "consumption": "Consumo (C - D)",
+        "recycledWater": "Água Reciclada"
+      },
+      "target": {
+        "waterConsumption": "Consumo de Água",
+        "cdpBenchmark": "Benchmark CDP",
+        "custom": "Personalizado",
+        "annualReduction": "redução anual",
+        "baseline": "Baseline",
+        "cdpDescription": "Usando benchmark CDP Water Security (2,5% anual)",
+        "customDescription": "Meta personalizada: {rate}% anual",
+        "status": {
+          "exceeding": "excedendo",
+          "onTrack": "no caminho certo",
+          "atRisk": "em risco",
+          "offTrack": "fora do caminho"
+        },
+        "columns": {
+          "baseline": "Baseline",
+          "target": "Meta",
+          "projected": "Projetado"
+        },
+        "initiativesSubtitle": "CDP Water Security • 2,5% de redução anual • Baseline 2023",
+        "annualReductionTarget": "Meta de redução anual de 2,5%"
+      },
+      "tooltips": {
+        "current": "Atual:",
+        "lastYear": "Ano Passado:",
+        "increase": "Aumento",
+        "decrease": "Diminuição",
+        "inConsumption": "no consumo",
+        "baseline": "Baseline:",
+        "target": "Meta:",
+        "metrics": "métricas",
+        "withdrawal": "Captação:",
+        "share": "Percentagem:",
+        "discharge": "Descarga:",
+        "recycled": "Reciclada",
+        "consumption": "Consumo:"
+      },
+      "legends": {
+        "withdrawal": "Captação",
+        "discharge": "Descarga",
+        "consumptionTotal": "Consumo (Total)"
+      },
+      "sources": {
+        "waterSupplyMunicipal": "Abastecimento de Água (Municipal)",
+        "recycledWaterToiletFlush": "Água Reciclada - Autoclismo",
+        "wastewaterDischarge": "Descarga de Águas Residuais",
+        "kitchenCafeteria": "Cozinha & Refeitório",
+        "cleaningMaintenance": "Limpeza & Manutenção",
+        "landscapingIrrigation": "Paisagismo & Irrigação",
+        "otherUses": "Outros Usos",
+        "toiletsSanitary": "Sanitários"
+      },
+      "actions": {
+        "addInitiative": "Adicionar Iniciativa"
+      },
+      "waterSourcesExplanation": "A captação de água por fonte rastreia de onde a sua organização obtém água (municipal, subterrânea, superficial, etc.). Compreender as suas fontes de água ajuda a identificar dependências, níveis de stress e oportunidades de conservação ou fontes alternativas como captação de água da chuva.",
+      "waterBalanceExplanation": "O balanço hídrico mostra o fluxo completo de água através da sua organização: captação (entrada), descarga (saída) e consumo (água não devolvida). Isto ajuda a identificar oportunidades de eficiência hídrica e conformidade com as normas GRI 303-3 e ESRS E3.",
+      "yoyComparisonExplanation": "A comparação ano-a-ano do consumo de água mostra tendências e a eficácia das iniciativas de redução de água. A diminuição do consumo indica gestão hídrica bem-sucedida, enquanto aumentos podem sinalizar a necessidade de novas medidas de conservação.",
+      "waterBalanceSummaryExplanation": "O consumo de água é calculado como captação total menos descarga total (C - D). Isto representa água que não é devolvida aos ecossistemas ou comunidades locais, incluindo evaporação, incorporação em produtos ou consumo humano. Conforme GRI 303-5, reduzir o consumo é crítico em áreas com stress hídrico.",
+      "waterReductionTargetExplanation": "As metas de redução de água ajudam a acompanhar o progresso em direção aos objetivos de conservação. O benchmark CDP Water Security recomenda uma redução anual de 2,5% no consumo de água. As metas consideram o crescimento do negócio e são medidas em relação a um ano de baseline para garantir melhoria contínua.",
+      "waterInitiativesExplanation": "As iniciativas de gestão hídrica são ações específicas para reduzir o consumo, melhorar a eficiência ou garantir fontes alternativas de água. Podem incluir atualizações de equipamentos, mudanças de processos, sistemas de reciclagem ou programas comportamentais. Cada iniciativa acompanha poupanças estimadas, custos e estado de implementação."
+    },
+    "compliance": {
+      "title": "Painel de Conformidade",
+      "subtitle": "GHG Protocol • GRI • ESRS E1 • TCFD",
+      "tabs": {
+        "overview": "Visão Geral",
+        "ghgProtocol": "GHG Protocol",
+        "gri": "GRI",
+        "esrs": "ESRS E1",
+        "tcfd": "TCFD"
+      },
+      "historicalNotice": {
+        "title": "Visualizando Dados Históricos de Conformidade",
+        "year": "({year})",
+        "description": "Estes dados são somente leitura para manter as trilhas de auditoria e a integridade dos dados. Todas as capacidades de edição estão desativadas para anos anteriores."
+      },
+      "ghgProtocol": {
+        "header": {
+          "title": "Sobre Este Inventário",
+          "subtitle": "Requisitos do GHG Protocol Corporate Standard",
+          "editButton": "Editar Definições",
+          "historicalReadOnly": "Dados históricos (somente leitura)"
+        },
+        "organizationalBoundary": {
+          "title": "Fronteira Organizacional",
+          "consolidationApproach": "Abordagem de Consolidação",
+          "reportingEntity": "Entidade Relatora",
+          "consolidationMethods": {
+            "operational_control": "Controlo Operacional",
+            "financial_control": "Controlo Financeiro",
+            "equity_share": "Participação Acionária"
+          }
+        },
+        "operationalBoundary": {
+          "title": "Fronteira Operacional",
+          "gasesCovered": "Gases Cobertos",
+          "gwpStandard": "Padrão GWP"
+        },
+        "baseYear": {
+          "title": "Ano Base",
+          "selectedYear": "Ano Selecionado",
+          "recalculationThreshold": "Limite de Recálculo",
+          "rationale": "Justificação",
+          "baseYearEmissions": "Emissões do Ano Base",
+          "changeFromBaseYear": "Mudança desde o ano base"
+        },
+        "reportingPeriod": {
+          "title": "Período de Relato e Garantia",
+          "period": "Período de Relato",
+          "assuranceLevel": "Nível de Garantia",
+          "assuranceProvider": "Fornecedor de Garantia",
+          "assuranceLevels": {
+            "not_verified": "Não Verificado",
+            "limited": "Garantia Limitada",
+            "reasonable": "Garantia Razoável"
+          }
+        },
+        "complianceStatement": {
+          "title": "Declaração de Conformidade com o GHG Protocol",
+          "methodology": "Metodologia:",
+          "defaultStatement": "Este inventário foi preparado em conformidade com o GHG Protocol Corporate Accounting and Reporting Standard (Edição Revista). As emissões de Escopo 2 são reportadas usando os métodos baseado em localização e baseado em mercado, conforme o Guidance para Escopo 2.",
+          "defaultMethodology": "Emissões calculadas usando abordagem baseada em atividade com fatores de emissão específicos por região e ano da DEFRA, EPA e IEA. Categorias de Escopo 3 avaliadas conforme o GHG Protocol Corporate Value Chain (Scope 3) Standard."
+        },
+        "emissionsSummary": {
+          "title": "Resumo de Emissões",
+          "scope1": "Escopo 1",
+          "scope2LB": "Escopo 2 (LB)",
+          "scope2MB": "Escopo 2 (MB)",
+          "scope3": "Escopo 3",
+          "total": "Total",
+          "scope3Categories": "Categorias Escopo 3 Reportadas:"
+        },
+        "infoBox": {
+          "title": "Sobre o GHG Protocol",
+          "description": "O GHG Protocol Corporate Standard fornece requisitos e orientações para empresas que preparam um inventário de emissões de GEE a nível corporativo. Cobre a contabilização e reporte de sete gases de efeito estufa cobertos pelo Protocolo de Quioto."
+        }
+      }
+    },
+    "waste": {
+      "title": "Resíduos & Economia Circular",
+      "subtitle": "GRI 306 • ESRS E5 • Resíduos gerados, desviados da eliminação e direcionados para eliminação",
+      "learnMore": "Saber Mais",
+      "cards": {
+        "generated": {
+          "title": "Gerado",
+          "unit": "toneladas"
+        },
+        "diverted": {
+          "title": "Desviado",
+          "unit": "%"
+        },
+        "toDisposal": {
+          "title": "Para Eliminação",
+          "unit": "toneladas"
+        },
+        "recycling": {
+          "title": "Reciclagem",
+          "unit": "%"
+        },
+        "emissions": {
+          "title": "Emissões",
+          "unit": "tCO2e"
+        },
+        "intensity": {
+          "title": "Intensidade",
+          "unit": "tCO2e/t"
+        }
+      },
+      "charts": {
+        "disposalDistribution": {
+          "title": "Distribuição por Método de Eliminação"
+        },
+        "monthlyTrends": {
+          "title": "Tendências Mensais de Resíduos",
+          "description": "Gerado, desviado e eliminação",
+          "legends": {
+            "generated": "Gerado",
+            "diverted": "Desviado",
+            "emissions": "Emissões (tCO2e)"
+          }
+        },
+        "yoyComparison": {
+          "title": "Comparação Ano-a-Ano",
+          "description": "Variação mensal vs. ano anterior"
+        },
+        "circularEconomy": {
+          "title": "Métricas de Economia Circular",
+          "diversionRate": "Taxa de Desvio",
+          "recyclingRate": "Taxa de Reciclagem",
+          "toLandfill": "Para Aterro",
+          "scope3Emissions": "Emissões Âmbito 3",
+          "category5": "Categoria 5: Resíduos gerados nas operações",
+          "divertedFromDisposal": "desviados da eliminação",
+          "toLandfillAmount": "para aterro"
+        },
+        "monthlyByMethod": {
+          "title": "Resíduos Mensais por Método de Eliminação",
+          "description": "Hierarquia de resíduos: Reduzir → Reutilizar → Reciclar → Recuperar → Eliminar",
+          "legends": {
+            "recycled": "Reciclado",
+            "composted": "Compostado",
+            "incinerated": "Incinerado",
+            "landfill": "Aterro"
+          }
+        },
+        "sbtiProgress": {
+          "title": "Progresso da Meta SBTi de Resíduos",
+          "description": "Trajetória 1.5°C • 4.2% redução anual • Baseline 2023",
+          "metrics": "métricas",
+          "annualReduction": "4.2% anual • Trajetória SBTi 1.5°C",
+          "onTrack": "no caminho",
+          "baseline": "Baseline:",
+          "current": "Atual:"
+        },
+        "materialBreakdown": {
+          "title": "Desagregação por Material Específico",
+          "description": "Taxas de reciclagem e desvio por tipo de material de resíduo",
+          "recyclingRate": "Taxa de Reciclagem",
+          "diversionRate": "Taxa de Desvio",
+          "toDisposal": "Para Eliminação",
+          "totalAmount": "toneladas total",
+          "recycled": "toneladas recicladas",
+          "diverted": "toneladas desviadas",
+          "disposed": "toneladas"
+        }
+      },
+      "disposalMethods": {
+        "recycling": "Reciclagem",
+        "composting": "Compostagem",
+        "incineration": "Incineração",
+        "wasteToEnergy": "Resíduo-para-Energia",
+        "landfill": "Aterro",
+        "hazardousTreatment": "Tratamento de Perigosos",
+        "reuse": "Reutilização",
+        "other": "Outro"
+      },
+      "materials": {
+        "paper": "Papel",
+        "plastic": "Plástico",
+        "metal": "Metal",
+        "glass": "Vidro",
+        "organic": "Orgânico",
+        "food": "Alimentar",
+        "garden": "Jardim",
+        "ewaste": "Resíduos Eletrónicos",
+        "hazardous": "Perigosos"
+      },
+      "tooltips": {
+        "wasteHierarchy": "Hierarquia de Resíduos: Prevenção → Reutilização → Reciclagem → Recuperação → Eliminação. A taxa de desvio mede resíduos desviados da eliminação através de reciclagem e compostagem.",
+        "disposalDistribution": "A desagregação por método de eliminação mostra como os resíduos são geridos através de diferentes opções de tratamento. Conforme GRI 306-4/5, rastrear resíduos desviados (reciclagem, compostagem) vs. eliminados (aterro, incineração) é crítico para a transição para economia circular e conformidade com ESRS E5.",
+        "monthlyTrends": "Tendências mensais de geração, desvio e emissões de resíduos ajudam a identificar padrões sazonais, mudanças operacionais e eficácia das iniciativas de redução. Conforme GRI 306-3, rastrear estas métricas é essencial para gerir impactos de resíduos e melhorar eficiência de recursos.",
+        "yoyComparison": "A comparação ano-a-ano da geração de resíduos mostra progresso em direção às metas de redução. Diminuição da geração e aumento das taxas de desvio indicam programas de gestão de resíduos bem-sucedidos. Conforme ESRS E5, organizações devem demonstrar melhoria contínua no desempenho de resíduos.",
+        "circularEconomy": "Métricas de economia circular rastreiam quão eficazmente os resíduos são mantidos em uso produtivo. Taxa de desvio (% desviado da eliminação) e taxa de reciclagem (% reciclado) são indicadores-chave de desempenho. A hierarquia de resíduos prioriza prevenção, reutilização e reciclagem sobre eliminação.",
+        "sbtiProgress": "Metas Science Based Targets (SBTi) para resíduos visam reduzir emissões Âmbito 3 da eliminação de resíduos em 4,2% anualmente, alinhadas com trajetória de aquecimento de 1,5°C. O progresso é rastreado em relação às emissões do ano baseline, com metas ajustadas para crescimento do negócio.",
+        "materialBreakdown": "Rastreamento específico por material mostra taxas de reciclagem e desvio por tipo de resíduo (papel, plástico, metal, etc.). Estes dados granulares ajudam a identificar oportunidades de melhoria e garantir conformidade com regulamentações de responsabilidade alargada do produtor."
+      },
+      "insights": {
+        "title": "Insights de Materiais:",
+        "description": "Rastreie taxas de reciclagem e desvio por tipos específicos de material. Dados históricos (2022-2024) foram divididos usando rácios de composição padrão da indústria. Dados futuros podem ser inseridos ao nível do material para rastreamento preciso."
+      }
+    },
     "dataInvestigation": {
       "title": "Investigação de Dados",
       "subtitle": "Desagregação mensal detalhada de todas as métricas de sustentabilidade",
@@ -2740,6 +3056,267 @@
       "details": "{count} entradas encontradas",
       "noDataRecorded": "Não existem dados registados"
     },
+    "ghgEmissions": {
+      "title": "Emissões GEE",
+      "subtitle": "Protocolo GEE • GRI 305 • ESRS E1 • TCFD",
+      "loading": "A carregar dados de emissões...",
+      "cards": {
+        "totalEmissions": {
+          "title": "Emissões Totais",
+          "unit": "tCO2e",
+          "yoy": "YoY",
+          "projected": "Projetado"
+        },
+        "intensity": {
+          "title": "Intensidade",
+          "unit": "tCO2e/ETC",
+          "yoy": "YoY"
+        },
+        "scope3Coverage": {
+          "title": "Cobertura Âmbito 3",
+          "categories": "categorias",
+          "coverage": "Cobertura"
+        },
+        "dataQuality": {
+          "title": "Qualidade dos Dados",
+          "primaryData": "Dados Primários",
+          "verified": "Verificado"
+        }
+      },
+      "scopeBreakdown": {
+        "title": "Emissões por Âmbito",
+        "badges": {
+          "ghgProtocol": "Protocolo GEE",
+          "gri": "GRI 305-1/2/3",
+          "esrs": "ESRS E1"
+        }
+      },
+      "emissionsTrend": {
+        "title": "Tendência de Emissões",
+        "yAxisLabel": "tCO2e",
+        "noData": "Não existem dados de tendência disponíveis",
+        "targetMissed": "Meta Não Atingida",
+        "legends": {
+          "totalEmissions": "Emissões Totais",
+          "scope1": "Âmbito 1",
+          "scope2": "Âmbito 2",
+          "scope3": "Âmbito 3",
+          "targetPath": "Trajeto Meta"
+        }
+      },
+      "intensityMetrics": {
+        "title": "Métricas de Intensidade de Emissões",
+        "tooltip": "As métricas de intensidade normalizam as emissões por diferentes denominadores para permitir benchmarking e acompanhamento de melhorias de eficiência ao longo do tempo.",
+        "perEmployee": {
+          "title": "Por Colaborador",
+          "unit": "tCO2e/ETC",
+          "sectorAvg": "Média\nSetor"
+        },
+        "perRevenue": {
+          "title": "Por Receita",
+          "unit": "tCO2e/M€",
+          "noData": "Sem dados"
+        },
+        "perArea": {
+          "title": "Por Área",
+          "unit": "kgCO2e/m²"
+        },
+        "perValueAdded": {
+          "title": "Por Valor Acrescentado",
+          "unit": "tCO2e/M€ VA",
+          "noData": "Sem dados"
+        },
+        "perOperatingHour": {
+          "title": "Por Hora de Operação",
+          "unit": "kgCO2e/h",
+          "subtitle": "Eficiência operacional",
+          "noData": "Sem dados",
+          "tooltip": "Emissões por hora de operação ajudam a acompanhar a eficiência das suas operações e identificar oportunidades de otimização durante diferentes períodos operacionais."
+        },
+        "perCustomer": {
+          "title": "Por Cliente",
+          "unit": "kgCO2e/cliente",
+          "subtitle": "Eficiência do serviço",
+          "noData": "Sem dados",
+          "tooltip": "Emissões por cliente ajudam organizações baseadas em serviços a acompanhar sua pegada de carbono por unidade de serviço prestada."
+        },
+        "sectorSpecific": {
+          "title": "Baseado em Produção",
+          "tooltip": "Métrica de intensidade específica da indústria baseada no setor da sua organização. Permite comparação direta com peers no mesmo setor."
+        }
+      },
+      "yoyComparison": {
+        "title": "Comparação Ano-a-Ano",
+        "subtitle": "Variação mensal vs ano anterior",
+        "tooltip": {
+          "thisYear": "Este Ano",
+          "lastYear": "Ano Passado",
+          "yoy": "A/A",
+          "increase": "Aumento",
+          "decrease": "Redução",
+          "emissionsChange": "nas emissões"
+        }
+      },
+      "sitePerformance": {
+        "title": "Comparação de Desempenho por Local",
+        "subtitle": "Intensidade por m²",
+        "tooltip": "Os locais são classificados por intensidade de emissões (kgCO2e/m²). Menor intensidade indica melhor eficiência energética e desempenho de emissões por área unitária.",
+        "badges": {
+          "gri": "GRI 305-4",
+          "intensityLabel": "Intensidade por m²"
+        },
+        "medals": {
+          "gold": "🥇",
+          "silver": "🥈",
+          "bronze": "🥉"
+        }
+      },
+      "topEmitters": {
+        "title": "Principais Fontes de Emissão",
+        "badges": {
+          "gri": "GRI 305-1/2/3"
+        },
+        "categoryNames": {
+          "businessTravel": "Viagens de Negócios",
+          "purchasedElectricity": "Eletricidade Adquirida",
+          "electricity": "Eletricidade",
+          "waste": "Resíduos",
+          "purchasedGoods": "Bens Adquiridos",
+          "naturalGas": "Gás Natural",
+          "stationaryCombustion": "Combustão Estacionária",
+          "mobileCombustion": "Combustão Móvel",
+          "fleet": "Frota",
+          "commuting": "Deslocamentos",
+          "fugitiveEmissions": "Emissões Fugitivas"
+        },
+        "recommendations": {
+          "electricity": "💡 Mudar para contratos de energia renovável",
+          "naturalGas": "🔥 Instalar bomba de calor ou melhorar caldeiras",
+          "businessTravel": "✈️ Implementar política de reuniões virtuais",
+          "fleet": "🚗 Transição para veículos elétricos",
+          "commuting": "🚲 Promover transporte público e trabalho remoto",
+          "fugitive": "🔧 Melhorar deteção de fugas de refrigerante",
+          "waste": "♻️ Aumentar reciclagem e compostagem",
+          "purchasedGoods": "🏭 Envolver fornecedores na redução de emissões",
+          "default": "📊 Rever e otimizar esta fonte"
+        }
+      },
+      "scope1Breakdown": {
+        "title": "Breakdown Âmbito 1",
+        "badges": {
+          "gri": "GRI 305-1"
+        },
+        "explanation": "Desagregação detalhada das emissões diretas de Âmbito 1 por categoria de fonte.\n\nInclui combustão estacionária (instalações, caldeiras), combustão móvel (veículos da empresa) e emissões fugitivas (fugas, refrigerantes).\n\nPriorize as maiores fontes para iniciativas de redução."
+      },
+      "scope2Breakdown": {
+        "title": "Breakdown Âmbito 2",
+        "badges": {
+          "gri": "GRI 305-2"
+        },
+        "dualReporting": {
+          "title": "Método de Relato Duplo",
+          "tooltip": {
+            "title": "Relato Duplo Protocolo GEE",
+            "locationBased": {
+              "title": "Método Baseado em Localização",
+              "description": "Utiliza fatores de emissão médios para a rede elétrica local. Reflete o mix energético regional e infraestrutura da rede."
+            },
+            "marketBased": {
+              "title": "Método Baseado em Mercado",
+              "description": "Utiliza fatores de emissão de instrumentos contratuais (RECs, GOs, PPAs). Reflete as suas escolhas de compra de energia e compromissos renováveis."
+            },
+            "footer": "GRI 305-2 requer relatar ambos os métodos para transparência completa."
+          },
+          "locationBased": "Baseado em Localização",
+          "marketBased": "Baseado em Mercado",
+          "gridAverage": "Média da rede",
+          "recsGOs": "RECs & GOs",
+          "renewableImpact": {
+            "title": "Impacto Energia Renovável",
+            "reduction": "tCO2e redução"
+          }
+        },
+        "categories": {
+          "purchasedElectricity": "Eletricidade Adquirida"
+        },
+        "explanation": "Desagregação detalhada das emissões indiretas de Âmbito 2 da energia adquirida. GRI 305-2 requer relato duplo para transparência completa:\n\n• Método Baseado em Localização: Utiliza fatores de emissão médios para a rede elétrica local. Reflete o mix energético regional e infraestrutura da rede.\n\n• Método Baseado em Mercado: Utiliza fatores de emissão de instrumentos contratuais (RECs, GOs, PPAs). Reflete as suas escolhas de compra de energia e compromissos renováveis.\n\nCompras de energia renovável reduzem as emissões baseadas em mercado enquanto as baseadas em localização permanecem vinculadas à média da rede."
+      },
+      "scope3Breakdown": {
+        "title": "Breakdown Âmbito 3",
+        "badges": {
+          "gri": "GRI 305-3"
+        },
+        "valueChainCoverage": {
+          "title": "Cobertura da Cadeia de Valor",
+          "tooltip": {
+            "title": "Âmbito 3: Emissões da Cadeia de Valor (15 Categorias)",
+            "description": "Âmbito 3 cobre todas as emissões indiretas na sua cadeia de valor, desde fornecedores até utilizadores finais. O Protocolo GEE define 15 categorias entre atividades upstream e downstream.",
+            "upstream": {
+              "title": "Upstream (8 categorias):",
+              "items": "Bens adquiridos, bens de capital, combustível e energia, transporte, resíduos, viagens de negócios, deslocamentos, ativos arrendados"
+            },
+            "downstream": {
+              "title": "Downstream (7 categorias):",
+              "items": "Transporte, processamento, utilização de produtos, fim de vida, ativos arrendados, franchising, investimentos"
+            },
+            "footer": "GRI 305-3 requer divulgação das categorias significativas de Âmbito 3. Objetivo: cobertura de 80%+."
+          },
+          "tracked": "Rastreado",
+          "missing": "Em Falta",
+          "coverage": "Cobertura",
+          "lowCoverage": "⚠️ Cobertura baixa - expandir rastreamento para categorias-chave",
+          "goodProgress": "💡 Bom progresso - objetivo de 80% de cobertura"
+        },
+        "categories": {
+          "businessTravel": "Viagens de Negócios",
+          "waste": "Resíduos",
+          "purchasedGoods": "Bens Adquiridos"
+        },
+        "explanation": "Desagregação detalhada das emissões de Âmbito 3 da cadeia de valor nas 15 categorias do Protocolo GEE.\n\nInclui emissões upstream (fornecedores, bens adquiridos, viagens de negócios) e downstream (uso de produtos, fim de vida).\n\nGRI 305-3 requer relatar categorias significativas.\n\nMeta de 80%+ de cobertura para pegada carbónica abrangente."
+      },
+      "sbtiProgress": {
+        "title": "Progresso Metas SBTi",
+        "subtitle": "{baselineYear} → {targetYear}",
+        "reductionTarget": "Meta de Redução",
+        "baseline": "Linha Base",
+        "current": "Atual",
+        "actualMLForecast": "Real + Previsão ML",
+        "required": "Requerido",
+        "target": "Meta",
+        "progress": "Progresso",
+        "onTrack": "no caminho",
+        "aboveBaseline": "Acima da Linha Base",
+        "waterfallChart": {
+          "title": "Trajetória de Emissões",
+          "baselineYear": "Linha Base",
+          "requiredReduction": "Redução\nRequerida",
+          "requiredYear": "Requerido",
+          "gapFromRequired": "Desvio do\nRequerido",
+          "actualYear": "Real",
+          "targetYear": "Meta"
+        }
+      },
+      "scopes": {
+        "scope1": "Âmbito 1",
+        "scope2": "Âmbito 2",
+        "scope3": "Âmbito 3"
+      },
+      "explanations": {
+        "scopeBreakdown": "Este gráfico mostra a distribuição das suas emissões de gases de efeito estufa (GEE) por âmbito:\n\n• Âmbito 1: Emissões diretas de fontes que possui ou controla, como combustão em instalações, veículos da empresa e emissões fugitivas.\n\n• Âmbito 2: Emissões indiretas de eletricidade, aquecimento, arrefecimento ou vapor comprados e consumidos pela sua organização.\n\n• Âmbito 3: Todas as outras emissões indiretas que ocorrem na sua cadeia de valor, incluindo viagens de negócios, deslocações pendulares, bens adquiridos e resíduos.",
+        "scope1": "Âmbito 1: Emissões diretas de fontes que possui ou controla, como combustão em instalações, veículos da empresa e emissões fugitivas.",
+        "scope2": "Âmbito 2: Emissões indiretas de eletricidade, aquecimento, arrefecimento ou vapor comprados e consumidos pela sua organização.",
+        "scope3": "Âmbito 3: Todas as outras emissões indiretas que ocorrem na sua cadeia de valor, incluindo viagens de negócios, deslocações pendulares, bens adquiridos e resíduos.",
+        "emissionsTrend": "Este gráfico mostra a evolução das suas emissões ao longo do tempo, permitindo identificar tendências, picos sazonais e o impacto das suas iniciativas de redução.\n\nA linha tracejada representa a previsão futura baseada em dados históricos.\n\nUma tendência descendente indica progresso na redução de emissões.",
+        "topEmitters": "Identifica as principais categorias que mais contribuem para as suas emissões totais.\n\nConcentrar esforços de redução nestas áreas terá o maior impacto na redução da sua pegada carbónica.",
+        "sbtiProgress": "Monitoriza o progresso em relação às suas metas de redução de emissões validadas pela Science Based Targets initiative (SBTi).\n\nCompara as emissões atuais com a trajetória linear necessária para atingir a meta definida até ao ano alvo.",
+        "totalEmissions": "Total de emissões de gases de efeito estufa organizacionais em todos os três âmbitos.\n\nInclui comparação ano-a-ano e projeção anual baseada em ML.\n\nDiminuições indicam iniciativas de redução de emissões bem-sucedidas.",
+        "intensity": "Intensidade de emissões por equivalente a tempo completo (ETC).\n\nIndicador chave de desempenho para acompanhar a eficiência de emissões à medida que a sua organização cresce.\n\nValores mais baixos indicam melhor eficiência carbónica por colaborador.",
+        "scope3Coverage": "Acompanha a cobertura das 15 categorias de emissões da cadeia de valor do Âmbito 3 definidas pelo Protocolo GEE.\n\nGRI 305-3 requer relatar todas as categorias significativas.\n\nMeta: 80%+ de cobertura para contabilização abrangente da pegada carbónica.",
+        "dataQuality": "Mede a proporção de dados de emissões de fontes primárias (medições reais) versus fontes secundárias (estimativas e fatores).\n\nPercentagem mais alta de dados primários melhora precisão e credibilidade.\n\nVerificação por terceiros aumenta a confiança das partes interessadas.",
+        "yoyComparison": "Comparação mês a mês com o mesmo período do ano passado.\n\nAjuda a identificar padrões sazonais e acompanhar progresso.\n\nMudanças positivas indicam aumentos, mudanças negativas indicam reduções.",
+        "sitePerformance": "Compara intensidade de emissões entre diferentes locais ou instalações.\n\nMedido em kgCO2e por metro quadrado.\n\nAjuda a identificar melhores práticas e locais que precisam de iniciativas de melhoria."
+      }
+    },
     "months": {
       "jan": "Jan",
       "feb": "Fev",
@@ -2753,6 +3330,150 @@
       "oct": "Out",
       "nov": "Nov",
       "dec": "Dez"
+    },
+    "energy": {
+      "title": "Gestão de Energia",
+      "subtitle": "GRI 302 • ESRS E1-5 • Monitorização de consumo e intensidade energética",
+      "learnMore": "Saber Mais",
+      "cards": {
+        "totalEnergy": {
+          "title": "Energia Total",
+          "unit": "MWh",
+          "explanation": "Soma de toda a energia consumida em todas as fontes no período selecionado. Medida em megawatt-horas (MWh). A mudança ano a ano mostra a tendência de consumo comparada ao período anterior."
+        },
+        "renewable": {
+          "title": "Renovável",
+          "unit": "do total",
+          "explanation": "Percentagem do consumo total de energia proveniente de fontes renováveis (solar, eólica, hídrica, etc.). Uma percentagem renovável mais alta indica progresso na transição para energia limpa e menores emissões de carbono."
+        },
+        "emissions": {
+          "title": "Emissões",
+          "unit": "tCO2e",
+          "explanation": "Total de emissões de gases de efeito estufa do consumo de energia em toneladas de CO2 equivalente (tCO2e). Calculado usando fatores de emissão para cada tipo de fonte de energia."
+        },
+        "intensity": {
+          "title": "Intensidade",
+          "unit": "kWh/m²",
+          "explanation": "Energia consumida por metro quadrado de espaço do edifício (kWh/m²). Esta métrica normaliza o uso de energia pelo tamanho da instalação, permitindo comparação entre diferentes períodos e edifícios."
+        }
+      },
+      "charts": {
+        "sourcesDistribution": {
+          "title": "Distribuição de Fontes de Energia",
+          "explanation": "Decomposição do consumo de energia por tipo de fonte. Mostra a proporção de cada fonte de energia no seu mix energético total, ajudando a identificar oportunidades para adoção de energia renovável.",
+          "noData": "Sem dados de fontes de energia disponíveis"
+        },
+        "monthlyEvolution": {
+          "title": "Evolução Mensal",
+          "explanation": "Tendências mensais de consumo de energia ao longo do tempo, incluindo previsão ML para os meses restantes. A linha tracejada representa o consumo previsto com base em padrões históricos e sazonalidade.",
+          "description": "Mostrando consumo total, renovável e de combustíveis fósseis",
+          "mlPowered": "Previsão baseada em ML",
+          "noData": "Sem dados de tendências mensais disponíveis"
+        },
+        "yoyComparison": {
+          "title": "Comparação Ano a Ano",
+          "explanation": "Mudança percentual mensal no consumo de energia comparado ao mesmo mês do ano anterior. Valores positivos indicam aumento do consumo, valores negativos mostram redução.",
+          "description": "Mudança mensal comparada ao ano anterior",
+          "noData": "Sem dados de comparação ano a ano disponíveis"
+        },
+        "gridMix": {
+          "title": "Mix da Rede Elétrica",
+          "explanation": "Composição da rede elétrica que alimenta suas instalações, mostrando a divisão entre fontes renováveis e combustíveis fósseis. Estes dados ajudam a calcular emissões Scope 2 e Scope 3.3 com precisão.",
+          "provider": "Fornecedor",
+          "year": "Ano",
+          "renewablePercentage": "Renovável",
+          "unknownSources": "Fontes desconhecidas",
+          "noData": "Sem dados de mix da rede disponíveis",
+          "multipleEnergySources": "Múltiplas fontes de energia disponíveis"
+        },
+        "typeBreakdown": {
+          "title": "Decomposição por Tipo de Energia",
+          "explanation": "Consumo de energia categorizado por tipo (eletricidade, aquecimento, arrefecimento, etc.). Esta decomposição ajuda a identificar onde a energia está a ser usada e a priorizar melhorias de eficiência.",
+          "noData": "Sem dados de tipo de energia disponíveis"
+        }
+      },
+      "legends": {
+        "total": "Total",
+        "renewable": "Renovável",
+        "fossil": "Fóssil",
+        "totalForecast": "Total (Previsão)",
+        "renewableForecast": "Renovável (Previsão)",
+        "fossilForecast": "Fóssil (Previsão)",
+        "current": "Ano Atual",
+        "previous": "Ano Anterior"
+      },
+      "tooltips": {
+        "consumption": "Consumo:",
+        "share": "Percentagem:",
+        "renewable": "Renovável",
+        "current": "Atual:",
+        "lastYear": "Ano Passado:",
+        "change": "Mudança:",
+        "yoyChange": "Mudança AaA:",
+        "increase": "aumento",
+        "decrease": "diminuição",
+        "forecast": "(Previsão)",
+        "provider": "Fornecedor:",
+        "year": "Ano:",
+        "renewableShare": "Renovável:",
+        "emissions": "Emissões:",
+        "fromLastYear": "desde o ano passado"
+      },
+      "target": {
+        "title": "Metas de Redução de Energia",
+        "description": "Acompanhar o progresso em direção aos objetivos de redução de emissões alinhados com SBTi",
+        "annualReduction": "redução anual",
+        "baseline": "Base de Referência",
+        "target": "Meta",
+        "projected": "Projetado",
+        "progress": "Progresso",
+        "onTrack": "no caminho certo",
+        "atRisk": "em risco",
+        "offTrack": "fora do caminho",
+        "exceeding": "excedendo",
+        "metricTargets": "metas métricas",
+        "viewInitiatives": "Ver iniciativas de redução",
+        "hideMetrics": "Ocultar métricas",
+        "showMetrics": "Mostrar métricas",
+        "categoryProgress": "Progresso da Categoria"
+      },
+      "yoyChange": {
+        "increase": "aumento",
+        "decrease": "diminuição",
+        "noChange": "sem mudança"
+      },
+      "units": {
+        "yoy": "AaA",
+        "pp": "pp"
+      },
+      "emissionFactors": {
+        "title": "Fatores de Emissão (gCO₂eq/kWh)",
+        "scope2": "Âmbito 2",
+        "scope3": "Âmbito 3.3",
+        "total": "Total",
+        "direct": "Direto",
+        "upstream": "Upstream",
+        "lifecycle": "Ciclo de Vida"
+      },
+      "gridMix": {
+        "renewableEnergy": "Energia Renovável",
+        "unknown": "Desconhecido",
+        "detailedBreakdownUnavailable": "Detalhe da divisão de fontes ainda não disponível",
+        "applyMigrations": "Aplicar migrações para ver divisão de Eólica, Solar, Hídrica, Gás, Carvão",
+        "someSourcesUnknown": "Algumas fontes de energia são desconhecidas. Contacte o seu fornecedor para obter dados completos do mix."
+      },
+      "charts2": {
+        "monthlyConsumptionBySource": "Consumo Mensal por Fonte",
+        "noMonthlyData": "Sem dados mensais disponíveis para o período selecionado"
+      },
+      "targetSection": {
+        "energyReductionTargets": "Metas de Redução de Energia",
+        "baseline": "Base de Referência:",
+        "target2025": "Meta 2025:",
+        "projected": "Projetado:",
+        "current": "Atual:",
+        "yearLabel": "Ano"
+      }
     }
   },
   "defaults": {

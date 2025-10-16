@@ -26,7 +26,6 @@ export default async function OrganizationsPageWrapper() {
       .single();
 
     if (!appUser?.organization_id) {
-      console.log('User has no organization');
       redirect('/');
     }
 
@@ -37,7 +36,6 @@ export default async function OrganizationsPageWrapper() {
     );
 
     if (!canManage) {
-      console.log('User does not have permission to manage organizations');
       redirect('/');
     }
   }

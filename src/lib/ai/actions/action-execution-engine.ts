@@ -384,7 +384,6 @@ export class ActionExecutionEngine extends EventEmitter {
     // Emit registration event
     this.emit('actionRegistered', action);
 
-    console.log(`Action registered: ${action.id} (${action.name})`);
   }
 
   /**
@@ -768,7 +767,6 @@ export class ActionExecutionEngine extends EventEmitter {
   private async initializeActionRegistry(): Promise<void> {
     // This will be populated with 500+ actions
     // For now, we'll initialize the framework
-    console.log('Initializing Action Registry with 500+ sustainability actions...');
   }
 
   // Placeholder implementations for complex methods

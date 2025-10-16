@@ -135,7 +135,6 @@ export function useZeroTypingData() {
           filter: `organization_id=eq.${member.organization_id}`
         },
         (payload) => {
-          console.log('Real-time update received:', payload);
           // Refetch data when changes occur
           fetchData();
         }
@@ -149,7 +148,6 @@ export function useZeroTypingData() {
           filter: `organization_id=eq.${member.organization_id}`
         },
         (payload) => {
-          console.log('Agent alert update:', payload);
           // Update AI suggestions count
           setData(prev => {
             if (!prev) return prev;

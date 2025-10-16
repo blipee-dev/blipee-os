@@ -38,17 +38,14 @@ let isInitialized = false;
 export function initializeModuleSystem() {
   // Prevent double initialization in React StrictMode
   if (isInitialized) {
-    console.log('📦 Module system already initialized');
     return;
   }
   
-  console.log('🚀 Initializing Module System...');
   
   // Register core sustainability module
   moduleRegistry.register({
     module: sustainabilityModule,
     initializeServices: async () => {
-      console.log('✅ Core sustainability services initialized');
     }
   });
 
@@ -56,6 +53,4 @@ export function initializeModuleSystem() {
   moduleRegistry.register(retailModuleRegistration);
 
   isInitialized = true;
-  console.log('✅ Module system initialized');
-  console.log('📦 Active modules:', moduleRegistry.getActiveModules().map(m => m.name));
 }

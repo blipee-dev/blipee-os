@@ -116,7 +116,6 @@ export class AgentErrorHandler {
         break;
         
       case 'ignore':
-        console.log('Ignoring error as per strategy');
         recovered = true;
         break;
     }
@@ -165,11 +164,9 @@ export class AgentErrorHandler {
     const reversibleActions = actions.filter(a => a.reversible);
     
     if (reversibleActions.length === 0) {
-      console.log('No reversible actions to rollback');
       return true;
     }
     
-    console.log(`🔄 Rolling back ${reversibleActions.length} actions...`);
     
     // Sort by priority (higher priority rolled back first)
     const sortedActions = rollbackActions
@@ -181,7 +178,6 @@ export class AgentErrorHandler {
     for (const rollbackAction of sortedActions) {
       try {
         await rollbackAction.rollbackMethod();
-        console.log(`✅ Rolled back ${rollbackAction.actionType}`);
         
         // Log rollback
         await this.logRollback(agentId, rollbackAction.actionType, true);
@@ -315,7 +311,6 @@ export class AgentErrorHandler {
     
     while (retries < strategy.maxRetries) {
       retries++;
-      console.log(`🔄 Retry attempt ${retries}/${strategy.maxRetries}...`);
       
       // Wait with exponential backoff
       await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, retries - 1)));
@@ -324,7 +319,6 @@ export class AgentErrorHandler {
         // Attempt to execute task again
         const result = await agent.executeTask(task);
         if (result.success) {
-          console.log(`✅ Task succeeded on retry ${retries}`);
           return true;
         }
       } catch (error) {
@@ -348,7 +342,6 @@ export class AgentErrorHandler {
     error: AgentError,
     strategy: RecoveryStrategy
   ): Promise<boolean> {
-    console.log(`🚨 Escalating error to ${strategy.escalationLevel} level`);
     
     // Create escalation notification
     const { data: admins } = await this.supabase

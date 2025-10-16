@@ -419,7 +419,6 @@ client = BlipeeClient(
    */
   trackVersionUsage(version: string, endpoint: string, userAgent?: string): void {
     // In real implementation, this would send to analytics
-    console.log(`API Usage: ${version} ${endpoint} ${userAgent || 'unknown'}`);
   }
 
   /**

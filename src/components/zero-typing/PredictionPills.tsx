@@ -253,13 +253,13 @@ export const PredictionPills: React.FC<PredictionPillsProps> = ({
       <div className="flex items-center gap-2 pt-2">
         <span className="text-xs text-gray-500 dark:text-white/40">Was this helpful?</span>
         <button
-          onClick={() => console.log('Positive feedback')}
+          onClick={() =>}
           className="p-1 hover:bg-green-500/20 rounded transition-all text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
         >
           <ThumbsUp className="w-3 h-3" />
         </button>
         <button
-          onClick={() => console.log('Negative feedback')}
+          onClick={() =>}
           className="p-1 hover:bg-red-500/20 rounded transition-all text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
         >
           <ThumbsDown className="w-3 h-3" />

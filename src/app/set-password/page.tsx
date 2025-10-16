@@ -40,7 +40,6 @@ export default function SetPasswordPage() {
       // Set up auth state listener for real-time session updates
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         if (session?.user) {
-          console.log("Set-password: Session detected via auth state change", session.user.email);
 
           setUserEmail(session.user.email || "");
           setUserName(session.user.user_metadata?.full_name ||
@@ -49,10 +48,8 @@ export default function SetPasswordPage() {
 
           // Check if password has already been set
           if (session.user.user_metadata?.password_set) {
-            console.log("Set-password: Password already set, redirecting to app");
             router.push("/blipee-ai");
           } else {
-            console.log("Set-password: Showing password setup form");
             setSessionChecked(true);
           }
         }
@@ -62,7 +59,6 @@ export default function SetPasswordPage() {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session?.user) {
-        console.log("Set-password: Session found immediately for", session.user.email);
         setUserEmail(session.user.email || "");
         setUserName(session.user.user_metadata?.full_name ||
                     session.user.user_metadata?.name ||
@@ -70,16 +66,13 @@ export default function SetPasswordPage() {
 
         // Check if password has already been set
         if (session.user.user_metadata?.password_set) {
-          console.log("Set-password: Password already set, redirecting to app");
           router.push("/blipee-ai");
         } else {
-          console.log("Set-password: Showing password setup form");
           setSessionChecked(true);
         }
       } else {
         // If no session after timeout, redirect to signin
         const timeoutId = setTimeout(() => {
-          console.log("Set-password: No session found after timeout, redirecting to signin");
           router.push("/signin");
         }, 5000);
 

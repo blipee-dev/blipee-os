@@ -217,7 +217,6 @@ export const TestCleanup = {
    */
   cleanOrganizations: async (orgIds: string[]) => {
     // In real implementation, would clean up database records
-    console.log(`Cleaning up organizations: ${orgIds.join(', ')}`);
   },
 
   /**
@@ -225,7 +224,6 @@ export const TestCleanup = {
    */
   cleanAssessments: async (assessmentIds: string[]) => {
     // In real implementation, would clean up assessment records
-    console.log(`Cleaning up assessments: ${assessmentIds.join(', ')}`);
   },
 
   /**
@@ -233,7 +231,6 @@ export const TestCleanup = {
    */
   cleanReports: async (reportIds: string[]) => {
     // In real implementation, would clean up report files and records
-    console.log(`Cleaning up reports: ${reportIds.join(', ')}`);
   },
 
   /**

@@ -19,13 +19,11 @@ export default function OfflinePage() {
 
     // Listen for online/offline events
     const handleOnline = () => {
-      console.log('Back online! Attempting to sync...');
       setLastSyncAttempt(new Date());
       window.location.reload();
     };
 
     const handleOffline = () => {
-      console.log('Gone offline');
     };
 
     window.addEventListener('online', handleOnline);

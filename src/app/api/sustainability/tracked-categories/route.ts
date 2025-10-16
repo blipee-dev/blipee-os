@@ -34,7 +34,6 @@ export async function GET(request: NextRequest) {
     const siteId = searchParams.get('site_id');
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
 
-    console.log('✅ Using calculator for tracked categories emissions calculation');
 
     // Use calculator to get category breakdown with consistent rounding
     const startDate = `${year}-01-01`;

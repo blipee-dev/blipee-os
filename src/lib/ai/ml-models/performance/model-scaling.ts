@@ -56,7 +56,6 @@ export class ModelScaler {
     modelFactory: () => Promise<BaseModel | any>,
     config: ScalingConfig
   ): Promise<void> {
-    console.log(`Registering model for scaling: ${modelName}`);
     
     this.scalingConfig.set(modelName, config);
     this.modelFactories.set(modelName, modelFactory);
@@ -68,7 +67,6 @@ export class ModelScaler {
       await this.createInstance(modelName, modelFactory);
     }
 
-    console.log(`${modelName}: Started with ${config.minInstances} instances`);
   }
 
   /**
@@ -178,7 +176,6 @@ export class ModelScaler {
     const currentCount = instances.length;
     const targetCount = Math.min(currentCount + count, config.maxInstances);
     
-    console.log(`Manually scaling up ${modelName} from ${currentCount} to ${targetCount} instances`);
     
     for (let i = currentCount; i < targetCount; i++) {
       await this.createInstance(modelName, modelFactory);
@@ -196,7 +193,6 @@ export class ModelScaler {
     const currentCount = instances.length;
     const targetCount = Math.max(currentCount - count, config.minInstances);
     
-    console.log(`Manually scaling down ${modelName} from ${currentCount} to ${targetCount} instances`);
     
     // Remove least recently used instances
     const sortedInstances = instances
@@ -219,7 +215,6 @@ export class ModelScaler {
   ): Promise<ModelInstance> {
     const instanceId = `${modelName}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
-    console.log(`Creating new instance: ${instanceId}`);
     
     const instance: ModelInstance = {
       id: instanceId,
@@ -243,7 +238,6 @@ export class ModelScaler {
       await this.warmupInstance(instance);
       
       instance.status = 'ready';
-      console.log(`✅ Instance ${instanceId} ready`);
       
       return instance;
     } catch (error) {
@@ -273,7 +267,6 @@ export class ModelScaler {
       }
       
       instances.splice(instanceIndex, 1);
-      console.log(`🗑️ Removed instance: ${instanceId}`);
     } catch (error) {
       console.error(`Error removing instance ${instanceId}:`, error);
     }
@@ -427,7 +420,6 @@ export class ModelScaler {
       status.totalInstances < config.maxInstances &&
       (utilization > config.scaleUpThreshold || avgLatency > config.targetLatency)
     ) {
-      console.log(`🔼 Auto-scaling up ${modelName}: utilization=${utilization.toFixed(2)}, latency=${avgLatency.toFixed(1)}ms`);
       await this.triggerScaling(modelName, 'up');
     }
     
@@ -438,7 +430,6 @@ export class ModelScaler {
       avgLatency < config.targetLatency * 0.7 &&
       status.queueLength === 0
     ) {
-      console.log(`🔽 Auto-scaling down ${modelName}: utilization=${utilization.toFixed(2)}, latency=${avgLatency.toFixed(1)}ms`);
       await this.triggerScaling(modelName, 'down');
     }
   }

@@ -502,7 +502,6 @@ export class ModelServingManager extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('🚀 Initializing Model Serving Manager...');
 
     try {
       // Initialize all components
@@ -523,7 +522,6 @@ export class ModelServingManager extends EventEmitter {
       this.isInitialized = true;
       this.emit('initialized');
 
-      console.log('✅ Model Serving Manager initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize Model Serving Manager:', error);
       throw error;
@@ -542,7 +540,6 @@ export class ModelServingManager extends EventEmitter {
 
     const endpointId = `endpoint-${modelId}-${Date.now()}`;
 
-    console.log(`🚀 Deploying model ${modelId}:${modelVersion} to endpoint ${endpointId}`);
 
     const endpoint: ModelEndpoint = {
       id: endpointId,
@@ -661,7 +658,6 @@ export class ModelServingManager extends EventEmitter {
   async batchPredict(requests: InferenceRequest[]): Promise<InferenceResponse[]> {
     this.ensureInitialized();
 
-    console.log(`📊 Processing batch prediction for ${requests.length} requests`);
 
     // Group requests by model
     const requestsByModel = this.groupRequestsByModel(requests);
@@ -707,7 +703,6 @@ export class ModelServingManager extends EventEmitter {
       throw new Error(`Endpoint ${endpointId} not found`);
     }
 
-    console.log(`🔄 Updating endpoint ${endpointId} to model version ${newModelVersion}`);
 
     // Execute update strategy
     switch (strategy) {
@@ -761,7 +756,6 @@ export class ModelServingManager extends EventEmitter {
       throw new Error(`Endpoint ${endpointId} not found`);
     }
 
-    console.log(`📈 Scaling endpoint ${endpointId} to ${replicas} replicas`);
 
     await this.scalingManager.scaleEndpoint(endpoint, replicas);
 
@@ -791,7 +785,6 @@ export class ModelServingManager extends EventEmitter {
       throw new Error(`Endpoint ${endpointId} not found`);
     }
 
-    console.log(`🗑️ Removing endpoint ${endpointId}`);
 
     // Graceful shutdown
     await this.gracefulShutdown(endpoint);
@@ -1051,17 +1044,14 @@ export class ModelServingManager extends EventEmitter {
   }
 
   private async executeBlueGreenUpdate(endpoint: ModelEndpoint, newVersion: string): Promise<void> {
-    console.log(`🔵🟢 Executing blue-green update for ${endpoint.id}`);
     // Implementation for blue-green deployment
   }
 
   private async executeCanaryUpdate(endpoint: ModelEndpoint, newVersion: string): Promise<void> {
-    console.log(`🐤 Executing canary update for ${endpoint.id}`);
     // Implementation for canary deployment
   }
 
   private async executeRollingUpdate(endpoint: ModelEndpoint, newVersion: string): Promise<void> {
-    console.log(`🔄 Executing rolling update for ${endpoint.id}`);
     // Implementation for rolling deployment
   }
 
@@ -1101,7 +1091,6 @@ export class ModelServingManager extends EventEmitter {
   }
 
   async dispose(): Promise<void> {
-    console.log('🔄 Disposing Model Serving Manager...');
 
     // Gracefully shutdown all endpoints
     for (const endpoint of this.endpoints.values()) {
@@ -1117,7 +1106,6 @@ export class ModelServingManager extends EventEmitter {
     ]);
 
     this.isInitialized = false;
-    console.log('✅ Model Serving Manager disposed');
   }
 }
 
@@ -1129,15 +1117,12 @@ class LoadBalancer extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('⚖️ Initializing Load Balancer...');
   }
 
   async registerEndpoint(endpoint: ModelEndpoint): Promise<void> {
-    console.log(`📋 Registering endpoint ${endpoint.id} with load balancer`);
   }
 
   async unregisterEndpoint(endpoint: ModelEndpoint): Promise<void> {
-    console.log(`📋 Unregistering endpoint ${endpoint.id} from load balancer`);
   }
 
   async selectEndpoint(modelId: string, request?: InferenceRequest): Promise<ModelEndpoint | null> {
@@ -1146,11 +1131,9 @@ class LoadBalancer extends EventEmitter {
   }
 
   async drainEndpoint(endpoint: ModelEndpoint): Promise<void> {
-    console.log(`🚰 Draining traffic from endpoint ${endpoint.id}`);
   }
 
   async dispose(): Promise<void> {
-    console.log('✅ Load Balancer disposed');
   }
 }
 
@@ -1158,7 +1141,6 @@ class CacheManager {
   constructor(private config: CachingConfig) {}
 
   async initialize(): Promise<void> {
-    console.log('💾 Initializing Cache Manager...');
   }
 
   async get(request: InferenceRequest): Promise<any | null> {
@@ -1173,7 +1155,6 @@ class CacheManager {
   }
 
   async dispose(): Promise<void> {
-    console.log('✅ Cache Manager disposed');
   }
 }
 
@@ -1183,19 +1164,15 @@ class ServingMonitoringSystem extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('📊 Initializing Serving Monitoring System...');
   }
 
   async start(): Promise<void> {
-    console.log('▶️ Starting monitoring system...');
   }
 
   async addEndpoint(endpoint: ModelEndpoint): Promise<void> {
-    console.log(`📈 Adding endpoint ${endpoint.id} to monitoring`);
   }
 
   async removeEndpoint(endpoint: ModelEndpoint): Promise<void> {
-    console.log(`📉 Removing endpoint ${endpoint.id} from monitoring`);
   }
 
   async recordRequest(
@@ -1248,7 +1225,6 @@ class ServingMonitoringSystem extends EventEmitter {
   }
 
   async dispose(): Promise<void> {
-    console.log('✅ Serving Monitoring System disposed');
   }
 }
 
@@ -1258,23 +1234,18 @@ class AutoScalingManager extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('📈 Initializing Auto Scaling Manager...');
   }
 
   async enableAutoScaling(endpoint: ModelEndpoint): Promise<void> {
-    console.log(`🔧 Enabling auto-scaling for endpoint ${endpoint.id}`);
   }
 
   async disableAutoScaling(endpoint: ModelEndpoint): Promise<void> {
-    console.log(`🔧 Disabling auto-scaling for endpoint ${endpoint.id}`);
   }
 
   async scaleEndpoint(endpoint: ModelEndpoint, replicas: number): Promise<void> {
-    console.log(`📏 Scaling endpoint ${endpoint.id} to ${replicas} replicas`);
   }
 
   async dispose(): Promise<void> {
-    console.log('✅ Auto Scaling Manager disposed');
   }
 }
 
@@ -1282,7 +1253,6 @@ class ServingSecurityManager {
   constructor(private config: SecurityConfig) {}
 
   async initialize(): Promise<void> {
-    console.log('🔒 Initializing Serving Security Manager...');
   }
 
   async validateRequest(request: InferenceRequest): Promise<void> {

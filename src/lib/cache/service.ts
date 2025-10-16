@@ -379,12 +379,10 @@ export class CacheService {
    * Warm up cache with frequently accessed data
    */
   async warmUp(): Promise<void> {
-    console.log('🔥 Warming up cache...');
 
     // Add warmup logic here based on your needs
     // Example: Pre-load common queries, user sessions, etc.
 
-    console.log('✅ Cache warmup complete');
   }
 
   /**

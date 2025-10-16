@@ -8,7 +8,6 @@ import { AgentManager } from '../autonomous-agents/agent-manager';
  * Initialize the complete Network Intelligence system
  */
 export async function initializeNetworkIntelligence(organizationId: string) {
-  console.log(`🌐 Initializing Network Intelligence for organization ${organizationId}`);
 
   try {
     // Initialize core engines
@@ -26,8 +25,6 @@ export async function initializeNetworkIntelligence(organizationId: string) {
     // Check if organization has a network node
     await ensureOrganizationNetworkNode(organizationId);
 
-    console.log(`✅ Network Intelligence initialized successfully`);
-    console.log(`🤖 Supply Chain Investigator agent running: ${networkAgentId}`);
 
     return {
       graphEngine,
@@ -54,7 +51,6 @@ export async function initializeNetworkIntelligence(organizationId: string) {
 
       async shutdown() {
         await agentManager.stopAgent(networkAgentId);
-        console.log(`🛑 Network Intelligence shut down for organization ${organizationId}`);
       }
     };
 
@@ -84,7 +80,6 @@ async function ensureOrganizationNetworkNode(organizationId: string) {
     .single();
 
   if (existingNode) {
-    console.log(`✅ Organization network node exists: ${existingNode.id}`);
     return existingNode;
   }
 
@@ -122,7 +117,6 @@ async function ensureOrganizationNetworkNode(organizationId: string) {
     throw new Error(`Failed to create organization network node: ${error.message}`);
   }
 
-  console.log(`✅ Created organization network node: ${newNode.id}`);
   return newNode;
 }
 
@@ -300,7 +294,6 @@ export async function setupNetworkPrivacy(
       });
   }
 
-  console.log(`✅ Network privacy settings configured for organization ${organizationId}`);
   
   return {
     success: true,

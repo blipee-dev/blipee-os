@@ -6,6 +6,7 @@ import { getBaselineEmissions, getPeriodEmissions } from '@/lib/sustainability/b
 
 export async function GET(request: NextRequest) {
   try {
+    const startTime = Date.now();
     const supabase = await createServerSupabaseClient();
 
     // Get current user
@@ -27,35 +28,32 @@ export async function GET(request: NextRequest) {
 
     const organizationId = memberData.organization_id;
 
-    // Fetch targets from sustainability_targets table
-    const { data: targets, error: targetsError } = await supabaseAdmin
-      .from('sustainability_targets')
-      .select('*')
-      .eq('organization_id', organizationId)
-      .order('created_at', { ascending: false });
+    // ⚡ PARALLEL QUERY: Fetch targets and baseline simultaneously
+    const [targetsResult, baselineData, scopeBreakdown] = await Promise.all([
+      supabaseAdmin
+        .from('sustainability_targets')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false }),
+      getBaselineEmissions(organizationId),
+      getPeriodEmissions(
+        organizationId,
+        `${new Date().getFullYear()}-01-01`,
+        new Date().toISOString().split('T')[0]
+      )
+    ]);
 
-    if (targetsError) {
-      console.error('Error fetching targets:', targetsError);
+    const targets = targetsResult.data;
+    if (targetsResult.error) {
+      console.error('Error fetching targets:', targetsResult.error);
       return NextResponse.json({ error: 'Failed to fetch targets' }, { status: 500 });
     }
-
-    // Get baseline emissions data for automatic target calculation
-    const baselineData = await getBaselineEmissions(organizationId);
-    console.log('📊 Baseline emissions for target calculation:', baselineData);
 
     // Calculate recommended SBTi targets
     const calculatedTargets = baselineData ? calculateSBTiTargets(baselineData) : null;
 
     // Get current year for emissions data
     const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1; // 1-12
-
-    // Fetch current year scope breakdown to determine which scopes are active
-    const scopeBreakdown = await getPeriodEmissions(
-      organizationId,
-      `${currentYear}-01-01`,
-      new Date().toISOString().split('T')[0]
-    );
 
     // Determine active scopes based on actual data
     const activeScopes: string[] = [];
@@ -63,7 +61,6 @@ export async function GET(request: NextRequest) {
     if (scopeBreakdown.scope_2 > 0) activeScopes.push('scope_2');
     if (scopeBreakdown.scope_3 > 0) activeScopes.push('scope_3');
 
-    console.log(`📊 Active scopes detected: ${activeScopes.join(', ')}`);
 
     // Transform data to match our component expectations
     // IMPORTANT: Using actual database schema (not migration schema)
@@ -119,7 +116,6 @@ export async function GET(request: NextRequest) {
     }) || [];
 
     // Fetch emissions data with ML-powered forecasting for incomplete years
-    console.log(`🎯 Fetching emissions for ${currentYear} (current month: ${currentMonth})`);
 
     // Get current year data (may be incomplete) with pagination
     // Use period_start for both filters to avoid timezone/format issues
@@ -168,14 +164,11 @@ export async function GET(request: NextRequest) {
       );
       const actualEmissions = ytdEmissions.total;
       actualYearToDate = actualEmissions;
-      console.log('📊 Using baseline-calculator for YTD emissions:', actualEmissions.toFixed(1), 'tCO2e');
 
       // Count unique months (not total records, as there may be multiple records per month)
       const uniqueMonths = new Set(currentYearMetrics.map(m => m.period_start?.substring(0, 7)));
       const monthsCovered = uniqueMonths.size;
 
-      console.log(`📊 ${currentYear} actual data: ${actualEmissions.toFixed(1)} tCO2e (${currentYearMetrics.length} records, ${monthsCovered} unique months)`);
-      console.log(`📅 Unique months: ${Array.from(uniqueMonths).sort().join(', ')}`);
 
       // If we have less than 12 months, use enterprise forecasting
       if (monthsCovered < 12) {
@@ -230,7 +223,6 @@ export async function GET(request: NextRequest) {
                 emissions: emissions / 1000 // Convert kg to tCO2e
               }));
 
-            console.log(`🔬 Enterprise Forecasting with ${monthlyEmissions.length} months of data`);
 
             // Use enterprise-grade forecasting
             const remainingMonths = 12 - monthsCovered;
@@ -240,15 +232,12 @@ export async function GET(request: NextRequest) {
             currentYearEmissions = actualEmissions + forecastedRemaining;
             currentYearIsForecast = true;
 
-            console.log(`✅ ${forecast.method.toUpperCase()}: Actual ${actualEmissions.toFixed(1)} + Forecast ${forecastedRemaining.toFixed(1)} = ${currentYearEmissions.toFixed(1)} tCO2e`);
-            console.log(`   📊 Model Quality: R²=${forecast.metadata.r2.toFixed(3)}, Trend=${forecast.metadata.trendSlope.toFixed(3)} tCO2e/month`);
           } else {
             // Fallback: use current year average
             const monthlyAverage = actualEmissions / monthsCovered;
             forecastedRemaining = monthlyAverage * (12 - monthsCovered);
             currentYearEmissions = actualEmissions + forecastedRemaining;
             currentYearIsForecast = true;
-            console.log(`📊 Insufficient history, YTD average: ${actualEmissions.toFixed(1)} + ${forecastedRemaining.toFixed(1)} = ${currentYearEmissions.toFixed(1)} tCO2e`);
           }
         } catch (error) {
           console.error('Error forecasting emissions:', error);
@@ -283,7 +272,6 @@ export async function GET(request: NextRequest) {
         const yearsTo2030 = 2030 - currentYear;
         bauProjection2030 = currentYearEmissions * Math.pow(1 + annualChangeRate, yearsTo2030);
 
-        console.log(`📈 BAU Projection: ${baselineEmissions.toFixed(1)} (${baselineYear}) → ${currentYearEmissions.toFixed(1)} (${currentYear}) → ${bauProjection2030.toFixed(1)} (2030) | Annual rate: ${(annualChangeRate * 100).toFixed(2)}%`);
       }
     }
 
@@ -298,7 +286,6 @@ export async function GET(request: NextRequest) {
     const hasMetricTargets = metricTargetsExist && metricTargetsExist.length > 0;
 
     if (hasMetricTargets) {
-      console.log('📊 Metric targets found - using aggregated values instead of forecast');
 
       // For each target, aggregate from metric targets
       for (const target of transformedTargets) {
@@ -317,11 +304,9 @@ export async function GET(request: NextRequest) {
           target.actual_ytd = aggregatedCurrent; // All is "actual" from metric breakdown
           target.forecasted_remaining = 0;
 
-          console.log(`   ${target.name}: Using metric targets sum = ${aggregatedCurrent.toFixed(1)} tCO2e`);
         }
       }
     } else if (currentYearEmissions > 0) {
-      console.log('📊 No metric targets - using forecast-based emissions');
 
       // Original logic: Persist current emissions to database for all targets
       for (const target of transformedTargets) {
@@ -369,7 +354,6 @@ export async function GET(request: NextRequest) {
         target.progress_percentage = Math.max(0, Math.min(100, progressPercentage));
       });
 
-      console.log(`✅ Updated ${transformedTargets.length} targets with current emissions: ${currentYearEmissions.toFixed(1)} tCO2e`);
     }
 
     // Merge calculated targets with existing targets
@@ -433,8 +417,10 @@ export async function GET(request: NextRequest) {
         .map(type => targetTypeMap.get(type))
         .filter(t => t !== undefined);
 
-      console.log('🎯 Final targets (existing + calculated):', transformedTargets.map(t => `${t.target_type}: ${t.id}`));
     }
+
+    const totalTime = Date.now() - startTime;
+    console.log(`⚡ Targets API Performance: Total=${totalTime}ms`);
 
     return NextResponse.json({
       targets: transformedTargets,
@@ -530,7 +516,6 @@ export async function POST(request: NextRequest) {
         const weightedData = await weightedResponse.json();
 
         // Store category targets (we'll create the table structure separately)
-        console.log('📊 Weighted targets calculated:', weightedData.allocations?.length, 'categories');
 
         // For now, store in metadata or separate table
         // This will be enhanced once we run the migration

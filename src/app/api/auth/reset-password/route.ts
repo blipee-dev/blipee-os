@@ -9,7 +9,6 @@ const resetPasswordSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('Reset password request received for email:', body.email);
 
     // Validate input
     const validated = resetPasswordSchema.parse(body);
@@ -24,12 +23,9 @@ export async function POST(request: NextRequest) {
     // Redirect to reset password page directly
     // Using email OTP flow instead of PKCE to avoid code verifier issues
     const redirectTo = `${origin}/auth/reset-password`;
-    console.log('Reset password redirect URL:', redirectTo);
 
     // Send reset password email using server client
-    console.log('Creating Supabase client...');
     const supabase = await createServerSupabaseClient();
-    console.log('Supabase client created, sending reset email...');
 
     const { error } = await supabase.auth.resetPasswordForEmail(validated.email, {
       redirectTo,
@@ -43,7 +39,6 @@ export async function POST(request: NextRequest) {
       throw error;
     }
 
-    console.log('Reset password email sent successfully');
     return NextResponse.json({
       success: true,
       message: "Password reset email sent",

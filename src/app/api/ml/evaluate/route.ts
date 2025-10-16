@@ -11,7 +11,6 @@ import { mlPipeline } from '@/lib/ai/ml-models/ml-pipeline';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📊 ML Evaluation API called');
 
     const { searchParams } = new URL(request.url);
     const modelType = searchParams.get('modelType');
@@ -27,7 +26,6 @@ export async function GET(request: NextRequest) {
 
     if (modelType) {
       // Get metrics for specific model
-      console.log(`📊 Getting metrics for ${modelType} model...`);
 
       switch (modelType) {
         case 'energy-consumption':
@@ -52,7 +50,6 @@ export async function GET(request: NextRequest) {
 
     } else {
       // Get metrics for all models
-      console.log('📊 Getting metrics for all models...');
 
       result = {
         'energy-consumption': energyConsumptionModel.getPerformanceMetrics(),
@@ -63,7 +60,6 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    console.log(`✅ Model evaluation completed`);
 
     return NextResponse.json({
       success: true,

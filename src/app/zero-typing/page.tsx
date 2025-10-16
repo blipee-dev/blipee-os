@@ -29,9 +29,6 @@ export default async function ZeroTypingPage() {
     redirect('/unauthorized?reason=no_organization');
   }
 
-  console.log('[Zero-Typing] Organization ID:', organizationId);
-  console.log('[Zero-Typing] User role:', role);
-  console.log('[Zero-Typing] User email:', user.email);
 
   // Get organization details
   const { data: organization, error: orgError } = await supabaseAdmin
@@ -40,8 +37,6 @@ export default async function ZeroTypingPage() {
     .eq('id', organizationId)
     .single();
 
-  console.log('[Zero-Typing] Organization:', organization);
-  console.log('[Zero-Typing] Organization error:', orgError);
 
   // Fetch sites for the organization
   const { data: sites, error: sitesError } = await supabaseAdmin
@@ -49,9 +44,6 @@ export default async function ZeroTypingPage() {
     .select('id, name, location, address')
     .eq('organization_id', organizationId);
 
-  console.log('[Zero-Typing] Sites:', sites?.length || 0);
-  console.log('[Zero-Typing] Sites error:', sitesError);
-  console.log('[Zero-Typing] Sites data:', sites);
 
   // Fetch team members for the organization
   const { data: teamMembers } = await supabaseAdmin
@@ -59,7 +51,6 @@ export default async function ZeroTypingPage() {
     .select('id, name, email, role')
     .eq('organization_id', organizationId);
 
-  console.log('[Zero-Typing] Team members:', teamMembers?.length || 0);
 
   // Fetch active alerts for the organization
   const { data: alerts } = await supabaseAdmin
@@ -70,7 +61,6 @@ export default async function ZeroTypingPage() {
     .order('created_at', { ascending: false })
     .limit(10);
 
-  console.log('[Zero-Typing] Active alerts:', alerts?.length || 0);
 
   // Fetch devices count for all sites
   let devicesCount = 0;
@@ -83,7 +73,6 @@ export default async function ZeroTypingPage() {
     devicesCount = count || 0;
   }
 
-  console.log('[Zero-Typing] Devices:', devicesCount);
 
   // Get metrics data for the organization (server-side)
   let metricsData = null;
@@ -142,14 +131,6 @@ export default async function ZeroTypingPage() {
       ...m,
       metrics_catalog: metricDefs?.find(def => def.id === m.metric_id)
     }));
-
-    console.log('[Zero-Typing] Metrics query result:', {
-      totalCount: totalMetricsCount,
-      currentPeriod: metrics?.length || 0,
-      previousPeriod: previousMetrics?.length || 0,
-      error: metricsError,
-      sample: metrics?.[0]
-    });
 
     metricsData = metrics;
 
@@ -293,16 +274,6 @@ export default async function ZeroTypingPage() {
           type: 'year'
         }
       };
-
-      console.log('[Zero-Typing] Processed metrics:', {
-        period: processedMetrics.period.label,
-        emissions: processedMetrics.emissions.total,
-        energy: processedMetrics.energy.total,
-        water: processedMetrics.water.total,
-        waste: processedMetrics.waste.total,
-        monthlyPeriods: processedMetrics.monthly?.length || 0,
-        latestMonth: processedMetrics.monthly?.[0]
-      });
     } else {
       // No data for the current period - provide empty structure
       processedMetrics = {
@@ -319,7 +290,6 @@ export default async function ZeroTypingPage() {
         }
       };
 
-      console.log(`[Zero-Typing] No metrics data found for ${currentYear} - showing empty state`);
     }
   }
 
@@ -349,14 +319,6 @@ export default async function ZeroTypingPage() {
     alertsCount: alerts?.length || 0,
     metricsCount: totalMetricsCount
   };
-
-  console.log('[Zero-Typing] Final organizationData:', {
-    sitesCount: organizationData.sitesCount,
-    teamCount: organizationData.teamCount,
-    alertsCount: organizationData.alertsCount,
-    devicesCount: organizationData.devicesCount,
-    metricsCount: organizationData.metricsCount,
-    siteNames: sites?.map(s => s.name)
   });
 
   return (

@@ -58,7 +58,6 @@ export async function GET(request: NextRequest) {
     const endOfBaseline = `${baselineYear}-12-31`;
 
     // ✅ Using calculator for category-level emissions (provides consistent rounding)
-    console.log('📊 Using baseline-calculator for available metrics analysis');
     const categoryBreakdown = await getCategoryBreakdown(organizationId, startOfBaseline, endOfBaseline);
 
     // Still need to fetch detailed metrics for metric-level aggregation

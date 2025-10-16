@@ -84,7 +84,6 @@ export class AICache {
       cached.cached = true;
       
       // Update cache hit metrics
-      console.log(`✅ AI Cache hit for prompt: ${prompt.substring(0, 50)}...`);
     }
     
     return cached;

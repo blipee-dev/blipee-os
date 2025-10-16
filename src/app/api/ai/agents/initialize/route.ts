@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize all 8 AI employees
-    console.log('🚀 Activating AI Workforce for organization:', memberData.organization_id);
     const workforce = await initializeAutonomousAgents(memberData.organization_id);
 
     // Set up autonomous tasks for each agent

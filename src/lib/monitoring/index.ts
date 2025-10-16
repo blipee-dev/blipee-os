@@ -12,7 +12,6 @@ import { AlertSeverity, AlertChannel } from './types';
 
 // Initialize monitoring
 export async function initializeMonitoring() {
-  console.log('🔍 Initializing monitoring service...');
   
   // Start health checks
   healthCheckService.startPeriodicChecks(60000); // Every minute
@@ -25,7 +24,6 @@ export async function initializeMonitoring() {
   // Set up default alert rules
   await setupDefaultAlertRules();
   
-  console.log('✅ Monitoring service initialized');
 }
 
 async function setupDefaultAlertRules() {

@@ -211,7 +211,6 @@ export class AgentIntegrationLayer extends EventEmitter {
     this.initializeMLModels();
     this.startTaskProcessing();
 
-    console.log('Agent Integration Layer initialized');
   }
 
   /**
@@ -230,7 +229,6 @@ export class AgentIntegrationLayer extends EventEmitter {
     }
 
     this.emit('agentRegistered', agent);
-    console.log(`Agent registered: ${agent.id} (${agent.name})`);
   }
 
   /**

@@ -179,7 +179,6 @@ class AdvancedComputerVision {
    */
   private async enhanceImage(imageData: ArrayBuffer | string): Promise<any> {
     // Simulate advanced image processing
-    console.log('Enhancing image quality...');
 
     // In production, implement:
     // - Noise reduction
@@ -222,7 +221,6 @@ class AdvancedComputerVision {
     resolution?: { width: number; height: number };
   }> {
     // Simulate advanced OCR
-    console.log(`Performing OCR for ${options.documentType} in ${options.language}...`);
 
     // Mock OCR result based on document type
     const mockTexts = {
@@ -348,7 +346,6 @@ class AdvancedComputerVision {
     ocrResult: any
   ): Promise<ExtractedTable[]> {
     // Simulate advanced table detection
-    console.log('Extracting tables from document...');
 
     // Mock table extraction based on OCR text
     const tables: ExtractedTable[] = [];
@@ -403,7 +400,6 @@ class AdvancedComputerVision {
    * Chart analysis and data extraction
    */
   private async analyzeCharts(imageData: any): Promise<ExtractedChart[]> {
-    console.log('Analyzing charts and visualizations...');
 
     // Mock chart analysis
     const charts: ExtractedChart[] = [
@@ -614,7 +610,6 @@ class AdvancedComputerVision {
 
   private initializeModels(): void {
     // In production, initialize actual CV models
-    console.log('Initializing computer vision models...');
   }
 }
 

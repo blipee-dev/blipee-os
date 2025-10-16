@@ -101,12 +101,6 @@ export async function GET(request: NextRequest) {
     const totalRenewableEnergy = pureRenewableConsumption + totalRenewableFromGrid;
     const renewablePercentage = totalConsumption > 0 ? (totalRenewableEnergy / totalConsumption) * 100 : 0;
 
-    console.log('🌱 GRI 302 Renewable Calculation:');
-    console.log('  Pure renewable (solar/wind):', pureRenewableConsumption, 'kWh');
-    console.log('  Grid renewable:', totalRenewableFromGrid, 'kWh');
-    console.log('  Total renewable:', totalRenewableEnergy, 'kWh');
-    console.log('  Total consumption:', totalConsumption, 'kWh');
-    console.log('  Renewable %:', renewablePercentage.toFixed(2), '%');
 
     // Fetch organization details for intensity calculations
     const { data: orgData } = await supabase
@@ -144,14 +138,6 @@ export async function GET(request: NextRequest) {
     // Intensity per employee: MWh / FTE (use MWh for per-employee)
     const intensityFTE = totalEmployees ? totalConsumptionMWh / totalEmployees : 0;
 
-    console.log('📊 GRI 302 Intensity Calculations:');
-    console.log('  Total consumption:', totalConsumptionMWh, 'MWh', '(', totalConsumption, 'kWh)');
-    console.log('  Annual revenue:', annualRevenue, '€');
-    console.log('  Total area:', totalArea, 'm²');
-    console.log('  Total employees:', totalEmployees);
-    console.log('  Intensity per revenue:', intensityRevenue.toFixed(2), 'MWh/€M');
-    console.log('  Intensity per area:', intensityArea.toFixed(2), 'kWh/m²');
-    console.log('  Intensity per FTE:', intensityFTE.toFixed(2), 'MWh/FTE');
 
     // Fetch previous year data for reduction calculation
     const previousYear = year - 1;
@@ -231,14 +217,6 @@ export async function GET(request: NextRequest) {
       base_year_consumption: baseYearConsumption
     };
 
-    console.log('✅ GRI 302 Final Response:');
-    console.log('  Total consumption:', response.total_consumption, 'MWh');
-    console.log('  Renewable energy:', response.renewable_energy, 'MWh');
-    console.log('  Non-renewable energy:', response.non_renewable_energy, 'MWh');
-    console.log('  Renewable %:', response.renewable_percentage, '%');
-    console.log('  Intensity per revenue:', response.intensity_revenue, 'MWh/€M');
-    console.log('  Intensity per area:', response.intensity_area, 'kWh/m²');
-    console.log('  Intensity per FTE:', response.intensity_fte, 'MWh/FTE');
 
     return NextResponse.json(response);
   } catch (error) {

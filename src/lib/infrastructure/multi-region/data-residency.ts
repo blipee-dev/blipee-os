@@ -501,7 +501,6 @@ export class DataResidencyManager {
       if (dataLocation.retentionUntil && now > dataLocation.retentionUntil) {
         try {
           // In real implementation, this would delete from database
-          console.log(`Deleting expired data: ${recordId}`);
           this.dataLocations.delete(recordId);
           deleted.push(recordId);
         } catch (error) {

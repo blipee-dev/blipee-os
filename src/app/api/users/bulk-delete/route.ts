@@ -62,7 +62,6 @@ export async function POST(request: NextRequest) {
     let failedCount = 0;
     const errors: Array<{ email: string; error: string }> = [];
 
-    console.log(`Starting bulk delete for ${usersToDelete?.length || 0} users`);
 
     for (const targetUser of usersToDelete || []) {
       try {
@@ -94,9 +93,7 @@ export async function POST(request: NextRequest) {
           if (authDeleteError) {
             console.error(`Error deleting auth user for ${targetUser.email}:`, authDeleteError);
             // Don't count as failure since app_user was deleted
-            console.log(`Warning: Could not delete auth user for ${targetUser.email}, but app_user was deleted`);
           } else {
-            console.log(`Successfully deleted both app_user and auth user for ${targetUser.email}`);
           }
         }
 
@@ -126,7 +123,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`Bulk delete completed: ${successCount} succeeded, ${failedCount} failed`);
 
     return NextResponse.json({
       success: true,

@@ -54,8 +54,6 @@ export class MonthlyIntelligenceCoordinator {
     // Start monitoring cycle
     this.startMonthlyMonitoring();
 
-    console.log('📅 Monthly Intelligence Coordinator initialized');
-    console.log(`📊 Next data expected: ${this.getNextDataDate()}`);
   }
 
   private getNextDataDate(): Date {
@@ -219,7 +217,6 @@ export class MonthlyIntelligenceCoordinator {
       const currentPhase = this.getCurrentPhase();
 
       if (this.currentCycle?.currentPhase !== currentPhase) {
-        console.log(`📅 Phase change: ${this.currentCycle?.currentPhase} → ${currentPhase}`);
 
         // Trigger phase-specific activities
         await this.handlePhaseChange(currentPhase);
@@ -237,7 +234,6 @@ export class MonthlyIntelligenceCoordinator {
   }
 
   private async handlePhaseChange(newPhase: MonthlyDataCycle['currentPhase']) {
-    console.log(`🔄 Handling phase change to: ${newPhase}`);
 
     switch (newPhase) {
       case 'data-arrival':
@@ -269,7 +265,6 @@ export class MonthlyIntelligenceCoordinator {
   }
 
   private async runMonthlyAnalysis() {
-    console.log('🔬 Running comprehensive monthly analysis...');
 
     // Coordinate all AI systems for analysis
     const results = await fullCapabilityOrchestrator.processRequest({
@@ -370,7 +365,6 @@ export class MonthlyIntelligenceCoordinator {
   }
 
   async triggerManualDataProcessing() {
-    console.log('🔄 Manual data processing triggered');
 
     // Force processing phase
     await this.handlePhaseChange('data-arrival');

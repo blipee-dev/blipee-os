@@ -24,6 +24,7 @@ import {
 
 import type { Building } from '@/types/auth';
 import type { TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
+import { useTransportationDashboard } from '@/hooks/useDashboardData';
 
 interface TransportationDashboardProps {
   organizationId: string;
@@ -45,9 +46,8 @@ interface TransportMode {
   icon: React.ReactNode;
 }
 
-export function TransportationDashboard({ organizationId }: TransportationDashboardProps) {
+export function TransportationDashboard({ organizationId, selectedPeriod, selectedSite }: TransportationDashboardProps) {
   const [viewMode, setViewMode] = useState<'fleet' | 'travel' | 'commute' | 'logistics'>('fleet');
-  const [loading, setLoading] = React.useState(true);
   const [transportModes, setTransportModes] = useState<TransportMode[]>([]);
 
   // Weighted allocation targets
@@ -59,109 +59,96 @@ export function TransportationDashboard({ organizationId }: TransportationDashbo
   const commuteModes: TransportMode[] = [];
   const logisticsModes: TransportMode[] = [];
 
-  // Fetch transportation data
+  // Use React Query hook for data fetching
+  const period = selectedPeriod || {
+    start: new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0],
+    label: 'Year to Date'
+  };
+
+  const { fleet, businessTravel, targetAllocation, isLoading } = useTransportationDashboard(
+    period,
+    selectedSite,
+    organizationId
+  );
+
+  // Process data when queries complete
   React.useEffect(() => {
-    const fetchTransportData = async () => {
-      setLoading(true);
-      try {
-        // Fetch fleet data
-        const fleetRes = await fetch('/api/transportation/fleet');
-        const fleetData = await fleetRes.json();
-        console.log('🚗 Fleet API Response:', fleetData);
+    if (!fleet.data && !businessTravel.data) return;
 
-        // Fetch business travel data
-        const travelRes = await fetch('/api/transportation/business-travel');
-        const travelData = await travelRes.json();
-        console.log('✈️ Business Travel API Response:', travelData);
+    const modes: TransportMode[] = [];
 
-        const modes: TransportMode[] = [];
+    // Map fleet data
+    if (fleet.data?.fleet) {
+      fleet.data.fleet.forEach((v: any) => {
+        const getIcon = (type: string) => {
+          if (type === 'truck') return <Truck className="w-5 h-5" />;
+          if (type === 'electric' || type === 'hybrid') return <Battery className="w-5 h-5" />;
+          return <Car className="w-5 h-5" />;
+        };
 
-        // Map fleet data
-        if (fleetData.fleet) {
-          fleetData.fleet.forEach((v: any) => {
-            const getIcon = (type: string) => {
-              if (type === 'truck') return <Truck className="w-5 h-5" />;
-              if (type === 'electric' || type === 'hybrid') return <Battery className="w-5 h-5" />;
-              return <Car className="w-5 h-5" />;
-            };
-
-            modes.push({
-              name: `${v.make} ${v.model}` || v.vehicle_id,
-              category: 'fleet',
-              distance: v.distance_km || 0,
-              fuelConsumed: v.fuel_liters || 0,
-              fuelUnit: v.is_electric ? 'kWh' : 'L',
-              emissions: v.emissions_tco2e || 0,
-              cost: v.cost || 0,
-              trips: 0, // TODO: Add trip tracking
-              efficiency: v.distance_km && v.fuel_liters ? (v.fuel_liters / v.distance_km * 100) : 0,
-              trend: 0, // TODO: Calculate from historical
-              icon: getIcon(v.type)
-            });
-          });
-        }
-
-        // Map business travel data
-        if (travelData.travel) {
-          travelData.travel.forEach((t: any) => {
-            const getIcon = (type: string) => {
-              if (type === 'air') return <Plane className="w-5 h-5" />;
-              if (type === 'rail') return <Train className="w-5 h-5" />;
-              if (type === 'road') return <Car className="w-5 h-5" />;
-              return <Navigation className="w-5 h-5" />;
-            };
-
-            modes.push({
-              name: `${t.type.charAt(0).toUpperCase()}${t.type.slice(1)} Travel`,
-              category: 'business',
-              distance: t.distance_km || 0,
-              fuelConsumed: 0,
-              fuelUnit: 'trips',
-              emissions: t.emissions_tco2e || 0,
-              cost: t.cost || 0,
-              trips: t.trip_count || 0,
-              efficiency: t.distance_km ? (t.emissions_tco2e / t.distance_km) : 0,
-              trend: 0, // TODO: Calculate from historical
-              icon: getIcon(t.type)
-            });
-          });
-        }
-
-        setTransportModes(modes);
-        console.log('📊 Processed Transport Modes:', modes);
-        console.log('📈 Total modes count:', modes.length);
-
-        // Fetch weighted allocation targets for transportation categories
-        const currentYear = new Date().getFullYear();
-        const allocParams = new URLSearchParams({
-          baseline_year: (currentYear - 1).toString(),
+        modes.push({
+          name: `${v.make} ${v.model}` || v.vehicle_id,
+          category: 'fleet',
+          distance: v.distance_km || 0,
+          fuelConsumed: v.fuel_liters || 0,
+          fuelUnit: v.is_electric ? 'kWh' : 'L',
+          emissions: v.emissions_tco2e || 0,
+          cost: v.cost || 0,
+          trips: 0, // TODO: Add trip tracking
+          efficiency: v.distance_km && v.fuel_liters ? (v.fuel_liters / v.distance_km * 100) : 0,
+          trend: 0, // TODO: Calculate from historical
+          icon: getIcon(v.type)
         });
+      });
+    }
 
-        const allocRes = await fetch(`/api/sustainability/targets/weighted-allocation?${allocParams}`);
-        const allocData = await allocRes.json();
+    // Map business travel data
+    if (businessTravel.data?.travel) {
+      businessTravel.data.travel.forEach((t: any) => {
+        const getIcon = (type: string) => {
+          if (type === 'air') return <Plane className="w-5 h-5" />;
+          if (type === 'rail') return <Train className="w-5 h-5" />;
+          if (type === 'road') return <Car className="w-5 h-5" />;
+          return <Navigation className="w-5 h-5" />;
+        };
 
-        if (allocData.allocations) {
-          // Filter for transportation-related categories (Business Travel, Employee Commuting, Transport)
-          const transportCategories = allocData.allocations.filter((alloc: any) =>
-            alloc.category === 'Business Travel' ||
-            alloc.category === 'Employee Commuting' ||
-            alloc.category === 'Transport'
-          );
-          setCategoryTargets(transportCategories);
-          setOverallTargetPercent(allocData.overallTarget);
-          console.log('📊 Transportation Category Targets:', transportCategories);
-        }
-      } catch (error) {
-        console.error('❌ Error fetching transportation data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+        modes.push({
+          name: `${t.type.charAt(0).toUpperCase()}${t.type.slice(1)} Travel`,
+          category: 'business',
+          distance: t.distance_km || 0,
+          fuelConsumed: 0,
+          fuelUnit: 'trips',
+          emissions: t.emissions_tco2e || 0,
+          cost: t.cost || 0,
+          trips: t.trip_count || 0,
+          efficiency: t.distance_km ? (t.emissions_tco2e / t.distance_km) : 0,
+          trend: 0, // TODO: Calculate from historical
+          icon: getIcon(t.type)
+        });
+      });
+    }
 
-    fetchTransportData();
-  }, []);
+    setTransportModes(modes);
+  }, [fleet.data, businessTravel.data]);
 
-  if (loading) {
+  // Process target allocation data
+  React.useEffect(() => {
+    if (!targetAllocation.data) return;
+
+    if (targetAllocation.data.allocations) {
+      // Filter for transportation-related categories (Business Travel, Employee Commuting, Transport)
+      const transportCategories = targetAllocation.data.allocations.filter((alloc: any) =>
+        alloc.category === 'Business Travel' ||
+        alloc.category === 'Employee Commuting' ||
+        alloc.category === 'Transport'
+      );
+      setCategoryTargets(transportCategories);
+      setOverallTargetPercent(targetAllocation.data.overallTarget);
+    }
+  }, [targetAllocation.data]);
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />

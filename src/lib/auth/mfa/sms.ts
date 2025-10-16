@@ -361,12 +361,7 @@ export class SMSMFAService {
     code: string
   ): Promise<{ success: boolean; message: string }> {
     // Log for development
-    console.log('📱 Mock SMS:', {
-      to: phoneNumber,
-      message,
-      code,
-      timestamp: new Date().toISOString(),
-    });
+    console.log('[SMS MFA] Mock SMS sent:', { phoneNumber, message, code });
 
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 500));

@@ -53,7 +53,6 @@ export default function SecuritySettingsPage() {
       });
       
       if (response.ok) {
-        console.log('Session terminated');
         loadSessions();
       }
     } catch (error) {
@@ -70,7 +69,6 @@ export default function SecuritySettingsPage() {
       });
       
       if (response.ok) {
-        console.log('All sessions terminated');
         loadSessions();
       }
     } catch (error) {
@@ -92,7 +90,6 @@ export default function SecuritySettingsPage() {
         if (!response.ok) throw new Error('Failed to disable MFA');
 
         setMfaEnabled(false);
-        console.log('Two-factor authentication has been disabled');
       } catch (error) {
         console.error('Failed to disable MFA:', error);
       } finally {
@@ -104,7 +101,6 @@ export default function SecuritySettingsPage() {
   const handleMFASetupComplete = () => {
     setMfaEnabled(true);
     setShowMFASetup(false);
-    console.log('Two-factor authentication is now active');
   };
 
   return (

@@ -38,7 +38,6 @@ export class ModelOptimizer {
     model: BaseModel,
     config: OptimizationConfig
   ): Promise<OptimizationResult> {
-    console.log(`Optimizing model: ${model.getModelName()}`);
     
     // Step 1: Baseline performance measurement
     const baseline = await this.measurePerformance(model, config.testData);
@@ -50,7 +49,6 @@ export class ModelOptimizer {
     
     for (const strategy of this.strategies) {
       if (this.shouldApplyStrategy(strategy, config)) {
-        console.log(`Applying strategy: ${strategy.name}`);
         
         try {
           const optimized = await strategy.apply(optimizedModel);
@@ -64,9 +62,7 @@ export class ModelOptimizer {
           // Keep optimization if it improves performance
           if (this.isImprovement(baseline, metrics, config.priorities)) {
             optimizedModel = optimized;
-            console.log(`✅ ${strategy.name}: Improvement detected`);
           } else {
-            console.log(`❌ ${strategy.name}: No improvement, reverting`);
           }
         } catch (error) {
           console.warn(`⚠️ Strategy ${strategy.name} failed:`, error);
@@ -100,7 +96,6 @@ export class ModelOptimizer {
     let totalPredictions = 0;
     let accurateePredictions = 0;
     
-    console.log('Measuring model performance...');
     
     // Memory usage before
     const initialMemory = process.memoryUsage();
@@ -189,7 +184,6 @@ export class ModelOptimizer {
    * Apply model quantization
    */
   private async applyQuantization(model: any): Promise<any> {
-    console.log('Applying model quantization...');
     
     // For TensorFlow.js models
     if (model.model && typeof model.model.save === 'function') {
@@ -220,7 +214,6 @@ export class ModelOptimizer {
    * Optimize for batch processing
    */
   private async optimizeBatching(model: any): Promise<any> {
-    console.log('Optimizing batch processing...');
     
     return {
       ...model,
@@ -255,7 +248,6 @@ export class ModelOptimizer {
    * Apply model pruning
    */
   private async applyPruning(model: any): Promise<any> {
-    console.log('Applying model pruning...');
     
     // Simulate pruning by creating a more efficient prediction path
     return {
@@ -273,7 +265,6 @@ export class ModelOptimizer {
    * Optimize feature selection
    */
   private async optimizeFeatures(model: any): Promise<any> {
-    console.log('Optimizing feature selection...');
     
     // Identify most important features (simulation)
     const importantFeatures = this.selectImportantFeatures(model);
@@ -294,7 +285,6 @@ export class ModelOptimizer {
    * Add prediction caching
    */
   private async addPredictionCache(model: any): Promise<any> {
-    console.log('Adding prediction caching...');
     
     const cache = new Map<string, any>();
     const similarityThreshold = 0.95;

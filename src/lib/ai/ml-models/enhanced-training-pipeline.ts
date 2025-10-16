@@ -50,7 +50,6 @@ class BayesianOptimizer {
       acquisitionFunction?: 'expectedImprovement' | 'probabilityOfImprovement';
     }
   ): Promise<{ bestParams: Record<string, any>; bestScore: number }> {
-    console.log('🧬 Starting Bayesian optimization...');
     
     let bestParams: Record<string, any> = {};
     let bestScore = -Infinity;
@@ -68,7 +67,6 @@ class BayesianOptimizer {
         bestParams = { ...params };
       }
       
-      console.log(`Trial ${i + 1}: score=${score.toFixed(4)}`);
     }
     
     // Bayesian optimization trials
@@ -82,15 +80,12 @@ class BayesianOptimizer {
       if (score > bestScore) {
         bestScore = score;
         bestParams = { ...nextParams };
-        console.log(`🎆 New best score: ${bestScore.toFixed(4)}`);
       }
       
       if (trial % 5 === 0) {
-        console.log(`Trial ${trial + 1}/${options.maxTrials}: current best=${bestScore.toFixed(4)}`);
       }
     }
     
-    console.log(`✅ Bayesian optimization completed. Best score: ${bestScore.toFixed(4)}`);
     return { bestParams, bestScore };
   }
   
@@ -196,7 +191,6 @@ class ExperimentTracker {
   
   async logExperiment(experiment: ExperimentResult): Promise<void> {
     this.experiments.set(experiment.experiment, experiment);
-    console.log(`📈 Logged experiment: ${experiment.experiment}`);
   }
   
   getExperiment(name: string): ExperimentResult | undefined {
@@ -263,13 +257,11 @@ export class ModelTrainingPipeline {
     optimization?: any;
     experiments: ExperimentResult[];
   }> {
-    console.log('🎯 Starting comprehensive model training pipeline...');
     
     const results: any = { experiments: [] };
     
     // Train emissions prediction model
     if (data.emissions) {
-      console.log('\n📈 Training Emissions Prediction Model...');
       const emissionsResult = await this.trainEmissionsPredictionModel(
         data.emissions,
         config?.maxTrials || this.config.maxTrials
@@ -280,7 +272,6 @@ export class ModelTrainingPipeline {
     
     // Train anomaly detection models
     if (data.metrics) {
-      console.log('\n🔍 Training Anomaly Detection Models...');
       const anomalyResult = await this.trainAnomalyDetectionModels(
         data.metrics,
         config?.maxTrials || this.config.maxTrials
@@ -291,7 +282,6 @@ export class ModelTrainingPipeline {
     
     // Train optimization models
     if (data.operations) {
-      console.log('\n⚡ Training Optimization Models...');
       const optimizationResult = await this.trainOptimizationModels(
         data.operations,
         config?.maxTrials || this.config.maxTrials
@@ -300,7 +290,6 @@ export class ModelTrainingPipeline {
       results.experiments.push(optimizationResult.experiment);
     }
     
-    console.log('\n🎉 All models trained successfully!');
     this.printTrainingReport(results.experiments);
     
     return results;
@@ -427,9 +416,7 @@ export class ModelTrainingPipeline {
           bestScore = score;
           bestParams = params;
         }
-        console.log(`Anomaly detection trial ${trial + 1}: score=${score.toFixed(4)}`);
       } catch (error) {
-        console.log(`Trial ${trial + 1} failed:`, (error as Error).message);
       }
     }
     
@@ -496,7 +483,6 @@ export class ModelTrainingPipeline {
     models: any,
     testData: any
   ): Promise<ValidationResults> {
-    console.log('🧪 Validating trained models...');
     
     const results: ValidationResults = {};
     
@@ -507,9 +493,7 @@ export class ModelTrainingPipeline {
           const evaluateMethod = (model as any).evaluate;
           const metrics = await evaluateMethod(testData[modelType]);
           results[modelType] = metrics;
-          console.log(`✅ ${modelType} validation: MAE=${metrics.mae?.toFixed(4)}, R2=${metrics.r2?.toFixed(4)}`);
         } catch (error) {
-          console.log(`⚠️ ${modelType} validation failed:`, (error as Error).message);
           results[modelType] = { accuracy: 0, mae: 1, r2: 0 };
         }
       }
@@ -619,15 +603,9 @@ export class ModelTrainingPipeline {
   }
   
   private printTrainingReport(experiments: ExperimentResult[]): void {
-    console.log('\n📈 Training Report Summary');
-    console.log('=' .repeat(50));
     
     for (const experiment of experiments) {
-      console.log(`\n🧪 Experiment: ${experiment.experiment}`);
-      console.log(`Best Parameters:`, experiment.bestParams);
-      console.log(`Best Metrics:`, experiment.bestMetrics);
     }
     
-    console.log('\n🎉 Training pipeline completed successfully!');
   }
 }

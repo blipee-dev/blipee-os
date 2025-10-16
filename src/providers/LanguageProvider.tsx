@@ -97,7 +97,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (loadedSettings.autoDetect && (!stored || !JSON.parse(stored || '{}').locale)) {
       const browserLocale = detectBrowserLanguage();
       loadedSettings.locale = browserLocale;
-      console.log('Language auto-detection:', browserLocale);
     }
 
     setSettings(loadedSettings);

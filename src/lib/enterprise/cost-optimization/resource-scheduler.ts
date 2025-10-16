@@ -259,7 +259,6 @@ export class ResourceScheduler {
     if (this.isRunning) return;
     
     this.isRunning = true;
-    console.log('💡 Resource scheduler started');
     
     // Check for scheduled actions every minute
     this.intervalId = setInterval(() => {
@@ -279,7 +278,6 @@ export class ResourceScheduler {
       this.intervalId = undefined;
     }
     
-    console.log('⏹️  Resource scheduler stopped');
   }
 
   /**
@@ -309,7 +307,6 @@ export class ResourceScheduler {
     const executionId = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
     
-    console.log(`🎯 Executing scheduled action: ${action.name} (${action.id})`);
     
     try {
       // Capture before state
@@ -384,9 +381,7 @@ export class ResourceScheduler {
       this.scheduledActions.set(action.id, action);
       
       if (success) {
-        console.log(`✅ Action ${action.name} executed successfully. Cost saving: $${costSaving.toFixed(2)}`);
       } else {
-        console.log(`❌ Action ${action.name} failed to execute`);
       }
       
     } catch (error) {
@@ -410,7 +405,6 @@ export class ResourceScheduler {
    * Scale resource capacity
    */
   private async scaleResource(resourceId: string, targetCapacity: number): Promise<boolean> {
-    console.log(`📊 Scaling ${resourceId} to ${targetCapacity * 100}% capacity`);
     
     // Simulate scaling operation
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -423,7 +417,6 @@ export class ResourceScheduler {
    * Switch resource provider
    */
   private async switchProvider(resourceId: string, targetProvider: string): Promise<boolean> {
-    console.log(`🔄 Switching ${resourceId} to provider: ${targetProvider}`);
     
     // Simulate provider switch
     await new Promise(resolve => setTimeout(resolve, 3000));
@@ -435,7 +428,6 @@ export class ResourceScheduler {
    * Stop resource
    */
   private async stopResource(resourceId: string): Promise<boolean> {
-    console.log(`⏹️  Stopping resource: ${resourceId}`);
     
     await new Promise(resolve => setTimeout(resolve, 1000));
     
@@ -446,7 +438,6 @@ export class ResourceScheduler {
    * Start resource
    */
   private async startResource(resourceId: string): Promise<boolean> {
-    console.log(`▶️  Starting resource: ${resourceId}`);
     
     await new Promise(resolve => setTimeout(resolve, 1500));
     
@@ -510,7 +501,6 @@ export class ResourceScheduler {
     
     this.scheduledActions.set(id, fullAction);
     
-    console.log(`📅 Scheduled action added: ${action.name} (${id})`);
     
     return id;
   }
@@ -521,7 +511,6 @@ export class ResourceScheduler {
   removeScheduledAction(actionId: string): boolean {
     const removed = this.scheduledActions.delete(actionId);
     if (removed) {
-      console.log(`🗑️  Scheduled action removed: ${actionId}`);
     }
     return removed;
   }
@@ -534,7 +523,6 @@ export class ResourceScheduler {
     if (action) {
       action.status = status;
       this.scheduledActions.set(actionId, action);
-      console.log(`🔄 Action ${actionId} status changed to: ${status}`);
       return true;
     }
     return false;

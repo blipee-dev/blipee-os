@@ -161,7 +161,6 @@ export class TimeSeriesPartitioner {
       // Set up partition constraints and triggers
       await this.setupPartitionConstraints(config, partitionName, startDate, endDate);
 
-      console.log(`✅ Created partition: ${partitionName}`);
       
       return { success: true, partitionName };
 
@@ -243,7 +242,6 @@ export class TimeSeriesPartitioner {
         if (error) {
           console.warn(`Failed to create index ${partitionIndexName}:`, error.message);
         } else {
-          console.log(`✅ Created index: ${partitionIndexName}`);
         }
 
       } catch (error) {
@@ -564,7 +562,6 @@ export class TimeSeriesPartitioner {
   private async archivePartition(partitionName: string): Promise<void> {
     // For now, we'll just log the archive action
     // In production, this might move data to cold storage or delete
-    console.log(`📦 Archiving partition: ${partitionName}`);
     
     // Update partition metadata to mark as archived
     const { error } = await this.supabase.rpc('execute_sql', {

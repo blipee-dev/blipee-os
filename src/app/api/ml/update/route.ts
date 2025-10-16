@@ -10,7 +10,6 @@ import { anomalyDetectionModel } from '@/lib/ai/ml-models/anomaly-detection-mode
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔄 ML Update API called');
 
     const body = await request.json();
     const { modelType, updateData, updateType = 'incremental' } = body;
@@ -25,7 +24,6 @@ export async function POST(request: NextRequest) {
     let result;
     const startTime = Date.now();
 
-    console.log(`🔄 Performing ${updateType} update for ${modelType} model...`);
 
     // Route to appropriate model for update
     switch (modelType) {
@@ -39,7 +37,6 @@ export async function POST(request: NextRequest) {
         } else {
           // For incremental learning, we would implement online learning here
           // For now, we'll simulate it by retraining with combined data
-          console.log('🔄 Simulating incremental learning...');
           result = {
             status: 'updated',
             message: 'Incremental learning applied',
@@ -89,7 +86,6 @@ export async function POST(request: NextRequest) {
 
     const updateTime = Date.now() - startTime;
 
-    console.log(`✅ ${modelType} model ${updateType} completed in ${updateTime}ms`);
 
     return NextResponse.json({
       success: true,

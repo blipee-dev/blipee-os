@@ -23,7 +23,6 @@ export class ESGChiefOfStaff extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('🎯 Initializing ESG Chief of Staff...');
 
     // Set up strategic monitoring
     await this.setupStrategicMonitoring();
@@ -34,11 +33,9 @@ export class ESGChiefOfStaff extends AutonomousAgent {
     // Load organizational context
     await this.loadOrganizationalContext();
 
-    console.log('✅ ESG Chief of Staff initialized successfully');
   }
 
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`🎯 ESG Chief of Staff executing task: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -359,7 +356,6 @@ export class ESGChiefOfStaff extends AutonomousAgent {
 
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
     // Update strategic decision-making model based on feedback
-    console.log(`🎯 ESG Chief of Staff learning from feedback: ${feedback.outcome}`);
 
     // Store learning patterns for future strategic decisions
     if (feedback.outcome === 'positive') {
@@ -370,7 +366,6 @@ export class ESGChiefOfStaff extends AutonomousAgent {
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('🎯 ESG Chief of Staff shutting down gracefully...');
     // Cleanup resources and save state
   }
 

@@ -137,14 +137,12 @@ export class ExperimentTracker {
    */
   async saveReport(report: any): Promise<void> {
     // In production, this would save to a database or file system
-    console.log('Saving training report...');
     
     try {
       const fs = require('fs').promises;
       const path = `./reports/training_report_${Date.now()}.json`;
       await fs.mkdir('./reports', { recursive: true });
       await fs.writeFile(path, JSON.stringify(report, null, 2));
-      console.log(`Report saved to ${path}`);
     } catch (error) {
       console.error('Failed to save report:', error);
     }

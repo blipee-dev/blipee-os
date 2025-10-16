@@ -57,12 +57,9 @@ export class SpikeAwareForecast {
     horizon: number = 12,
     startDate?: Date
   ): Promise<any> {
-    console.log('🎯 Spike-Aware Prediction starting...');
 
     // 1. Detect spike pattern
     const spikePattern = this.detectSpikePattern(historicalData);
-    console.log(`📊 Detected ${(spikePattern.frequency).toFixed(1)} spikes/year`);
-    console.log(`📈 Spike magnitude: ${spikePattern.avgMagnitude.toFixed(1)} (threshold: ${spikePattern.threshold.toFixed(1)})`);
 
     // 2. Separate base load from spikes
     const baseLoad = historicalData.map(val => Math.min(val, spikePattern.threshold));
@@ -118,7 +115,6 @@ export class SpikeAwareForecast {
       if (isSpike) {
         const spikeMultiplier = spikePattern.avgMagnitude / baselineMean;
         prediction = baselineMean * spikeMultiplier * (0.9 + Math.random() * 0.2); // Add some variation
-        console.log(`  🚀 Spike predicted for ${monthName}: ${prediction.toFixed(1)} tCO2e`);
       }
 
       // Ensure reasonable bounds

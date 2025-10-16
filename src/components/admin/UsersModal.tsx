@@ -187,10 +187,8 @@ export default function UsersModal({ isOpen, onClose, onSuccess, mode = 'create'
         // Show success message
         setSuccess(true);
         if (result.message === 'User created with existing auth account') {
-          console.log('User linked to existing auth account');
         } else if (formData.sendInvite) {
           // Invitation email is sent automatically by Supabase
-          console.log('Invitation email sent to:', formData.email);
         }
 
       } else if (mode === 'edit') {

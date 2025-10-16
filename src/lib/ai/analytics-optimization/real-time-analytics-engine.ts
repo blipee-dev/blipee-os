@@ -207,7 +207,6 @@ export class RealTimeAnalyticsEngine {
    * Register a new analytics stream
    */
   async registerStream(stream: AnalyticsStream): Promise<void> {
-    console.log(`📊 Registering analytics stream: ${stream.name}`);
     
     this.streams.set(stream.streamId, stream);
     this.processors.set(stream.streamId, this.createProcessor(stream));
@@ -331,7 +330,6 @@ export class RealTimeAnalyticsEngine {
    * Perform complex analytics query
    */
   async query(analyticsQuery: AnalyticsQuery): Promise<QueryResult> {
-    console.log(`🔍 Executing analytics query: ${analyticsQuery.name}`);
     
     const startTime = Date.now();
     
@@ -391,7 +389,6 @@ export class RealTimeAnalyticsEngine {
   
   // Private helper methods
   private initializeEngine(): void {
-    console.log('🚀 Initializing Real-Time Analytics Engine');
     
     // Set up default processors
     this.setupDefaultProcessors();
@@ -639,7 +636,6 @@ export class RealTimeAnalyticsEngine {
   }
   
   private async triggerAlert(alert: any): Promise<void> {
-    console.log(`⚠️  Alert triggered: ${alert.ruleName}`);
     // Implement alert notification logic
   }
   

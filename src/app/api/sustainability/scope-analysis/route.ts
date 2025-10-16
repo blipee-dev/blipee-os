@@ -8,9 +8,11 @@ import {
   getCategoryBreakdown,
   getScopeCategoryBreakdown
 } from '@/lib/sustainability/baseline-calculator';
+import { getRedisClient } from '@/lib/cache/redis-client';
 
 export async function GET(request: NextRequest) {
   try {
+    const startTime = Date.now();
     const supabase = await createServerSupabaseClient();
 
     // Get current user
@@ -39,6 +41,24 @@ export async function GET(request: NextRequest) {
     const startDateParam = searchParams.get('start_date');
     const endDateParam = searchParams.get('end_date');
     const yearParam = searchParams.get('year');
+
+    // ⚡ PERFORMANCE: Check cache first
+    const cacheKey = `scope-analysis:${organizationId}:${startDateParam || period}:${endDateParam || ''}:${siteId || 'all'}`;
+    try {
+      const redis = getRedisClient();
+      if (redis.isReady()) {
+        const client = await redis.getClient();
+        const cached = await client.get(cacheKey);
+        if (cached) {
+          const cacheTime = Date.now() - startTime;
+          console.log(`⚡ Scope Analysis API Performance (CACHED): Total=${cacheTime}ms`);
+          return NextResponse.json(JSON.parse(cached));
+        }
+      }
+    } catch (error) {
+      // Cache miss or error - continue to fetch data
+      console.log('Cache miss for scope-analysis:', cacheKey);
+    }
 
     // Get current year and period boundaries
     const currentDate = new Date();
@@ -82,48 +102,90 @@ export async function GET(request: NextRequest) {
     const startDateStr = startDate.toISOString().split('T')[0];
     const endDateStr = endDate.toISOString().split('T')[0];
 
-    // Get emissions using the centralized calculator (scope-by-scope rounding)
-    const emissions = await getPeriodEmissions(organizationId, startDateStr, endDateStr);
-    const scopes = await getScopeBreakdown(organizationId, startDateStr, endDateStr);
+    // Parallelize all independent database queries for maximum performance
+    const [
+      emissions,
+      scopes,
+      [scope1Categories, scope2Categories, scope3Categories],
+      { data: metricsData, error: metricsError },
+      orgContext,
+      sbtiInfo,
+      { data: orgData },
+      { data: sites }
+    ] = await Promise.all([
+      // Get emissions using the centralized calculator
+      getPeriodEmissions(organizationId, startDateStr, endDateStr),
 
-    console.log(`🔍 [Scope Analysis API] Period: ${startDateStr} to ${endDateStr}`);
-    console.log(`🔍 [Scope Analysis API] Calculator returned:`, {
-      scope_1: scopes.scope_1.toFixed(2),
-      scope_2: scopes.scope_2.toFixed(2),
-      scope_3: scopes.scope_3.toFixed(2),
-      total: scopes.total.toFixed(2)
-    });
+      // Get scope breakdown
+      getScopeBreakdown(organizationId, startDateStr, endDateStr),
 
-    // Get category breakdowns for each scope using calculator
-    const scope1Categories = await getScopeCategoryBreakdown(organizationId, 'scope_1', startDateStr, endDateStr);
-    const scope2Categories = await getScopeCategoryBreakdown(organizationId, 'scope_2', startDateStr, endDateStr);
-    const scope3Categories = await getScopeCategoryBreakdown(organizationId, 'scope_3', startDateStr, endDateStr);
+      // Get category breakdowns (parallel)
+      Promise.all([
+        getScopeCategoryBreakdown(organizationId, 'scope_1', startDateStr, endDateStr),
+        getScopeCategoryBreakdownEnhanced(organizationId, 'scope_2', startDateStr, endDateStr),
+        getScopeCategoryBreakdown(organizationId, 'scope_3', startDateStr, endDateStr)
+      ]),
 
-    // Fetch metrics data for additional context (data quality, sources, etc.)
-    let query = supabaseAdmin
-      .from('metrics_data')
-      .select(`
-        *,
-        metrics_catalog!inner(
-          id,
-          name,
-          category,
-          subcategory,
-          scope,
-          unit,
-          emission_factor
-        )
-      `)
-      .eq('organization_id', organizationId)
-      .gte('period_start', startDate.toISOString())
-      .lte('period_end', endDate.toISOString());
+      // Fetch ONLY necessary fields for context (not *)
+      (async () => {
+        let query = supabaseAdmin
+          .from('metrics_data')
+          .select(`
+            data_quality,
+            verification_status,
+            metrics_catalog!inner(
+              name,
+              scope
+            )
+          `)
+          .eq('organization_id', organizationId)
+          .gte('period_start', startDate.toISOString())
+          .lte('period_end', endDate.toISOString());
 
-    // Apply site filter if provided
-    if (siteId) {
-      query = query.eq('site_id', siteId);
-    }
+        if (siteId) {
+          query = query.eq('site_id', siteId);
+        }
 
-    const { data: metricsData, error: metricsError } = await query;
+        return await query;
+      })(),
+
+      // Get organization context
+      getOrganizationContext(organizationId),
+
+      // Get SBTi targets
+      getSBTiTargets(organizationId),
+
+      // Get organization data
+      supabaseAdmin
+        .from('organizations')
+        .select(`
+          employees,
+          annual_revenue,
+          value_added,
+          annual_operating_hours,
+          annual_customers,
+          industry_sector,
+          sector_category,
+          annual_production_volume,
+          production_unit
+        `)
+        .eq('id', organizationId)
+        .single(),
+
+      // Get sites data
+      (async () => {
+        let sitesQuery = supabaseAdmin
+          .from('sites')
+          .select('id, name, total_area_sqm, total_employees')
+          .eq('organization_id', organizationId);
+
+        if (siteId) {
+          sitesQuery = sitesQuery.eq('id', siteId);
+        }
+
+        return await sitesQuery;
+      })()
+    ]);
 
     if (metricsError) {
       console.error('Error fetching metrics data:', metricsError);
@@ -147,41 +209,6 @@ export async function GET(request: NextRequest) {
     // Calculate Scope 3 coverage
     const scope3Coverage = calculateScope3Coverage(scopeData.scope_3.categories);
 
-    // Get organization context for boundaries
-    const orgContext = await getOrganizationContext(organizationId);
-
-    // Get SBTi targets information
-    const sbtiInfo = await getSBTiTargets(organizationId);
-
-    // Get organization data for intensity calculations (including sector-specific fields)
-    const { data: orgData } = await supabaseAdmin
-      .from('organizations')
-      .select(`
-        employees,
-        annual_revenue,
-        value_added,
-        annual_operating_hours,
-        annual_customers,
-        industry_sector,
-        sector_category,
-        annual_production_volume,
-        production_unit
-      `)
-      .eq('id', organizationId)
-      .single();
-
-    // Get sites data for area calculations and employee aggregation
-    let sitesQuery = supabaseAdmin
-      .from('sites')
-      .select('id, name, total_area_sqm, total_employees')
-      .eq('organization_id', organizationId);
-
-    if (siteId) {
-      sitesQuery = sitesQuery.eq('id', siteId);
-    }
-
-    const { data: sites } = await sitesQuery;
-
     // Aggregate employee count from sites (more accurate than org-level field)
     const totalEmployeesFromSites = sites?.reduce((sum, site) => sum + (site.total_employees || 0), 0) || 0;
 
@@ -194,19 +221,10 @@ export async function GET(request: NextRequest) {
     // Calculate comprehensive intensity metrics
     const intensityMetrics = calculateIntensityMetrics(scopeData, enhancedOrgData, sites || []);
 
-    console.log('[Intensity Metrics API] Returning intensity metrics:', JSON.stringify({
-      perEmployee: intensityMetrics.perEmployee,
-      perRevenue: intensityMetrics.perRevenue,
-      perValueAdded: intensityMetrics.perValueAdded,
-      sectorSpecific: intensityMetrics.sectorSpecific ? {
-        intensity: intensityMetrics.sectorSpecific.intensity,
-        unit: intensityMetrics.sectorSpecific.unit,
-        industrySector: intensityMetrics.sectorSpecific.industrySector,
-        benchmark: intensityMetrics.sectorSpecific.benchmark
-      } : null
-    }, null, 2));
+    const totalTime = Date.now() - startTime;
+    console.log(`⚡ Scope Analysis API Performance: Total=${totalTime}ms`);
 
-    return NextResponse.json({
+    const responseData = {
       scopeData,
       complianceScore,
       dataQuality,
@@ -222,7 +240,21 @@ export async function GET(request: NextRequest) {
         totalDataPoints: metricsData?.length || 0,
         uniqueMetrics: new Set(metricsData?.map(m => m.metric_id)).size || 0
       }
-    });
+    };
+
+    // ⚡ PERFORMANCE: Cache the result for 5 minutes (scope data doesn't change frequently)
+    try {
+      const redis = getRedisClient();
+      if (redis.isReady()) {
+        const client = await redis.getClient();
+        await client.setex(cacheKey, 300, JSON.stringify(responseData)); // 5 min cache
+      }
+    } catch (error) {
+      // Caching failed - not critical, just log
+      console.log('Failed to cache scope-analysis result');
+    }
+
+    return NextResponse.json(responseData);
 
   } catch (error) {
     console.error('API Error:', error);
@@ -255,9 +287,15 @@ function buildScopeDataFromCalculator(
   const scope2CategoryMap: { [key: string]: string } = {
     'Electricity': 'purchased_electricity',
     'Purchased Energy': 'purchased_electricity',
+    'Purchased Electricity': 'purchased_electricity',
     'Heat': 'purchased_heat',
+    'Purchased Heat': 'purchased_heat',
+    'Purchased Heating': 'purchased_heat',  // Now properly handled by enhanced function
+    'Heating': 'purchased_heat',
     'Steam': 'purchased_steam',
-    'Cooling': 'purchased_cooling'
+    'Purchased Steam': 'purchased_steam',
+    'Cooling': 'purchased_cooling',
+    'Purchased Cooling': 'purchased_cooling'  // Now properly handled by enhanced function
   };
 
   const scope3CategoryMap: { [key: string]: string } = {
@@ -298,8 +336,13 @@ function buildScopeDataFromCalculator(
     purchased_cooling: 0
   };
   scope2Categories.forEach(cat => {
+    console.log(`📊 Scope 2 Category found: "${cat.category}" with ${cat.emissions} tCO2e`);
     const key = scope2CategoryMap[cat.category];
-    if (key) scope2CategoriesObj[key] = cat.emissions;
+    if (key) {
+      scope2CategoriesObj[key] = cat.emissions;
+    } else {
+      console.log(`⚠️ Unmapped Scope 2 category: "${cat.category}"`);
+    }
   });
 
   // Build Scope 3 categories
@@ -1009,4 +1052,85 @@ function calculateIntensityMetrics(scopeData: any, orgData: any, sites: any[]) {
   }
 
   return intensityMetrics;
+}
+
+/**
+ * Enhanced Scope 2 category breakdown that checks BOTH category AND metric name
+ * This handles cases where energy types are stored as metric names (e.g., "Purchased Heating")
+ * rather than categories
+ */
+async function getScopeCategoryBreakdownEnhanced(
+  organizationId: string,
+  scope: 'scope_2',
+  startDate: string,
+  endDate: string
+): Promise<any[]> {
+  // Fetch all Scope 2 metrics with both category AND name
+  const { data: metricsData, error } = await supabaseAdmin
+    .from('metrics_data')
+    .select(`
+      co2e_emissions,
+      metrics_catalog!inner(scope, category, name)
+    `)
+    .eq('organization_id', organizationId)
+    .eq('metrics_catalog.scope', scope)
+    .gte('period_start', startDate)
+    .lte('period_end', endDate);
+
+  if (error || !metricsData || metricsData.length === 0) {
+    return [];
+  }
+
+  // Group by intelligently detecting the energy type from name or category
+  const categoryMap = new Map<string, { emissions: number; count: number }>();
+
+  metricsData.forEach(d => {
+    const catalog = (d.metrics_catalog as any);
+    const category = catalog?.category || '';
+    const name = catalog?.name || '';
+    const emissionsKg = d.co2e_emissions || 0;
+
+    // Determine the Scope 2 subcategory by checking both name and category
+    let scope2Type = 'Purchased Energy'; // Default
+
+    const nameLower = name.toLowerCase();
+    const categoryLower = category.toLowerCase();
+
+    if (nameLower.includes('heating') || nameLower.includes('heat') ||
+        categoryLower.includes('heating') || categoryLower.includes('heat')) {
+      scope2Type = 'Purchased Heating';
+    } else if (nameLower.includes('cooling') || nameLower.includes('cool') ||
+               categoryLower.includes('cooling') || categoryLower.includes('cool')) {
+      scope2Type = 'Purchased Cooling';
+    } else if (nameLower.includes('steam') || categoryLower.includes('steam')) {
+      scope2Type = 'Purchased Steam';
+    } else if (nameLower.includes('electricity') || nameLower.includes('electric') ||
+               categoryLower.includes('electricity') || categoryLower.includes('electric')) {
+      scope2Type = 'Purchased Electricity';
+    }
+
+    if (!categoryMap.has(scope2Type)) {
+      categoryMap.set(scope2Type, { emissions: 0, count: 0 });
+    }
+
+    const cat = categoryMap.get(scope2Type)!;
+    cat.emissions += emissionsKg;
+    cat.count++;
+  });
+
+  // Build category array
+  const categories: any[] = [];
+  categoryMap.forEach((data, category) => {
+    const emissions = Math.round(data.emissions / 1000 * 10) / 10;
+    categories.push({
+      category,
+      scope: 'scope_2',
+      emissions,
+      percentage: 0, // Will be calculated later
+      recordCount: data.count
+    });
+  });
+
+  // Sort by emissions (highest first)
+  return categories.sort((a, b) => b.emissions - a.emissions);
 }

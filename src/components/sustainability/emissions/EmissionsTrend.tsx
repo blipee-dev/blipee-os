@@ -45,10 +45,7 @@ export function EmissionsTrend({
   scope3Forecast = [],
   sbtiTarget
 }: EmissionsTrendProps) {
-  // Debug logging
-  console.log('📊 EmissionsTrend Debug:', {
-    totalAreaM2,
-    historicalDataSample: historicalData.slice(0, 2).map(d => ({
+  // Debug logging.map(d => ({
       month: d.month,
       total: d.total,
       intensity: d.intensity
@@ -130,10 +127,7 @@ export function EmissionsTrend({
     });
 
     // Debug logging for seasonal SBTi calculation
-    if (trajectory.length > 0) {
-      console.log('🎯 SBTi Seasonal Target Analysis:', {
-        seasonalMultipliers,
-        annualBaseline: annualBaseline.toFixed(1),
+    if (trajectory.length > 0) {,
         annualTarget: annualTarget.toFixed(1),
         sampleTargets: trajectory.slice(-3).map(t => ({
           month: t.month,
@@ -430,9 +424,7 @@ export function EmissionsTrend({
     const targetAnnual = last12Targets.reduce((sum, t) => sum + t.sbti_target, 0);
     const annualPerformance = ((actualAnnual - targetAnnual) / targetAnnual) * 100;
 
-    // Debug logging for SBTi performance
-    console.log('🎯 SBTi Performance Calculation:', {
-      latestActual: latestData.total.toFixed(2),
+    // Debug logging for SBTi performance,
       latestTarget: latestTarget.sbti_target.toFixed(2),
       monthlyDifference: difference.toFixed(2),
       monthlyPercentageOff: percentageOff.toFixed(1),

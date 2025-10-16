@@ -73,7 +73,6 @@ export class SupabaseConnectionPool {
     // Start health check interval
     this.startHealthCheck();
 
-    console.log(`✅ Supabase connection pool initialized with ${this.connections.length} connections`);
   }
 
   /**
@@ -118,7 +117,6 @@ export class SupabaseConnectionPool {
     }
 
     this.connections.push(connection);
-    console.log(`🔌 Created Supabase connection: ${connection.id}`);
     
     return connection;
   }
@@ -309,7 +307,6 @@ export class SupabaseConnectionPool {
     const index = this.connections.indexOf(connection);
     if (index !== -1) {
       this.connections.splice(index, 1);
-      console.log(`🗑️ Removed connection: ${connection.id}`);
     }
   }
 
@@ -343,7 +340,6 @@ export class SupabaseConnectionPool {
     // Clear all connections
     this.connections.length = 0;
 
-    console.log('🔌 Supabase connection pool shutdown complete');
   }
 
   /**

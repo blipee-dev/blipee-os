@@ -694,7 +694,6 @@ export class RollbackManager {
   ): Promise<void> {
     // Restore state to checkpoint
     // Implementation depends on specific action type
-    console.log(`Restoring to checkpoint: ${checkpoint.stepName}`);
   }
 
   private addToHistory(executionId: string, entry: RollbackEntry): void {

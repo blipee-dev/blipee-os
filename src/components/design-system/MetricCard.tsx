@@ -7,7 +7,7 @@ import { designTokens } from '@/styles/design-tokens';
 interface MetricCardProps {
   title: string;
   value: string | number;
-  unit: string;
+  unit?: string;
   icon: LucideIcon;
   iconColor?: string;
   trend?: {
@@ -15,8 +15,10 @@ interface MetricCardProps {
     label?: string;
   };
   subtitle?: string;
+  subtitleColor?: string;
   tooltip?: string;
   className?: string;
+  compact?: boolean; // For 5-column grids
 }
 
 /**
@@ -43,8 +45,10 @@ export function MetricCard({
   iconColor,
   trend,
   subtitle,
+  subtitleColor,
   tooltip,
   className = '',
+  compact = false,
 }: MetricCardProps) {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -56,11 +60,16 @@ export function MetricCard({
 
   const TrendIcon = trend && trend.value < 0 ? TrendingDown : TrendingUp;
 
+  // Adjust sizing for compact mode (5-column grid)
+  const iconSize = compact ? 'w-6 h-6' : 'w-8 h-8';
+  const valueSize = compact ? 'text-2xl' : 'text-3xl';
+  const padding = compact ? 'p-4' : designTokens.spacing.cardPadding;
+
   return (
-    <div className={`${designTokens.glassMorphism.card} ${designTokens.spacing.cardPadding} relative ${className}`}>
+    <div className={`${designTokens.glassMorphism.card} ${padding} relative ${className}`}>
       {/* Header */}
-      <div className="flex items-center gap-2 mb-2">
-        <Icon className={designTokens.icons.medium} style={{ color: iconColor }} />
+      <div className="flex items-center justify-between mb-4">
+        <Icon className={`${iconSize}`} style={{ color: iconColor }} />
         <span className={designTokens.typography.cardTitle}>{title}</span>
 
         {tooltip && (
@@ -81,38 +90,28 @@ export function MetricCard({
       </div>
 
       {/* Value */}
-      <div className="mb-1">
-        <div className={designTokens.typography.metricValue}>
-          {typeof value === 'number' ? value.toFixed(1) : value}
+      <div className={`${valueSize} font-bold text-gray-900 dark:text-white`}>
+        {typeof value === 'number' ? (
+          value < 1000 ? value.toFixed(1) : (value / 1000).toFixed(1) + 'k'
+        ) : value}
+        {unit && <span className="text-sm font-normal ml-1">{unit}</span>}
+      </div>
+
+      {/* Trend or Subtitle */}
+      {trend && (
+        <div className="flex items-center gap-1 mt-2">
+          <span
+            className={`text-sm ${trend.value < 0 ? 'text-green-500' : 'text-red-500'}`}
+          >
+            {trend.value > 0 ? '+' : ''}{trend.value.toFixed(1)}%
+          </span>
+          <span className="text-xs text-gray-500">{trend.label || 'vs last year'}</span>
         </div>
-      </div>
+      )}
 
-      {/* Unit and Trend */}
-      <div className="flex items-center justify-between">
-        <div className={designTokens.typography.metricUnit}>{unit}</div>
-
-        {trend && (
-          <div className="flex items-center gap-1">
-            <TrendIcon
-              className="w-3 h-3"
-              style={{ color: getTrendColor(trend.value) }}
-            />
-            <span
-              className="text-xs font-medium"
-              style={{ color: getTrendColor(trend.value) }}
-            >
-              {trend.value > 0 ? '+' : ''}{trend.value.toFixed(1)}%{trend.label ? ` ${trend.label}` : ''}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Subtitle */}
-      {subtitle && (
-        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-          <div className={`${designTokens.typography.label} text-purple-500 dark:text-purple-400`}>
-            {subtitle}
-          </div>
+      {subtitle && !trend && (
+        <div className={`text-sm mt-2 ${subtitleColor || 'text-gray-500'}`}>
+          {subtitle}
         </div>
       )}
     </div>

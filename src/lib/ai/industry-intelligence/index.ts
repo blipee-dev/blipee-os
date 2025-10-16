@@ -87,14 +87,11 @@ export type {
 
 // Demo function for Phase 6
 export async function demonstrateIndustryIntelligence(): Promise<void> {
-  console.log('🏭 Phase 6: Industry Intelligence & GRI Standards Demo');
-  console.log('=' .repeat(60));
   
   try {
     const { GRISectorMapper, IndustryIntelligenceEngine, PeerBenchmarkingEngine, SupplyChainIntelligenceEngine, RegulatoryForesightEngine } = await import('./index');
     
     // 1. GRI Sector Mapping Demo
-    console.log('\n📋 1. GRI Sector Standards Mapping');
     const griMapper = new GRISectorMapper();
     
     const oilGasSector = griMapper.mapOrganizationToSector(
@@ -103,12 +100,8 @@ export async function demonstrateIndustryIntelligence(): Promise<void> {
       ['Exploration', 'Production', 'Refining']
     );
     
-    console.log(`✅ Mapped to GRI Sector: ${oilGasSector?.name} (${oilGasSector?.code})`);
-    console.log(`📊 Material Topics: ${oilGasSector?.materialTopics.length || 0}`);
-    console.log(`📋 Required Disclosures: ${oilGasSector?.requiredDisclosures.length || 0}`);
     
     // 2. Industry Intelligence Demo
-    console.log('\n🎯 2. Industry Intelligence Analysis');
     const intelligenceEngine = new IndustryIntelligenceEngine();
     
     const sampleProfile = {
@@ -125,14 +118,8 @@ export async function demonstrateIndustryIntelligence(): Promise<void> {
     
     const intelligence = await intelligenceEngine.generateIntelligence(sampleProfile);
     
-    console.log(`✅ Sector Profile: ${intelligence.sectorProfile.sector.name}`);
-    console.log(`📈 Applicability Score: ${(intelligence.sectorProfile.applicabilityScore * 100).toFixed(1)}%`);
-    console.log(`🎯 High Priority Topics: ${intelligence.materialityAssessment.highPriorityTopics.length}`);
-    console.log(`💡 Improvement Opportunities: ${intelligence.improvementOpportunities.length}`);
-    console.log(`⚠️  Risk Areas: ${Object.keys(intelligence.riskAnalysis).length}`);
     
     // 3. Peer Benchmarking Demo
-    console.log('\n🌐 3. Peer Benchmarking Network');
     const benchmarkingEngine = new PeerBenchmarkingEngine();
     
     const benchmarkProfile = {
@@ -153,12 +140,8 @@ export async function demonstrateIndustryIntelligence(): Promise<void> {
       consentLevel: 'explicit'
     });
     
-    console.log(`✅ Network Participation: ${networkJoin.success ? 'Active' : 'Failed'}`);
-    console.log(`📊 Available Benefits: ${networkJoin.networkBenefits.length}`);
-    console.log(`🌟 Data Contribution Impact: ${(networkJoin.dataContributionImpact * 100).toFixed(1)}%`);
     
     // 4. Submit Sample Metrics
-    console.log('\n📊 4. ESG Metrics Submission');
     const sampleMetrics = [
       {
         metricId: 'scope1-emissions',
@@ -180,29 +163,17 @@ export async function demonstrateIndustryIntelligence(): Promise<void> {
     ];
     
     const submission = await benchmarkingEngine.submitMetricData('demo-org-001', sampleMetrics);
-    console.log(`✅ Data Accepted: ${submission.dataAccepted}/${sampleMetrics.length} metrics`);
-    console.log(`🎯 Data Quality Score: ${(submission.qualityScore * 100).toFixed(1)}%`);
-    console.log(`🌐 Network Contribution: ${(submission.networkContribution * 100).toFixed(1)}%`);
     
     // 5. Get Benchmark Results
-    console.log('\n📈 5. Benchmark Analysis Results');
     const benchmarks = await benchmarkingEngine.getBenchmarkResults(
       'demo-org-001',
       ['scope1-emissions', 'methane-intensity']
     );
     
     for (const benchmark of benchmarks) {
-      console.log(`\n📊 Metric: ${benchmark.metric}`);
-      console.log(`   Your Value: ${benchmark.yourValue.toLocaleString()}`);
-      console.log(`   Industry Avg: ${benchmark.industryStats.mean.toLocaleString()}`);
-      console.log(`   Your Percentile: ${benchmark.peerComparison.yourPercentile}th`);
-      console.log(`   Position: ${benchmark.peerComparison.position.replace('_', ' ')}`);
-      console.log(`   Confidence: ${(benchmark.confidenceLevel * 100).toFixed(1)}%`);
-      console.log(`   Insights: ${benchmark.insights.length} recommendations`);
     }
     
     // 6. Supply Chain Intelligence Demo
-    console.log('\n🔗 6. Supply Chain Intelligence Network');
     const supplyChainEngine = new SupplyChainIntelligenceEngine();
     
     const sampleSuppliers = [
@@ -254,19 +225,10 @@ export async function demonstrateIndustryIntelligence(): Promise<void> {
     
     const supplyNetwork = await supplyChainEngine.buildNetworkMap('demo-org-001', sampleSuppliers, sampleCustomers);
     
-    console.log(`✅ Supply Chain Network Built: ${supplyNetwork.networkSize} nodes`);
-    console.log(`🔍 Critical Suppliers: ${supplyNetwork.criticalSuppliers.length}`);
-    console.log(`⚠️  Risk Clusters: ${supplyNetwork.riskClusters.length}`);
-    console.log(`🌱 Sustainability Gaps: ${supplyNetwork.sustainabilityGaps.length}`);
-    console.log(`💪 Network Resilience: ${(supplyNetwork.networkResilience.overallScore * 100).toFixed(1)}%`);
-    console.log(`🌍 Total Emissions: ${supplyNetwork.collectiveImpact.totalEmissions.toLocaleString()} tCO2e`);
     
     const supplyIntelligence = await supplyChainEngine.generateIntelligence('demo-org-001');
-    console.log(`🎯 Collaboration Opportunities: ${supplyIntelligence.collaborationPotential.length}`);
-    console.log(`📊 Network Effects: ${supplyIntelligence.networkEffects.scaleEconomies.length} scale economies`);
     
     // 7. Regulatory Foresight Demo
-    console.log('\n🏛️ 7. Regulatory Foresight Intelligence');
     const regulatoryEngine = new RegulatoryForesightEngine();
     
     const regulatoryIntelligence = await regulatoryEngine.generateRegulatoryIntelligence(
@@ -276,42 +238,14 @@ export async function demonstrateIndustryIntelligence(): Promise<void> {
       ['upstream_operations', 'refining', 'distribution']
     );
     
-    console.log(`✅ Overall Compliance Score: ${(regulatoryIntelligence.currentCompliance.overallScore * 100).toFixed(1)}%`);
-    console.log(`📋 Upcoming Regulations: ${regulatoryIntelligence.upcomingRegulations.length}`);
-    console.log(`⚠️  Overall Risk Score: ${(regulatoryIntelligence.riskAssessment.overallRiskScore * 100).toFixed(1)}%`);
-    console.log(`📈 Readiness Score: ${(regulatoryIntelligence.preparednessAnalysis.readinessScore * 100).toFixed(1)}%`);
-    console.log(`💡 Strategic Recommendations: ${regulatoryIntelligence.strategicRecommendations.length}`);
     
     for (const regulation of regulatoryIntelligence.upcomingRegulations.slice(0, 2)) {
-      console.log(`\n📋 ${regulation.name} (${regulation.jurisdiction})`);
-      console.log(`   Effective Date: ${regulation.effectiveDate.toDateString()}`);
-      console.log(`   Confidence Level: ${(regulation.confidenceLevel * 100).toFixed(1)}%`);
-      console.log(`   Overall Impact: ${(regulation.impactAssessment.overallImpact * 100).toFixed(1)}%`);
-      console.log(`   Preparation Time: ${regulation.preparationTime} days`);
     }
     
     const complianceRoadmap = regulatoryIntelligence.complianceRoadmap;
-    console.log(`\n🗺️  Compliance Roadmap: ${complianceRoadmap.timeHorizon} months horizon`);
-    console.log(`📅 Milestones: ${complianceRoadmap.milestones.length}`);
-    console.log(`📊 Phases: ${complianceRoadmap.phases.length}`);
     
     // 8. Summary
-    console.log('\n🏆 8. Phase 6 Capabilities Summary');
-    console.log('✅ GRI 11-17 Sector Standards Mapping');
-    console.log('✅ Industry-Specific Intelligence Analysis');
-    console.log('✅ Anonymous Peer Benchmarking Network');
-    console.log('✅ Network Effects & Collective Learning');
-    console.log('✅ Privacy-Preserving Data Sharing');
-    console.log('✅ Real-time Performance Insights');
-    console.log('✅ Supply Chain Intelligence & Risk Mapping');
-    console.log('✅ Network Resilience Analysis');
-    console.log('✅ Regulatory Foresight & Compliance Intelligence');
-    console.log('✅ Predictive Regulatory Analysis');
-    console.log('✅ Compliance Roadmap Generation');
-    console.log('✅ Risk Analysis & Mitigation Strategies');
     
-    console.log('\n🎯 Phase 6 Demo completed successfully!');
-    console.log('🚀 Ready for Phase 7: Advanced Analytics & Optimization Engines');
     
   } catch (error) {
     console.error('❌ Phase 6 demo failed:', error);

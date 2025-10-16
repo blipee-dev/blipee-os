@@ -450,7 +450,6 @@ class AdvancedStreamingEngine {
 
   private async storeProcessedEvent(event: StreamingEvent): Promise<void> {
     // In production, store to time-series database
-    console.log('Processed event:', event);
   }
 
   private async getCurrentMonthEmissions(facility?: string): Promise<number> {

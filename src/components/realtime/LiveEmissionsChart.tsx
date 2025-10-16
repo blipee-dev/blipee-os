@@ -72,7 +72,6 @@ export function LiveEmissionsChart({
       });
 
       newSocket.on('connect', () => {
-        console.log('Connected to emissions stream');
         setIsConnected(true);
 
         // Subscribe to emissions data
@@ -110,7 +109,6 @@ export function LiveEmissionsChart({
       });
 
       newSocket.on('disconnect', () => {
-        console.log('Disconnected from emissions stream');
         setIsConnected(false);
       });
 

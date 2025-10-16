@@ -159,7 +159,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(`🔬 Waste Enterprise Forecasting: ${historicalMonthly.length} historical months → ${monthsToForecast} forecast months`);
 
     // Use enterprise forecaster for generated waste
     const generatedData = historicalMonthly.map(m => ({
@@ -223,11 +222,6 @@ export async function GET(request: NextRequest) {
       currentMonth++;
     }
 
-    console.log('✅ Waste Enterprise Forecast:');
-    console.log(`  Method: ${generatedForecast.method}`);
-    console.log(`  Model Quality: R²=${generatedForecast.metadata.r2.toFixed(3)}`);
-    console.log(`  Last actual: ${lastDataMonth.monthKey} (${lastDataMonth.generated.toFixed(1)} tons)`);
-    console.log(`  Forecasted total: ${forecastMonths.reduce((sum, f) => sum + f.generated, 0).toFixed(1)} tons`);
 
     return NextResponse.json({
       forecast: forecastMonths,

@@ -46,8 +46,6 @@ import { EmissionsData, MetricData } from './types';
  * Demonstrate the complete Phase 5 ML Pipeline
  */
 export async function demonstrateEnhancedMLPipeline(): Promise<void> {
-  console.log('🧠 Phase 5 Enhanced ML Pipeline Demo');
-  console.log('=' .repeat(50));
   
   try {
     // Initialize enhanced pipeline
@@ -72,7 +70,6 @@ export async function demonstrateEnhancedMLPipeline(): Promise<void> {
     const sampleMetricsData = generateSampleMetricsData(100);
     const sampleOperationsData = generateSampleOperationsData(50);
     
-    console.log('📊 Training models with sample data...');
     
     // Train all models
     const trainingResults = await pipeline.trainModels({
@@ -81,7 +78,6 @@ export async function demonstrateEnhancedMLPipeline(): Promise<void> {
       operations: sampleOperationsData
     });
     
-    console.log('🔮 Making predictions...');
     
     // Test predictions
     const emissionsPrediction = await pipeline.predict({
@@ -90,7 +86,6 @@ export async function demonstrateEnhancedMLPipeline(): Promise<void> {
       options: { horizon: 7, confidence: true, explanation: true }
     });
     
-    console.log('Emissions Prediction Result:', emissionsPrediction);
     
     // Test anomaly detection
     const anomalies = await pipeline.detectAnomalies(
@@ -98,7 +93,6 @@ export async function demonstrateEnhancedMLPipeline(): Promise<void> {
       { method: 'ensemble', explanation: true }
     );
     
-    console.log(`Found ${anomalies.filter(a => a.isAnomaly).length} anomalies out of ${anomalies.length} data points`);
     
     // Test optimization
     const optimization = await pipeline.optimizeResources({
@@ -118,19 +112,15 @@ export async function demonstrateEnhancedMLPipeline(): Promise<void> {
       ]
     });
     
-    console.log('Resource Optimization Result:', optimization);
     
     // Get system metrics
     const metrics = await pipeline.getModelMetrics();
-    console.log('\n📈 Model Performance Metrics:', metrics);
     
     const systemStatus = pipeline.getSystemStatus();
-    console.log('\n🖥️ System Status:', systemStatus);
     
     // Cleanup
     pipeline.dispose();
     
-    console.log('\n✅ Enhanced ML Pipeline demo completed successfully!');
     
   } catch (error) {
     console.error('❌ Demo failed:', error);

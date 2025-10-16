@@ -120,7 +120,6 @@ export default function ProfilePage() {
 
       if (response.ok && data.success) {
         // Show success message
-        console.log('Profile saved successfully');
         // You could add a toast notification here
         alert(t('messages.profileSaved') || 'Profile saved successfully!');
 
@@ -225,7 +224,6 @@ export default function ProfilePage() {
                     const file = e.target.files?.[0];
                     if (file && file.size <= 5 * 1024 * 1024) {
                       // Handle file upload here
-                      console.log('File selected:', file);
                       // You can add upload logic here
                     } else if (file) {
                       alert(t('sections.profilePicture.uploadError'));

@@ -288,10 +288,8 @@ export function TargetSettingAssistant() {
                             unit={message.metricForEntry.unit}
                             scope={message.metricForEntry.scope}
                             onDataSubmit={(value) => {
-                              console.log(`Data submitted for ${message.metricForEntry?.name}: ${value}`);
                             }}
                             onSkip={() => {
-                              console.log(`Skipped data entry for ${message.metricForEntry?.name}`);
                             }}
                           />
                         </div>

@@ -192,7 +192,6 @@ export class ConnectionPoolOptimizer {
     });
 
     pool.on('connect', (client) => {
-      console.log(`New client connected to pool ${poolId}`);
       
       // Set session optimizations
       if (this.config.queryOptimization.preparedStatements) {
@@ -201,11 +200,9 @@ export class ConnectionPoolOptimizer {
     });
 
     pool.on('acquire', (client) => {
-      console.debug(`Client acquired from pool ${poolId}`);
     });
 
     pool.on('remove', (client) => {
-      console.debug(`Client removed from pool ${poolId}`);
     });
   }
 
@@ -365,7 +362,6 @@ export class ConnectionPoolOptimizer {
       this.startDynamicResizing();
     }
     
-    console.log('Connection pool optimization started');
   }
 
   /**
@@ -411,7 +407,6 @@ export class ConnectionPoolOptimizer {
       client.release();
       
       const duration = Date.now() - startTime;
-      console.debug(`Health check passed for pool ${poolId} (${duration}ms)`);
       
     } catch (error) {
       console.error(`Health check failed for pool ${poolId}:`, error);
@@ -438,7 +433,6 @@ export class ConnectionPoolOptimizer {
         this.config.dynamicResize.maxSize
       );
       
-      console.log(`Scaling up pool ${poolId}: ${currentMax} → ${newMax} (utilization: ${(utilization * 100).toFixed(1)}%)`);
       
       // Note: pg Pool doesn't support runtime max changes, so we log for now
       // In production, this would require pool recreation or external pooler
@@ -453,7 +447,6 @@ export class ConnectionPoolOptimizer {
         this.config.dynamicResize.minSize
       );
       
-      console.log(`Scaling down pool ${poolId}: ${currentMax} → ${newMax} (utilization: ${(utilization * 100).toFixed(1)}%)`);
     }
   }
 
@@ -498,7 +491,6 @@ export class ConnectionPoolOptimizer {
       this.optimizationInterval = undefined;
     }
     
-    console.log('Connection pool optimization stopped');
   }
 
   /**
@@ -510,7 +502,6 @@ export class ConnectionPoolOptimizer {
     const closePromises = Array.from(this.pools.entries()).map(async ([poolId, pool]) => {
       try {
         await pool.end();
-        console.log(`Pool ${poolId} closed`);
       } catch (error) {
         console.error(`Error closing pool ${poolId}:`, error);
       }

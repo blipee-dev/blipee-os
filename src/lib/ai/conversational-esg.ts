@@ -102,7 +102,6 @@ Topics in the red "Critical" quadrant should be your primary focus for ESG strat
           interactive: true,
           onUpdate: (updatedTopics: any) => {
             // This would be handled by the chat interface
-            console.log('Topics updated:', updatedTopics);
           },
           onSave: async (assessment: any) => {
             // Save to database
@@ -138,7 +137,6 @@ Topics in the red "Critical" quadrant should be your primary focus for ESG strat
             acceptedTypes: ['PDF', 'Images', 'Excel'],
             onUpload: async (file: File) => {
               // Process with AI
-              console.log('Processing file:', file.name);
             }
           }
         }],
@@ -289,7 +287,6 @@ What would you like to do?`,
             showTemplateDownload: true,
             onUpload: async (file: File) => {
               // Process bulk import
-              console.log('Processing bulk import:', file.name);
             }
           }
         }],

@@ -73,7 +73,6 @@ export class EnhancedMLPipeline {
 
   constructor(config?: Partial<EnhancedMLConfig>) {
     this.config = this.buildConfig(config);
-    console.log(`🧠 Enhanced ML Pipeline v${this.version} initializing...`);
   }
 
   /**
@@ -81,7 +80,6 @@ export class EnhancedMLPipeline {
    */
   async initialize(): Promise<void> {
     try {
-      console.log('🚀 Initializing Enhanced ML Pipeline...');
       
       // Configure TensorFlow.js
       await this.configureTensorFlow();
@@ -102,7 +100,6 @@ export class EnhancedMLPipeline {
       }
       
       this.isInitialized = true;
-      console.log('✅ Enhanced ML Pipeline initialized successfully!');
       
     } catch (error) {
       console.error('❌ Failed to initialize ML Pipeline:', error);
@@ -114,15 +111,12 @@ export class EnhancedMLPipeline {
    * Configure TensorFlow.js settings
    */
   private async configureTensorFlow(): Promise<void> {
-    console.log('⚙️ Configuring TensorFlow.js...');
     
     // Set backend
     if (this.config.tensorflowConfig.backend === 'gpu') {
       try {
         await tf.setBackend('tensorflow');
-        console.log('🎯 GPU acceleration enabled');
       } catch (error) {
-        console.log('⚠️ GPU not available, falling back to CPU');
         await tf.setBackend('cpu');
       }
     } else {
@@ -140,14 +134,12 @@ export class EnhancedMLPipeline {
       tf.env().set('DEBUG', true);
     }
     
-    console.log(`🔧 TensorFlow.js configured with backend: ${tf.getBackend()}`);
   }
 
   /**
    * Initialize all ML models based on configuration
    */
   private async initializeModels(): Promise<void> {
-    console.log('🏗️ Initializing ML models...');
     
     // Emissions Prediction Model
     if (this.config.models.emissions.enabled) {
@@ -157,7 +149,6 @@ export class EnhancedMLPipeline {
         lstmUnits: this.config.models.emissions.lstmUnits
       });
       this.models.set('emissions_prediction', emissionsModel);
-      console.log('📈 Emissions prediction model initialized');
     }
     
     // Anomaly Detection Model
@@ -167,7 +158,6 @@ export class EnhancedMLPipeline {
         threshold: this.config.models.anomaly.threshold
       });
       this.models.set('anomaly_detection', anomalyModel);
-      console.log('🔍 Anomaly detection model initialized');
     }
     
     // Optimization Engine
@@ -177,7 +167,6 @@ export class EnhancedMLPipeline {
         populationSize: this.config.models.optimization.populationSize
       });
       this.models.set('optimization', optimizationEngine);
-      console.log('⚡ Optimization engine initialized');
     }
   }
 
@@ -185,14 +174,12 @@ export class EnhancedMLPipeline {
    * Enable performance acceleration
    */
   private async enableAcceleration(): Promise<void> {
-    console.log('🚀 Enabling performance acceleration...');
     
     // Model quantization
     if (this.config.performance.quantization) {
       for (const [type, model] of Array.from(this.models.entries())) {
         if (model.quantize) {
           await model.quantize();
-          console.log(`📦 ${type} model quantized`);
         }
       }
     }
@@ -200,13 +187,11 @@ export class EnhancedMLPipeline {
     // Batch processing optimization
     if (this.config.performance.batchProcessing) {
       await this.inferenceEngine.enableBatchProcessing();
-      console.log('📊 Batch processing enabled');
     }
     
     // Model caching
     if (this.config.performance.modelCaching) {
       await this.inferenceEngine.enableModelCaching();
-      console.log('💾 Model caching enabled');
     }
   }
 
@@ -223,40 +208,32 @@ export class EnhancedMLPipeline {
     optimization?: any;
   }> {
     this.ensureInitialized();
-    console.log('🎯 Starting comprehensive model training...');
     
     const results: any = {};
     
     try {
       // Train emissions prediction model
       if (data.emissions && this.models.has('emissions_prediction')) {
-        console.log('📈 Training emissions prediction model...');
         const emissionsModel = this.models.get('emissions_prediction');
         const trainingData = await this.prepareEmissionsTrainingData(data.emissions);
         results.emissions = await emissionsModel.train(trainingData);
-        console.log(`✅ Emissions model trained with MAE: ${results.emissions.metrics.mae?.toFixed(4)}`);
       }
       
       // Train anomaly detection model
       if (data.metrics && this.models.has('anomaly_detection')) {
-        console.log('🔍 Training anomaly detection model...');
         const anomalyModel = this.models.get('anomaly_detection');
         results.anomaly = await anomalyModel.trainModels(data.metrics);
-        console.log('✅ Anomaly detection models trained');
       }
       
       // Train optimization models
       if (data.operations && this.models.has('optimization')) {
-        console.log('⚡ Training optimization models...');
         const optimizationEngine = this.models.get('optimization');
         results.optimization = await optimizationEngine.trainOptimizers(data.operations);
-        console.log('✅ Optimization models trained');
       }
       
       // Register trained models
       await this.registerModels(results);
       
-      console.log('🎉 All models trained successfully!');
       return results;
       
     } catch (error) {
@@ -410,17 +387,14 @@ export class EnhancedMLPipeline {
   async exportModels(exportPath: string): Promise<void> {
     this.ensureInitialized();
     
-    console.log(`📦 Exporting models to ${exportPath}...`);
     
     for (const [type, model] of Array.from(this.models.entries())) {
       if (model.save && model.isTrained && model.isTrained()) {
         const modelPath = `${exportPath}/${type}`;
         await model.save(modelPath);
-        console.log(`✅ ${type} model exported`);
       }
     }
     
-    console.log('🎉 All models exported successfully!');
   }
 
   /**
@@ -429,21 +403,17 @@ export class EnhancedMLPipeline {
   async importModels(importPath: string): Promise<void> {
     this.ensureInitialized();
     
-    console.log(`📥 Importing models from ${importPath}...`);
     
     for (const [type, model] of Array.from(this.models.entries())) {
       if (model.load) {
         try {
           const modelPath = `${importPath}/${type}`;
           await model.load(modelPath);
-          console.log(`✅ ${type} model imported`);
         } catch (error) {
-          console.log(`⚠️ ${type} model not found, skipping`);
         }
       }
     }
     
-    console.log('🎉 Model import completed!');
   }
 
   /**
@@ -494,7 +464,6 @@ export class EnhancedMLPipeline {
    * Cleanup resources
    */
   dispose(): void {
-    console.log('🧹 Disposing ML Pipeline resources...');
     
     // Dispose all models
     for (const [type, model] of Array.from(this.models.entries())) {
@@ -506,7 +475,6 @@ export class EnhancedMLPipeline {
     this.models.clear();
     this.isInitialized = false;
     
-    console.log('✅ ML Pipeline resources disposed');
   }
 
   // Private helper methods
@@ -645,8 +613,6 @@ export function createMLPipelineConfig(overrides?: Partial<EnhancedMLConfig>): E
  * Demonstrate the complete Enhanced ML Pipeline
  */
 export async function demonstrateEnhancedMLPipeline(): Promise<void> {
-  console.log('🧠 Enhanced ML Pipeline Demo (Phase 5)');
-  console.log('='.repeat(50));
   
   try {
     // Initialize enhanced pipeline
@@ -672,7 +638,6 @@ export async function demonstrateEnhancedMLPipeline(): Promise<void> {
     const sampleEmissionsData = generateDemoEmissionsData(50);
     const sampleMetricsData = generateDemoMetricsData(100);
     
-    console.log('📊 Training models with sample data...');
     
     // Train all models
     const trainingResults = await pipeline.trainModels({
@@ -681,7 +646,6 @@ export async function demonstrateEnhancedMLPipeline(): Promise<void> {
       operations: generateDemoOperationsData(30)
     });
     
-    console.log('🔮 Testing predictions...');
     
     // Test emissions prediction
     const emissionsPrediction = await pipeline.predict({
@@ -690,7 +654,6 @@ export async function demonstrateEnhancedMLPipeline(): Promise<void> {
       options: { horizon: 7, confidence: true }
     });
     
-    console.log('Emissions Prediction:', emissionsPrediction);
     
     // Test anomaly detection
     const anomalies = await pipeline.detectAnomalies(
@@ -698,7 +661,6 @@ export async function demonstrateEnhancedMLPipeline(): Promise<void> {
       { method: 'ensemble' }
     );
     
-    console.log(`Found ${anomalies.filter(a => a.isAnomaly).length} anomalies`);
     
     // Test resource optimization
     const optimization = await pipeline.optimizeResources({
@@ -710,16 +672,13 @@ export async function demonstrateEnhancedMLPipeline(): Promise<void> {
       objectives: [{ name: 'cost', weight: 1.0, minimize: true }]
     });
     
-    console.log('Optimization Result:', optimization);
     
     // Get system status
     const status = pipeline.getSystemStatus();
-    console.log('\nSystem Status:', status);
     
     // Cleanup
     pipeline.dispose();
     
-    console.log('\n✅ Enhanced ML Pipeline demo completed!');
     
   } catch (error) {
     console.error('❌ Demo failed:', error);

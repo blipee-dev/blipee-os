@@ -152,7 +152,6 @@ export class ComplianceMonitor {
       throw new Error('Compliance monitor is already running');
     }
 
-    console.log('🔍 Starting compliance monitoring system...');
 
     this.isRunning = true;
 
@@ -165,7 +164,6 @@ export class ComplianceMonitor {
     // Start escalation processor
     this.startEscalationProcessor();
 
-    console.log('✅ Compliance monitoring system started successfully');
   }
 
   /**
@@ -176,7 +174,6 @@ export class ComplianceMonitor {
       return;
     }
 
-    console.log('⏹️ Stopping compliance monitoring system...');
 
     this.isRunning = false;
 
@@ -184,7 +181,6 @@ export class ComplianceMonitor {
     this.scheduledTasks.forEach(task => clearTimeout(task));
     this.scheduledTasks.clear();
 
-    console.log('✅ Compliance monitoring system stopped');
   }
 
   /**
@@ -195,7 +191,6 @@ export class ComplianceMonitor {
     checkTypes: MonitoringCheckType[]
   ): Promise<MonitoringResult> {
     const checkId = `immediate_${Date.now()}`;
-    console.log(`🔍 Executing immediate compliance check: ${checkId}`);
 
     const result: MonitoringResult = {
       checkId,
@@ -336,7 +331,6 @@ export class ComplianceMonitor {
     // Remove from escalation queue if present
     this.escalationQueue = this.escalationQueue.filter(item => item.alertId !== alertId);
 
-    console.log(`✅ Alert ${alertId} acknowledged by ${acknowledgedBy}`);
   }
 
   /**
@@ -355,7 +349,6 @@ export class ComplianceMonitor {
       await this.start();
     }
 
-    console.log('📝 Monitoring configuration updated');
   }
 
   // Private methods
@@ -381,7 +374,6 @@ export class ComplianceMonitor {
 
     this.scheduledTasks.set(check.id, timeoutId);
 
-    console.log(`📅 Scheduled check "${check.name}" to run in ${Math.round(delay / 1000 / 60)} minutes`);
   }
 
   private calculateCheckDelay(check: ScheduledCheck): number {
@@ -423,15 +415,12 @@ export class ComplianceMonitor {
   }
 
   private async executeScheduledCheck(check: ScheduledCheck): Promise<void> {
-    console.log(`🔍 Executing scheduled check: ${check.name}`);
 
     try {
       const result = await this.executeImmediateCheck(check.frameworks, check.checkTypes);
 
       // Log execution result
-      console.log(`✅ Check "${check.name}" completed with status: ${result.status}`);
       if (result.alerts.length > 0) {
-        console.log(`⚠️ Generated ${result.alerts.length} alerts`);
       }
 
     } catch (error) {
@@ -600,24 +589,20 @@ export class ComplianceMonitor {
 
   private async sendEmailNotification(alert: ComplianceAlert): Promise<void> {
     // Implementation would send actual emails
-    console.log(`📧 Sending email notification for alert: ${alert.title}`);
   }
 
   private async sendSMSNotification(alert: ComplianceAlert): Promise<void> {
     // Implementation would send actual SMS
     if (alert.severity === 'critical' || !this.config.notifications.sms.criticalOnly) {
-      console.log(`📱 Sending SMS notification for alert: ${alert.title}`);
     }
   }
 
   private async sendWebhookNotification(alert: ComplianceAlert): Promise<void> {
     // Implementation would send webhook requests
-    console.log(`🔗 Sending webhook notification for alert: ${alert.title}`);
   }
 
   private async startRealTimeMonitoring(): Promise<void> {
     // Start real-time monitoring processes
-    console.log('🔄 Starting real-time monitoring processes');
   }
 
   private startEscalationProcessor(): void {
@@ -649,7 +634,6 @@ export class ComplianceMonitor {
       return;
     }
 
-    console.log(`🚨 Escalating alert ${item.alertId} using rule ${item.ruleId}`);
 
     // Execute escalation action
     await this.executeEscalationAction(alert, rule.action, rule.recipients);
@@ -663,7 +647,6 @@ export class ComplianceMonitor {
     recipients: string[]
   ): Promise<void> {
     // Implementation would execute the specific escalation action
-    console.log(`🔥 Executing ${action.type} escalation for alert: ${alert.title}`);
   }
 
   private isSignificantScoreDecline(frameworkCode: string, currentScore: number): boolean {

@@ -125,7 +125,6 @@ export class TargetAssistantDatabase {
     }
 
     // If no good match found, suggest creating a custom metric
-    console.log(`No match found for "${discoveredName}" in scope ${scope}. Consider creating custom metric.`);
     return null;
   }
 
@@ -194,7 +193,6 @@ export class TargetAssistantDatabase {
       });
 
       if (response.ok) {
-        console.log('Metric data submitted successfully');
         return true;
       }
       return false;

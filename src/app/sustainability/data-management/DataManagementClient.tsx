@@ -99,8 +99,7 @@ export default function DataManagementClient() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log('Fetched metrics data:', data); // Debug log
+        const data = await response.json(); // Debug log
         setAllMetricsData(data);
       } else {
         console.error('Failed to fetch metrics data:', response.status);

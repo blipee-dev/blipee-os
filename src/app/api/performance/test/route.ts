@@ -38,7 +38,6 @@ export async function GET(request: NextRequest) {
 
     const testSuite = createPerformanceTestSuite(supabase);
 
-    console.log('🎯 Starting performance test suite...');
     const testResults = await testSuite.runTestSuite(category || undefined);
 
     // Log performance testing activity
@@ -194,7 +193,6 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    console.log(`🧪 Running specific test: ${testName}`);
     const result = await testSuite.executeTest(testDef, iterations);
 
     // Log specific test execution

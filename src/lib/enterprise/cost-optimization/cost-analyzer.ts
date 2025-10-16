@@ -668,7 +668,6 @@ export class CostOptimizationAnalyzer {
       recommendation.implementedAt = new Date();
       this.recommendations.set(recommendationId, recommendation);
       
-      console.log(`💰 Cost optimization recommendation implemented: ${recommendation.title} by ${implementedBy}`);
     }
   }
 }

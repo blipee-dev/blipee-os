@@ -50,7 +50,6 @@ describe('Hyperparameter Optimization & AutoML System', () => {
 
   describe('Bayesian Hyperparameter Optimization', () => {
     it('should optimize model hyperparameters using Bayesian optimization', async () => {
-      console.log('🧪 Testing Bayesian hyperparameter optimization...');
       
       const model = new RegulatoryPredictor();
       const searchSpace: SearchSpace = HyperparameterOptimizer.createSearchSpace('regulatory_predictor');
@@ -75,13 +74,9 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(result.optimizationHistory.totalEvaluations).toBeGreaterThan(0);
       expect(result.improvements.relativeImprovement).toBeDefined();
       
-      console.log(`   ✅ Best score: ${result.bestScore.toFixed(4)}`);
-      console.log(`   📊 Evaluations: ${result.optimizationHistory.totalEvaluations}`);
-      console.log(`   📈 Improvement: ${result.improvements.relativeImprovement.toFixed(1)}%`);
     }, 30000);
 
     it('should handle multiple optimization configurations', async () => {
-      console.log('🧪 Testing multiple optimization configurations...');
       
       const configs = ['fast', 'balanced', 'thorough'] as const;
       const results = [];
@@ -98,11 +93,9 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(results[0].nIterations).toBeLessThan(results[1].nIterations); // fast < balanced
       expect(results[1].nIterations).toBeLessThan(results[2].nIterations); // balanced < thorough
       
-      console.log('   ✅ All optimization configurations validated');
     });
 
     it('should create appropriate search spaces for different model types', async () => {
-      console.log('🧪 Testing search space generation...');
       
       const modelTypes = ['neural_network', 'genetic_algorithm', 'regulatory_predictor', 'anomaly_detector'];
       
@@ -127,13 +120,11 @@ describe('Hyperparameter Optimization & AutoML System', () => {
         }
       }
       
-      console.log('   ✅ All search spaces validated');
     });
   });
 
   describe('AutoML Pipeline', () => {
     it('should run complete AutoML pipeline and select best model', async () => {
-      console.log('🧪 Testing complete AutoML pipeline...');
       
       const autoMLConfig: AutoMLConfig = {
         taskType: 'text_analysis',
@@ -168,14 +159,9 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(result.dataInsights.dataQuality).toBeGreaterThan(0);
       expect(result.dataInsights.dataComplexity).toMatch(/^(low|medium|high)$/);
       
-      console.log(`   ✅ Best model: ${result.bestModel.getModelName()}`);
-      console.log(`   📊 Models evaluated: ${result.modelsEvaluated}`);
-      console.log(`   ⏱️ Total time: ${(result.totalTime / 1000).toFixed(1)}s`);
-      console.log(`   📈 Data quality: ${(result.dataInsights.dataQuality * 100).toFixed(1)}%`);
     }, 45000);
 
     it('should handle quick AutoML for fast prototyping', async () => {
-      console.log('🧪 Testing quick AutoML...');
       
       // Use text_analysis instead of optimization to avoid GA issues in test
       const result = await autoML.quickAutoML(
@@ -189,11 +175,9 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(result.bestScore).toBeGreaterThanOrEqual(0);
       expect(result.totalTime).toBeLessThan(300000); // Should be under 5 minutes
       
-      console.log(`   ✅ Quick AutoML completed in ${(result.totalTime / 1000).toFixed(1)}s`);
     }, 30000);
 
     it('should generate meaningful recommendations', async () => {
-      console.log('🧪 Testing AutoML recommendations...');
       
       const result = await autoML.quickAutoML(
         sampleTrainingData,
@@ -214,13 +198,11 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       
       expect(hasPerformanceRec || hasDataRec).toBe(true);
       
-      console.log(`   ✅ Generated ${result.recommendations.length} recommendations`);
     }, 30000);
   });
 
   describe('AutoML Utilities', () => {
     it('should create appropriate configurations for different task types', () => {
-      console.log('🧪 Testing AutoML utility configurations...');
       
       const taskTypes = ['classification', 'regression', 'text_analysis', 'optimization'] as const;
       
@@ -247,11 +229,9 @@ describe('Hyperparameter Optimization & AutoML System', () => {
         }
       }
       
-      console.log('   ✅ All task type configurations validated');
     });
 
     it('should validate configurations correctly', () => {
-      console.log('🧪 Testing configuration validation...');
       
       // Valid configuration
       const validConfig = {
@@ -278,11 +258,9 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(invalidResult.valid).toBe(false);
       expect(invalidResult.errors.length).toBeGreaterThan(0);
       
-      console.log('   ✅ Configuration validation working correctly');
     });
 
     it('should estimate runtime accurately', () => {
-      console.log('🧪 Testing runtime estimation...');
       
       const config = AutoMLUtils.createQuickConfig('classification');
       const estimate = AutoMLUtils.estimateRuntime(config, 1000, 50);
@@ -295,12 +273,9 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       const largeDataEstimate = AutoMLUtils.estimateRuntime(config, 50000, 200);
       expect(largeDataEstimate.estimatedMinutes).toBeGreaterThanOrEqual(estimate.estimatedMinutes);
       
-      console.log(`   ✅ Estimated ${estimate.estimatedMinutes} minutes for small dataset`);
-      console.log(`   📊 Estimated ${largeDataEstimate.estimatedMinutes} minutes for large dataset`);
     });
 
     it('should format results properly', () => {
-      console.log('🧪 Testing result formatting...');
       
       const mockResults = {
         bestModel: { getModelName: () => 'TestModel' },
@@ -332,13 +307,11 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(report).toContain('## Model Rankings');
       expect(report).toContain('## Feature Importance');
       
-      console.log('   ✅ Result formatting working correctly');
     });
   });
 
   describe('Integration with Existing Models', () => {
     it('should optimize existing RegulatoryPredictor model', async () => {
-      console.log('🧪 Testing RegulatoryPredictor optimization...');
       
       const model = new RegulatoryPredictor();
       const searchSpace = HyperparameterOptimizer.createSearchSpace('regulatory_predictor');
@@ -353,11 +326,9 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(searchSpace.learningRate.min).toBeGreaterThan(0);
       expect(searchSpace.learningRate.max).toBeLessThan(1);
       
-      console.log('   ✅ RegulatoryPredictor optimization parameters validated');
     });
 
     it('should optimize existing GeneticAlgorithm model', async () => {
-      console.log('🧪 Testing GeneticAlgorithm optimization...');
       
       const model = new GeneticAlgorithm({
         populationSize: 50,
@@ -381,11 +352,9 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(searchSpace.crossoverRate.min).toBeGreaterThanOrEqual(0.5);
       expect(searchSpace.elitism.max).toBeLessThan(0.5);
       
-      console.log('   ✅ GeneticAlgorithm optimization parameters validated');
     });
 
     it('should handle cross-validation properly', async () => {
-      console.log('🧪 Testing cross-validation integration...');
       
       const model = new RegulatoryPredictor();
       const config: ModelOptimizationConfig = {
@@ -403,13 +372,11 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(result).toBeDefined();
       expect(result.bestScore).toBeGreaterThanOrEqual(0);
       
-      console.log('   ✅ Cross-validation integration working');
     }, 20000);
   });
 
   describe('Performance and Error Handling', () => {
     it('should handle evaluation failures gracefully', async () => {
-      console.log('🧪 Testing error handling...');
       
       // Test that the system handles errors properly by checking
       // the behavior when optimization fails
@@ -443,17 +410,14 @@ describe('Hyperparameter Optimization & AutoML System', () => {
         expect(result.totalEvaluations).toBeGreaterThan(0);
         expect(result.bestObjective).toBe(0.8); // From the first successful call
         
-        console.log('   ✅ Error handling working correctly');
       } catch (error) {
         // If the optimization framework properly catches errors,
         // this test validates that behavior as well
         expect(.message).toContain('Training failed');
-        console.log('   ✅ Error handling working correctly (error caught as expected)');
       }
     }, 15000);
 
     it('should complete within reasonable time limits', async () => {
-      console.log('🧪 Testing performance timing...');
       
       const startTime = Date.now();
       
@@ -468,11 +432,9 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(result).toBeDefined();
       expect(elapsedTime).toBeLessThan(60000); // Should complete in under 1 minute
       
-      console.log(`   ✅ AutoML completed in ${(elapsedTime / 1000).toFixed(1)}s`);
     }, 65000);
 
     it('should handle small datasets appropriately', async () => {
-      console.log('🧪 Testing small dataset handling...');
       
       const smallData: TrainingData = {
         features: [
@@ -489,7 +451,6 @@ describe('Hyperparameter Optimization & AutoML System', () => {
       expect(result.dataInsights.sampleCount).toBe(2);
       expect(result.dataInsights.potentialIssues).toContain('Limited training data may affect model performance');
       
-      console.log('   ✅ Small dataset handling working correctly');
     }, 30000);
   });
 

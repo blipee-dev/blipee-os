@@ -40,17 +40,14 @@ export class RedisClient {
    */
   private async connect(): Promise<void> {
     // Skip connection during build or static generation
-    if (process.env.NEXT_PHASE === 'phase-production-build' ||
-        process.env.NODE_ENV === 'development' && !process.env.REDIS_HOST) {
-      console.log('⏭️  Skipping Redis connection during build/development without Redis');
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
       this.isConnected = false;
       return;
     }
 
     try {
-      // Check for Upstash credentials first
+      // Check for Upstash credentials first (production-ready solution)
       if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-        console.log('🚀 Using Upstash Redis (Serverless)');
         this.isUpstash = true;
 
         try {
@@ -84,17 +81,25 @@ export class RedisClient {
 
           await Promise.race([pingPromise, timeoutPromise]);
           this.isConnected = true;
-          console.log('✅ Upstash Redis connected');
+          console.log('✅ Connected to Upstash Redis successfully');
           return;
         } catch (error) {
           console.warn('⚠️ Failed to connect to Upstash Redis:', error);
           this.client = null;
           this.isConnected = false;
-          // Continue to fallback options
+          // Don't fall back to local Redis - just fail gracefully
+          return;
         }
       }
 
-      // Fall back to regular Redis
+      // Only try local Redis if explicitly configured (no Upstash available)
+      if (!process.env.REDIS_HOST) {
+        // No Redis configured - skip connection
+        this.isConnected = false;
+        return;
+      }
+
+      // Fall back to regular Redis (only if REDIS_HOST is explicitly set)
       const config = cacheConfig.redis;
 
       if (config.cluster.enabled && config.cluster.nodes.length > 0) {
@@ -135,7 +140,6 @@ export class RedisClient {
       // Set up event handlers (only for ioredis)
       if (!this.isUpstash && this.client instanceof Redis) {
         this.client.on('connect', () => {
-          console.log('✅ Redis connected');
           this.isConnected = true;
         });
 
@@ -150,7 +154,6 @@ export class RedisClient {
         });
 
         this.client.on('close', () => {
-          console.log('Redis connection closed');
           this.isConnected = false;
         });
       }
@@ -169,7 +172,6 @@ export class RedisClient {
       }
 
     } catch (error) {
-      console.log('Failed to connect to Redis, falling back to in-memory sessions:', error);
       this.client = null;
       this.isConnected = false;
       // Don't throw error - gracefully fallback to in-memory caching
@@ -224,7 +226,7 @@ export const getRedisClient = (): RedisClient => {
 
 // Export for backward compatibility (but now returns the lazy-initialized instance)
 export const redisClient = new Proxy({} as RedisClient, {
-  get(target, prop) {
+  get(_target, prop) {
     return getRedisClient()[prop as keyof RedisClient];
   }
 });

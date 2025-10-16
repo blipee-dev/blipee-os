@@ -57,7 +57,6 @@ export class ModelTrainingPipeline {
     data: DataSplits,
     config: TrainingConfig = {}
   ): Promise<TrainedModels> {
-    console.log('Starting comprehensive model training pipeline...');
     
     const models: TrainedModels = {};
     
@@ -98,7 +97,6 @@ export class ModelTrainingPipeline {
     data: TrainingData,
     config: TrainingConfig
   ): Promise<TrainedModel> {
-    console.log('Training emissions prediction model...');
     
     const model = new EmissionsPredictionModel();
     
@@ -149,7 +147,6 @@ export class ModelTrainingPipeline {
     data: TrainingData,
     config: TrainingConfig
   ): Promise<TrainedModel> {
-    console.log('Training anomaly detection model...');
     
     const model = new AnomalyDetectionModel();
     
@@ -196,7 +193,6 @@ export class ModelTrainingPipeline {
     data: TrainingData,
     config: TrainingConfig
   ): Promise<TrainedModel> {
-    console.log('Training optimization model...');
     
     // Placeholder - optimization engine implementation
     const model = new OptimizationEngine();
@@ -267,7 +263,6 @@ export class ModelTrainingPipeline {
     models: TrainedModels,
     testData: any
   ): Promise<ValidationResults> {
-    console.log('Validating all models...');
     
     const results: ValidationResults = {};
     
@@ -324,14 +319,12 @@ export class ModelTrainingPipeline {
     models: TrainedModels,
     validation: ValidationResults
   ): Promise<void> {
-    console.log('Registering best models...');
     
     for (const [name, trainedModel] of Object.entries(models)) {
       if (trainedModel) {
         const metrics = validation[name];
         if (this.meetsQualityThreshold(metrics as ModelMetrics)) {
           this.trainedModels.set(trainedModel.type as ModelType, trainedModel);
-          console.log(`Registered ${name} model with metrics:`, metrics);
         } else {
           console.warn(`${name} model did not meet quality threshold`);
         }
@@ -379,7 +372,6 @@ export class ModelTrainingPipeline {
       }
     };
     
-    console.log('Training Report:', JSON.stringify(report, null, 2));
     
     // Save report
     await this.experimentTracker.saveReport(report);
@@ -430,7 +422,6 @@ export class ModelTrainingPipeline {
       const path = `${basePath}/${modelType}`;
       if (trainedModel.model && trainedModel.model.save) {
         await trainedModel.model.save(path);
-        console.log(`Saved ${modelType} model to ${path}`);
       }
     }
   }
@@ -471,7 +462,6 @@ export class ModelTrainingPipeline {
             parameters: {},
             model
           });
-          console.log(`Loaded ${modelType} model from ${path}`);
         }
       } catch (error) {
         console.error(`Failed to load ${modelType} model:`, error);

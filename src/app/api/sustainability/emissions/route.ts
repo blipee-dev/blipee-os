@@ -10,7 +10,6 @@ import {
 } from '@/lib/sustainability/baseline-calculator';
 
 export async function GET(request: NextRequest) {
-  console.log('🚀🚀🚀 EMISSIONS API CALLED');
   try {
     const supabase = await createServerSupabaseClient();
 
@@ -166,15 +165,7 @@ export async function GET(request: NextRequest) {
         ? parseFloat(site.total_area_sqm)
         : (site.total_area_sqm || 0);
       return sum + area;
-    }, 0) || 0;
-
-    console.log('🔴🔴🔴 INTENSITY DEBUG - SITES FETCHED:', {
-      sites: sites?.map(s => ({
-        name: s.name,
-        area: s.total_area_sqm,
-        areaType: typeof s.total_area_sqm,
-        areaValue: s.total_area_sqm
-      })),
+    }, 0) || 0;),
       totalAreaM2,
       siteCount: sites?.length || 0,
       metricsCount: metricsData?.length || 0,
@@ -213,7 +204,6 @@ export async function GET(request: NextRequest) {
     const anomalies = detectAnomalies(metricsData || []);
 
     // Sites already fetched above, no need to fetch again
-    console.log('🎯 Using totalAreaM2:', totalAreaM2, 'for', sites?.length || 0, 'sites');
 
     // Calculate carbon intensity: kgCO2e/m²
     let intensity = 0;
@@ -242,15 +232,6 @@ export async function GET(request: NextRequest) {
       value: cat.total,
       count: cat.recordCount
     }));
-
-    console.log('✅ USING CALCULATOR - Values:', {
-      total: currentEmissions.total,
-      scope1: currentEmissions.scope1,
-      scope2: currentEmissions.scope2,
-      scope3: currentEmissions.scope3,
-      trend: trend,
-      intensity: intensity
-    });
 
     return NextResponse.json({
       current: {

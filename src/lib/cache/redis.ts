@@ -54,7 +54,6 @@ export class RedisClient {
       });
 
       this.client.on('connect', () => {
-        console.log('Redis connected successfully');
         this.isConnected = true;
       });
 
@@ -64,7 +63,6 @@ export class RedisClient {
       });
 
       this.client.on('close', () => {
-        console.log('Redis connection closed');
         this.isConnected = false;
       });
 

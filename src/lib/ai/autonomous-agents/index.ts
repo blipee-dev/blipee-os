@@ -122,8 +122,6 @@ export const AI_EMPLOYEE_DIRECTORY = {
 
 // Initialize the complete AI workforce - all 8 autonomous agents from FULL_IMPLEMENTATION_PLAN.md
 export async function initializeAutonomousAgents(organizationId: string) {
-  console.log('🚀 Initializing BLIPEE AI Workforce...');
-  console.log(`📋 Deploying ${AI_WORKFORCE_CONFIG.totalEmployees} AI employees for autonomous sustainability intelligence`);
 
   // Create all 8 AI employees according to FULL_IMPLEMENTATION_PLAN.md
   const esgChiefOfStaff = new ESGChiefOfStaff();
@@ -148,17 +146,6 @@ export async function initializeAutonomousAgents(organizationId: string) {
   // Start the orchestrator
   await agentOrchestrator.start();
 
-  console.log('✅ BLIPEE AI Workforce operational - 8 AI employees working 24/7');
-  console.log('🤖 AI Employees active (FULL_IMPLEMENTATION_PLAN.md Phase 1 Complete):');
-  console.log('  👔 ESG Chief of Staff - Strategic leadership & coordination');
-  console.log('  🛡️ Compliance Guardian - Regulatory monitoring across 7 frameworks');
-  console.log('  🔍 Carbon Hunter - Emissions tracking & reduction opportunities');
-  console.log('  🕵️ Supply Chain Investigator - Supplier risk assessment');
-  console.log('  💰 Cost Saving Finder - Energy cost analysis & savings opportunities');
-  console.log('  🔧 Predictive Maintenance - Equipment failure prediction & scheduling');
-  console.log('  ⚙️ Autonomous Optimizer - Operations optimization & performance tuning');
-  console.log('  📜 Regulatory Foresight - Regulatory monitoring & compliance automation');
-  console.log('🎯 Autonomous sustainability intelligence active - All 8 agents operational');
 
   return {
     orchestrator: agentOrchestrator,
@@ -211,10 +198,8 @@ export async function executeWorkforceTask(taskType: string, payload: any, conte
 
 // Function to shutdown the autonomous agent system
 export async function shutdownAutonomousAgents() {
-  console.log('🛑 Shutting down BLIPEE AI Workforce...');
 
   // Stop the orchestrator
   await agentOrchestrator.stop();
 
-  console.log('✅ AI Workforce shutdown complete');
 }

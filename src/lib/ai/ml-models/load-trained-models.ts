@@ -23,10 +23,8 @@ if (isNodeEnvironment) {
       };
     }
   } catch (error) {
-    console.log('⚠️  Node.js modules not available, using browser fallback');
   }
 } else {
-  console.log('🌐 Running in browser environment - disk model loading disabled');
 }
 
 export interface LoadedModel {
@@ -41,7 +39,6 @@ export interface LoadedModel {
 export async function loadEmissionsForecastModel(): Promise<LoadedModel> {
   // DISABLED: Disk loading causes issues with file:// protocol
   // Using in-memory ML pipeline instead which works perfectly
-  console.log('✅ Using in-memory ML pipeline for predictions');
   return { model: null, scaler: null, type: 'lstm' };
 }
 
@@ -51,7 +48,6 @@ export async function loadEmissionsForecastModel(): Promise<LoadedModel> {
 export async function loadAnomalyDetectionModel(): Promise<any> {
   // DISABLED: Disk loading causes issues
   // Using in-memory anomaly detection instead
-  console.log('✅ Using in-memory anomaly detection');
   return null;
 }
 
@@ -131,7 +127,6 @@ let lstmModel: LoadedModel | null = null;
 let anomalyModel: any = null;
 
 export async function initializeModels() {
-  console.log('🚀 Initializing trained ML models...');
 
   lstmModel = await loadEmissionsForecastModel();
   anomalyModel = await loadAnomalyDetectionModel();

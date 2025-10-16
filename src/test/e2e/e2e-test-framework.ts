@@ -69,12 +69,10 @@ export class E2ETestFramework {
     
     // Add request/response logging for debugging
     this.page.on('request', (request) => {
-      console.log(`→ ${request.method()} ${request.url()}`);
     });
     
     this.page.on('response', (response) => {
       if (!response.ok()) {
-        console.log(`← ${response.status()} ${response.url()}`);
       }
     });
   }
@@ -338,7 +336,6 @@ export class E2ETestRunner {
     failed: number;
     errors: string[];
   }> {
-    console.log(`\n🧪 Running E2E Test Suite: ${suiteName}`);
     
     const results = {
       passed: 0,
@@ -350,15 +347,12 @@ export class E2ETestRunner {
 
     for (let i = 0; i < tests.length; i++) {
       const testName = `Test ${i + 1}`;
-      console.log(`\n  Running ${testName}...`);
 
       try {
         await tests[i]();
-        console.log(`  ✅ ${testName} passed`);
         results.passed++;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.log(`  ❌ ${testName} failed: ${errorMessage}`);
         results.failed++;
         results.errors.push(`${testName}: ${errorMessage}`);
 
@@ -369,10 +363,6 @@ export class E2ETestRunner {
 
     await this.framework.cleanup();
 
-    console.log(`\n📊 Test Suite Results:`);
-    console.log(`  Passed: ${results.passed}`);
-    console.log(`  Failed: ${results.failed}`);
-    console.log(`  Success Rate: ${((results.passed / (results.passed + results.failed)) * 100).toFixed(1)}%`);
 
     return results;
   }

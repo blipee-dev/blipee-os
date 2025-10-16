@@ -52,7 +52,6 @@ export class SupplierNetwork {
     requestingOrgId: string
   ): Promise<OnboardingResult> {
     try {
-      console.log(`🚀 Starting supplier onboarding for ${supplier.name}`);
 
       // Step 1: Verify supplier information
       const verification = await this.verifySupplier(supplier);
@@ -78,7 +77,6 @@ export class SupplierNetwork {
         onboardingTasks
       });
 
-      console.log(`✅ Supplier onboarding completed for ${supplier.name}`);
 
       return {
         nodeId: node.id,
@@ -104,7 +102,6 @@ export class SupplierNetwork {
         throw new Error('Supplier not found');
       }
 
-      console.log(`🔍 Assessing supplier: ${supplier.node_name}`);
 
       // Calculate sustainability score
       const sustainabilityScore = await this.calculateSustainabilityScore(supplier);
@@ -141,7 +138,6 @@ export class SupplierNetwork {
       // Store assessment in database
       await this.storeSupplierAssessment(assessment);
 
-      console.log(`✅ Supplier assessment completed: ${sustainabilityScore}/100 sustainability score`);
 
       return assessment;
 
@@ -159,7 +155,6 @@ export class SupplierNetwork {
     organizationId: string
   ): Promise<ImprovementPlan> {
     try {
-      console.log(`🤝 Creating improvement plan for supplier ${supplierId}`);
 
       // Identify improvement gaps
       const gaps = await this.identifyImprovementGaps(supplierId);
@@ -189,7 +184,6 @@ export class SupplierNetwork {
       // Store improvement plan
       await this.storeImprovementPlan(supplierId, organizationId, improvementPlan);
 
-      console.log(`✅ Improvement plan created with ${initiatives.length} initiatives`);
 
       return improvementPlan;
 
@@ -719,7 +713,6 @@ export class SupplierNetwork {
   // Database operations
   private async storeOnboardingRecord(record: any): Promise<void> {
     // Store onboarding record in database
-    console.log('Storing onboarding record');
   }
 
   private async getSupplierById(supplierId: string): Promise<any> {
@@ -834,7 +827,6 @@ export class SupplierNetwork {
 
   private async storeImprovementPlan(supplierId: string, organizationId: string, plan: ImprovementPlan): Promise<void> {
     // Store improvement plan in database
-    console.log('Storing improvement plan');
   }
 
   // Utility methods

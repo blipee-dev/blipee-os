@@ -824,13 +824,11 @@ export const ZeroTypingInterface: React.FC = () => {
 // Helper functions
 function executeQuery(query: string) {
   // Send query to AI without user typing
-  console.log('Executing:', query);
 }
 
 function executeAction(action: OneClickAction) {
   if (action.confirmation) {
     // Show confirmation dialog
-    console.log('Confirm:', action.label);
   }
   executeQuery(action.query);
 }

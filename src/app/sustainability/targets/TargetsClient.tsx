@@ -101,7 +101,6 @@ export default function TargetsClient() {
       if (cleanupResponse.ok) {
         const cleanupData = await cleanupResponse.json();
         if (cleanupData.deleted > 0) {
-          console.log(`🧹 Cleaned up ${cleanupData.deleted} duplicate targets`);
         }
       }
 
@@ -124,13 +123,11 @@ export default function TargetsClient() {
 
   const autoInitializeTarget = async () => {
     if (isInitializing) {
-      console.log('⏳ Already initializing, skipping...');
       return;
     }
 
     try {
       setIsInitializing(true);
-      console.log('🎯 No targets found - auto-initializing SBTi target...');
       const response = await fetch('/api/sustainability/targets/auto-initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
@@ -138,7 +135,6 @@ export default function TargetsClient() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Auto-initialized target:', data.message);
         toast.success('Default SBTi target created!');
 
         // Refetch targets to update UI (without triggering another auto-initialize)
@@ -151,7 +147,6 @@ export default function TargetsClient() {
       } else {
         const error = await response.json();
         console.error('❌ Auto-initialize failed:', error);
-        console.log('ℹ️ Auto-initialize skipped:', error.message || error.error);
       }
     } catch (error) {
       console.error('Error auto-initializing target:', error);
@@ -229,7 +224,6 @@ export default function TargetsClient() {
       if (response.ok) {
         const data = await response.json();
         setCategoryTargets(data.allocations || []);
-        console.log('📊 Category targets loaded:', data.allocations?.length);
       }
     } catch (error) {
       console.error('Error fetching category targets:', error);
@@ -324,7 +318,6 @@ export default function TargetsClient() {
         <TargetSettingWorkflow
           organizationId={organizationId}
           onComplete={(targets) => {
-            console.log('Workflow completed with targets:', targets);
             setShowWorkflow(false);
             fetchTargets();
             toast.success('Targets created successfully!');
@@ -735,7 +728,6 @@ export default function TargetsClient() {
             organizationId={organizationId}
             industryType="general"
             onTopicSelect={(topic) => {
-              console.log('Selected material topic:', topic);
               // Could link to relevant targets or metrics
             }}
               />

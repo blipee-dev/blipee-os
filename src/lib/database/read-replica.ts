@@ -84,7 +84,6 @@ class ReadReplicaManager {
     });
 
     pool.on('connect', () => {
-      console.log(`New connection to read replica: ${config.region || config.url}`);
     });
 
     const replicaPool: ReadReplicaPool = {
@@ -255,7 +254,6 @@ class ReadReplicaManager {
       // Update latency metric
       this.updateReplicaMetrics(replica, latency, true);
       
-      console.log(`Read replica health check passed: ${replica.region || replica.url} (${latency}ms)`);
     } catch (error) {
       replica.healthy = false;
       replica.lastHealthCheck = new Date();
@@ -347,7 +345,6 @@ class ReadReplicaManager {
     );
     
     this.replicas = [];
-    console.log('All read replica connections closed');
   }
 }
 
@@ -413,12 +410,10 @@ export function createReadReplicaClient(): SupabaseClient<Database> | null {
 // Graceful shutdown
 if (typeof process !== 'undefined') {
   process.on('SIGTERM', async () => {
-    console.log('SIGTERM received, closing read replica connections...');
     await readReplicaManager.close();
   });
   
   process.on('SIGINT', async () => {
-    console.log('SIGINT received, closing read replica connections...');
     await readReplicaManager.close();
   });
 }

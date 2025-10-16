@@ -753,12 +753,10 @@ export class AccountRecoveryService {
 
   private async sendRecoveryEmail(email: string, token: string): Promise<void> {
     // Would integrate with email service (SendGrid, AWS SES, etc.)
-    console.log(`Sending recovery email to ${email} with token ${token}`);
   }
 
   private async sendRecoverySMS(phoneNumber: string, code: string): Promise<void> {
     // Would integrate with SMS service (Twilio, AWS SNS, etc.)
-    console.log(`Sending recovery SMS to ${phoneNumber} with code ${code}`);
   }
 
   private getEmptyStats(): RecoveryStats {

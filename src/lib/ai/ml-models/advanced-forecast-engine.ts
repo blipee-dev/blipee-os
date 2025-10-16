@@ -48,7 +48,6 @@ export class AdvancedForecastEngine {
   private featureImportance: Map<string, number> = new Map();
 
   constructor() {
-    console.log('🚀 Initializing Advanced Forecast Engine with multiple models...');
   }
 
   /**
@@ -65,7 +64,6 @@ export class AdvancedForecastEngine {
     horizon: number = 12,
     startFromDate?: Date
   ): Promise<EnsemblePrediction> {
-    console.log('🧠 Running ensemble prediction with multiple models...');
 
     const predictions: ModelPrediction[] = [];
 
@@ -74,7 +72,6 @@ export class AdvancedForecastEngine {
       const arimaPred = await this.runARIMA(historicalData, horizon);
       predictions.push(arimaPred);
     } catch (error) {
-      console.log('⚠️ ARIMA failed, continuing with other models');
     }
 
     // 2. Advanced LSTM with Attention (Best for complex patterns)
@@ -82,7 +79,6 @@ export class AdvancedForecastEngine {
       const lstmPred = await this.runAdvancedLSTM(historicalData, externalFeatures, horizon);
       predictions.push(lstmPred);
     } catch (error) {
-      console.log('⚠️ LSTM failed, continuing with other models');
     }
 
     // 3. Gradient Boosting Regression (Best for feature-rich predictions)
@@ -90,7 +86,6 @@ export class AdvancedForecastEngine {
       const gbrPred = await this.runGradientBoosting(historicalData, externalFeatures, horizon);
       predictions.push(gbrPred);
     } catch (error) {
-      console.log('⚠️ GBR failed, continuing with other models');
     }
 
     // 4. STL Decomposition + ETS (Seasonal-Trend-Loess)
@@ -98,7 +93,6 @@ export class AdvancedForecastEngine {
       const stlPred = await this.runSTLDecomposition(historicalData, horizon);
       predictions.push(stlPred);
     } catch (error) {
-      console.log('⚠️ STL failed, continuing with other models');
     }
 
     // 5. Holt-Winters Triple Exponential Smoothing
@@ -106,7 +100,6 @@ export class AdvancedForecastEngine {
       const holtWintersPred = await this.runHoltWinters(historicalData, horizon);
       predictions.push(holtWintersPred);
     } catch (error) {
-      console.log('⚠️ Holt-Winters failed, continuing with other models');
     }
 
     // Ensemble the predictions
@@ -117,7 +110,6 @@ export class AdvancedForecastEngine {
    * ARIMA Model - AutoRegressive Integrated Moving Average
    */
   private async runARIMA(data: number[], horizon: number): Promise<ModelPrediction> {
-    console.log('📊 Running ARIMA model with', data.length, 'data points...');
 
     try {
       // With 3+ years of data, we can use more sophisticated ARIMA parameters
@@ -129,7 +121,6 @@ export class AdvancedForecastEngine {
         verbose: false
       };
 
-      console.log(`📈 ARIMA config: p=${arimaConfig.p}, d=${arimaConfig.d}, q=${arimaConfig.q}`);
 
       const arima = new ARIMA(arimaConfig);
 
@@ -160,7 +151,6 @@ export class AdvancedForecastEngine {
         ? this.calculateMAPE(recentData, predictions.slice(0, recentData.length))
         : 20;
 
-      console.log(`✅ ARIMA predictions:`, predictions.slice(0, 3).map(p => p.toFixed(0)));
 
       return {
         model: 'ARIMA',
@@ -182,7 +172,6 @@ export class AdvancedForecastEngine {
     externalFeatures?: any,
     horizon: number = 12
   ): Promise<ModelPrediction> {
-    console.log('🧠 Running Advanced LSTM with attention...');
 
     // Build advanced LSTM model with attention
     const model = tf.sequential({
@@ -288,7 +277,6 @@ export class AdvancedForecastEngine {
       predictions.push(val);
     }
 
-    console.log(`✅ LSTM predictions:`, predictions.slice(0, 3).map(p => p.toFixed(0)));
 
     // Cleanup
     xs.dispose();
@@ -312,7 +300,6 @@ export class AdvancedForecastEngine {
     externalFeatures?: any,
     horizon: number = 12
   ): Promise<ModelPrediction> {
-    console.log('🌲 Running Gradient Boosting Regression with', data.length, 'data points...');
 
     // Need enough data for training
     if (data.length < 24) {
@@ -383,7 +370,6 @@ export class AdvancedForecastEngine {
    * STL Decomposition (Seasonal-Trend-Loess)
    */
   private async runSTLDecomposition(data: number[], horizon: number): Promise<ModelPrediction> {
-    console.log('📈 Running STL Decomposition...');
 
     try {
       // Decompose the time series
@@ -407,7 +393,6 @@ export class AdvancedForecastEngine {
         }
       }
 
-      console.log(`✅ STL predictions:`, predictions.slice(0, 3).map(p => p.toFixed(0)));
 
       return {
         model: 'STL-ETS',
@@ -434,7 +419,6 @@ export class AdvancedForecastEngine {
    * Holt-Winters Triple Exponential Smoothing
    */
   private async runHoltWinters(data: number[], horizon: number): Promise<ModelPrediction> {
-    console.log('❄️ Running Holt-Winters model with', data.length, 'data points...');
 
     // Need at least 2 full seasons for Holt-Winters
     if (data.length < 24) {
@@ -477,7 +461,6 @@ export class AdvancedForecastEngine {
       predictions.push(predicted);
     }
 
-    console.log(`✅ Holt-Winters predictions:`, predictions.slice(0, 3).map(p => p.toFixed(0)));
 
     return {
       model: 'Holt-Winters',
@@ -496,11 +479,9 @@ export class AdvancedForecastEngine {
     horizon: number,
     startFromDate?: Date
   ): EnsemblePrediction {
-    console.log('🎯 Ensembling predictions from', modelPredictions.length, 'models...');
 
     // If no models succeeded, use fallback simple forecast
     if (modelPredictions.length === 0) {
-      console.log('⚠️ No models succeeded, using simple forecast fallback');
       return this.simpleFallbackForecast(historicalData, horizon, startFromDate);
     }
 

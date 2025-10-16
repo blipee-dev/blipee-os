@@ -20,7 +20,6 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   await limiter.check(request);
 
   const body = await request.json();
-  console.log("Signup request body:", body);
 
   // Validate input
   const validated = signUpSchema.parse(body);

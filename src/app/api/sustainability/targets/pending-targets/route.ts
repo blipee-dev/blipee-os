@@ -45,7 +45,6 @@ export async function GET(request: NextRequest) {
     startDate.setFullYear(startDate.getFullYear() - 1);
     const startDateStr = startDate.toISOString().split('T')[0];
 
-    console.log('📊 Using baseline-calculator to check emissions data');
     const emissionsData = await getPeriodEmissions(organizationId, startDateStr, endDate);
 
     const totalEmissions = emissionsData.total * 1000; // Convert to kg for consistency

@@ -1050,7 +1050,6 @@ export class ABTestingFramework extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('🧪 Initializing A/B Testing Framework...');
 
     try {
       await Promise.all([
@@ -1063,7 +1062,6 @@ export class ABTestingFramework extends EventEmitter {
       this.setupEventListeners();
       this.isInitialized = true;
 
-      console.log('✅ A/B Testing Framework initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize A/B Testing Framework:', error);
       throw error;
@@ -1078,7 +1076,6 @@ export class ABTestingFramework extends EventEmitter {
 
     const testId = config.testId || `test_${Date.now()}`;
 
-    console.log(`🆕 Creating A/B test: ${testId}`);
 
     const testConfig: ABTestConfig = {
       testId,
@@ -1154,7 +1151,6 @@ export class ABTestingFramework extends EventEmitter {
       throw new Error(`Test ${testId} must be approved before starting`);
     }
 
-    console.log(`▶️ Starting A/B test: ${testId}`);
 
     // Update test status
     test.status.phase = 'running';
@@ -1189,7 +1185,6 @@ export class ABTestingFramework extends EventEmitter {
       throw new Error(`Test ${testId} not found`);
     }
 
-    console.log(`⏹️ Stopping A/B test: ${testId} (reason: ${reason})`);
 
     // Update test status
     test.status.phase = 'analyzing';
@@ -1219,7 +1214,6 @@ export class ABTestingFramework extends EventEmitter {
       throw new Error(`Test ${testId} not found`);
     }
 
-    console.log(`📊 Analyzing A/B test: ${testId}`);
 
     // Collect all metrics data
     const metricsData = await this.metricsCollector.getTestData(test);
@@ -1275,7 +1269,6 @@ export class ABTestingFramework extends EventEmitter {
       throw new Error(`Test ${testId} or results not found`);
     }
 
-    console.log(`📄 Generating ${format.toUpperCase()} report for test: ${testId}`);
 
     const reportPath = await this.reportGenerator.generate(test, results, format);
 
@@ -1606,14 +1599,11 @@ export class ABTestingFramework extends EventEmitter {
 
   private async setupAlerting(test: ABTestConfig): Promise<void> {
     // Configure alert thresholds and channels
-    console.log(`🚨 Setting up alerting for test ${test.testId}`);
   }
 
   private async executeRampup(test: ABTestConfig): Promise<void> {
-    console.log(`📈 Executing traffic rampup for test ${test.testId}`);
 
     for (const stage of test.traffic.rampup.stages) {
-      console.log(`Stage ${stage.stage}: ramping up to ${stage.trafficPercentage}%`);
 
       // Update traffic allocation
       await this.trafficManager.updateTrafficAllocation(test, stage.trafficPercentage / 100);
@@ -1626,7 +1616,6 @@ export class ABTestingFramework extends EventEmitter {
       const meetsSuccessCriteria = await this.evaluateSuccessCriteria(stage.successCriteria, stageMetrics);
 
       if (!meetsSuccessCriteria) {
-        console.log(`❌ Stage ${stage.stage} failed success criteria, pausing rampup`);
         if (test.traffic.rampup.pauseOnAlert) {
           break;
         }
@@ -1848,7 +1837,6 @@ export class ABTestingFramework extends EventEmitter {
   }
 
   async dispose(): Promise<void> {
-    console.log('🔄 Disposing A/B Testing Framework...');
 
     await Promise.all([
       this.trafficManager.dispose(),
@@ -1858,7 +1846,6 @@ export class ABTestingFramework extends EventEmitter {
     ]);
 
     this.isInitialized = false;
-    console.log('✅ A/B Testing Framework disposed');
   }
 }
 
@@ -1866,37 +1853,29 @@ export class ABTestingFramework extends EventEmitter {
 
 class TrafficManager extends EventEmitter {
   async initialize(): Promise<void> {
-    console.log('🚦 Initializing Traffic Manager...');
   }
 
   async configureTest(test: ABTestConfig): Promise<void> {
-    console.log(`⚙️ Configuring traffic allocation for test ${test.testId}`);
   }
 
   async stopTest(test: ABTestConfig): Promise<void> {
-    console.log(`⏹️ Stopping traffic allocation for test ${test.testId}`);
   }
 
   async updateTrafficAllocation(test: ABTestConfig, percentage: number): Promise<void> {
-    console.log(`📊 Updating traffic allocation to ${percentage * 100}% for test ${test.testId}`);
   }
 
   async dispose(): Promise<void> {
-    console.log('✅ Traffic Manager disposed');
   }
 }
 
 class MetricsCollector extends EventEmitter {
   async initialize(): Promise<void> {
-    console.log('📊 Initializing Metrics Collector...');
   }
 
   async startCollection(test: ABTestConfig): Promise<void> {
-    console.log(`📈 Starting metrics collection for test ${test.testId}`);
   }
 
   async stopCollection(test: ABTestConfig): Promise<void> {
-    console.log(`📉 Stopping metrics collection for test ${test.testId}`);
   }
 
   async getTestData(test: ABTestConfig): Promise<any> {
@@ -1912,17 +1891,14 @@ class MetricsCollector extends EventEmitter {
   }
 
   async setupRealTimeMonitoring(test: ABTestConfig): Promise<void> {
-    console.log(`🔄 Setting up real-time monitoring for test ${test.testId}`);
   }
 
   async dispose(): Promise<void> {
-    console.log('✅ Metrics Collector disposed');
   }
 }
 
 class StatisticalAnalyzer extends EventEmitter {
   async initialize(): Promise<void> {
-    console.log('📈 Initializing Statistical Analyzer...');
   }
 
   async analyze(test: ABTestConfig, data: any): Promise<AnalysisResults> {
@@ -1980,23 +1956,19 @@ class StatisticalAnalyzer extends EventEmitter {
   }
 
   async dispose(): Promise<void> {
-    console.log('✅ Statistical Analyzer disposed');
   }
 }
 
 class ReportGenerator {
   async initialize(): Promise<void> {
-    console.log('📄 Initializing Report Generator...');
   }
 
   async generate(test: ABTestConfig, results: TestResult, format: string): Promise<string> {
     const path = `/reports/${test.testId}_report.${format}`;
-    console.log(`📋 Generating ${format} report: ${path}`);
     return path;
   }
 
   async dispose(): Promise<void> {
-    console.log('✅ Report Generator disposed');
   }
 }
 

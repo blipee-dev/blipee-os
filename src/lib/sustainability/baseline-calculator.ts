@@ -139,29 +139,30 @@ export async function getBaselineEmissions(
   );
 
   if (!metricsData || metricsData.length === 0) {
-    console.log(`⚠️ No baseline data found for ${year}`);
     return null;
   }
 
-  // Group by scope and round to 1 decimal place
-  // Division by 1000 converts kg CO2e to tonnes CO2e
-  const scope1 = Math.round(metricsData
-    .filter(d => (d.metrics_catalog as any)?.scope === 'scope_1')
-    .reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 * 10) / 10;
+  // OPTIMIZED: Single-pass calculation instead of 3 filters
+  let scope1Sum = 0;
+  let scope2Sum = 0;
+  let scope3Sum = 0;
 
-  const scope2 = Math.round(metricsData
-    .filter(d => (d.metrics_catalog as any)?.scope === 'scope_2')
-    .reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 * 10) / 10;
+  metricsData.forEach(d => {
+    const emissions = d.co2e_emissions || 0;
+    const scope = (d.metrics_catalog as any)?.scope;
 
-  const scope3 = Math.round(metricsData
-    .filter(d => (d.metrics_catalog as any)?.scope === 'scope_3')
-    .reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 * 10) / 10;
+    if (scope === 'scope_1') scope1Sum += emissions;
+    else if (scope === 'scope_2') scope2Sum += emissions;
+    else if (scope === 'scope_3') scope3Sum += emissions;
+  });
 
+  // Convert kg CO2e to tonnes CO2e and round
+  const scope1 = Math.round(scope1Sum / 1000 * 10) / 10;
+  const scope2 = Math.round(scope2Sum / 1000 * 10) / 10;
+  const scope3 = Math.round(scope3Sum / 1000 * 10) / 10;
   const total = Math.round((scope1 + scope2 + scope3) * 10) / 10;
 
   const scope_3_percentage = total > 0 ? (scope3 / total) * 100 : 0;
-
-  console.log(`✅ Baseline emissions (${year}): Total=${total.toFixed(1)} tCO2e (S1=${scope1.toFixed(1)}, S2=${scope2.toFixed(1)}, S3=${scope3.toFixed(1)})`);
 
   return {
     year,
@@ -198,18 +199,19 @@ export async function getYearEmissions(
     return 0;
   }
 
-  // Calculate by scope first, then sum (matches baseline logic)
-  const scope1 = Math.round(metricsData
-    .filter(d => (d.metrics_catalog as any)?.scope === 'scope_1')
-    .reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 * 10) / 10;
+  // OPTIMIZED: Single-pass calculation
+  let scope1Sum = 0, scope2Sum = 0, scope3Sum = 0;
+  metricsData.forEach(d => {
+    const emissions = d.co2e_emissions || 0;
+    const scope = (d.metrics_catalog as any)?.scope;
+    if (scope === 'scope_1') scope1Sum += emissions;
+    else if (scope === 'scope_2') scope2Sum += emissions;
+    else if (scope === 'scope_3') scope3Sum += emissions;
+  });
 
-  const scope2 = Math.round(metricsData
-    .filter(d => (d.metrics_catalog as any)?.scope === 'scope_2')
-    .reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 * 10) / 10;
-
-  const scope3 = Math.round(metricsData
-    .filter(d => (d.metrics_catalog as any)?.scope === 'scope_3')
-    .reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 * 10) / 10;
+  const scope1 = Math.round(scope1Sum / 1000 * 10) / 10;
+  const scope2 = Math.round(scope2Sum / 1000 * 10) / 10;
+  const scope3 = Math.round(scope3Sum / 1000 * 10) / 10;
 
   return Math.round((scope1 + scope2 + scope3) * 10) / 10;
 }
@@ -237,19 +239,19 @@ export async function getPeriodEmissions(
     return { total: 0, scope_1: 0, scope_2: 0, scope_3: 0 };
   }
 
-  // Calculate by scope first, then sum
-  const scope1 = Math.round(metricsData
-    .filter(d => (d.metrics_catalog as any)?.scope === 'scope_1')
-    .reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 * 10) / 10;
+  // OPTIMIZED: Single-pass calculation
+  let scope1Sum = 0, scope2Sum = 0, scope3Sum = 0;
+  metricsData.forEach(d => {
+    const emissions = d.co2e_emissions || 0;
+    const scope = (d.metrics_catalog as any)?.scope;
+    if (scope === 'scope_1') scope1Sum += emissions;
+    else if (scope === 'scope_2') scope2Sum += emissions;
+    else if (scope === 'scope_3') scope3Sum += emissions;
+  });
 
-  const scope2 = Math.round(metricsData
-    .filter(d => (d.metrics_catalog as any)?.scope === 'scope_2')
-    .reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 * 10) / 10;
-
-  const scope3 = Math.round(metricsData
-    .filter(d => (d.metrics_catalog as any)?.scope === 'scope_3')
-    .reduce((sum, d) => sum + (d.co2e_emissions || 0), 0) / 1000 * 10) / 10;
-
+  const scope1 = Math.round(scope1Sum / 1000 * 10) / 10;
+  const scope2 = Math.round(scope2Sum / 1000 * 10) / 10;
+  const scope3 = Math.round(scope3Sum / 1000 * 10) / 10;
   const total = Math.round((scope1 + scope2 + scope3) * 10) / 10;
 
   return {
@@ -385,20 +387,24 @@ export async function getEnergyTotal(
     return { value: 0, unit: 'MWh', recordCount: 0 };
   }
 
-  // Filter energy-related categories
-  const energyData = metricsData.filter(d => {
+  // OPTIMIZED: Single-pass calculation with filter + sum
+  let totalKWh = 0;
+  let recordCount = 0;
+
+  metricsData.forEach(d => {
     const category = (d.metrics_catalog as any)?.category;
-    return category === 'Electricity' || category === 'Purchased Energy';
+    if (category === 'Electricity' || category === 'Purchased Energy') {
+      totalKWh += d.value || 0;
+      recordCount++;
+    }
   });
 
-  // Sum and convert to MWh (assuming input is kWh)
-  const totalKWh = energyData.reduce((sum, d) => sum + (d.value || 0), 0);
   const totalMWh = Math.round(totalKWh / 1000 * 10) / 10;
 
   return {
     value: totalMWh,
     unit: 'MWh',
-    recordCount: energyData.length
+    recordCount
   };
 }
 
@@ -425,19 +431,23 @@ export async function getWaterTotal(
     return { value: 0, unit: 'm³', recordCount: 0 };
   }
 
-  // Filter water-related metrics
-  const waterData = metricsData.filter(d => {
+  // OPTIMIZED: Single-pass calculation with filter + sum
+  let total = 0;
+  let recordCount = 0;
+
+  metricsData.forEach(d => {
     const name = (d.metrics_catalog as any)?.name;
     const category = (d.metrics_catalog as any)?.category;
-    return name === 'Water' || name === 'Wastewater' || category === 'Water';
+    if (name === 'Water' || name === 'Wastewater' || category === 'Water') {
+      total += d.value || 0;
+      recordCount++;
+    }
   });
-
-  const total = waterData.reduce((sum, d) => sum + (d.value || 0), 0);
 
   return {
     value: Math.round(total),
     unit: 'm³',
-    recordCount: waterData.length
+    recordCount
   };
 }
 
@@ -464,18 +474,22 @@ export async function getWasteTotal(
     return { value: 0, unit: 'kg', recordCount: 0 };
   }
 
-  // Filter waste-related categories
-  const wasteData = metricsData.filter(d => {
-    const category = (d.metrics_catalog as any)?.category;
-    return category === 'Waste';
-  });
+  // OPTIMIZED: Single-pass calculation with filter + sum
+  let total = 0;
+  let recordCount = 0;
 
-  const total = wasteData.reduce((sum, d) => sum + (d.value || 0), 0);
+  metricsData.forEach(d => {
+    const category = (d.metrics_catalog as any)?.category;
+    if (category === 'Waste') {
+      total += d.value || 0;
+      recordCount++;
+    }
+  });
 
   return {
     value: Math.round(total),
     unit: 'kg',
-    recordCount: wasteData.length
+    recordCount
   };
 }
 

@@ -157,7 +157,6 @@ export class NetworkIntelligenceSystem {
   }
 
   private async initializeNetwork() {
-    console.log('🌐 Initializing Network Intelligence System...');
     
     await this.loadNetworkNodes();
     await this.loadCollectivePatterns();
@@ -166,7 +165,6 @@ export class NetworkIntelligenceSystem {
     this.startNetworkAnalysis();
     this.startPatternDiscovery();
     
-    console.log('✅ Network Intelligence ready for collective learning!');
   }
 
   /**
@@ -205,7 +203,6 @@ export class NetworkIntelligenceSystem {
 
       this.networkNodes.set(organizationId, networkNode);
 
-      console.log(`🌐 Organization ${anonymousId} joined the network intelligence system`);
       
       // Generate welcome insights
       await this.generateWelcomeInsights(organizationId);
@@ -239,7 +236,6 @@ export class NetworkIntelligenceSystem {
         }
       }
 
-      console.log(`📊 Generating network benchmark for ${request.metric} (${request.industry})`);
 
       // Find peer organizations
       const peerNodes = await this.findPeerOrganizations(request);
@@ -282,7 +278,6 @@ export class NetworkIntelligenceSystem {
       // Store in database for future use
       await this.storeBenchmark(benchmark);
 
-      console.log(`✅ Generated benchmark with ${statistics.sampleSize} data points from ${peerNodes.length} organizations`);
       
       return benchmark;
     } catch (error) {
@@ -301,7 +296,6 @@ export class NetworkIntelligenceSystem {
         throw new Error('Organization not found in network');
       }
 
-      console.log(`🔍 Discovering network insights for ${networkNode.anonymousId}`);
 
       const insights: NetworkInsight[] = [];
 
@@ -323,7 +317,6 @@ export class NetworkIntelligenceSystem {
       // Update contribution score
       await this.updateContributionScore(organizationId, insights.length);
 
-      console.log(`✅ Discovered ${insights.length} network insights`);
       
       return insights;
     } catch (error) {
@@ -341,7 +334,6 @@ export class NetworkIntelligenceSystem {
     this.isAnalyzing = true;
 
     try {
-      console.log('🧠 Analyzing collective patterns across the network...');
 
       const newPatterns: CollectivePattern[] = [];
 
@@ -367,7 +359,6 @@ export class NetworkIntelligenceSystem {
         await this.storePattern(pattern);
       }
 
-      console.log(`✅ Discovered ${newPatterns.length} new collective patterns`);
 
       return newPatterns;
     } finally {
@@ -390,7 +381,6 @@ export class NetworkIntelligenceSystem {
         throw new Error('Organization not found in network');
       }
 
-      console.log(`📈 Generating market intelligence for ${networkNode.anonymousId}`);
 
       // Analyze market trends
       const trends = await this.analyzeMarketTrends(networkNode);
@@ -1020,7 +1010,6 @@ export class NetworkIntelligenceSystem {
         });
       }
 
-      console.log(`🌐 Loaded ${this.networkNodes.size} network nodes`);
     } catch (error) {
       console.error('Failed to load network nodes:', error);
     }
@@ -1028,12 +1017,10 @@ export class NetworkIntelligenceSystem {
 
   private async loadCollectivePatterns(): Promise<void> {
     // Load patterns from database
-    console.log('🧠 Loading collective patterns...');
   }
 
   private async loadBenchmarkCache(): Promise<void> {
     // Load recent benchmarks from database
-    console.log('📊 Loading benchmark cache...');
   }
 
   private startNetworkAnalysis(): void {
@@ -1046,7 +1033,6 @@ export class NetworkIntelligenceSystem {
       }
     }, 60 * 60 * 1000);
 
-    console.log('🔍 Network analysis scheduler started');
   }
 
   private startPatternDiscovery(): void {
@@ -1059,7 +1045,6 @@ export class NetworkIntelligenceSystem {
       }
     }, 6 * 60 * 60 * 1000);
 
-    console.log('🧠 Pattern discovery scheduler started');
   }
 
   private async updateContributionScore(organizationId: string, insightCount: number): Promise<void> {
@@ -1110,7 +1095,6 @@ export class NetworkIntelligenceSystem {
 
   private async generateWelcomeInsights(organizationId: string): Promise<void> {
     // Generate initial insights for new network members
-    console.log(`👋 Generating welcome insights for new network member`);
   }
 
   /**

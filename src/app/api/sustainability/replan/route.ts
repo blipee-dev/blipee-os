@@ -54,12 +54,6 @@ export async function POST(request: Request) {
     }
 
     // Execute replanning
-    console.log('🔄 Executing replanning:', {
-      organizationId: body.organizationId,
-      targetId: body.targetId,
-      strategy: body.allocationStrategy,
-      applyImmediately: body.applyImmediately
-    });
 
     const result = await ReplanningEngine.replanTargets({
       ...body,

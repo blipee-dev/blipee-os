@@ -115,14 +115,12 @@ class QueryBuilderStub implements QueryBuilder {
 
   async rpc(fn: string, params?: any): Promise<QueryResponse> {
     // Stub implementation - returns empty response
-    console.log(`[Supabase Stub] RPC call: ${fn} with params:`, params);
     return { data: [], error: null };
   }
 
   async then(callback?: (result: QueryResponse) => any): Promise<any> {
     // Stub implementation - returns empty response
     const result: QueryResponse = { data: [], error: null };
-    console.log(`[Supabase Stub] Query on ${this.table}:`, this.operations.join(' -> '));
     
     if (callback) {
       return callback(result);

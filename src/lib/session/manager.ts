@@ -14,7 +14,6 @@ class SessionManager {
   private sessionService: SessionService;
 
   private constructor() {
-    console.log('🏗️  Creating new SessionManager instance');
     this.sessionService = new SessionService({
       // Upstash Redis will be auto-detected from environment variables
       // Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to enable
@@ -41,7 +40,6 @@ class SessionManager {
 
   static getInstance(): SessionManager {
     if (!globalForSessionManager.sessionManagerInstance) {
-      console.log('📦 Creating SessionManager singleton instance');
       globalForSessionManager.sessionManagerInstance = new SessionManager();
     }
     return globalForSessionManager.sessionManagerInstance;
@@ -84,12 +82,10 @@ class SessionManager {
     const cookieStore = await cookies();
     const sessionId = cookieStore.get('blipee-session')?.value;
 
-    console.log('🔍 SessionManager.getSessionFromCookies:', { sessionId });
 
     if (!sessionId) return null;
 
     const session = await this.sessionService.getSession(sessionId);
-    console.log('🔍 Session lookup result:', { found: !!session, sessionId });
     return session;
   }
 
@@ -196,7 +192,6 @@ class SessionManager {
 }
 
 // Export singleton instance with debug logging
-console.log('📦 Creating SessionManager singleton instance');
 export const sessionManager = SessionManager.getInstance();
 
 // Export types

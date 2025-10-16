@@ -187,32 +187,16 @@ export class ReplanningEngine {
    * Main entry point: Replan sustainability targets
    */
   static async replanTargets(request: ReplanningRequest): Promise<ReplanningResult> {
-    console.log('🔄 Starting target replanning...');
-    console.log('   Organization:', request.organizationId);
-    console.log('   Target:', request.targetId);
-    console.log('   Strategy:', request.allocationStrategy);
 
     try {
       // 1. Get current state
       const currentState = await this.getCurrentState(request.organizationId, request.targetId);
-      console.log(`   📊 Current State:`, {
-        currentEmissions: currentState.currentEmissions,
-        currentTargetEmissions: currentState.currentTargetEmissions,
-        baselineEmissions: currentState.baselineEmissions
-      });
 
       // 2. Calculate new target if not explicitly provided
       const newTarget = this.determineNewTarget(currentState, request);
-      console.log(`   🎯 New Target: ${newTarget.toFixed(1)} tCO2e`);
-      console.log(`   📥 Request params:`, {
-        newTargetEmissions: request.newTargetEmissions,
-        newReductionPercent: request.newReductionPercent,
-        newTargetYear: request.newTargetYear
-      });
 
       // 3. Calculate gap
       const gap = currentState.currentEmissions - newTarget;
-      console.log(`   📐 Gap Calculation: ${currentState.currentEmissions.toFixed(1)} - ${newTarget.toFixed(1)} = ${gap.toFixed(1)} tCO2e`);
 
       if (gap <= 0) {
         return {
@@ -231,7 +215,6 @@ export class ReplanningEngine {
       }
 
       // 4. Allocate reduction across metrics
-      console.log('   Allocating reductions across metrics...');
       const metricAllocations = await this.allocateReductions(
         currentState,
         gap,
@@ -245,19 +228,11 @@ export class ReplanningEngine {
       const totalCurrentFromMetrics = metricAllocations.reduce((sum, m) => sum + m.currentAnnualEmissions, 0);
       const totalTargetFromMetrics = metricAllocations.reduce((sum, m) => sum + m.targetAnnualEmissions, 0);
       const totalReductionFromMetrics = totalCurrentFromMetrics - totalTargetFromMetrics;
-      console.log(`   📊 Allocation Summary:`);
-      console.log(`      Sum of current emissions from metrics: ${totalCurrentFromMetrics.toFixed(1)} tCO2e`);
-      console.log(`      Sum of target emissions from metrics: ${totalTargetFromMetrics.toFixed(1)} tCO2e`);
-      console.log(`      Sum of reductions from metrics: ${totalReductionFromMetrics.toFixed(1)} tCO2e`);
-      console.log(`      Expected current emissions: ${currentState.currentEmissions.toFixed(1)} tCO2e`);
-      console.log(`      Expected target emissions: ${newTarget.toFixed(1)} tCO2e`);
-      console.log(`      Expected reduction: ${gap.toFixed(1)} tCO2e`);
       if (Math.abs(totalTargetFromMetrics - newTarget) > 1) {
         console.warn(`      ⚠️  WARNING: Sum of metric targets (${totalTargetFromMetrics.toFixed(1)}) does NOT match expected target (${newTarget.toFixed(1)})!`);
       }
 
       // 5. Generate monthly breakdowns
-      console.log('   Generating monthly trajectories...');
       const withMonthly = await this.generateMonthlyBreakdowns(
         metricAllocations,
         currentState.baselineYear,
@@ -267,25 +242,21 @@ export class ReplanningEngine {
       // 6. Map initiatives
       let withInitiatives = withMonthly;
       if (request.includeInitiatives !== false) {
-        console.log('   Mapping initiatives...');
         withInitiatives = await this.mapInitiatives(withMonthly, request.budgetCap);
       }
 
       // 7. Validate
-      console.log('   Validating plan...');
       const validation = this.validatePlan(withInitiatives, request);
 
       // 8. Run Monte Carlo
       let uncertainty: MonteCarloResults | undefined;
       if (validation.errors.length === 0) {
-        console.log('   Running Monte Carlo simulation...');
         uncertainty = await this.runMonteCarloSimulation(withInitiatives, newTarget);
       }
 
       // 9. Apply to database if requested
       let historyId: string | undefined;
       if (request.applyImmediately && validation.errors.length === 0) {
-        console.log('   Applying to database...');
         historyId = await this.applyToDatabase(
           request.organizationId,
           request.targetId,
@@ -294,7 +265,6 @@ export class ReplanningEngine {
           request.userId,
           request.notes
         );
-        console.log(`   ✅ Applied successfully (history ID: ${historyId})`);
       }
 
       return {
@@ -383,7 +353,6 @@ export class ReplanningEngine {
     const uniqueMetricsMap = new Map();
     (metricsWithData || []).forEach((item: any) => {
       if (item.metrics_catalog && !uniqueMetricsMap.has(item.metric_id)) {
-        console.log(`   🔑 DEBUG: Adding metric ${item.metrics_catalog.code} with ID=${item.metric_id}`);
         uniqueMetricsMap.set(item.metric_id, {
           id: item.metric_id, // Use metric_id from metrics_data, not metrics_catalog.id
           name: item.metrics_catalog.name,
@@ -397,7 +366,6 @@ export class ReplanningEngine {
     });
 
     const metrics = Array.from(uniqueMetricsMap.values());
-    console.log(`✅ Found ${metrics.length} metrics with ${currentYear} data for organization`);
 
     // Get current annual emissions for each metric
     const metricStates: MetricCurrentState[] = [];
@@ -405,7 +373,6 @@ export class ReplanningEngine {
 
     for (const metric of metrics || []) {
       // Get current year data for this specific metric from metrics_data
-      console.log(`  🔍 Querying metric ${metric.code} with ID=${metric.id}`);
       const { data: metricData, error: metricDataError } = await supabaseAdmin
         .from('metrics_data')
         .select('value, co2e_emissions')
@@ -414,7 +381,6 @@ export class ReplanningEngine {
         .gte('period_start', `${currentYear}-01-01`)
         .lte('period_start', `${currentYear}-12-31`);
 
-      console.log(`  📊 Metric ${metric.code}: Found ${metricData?.length || 0} data points`);
 
       // Calculate annual totals for this metric
       const annualValue = (metricData || []).reduce((sum: number, d: any) => sum + (d.value || 0), 0);
@@ -422,7 +388,6 @@ export class ReplanningEngine {
       const annualEmissions = (metricData || []).reduce((sum: number, d: any) => sum + ((d.co2e_emissions || 0) / 1000), 0);
 
       if (annualEmissions > 0) {
-        console.log(`     ✅ Emissions: ${annualEmissions.toFixed(2)} tCO2e`);
       }
 
       // Calculate average emission factor
@@ -455,26 +420,21 @@ export class ReplanningEngine {
       });
     }
 
-    console.log(`📊 Total current emissions (YTD actuals from metrics): ${totalCurrentEmissions.toFixed(1)} tCO2e`);
 
     // IMPORTANT: Use current_emissions from database (calculated and persisted by targets API)
     let currentEmissionsWithForecast = target.current_emissions;
 
     if (currentEmissionsWithForecast && currentEmissionsWithForecast > 0) {
-      console.log(`✅ Using current emissions from database (includes ML forecast): ${currentEmissionsWithForecast.toFixed(1)} tCO2e`);
 
       // Add forecast proportionally to each metric
       const forecastAmount = currentEmissionsWithForecast - totalCurrentEmissions;
-      console.log(`📊 Forecast for remaining months: ${forecastAmount.toFixed(1)} tCO2e`);
 
       metricStates.forEach(metric => {
         const metricShare = totalCurrentEmissions > 0 ? metric.currentAnnualEmissions / totalCurrentEmissions : 0;
         const metricForecast = forecastAmount * metricShare;
         metric.currentAnnualEmissions += metricForecast;
-        console.log(`   Adding ${metricForecast.toFixed(2)} tCO2e forecast to ${metric.metricCode}`);
       });
     } else {
-      console.log(`⚠️  Database current_emissions is null, using YTD from metrics: ${totalCurrentEmissions.toFixed(1)} tCO2e`);
       currentEmissionsWithForecast = totalCurrentEmissions;
     }
 
@@ -555,7 +515,6 @@ export class ReplanningEngine {
 
     // Apply same reduction percentage to ALL metrics
     const reductionPercent = (totalReduction / currentState.currentEmissions) * 100;
-    console.log(`   📊 Equal: Applying ${reductionPercent.toFixed(1)}% reduction to all metrics`);
 
     return currentState.metrics.map(metric => {
       const targetEmissions = metric.currentAnnualEmissions * (1 - reductionPercent / 100);
@@ -595,7 +554,6 @@ export class ReplanningEngine {
     targetYear: number
   ): MetricTargetPlan[] {
 
-    console.log(`   💰 Cost-Optimized: Allocating based on cost per tCO2e`);
 
     // Sort metrics by cost per tCO2e (cheapest first)
     const sorted = [...currentState.metrics].sort((a, b) =>
@@ -612,7 +570,6 @@ export class ReplanningEngine {
       const targetEmissions = metric.currentAnnualEmissions - allocation;
       const reductionPercent = (allocation / metric.currentAnnualEmissions) * 100;
 
-      console.log(`      ${metric.metricCode}: ${allocation.toFixed(1)} tCO2e (${reductionPercent.toFixed(0)}%) at $${metric.costPerTco2e}/tCO2e`);
 
       plans.push({
         metricId: metric.metricId,
@@ -666,7 +623,6 @@ export class ReplanningEngine {
     targetYear: number
   ): MetricTargetPlan[] {
 
-    console.log(`   ⚡ Quick Wins: Allocating based on implementation time`);
 
     // Sort by implementation time (fastest first)
     const sorted = [...currentState.metrics].sort((a, b) =>
@@ -683,7 +639,6 @@ export class ReplanningEngine {
       const targetEmissions = metric.currentAnnualEmissions - allocation;
       const reductionPercent = (allocation / metric.currentAnnualEmissions) * 100;
 
-      console.log(`      ${metric.metricCode}: ${allocation.toFixed(1)} tCO2e (${reductionPercent.toFixed(0)}%) in ${metric.implementationTimeMonths}mo`);
 
       plans.push({
         metricId: metric.metricId,
@@ -737,7 +692,6 @@ export class ReplanningEngine {
     targetYear: number
   ): MetricTargetPlan[] {
 
-    console.log(`   🎨 Custom: Using user-specified allocations`);
 
     return currentState.metrics.map(metric => {
       const allocation = allocations[metric.metricId] || 0;
@@ -781,7 +735,6 @@ export class ReplanningEngine {
     targetYear: number
   ): Promise<MetricTargetPlan[]> {
 
-    console.log(`   🤖 AI-Recommended: Using ML-powered OptimizationEngine`);
 
     try {
       // Lazy-load the OptimizationEngine to avoid circular dependencies
@@ -839,7 +792,6 @@ export class ReplanningEngine {
       // Run optimization
       const result = await optimizer.optimize(task, data);
 
-      console.log(`   ✨ AI optimization complete: score ${result.score.toFixed(2)}, confidence ${result.confidence.toFixed(2)}`);
 
       // Convert optimization result to metric allocations
       // Use a greedy approach based on cost-effectiveness, but with ML-optimized weightings
@@ -860,7 +812,6 @@ export class ReplanningEngine {
         const targetEmissions = metric.currentAnnualEmissions - allocation;
         const reductionPercent = (allocation / metric.currentAnnualEmissions) * 100;
 
-        console.log(`      ${metric.metricCode}: ${allocation.toFixed(1)} tCO2e (${reductionPercent.toFixed(0)}%) - optimized`);
 
         plans.push({
           metricId: metric.metricId,
@@ -1057,10 +1008,6 @@ export class ReplanningEngine {
 
     // DEBUG: Log what we're simulating
     const sumOfTargets = metricPlans.reduce((sum, p) => sum + p.targetAnnualEmissions, 0);
-    console.log(`   🎲 Monte Carlo Setup:`);
-    console.log(`      Target to compare against: ${target.toFixed(1)} tCO2e`);
-    console.log(`      Sum of metric targets: ${sumOfTargets.toFixed(1)} tCO2e`);
-    console.log(`      Number of metrics: ${metricPlans.length}`);
     if (Math.abs(sumOfTargets - target) > 1) {
       console.warn(`      ⚠️  WARNING: Sum of metric targets (${sumOfTargets.toFixed(1)}) does NOT match target (${target.toFixed(1)})!`);
     }
@@ -1088,11 +1035,6 @@ export class ReplanningEngine {
     const mean = outcomes.reduce((sum, v) => sum + v, 0) / runs;
     const successCount = outcomes.filter(o => o <= target).length;
 
-    console.log(`   🎲 Monte Carlo Results:`);
-    console.log(`      Median outcome: ${median.toFixed(1)} tCO2e`);
-    console.log(`      Mean outcome: ${mean.toFixed(1)} tCO2e`);
-    console.log(`      Target: ${target.toFixed(1)} tCO2e`);
-    console.log(`      Success rate: ${(successCount / runs * 100).toFixed(1)}%`);
 
     return {
       runs,
@@ -1133,7 +1075,6 @@ export class ReplanningEngine {
       throw new Error(`Failed to apply replanning: ${error.message}`);
     }
 
-    console.log('   📦 Database response:', data);
 
     // The RPC function returns a JSONB object: { success, message, historyId, summary }
     if (!data || !data.success) {

@@ -23,14 +23,11 @@ export class RiskAnalyst extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('⚠️ Initializing Risk Analyst...');
     await this.setupRiskModels();
     await this.initializeMonitoring();
-    console.log('✅ Risk Analyst initialized');
   }
 
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`⚠️ Risk Analyst executing task: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -314,18 +311,14 @@ export class RiskAnalyst extends AutonomousAgent {
   }
 
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`⚠️ Risk Analyst learning from feedback: ${feedback.outcome}`);
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('⚠️ Risk Analyst shutting down...');
   }
 
   private async setupRiskModels(): Promise<void> {
-    console.log('⚠️ Setting up risk assessment models');
   }
 
   private async initializeMonitoring(): Promise<void> {
-    console.log('⚠️ Initializing risk monitoring systems');
   }
 }

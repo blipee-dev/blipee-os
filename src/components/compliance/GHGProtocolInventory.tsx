@@ -13,6 +13,7 @@ import {
   TrendingDown
 } from 'lucide-react';
 import { GHGProtocolForm } from './GHGProtocolForm';
+import { useTranslations } from '@/providers/LanguageProvider';
 
 interface GHGInventoryData {
   reporting_year: number;
@@ -62,6 +63,8 @@ export function GHGProtocolInventory({
   selectedSite,
   selectedPeriod
 }: GHGProtocolInventoryProps) {
+  const t = useTranslations('sustainability.compliance.ghgProtocol');
+
   const [data, setData] = useState<GHGInventoryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -136,18 +139,18 @@ export function GHGProtocolInventory({
 
   const getConsolidationLabel = (approach: string) => {
     switch (approach) {
-      case 'operational_control': return 'Operational Control';
-      case 'financial_control': return 'Financial Control';
-      case 'equity_share': return 'Equity Share';
+      case 'operational_control': return t('organizationalBoundary.consolidationMethods.operational_control');
+      case 'financial_control': return t('organizationalBoundary.consolidationMethods.financial_control');
+      case 'equity_share': return t('organizationalBoundary.consolidationMethods.equity_share');
       default: return approach;
     }
   };
 
   const getAssuranceLabel = (level: string) => {
     switch (level) {
-      case 'not_verified': return 'Not Verified';
-      case 'limited': return 'Limited Assurance';
-      case 'reasonable': return 'Reasonable Assurance';
+      case 'not_verified': return t('reportingPeriod.assuranceLevels.not_verified');
+      case 'limited': return t('reportingPeriod.assuranceLevels.limited');
+      case 'reasonable': return t('reportingPeriod.assuranceLevels.reasonable');
       default: return level;
     }
   };
@@ -158,6 +161,24 @@ export function GHGProtocolInventory({
       case 'limited': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300';
       default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300';
     }
+  };
+
+  // Helper to detect and translate default compliance statement
+  const getComplianceStatement = (statement: string) => {
+    const defaultEnglishStatement = 'This inventory has been prepared in conformance with the GHG Protocol Corporate Accounting and Reporting Standard (Revised Edition). Scope 2 emissions are reported using both location-based and market-based methods as per the Scope 2 Guidance.';
+    if (statement === defaultEnglishStatement) {
+      return t('complianceStatement.defaultStatement');
+    }
+    return statement;
+  };
+
+  // Helper to detect and translate default methodology
+  const getMethodologyDescription = (description: string) => {
+    const defaultEnglishMethodology = 'Emissions calculated using activity-based approach with region and year-specific emission factors from DEFRA, EPA, and IEA. Scope 3 categories screened per GHG Protocol Corporate Value Chain (Scope 3) Standard.';
+    if (description === defaultEnglishMethodology) {
+      return t('complianceStatement.defaultMethodology');
+    }
+    return description;
   };
 
   return (
@@ -175,10 +196,10 @@ export function GHGProtocolInventory({
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              About This Inventory
+              {t('header.title')}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              GHG Protocol Corporate Standard requirements
+              {t('header.subtitle')}
             </p>
           </div>
           {!isReadOnly ? (
@@ -187,12 +208,12 @@ export function GHGProtocolInventory({
               className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
             >
               <Edit className="w-4 h-4" />
-              Edit Settings
+              {t('header.editButton')}
             </button>
           ) : (
             <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg text-sm flex items-center gap-2">
               <Info className="w-4 h-4" />
-              Historical data (read-only)
+              {t('header.historicalReadOnly')}
             </div>
           )}
         </div>
@@ -205,19 +226,19 @@ export function GHGProtocolInventory({
             <Building2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Organizational Boundary
+            {t('organizationalBoundary.title')}
           </h3>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Consolidation Approach</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('organizationalBoundary.consolidationApproach')}</p>
             <p className="font-semibold text-gray-900 dark:text-white">
               {getConsolidationLabel(data.consolidation_approach)}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Reporting Entity</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('organizationalBoundary.reportingEntity')}</p>
             <p className="font-semibold text-gray-900 dark:text-white">
               {data.reporting_entity}
             </p>
@@ -232,13 +253,13 @@ export function GHGProtocolInventory({
             <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Operational Boundary
+            {t('operationalBoundary.title')}
           </h3>
         </div>
 
         <div className="space-y-4">
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Gases Covered</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{t('operationalBoundary.gasesCovered')}</p>
             <div className="flex flex-wrap gap-2">
               {data.gases_covered.map((gas) => (
                 <span
@@ -252,7 +273,7 @@ export function GHGProtocolInventory({
           </div>
 
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">GWP Standard</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('operationalBoundary.gwpStandard')}</p>
             <p className="font-semibold text-gray-900 dark:text-white">
               {data.gwp_standard}
             </p>
@@ -267,20 +288,20 @@ export function GHGProtocolInventory({
             <Calendar className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Base Year
+            {t('baseYear.title')}
           </h3>
         </div>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Selected Year</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('baseYear.selectedYear')}</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {data.base_year}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Recalculation Threshold</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('baseYear.recalculationThreshold')}</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 ±{data.recalculation_threshold}%
               </p>
@@ -288,7 +309,7 @@ export function GHGProtocolInventory({
           </div>
 
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Rationale</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('baseYear.rationale')}</p>
             <p className="text-gray-700 dark:text-gray-300">
               {data.base_year_rationale}
             </p>
@@ -297,29 +318,29 @@ export function GHGProtocolInventory({
           {data.base_year_emissions && data.base_year !== selectedYear && (
             <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
               <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                Base Year Emissions ({data.base_year})
+                {t('baseYear.baseYearEmissions')} ({data.base_year})
               </p>
               <div className="grid grid-cols-4 gap-3 text-sm">
                 <div>
-                  <p className="text-gray-500 dark:text-gray-400">Scope 1</p>
+                  <p className="text-gray-500 dark:text-gray-400">{t('emissionsSummary.scope1')}</p>
                   <p className="font-semibold text-gray-900 dark:text-white">
                     {data.base_year_emissions.scope_1.toLocaleString()} tCO₂e
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500 dark:text-gray-400">Scope 2</p>
+                  <p className="text-gray-500 dark:text-gray-400">{t('emissionsSummary.scope2LB')}</p>
                   <p className="font-semibold text-gray-900 dark:text-white">
                     {data.base_year_emissions.scope_2.toLocaleString()} tCO₂e
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500 dark:text-gray-400">Scope 3</p>
+                  <p className="text-gray-500 dark:text-gray-400">{t('emissionsSummary.scope3')}</p>
                   <p className="font-semibold text-gray-900 dark:text-white">
                     {data.base_year_emissions.scope_3.toLocaleString()} tCO₂e
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500 dark:text-gray-400">Total</p>
+                  <p className="text-gray-500 dark:text-gray-400">{t('emissionsSummary.total')}</p>
                   <p className="font-semibold text-purple-900 dark:text-purple-300">
                     {data.base_year_emissions.total.toLocaleString()} tCO₂e
                   </p>
@@ -331,7 +352,7 @@ export function GHGProtocolInventory({
                   <div className="flex items-center gap-2">
                     <TrendingDown className="w-4 h-4 text-green-600 dark:text-green-400" />
                     <p className="text-sm text-gray-700 dark:text-gray-300">
-                      Change from base year:{' '}
+                      {t('baseYear.changeFromBaseYear')}:{' '}
                       <span className={`font-semibold ${
                         data.emissions.total_gross < data.base_year_emissions.total
                           ? 'text-green-600 dark:text-green-400'
@@ -355,19 +376,19 @@ export function GHGProtocolInventory({
             <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Reporting Period & Assurance
+            {t('reportingPeriod.title')}
           </h3>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Reporting Period</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('reportingPeriod.period')}</p>
             <p className="font-semibold text-gray-900 dark:text-white">
               {new Date(data.period_start).toLocaleDateString()} – {new Date(data.period_end).toLocaleDateString()}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Assurance Level</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('reportingPeriod.assuranceLevel')}</p>
             <span className={`inline-block px-3 py-1 rounded-lg text-sm font-medium ${getAssuranceColor(data.assurance_level)}`}>
               {getAssuranceLabel(data.assurance_level)}
             </span>
@@ -376,7 +397,7 @@ export function GHGProtocolInventory({
 
         {data.assurance_provider && (
           <div className="mt-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Assurance Provider</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('reportingPeriod.assuranceProvider')}</p>
             <p className="font-semibold text-gray-900 dark:text-white">
               {data.assurance_provider}
             </p>
@@ -391,19 +412,19 @@ export function GHGProtocolInventory({
             <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            GHG Protocol Compliance Statement
+            {t('complianceStatement.title')}
           </h3>
         </div>
 
         <div className="space-y-4">
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            {data.compliance_statement}
+            {getComplianceStatement(data.compliance_statement)}
           </p>
 
           <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <p className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">Methodology:</p>
+            <p className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">{t('complianceStatement.methodology')}</p>
             <p className="text-sm text-blue-800 dark:text-blue-300">
-              {data.methodology_description}
+              {getMethodologyDescription(data.methodology_description)}
             </p>
           </div>
         </div>
@@ -416,13 +437,13 @@ export function GHGProtocolInventory({
             <TrendingDown className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Emissions Summary ({data.reporting_year})
+            {t('emissionsSummary.title')} ({data.reporting_year})
           </h3>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Scope 1</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{t('emissionsSummary.scope1')}</p>
             <p className="text-xl font-bold text-gray-900 dark:text-white">
               {data.emissions.scope_1_gross.toLocaleString()}
             </p>
@@ -430,7 +451,7 @@ export function GHGProtocolInventory({
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Scope 2 (LB)</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{t('emissionsSummary.scope2LB')}</p>
             <p className="text-xl font-bold text-gray-900 dark:text-white">
               {data.emissions.scope_2_location_based.toLocaleString()}
             </p>
@@ -438,7 +459,7 @@ export function GHGProtocolInventory({
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Scope 2 (MB)</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{t('emissionsSummary.scope2MB')}</p>
             <p className="text-xl font-bold text-gray-900 dark:text-white">
               {data.emissions.scope_2_market_based.toLocaleString()}
             </p>
@@ -446,7 +467,7 @@ export function GHGProtocolInventory({
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Scope 3</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{t('emissionsSummary.scope3')}</p>
             <p className="text-xl font-bold text-gray-900 dark:text-white">
               {data.emissions.scope_3_gross.toLocaleString()}
             </p>
@@ -454,7 +475,7 @@ export function GHGProtocolInventory({
           </div>
 
           <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 md:col-span-2">
-            <p className="text-xs text-purple-600 dark:text-purple-400 mb-1">Total</p>
+            <p className="text-xs text-purple-600 dark:text-purple-400 mb-1">{t('emissionsSummary.total')}</p>
             <p className="text-2xl font-bold text-purple-900 dark:text-purple-300">
               {data.emissions.total_gross.toLocaleString()}
             </p>
@@ -465,7 +486,7 @@ export function GHGProtocolInventory({
         {data.scope3_categories_in_data.length > 0 && (
           <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Scope 3 Categories Reported:
+              {t('emissionsSummary.scope3Categories')}
             </p>
             <div className="flex flex-wrap gap-2">
               {data.scope3_categories_in_data.map((category) => (
@@ -486,11 +507,9 @@ export function GHGProtocolInventory({
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
           <div className="text-sm text-blue-800 dark:text-blue-300">
-            <p className="font-semibold mb-1">About the GHG Protocol</p>
+            <p className="font-semibold mb-1">{t('infoBox.title')}</p>
             <p>
-              The GHG Protocol Corporate Standard provides requirements and guidance for companies preparing a corporate-level
-              GHG emissions inventory. It covers the accounting and reporting of seven greenhouse gases covered by the Kyoto
-              Protocol.
+              {t('infoBox.description')}
             </p>
           </div>
         </div>

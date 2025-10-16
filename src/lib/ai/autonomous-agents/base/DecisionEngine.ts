@@ -87,7 +87,6 @@ export class DecisionEngine {
     agentCapabilities: AgentCapabilities,
     context?: DecisionContext
   ): Promise<Decision> {
-    console.log(`🧠 Analyzing decision: ${decision.description}`);
     
     try {
       // 1. Perform risk assessment for each option
@@ -143,7 +142,6 @@ export class DecisionEngine {
         autoExecute: !requiresApproval && confidence >= this.confidenceThreshold
       };
       
-      console.log(`✅ Decision analysis complete. Selected: ${optimalOption.name} (confidence: ${Math.round(confidence * 100)}%)`);
       
       return analyzedDecision;
       

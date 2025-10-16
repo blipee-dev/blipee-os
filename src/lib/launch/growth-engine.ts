@@ -294,7 +294,6 @@ export class GrowthEngineSystem extends EventEmitter {
       status: 'active'
     });
 
-    console.log('🔄 Growth loops initialized and running');
   }
 
   private initializeNetworkEffects(): void {
@@ -346,7 +345,6 @@ export class GrowthEngineSystem extends EventEmitter {
       growth_rate: 18
     });
 
-    console.log('🌐 Network effects activated and growing');
   }
 
   private initializeViralMechanisms(): void {
@@ -422,7 +420,6 @@ export class GrowthEngineSystem extends EventEmitter {
       average_invites: 20
     });
 
-    console.log('🦠 Viral mechanisms configured for exponential growth');
   }
 
   private initializeRetentionStrategies(): void {
@@ -498,11 +495,9 @@ export class GrowthEngineSystem extends EventEmitter {
       success_rate: 88
     });
 
-    console.log('🎯 Retention strategies activated for 95% retention');
   }
 
   private startGrowthEngine(): void {
-    console.log('🚀 GROWTH ENGINE STARTED - Target: 40% market share in 24 months');
 
     // Start continuous optimization
     setInterval(() => {
@@ -532,7 +527,6 @@ export class GrowthEngineSystem extends EventEmitter {
       if (optimization.improvement > 10) {
         loop.effectiveness = Math.min(100, loop.effectiveness + optimization.improvement);
         loop.amplification *= 1 + (optimization.improvement / 100);
-        console.log(`📈 Optimized ${loop.name}: +${optimization.improvement}% effectiveness`);
       }
     });
   }
@@ -548,7 +542,6 @@ export class GrowthEngineSystem extends EventEmitter {
     
     this.flywheel.momentum = Math.min(100, avgConversion);
     
-    console.log(`⚡ Flywheel velocity: ${this.flywheel.velocity.toFixed(1)} RPM`);
   }
 
   private runExperiments(): void {
@@ -604,7 +597,6 @@ export class GrowthEngineSystem extends EventEmitter {
     experiment.status = 'completed';
 
     if (result.winner) {
-      console.log(`🎉 Experiment ${experiment.name} won with ${result.lift.toFixed(1)}% lift!`);
       this.applyExperimentWinner(experiment);
     }
   }
@@ -617,7 +609,6 @@ export class GrowthEngineSystem extends EventEmitter {
     
     if (affectedStage && experiment.results) {
       affectedStage.conversion_rate *= (1 + experiment.results.lift / 100);
-      console.log(`✅ Applied experiment results to ${affectedStage.name}`);
     }
   }
 
@@ -631,7 +622,6 @@ export class GrowthEngineSystem extends EventEmitter {
       const currentUsers = this.estimateUserCount();
       if (currentUsers >= effect.threshold && effect.current_strength < 50) {
         effect.current_strength = 50; // Threshold activation boost
-        console.log(`🎊 Network effect activated: ${effect.name}`);
       }
     });
   }
@@ -650,7 +640,6 @@ export class GrowthEngineSystem extends EventEmitter {
     
     // Alert on exceptional performance
     if (metrics.viralCoefficient > 1.5) {
-      console.log('🚨 VIRAL GROWTH ACHIEVED! K-factor: ' + metrics.viralCoefficient.toFixed(2));
     }
   }
 

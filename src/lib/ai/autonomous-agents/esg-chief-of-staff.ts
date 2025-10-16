@@ -185,7 +185,6 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   
   async executeTask(task: AgentTask): Promise<AgentResult> {
     const startTime = Date.now();
-    console.log(`🎯 ESG Chief executing: ${task.type} (${task.priority} priority)`);
     
     // Get relevant knowledge for this task
     const knowledge = await this.learningSystem.getRelevantKnowledge(
@@ -852,7 +851,6 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   }
   
   private async sendAlert(alert: any): Promise<void> {
-    console.log(`🚨 Sending ${alert.severity} alert: ${alert.title}`);
     
     // This would integrate with notification system
     await this.supabase
@@ -927,7 +925,6 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   }
   
   private async recallReport(reportId: string): Promise<void> {
-    console.log(`Recalling report ${reportId}`);
     // Implementation for report recall
   }
   
@@ -939,12 +936,10 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
       rollbackPlan: 'Revert settings via control panel'
     };
     
-    console.log(`Handling critical anomaly in ${anomaly.metric}`);
     return response;
   }
   
   private async updateMonitoringDashboard(anomalies: any[]): Promise<void> {
-    console.log(`Updating dashboard with ${anomalies.length} anomalies`);
     // Dashboard update implementation
   }
   
@@ -1001,13 +996,11 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   }
   
   private async implementOptimization(opportunity: OptimizationOpportunity): Promise<boolean> {
-    console.log(`Implementing optimization: ${opportunity.name}`);
     // Implementation logic
     return true;
   }
   
   private async rollbackOptimization(optimizationId: string): Promise<void> {
-    console.log(`Rolling back optimization: ${optimizationId}`);
     // Rollback logic
   }
   
@@ -1041,22 +1034,18 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
   }
   
   private async sendComplianceReminder(framework: string, daysUntil: number, status: any): Promise<void> {
-    console.log(`Sending ${framework} compliance reminder - ${daysUntil} days remaining`);
     // Send reminder implementation
   }
   
   private async updateOptimizationModel(result: AgentResult): Promise<void> {
-    console.log('Updating optimization model based on results');
     // Model update logic
   }
   
   private async refineThresholds(result: AgentResult): Promise<void> {
-    console.log('Refining anomaly detection thresholds');
     // Threshold refinement logic
   }
   
   private async learnReportEffectiveness(result: AgentResult): Promise<void> {
-    console.log('Learning from report distribution effectiveness');
     // Report effectiveness learning logic
   }
 }

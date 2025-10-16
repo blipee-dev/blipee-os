@@ -36,17 +36,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'start_date and end_date are required' }, { status: 400 });
     }
 
-    console.log('🔍 [Top Metrics API] Fetching top metrics for:', {
-      organizationId,
-      startDate,
-      endDate,
-      limit
-    });
-
     // Get top metrics using the baseline calculator
     const metrics = await getTopMetrics(organizationId, startDate, endDate, limit);
 
-    console.log('✅ [Top Metrics API] Returning', metrics.length, 'metrics');
 
     return NextResponse.json({
       metrics,

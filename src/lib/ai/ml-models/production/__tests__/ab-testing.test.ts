@@ -104,7 +104,6 @@ describe('A/B Testing Framework', () => {
 
   describe('Experiment Setup and Configuration', () => {
     it('should create and start a new A/B test experiment', async () => {
-      console.log('🧪 Testing A/B test experiment creation...');
       
       const trafficSplit: TrafficSplit = {
         control: {
@@ -144,11 +143,9 @@ describe('A/B Testing Framework', () => {
       expect(activeTests[0].testName).toBe('Model Performance Test');
       expect(activeTests[0].status).toBe('running');
       
-      console.log(`   ✅ Test created with ID: ${testId}`);
     });
 
     it('should validate traffic split configuration', async () => {
-      console.log('🧪 Testing traffic split validation...');
       
       // Invalid traffic split (doesn't sum to 100%)
       const invalidTrafficSplit: TrafficSplit = {
@@ -178,11 +175,9 @@ describe('A/B Testing Framework', () => {
       await expect(abTesting.startExperiment(invalidConfig))
         .rejects.toThrow('Traffic split must sum to 100%');
       
-      console.log('   ✅ Traffic split validation working correctly');
     });
 
     it('should handle multiple variants in traffic split', async () => {
-      console.log('🧪 Testing multiple variants configuration...');
       
       const multiVariantSplit: TrafficSplit = {
         control: {
@@ -219,7 +214,6 @@ describe('A/B Testing Framework', () => {
       const testId = await abTesting.startExperiment(config);
       expect(testId).toBeDefined();
       
-      console.log('   ✅ Multi-variant configuration working correctly');
     });
   });
 
@@ -255,7 +249,6 @@ describe('A/B Testing Framework', () => {
     });
 
     it('should consistently assign users to variants', async () => {
-      console.log('🧪 Testing consistent user assignment...');
       
       const _userId = 'user_123';
       const sessionId = 'session_456';
@@ -281,11 +274,9 @@ describe('A/B Testing Framework', () => {
       const uniqueVariants = new Set(predictions);
       expect(uniqueVariants.size).toBe(1);
       
-      console.log(`   ✅ User consistently assigned to: ${predictions[0]}`);
     });
 
     it('should distribute traffic according to configured split', async () => {
-      console.log('🧪 Testing traffic distribution...');
       
       const assignments: string[] = [];
       
@@ -317,11 +308,9 @@ describe('A/B Testing Framework', () => {
       expect(variantPercentage).toBeGreaterThan(40);
       expect(variantPercentage).toBeLessThan(60);
       
-      console.log(`   📊 Traffic distribution: Control ${controlPercentage.toFixed(1)}%, Variant ${variantPercentage.toFixed(1)}%`);
     });
 
     it('should route predictions to correct models', async () => {
-      console.log('🧪 Testing model routing...');
       
       const request: ABTestRequest = {
         userId: 'test_user',
@@ -338,7 +327,6 @@ describe('A/B Testing Framework', () => {
       expect(result.confidence).toBeGreaterThan(0);
       expect(result.confidence).toBeLessThanOrEqual(1);
       
-      console.log(`   ✅ Prediction routed to ${result.variant} with ${result.latency}ms latency`);
     });
   });
 
@@ -374,7 +362,6 @@ describe('A/B Testing Framework', () => {
     });
 
     it('should record prediction outcomes correctly', async () => {
-      console.log('🧪 Testing outcome recording...');
       
       const request: ABTestRequest = {
         userId: 'outcome_user',
@@ -404,11 +391,9 @@ describe('A/B Testing Framework', () => {
       const experimentResults = await abTesting.getExperimentResults(testId);
       expect(experimentResults.totalRequests).toBe(1);
       
-      console.log('   ✅ Outcome recorded successfully');
     });
 
     it('should calculate variant performance metrics', async () => {
-      console.log('🧪 Testing performance metrics calculation...');
       
       // Generate test data for both variants
       const predictions = [];
@@ -455,8 +440,6 @@ describe('A/B Testing Framework', () => {
       expect(controlPerf.averageLatency).toBeGreaterThan(0);
       expect(variantPerf.averageLatency).toBeGreaterThan(0);
       
-      console.log(`   📊 Control: ${controlPerf.totalRequests} requests, ${controlPerf.averageLatency.toFixed(1)}ms avg latency`);
-      console.log(`   📊 Variant: ${variantPerf.totalRequests} requests, ${variantPerf.averageLatency.toFixed(1)}ms avg latency`);
     });
   });
 
@@ -492,7 +475,6 @@ describe('A/B Testing Framework', () => {
     });
 
     it('should calculate statistical significance correctly', async () => {
-      console.log('🧪 Testing statistical significance calculation...');
       
       const results = await abTesting.getExperimentResults(testId);
       
@@ -505,12 +487,9 @@ describe('A/B Testing Framework', () => {
       // With no data, should not be significant
       expect(results.statisticalSignificance.isSignificant).toBe(false);
       
-      console.log(`   📊 P-value: ${results.statisticalSignificance.pValue.toFixed(4)}`);
-      console.log(`   📊 Is significant: ${results.statisticalSignificance.isSignificant}`);
     });
 
     it('should generate appropriate test recommendations', async () => {
-      console.log('🧪 Testing recommendation generation...');
       
       const results = await abTesting.getExperimentResults(testId);
       
@@ -524,12 +503,9 @@ describe('A/B Testing Framework', () => {
       // With insufficient data, should recommend continuing
       expect(results.recommendation.action).toBe('continue');
       
-      console.log(`   🎯 Recommendation: ${results.recommendation.action}`);
-      console.log(`   📝 Reasoning: ${results.recommendation.reasoning[0]}`);
     });
 
     it('should generate meaningful insights', async () => {
-      console.log('🧪 Testing insight generation...');
       
       const results = await abTesting.getExperimentResults(testId);
       
@@ -541,16 +517,13 @@ describe('A/B Testing Framework', () => {
         insight.includes('power') || insight.includes('sample')
       )).toBe(true);
       
-      console.log(`   💡 Generated ${results.insights.length} insights`);
       results.insights.forEach((insight, i) => {
-        console.log(`   💡 ${i + 1}. ${insight}`);
       });
     });
   });
 
   describe('Experiment Management', () => {
     it('should stop experiments correctly', async () => {
-      console.log('🧪 Testing experiment stopping...');
       
       const trafficSplit: TrafficSplit = {
         control: {
@@ -588,11 +561,9 @@ describe('A/B Testing Framework', () => {
       expect(finalResults.status).toBe('stopped');
       expect(finalResults.endTime).toBeDefined();
       
-      console.log('   ✅ Experiment stopped successfully');
     });
 
     it('should handle multiple concurrent experiments', async () => {
-      console.log('🧪 Testing multiple concurrent experiments...');
       
       const createTestConfig = (name: string): ABTestConfig => ({
         testName: name,
@@ -628,11 +599,9 @@ describe('A/B Testing Framework', () => {
       expect(testNames).toContain('Test 2');
       expect(testNames).toContain('Test 3');
       
-      console.log(`   ✅ Running ${activeTests.length} concurrent experiments`);
     });
 
     it('should enforce experiment duration limits', async () => {
-      console.log('🧪 Testing experiment duration limits...');
       
       const trafficSplit: TrafficSplit = {
         control: {
@@ -667,13 +636,11 @@ describe('A/B Testing Framework', () => {
       const results = await abTesting.getExperimentResults(testId);
       expect(results.status).toBe('stopped');
       
-      console.log('   ⏱️ Experiment auto-stopped after duration limit');
     }, 10000);
   });
 
   describe('Error Handling and Edge Cases', () => {
     it('should handle invalid test IDs gracefully', async () => {
-      console.log('🧪 Testing invalid test ID handling...');
       
       const invalidTestId = 'invalid_test_id';
       
@@ -690,11 +657,9 @@ describe('A/B Testing Framework', () => {
       await expect(abTesting.getExperimentResults(invalidTestId))
         .rejects.toThrow('A/B test invalid_test_id not found');
       
-      console.log('   ✅ Invalid test ID handling working correctly');
     });
 
     it('should handle prediction errors gracefully', async () => {
-      console.log('🧪 Testing prediction error handling...');
       
       // Create a model that throws errors
       class ErrorModel extends BaseModel {
@@ -751,11 +716,9 @@ describe('A/B Testing Framework', () => {
         const result = await abTesting.predict(testId, request);
         // If we get here, the user was assigned to the control model
         expect(result.variant).toBe('control');
-        console.log('   ✅ User assigned to working control model');
       } catch (error) {
         // If we get here, the user was assigned to the error model
         expect(.message).toBe('Prediction failed');
-        console.log('   ✅ Error model failure handled correctly');
       }
     });
   });

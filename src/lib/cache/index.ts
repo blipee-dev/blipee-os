@@ -28,7 +28,6 @@ export async function initializeCache(): Promise<void> {
     const client = await redisClient.getClient();
     await client.ping();
     
-    console.log('✅ Cache system initialized');
     
     // Optionally warm up cache
     if (process.env.CACHE_WARMUP === 'true') {
@@ -45,5 +44,4 @@ export async function initializeCache(): Promise<void> {
  */
 export async function shutdownCache(): Promise<void> {
   await redisClient.disconnect();
-  console.log('✅ Cache system shutdown complete');
 }

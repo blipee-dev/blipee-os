@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { scenario, currentEmissions, siteId } = body;
 
-    console.log('✅ Using calculator-consistent rounding for scenario simulation');
 
     // Simulate each metric individually
     const metricSimulations: MetricSimulation[] = scenario.metricReductions.map((metric: any) => {

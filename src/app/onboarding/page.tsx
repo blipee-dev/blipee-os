@@ -27,7 +27,6 @@ export default function OnboardingPage() {
 
   const handleComplete = async (config: any) => {
     // Save onboarding configuration
-    console.log("Onboarding complete:", config);
 
     // Navigate to blipee-ai
     router.push("/blipee-ai");

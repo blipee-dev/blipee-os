@@ -159,7 +159,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(`🔬 Water Enterprise Forecasting: ${historicalMonthly.length} historical months → ${monthsToForecast} forecast months`);
 
     // Use enterprise forecaster for withdrawal
     const withdrawalData = historicalMonthly.map(m => ({
@@ -218,11 +217,6 @@ export async function GET(request: NextRequest) {
       currentMonth++;
     }
 
-    console.log('✅ Water Enterprise Forecast:');
-    console.log(`  Method: ${withdrawalForecast.method}`);
-    console.log(`  Model Quality: R²=${withdrawalForecast.metadata.r2.toFixed(3)}`);
-    console.log(`  Last actual: ${lastDataMonth.monthKey} (${(lastDataMonth.withdrawal / 1000).toFixed(1)} ML)`);
-    console.log(`  Forecasted total withdrawal: ${(forecastMonths.reduce((sum, f) => sum + f.withdrawal, 0) / 1000).toFixed(1)} ML`);
 
     return NextResponse.json({
       forecast: forecastMonths,

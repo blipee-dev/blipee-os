@@ -405,7 +405,6 @@ export class WhatIfAnalysisEngine {
    * Perform what-if analysis
    */
   async analyze(request: WhatIfAnalysisRequest): Promise<WhatIfAnalysisResult> {
-    console.log(`❓ Analyzing: "${request.question.question}"`);
     
     // Validate request
     this.validateRequest(_request);
@@ -480,7 +479,6 @@ export class WhatIfAnalysisEngine {
     variable: WhatIfVariable,
     range: VariableRange
   ): Promise<ExplorationResult> {
-    console.log(`🔍 Exploring ${variable.name} impact`);
     
     const results: ParametricResult[] = [];
     const steps = range.step || (range.max - range.min) / 20;
@@ -522,7 +520,6 @@ export class WhatIfAnalysisEngine {
     objectives: WhatIfObjective[],
     constraints: WhatIfConstraint[]
   ): Promise<MultiDimensionalResult> {
-    console.log(`📊 Analyzing ${variables.length}-dimensional what-if space`);
     
     // Create design of experiments
     const experiments = this.createDesignOfExperiments(variables);
@@ -579,7 +576,6 @@ export class WhatIfAnalysisEngine {
     previousResult: WhatIfAnalysisResult,
     changes: AnalysisUpdate
   ): Promise<WhatIfAnalysisResult> {
-    console.log(`🔄 Updating what-if analysis`);
     
     // Determine what needs updating
     const updateScope = this.determineUpdateScope(previousResult, changes);
@@ -639,7 +635,6 @@ export class WhatIfAnalysisEngine {
     adjustableVariables: WhatIfVariable[],
     constraints: WhatIfConstraint[]
   ): Promise<GoalSeekResult> {
-    console.log(`🎯 Goal seeking: ${targetMetric} = ${targetValue}`);
     
     // Formulate optimization problem
     const problem = this.formulateGoalSeekProblem(
@@ -686,7 +681,6 @@ export class WhatIfAnalysisEngine {
     scenarios: WhatIfScenario[],
     uncertainties: UncertaintyDefinition[]
   ): Promise<ProbabilisticResult> {
-    console.log(`🎲 Probabilistic what-if analysis with ${uncertainties.length} uncertainties`);
     
     // Generate probability distributions
     const distributions = this.createDistributions(uncertainties);
@@ -732,7 +726,6 @@ export class WhatIfAnalysisEngine {
     result: WhatIfAnalysisResult,
     audience: 'technical' | 'executive' | 'operational'
   ): Promise<Explanation> {
-    console.log(`📝 Explaining results for ${audience} audience`);
     
     // Generate narrative
     const narrative = this.generateNarrative(result, audience);

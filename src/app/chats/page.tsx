@@ -36,8 +36,8 @@ export default function ChatsPage() {
     <AppLayout
       conversations={mockConversations}
       onNewConversation={() => router.push("/blipee-ai")}
-      onSelectConversation={(id) => console.log("Select conversation", id)}
-      onDeleteConversation={(id) => console.log("Delete conversation", id)}
+      onSelectConversation={(id) =>}
+      onDeleteConversation={(id) =>}
       showSidebar={false}
       pageTitle="Chat History"
     >

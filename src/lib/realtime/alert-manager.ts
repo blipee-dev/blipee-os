@@ -243,7 +243,6 @@ class AlertManager extends EventEmitter {
    * Escalate critical alert
    */
   private async escalateAlert(alert: Alert): Promise<void> {
-    console.log(`🚨 ESCALATING CRITICAL ALERT: ${alert.title}`);
 
     // Send notifications to all admins
     const { data: admins } = await supabaseAdmin
@@ -255,7 +254,6 @@ class AlertManager extends EventEmitter {
     if (admins) {
       for (const admin of admins) {
         // In production, this would send emails, SMS, etc.
-        console.log(`Notifying admin ${admin.user_id}: ${alert.message}`);
       }
     }
 

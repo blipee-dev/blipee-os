@@ -87,11 +87,9 @@ export async function GET(request: NextRequest) {
       if (!dataError && hasData && hasData.length > 0) {
         metricsWithActualData.push(mt);
       } else {
-        console.log(`🚫 Filtering out ${mt.metric_name} (${mt.category}): no actual historical data in metrics_data table`);
       }
     }
 
-    console.log(`✅ Replanning metrics filtered: ${metricsWithActualData.length} metrics with actual data out of ${transformedMetrics.length} total`);
 
     return NextResponse.json({
       success: true,

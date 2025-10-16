@@ -75,15 +75,12 @@ export function LocaleProvider({ children, initialLocale }: LocaleProviderProps)
 
         if (storedLocale && locales.includes(storedLocale)) {
           initialLoc = storedLocale;
-          console.log('🌍 Language loaded from localStorage:', storedLocale);
         } else if (cookieLocale && locales.includes(cookieLocale)) {
           initialLoc = cookieLocale;
-          console.log('🌍 Language loaded from cookie:', cookieLocale);
         } else if (!initialLocale) {
           // Priority 3: Detect from browser language
           const browserLocale = localeUtils.getBrowserLocale();
           initialLoc = browserLocale;
-          console.log('🌍 Language detected from browser:', browserLocale);
           
           // Save detected language to localStorage
           localStorage.setItem('preferred-locale', browserLocale);
@@ -110,7 +107,6 @@ export function LocaleProvider({ children, initialLocale }: LocaleProviderProps)
     if (typeof window !== 'undefined') {
       // Primary storage: localStorage
       localStorage.setItem('preferred-locale', newLocale);
-      console.log('🌍 Language saved to localStorage:', newLocale);
       
       // Fallback storage: cookie
       document.cookie = `preferred-locale=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;

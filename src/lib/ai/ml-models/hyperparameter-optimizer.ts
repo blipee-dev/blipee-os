@@ -38,7 +38,6 @@ export class HyperparameterOptimizer {
     searchSpace: SearchSpace,
     config: OptimizationConfig
   ): Promise<Record<string, any>> {
-    console.log('Starting hyperparameter optimization...');
     
     // Reset trials
     this.trials = [];
@@ -56,8 +55,6 @@ export class HyperparameterOptimizer {
       await this.runTrial(i, objective, searchSpace, config, 'bayesian');
     }
     
-    console.log(`Optimization complete. Best score: ${this.bestTrial?.score}`);
-    console.log('Best parameters:', this.bestTrial?.params);
     
     return this.bestTrial?.params || this.getDefaultParams(searchSpace);
   }
@@ -96,7 +93,6 @@ export class HyperparameterOptimizer {
       // Update best trial
       if (this.isBetterTrial(trial, config)) {
         this.bestTrial = trial;
-        console.log(`New best trial ${trialId}: score=${score.toFixed(4)}`);
       }
       
     } catch (error) {

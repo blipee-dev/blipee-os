@@ -60,7 +60,6 @@ export default function MaterialityClient() {
   };
 
   const handleTopicSelect = (topic: any) => {
-    console.log('Selected topic:', topic);
     // Could open a detail view or link to related metrics
   };
 

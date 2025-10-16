@@ -62,7 +62,6 @@ export class AIQueueWorker {
       status: 'idle'
     };
 
-    console.log(`🏃 AI Queue Worker ${this.workerId} initialized`);
   }
 
   /**
@@ -70,7 +69,6 @@ export class AIQueueWorker {
    */
   async start(): Promise<void> {
     if (this.isRunning) {
-      console.log(`⚠️ Worker ${this.workerId} is already running`);
       return;
     }
 
@@ -78,7 +76,6 @@ export class AIQueueWorker {
     this.stats.status = 'idle';
     this.stats.startTime = Date.now();
 
-    console.log(`🚀 Starting AI Queue Worker ${this.workerId} with ${this.config.concurrency} concurrent processes`);
 
     // Start worker processes
     const workers = Array.from({ length: this.config.concurrency }, (_, i) =>
@@ -109,7 +106,6 @@ export class AIQueueWorker {
       return;
     }
 
-    console.log(`⏹️ Stopping AI Queue Worker ${this.workerId}...`);
     this.isRunning = false;
     this.stats.status = 'stopping';
 
@@ -117,7 +113,6 @@ export class AIQueueWorker {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     await this.queue.disconnect();
-    console.log(`🛑 AI Queue Worker ${this.workerId} stopped`);
   }
 
   /**
@@ -137,7 +132,6 @@ export class AIQueueWorker {
    * Individual worker process
    */
   private async runWorkerProcess(processId: number): Promise<void> {
-    console.log(`🔄 Worker process ${processId} started for ${this.workerId}`);
 
     while (this.isRunning) {
       try {
@@ -164,7 +158,6 @@ export class AIQueueWorker {
       }
     }
 
-    console.log(`🛑 Worker process ${processId} stopped`);
   }
 
   /**
@@ -174,7 +167,6 @@ export class AIQueueWorker {
     const startTime = Date.now();
     
     try {
-      console.log(`🤖 Process ${processId} processing ${request.id.slice(-8)} (${request.provider}, ${request.priority} priority)`);
       
       // Check for timeout
       const requestAge = Date.now() - request.createdAt;
@@ -213,7 +205,6 @@ export class AIQueueWorker {
           tags: ['worker_cached', request.provider, request.priority, 'processed']
         });
 
-        console.log(`💾 Cached response for request ${request.id.slice(-8)} in semantic cache`);
         
       } catch (cacheError) {
         console.error(`⚠️ Failed to cache response for ${request.id.slice(-8)}:`, cacheError);
@@ -247,7 +238,6 @@ export class AIQueueWorker {
       this.stats.requestsSucceeded++;
       this.stats.averageProcessingTime += processingTime;
 
-      console.log(`✅ Process ${processId} completed ${request.id.slice(-8)} in ${processingTime}ms`);
 
     } catch (error) {
       const processingTime = Date.now() - startTime;
@@ -268,7 +258,6 @@ export class AIQueueWorker {
       }
       this.stats.averageProcessingTime += processingTime;
 
-      console.log(`${willRetry ? '🔄' : '💀'} Request ${request.id.slice(-8)} ${willRetry ? 'will retry' : 'permanently failed'}`);
     }
   }
 
@@ -329,7 +318,6 @@ export class AIQueueWorker {
    * Health check process
    */
   private async runHealthCheck(): Promise<void> {
-    console.log(`💓 Health check started for worker ${this.workerId}`);
     
     while (this.isRunning) {
       try {
@@ -337,19 +325,16 @@ export class AIQueueWorker {
         const idleTime = Date.now() - this.stats.lastActivityTime;
         
         if (idleTime > this.config.healthCheckInterval * 2) {
-          console.log(`⚠️ Worker ${this.workerId} has been idle for ${idleTime}ms`);
         }
 
         // Check queue health
         const queueStats = await this.queue.getQueueStats();
         
         if (queueStats.pending > 100) {
-          console.log(`⚠️ High queue backlog: ${queueStats.pending} pending requests`);
         }
 
         // Log worker stats periodically
         const stats = this.getStats();
-        console.log(`📊 Worker ${this.workerId} stats: ${stats.requestsProcessed} processed, ${stats.requestsSucceeded} succeeded, ${stats.requestsFailed} failed`);
 
       } catch (error) {
         console.error(`❌ Health check error for worker ${this.workerId}:`, error);
@@ -358,7 +343,6 @@ export class AIQueueWorker {
       await this.sleep(this.config.healthCheckInterval);
     }
 
-    console.log(`💓 Health check stopped for worker ${this.workerId}`);
   }
 
   /**
@@ -383,7 +367,6 @@ export async function startAIQueueWorkers(
   workerCount: number = 3,
   config?: Partial<WorkerConfig>
 ): Promise<AIQueueWorker[]> {
-  console.log(`🚀 Starting ${workerCount} AI Queue Workers...`);
   
   const workers: AIQueueWorker[] = [];
   
@@ -400,6 +383,5 @@ export async function startAIQueueWorkers(
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   
-  console.log(`✅ Started ${workerCount} AI Queue Workers`);
   return workers;
 }

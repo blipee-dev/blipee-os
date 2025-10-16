@@ -51,8 +51,6 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
 
   // For debugging - check if user is authenticated
   React.useEffect(() => {
-    console.log('OrganizationModal - Current user from auth context:', user);
-    console.log('OrganizationModal - Session from auth context:', session);
   }, [user, session]);
 
   // Fetch GRI sectors for dropdown
@@ -70,7 +68,6 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
         }
 
         setGriSectors(data || []);
-        console.log('✅ Loaded GRI sectors:', data);
       } catch (error) {
         console.error('Failed to fetch GRI sectors:', error);
       }
@@ -438,8 +435,6 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
 
     try {
       // Check if user is authenticated using auth context
-      console.log('handleSubmit - user from context:', user);
-      console.log('handleSubmit - session from context:', session);
       
       if (!user) {
         console.error('No user in auth context!');
@@ -562,7 +557,6 @@ export default function OrganizationModal({ isOpen, onClose, onSuccess, mode = '
       }
 
       setSuccess(true);
-      console.log('Organization created successfully, calling onSuccess callback');
       
       // Call onSuccess immediately to refresh the list
       if (onSuccess) {

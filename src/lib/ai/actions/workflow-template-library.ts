@@ -191,7 +191,6 @@ export class WorkflowTemplateLibrary extends EventEmitter {
     );
 
     this.initializeTemplateLibrary();
-    console.log('Workflow Template Library initialized');
   }
 
   /**
@@ -381,7 +380,6 @@ export class WorkflowTemplateLibrary extends EventEmitter {
     // Initialize industry-specific collections
     this.initializeIndustryCollections();
 
-    console.log(`Initialized ${this.workflowTemplates.size} workflow templates and ${this.collections.size} collections`);
   }
 
   private initializeEmissionsReportingTemplates(): void {

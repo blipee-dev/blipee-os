@@ -36,7 +36,6 @@ export function clearCorruptedCookies() {
   });
   
   if (corrupted.length > 0) {
-    console.log('[Cookie Cleanup] Cleared corrupted cookies:', corrupted);
   }
 }
 

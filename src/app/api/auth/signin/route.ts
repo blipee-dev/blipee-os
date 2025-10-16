@@ -15,33 +15,27 @@ const signInSchema = z.object({
 
 async function signInHandler(request: NextRequest) {
   const startTime = Date.now();
-  console.log('🔍 SignIn handler started');
   
   let body: any;
   try {
     const parseStart = Date.now();
     body = await request.json();
-    console.log(`📝 Request parsed in ${Date.now() - parseStart}ms`);
 
     // Validate input
     const validateStart = Date.now();
     const validated = signInSchema.parse(body);
-    console.log(`✅ Validation completed in ${Date.now() - validateStart}ms`);
 
     // Sign in user with session creation
     const authStart = Date.now();
-    console.log('🔐 Starting authentication...');
     const result = await sessionAuth.signIn(
       validated.email,
       validated.password,
       request
     );
-    console.log(`🔐 Authentication completed in ${Date.now() - authStart}ms`);
 
     // Update last_login and status for successful authentication
     if (result.user && !result.requiresMFA) {
       const loginUpdateStart = Date.now();
-      console.log('🔥 DIRECT LOGIN TRACKING: Updating user login status for user:', result.user.id);
       
       try {
         // Use admin client to bypass RLS
@@ -66,7 +60,6 @@ async function signInHandler(request: NextRequest) {
 
         // If not found by auth_user_id, check by email (for legacy records)
         if (selectError && selectError.code === 'PGRST116' && result.user.email) {
-          console.log('👤 User not found by auth_user_id, checking by email...');
           const { data: userByEmail, error: emailError } = await supabaseAdmin
             .from('app_users')
             .select('id, status, auth_user_id')
@@ -75,7 +68,6 @@ async function signInHandler(request: NextRequest) {
 
           if (userByEmail && !userByEmail.auth_user_id) {
             // User exists but missing auth_user_id, update it
-            console.log('🔄 Updating existing user with auth_user_id');
             const { error: updateError } = await supabaseAdmin
               .from('app_users')
               .update({
@@ -88,7 +80,6 @@ async function signInHandler(request: NextRequest) {
             if (updateError) {
               console.error('❌ Error updating user auth_user_id:', updateError);
             } else {
-              console.log('✅ Successfully linked user to auth account');
               currentUser = { ...userByEmail, auth_user_id: result.user.id, status: 'active' };
               selectError = null;
             }
@@ -101,7 +92,6 @@ async function signInHandler(request: NextRequest) {
 
         if (selectError && selectError.code === 'PGRST116') {
           // User doesn't exist in app_users table, create them
-          console.log('👤 User not found in app_users, creating record...');
 
           const { error: insertError } = await supabaseAdmin
             .from('app_users')
@@ -117,12 +107,10 @@ async function signInHandler(request: NextRequest) {
           if (insertError) {
             console.error('❌ Error creating user record:', insertError);
           } else {
-            console.log('✅ Successfully created user record and updated login time');
           }
         } else if (selectError) {
           console.error('❌ Error fetching current user:', selectError);
         } else {
-          console.log('👤 Current user status:', currentUser?.status);
 
           // Update last_login and change status from pending to active
           const updateData: { last_login: string; status?: string } = {
@@ -132,10 +120,8 @@ async function signInHandler(request: NextRequest) {
           // If user status is pending, change to active on first login
           if (currentUser?.status === 'pending') {
             updateData.status = 'active';
-            console.log('🔄 Changing status from pending to active');
           }
 
-          console.log('💾 Updating with data:', updateData);
 
           const { error: updateError } = await supabaseAdmin
             .from('app_users')
@@ -145,14 +131,12 @@ async function signInHandler(request: NextRequest) {
           if (updateError) {
             console.error('❌ Error updating user login status:', updateError);
           } else {
-            console.log('✅ Successfully updated user login status');
           }
         }
       } catch (error) {
         console.error('🔥 DIRECT LOGIN TRACKING ERROR:', error);
       }
       
-      console.log(`🔥 DIRECT LOGIN TRACKING completed in ${Date.now() - loginUpdateStart}ms`);
     }
 
     // Log successful authentication
@@ -165,13 +149,11 @@ async function signInHandler(request: NextRequest) {
           requiresMFA: result.requiresMFA
         }
       });
-      console.log(`📊 Audit logging completed in ${Date.now() - auditStart}ms`);
     }
 
     // Check if MFA is required
     if (result.requiresMFA) {
       const totalDuration = Date.now() - startTime;
-      console.log(`🔍 SignIn completed (MFA required) in ${totalDuration}ms`);
       
       return NextResponse.json({
         success: true,
@@ -198,12 +180,9 @@ async function signInHandler(request: NextRequest) {
       // Access the sessionService directly to generate the cookie header
       const cookieHeader = sessionManager['sessionService'].generateCookieHeader(result.sessionId);
       response.headers.set('Set-Cookie', cookieHeader);
-      console.log('🍪 Session cookie set:', cookieHeader);
     }
-    console.log(`🍪 Response creation completed in ${Date.now() - responseStart}ms`);
 
     const totalDuration = Date.now() - startTime;
-    console.log(`🔍 SignIn completed successfully in ${totalDuration}ms`);
     
     return response;
   } catch (error: any) {

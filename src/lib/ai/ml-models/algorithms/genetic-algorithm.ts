@@ -80,7 +80,6 @@ export class GeneticAlgorithm {
       
       // Log progress every 10 generations
       if (this.generation % 10 === 0) {
-        console.log(`Generation ${this.generation}: Best fitness = ${this.bestIndividual?.fitness.toFixed(4)}`);
       }
     }
     

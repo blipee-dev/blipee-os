@@ -2531,6 +2531,322 @@
         }
       }
     },
+    "water": {
+      "title": "Water & Effluents",
+      "subtitle": "GRI 303 • ESRS E3 • Water withdrawal, consumption, discharge & recycling",
+      "learnMore": "Learn More",
+      "cards": {
+        "withdrawal": {
+          "title": "Total Withdrawal",
+          "unit": "ML"
+        },
+        "consumption": {
+          "title": "Consumption",
+          "unit": "ML"
+        },
+        "discharge": {
+          "title": "Discharge",
+          "unit": "ML"
+        },
+        "recycling": {
+          "title": "Recycling Rate",
+          "unit": "of total"
+        },
+        "intensity": {
+          "title": "Intensity",
+          "unit": "ML per employee"
+        }
+      },
+      "charts": {
+        "sourcesDistribution": {
+          "title": "Water Sources Distribution"
+        },
+        "monthlyBalance": {
+          "title": "Monthly Water Balance",
+          "description": "Withdrawal, discharge, and consumption"
+        },
+        "yoyComparison": {
+          "title": "Monthly YoY Comparison",
+          "description": "Total consumption vs previous year"
+        },
+        "balanceSummary": {
+          "title": "Water Balance Summary"
+        },
+        "reductionTarget": {
+          "title": "Water Reduction Target"
+        },
+        "initiatives": {
+          "title": "Water Management Initiatives"
+        }
+      },
+      "balanceSummary": {
+        "totalWithdrawal": "Total Withdrawal",
+        "totalDischarge": "Total Discharge",
+        "consumption": "Consumption (W - D)",
+        "recycledWater": "Recycled Water"
+      },
+      "target": {
+        "waterConsumption": "Water Consumption",
+        "cdpBenchmark": "CDP Benchmark",
+        "custom": "Custom",
+        "annualReduction": "annual reduction",
+        "baseline": "Baseline",
+        "cdpDescription": "Using CDP Water Security benchmark (2.5% annual)",
+        "customDescription": "Custom target: {rate}% annual",
+        "status": {
+          "exceeding": "exceeding",
+          "onTrack": "on track",
+          "atRisk": "at risk",
+          "offTrack": "off track"
+        },
+        "columns": {
+          "baseline": "Baseline",
+          "target": "Target",
+          "projected": "Projected"
+        },
+        "initiativesSubtitle": "CDP Water Security • 2.5% annual reduction • Baseline 2023",
+        "annualReductionTarget": "2.5% annual reduction target"
+      },
+      "tooltips": {
+        "current": "Current:",
+        "lastYear": "Last Year:",
+        "increase": "Increase",
+        "decrease": "Decrease",
+        "inConsumption": "in consumption",
+        "baseline": "Baseline:",
+        "target": "Target:",
+        "metrics": "metrics",
+        "withdrawal": "Withdrawal:",
+        "share": "Share:",
+        "discharge": "Discharge:",
+        "recycled": "Recycled",
+        "consumption": "Consumption:"
+      },
+      "legends": {
+        "withdrawal": "Withdrawal",
+        "discharge": "Discharge",
+        "consumptionTotal": "Consumption (Total)"
+      },
+      "sources": {
+        "waterSupplyMunicipal": "Water Supply (Municipal)",
+        "recycledWaterToiletFlush": "Recycled Water - Toilet Flush",
+        "wastewaterDischarge": "Wastewater Discharge",
+        "kitchenCafeteria": "Kitchen & Cafeteria",
+        "cleaningMaintenance": "Cleaning & Maintenance",
+        "landscapingIrrigation": "Landscaping & Irrigation",
+        "otherUses": "Other Uses",
+        "toiletsSanitary": "Toilets & Sanitary"
+      },
+      "actions": {
+        "addInitiative": "Add Initiative"
+      },
+      "waterSourcesExplanation": "Water withdrawal by source tracks where your organization obtains water from (municipal, groundwater, surface water, etc.). Understanding your water sources helps identify dependencies, stress levels, and opportunities for conservation or alternative sources like rainwater harvesting.",
+      "waterBalanceExplanation": "The water balance shows the complete flow of water through your organization: withdrawal (intake), discharge (output), and consumption (water not returned). This helps identify water efficiency opportunities and compliance with GRI 303-3 and ESRS E3 standards.",
+      "yoyComparisonExplanation": "Year-over-year comparison of water consumption shows trends and the effectiveness of water reduction initiatives. Decreasing consumption indicates successful water management, while increases may signal the need for new conservation measures.",
+      "waterBalanceSummaryExplanation": "Water consumption is calculated as total withdrawal minus total discharge (W - D). This represents water that is not returned to local ecosystems or communities, including evaporation, incorporation into products, or consumed by humans. Per GRI 303-5, reducing consumption is critical in water-stressed areas.",
+      "waterReductionTargetExplanation": "Water reduction targets help track progress toward conservation goals. The CDP Water Security benchmark recommends a 2.5% annual reduction in water consumption. Targets account for business growth and are measured against a baseline year to ensure continuous improvement.",
+      "waterInitiativesExplanation": "Water management initiatives are specific actions to reduce consumption, improve efficiency, or secure alternative water sources. These can include equipment upgrades, process changes, recycling systems, or behavioral programs. Each initiative tracks estimated savings, costs, and implementation status."
+    },
+    "compliance": {
+      "title": "Compliance Dashboard",
+      "subtitle": "GHG Protocol • GRI • ESRS E1 • TCFD",
+      "tabs": {
+        "overview": "Overview",
+        "ghgProtocol": "GHG Protocol",
+        "gri": "GRI",
+        "esrs": "ESRS E1",
+        "tcfd": "TCFD"
+      },
+      "historicalNotice": {
+        "title": "Viewing Historical Compliance Data",
+        "year": "({year})",
+        "description": "This data is read-only to maintain audit trails and data integrity. All editing capabilities are disabled for past years."
+      },
+      "ghgProtocol": {
+        "header": {
+          "title": "About This Inventory",
+          "subtitle": "GHG Protocol Corporate Standard requirements",
+          "editButton": "Edit Settings",
+          "historicalReadOnly": "Historical data (read-only)"
+        },
+        "organizationalBoundary": {
+          "title": "Organizational Boundary",
+          "consolidationApproach": "Consolidation Approach",
+          "reportingEntity": "Reporting Entity",
+          "consolidationMethods": {
+            "operational_control": "Operational Control",
+            "financial_control": "Financial Control",
+            "equity_share": "Equity Share"
+          }
+        },
+        "operationalBoundary": {
+          "title": "Operational Boundary",
+          "gasesCovered": "Gases Covered",
+          "gwpStandard": "GWP Standard"
+        },
+        "baseYear": {
+          "title": "Base Year",
+          "selectedYear": "Selected Year",
+          "recalculationThreshold": "Recalculation Threshold",
+          "rationale": "Rationale",
+          "baseYearEmissions": "Base Year Emissions",
+          "changeFromBaseYear": "Change from base year"
+        },
+        "reportingPeriod": {
+          "title": "Reporting Period & Assurance",
+          "period": "Reporting Period",
+          "assuranceLevel": "Assurance Level",
+          "assuranceProvider": "Assurance Provider",
+          "assuranceLevels": {
+            "not_verified": "Not Verified",
+            "limited": "Limited Assurance",
+            "reasonable": "Reasonable Assurance"
+          }
+        },
+        "complianceStatement": {
+          "title": "GHG Protocol Compliance Statement",
+          "methodology": "Methodology:",
+          "defaultStatement": "This inventory has been prepared in conformance with the GHG Protocol Corporate Accounting and Reporting Standard (Revised Edition). Scope 2 emissions are reported using both location-based and market-based methods as per the Scope 2 Guidance.",
+          "defaultMethodology": "Emissions calculated using activity-based approach with region and year-specific emission factors from DEFRA, EPA, and IEA. Scope 3 categories screened per GHG Protocol Corporate Value Chain (Scope 3) Standard."
+        },
+        "emissionsSummary": {
+          "title": "Emissions Summary",
+          "scope1": "Scope 1",
+          "scope2LB": "Scope 2 (LB)",
+          "scope2MB": "Scope 2 (MB)",
+          "scope3": "Scope 3",
+          "total": "Total",
+          "scope3Categories": "Scope 3 Categories Reported:"
+        },
+        "infoBox": {
+          "title": "About the GHG Protocol",
+          "description": "The GHG Protocol Corporate Standard provides requirements and guidance for companies preparing a corporate-level GHG emissions inventory. It covers the accounting and reporting of seven greenhouse gases covered by the Kyoto Protocol."
+        }
+      }
+    },
+    "waste": {
+      "title": "Waste & Circular Economy",
+      "subtitle": "GRI 306 • ESRS E5 • Waste generated, diverted from disposal & directed to disposal",
+      "learnMore": "Learn More",
+      "cards": {
+        "generated": {
+          "title": "Generated",
+          "unit": "tons"
+        },
+        "diverted": {
+          "title": "Diverted",
+          "unit": "%"
+        },
+        "toDisposal": {
+          "title": "To Disposal",
+          "unit": "tons"
+        },
+        "recycling": {
+          "title": "Recycling",
+          "unit": "%"
+        },
+        "emissions": {
+          "title": "Emissions",
+          "unit": "tCO2e"
+        },
+        "intensity": {
+          "title": "Intensity",
+          "unit": "tCO2e/t"
+        }
+      },
+      "charts": {
+        "disposalDistribution": {
+          "title": "Disposal Method Distribution"
+        },
+        "monthlyTrends": {
+          "title": "Monthly Waste Trends",
+          "description": "Generated, diverted, and disposal",
+          "legends": {
+            "generated": "Generated",
+            "diverted": "Diverted",
+            "emissions": "Emissions (tCO2e)"
+          }
+        },
+        "yoyComparison": {
+          "title": "Year-over-Year Comparison",
+          "description": "Monthly change vs previous year"
+        },
+        "circularEconomy": {
+          "title": "Circular Economy Metrics",
+          "diversionRate": "Diversion Rate",
+          "recyclingRate": "Recycling Rate",
+          "toLandfill": "To Landfill",
+          "scope3Emissions": "Scope 3 Emissions",
+          "category5": "Category 5: Waste generated in operations",
+          "divertedFromDisposal": "diverted from disposal",
+          "toLandfillAmount": "to landfill"
+        },
+        "monthlyByMethod": {
+          "title": "Monthly Waste by Disposal Method",
+          "description": "Waste hierarchy: Reduce → Reuse → Recycle → Recovery → Disposal",
+          "legends": {
+            "recycled": "Recycled",
+            "composted": "Composted",
+            "incinerated": "Incinerated",
+            "landfill": "Landfill"
+          }
+        },
+        "sbtiProgress": {
+          "title": "SBTi Waste Target Progress",
+          "description": "1.5°C pathway • 4.2% annual reduction • Baseline 2023",
+          "metrics": "metrics",
+          "annualReduction": "4.2% annual • SBTi 1.5°C pathway",
+          "onTrack": "on track",
+          "baseline": "Baseline:",
+          "current": "Current:"
+        },
+        "materialBreakdown": {
+          "title": "Material-Specific Breakdown",
+          "description": "Recycling and diversion rates by waste material type",
+          "recyclingRate": "Recycling Rate",
+          "diversionRate": "Diversion Rate",
+          "toDisposal": "To Disposal",
+          "totalAmount": "tons total",
+          "recycled": "tons recycled",
+          "diverted": "tons diverted",
+          "disposed": "tons"
+        }
+      },
+      "disposalMethods": {
+        "recycling": "Recycling",
+        "composting": "Composting",
+        "incineration": "Incineration",
+        "wasteToEnergy": "Waste-to-Energy",
+        "landfill": "Landfill",
+        "hazardousTreatment": "Hazardous Treatment",
+        "reuse": "Reuse",
+        "other": "Other"
+      },
+      "materials": {
+        "paper": "Paper",
+        "plastic": "Plastic",
+        "metal": "Metal",
+        "glass": "Glass",
+        "organic": "Organic",
+        "food": "Food",
+        "garden": "Garden",
+        "ewaste": "E-Waste",
+        "hazardous": "Hazardous"
+      },
+      "tooltips": {
+        "wasteHierarchy": "Waste Hierarchy: Prevention → Reuse → Recycling → Recovery → Disposal. Diversion rate measures waste diverted from disposal through recycling and composting.",
+        "disposalDistribution": "Waste disposal method breakdown shows how waste is managed across different treatment options. Per GRI 306-4/5, tracking diverted waste (recycling, composting) vs. disposed waste (landfill, incineration) is critical for circular economy transition and compliance with ESRS E5.",
+        "monthlyTrends": "Monthly waste generation, diversion, and emissions trends help identify seasonal patterns, operational changes, and the effectiveness of waste reduction initiatives. Per GRI 306-3, tracking these metrics is essential for managing waste impacts and improving resource efficiency.",
+        "yoyComparison": "Year-over-year comparison of waste generation shows progress toward waste reduction goals. Decreasing generation and increasing diversion rates indicate successful waste management programs. Per ESRS E5, organizations should demonstrate continuous improvement in waste performance.",
+        "circularEconomy": "Circular economy metrics track how effectively waste is kept in productive use. Diversion rate (% diverted from disposal) and recycling rate (% recycled) are key performance indicators. The waste hierarchy prioritizes prevention, reuse, and recycling over disposal.",
+        "sbtiProgress": "Science Based Targets (SBTi) for waste aim to reduce Scope 3 emissions from waste disposal by 4.2% annually, aligned with a 1.5°C warming pathway. Progress is tracked against baseline year emissions, with targets adjusted for business growth.",
+        "materialBreakdown": "Material-specific tracking shows recycling and diversion rates by waste type (paper, plastic, metal, etc.). This granular data helps identify improvement opportunities and ensures compliance with extended producer responsibility regulations."
+      },
+      "insights": {
+        "title": "Material Insights:",
+        "description": "Track recycling and diversion rates by specific material types. Historical data (2022-2024) has been split using industry-standard composition ratios. Future data can be entered at the material level for precise tracking."
+      }
+    },
     "dataInvestigation": {
       "title": "Data Investigation",
       "subtitle": "Detailed monthly breakdown of all sustainability metrics",
@@ -2568,6 +2884,267 @@
       "details": "{count} entries found",
       "noDataRecorded": "No data recorded"
     },
+    "ghgEmissions": {
+      "title": "GHG Emissions",
+      "subtitle": "GHG Protocol • GRI 305 • ESRS E1 • TCFD",
+      "loading": "Loading emissions data...",
+      "cards": {
+        "totalEmissions": {
+          "title": "Total Emissions",
+          "unit": "tCO2e",
+          "yoy": "YoY",
+          "projected": "Projected"
+        },
+        "intensity": {
+          "title": "Intensity",
+          "unit": "tCO2e/FTE",
+          "yoy": "YoY"
+        },
+        "scope3Coverage": {
+          "title": "Scope 3 Coverage",
+          "categories": "categories",
+          "coverage": "Coverage"
+        },
+        "dataQuality": {
+          "title": "Data Quality",
+          "primaryData": "Primary Data",
+          "verified": "Verified"
+        }
+      },
+      "scopeBreakdown": {
+        "title": "Emissions by Scope",
+        "badges": {
+          "ghgProtocol": "GHG Protocol",
+          "gri": "GRI 305-1/2/3",
+          "esrs": "ESRS E1"
+        }
+      },
+      "emissionsTrend": {
+        "title": "Emissions Trend",
+        "yAxisLabel": "tCO2e",
+        "noData": "No trend data available",
+        "targetMissed": "Target Missed",
+        "legends": {
+          "totalEmissions": "Total Emissions",
+          "scope1": "Scope 1",
+          "scope2": "Scope 2",
+          "scope3": "Scope 3",
+          "targetPath": "Target Path"
+        }
+      },
+      "intensityMetrics": {
+        "title": "Emissions Intensity Metrics",
+        "tooltip": "Intensity metrics normalize emissions by different denominators to enable benchmarking and tracking efficiency improvements over time.",
+        "perEmployee": {
+          "title": "Per Employee",
+          "unit": "tCO2e/FTE",
+          "sectorAvg": "Sector\nAvg"
+        },
+        "perRevenue": {
+          "title": "Per Revenue",
+          "unit": "tCO2e/M€",
+          "noData": "No data"
+        },
+        "perArea": {
+          "title": "Per Area",
+          "unit": "kgCO2e/m²"
+        },
+        "perValueAdded": {
+          "title": "Per Value Added",
+          "unit": "tCO2e/M€ VA",
+          "noData": "No data"
+        },
+        "perOperatingHour": {
+          "title": "Per Operating Hour",
+          "unit": "kgCO2e/h",
+          "subtitle": "Operational efficiency",
+          "noData": "No data",
+          "tooltip": "Emissions per operating hour helps track the efficiency of your operations and identify optimization opportunities during different operational periods."
+        },
+        "perCustomer": {
+          "title": "Per Customer",
+          "unit": "kgCO2e/customer",
+          "subtitle": "Service efficiency",
+          "noData": "No data",
+          "tooltip": "Emissions per customer helps service-based organizations track their carbon footprint per service unit delivered."
+        },
+        "sectorSpecific": {
+          "title": "Production-Based",
+          "tooltip": "Industry-specific intensity metric based on your organization's sector. Allows direct comparison with peers in the same industry."
+        }
+      },
+      "yoyComparison": {
+        "title": "Year-over-Year Comparison",
+        "subtitle": "Monthly change vs previous year",
+        "tooltip": {
+          "thisYear": "This Year",
+          "lastYear": "Last Year",
+          "yoy": "YoY",
+          "increase": "Increase",
+          "decrease": "Decrease",
+          "emissionsChange": "in emissions"
+        }
+      },
+      "sitePerformance": {
+        "title": "Site Performance Comparison",
+        "subtitle": "Intensity per m²",
+        "tooltip": "Sites are ranked by emissions intensity (kgCO2e/m²). Lower intensity indicates better energy efficiency and emissions performance per unit area.",
+        "badges": {
+          "gri": "GRI 305-4",
+          "intensityLabel": "Intensity per m²"
+        },
+        "medals": {
+          "gold": "🥇",
+          "silver": "🥈",
+          "bronze": "🥉"
+        }
+      },
+      "topEmitters": {
+        "title": "Top Emission Sources",
+        "badges": {
+          "gri": "GRI 305-1/2/3"
+        },
+        "categoryNames": {
+          "businessTravel": "Business Travel",
+          "purchasedElectricity": "Purchased Electricity",
+          "electricity": "Electricity",
+          "waste": "Waste",
+          "purchasedGoods": "Purchased Goods",
+          "naturalGas": "Natural Gas",
+          "stationaryCombustion": "Stationary Combustion",
+          "mobileCombustion": "Mobile Combustion",
+          "fleet": "Fleet",
+          "commuting": "Commuting",
+          "fugitiveEmissions": "Fugitive Emissions"
+        },
+        "recommendations": {
+          "electricity": "💡 Switch to renewable energy contracts",
+          "naturalGas": "🔥 Install heat pump or upgrade boilers",
+          "businessTravel": "✈️ Implement virtual meetings policy",
+          "fleet": "🚗 Transition to electric vehicles",
+          "commuting": "🚲 Promote public transit & remote work",
+          "fugitive": "🔧 Improve refrigerant leak detection",
+          "waste": "♻️ Increase recycling & composting",
+          "purchasedGoods": "🏭 Engage suppliers on emissions reduction",
+          "default": "📊 Review and optimize this source"
+        }
+      },
+      "scope1Breakdown": {
+        "title": "Scope 1 Breakdown",
+        "badges": {
+          "gri": "GRI 305-1"
+        },
+        "explanation": "Detailed breakdown of Scope 1 direct emissions by source category.\n\nIncludes stationary combustion (facilities, boilers), mobile combustion (company vehicles), and fugitive emissions (leaks, refrigerants).\n\nPrioritize the largest sources for reduction initiatives."
+      },
+      "scope2Breakdown": {
+        "title": "Scope 2 Breakdown",
+        "badges": {
+          "gri": "GRI 305-2"
+        },
+        "dualReporting": {
+          "title": "Dual Reporting Method",
+          "tooltip": {
+            "title": "GHG Protocol Dual Reporting",
+            "locationBased": {
+              "title": "Location-Based Method",
+              "description": "Uses average emission factors for the local electricity grid. Reflects regional energy mix and grid infrastructure."
+            },
+            "marketBased": {
+              "title": "Market-Based Method",
+              "description": "Uses emission factors from contractual instruments (RECs, GOs, PPAs). Reflects your energy purchasing choices and renewable commitments."
+            },
+            "footer": "GRI 305-2 requires reporting both methods for complete transparency."
+          },
+          "locationBased": "Location-Based",
+          "marketBased": "Market-Based",
+          "gridAverage": "Grid average",
+          "recsGOs": "RECs & GOs",
+          "renewableImpact": {
+            "title": "Renewable Energy Impact",
+            "reduction": "tCO2e reduction"
+          }
+        },
+        "categories": {
+          "purchasedElectricity": "Purchased Electricity"
+        },
+        "explanation": "Detailed breakdown of Scope 2 indirect emissions from purchased energy. GRI 305-2 requires dual reporting for complete transparency:\n\n• Location-Based Method: Uses average emission factors for the local electricity grid. Reflects regional energy mix and grid infrastructure.\n\n• Market-Based Method: Uses emission factors from contractual instruments (RECs, GOs, PPAs). Reflects your energy purchasing choices and renewable commitments.\n\nRenewable energy purchases reduce market-based emissions while location-based remains tied to the grid average."
+      },
+      "scope3Breakdown": {
+        "title": "Scope 3 Breakdown",
+        "badges": {
+          "gri": "GRI 305-3"
+        },
+        "valueChainCoverage": {
+          "title": "Value Chain Coverage",
+          "tooltip": {
+            "title": "Scope 3: Value Chain Emissions (15 Categories)",
+            "description": "Scope 3 covers all indirect emissions in your value chain, from suppliers to end-users. The GHG Protocol defines 15 categories across upstream and downstream activities.",
+            "upstream": {
+              "title": "Upstream (8 categories):",
+              "items": "Purchased goods, capital goods, fuel & energy, transportation, waste, business travel, commuting, leased assets"
+            },
+            "downstream": {
+              "title": "Downstream (7 categories):",
+              "items": "Transportation, processing, use of products, end-of-life, leased assets, franchises, investments"
+            },
+            "footer": "GRI 305-3 requires disclosure of significant Scope 3 categories. Aim for 80%+ coverage."
+          },
+          "tracked": "Tracked",
+          "missing": "Missing",
+          "coverage": "Coverage",
+          "lowCoverage": "⚠️ Low coverage - expand tracking to key categories",
+          "goodProgress": "💡 Good progress - aim for 80% coverage"
+        },
+        "categories": {
+          "businessTravel": "Business Travel",
+          "waste": "Waste",
+          "purchasedGoods": "Purchased Goods"
+        },
+        "explanation": "Detailed breakdown of Scope 3 value chain emissions across 15 GHG Protocol categories.\n\nIncludes upstream (suppliers, purchased goods, business travel) and downstream (product use, end-of-life) emissions.\n\nGRI 305-3 requires reporting significant categories.\n\nTarget 80%+ coverage for comprehensive carbon footprint."
+      },
+      "sbtiProgress": {
+        "title": "SBTi Target Progress",
+        "subtitle": "{baselineYear} → {targetYear}",
+        "reductionTarget": "Reduction Target",
+        "baseline": "Baseline",
+        "current": "Current",
+        "actualMLForecast": "Actual + ML Forecast",
+        "required": "Required",
+        "target": "Target",
+        "progress": "Progress",
+        "onTrack": "on track",
+        "aboveBaseline": "Above Baseline",
+        "waterfallChart": {
+          "title": "Emissions Trajectory",
+          "baselineYear": "Baseline",
+          "requiredReduction": "Required\nReduction",
+          "requiredYear": "Required",
+          "gapFromRequired": "Gap from\nRequired",
+          "actualYear": "Actual",
+          "targetYear": "Target"
+        }
+      },
+      "scopes": {
+        "scope1": "Scope 1",
+        "scope2": "Scope 2",
+        "scope3": "Scope 3"
+      },
+      "explanations": {
+        "scopeBreakdown": "This chart shows the distribution of your greenhouse gas (GHG) emissions by scope:\n\n• Scope 1: Direct emissions from sources you own or control, such as combustion at facilities, company vehicles, and fugitive emissions.\n\n• Scope 2: Indirect emissions from purchased electricity, heating, cooling, or steam consumed by your organization.\n\n• Scope 3: All other indirect emissions occurring in your value chain, including business travel, employee commuting, purchased goods, and waste.",
+        "scope1": "Scope 1: Direct emissions from sources you own or control, such as combustion at facilities, company vehicles, and fugitive emissions.",
+        "scope2": "Scope 2: Indirect emissions from purchased electricity, heating, cooling, or steam consumed by your organization.",
+        "scope3": "Scope 3: All other indirect emissions occurring in your value chain, including business travel, employee commuting, purchased goods, and waste.",
+        "emissionsTrend": "This chart shows the evolution of your emissions over time, allowing you to identify trends, seasonal peaks, and the impact of your reduction initiatives.\n\nThe dashed line represents future forecasts based on historical data.\n\nA downward trend indicates progress in emissions reduction.",
+        "topEmitters": "Identifies the main categories that contribute most to your total emissions.\n\nFocusing reduction efforts on these areas will have the greatest impact on reducing your carbon footprint.",
+        "sbtiProgress": "Tracks progress against your Science Based Targets initiative (SBTi) validated emission reduction targets.\n\nCompares current emissions to the linear trajectory required to achieve the defined target by the target year.",
+        "totalEmissions": "Total organizational greenhouse gas emissions across all three scopes.\n\nIncludes year-over-year comparison and ML-based annual projection.\n\nDecreases indicate successful emission reduction initiatives.",
+        "intensity": "Emissions intensity per full-time equivalent employee (FTE).\n\nKey performance indicator for tracking emissions efficiency as your organization grows.\n\nLower values indicate better carbon efficiency per employee.",
+        "scope3Coverage": "Tracks coverage of the 15 Scope 3 value chain emission categories defined by the GHG Protocol.\n\nGRI 305-3 requires reporting all significant categories.\n\nTarget: 80%+ coverage for comprehensive carbon footprint accounting.",
+        "dataQuality": "Measures the proportion of emissions data from primary sources (actual measurements) versus secondary sources (estimates and factors).\n\nHigher primary data percentage improves accuracy and credibility.\n\nThird-party verification enhances stakeholder confidence.",
+        "yoyComparison": "Month-by-month comparison against the same period last year.\n\nHelps identify seasonal patterns and track progress.\n\nPositive changes indicate increases, negative changes indicate reductions.",
+        "sitePerformance": "Compares emission intensity across different sites or facilities.\n\nMeasured in kgCO2e per square meter.\n\nHelps identify best practices and sites needing improvement initiatives."
+      }
+    },
     "months": {
       "jan": "Jan",
       "feb": "Feb",
@@ -2581,6 +3158,150 @@
       "oct": "Oct",
       "nov": "Nov",
       "dec": "Dec"
+    },
+    "energy": {
+      "title": "Energy Management",
+      "subtitle": "GRI 302 • ESRS E1-5 • Energy consumption and intensity tracking",
+      "learnMore": "Learn More",
+      "cards": {
+        "totalEnergy": {
+          "title": "Total Energy",
+          "unit": "MWh",
+          "explanation": "Sum of all energy consumed across all sources in the selected period. Measured in megawatt-hours (MWh). Year-over-year change shows consumption trend compared to the previous period."
+        },
+        "renewable": {
+          "title": "Renewable",
+          "unit": "of total",
+          "explanation": "Percentage of total energy consumption from renewable sources (solar, wind, hydro, etc.). Higher renewable percentage indicates progress toward clean energy transition and lower carbon emissions."
+        },
+        "emissions": {
+          "title": "Emissions",
+          "unit": "tCO2e",
+          "explanation": "Total greenhouse gas emissions from energy consumption in tonnes of CO2 equivalent (tCO2e). Calculated using emission factors for each energy source type."
+        },
+        "intensity": {
+          "title": "Intensity",
+          "unit": "kWh/m²",
+          "explanation": "Energy consumed per square meter of building space (kWh/m²). This metric normalizes energy use by facility size, enabling comparison across different periods and buildings."
+        }
+      },
+      "charts": {
+        "sourcesDistribution": {
+          "title": "Energy Sources Distribution",
+          "explanation": "Breakdown of energy consumption by source type. Shows the proportion of each energy source in your total energy mix, helping identify opportunities for renewable energy adoption.",
+          "noData": "No energy sources data available"
+        },
+        "monthlyEvolution": {
+          "title": "Monthly Evolution",
+          "explanation": "Monthly energy consumption trends over time, including ML forecast for remaining months. The dashed line represents forecasted consumption based on historical patterns and seasonality.",
+          "description": "Showing total, renewable, and fossil fuel consumption",
+          "mlPowered": "ML-powered forecast",
+          "noData": "No monthly trends data available"
+        },
+        "yoyComparison": {
+          "title": "Year-over-Year Comparison",
+          "explanation": "Monthly percentage change in energy consumption compared to the same month in the previous year. Positive values indicate increased consumption, negative values show reduction.",
+          "description": "Monthly change compared to previous year",
+          "noData": "No year-over-year data available"
+        },
+        "gridMix": {
+          "title": "Electricity Grid Mix",
+          "explanation": "Composition of the electrical grid powering your facilities, showing the breakdown of renewable and fossil fuel sources. This data helps calculate Scope 2 and Scope 3.3 emissions accurately.",
+          "provider": "Provider",
+          "year": "Year",
+          "renewablePercentage": "Renewable",
+          "unknownSources": "Unknown sources",
+          "noData": "No grid mix data available",
+          "multipleEnergySources": "Multiple energy sources available"
+        },
+        "typeBreakdown": {
+          "title": "Energy Type Breakdown",
+          "explanation": "Energy consumption categorized by type (electricity, heating, cooling, etc.). This breakdown helps identify where energy is being used and prioritize efficiency improvements.",
+          "noData": "No energy type data available"
+        }
+      },
+      "legends": {
+        "total": "Total",
+        "renewable": "Renewable",
+        "fossil": "Fossil",
+        "totalForecast": "Total (Forecast)",
+        "renewableForecast": "Renewable (Forecast)",
+        "fossilForecast": "Fossil (Forecast)",
+        "current": "Current Year",
+        "previous": "Previous Year"
+      },
+      "tooltips": {
+        "consumption": "Consumption:",
+        "share": "Share:",
+        "renewable": "Renewable",
+        "current": "Current:",
+        "lastYear": "Last Year:",
+        "change": "Change:",
+        "yoyChange": "YoY Change:",
+        "increase": "increase",
+        "decrease": "decrease",
+        "forecast": "(Forecast)",
+        "provider": "Provider:",
+        "year": "Year:",
+        "renewableShare": "Renewable:",
+        "emissions": "Emissions:",
+        "fromLastYear": "from last year"
+      },
+      "target": {
+        "title": "Energy Reduction Targets",
+        "description": "Track progress toward SBTi-aligned emission reduction goals",
+        "annualReduction": "annual reduction",
+        "baseline": "Baseline",
+        "target": "Target",
+        "projected": "Projected",
+        "progress": "Progress",
+        "onTrack": "on track",
+        "atRisk": "at risk",
+        "offTrack": "off track",
+        "exceeding": "exceeding",
+        "metricTargets": "metric targets",
+        "viewInitiatives": "View reduction initiatives",
+        "hideMetrics": "Hide metrics",
+        "showMetrics": "Show metrics",
+        "categoryProgress": "Category Progress"
+      },
+      "yoyChange": {
+        "increase": "increase",
+        "decrease": "decrease",
+        "noChange": "no change"
+      },
+      "units": {
+        "yoy": "YoY",
+        "pp": "pp"
+      },
+      "emissionFactors": {
+        "title": "Emission Factors (gCO₂eq/kWh)",
+        "scope2": "Scope 2",
+        "scope3": "Scope 3.3",
+        "total": "Total",
+        "direct": "Direct",
+        "upstream": "Upstream",
+        "lifecycle": "Lifecycle"
+      },
+      "gridMix": {
+        "renewableEnergy": "Renewable Energy",
+        "unknown": "Unknown",
+        "detailedBreakdownUnavailable": "Detailed source breakdown not yet available",
+        "applyMigrations": "Apply migrations to see Wind, Solar, Hydro, Gas, Coal breakdown",
+        "someSourcesUnknown": "Some energy sources are unknown. Contact your supplier for complete mix data."
+      },
+      "charts2": {
+        "monthlyConsumptionBySource": "Monthly Consumption by Source",
+        "noMonthlyData": "No monthly data available for the selected period"
+      },
+      "targetSection": {
+        "energyReductionTargets": "Energy Reduction Targets",
+        "baseline": "Baseline:",
+        "target2025": "Target 2025:",
+        "projected": "Projected:",
+        "current": "Current:",
+        "yearLabel": "Year"
+      }
     }
   },
   "education": {

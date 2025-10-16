@@ -98,7 +98,6 @@ Only include targetData if the user is clearly ready to create a specific target
       const provider = this.providers[providerIndex];
 
       try {
-        console.log(`Trying ${provider.name}...`);
         const response = await provider.complete(prompt, options);
 
         // Extract content from response
@@ -144,7 +143,6 @@ Only include targetData if the user is clearly ready to create a specific target
       const provider = this.providers[providerIndex];
 
       try {
-        console.log(`Streaming with ${provider.name}...`);
 
         // Rotate to next provider for load balancing
         this.currentProviderIndex = (providerIndex + 1) % this.providers.length;

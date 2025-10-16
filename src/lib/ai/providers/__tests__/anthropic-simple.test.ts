@@ -75,7 +75,7 @@ describe('AnthropicProvider', () => {
       const options: StreamOptions = {
         temperature: 0.8,
         maxTokens: 1000,
-        onToken: (token: string) => console.log(token),
+        onToken: (token: string) =>,
       };
 
       // Should not throw when calling with options

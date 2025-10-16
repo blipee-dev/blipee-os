@@ -97,7 +97,6 @@ export default function AppearancePage() {
           }
         }
       } catch (error) {
-        console.log('Loading appearance settings from local storage');
         // Load from localStorage as fallback
         const stored = localStorage.getItem('appearance-settings');
         if (stored) {
@@ -161,7 +160,6 @@ export default function AppearancePage() {
         setHasChanges(false);
       }
     } catch (error) {
-      console.log('Saving appearance settings to local storage');
       // Still save to localStorage as fallback
       localStorage.setItem('appearance-settings', JSON.stringify(settings));
       setHasChanges(false);

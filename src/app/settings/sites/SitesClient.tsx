@@ -67,7 +67,6 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
 
   // Debug: Log when sites change
   useEffect(() => {
-    console.log('Sites state updated:', sites?.length || 0, 'sites');
   }, [sites]);
 
   // Filter data based on search term
@@ -115,7 +114,6 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
   const refreshSites = async () => {
     setLoading(true);
     try {
-      console.log('Refreshing sites...');
       // Fetch sites from API
       const response = await fetch('/api/sites');
 
@@ -132,11 +130,9 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
       }
 
       const { sites: sitesData } = await response.json();
-      console.log('Fetched sites from API:', sitesData?.length || 0, 'sites');
 
       // If no sites, set empty array and return
       if (!sitesData || sitesData.length === 0) {
-        console.log('No sites found');
         setSites([]);
         return;
       }
@@ -174,7 +170,6 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
         })
       );
 
-      console.log('Setting sites with counts:', sitesWithCounts.length);
       setSites(sitesWithCounts);
     } catch (error) {
       console.error('Error refreshing sites:', error);
@@ -223,11 +218,9 @@ export default function SitesClient({ initialSites, organizations, userRole }: S
 
   const handlePin = async (site: Site) => {
     // Implement pin functionality if needed
-    console.log('Pin site:', site.name);
   };
 
   // Can user perform actions? (Based on RBAC: account_owner, sustainability_manager, and facility_manager can create sites, super_admin has all permissions)
-  console.log('🔧 Debug - User role:', userRole);
   // For now, always allow manage permissions - we'll fix this based on actual role
   const canManage = true; // Temporarily always true until we fix role detection
 

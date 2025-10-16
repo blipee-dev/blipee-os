@@ -125,7 +125,6 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     if (settings.theme === 'system') {
       // Detect system preference
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      console.log('System theme detection:', prefersDark ? 'dark' : 'light');
       if (prefersDark) {
         root.classList.add('dark');
       } else {

@@ -61,7 +61,6 @@ export async function POST(request: NextRequest) {
 
     // Process uploaded files if any
     if (files.length > 0) {
-      console.log(`📄 Processing ${files.length} uploaded file(s)...`);
 
       if (files.length === 1 && files[0]) {
         // Single file - detailed response

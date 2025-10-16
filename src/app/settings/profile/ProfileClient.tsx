@@ -38,7 +38,6 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
 
       if (response.ok) {
         // Show success message (you could add a toast notification here)
-        console.log('Profile updated successfully');
       } else {
         console.error('Failed to update profile');
       }

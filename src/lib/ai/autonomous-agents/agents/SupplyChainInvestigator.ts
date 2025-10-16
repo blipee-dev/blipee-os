@@ -215,7 +215,6 @@ export class SupplyChainInvestigator extends AutonomousAgent {
    * Initialize the Supply Chain Investigator
    */
   protected async initialize(): Promise<void> {
-    console.log('🕵️ Initializing Supply Chain Investigator...');
     
     // Load supplier profiles
     await this.loadSupplierProfiles();
@@ -229,14 +228,12 @@ export class SupplyChainInvestigator extends AutonomousAgent {
     // Perform initial supply chain mapping
     await this.performInitialChainMapping();
     
-    console.log('✅ Supply Chain Investigator initialized and ready to uncover the truth');
   }
   
   /**
    * Execute assigned tasks
    */
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`🕵️ Supply Chain Investigator executing: ${task.type}`);
     
     try {
       switch (task.type) {
@@ -328,7 +325,6 @@ export class SupplyChainInvestigator extends AutonomousAgent {
    * Update learning model based on feedback
    */
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`📚 Supply Chain Investigator learning from feedback: ${feedback.outcome}`);
     
     // Update investigation metrics
     if (feedback.outcome === 'positive') {
@@ -372,7 +368,6 @@ export class SupplyChainInvestigator extends AutonomousAgent {
    * Cleanup resources
    */
   protected async cleanup(): Promise<void> {
-    console.log('🧹 Supply Chain Investigator cleaning up...');
     
     // Save supplier profiles
     await this.saveSupplierProfiles();
@@ -383,7 +378,6 @@ export class SupplyChainInvestigator extends AutonomousAgent {
     // Save investigation metrics
     await this.saveInvestigationMetrics();
     
-    console.log('✅ Supply Chain Investigator cleanup completed');
   }
   
   /**
@@ -618,7 +612,6 @@ Focus on supply chain visibility, risk identification, and actionable intelligen
   }
   
   private async loadSampleSuppliers(): Promise<void> {
-    console.log('📋 Loading sample supplier profiles...');
     
     const sampleSuppliers = [
       {
@@ -676,7 +669,6 @@ Focus on supply chain visibility, risk identification, and actionable intelligen
   }
   
   private async performInitialChainMapping(): Promise<void> {
-    console.log('🗺️ Performing initial supply chain mapping...');
     
     await this.logActivity('initial_chain_mapping', {
       mapping_type: 'comprehensive',

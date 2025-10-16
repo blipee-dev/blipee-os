@@ -100,7 +100,6 @@ export abstract class BaseModel {
         JSON.stringify(metadata, null, 2)
       );
       
-      console.log(`Model saved to ${path}`);
     } catch (error) {
       throw new Error(`Failed to save model: ${error.message}`);
     }
@@ -122,7 +121,6 @@ export abstract class BaseModel {
       this.config = metadata.config;
       this.metrics = metadata.metrics;
       
-      console.log(`Model loaded from ${path}`);
     } catch (error) {
       throw new Error(`Failed to load model: ${error.message}`);
     }

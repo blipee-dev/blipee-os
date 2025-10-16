@@ -27,7 +27,6 @@ export class TelemetryStream {
 
   async startStream(): Promise<void> {
     this.isStreaming = true;
-    console.log('Telemetry streaming started');
     
     // Start flush interval
     setInterval(() => {
@@ -38,7 +37,6 @@ export class TelemetryStream {
   async stopStream(): Promise<void> {
     this.isStreaming = false;
     this.flushBuffer(); // Final flush
-    console.log('Telemetry streaming stopped');
   }
 
   ingestData(data: TelemetryData): void {
@@ -54,7 +52,6 @@ export class TelemetryStream {
   private flushBuffer(): void {
     if (this.buffer.length === 0) return;
     
-    console.log(`Flushing ${this.buffer.length} telemetry records`);
     
     // Process buffered data
     this.processBatch(this.buffer);
@@ -65,7 +62,6 @@ export class TelemetryStream {
 
   private processBatch(data: TelemetryData[]): void {
     // Batch processing logic would go here
-    console.log(`Processing batch of ${data.length} telemetry records`);
   }
 
   getStreamStatus(): {

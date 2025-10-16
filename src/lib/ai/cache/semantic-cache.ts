@@ -132,7 +132,6 @@ export class SemanticCache {
       startTime: Date.now()
     };
 
-    console.log('🧠 Semantic Cache initialized with embedding model:', this.config.embeddingModel);
   }
 
   /**
@@ -287,7 +286,6 @@ export class SemanticCache {
         this.stats.hits++;
         this.stats.totalSimilarity += 1.0;
         
-        console.log(`💾 Cache HIT (exact): ${cacheKey.slice(-8)}`);
         
         return {
           entry: exactMatch,
@@ -314,7 +312,6 @@ export class SemanticCache {
               contextualMatch.similarity += 0.05;
               contextualMatch.source = 'contextual';
               
-              console.log(`💾 Cache HIT (contextual): ${bestMatch.entry.id.slice(-8)} (similarity: ${contextualMatch.similarity.toFixed(3)})`);
               
               this.stats.hits++;
               this.stats.totalSimilarity += contextualMatch.similarity;
@@ -327,7 +324,6 @@ export class SemanticCache {
             }
           }
           
-          console.log(`💾 Cache HIT (semantic): ${bestMatch.entry.id.slice(-8)} (similarity: ${bestMatch.similarity.toFixed(3)})`);
           
           this.stats.hits++;
           this.stats.totalSimilarity += bestMatch.similarity;
@@ -342,7 +338,6 @@ export class SemanticCache {
 
       // No match found
       this.stats.misses++;
-      console.log(`❌ Cache MISS: No similar entries found`);
       
       return null;
 
@@ -402,7 +397,6 @@ export class SemanticCache {
       // Update cache size management
       await this.manageCacheSize();
 
-      console.log(`💾 Cached response: ${entry.id.slice(-8)} (${response.provider}/${response.model})`);
       
       return entry.id;
 
@@ -424,7 +418,6 @@ export class SemanticCache {
         return;
       }
 
-      console.log(`🧹 Cache size management: ${keys.length} entries (max: ${this.config.maxCacheSize})`);
 
       // Get all entries with their last access time
       const entries: Array<{ key: string; lastAccessed: number; accessCount: number }> = [];
@@ -460,7 +453,6 @@ export class SemanticCache {
       
       if (removeKeys.length > 0) {
         await this.redis.del(...removeKeys);
-        console.log(`🗑️ Removed ${removeKeys.length} old cache entries`);
       }
 
     } catch (error) {
@@ -590,7 +582,6 @@ export class SemanticCache {
       
       if (keysToDelete.length > 0) {
         await this.redis.del(...keysToDelete);
-        console.log(`🗑️ Cleared ${keysToDelete.length} cache entries`);
       }
       
       return keysToDelete.length;
@@ -610,14 +601,12 @@ export class SemanticCache {
     model: string;
     tags?: string[];
   }>): Promise<void> {
-    console.log(`🔥 Warming cache with ${commonQueries.length} common queries...`);
     
     for (const query of commonQueries) {
       try {
         // Check if already cached
         const existing = await this.get(query.messages, query.provider, query.model);
         if (existing) {
-          console.log(`⏭️ Skipping already cached query`);
           continue;
         }
         
@@ -640,7 +629,6 @@ export class SemanticCache {
       }
     }
     
-    console.log('✅ Cache warming completed');
   }
 
   /**
@@ -679,7 +667,6 @@ export class SemanticCache {
       }
       
       if (expiredCount > 0) {
-        console.log(`🧹 Cleaned up ${expiredCount} expired cache entries`);
       }
       
     } catch (error) {
@@ -692,7 +679,6 @@ export class SemanticCache {
    */
   async disconnect(): Promise<void> {
     // Upstash Redis is connectionless - no cleanup needed
-    console.log('📴 Semantic Cache cleaned up');
   }
 }
 

@@ -61,7 +61,6 @@ export class TaskScheduler {
       });
     }
     
-    console.log(`📅 Initialized scheduler with ${tasks.length} tasks for org ${organizationId}`);
   }
   
   // Schedule a task
@@ -426,6 +425,5 @@ export class TaskScheduler {
     this.scheduledJobs.clear();
     this.taskQueue.clear();
     
-    console.log('📅 Task scheduler shut down');
   }
 }

@@ -108,13 +108,11 @@ export class MLPredictionSystem {
   }
 
   private async initializeSystem() {
-    console.log('🧠 Initializing ML Prediction System...');
     
     await this.loadExistingModels();
     await this.loadEnsembleModels();
     this.startTrainingScheduler();
     
-    console.log('✅ ML Prediction System ready for autonomous forecasting!');
   }
 
   /**
@@ -189,7 +187,6 @@ export class MLPredictionSystem {
       // Queue for training
       await this.queueModelTraining(modelId);
 
-      console.log(`🤖 Created ML model: ${config.name} (${config.type})`);
       return modelId;
     } catch (error) {
       console.error('Model creation error:', error);
@@ -228,7 +225,6 @@ export class MLPredictionSystem {
       // Add to training queue
       this.trainingQueue.push(trainingJob);
 
-      console.log(`📚 Queued model ${model.name} for training`);
       return trainingJob;
     } catch (error) {
       console.error('Model training queue error:', error);
@@ -301,7 +297,6 @@ export class MLPredictionSystem {
 
       await this.updateTrainingJobInDatabase(trainingJob);
 
-      console.log(`✅ Model ${model.name} trained successfully! Accuracy: ${performance.accuracy.toFixed(2)}%`);
 
       // Trigger ensemble model updates if applicable
       await this.updateEnsembleModels(model.organizationId, model.targetMetric);
@@ -341,7 +336,6 @@ export class MLPredictionSystem {
         throw new Error(`No trained model found for ${request.targetMetric}`);
       }
 
-      console.log(`🔮 Generating ${request.horizon}h prediction using model ${bestModel.name} (${bestModel.accuracy.toFixed(1)}% accuracy)`);
 
       // Generate predictions
       const predictions: Prediction[] = [];
@@ -362,10 +356,7 @@ export class MLPredictionSystem {
       }
 
       // Store predictions in database
-      await this.storePredictions(predictions);
-
-      console.log(`✅ Generated ${predictions.length} predictions with average confidence ${
-        (predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length).toFixed(1)
+      await this.storePredictions(predictions); => sum + p.confidence, 0) / predictions.length).toFixed(1)
       }%`);
 
       return predictions;
@@ -455,7 +446,6 @@ export class MLPredictionSystem {
     const batchSize = model.hyperparameters.batchSize || 32;
     const sequenceLength = model.hyperparameters.sequenceLength || 168; // 7 days
 
-    console.log(`Training LSTM: ${epochs} epochs, batch size ${batchSize}, sequence length ${sequenceLength}`);
 
     // Simulate training time
     await this.simulateTraining(2000); // 2 second simulation
@@ -481,7 +471,6 @@ export class MLPredictionSystem {
     const d = model.hyperparameters.d || 1;
     const q = model.hyperparameters.q || 2;
 
-    console.log(`Training ARIMA(${p},${d},${q}) model`);
 
     await this.simulateTraining(1000);
 
@@ -503,7 +492,6 @@ export class MLPredictionSystem {
     trainingData: AnalyticsDataPoint[]
   ): Promise<MLModel> {
     // Simulate Prophet training
-    console.log('Training Prophet model with seasonality detection');
 
     await this.simulateTraining(1500);
 
@@ -526,7 +514,6 @@ export class MLPredictionSystem {
     const nEstimators = model.hyperparameters.nEstimators || 100;
     const maxDepth = model.hyperparameters.maxDepth || 10;
 
-    console.log(`Training Random Forest: ${nEstimators} trees, max depth ${maxDepth}`);
 
     await this.simulateTraining(800);
 
@@ -546,7 +533,6 @@ export class MLPredictionSystem {
     trainingData: AnalyticsDataPoint[]
   ): Promise<MLModel> {
     // Simulate ensemble training
-    console.log('Training ensemble model with multiple base learners');
 
     await this.simulateTraining(3000); // Longer for ensemble
 
@@ -574,7 +560,6 @@ export class MLPredictionSystem {
       const trainData = trainingData.slice(0, splitIndex);
       const validData = trainingData.slice(splitIndex);
 
-      console.log(`Evaluating model on ${validData.length} validation samples`);
 
       // Generate predictions for validation set
       const predictions: number[] = [];
@@ -591,7 +576,6 @@ export class MLPredictionSystem {
       performance.validationSplit = 0.2;
       performance.lastEvaluated = new Date();
 
-      console.log(`Model evaluation complete: ${performance.accuracy.toFixed(2)}% accuracy, RMSE: ${performance.rmse.toFixed(2)}`);
 
       return performance;
     } catch (error) {
@@ -1021,7 +1005,6 @@ export class MLPredictionSystem {
         });
       }
 
-      console.log(`📊 Loaded ${this.models.size} trained ML models`);
     } catch (error) {
       console.error('Failed to load existing models:', error);
     }
@@ -1029,7 +1012,6 @@ export class MLPredictionSystem {
 
   private async loadEnsembleModels(): Promise<void> {
     // Load ensemble models from database
-    console.log('🎯 Loading ensemble models...');
   }
 
   private startTrainingScheduler(): void {
@@ -1045,7 +1027,6 @@ export class MLPredictionSystem {
       await this.checkScheduledRetraining();
     }, 60 * 60 * 1000);
 
-    console.log('⏰ ML training scheduler started');
   }
 
   private async processTrainingQueue(): Promise<void> {
@@ -1065,7 +1046,6 @@ export class MLPredictionSystem {
 
   private async queueModelTraining(modelId: string): Promise<void> {
     const trainingJob = await this.trainModel(modelId);
-    console.log(`📚 Model ${modelId} queued for training (Job: ${trainingJob.id})`);
   }
 
   private async checkScheduledRetraining(): Promise<void> {
@@ -1073,7 +1053,6 @@ export class MLPredictionSystem {
     
     for (const model of Array.from(this.models.values())) {
       if (model.nextTraining && model.nextTraining <= now && model.status === 'ready') {
-        console.log(`⏰ Scheduled retraining for model ${model.name}`);
         await this.queueModelTraining(model.id);
       }
     }
@@ -1095,7 +1074,6 @@ export class MLPredictionSystem {
       })
       .eq('id', job.id);
 
-    console.log(`📚 Training progress (${job.modelId}): ${progress}% - ${message}`);
   }
 
   private async updateModelInDatabase(model: MLModel): Promise<void> {
@@ -1152,7 +1130,6 @@ export class MLPredictionSystem {
 
   private async updateEnsembleModels(organizationId: string, targetMetric: string): Promise<void> {
     // Update ensemble models when base models are retrained
-    console.log(`🎯 Updating ensemble models for ${targetMetric}`);
   }
 
   /**
@@ -1175,7 +1152,6 @@ export class MLPredictionSystem {
         .eq('id', modelId);
       
       this.models.delete(modelId);
-      console.log(`🗑️ Deleted model ${model.name}`);
       return true;
     }
     return false;

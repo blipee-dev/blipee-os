@@ -476,7 +476,6 @@ export class PermissionAwareExecutor {
 
       // Execute rollback based on action type
       // This would contain specific rollback logic for each action type
-      console.log(`Rollback initiated for execution ${rollbackRecord.executionId}`);
     } catch (error) {
       console.error('Rollback failed:', error);
     }
@@ -607,7 +606,6 @@ export class PermissionAwareExecutor {
    */
   private async sendConfirmationNotification(request: ExecutionRequest): Promise<void> {
     // This would integrate with your notification service
-    console.log(`Confirmation requested for action ${request.actionId}`);
   }
 
   /**

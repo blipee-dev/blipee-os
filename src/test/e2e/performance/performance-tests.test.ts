@@ -53,7 +53,6 @@ test.describe('Performance Tests', () => {
     }> = [];
 
     for (const page of pages) {
-      console.log(`\n📊 Testing ${page.name} performance...`);
       
       const metrics = await framework.measurePageLoad(page.path);
       const passed = metrics.loadTime <= page.maxLoadTime;
@@ -66,10 +65,6 @@ test.describe('Performance Tests', () => {
         passed
       });
 
-      console.log(`  Load Time: ${metrics.loadTime}ms (max: ${page.maxLoadTime}ms)`);
-      console.log(`  DOM Content Loaded: ${metrics.domContentLoaded}ms`);
-      console.log(`  First Contentful Paint: ${metrics.firstContentfulPaint}ms`);
-      console.log(`  Status: ${passed ? '✅ PASS' : '❌ FAIL'}`);
 
       // Assert performance requirements
       expect(metrics.loadTime, `${page.name} load time should be under ${page.maxLoadTime}ms`)
@@ -77,10 +72,7 @@ test.describe('Performance Tests', () => {
     }
 
     // Log summary
-    console.log(`\n📈 Performance Test Summary:`);
     const passedTests = results.filter(r => r.passed).length;
-    console.log(`  Passed: ${passedTests}/${results.length}`);
-    console.log(`  Average Load Time: ${Math.round(results.reduce((sum, r) => sum + r.loadTime, 0) / results.length)}ms`);
   });
 
   test('Authenticated page performance', async () => {
@@ -94,14 +86,11 @@ test.describe('Performance Tests', () => {
     ];
 
     for (const page of authenticatedPages) {
-      console.log(`\n📊 Testing ${page.name} performance (authenticated)...`);
       
       const startTime = Date.now();
       await framework.navigateTo(page.path);
       const loadTime = Date.now() - startTime;
 
-      console.log(`  Load Time: ${loadTime}ms (max: ${page.maxLoadTime}ms)`);
-      console.log(`  Status: ${loadTime <= page.maxLoadTime ? '✅ PASS' : '❌ FAIL'}`);
 
       expect(loadTime, `${page.name} load time should be under ${page.maxLoadTime}ms`)
         .toBeLessThanOrEqual(page.maxLoadTime);
@@ -116,15 +105,11 @@ test.describe('Performance Tests', () => {
     ];
 
     for (const endpoint of apiEndpoints) {
-      console.log(`\n🔌 Testing ${endpoint.name} API performance...`);
       
       const startTime = Date.now();
       const response = await framework.page.request.get(endpoint.path);
       const responseTime = Date.now() - startTime;
 
-      console.log(`  Response Time: ${responseTime}ms (max: ${endpoint.maxResponseTime}ms)`);
-      console.log(`  Status Code: ${response.status()}`);
-      console.log(`  Status: ${responseTime <= endpoint.maxResponseTime ? '✅ PASS' : '❌ FAIL'}`);
 
       expect(response.status()).toBeLessThan(400);
       expect(responseTime, `${endpoint.name} response time should be under ${endpoint.maxResponseTime}ms`)
@@ -136,7 +121,6 @@ test.describe('Performance Tests', () => {
     await framework.signIn(testUser);
     await framework.navigateTo('/chat');
 
-    console.log('\n🤖 Testing AI conversation performance...');
 
     const testMessages = [
       'Hello, can you help me?',
@@ -149,7 +133,6 @@ test.describe('Performance Tests', () => {
 
     for (let i = 0; i < testMessages.length; i++) {
       const message = testMessages[i];
-      console.log(`\n  Message ${i + 1}: "${message}"`);
       
       const startTime = Date.now();
       await framework.sendMessage(message);
@@ -157,8 +140,6 @@ test.describe('Performance Tests', () => {
       
       responseTimes.push(responseTime);
       
-      console.log(`    Response Time: ${responseTime}ms`);
-      console.log(`    Status: ${responseTime <= maxAIResponseTime ? '✅ PASS' : '❌ FAIL'}`);
 
       expect(responseTime, `AI response time should be under ${maxAIResponseTime}ms`)
         .toBeLessThanOrEqual(maxAIResponseTime);
@@ -168,13 +149,11 @@ test.describe('Performance Tests', () => {
     }
 
     const avgResponseTime = Math.round(responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length);
-    console.log(`\n  Average AI Response Time: ${avgResponseTime}ms`);
   });
 
   test('Large dataset handling performance', async () => {
     await framework.signIn(testUser);
 
-    console.log('\n📊 Testing large dataset performance...');
 
     // Navigate to emissions page
     await framework.navigateTo('/organizations/test-org-perf/emissions');
@@ -212,9 +191,6 @@ test.describe('Performance Tests', () => {
     const processingTime = Date.now() - startTime;
     const maxProcessingTime = 60000; // 1 minute for 1000 records
 
-    console.log(`  Large Dataset Processing Time: ${processingTime}ms`);
-    console.log(`  Records Processed: 1000`);
-    console.log(`  Status: ${processingTime <= maxProcessingTime ? '✅ PASS' : '❌ FAIL'}`);
 
     expect(processingTime, `Large dataset processing should complete within ${maxProcessingTime}ms`)
       .toBeLessThanOrEqual(maxProcessingTime);
@@ -223,7 +199,6 @@ test.describe('Performance Tests', () => {
   test('Memory usage monitoring', async () => {
     await framework.signIn(testUser);
 
-    console.log('\n🧠 Testing memory usage...');
 
     // Monitor memory usage during heavy operations
     const memoryUsage: number[] = [];
@@ -241,7 +216,6 @@ test.describe('Performance Tests', () => {
 
     // Baseline memory
     const baseline = await monitorMemory();
-    console.log(`  Baseline Memory: ${Math.round(baseline.usedJSMemory / 1024 / 1024)}MB`);
 
     // Perform memory-intensive operations
     const operations = [
@@ -257,7 +231,6 @@ test.describe('Performance Tests', () => {
       const metrics = await monitorMemory();
       const memoryMB = Math.round(metrics.usedJSMemory / 1024 / 1024);
       
-      console.log(`  After ${operation.name}: ${memoryMB}MB`);
     }
 
     // Check for memory leaks
@@ -265,8 +238,6 @@ test.describe('Performance Tests', () => {
     const currentMemory = memoryUsage[memoryUsage.length - 1];
     const memoryGrowth = ((currentMemory - baseline.usedJSMemory) / baseline.usedJSMemory) * 100;
 
-    console.log(`  Max Memory: ${Math.round(maxMemory / 1024 / 1024)}MB`);
-    console.log(`  Memory Growth: ${memoryGrowth.toFixed(1)}%`);
 
     // Memory growth should be reasonable (less than 300% increase)
     expect(memoryGrowth, 'Memory growth should be reasonable')
@@ -274,7 +245,6 @@ test.describe('Performance Tests', () => {
   });
 
   test('Concurrent user simulation', async () => {
-    console.log('\n👥 Testing concurrent user performance...');
 
     const concurrentUsers = 5;
     const userPromises: Promise<void>[] = [];
@@ -303,7 +273,6 @@ test.describe('Performance Tests', () => {
           await userFramework.sendMessage('What is my carbon footprint?');
           
           const duration = Date.now() - startTime;
-          console.log(`  User ${userIndex + 1}: Completed in ${duration}ms`);
           
           await userFramework.cleanup();
           
@@ -325,8 +294,6 @@ test.describe('Performance Tests', () => {
     const totalDuration = Date.now() - startTime;
     const maxConcurrentDuration = 45000; // 45 seconds for 5 concurrent users
 
-    console.log(`  Total Concurrent Test Duration: ${totalDuration}ms`);
-    console.log(`  Status: ${totalDuration <= maxConcurrentDuration ? '✅ PASS' : '❌ FAIL'}`);
 
     expect(totalDuration, `Concurrent user test should complete within ${maxConcurrentDuration}ms`)
       .toBeLessThanOrEqual(maxConcurrentDuration);

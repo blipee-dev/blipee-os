@@ -60,7 +60,6 @@ export function OrganizationSetup() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Organization created:", data);
 
         // Refresh session to get new organization data
         await refreshSession();

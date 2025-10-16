@@ -23,14 +23,11 @@ export class ReportMaster extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('📋 Initializing Report Master...');
     await this.setupReportingSchedule();
     await this.initializeTemplates();
-    console.log('✅ Report Master initialized');
   }
 
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`📋 Report Master executing task: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -256,18 +253,14 @@ export class ReportMaster extends AutonomousAgent {
   }
 
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`📋 Report Master learning from feedback: ${feedback.outcome}`);
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('📋 Report Master shutting down...');
   }
 
   private async setupReportingSchedule(): Promise<void> {
-    console.log('📋 Setting up reporting schedule');
   }
 
   private async initializeTemplates(): Promise<void> {
-    console.log('📋 Initializing report templates');
   }
 }

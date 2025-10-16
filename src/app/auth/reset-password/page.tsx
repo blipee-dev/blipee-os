@@ -26,7 +26,6 @@ export default function ResetPasswordPage() {
 
       // If we have tokens in the hash, set the session
       if (accessToken && refreshToken && type === 'recovery') {
-        console.log('Setting session from recovery tokens...');
         const { error: setSessionError } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,

@@ -21,8 +21,6 @@ export async function GET(request: NextRequest) {
 
     const organizationId = orgMembership?.organization_id;
 
-    console.log('TEST: User:', user.email);
-    console.log('TEST: Organization ID:', organizationId);
 
     // Get sites
     const { data: sites, error: sitesError } = await supabase
@@ -30,7 +28,6 @@ export async function GET(request: NextRequest) {
       .select('*')
       .eq('organization_id', organizationId);
 
-    console.log('TEST: Sites from regular client:', sites?.length || 0, sitesError);
 
     // Get sites with admin
     const { data: adminSites, error: adminError } = await supabaseAdmin
@@ -38,7 +35,6 @@ export async function GET(request: NextRequest) {
       .select('*')
       .eq('organization_id', organizationId);
 
-    console.log('TEST: Sites from admin client:', adminSites?.length || 0, adminError);
 
     // Get metrics data with site_id
     const { data: metricsWithSites, count } = await supabaseAdmin
@@ -48,17 +44,12 @@ export async function GET(request: NextRequest) {
       .not('site_id', 'is', null)
       .limit(10);
 
-    console.log('TEST: Metrics with site_id:', count || 0);
-    console.log('TEST: Unique site_ids in metrics:', [...new Set(metricsWithSites?.map(m => m.site_id) || [])]);
 
     // Compare site IDs
     const siteIds = adminSites?.map(s => s.id) || [];
     const metricsIds = [...new Set(metricsWithSites?.map(m => m.site_id) || [])];
     const matchingIds = siteIds.filter(id => metricsIds.includes(id));
 
-    console.log('TEST: Site IDs:', siteIds);
-    console.log('TEST: Metrics site IDs:', metricsIds);
-    console.log('TEST: Matching IDs:', matchingIds);
 
     return NextResponse.json({
       user: user.email,

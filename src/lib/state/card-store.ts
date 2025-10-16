@@ -351,7 +351,6 @@ if (typeof window !== 'undefined') {
     (selectedCard, previousCard) => {
       if (selectedCard && selectedCard !== previousCard) {
         // Track card selection for analytics
-        console.log('Card selected:', selectedCard);
       }
     }
   );
@@ -363,7 +362,6 @@ if (typeof window !== 'undefined') {
       // Preload top 3 predictions
       predictions.slice(0, 3).forEach(prediction => {
         // This would trigger data preloading
-        console.log('Preloading card:', prediction.cardId);
       });
     }
   );

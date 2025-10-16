@@ -64,7 +64,6 @@ async function handleGetAnalytics(_request: NextRequest, context: any) {
     }
 
     // Add audit log for analytics access
-    console.log(`Analytics accessed by ${context.user.email} for store ${loja}`);
 
     // Generate mock analytics data
     const analyticsData = generateMockAnalytics(loja, startDate, endDate);
@@ -99,7 +98,6 @@ async function handlePostAnalytics(_request: NextRequest, context: any) {
     }
 
     // Add audit log for analytics access
-    console.log(`Analytics POST accessed by ${context.user.email} for store ${loja}`);
 
     // Generate mock analytics data
     const analyticsData = generateMockAnalytics(loja, start_date, end_date);

@@ -32,7 +32,10 @@ import {
   Battery,
   ChevronDown,
   ChevronRight,
-  Plus
+  Plus,
+  PieChart as PieChartIcon,
+  TrendingUp as TrendingUpIcon,
+  BarChart3
 } from 'lucide-react';
 import {
   LineChart,
@@ -52,6 +55,9 @@ import {
 import type { Building } from '@/types/auth';
 import type { TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import { RecommendationsModal } from '@/components/sustainability/RecommendationsModal';
+import { useTranslations, useLanguage } from '@/providers/LanguageProvider';
+import { getCarbonEquivalent } from '@/lib/education/carbon-equivalents';
+import { useEmissionsDashboard } from '@/hooks/useDashboardData';
 
 interface EmissionsDashboardProps {
   organizationId: string;
@@ -59,43 +65,65 @@ interface EmissionsDashboardProps {
   selectedPeriod: TimePeriod;
 }
 
-// Helper function to get action recommendations for emission sources
-const getActionRecommendation = (categoryName: string): string => {
+// Helper function to get action recommendation key for emission sources
+const getActionRecommendationKey = (categoryName: string): string => {
   const nameLower = categoryName.toLowerCase();
 
   if (nameLower.includes('electricity') || nameLower.includes('grid')) {
-    return '💡 Switch to renewable energy contracts';
+    return 'electricity';
   }
   if (nameLower.includes('natural gas') || nameLower.includes('gas') || nameLower.includes('stationary')) {
-    return '🔥 Install heat pump or upgrade boilers';
+    return 'naturalGas';
   }
   if (nameLower.includes('business travel') || nameLower.includes('travel')) {
-    return '✈️ Implement virtual meetings policy';
+    return 'businessTravel';
   }
   if (nameLower.includes('fleet') || nameLower.includes('vehicle') || nameLower.includes('mobile')) {
-    return '🚗 Transition to electric vehicles';
+    return 'fleet';
   }
   if (nameLower.includes('commut')) {
-    return '🚲 Promote public transit & remote work';
+    return 'commuting';
   }
   if (nameLower.includes('fugitive')) {
-    return '🔧 Improve refrigerant leak detection';
+    return 'fugitive';
   }
   if (nameLower.includes('waste')) {
-    return '♻️ Increase recycling & composting';
+    return 'waste';
   }
   if (nameLower.includes('purchase') || nameLower.includes('supply')) {
-    return '🏭 Engage suppliers on emissions reduction';
+    return 'purchasedGoods';
   }
 
-  return '📊 Review and optimize this source';
+  return 'default';
 };
 
-// Helper function to format scope labels
-const formatScope = (scope: string): string => {
+// Helper function to get scope translation key
+const getScopeKey = (scope: string): string => {
   if (!scope) return '';
-  // Convert scope_1 -> Scope 1, scope_2 -> Scope 2, scope_3 -> Scope 3
-  return scope.replace(/scope_(\d+)/i, 'Scope $1').replace(/scope(\d+)/i, 'Scope $1');
+  const scopeNum = scope.replace(/[^0-9]/g, '');
+  if (scopeNum === '1') return 'scope1';
+  if (scopeNum === '2') return 'scope2';
+  if (scopeNum === '3') return 'scope3';
+  return scope;
+};
+
+// Helper function to get category name translation key
+const getCategoryNameKey = (categoryName: string): string | null => {
+  const nameLower = categoryName.toLowerCase();
+
+  if (nameLower.includes('business travel') || nameLower === 'business travel') return 'businessTravel';
+  if (nameLower.includes('purchased electricity') || nameLower === 'purchased electricity') return 'purchasedElectricity';
+  if (nameLower === 'electricity') return 'electricity';
+  if (nameLower === 'waste') return 'waste';
+  if (nameLower.includes('purchased goods') || nameLower === 'purchased goods') return 'purchasedGoods';
+  if (nameLower.includes('natural gas') || nameLower === 'natural gas') return 'naturalGas';
+  if (nameLower.includes('stationary combustion')) return 'stationaryCombustion';
+  if (nameLower.includes('mobile combustion')) return 'mobileCombustion';
+  if (nameLower.includes('fleet')) return 'fleet';
+  if (nameLower.includes('commuting')) return 'commuting';
+  if (nameLower.includes('fugitive')) return 'fugitiveEmissions';
+
+  return null; // Return null if no match, will use original name
 };
 
 // Helper function to add target reduction path to monthly trends
@@ -116,14 +144,6 @@ const addTargetPath = (trends: any[], targetsResult: any, replanningTrajectory?:
   const baselineYear = target.baseline_year || 2023;
   const targetYear = target.target_year || 2030;
 
-  console.log('🎯 Adding target path:', {
-    baselineEmissions,
-    targetEmissions,
-    baselineYear,
-    targetYear,
-    hasReplanning: !!replanningTrajectory
-  });
-
   if (baselineEmissions === 0 || targetYear <= baselineYear) return trends;
 
   // Map month names to numbers
@@ -139,7 +159,6 @@ const addTargetPath = (trends: any[], targetsResult: any, replanningTrajectory?:
       const key = `${point.year}-${point.month}`;
       replanningMap.set(key, point.plannedEmissions);
     });
-    console.log('✅ Using replanned trajectory with', replanningMap.size, 'data points');
   }
 
   // Calculate linear reduction per month (fallback if no replanning)
@@ -365,7 +384,21 @@ const getScope3CategoryIcon = (categoryKey: string) => {
 };
 
 export function EmissionsDashboard({ organizationId, selectedSite, selectedPeriod }: EmissionsDashboardProps) {
-  const [loading, setLoading] = useState(true);
+  const t = useTranslations('sustainability.ghgEmissions');
+  const { t: tGlobal } = useLanguage();
+
+  // Fetch data with React Query (cached, parallel)
+  const {
+    scopeAnalysis,
+    dashboard,
+    targets,
+    trajectory,
+    feasibility,
+    metricTargets: metricTargetsQuery,
+    prevYearScopeAnalysis,
+    fullPrevYearScopeAnalysis,
+    isLoading
+  } = useEmissionsDashboard(selectedPeriod, selectedSite, organizationId);
 
   // Summary metrics
   const [totalEmissions, setTotalEmissions] = useState(0);
@@ -420,7 +453,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
   const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
   const [prevYearMonthlyTrends, setPrevYearMonthlyTrends] = useState<any[]>([]);
   const [replanningTrajectory, setReplanningTrajectory] = useState<any>(null);
-  const [feasibility, setFeasibility] = useState<any>(null);
+  // feasibility now comes from React Query hook (line 396)
 
   // Top emission sources
   const [topEmitters, setTopEmitters] = useState<Array<{ name: string; emissions: number; percentage: number }>>([]);
@@ -449,137 +482,42 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [selectedMetricForInitiative, setSelectedMetricForInitiative] = useState<string | null>(null);
 
+  // Processing useEffect - runs when cached data changes
   useEffect(() => {
-    const fetchEmissionsData = async () => {
-      setLoading(true);
+    // Wait for all required data to be available
+    if (!scopeAnalysis.data || !dashboard.data) return;
+
+    const processEmissionsData = async () => {
       try {
-        // Build params
-        const params = new URLSearchParams({
-          start_date: selectedPeriod.start,
-          end_date: selectedPeriod.end,
-        });
-        if (selectedSite) {
-          params.append('site_id', selectedSite.id);
+        const scopeData = scopeAnalysis.data;
+        const dashboardData = dashboard.data;
+        const prevScopeData = prevYearScopeAnalysis.data;
+        const fullPrevYearData = fullPrevYearScopeAnalysis.data;
+
+        // Set target data from query
+        if (targets.data) {
+          setTargetData(targets.data);
         }
 
-        // Fetch scope analysis (main API)
-        const scopeResponse = await fetch(`/api/sustainability/scope-analysis?${params}`);
-        const scopeData = await scopeResponse.json();
-
-        // Fetch dashboard data for trends
-        const dashboardResponse = await fetch(`/api/sustainability/dashboard?${params}`);
-        const dashboardData = await dashboardResponse.json();
-
-        // Fetch targets
-        const targetsResponse = await fetch('/api/sustainability/targets');
-        const targetsResult = await targetsResponse.json();
-        setTargetData(targetsResult);
-
-        // Fetch replanning trajectory if it exists
-        try {
-          const trajectoryParams = new URLSearchParams({
-            organizationId: organizationId,
-          });
-          const trajectoryResponse = await fetch(`/api/sustainability/targets/trajectory?${trajectoryParams}`);
-          const trajectoryData = await trajectoryResponse.json();
-          if (trajectoryData.success && trajectoryData.hasReplanning) {
-            setReplanningTrajectory(trajectoryData);
-            console.log('📈 Loaded replanning trajectory:', trajectoryData.message);
-          } else {
-            setReplanningTrajectory(null);
-          }
-        } catch (error) {
-          console.warn('⚠️ Failed to fetch replanning trajectory:', error);
+        // Set replanning trajectory from query
+        if (trajectory.data) {
+          setReplanningTrajectory(trajectory.data);
+        } else {
           setReplanningTrajectory(null);
         }
 
-        // Fetch feasibility status
-        try {
-          const feasibilityParams = new URLSearchParams({
-            organizationId: organizationId,
-          });
-          const feasibilityResponse = await fetch(`/api/sustainability/targets/feasibility?${feasibilityParams}`);
-          const feasibilityData = await feasibilityResponse.json();
-          if (feasibilityData.success) {
-            setFeasibility(feasibilityData.feasibility);
-            console.log('📊 Feasibility:', feasibilityData.feasibility.status, '-', feasibilityData.feasibility.recommendation);
-          } else {
-            setFeasibility(null);
-          }
-        } catch (error) {
-          console.warn('⚠️ Failed to fetch feasibility:', error);
-          setFeasibility(null);
+        // feasibility.data is directly available from the hook
+
+        // Set metric targets from query
+        if (metricTargetsQuery.data) {
+          setMetricTargets(metricTargetsQuery.data);
         }
 
-        // Fetch metric-level targets for expandable view (all emission categories)
-        try {
-          // Include ALL emission-related categories for comprehensive coverage
-          const emissionCategories = [
-            // Scope 1
-            'Natural Gas', 'Heating Oil', 'Diesel', 'Gasoline', 'Propane',
-            'Refrigerants', 'Fugitive Emissions', 'Heating', 'Cooling',
-            // Scope 2
-            'Electricity', 'Purchased Energy', 'Purchased Heating', 'Purchased Cooling', 'Purchased Steam',
-            // Scope 3
-            'Transportation', 'Business Travel', 'Employee Commuting',
-            'Upstream Transportation', 'Downstream Transportation',
-            'Waste', 'Purchased Goods', 'Capital Goods',
-            'Fuel and Energy Related', 'Upstream Leased Assets',
-            'Processing of Sold Products', 'Use of Sold Products',
-            'End of Life', 'Downstream Leased Assets',
-            'Franchises', 'Investments'
-          ].join(',');
-
-          const metricTargetsRes = await fetch(
-            `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(emissionCategories)}`
-          );
-          const metricTargetsData = await metricTargetsRes.json();
-          if (metricTargetsData.success && metricTargetsData.data) {
-            setMetricTargets(metricTargetsData.data);
-            console.log('📊 Emissions metric-level targets loaded:', metricTargetsData.data.length, 'targets');
-          }
-        } catch (err) {
-          console.error('Error fetching emissions metric targets:', err);
-        }
-
-        // Fetch previous year for YoY comparison
-        const currentYear = new Date(selectedPeriod.start).getFullYear();
-        const previousYear = currentYear - 1;
-
-        const prevYearStart = new Date(selectedPeriod.start);
-        prevYearStart.setFullYear(previousYear);
-        const prevYearEnd = new Date(selectedPeriod.end);
-        prevYearEnd.setFullYear(previousYear);
-
-        const prevParams = new URLSearchParams({
-          start_date: prevYearStart.toISOString().split('T')[0],
-          end_date: prevYearEnd.toISOString().split('T')[0],
-        });
-        if (selectedSite) {
-          prevParams.append('site_id', selectedSite.id);
-        }
-
-        const prevScopeResponse = await fetch(`/api/sustainability/scope-analysis?${prevParams}`);
-        const prevScopeData = await prevScopeResponse.json();
-
-        // Also fetch FULL previous year data for projected YoY comparison
-        const fullPrevYearParams = new URLSearchParams({
-          start_date: `${previousYear}-01-01`,
-          end_date: `${previousYear}-12-31`,
-        });
-        if (selectedSite) {
-          fullPrevYearParams.append('site_id', selectedSite.id);
-        }
-        const fullPrevYearResponse = await fetch(`/api/sustainability/scope-analysis?${fullPrevYearParams}`);
-        const fullPrevYearData = await fullPrevYearResponse.json();
-
-        console.log('📊 Emissions Dashboard Data:', { scopeData, dashboardData, targetsResult });
 
         // Extract scope totals
         const extractedScopeData = scopeData.scopeData || scopeData;
-        console.log('📊 Extracted Scope Data:', extractedScopeData);
-        const prevExtractedScopeData = prevScopeData.scopeData || prevScopeData;
-        const fullPrevYearExtractedScopeData = fullPrevYearData.scopeData || fullPrevYearData;
+        const prevExtractedScopeData = prevScopeData ? (prevScopeData.scopeData || prevScopeData) : {};
+        const fullPrevYearExtractedScopeData = fullPrevYearData ? (fullPrevYearData.scopeData || fullPrevYearData) : {};
 
         const s1Current = extractedScopeData.scope_1?.total || 0;
         const s2Current = extractedScopeData.scope_2?.total || 0;
@@ -602,14 +540,6 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         setScope3Total(s3Current);
         setTotalEmissions(currentTotal);
         setPreviousYearTotalEmissions(fullPreviousYearTotal);
-
-        console.log('📊 Totals Set:', {
-          scope1: s1Current,
-          scope2: s2Current,
-          scope3: s3Current,
-          total: currentTotal,
-          previousYearFullTotal: fullPreviousYearTotal
-        });
 
         // Calculate YoY changes
         const totalYoY = previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
@@ -659,6 +589,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
         // Extract Scope 2 categories
         if (extractedScopeData.scope_2?.categories) {
+          console.log('🔍 Scope 2 Categories from API:', extractedScopeData.scope_2.categories);
+          console.log('🔍 Full Scope 2 data:', extractedScopeData.scope_2);
           setScope2CategoriesData(extractedScopeData.scope_2.categories);
         }
 
@@ -704,18 +636,20 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
             forecast: false
           }));
 
-          console.log('📈 Monthly trends (actual):', trends.length, 'months');
-          console.log('📈 Actual months:', trends.map(t => t.month));
 
           // Fetch enterprise forecast for remaining months (same approach as Overview)
-          const forecastRes = await fetch(`/api/sustainability/forecast?${params}`);
+          const forecastParams = new URLSearchParams({
+            start_date: selectedPeriod.start,
+            end_date: selectedPeriod.end,
+          });
+          if (selectedSite) {
+            forecastParams.append('site_id', selectedSite.id);
+          }
+          const forecastRes = await fetch(`/api/sustainability/forecast?${forecastParams}`);
           if (forecastRes.ok) {
             const forecastData = await forecastRes.json();
 
             if (forecastData.forecast && forecastData.forecast.length > 0) {
-              console.log('🔮 Enterprise forecast loaded:', forecastData.forecast.length, 'months');
-              console.log('🔮 Forecast months:', forecastData.forecast.map((f: any) => f.month));
-              console.log('📊 Model:', forecastData.model, 'Confidence:', forecastData.confidence);
 
               // Add forecast months to trends with separate keys
               const forecastMonths = forecastData.forecast.map((f: any) => ({
@@ -743,41 +677,34 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               setActualEmissionsYTD(actualEmissions);
               setForecastedEmissions(forecastedEmissionsTotal);
 
-              // Create bridge point to connect actual and forecast lines
+              // Add forecast keys to the last actual data point to create smooth transition
               const lastActual = trends[trends.length - 1];
-              const bridgePoint = {
-                month: lastActual.month,
-                // Actual data keys (for solid lines)
-                total: lastActual.total,
-                scope1: lastActual.scope1,
-                scope2: lastActual.scope2,
-                scope3: lastActual.scope3,
-                // Forecast data keys with same values (for dashed lines)
+              const modifiedTrends = [...trends];
+              modifiedTrends[modifiedTrends.length - 1] = {
+                ...lastActual,
+                // Add forecast data keys with same values to create transition point
                 totalForecast: lastActual.total,
                 scope1Forecast: lastActual.scope1,
                 scope2Forecast: lastActual.scope2,
-                scope3Forecast: lastActual.scope3,
-                bridge: true
+                scope3Forecast: lastActual.scope3
               };
 
-              console.log('📊 Final combined:', trends.length, 'actual +', forecastMonths.length, 'forecast =', trends.length + forecastMonths.length + 1, 'total months (with bridge)');
 
               // Add target reduction path to each data point
-              const combinedTrends = [...trends, bridgePoint, ...forecastMonths];
-              const trendsWithTarget = addTargetPath(combinedTrends, targetsResult, replanningTrajectory);
+              const combinedTrends = [...modifiedTrends, ...forecastMonths];
+              const trendsWithTarget = addTargetPath(combinedTrends, targetData, replanningTrajectory);
               setMonthlyTrends(trendsWithTarget);
             } else {
-              console.log('⚠️ No forecast data returned');
-              const trendsWithTarget = addTargetPath(trends, targetsResult, replanningTrajectory);
+              const trendsWithTarget = addTargetPath(trends, targetData, replanningTrajectory);
               setMonthlyTrends(trendsWithTarget);
             }
           } else {
             console.warn('⚠️ Forecast API not available, showing actual data only');
-            const trendsWithTarget = addTargetPath(trends, targetsResult, replanningTrajectory);
+            const trendsWithTarget = addTargetPath(trends, targetData, replanningTrajectory);
             setMonthlyTrends(trendsWithTarget);
           }
         } else if (dashboardData.trends) {
-          const trendsWithTarget = addTargetPath(dashboardData.trends, targetsResult, replanningTrajectory);
+          const trendsWithTarget = addTargetPath(dashboardData.trends, targetData, replanningTrajectory);
           setMonthlyTrends(trendsWithTarget);
         }
 
@@ -796,7 +723,6 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           if (monthIndex !== -1) {
             const currentYear = new Date(selectedPeriod.start).getFullYear();
             actualEndDate = new Date(currentYear, monthIndex + 1, 0); // Last day of the month
-            console.log('📅 Last data available:', lastDataMonth, '→', actualEndDate.toISOString().split('T')[0]);
           }
         }
 
@@ -816,20 +742,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         }
 
         try {
-          console.log('📊 YoY Comparison Debug:');
-          console.log('  Selected Period:', selectedPeriod.start, 'to', selectedPeriod.end);
-          console.log('  Actual End Date (adjusted):', actualEndDate.toISOString().split('T')[0]);
-          console.log('  Current Period (for comparison):', selectedPeriod.start, 'to', actualEndDate.toISOString().split('T')[0]);
-          console.log('  Previous Period (for comparison):', previousYearStart.toISOString().split('T')[0], 'to', previousYearEnd.toISOString().split('T')[0]);
 
           const prevYearUrl = `/api/sustainability/dashboard?${prevYearParams}`;
-          console.log('  📡 Fetching previous year data from:', prevYearUrl);
           const prevDashboardRes = await fetch(prevYearUrl);
           const prevDashboardData = await prevDashboardRes.json();
-          console.log('  📡 Previous year API response received:', prevDashboardData.trendData?.length, 'months');
 
-          console.log('  Current monthly trends count:', dashboardData.trendData?.length || 0);
-          console.log('  Previous monthly trends count:', prevDashboardData.trendData?.length || 0);
 
           // Extract monthly trends from previous year dashboard data
           if (prevDashboardData.trendData && prevDashboardData.trendData.length > 0) {
@@ -842,10 +759,6 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               monthKey: m.monthKey || undefined // Try to preserve monthKey if available
             }));
 
-            console.log('✅ Previous year monthly trends extracted:', prevTrends.length, 'months');
-            console.log('📊 Previous Year Sample:', prevTrends.slice(0, 3));
-            console.log('📊 Previous Year Full Data:', prevTrends);
-            console.log('📊 Previous Year API trendData:', prevDashboardData.trendData);
             setPrevYearMonthlyTrends(prevTrends);
           } else {
             console.warn('⚠️ No previous year trend data available');
@@ -856,55 +769,38 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           setPrevYearMonthlyTrends([]);
         }
 
-        // Top emission sources
-        const allCategories: any[] = [];
-
-        // Categories is an object, not an array - use Object.entries like Overview does
-        if (extractedScopeData.scope_1?.categories) {
-          Object.entries(extractedScopeData.scope_1.categories).forEach(([key, value]) => {
-            allCategories.push({
-              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-              emissions: value as number,
-              scope: 'Scope 1'
-            });
-          });
+        // Fetch Top Emitters at METRIC level (not category level)
+        // This shows individual metrics like "Grid Electricity", "EV Chargers", "District Heating"
+        // instead of aggregated categories like "Purchased Electricity"
+        const topMetricsParams = new URLSearchParams({
+          start_date: selectedPeriod.start,
+          end_date: selectedPeriod.end,
+        });
+        if (selectedSite) {
+          topMetricsParams.append('site_id', selectedSite.id);
         }
 
-        if (extractedScopeData.scope_2?.categories) {
-          Object.entries(extractedScopeData.scope_2.categories).forEach(([key, value]) => {
-            allCategories.push({
-              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-              emissions: value as number,
-              scope: 'Scope 2'
-            });
-          });
+        try {
+          const topMetricsResponse = await fetch(`/api/sustainability/top-metrics?${topMetricsParams}`);
+          const topMetricsData = await topMetricsResponse.json();
+
+          if (topMetricsData.metrics && topMetricsData.metrics.length > 0) {
+            // Map the metric-level data to the format expected by the UI
+            const topFive = topMetricsData.metrics.slice(0, 5).map((metric: any) => ({
+              name: metric.name,
+              emissions: metric.emissions,
+              percentage: currentTotal > 0 ? (metric.emissions / currentTotal) * 100 : 0,
+              scope: metric.scope === 'scope_1' ? 'Scope 1' : metric.scope === 'scope_2' ? 'Scope 2' : 'Scope 3'
+            }));
+
+            setTopEmitters(topFive);
+          } else {
+            setTopEmitters([]);
+          }
+        } catch (error) {
+          console.error('❌ [Top Emitters] Error fetching top metrics:', error);
+          setTopEmitters([]);
         }
-
-        if (extractedScopeData.scope_3?.categories) {
-          Object.entries(extractedScopeData.scope_3.categories).forEach(([key, value]) => {
-            // Scope 3 categories are objects with {value, included, data_quality}
-            const emissionsValue = typeof value === 'object' && value !== null && 'value' in value
-              ? (value as any).value
-              : (typeof value === 'number' ? value : 0);
-
-            allCategories.push({
-              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-              emissions: emissionsValue,
-              scope: 'Scope 3'
-            });
-          });
-        }
-
-        const topFive = allCategories
-          .filter(c => c.emissions > 0)
-          .sort((a, b) => b.emissions - a.emissions)
-          .slice(0, 5)
-          .map(cat => ({
-            ...cat,
-            percentage: currentTotal > 0 ? (cat.emissions / currentTotal) * 100 : 0
-          }));
-
-        setTopEmitters(topFive);
 
         // Scope 1 detailed breakdown
         if (extractedScopeData.scope_1?.categories) {
@@ -957,23 +853,31 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         }
 
       } catch (error) {
-        console.error('Error fetching emissions data:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error processing emissions data:', error);
       }
     };
 
-    if (organizationId) {
-      fetchEmissionsData();
-    }
-  }, [organizationId, selectedSite, selectedPeriod]);
+    processEmissionsData();
+  }, [
+    scopeAnalysis.data,
+    dashboard.data,
+    prevYearScopeAnalysis.data,
+    fullPrevYearScopeAnalysis.data,
+    targets.data,
+    trajectory.data,
+    feasibility.data,
+    metricTargetsQuery.data,
+    selectedPeriod,
+    selectedSite,
+    organizationId
+  ]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[400px]">
         <div className="text-center space-y-2">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
-          <p className="text-gray-400">Loading emissions data...</p>
+          <p className="text-gray-400">{t('loading')}</p>
         </div>
       </div>
     );
@@ -981,9 +885,9 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
   // Scope breakdown data for pie chart
   const scopeBreakdown = [
-    { name: 'Scope 1', value: scope1Total, color: '#EF4444' },
-    { name: 'Scope 2', value: scope2Total, color: '#3B82F6' },
-    { name: 'Scope 3', value: scope3Total, color: '#6B7280' }
+    { name: t('scopes.scope1'), value: scope1Total, color: '#F97316' },
+    { name: t('scopes.scope2'), value: scope2Total, color: '#3B82F6' },
+    { name: t('scopes.scope3'), value: scope3Total, color: '#6B7280' }
   ].filter(s => s.value > 0);
 
   const scopePercentages = {
@@ -993,34 +897,30 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-      {/* Header */}
-      <div className="p-6 pb-0">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <Cloud className="w-6 h-6 text-blue-500" />
-            GHG Emissions Reporting
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            GHG Protocol • GRI 305 • ESRS E1 • TCFD • Comprehensive emissions analysis
-          </p>
-        </div>
-      </div>
-
+    <>
       {/* Executive Summary Cards */}
-      <div className="p-6 grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-4 mb-6">
         {/* Total Emissions */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Total Emissions</span>
-            <Cloud className="w-4 h-4 text-purple-500" />
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Cloud className="w-5 h-5 text-purple-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.totalEmissions.title')}</span>
           </div>
           <div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-              {totalEmissions.toFixed(1)}
+            <div className="relative group inline-block">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1 cursor-help">
+                {totalEmissions.toFixed(1)}
+              </div>
+              {/* Tooltip */}
+              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                  {t('explanations.totalEmissions')}
+                </p>
+                <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+              </div>
             </div>
             <div className="flex items-center justify-between">
-              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.totalEmissions.unit')}</div>
               <div className="flex items-center gap-1">
                 {totalEmissionsYoY < 0 ? (
                   <TrendingDown className="w-3 h-3 text-green-500" />
@@ -1028,7 +928,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   <TrendingUp className={`w-3 h-3 ${totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
                 )}
                 <span className={`text-xs ${totalEmissionsYoY < 0 ? 'text-green-500' : totalEmissionsYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                  {totalEmissionsYoY > 0 ? '+' : ''}{totalEmissionsYoY.toFixed(1)}% YoY
+                  {totalEmissionsYoY > 0 ? '+' : ''}{totalEmissionsYoY.toFixed(1)}% {t('cards.totalEmissions.yoy')}
                 </span>
               </div>
             </div>
@@ -1037,7 +937,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
              new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
               <div className="flex items-center justify-between mt-4">
                 <span className="text-xs text-purple-500 dark:text-purple-400">
-                  Projected: {projectedAnnualEmissions.toFixed(1)} tCO2e
+                  {t('cards.totalEmissions.projected')}: {projectedAnnualEmissions.toFixed(1)} {t('cards.totalEmissions.unit')}
                 </span>
                 {(() => {
                   // Calculate YoY for projected emissions: compare projected annual vs previous year's total
@@ -1064,17 +964,24 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         </div>
 
         {/* Emissions Intensity - Summary Card */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Intensity</span>
-            <Leaf className="w-4 h-4 text-green-500" />
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Leaf className="w-5 h-5 text-green-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
           </div>
           <div className="flex items-end justify-between">
-            <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="relative group">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white cursor-help">
                 {intensityMetrics.perEmployee.toFixed(2)}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e/FTE</div>
+              {/* Tooltip */}
+              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                  {t('explanations.intensity')}
+                </p>
+                <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.intensity.unit')}</div>
             </div>
             <div className="flex items-center gap-1">
               {intensityYoY < 0 ? (
@@ -1083,29 +990,36 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 <TrendingUp className={`w-3 h-3 ${intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
               )}
               <span className={`text-xs ${intensityYoY < 0 ? 'text-green-500' : intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                {intensityYoY > 0 ? '+' : ''}{intensityYoY.toFixed(1)}% YoY
+                {intensityYoY > 0 ? '+' : ''}{intensityYoY.toFixed(1)}% {t('cards.intensity.yoy')}
               </span>
             </div>
           </div>
         </div>
 
         {/* Scope 3 Coverage */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Scope 3 Coverage</span>
-            <Target className="w-4 h-4 text-blue-500" />
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Target className="w-5 h-5 text-blue-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.scope3Coverage.title')}</span>
           </div>
           <div className="flex items-end justify-between">
-            <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="relative group">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white cursor-help">
                 {scope3Coverage?.tracked || 0}/15
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">categories</div>
+              {/* Tooltip */}
+              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                  {t('explanations.scope3Coverage')}
+                </p>
+                <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.scope3Coverage.categories')}</div>
             </div>
           </div>
           <div className="mt-3">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-gray-500 dark:text-gray-400">Coverage</span>
+              <span className="text-gray-500 dark:text-gray-400">{t('cards.scope3Coverage.coverage')}</span>
               <span className="font-medium text-gray-900 dark:text-white">
                 {scope3Coverage?.percentage?.toFixed(0) || 0}%
               </span>
@@ -1120,67 +1034,94 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         </div>
 
         {/* Data Quality */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Data Quality</span>
-            <Info className="w-4 h-4 text-blue-500" />
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="w-5 h-5 text-yellow-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.dataQuality.title')}</span>
           </div>
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {dataQuality?.primaryDataPercentage || 85}%
+          {dataQuality ? (
+            <>
+              <div className="flex items-end justify-between">
+                <div className="relative group">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white cursor-help">
+                    {dataQuality.primaryDataPercentage}%
+                  </div>
+                  {/* Tooltip */}
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                      {t('explanations.dataQuality')}
+                    </p>
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.dataQuality.primaryData')}</div>
+                </div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Primary Data</div>
+              <div className="mt-3">
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-gray-500 dark:text-gray-400">{t('cards.dataQuality.verified')}</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {dataQuality.verifiedPercentage}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                  <div
+                    className="bg-green-500 h-1.5 rounded-full transition-all"
+                    style={{ width: `${dataQuality.verifiedPercentage}%` }}
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-20">
+              <span className="text-sm text-gray-400 dark:text-gray-500">{t('common.noData')}</span>
             </div>
-          </div>
-          <div className="mt-3">
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-gray-500 dark:text-gray-400">Verified</span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {dataQuality?.verifiedPercentage || 92}%
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-              <div
-                className="bg-green-500 h-1.5 rounded-full transition-all"
-                style={{ width: `${dataQuality?.verifiedPercentage || 92}%` }}
-              />
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* Scope Breakdown & Trend */}
-      <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Scope Breakdown */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 h-[420px] shadow-sm relative">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Emissions by Scope</h3>
-            <div className="flex gap-1 flex-wrap justify-end">
-              <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                GHG Protocol
-              </span>
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-1/2/3
-              </span>
-              <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                ESRS E1
-              </span>
+            <div className="flex items-center gap-2">
+              <PieChartIcon className="w-5 h-5 text-blue-500" />
+              <div className="relative group inline-block">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scopeBreakdown.title')}</h3>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    {t('explanations.scopeBreakdown')}
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-400/30">
+                      GHG Protocol
+                    </span>
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      GRI 305-1/2/3
+                    </span>
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                      ESRS E1
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="flex items-center justify-center mb-6">
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={360}>
               <PieChart>
                 <Pie
                   data={scopeBreakdown}
                   cx="50%"
                   cy="50%"
                   innerRadius={0}
-                  outerRadius={100}
+                  outerRadius={130}
                   paddingAngle={2}
                   dataKey="value"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent, value }) => `${name}: ${value.toFixed(1)} tCO2e (${(percent * 100).toFixed(0)}%)`}
                   labelLine={true}
                 >
                   {scopeBreakdown.map((entry, index) => (
@@ -1253,58 +1194,60 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         </div>
 
         {/* Emissions Trend */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 h-[420px]">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 h-[420px] shadow-sm relative">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Emissions Trend</h3>
-              {feasibility && (
-                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${
-                  feasibility.status === 'on-track' ? 'bg-green-500/10 text-green-400' :
-                  feasibility.status === 'challenging' ? 'bg-yellow-500/10 text-yellow-400' :
-                  feasibility.status === 'at-risk' ? 'bg-orange-500/10 text-orange-400' :
-                  'bg-red-500/10 text-red-400'
-                }`}>
-                  <span className="text-sm font-medium">
-                    {feasibility.status === 'on-track' ? '✓' :
-                     feasibility.status === 'challenging' ? '⚡' :
-                     feasibility.status === 'at-risk' ? '⚠' : '✗'}
-                  </span>
-                  <span className="text-xs font-semibold">
-                    {feasibility.status === 'on-track' ? 'On Track' :
-                     feasibility.status === 'challenging' ? 'Challenging' :
-                     feasibility.status === 'at-risk' ? 'At Risk' : 'Target Missed'}
-                  </span>
-                  {feasibility.reductionRequiredPercent > 0 && feasibility.isAchievable && (
-                    <span className="text-xs opacity-75">
-                      ({feasibility.reductionRequiredPercent.toFixed(0)}% ↓)
+            <div className="flex items-center gap-2">
+              <TrendingUpIcon className="w-5 h-5 text-purple-500" />
+              <div className="relative group inline-block">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('emissionsTrend.title')}</h3>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    {t('explanations.emissionsTrend')}
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded border border-purple-400/30">
+                      TCFD
                     </span>
-                  )}
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                      ESRS E1
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
                 </div>
-              )}
+              </div>
             </div>
-            <div className="flex gap-1 flex-wrap justify-end">
-              <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
-                TCFD
-              </span>
-              <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                ESRS E1
-              </span>
-            </div>
+            {feasibility.data && (
+              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${
+                feasibility.data.status === 'on-track' ? 'bg-green-500/10 text-green-400' :
+                feasibility.data.status === 'challenging' ? 'bg-yellow-500/10 text-yellow-400' :
+                feasibility.data.status === 'at-risk' ? 'bg-orange-500/10 text-orange-400' :
+                'bg-red-500/10 text-red-400'
+              }`}>
+                <span className="text-sm font-medium">
+                  {feasibility.data.status === 'on-track' ? '✓' :
+                   feasibility.data.status === 'challenging' ? '⚡' :
+                   feasibility.data.status === 'at-risk' ? '⚠' : '✗'}
+                </span>
+                <span className="text-xs font-semibold">
+                  {feasibility.data.status === 'on-track' ? 'On Track' :
+                   feasibility.data.status === 'challenging' ? 'Challenging' :
+                   feasibility.data.status === 'at-risk' ? 'At Risk' : t('emissionsTrend.targetMissed')}
+                </span>
+                {feasibility.data.reductionRequiredPercent > 0 && feasibility.data.isAchievable && (
+                  <span className="text-xs opacity-75">
+                    ({feasibility.data.reductionRequiredPercent.toFixed(0)}% ↓)
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {monthlyTrends.length > 0 ? (
             <>
-              {/* Debug: Log chart data to verify targetPath is present */}
-              {console.log('📊 Chart data sample:', monthlyTrends.slice(0, 3).map(d => ({
-                month: d.month,
-                total: d.total,
-                targetPath: d.targetPath,
-                forecast: d.forecast
-              })))}
-              {console.log('📊 Chart data with targetPath:', monthlyTrends.filter(d => d.targetPath != null).length, '/', monthlyTrends.length)}
             <ResponsiveContainer width="100%" height={320}>
               <LineChart data={monthlyTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={true} horizontal={true} />
                 <XAxis
                   dataKey="month"
                   stroke="#9CA3AF"
@@ -1346,7 +1289,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                           <div className="space-y-1">
                             {scope1 != null && (
                               <div className="flex items-center justify-between gap-3">
-                                <span className="text-red-400 text-sm">Scope 1:</span>
+                                <span className="text-orange-400 text-sm">Scope 1:</span>
                                 <span className="text-white font-medium">{scope1.toFixed(1)} tCO2e</span>
                               </div>
                             )}
@@ -1392,17 +1335,17 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   dataKey="total"
                   stroke="#8B5CF6"
                   strokeWidth={2.5}
-                  name="Total Emissions"
+                  name={t('emissionsTrend.legends.totalEmissions')}
                   dot={{ r: 4, fill: "#8B5CF6" }}
                   connectNulls
                 />
                 <Line
                   type="monotone"
                   dataKey="scope1"
-                  stroke="#EF4444"
+                  stroke="#F97316"
                   strokeWidth={2}
-                  name="Scope 1"
-                  dot={{ r: 3, fill: "#EF4444" }}
+                  name={t('emissionsTrend.legends.scope1')}
+                  dot={{ r: 3, fill: "#F97316" }}
                   connectNulls
                 />
                 <Line
@@ -1410,7 +1353,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   dataKey="scope2"
                   stroke="#3B82F6"
                   strokeWidth={2}
-                  name="Scope 2"
+                  name={t('emissionsTrend.legends.scope2')}
                   dot={{ r: 3, fill: "#3B82F6" }}
                   connectNulls
                 />
@@ -1419,7 +1362,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   dataKey="scope3"
                   stroke="#6B7280"
                   strokeWidth={2}
-                  name="Scope 3"
+                  name={t('emissionsTrend.legends.scope3')}
                   dot={{ r: 3, fill: "#6B7280" }}
                   connectNulls
                 />
@@ -1430,7 +1373,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   stroke="#8B5CF6"
                   strokeWidth={2.5}
                   strokeDasharray="5 5"
-                  name="Total Emissions"
+                  name={t('emissionsTrend.legends.totalEmissions')}
                   dot={{ fill: 'transparent', stroke: "#8B5CF6", strokeWidth: 2, r: 4 }}
                   connectNulls
                   legendType="none"
@@ -1438,11 +1381,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 <Line
                   type="monotone"
                   dataKey="scope1Forecast"
-                  stroke="#EF4444"
+                  stroke="#F97316"
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  name="Scope 1"
-                  dot={{ fill: 'transparent', stroke: "#EF4444", strokeWidth: 2, r: 3 }}
+                  name={t('emissionsTrend.legends.scope1')}
+                  dot={{ fill: 'transparent', stroke: "#F97316", strokeWidth: 2, r: 3 }}
                   connectNulls
                   legendType="none"
                 />
@@ -1484,96 +1427,102 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
             </>
           ) : (
             <div className="flex items-center justify-center h-[250px]">
-              <p className="text-gray-400 text-sm">No trend data available</p>
+              <p className="text-gray-400 text-sm">{t('emissionsTrend.noData')}</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Emissions Intensity Metrics */}
-      <div className="px-6 pb-6">
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+      <div className="mb-6">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Emissions Intensity Metrics</h3>
-              <div className="group relative">
-                <Info className="w-4 h-4 text-gray-400 cursor-help" />
-                <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
-                  All intensity metrics calculated according to international standards
+              <BarChart3 className="w-5 h-5 text-green-500" />
+              <div className="relative group inline-block">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('intensityMetrics.title')}</h3>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    {t('intensityMetrics.tooltip')}
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-400/30">
+                      GRI 305-4
+                    </span>
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                      ESRS E1
+                    </span>
+                    <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded border border-purple-400/30">
+                      TCFD
+                    </span>
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      SBTi
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
                 </div>
               </div>
-            </div>
-            <div className="flex gap-1">
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-4
-              </span>
-              <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                ESRS E1
-              </span>
-              <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
-                TCFD
-              </span>
-              <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
-                SBTi
-              </span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Per Employee */}
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-500 dark:text-gray-400">Per Employee</span>
-                <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="flex items-end justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {intensityMetrics.perEmployee.toFixed(3)}
+            {intensityMetrics.perEmployee > 0 && (
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-4 border border-gray-200 dark:border-gray-700/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{t('intensityMetrics.perEmployee.title')}</span>
+                  <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="flex items-end justify-between">
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {intensityMetrics.perEmployee.toFixed(3)}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{t('intensityMetrics.perEmployee.unit')}</div>
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e/FTE</div>
+                  <div className="flex items-center gap-1">
+                    {intensityYoY < 0 ? (
+                      <TrendingDown className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <TrendingUp className={`w-3 h-3 ${intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                    )}
+                    <span className={`text-xs ${intensityYoY < 0 ? 'text-green-500' : intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                      {intensityYoY > 0 ? '+' : ''}{intensityYoY.toFixed(1)}%
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  {intensityYoY < 0 ? (
-                    <TrendingDown className="w-3 h-3 text-green-500" />
-                  ) : (
-                    <TrendingUp className={`w-3 h-3 ${intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
-                  )}
-                  <span className={`text-xs ${intensityYoY < 0 ? 'text-green-500' : intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                    {intensityYoY > 0 ? '+' : ''}{intensityYoY.toFixed(1)}%
+                <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                  <span className="text-xs text-gray-400">
+                    GRI 305-4, TCFD
+                    {intensityMetrics.sectorSpecific?.productionUnit === 'FTE' && (
+                      <span className="ml-1 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded text-xs">
+                        {t('intensityMetrics.perEmployee.sectorAvg')}
+                      </span>
+                    )}
                   </span>
-                </div>
-              </div>
-              <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                <span className="text-xs text-gray-400">
-                  GRI 305-4, TCFD
-                  {intensityMetrics.sectorSpecific?.productionUnit === 'FTE' && (
-                    <span className="ml-1 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded text-xs">
-                      Sector
+                  {intensityMetrics.perEmployeeBenchmark && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                      intensityMetrics.perEmployeeBenchmark === 'excellent'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                        : intensityMetrics.perEmployeeBenchmark === 'good'
+                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                          : intensityMetrics.perEmployeeBenchmark === 'average'
+                            ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                    }`}>
+                      Avg: {intensityMetrics.perEmployeeBenchmarkValue?.toFixed(1)}
                     </span>
                   )}
-                </span>
-                {intensityMetrics.perEmployeeBenchmark && (
-                  <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
-                    intensityMetrics.perEmployeeBenchmark === 'excellent'
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                      : intensityMetrics.perEmployeeBenchmark === 'good'
-                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                        : intensityMetrics.perEmployeeBenchmark === 'average'
-                          ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                  }`}>
-                    Avg: {intensityMetrics.perEmployeeBenchmarkValue?.toFixed(1)}
-                  </span>
-                )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Per Revenue - ESRS E1 Mandatory */}
-            {intensityMetrics.perRevenue > 0 ? (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+            {intensityMetrics.perRevenue > 0 && (
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-4 border border-gray-200 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Per Revenue</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{t('intensityMetrics.perRevenue.title')}</span>
                   <TrendingUp className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div className="flex items-end justify-between mb-2">
@@ -1603,42 +1552,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   )}
                 </div>
               </div>
-            ) : intensityMetrics.dataQuality?.revenue?.available === false && (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 opacity-50">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Per Revenue</span>
-                  <div className="flex items-center gap-1">
-                    <TrendingUp className="w-4 h-4 text-gray-400" />
-                    <div className="group relative">
-                      <Info className="w-3 h-3 text-gray-400 cursor-help" />
-                      <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
-                        Add annual revenue in organization settings to calculate this ESRS E1 mandatory metric
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-end justify-between mb-2">
-                  <div>
-                    <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">-</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">No data</div>
-                  </div>
-                </div>
-                <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <span className="text-xs px-1.5 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded">
-                    ESRS E1
-                  </span>
-                  {intensityMetrics.perRevenueBenchmarkValue && (
-                    <span className="text-xs text-gray-400">
-                      Avg: {intensityMetrics.perRevenueBenchmarkValue.toFixed(1)}
-                    </span>
-                  )}
-                </div>
-              </div>
             )}
 
             {/* Per Area */}
             {intensityMetrics.perSqm > 0 && (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-4 border border-gray-200 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Per Area</span>
                   <Building2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -1671,8 +1589,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
             )}
 
             {/* Per Value Added - SBTi GEVA */}
-            {intensityMetrics.perValueAdded > 0 ? (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+            {intensityMetrics.perValueAdded > 0 && (
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-4 border border-gray-200 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Per Value Added</span>
                   <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -1704,42 +1622,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   )}
                 </div>
               </div>
-            ) : intensityMetrics.dataQuality?.valueAdded?.available === false && (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 opacity-50">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Per Value Added</span>
-                  <div className="flex items-center gap-1">
-                    <TrendingUp className="w-4 h-4 text-gray-400" />
-                    <div className="group relative">
-                      <Info className="w-3 h-3 text-gray-400 cursor-help" />
-                      <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
-                        Add value added (Revenue - Purchased Goods/Services) in organization settings for SBTi GEVA economic intensity metric
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-end justify-between mb-2">
-                  <div>
-                    <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">-</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">No data</div>
-                  </div>
-                </div>
-                <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <span className="text-xs px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
-                    SBTi GEVA
-                  </span>
-                  {intensityMetrics.perValueAddedBenchmarkValue && (
-                    <span className="text-xs text-gray-400">
-                      Avg: {intensityMetrics.perValueAddedBenchmarkValue.toFixed(1)}
-                    </span>
-                  )}
-                </div>
-              </div>
             )}
 
             {/* Production-Based - Sector-Specific */}
-            {intensityMetrics.sectorSpecific && intensityMetrics.sectorSpecific.productionUnit !== 'FTE' && (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+            {intensityMetrics.sectorSpecific && intensityMetrics.sectorSpecific.productionUnit !== 'FTE' && intensityMetrics.sectorSpecific.intensity > 0 && (
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-4 border border-gray-200 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Production-Based</span>
                   <Factory className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
@@ -1779,21 +1666,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
             )}
 
             {/* Per Operating Hour */}
-            {intensityMetrics.perOperatingHour > 0 ? (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+            {intensityMetrics.perOperatingHour > 0 && (
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-4 border border-gray-200 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Per Operating Hour</span>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    {intensityMetrics.dataQuality?.operatingHours?.isEstimated && (
-                      <div className="group relative">
-                        <Info className="w-3 h-3 text-blue-500 cursor-help" />
-                        <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
-                          Calculated using 40 hours/week × 52 weeks = 2,080 hours/year per FTE
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div className="flex items-end justify-between mb-2">
                   <div>
@@ -1807,35 +1684,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   <span className="text-xs text-gray-400">Operational efficiency</span>
                 </div>
               </div>
-            ) : intensityMetrics.dataQuality?.operatingHours?.available === false && (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 opacity-50">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Per Operating Hour</span>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4 text-gray-400" />
-                    <div className="group relative">
-                      <Info className="w-3 h-3 text-gray-400 cursor-help" />
-                      <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
-                        Add operating hours or employee data to calculate
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-end justify-between mb-2">
-                  <div>
-                    <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">-</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">No data</div>
-                  </div>
-                </div>
-                <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                  <span className="text-xs text-gray-400">Operational efficiency</span>
-                </div>
-              </div>
             )}
 
             {/* Per Customer */}
-            {intensityMetrics.perCustomer > 0 ? (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+            {intensityMetrics.perCustomer > 0 && (
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-4 border border-gray-200 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Per Customer</span>
                   <Users className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
@@ -1852,30 +1705,6 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   <span className="text-xs text-gray-400">Service efficiency</span>
                 </div>
               </div>
-            ) : intensityMetrics.dataQuality?.customers?.available === false && (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 opacity-50">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Per Customer</span>
-                  <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4 text-gray-400" />
-                    <div className="group relative">
-                      <Info className="w-3 h-3 text-gray-400 cursor-help" />
-                      <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
-                        Add annual customer count in organization settings
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-end justify-between mb-2">
-                  <div>
-                    <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">-</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">No data</div>
-                  </div>
-                </div>
-                <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                  <span className="text-xs text-gray-400">Service efficiency</span>
-                </div>
-              </div>
             )}
           </div>
         </div>
@@ -1885,32 +1714,33 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
       {monthlyTrends.length > 0 && totalEmissionsYoY !== null && prevYearMonthlyTrends.length > 0 && (() => {
         // Check if we have actual previous year data with values (not all zeros)
         const hasPreviousData = prevYearMonthlyTrends.some((trend: any) => trend.total > 0);
-        console.log('🔍 YoY Chart Rendering:', {
-          monthlyTrendsCount: monthlyTrends.length,
-          prevYearTrendsCount: prevYearMonthlyTrends.length,
-          hasPreviousData,
-          totalEmissionsYoY,
-          currentSample: monthlyTrends.slice(0, 2),
-          prevSample: prevYearMonthlyTrends.slice(0, 2)
-        });
         return hasPreviousData;
       })() && (
-        <div className="px-6 pb-6">
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4" style={{ height: '430px' }}>
+        <div className="mb-6 grid grid-cols-2 gap-4">
+          <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm min-h-[480px]">
             <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Year-over-Year Comparison</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Monthly change vs previous year
-                </p>
-              </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  GRI 305-5
-                </span>
-                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
-                  TCFD
-                </span>
+              <div className="flex items-center gap-2">
+                <TrendingDown className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                <div>
+                  <div className="relative group inline-block">
+                    <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('yoyComparison.title')}</h3>
+                    {/* Tooltip */}
+                    <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                      <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                        {t('explanations.yoyComparison')}
+                      </p>
+                      <div className="flex gap-1 mt-3 flex-wrap">
+                        <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                          GRI 305-5
+                        </span>
+                      </div>
+                      <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {t('yoyComparison.subtitle')}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -1918,8 +1748,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={(() => {
+                    // Filter out forecast months - only show actual data for YoY comparison
+                    const actualMonths = monthlyTrends.filter((trend: any) => !trend.forecast);
+
                     // Create chart data with YoY percentage change
-                    const chartData = monthlyTrends.map((trend: any) => {
+                    const chartData = actualMonths.map((trend: any) => {
                       // Extract just the month name (e.g., "Jan" from "Jan 25")
                       const currentMonthName = trend.month.split(' ')[0];
 
@@ -1951,12 +1784,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                       };
                     });
 
-                    console.log('📊 YoY Chart Data:', chartData);
                     return chartData;
                   })()}
                   margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={true} horizontal={true} />
                   <XAxis
                     dataKey="month"
                     stroke="#9CA3AF"
@@ -1991,17 +1823,17 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                             <p className="font-medium text-white mb-2">{data.month}</p>
                             <div className="space-y-1">
                               <p className="text-gray-300">
-                                This Year: <span className="font-medium text-white">{current.toFixed(1)} tCO2e</span>
+                                {t('yoyComparison.tooltip.thisYear')}: <span className="font-medium text-white">{current.toFixed(1)} tCO2e</span>
                               </p>
                               <p className="text-gray-300">
-                                Last Year: <span className="font-medium text-white">{previous.toFixed(1)} tCO2e</span>
+                                {t('yoyComparison.tooltip.lastYear')}: <span className="font-medium text-white">{previous.toFixed(1)} tCO2e</span>
                               </p>
                             </div>
                             <p className={`text-sm font-bold mt-2 ${change >= 0 ? 'text-red-400' : 'text-green-400'}`}>
-                              {change > 0 ? '+' : ''}{change.toFixed(1)}% YoY
+                              {change > 0 ? '+' : ''}{change.toFixed(1)}% {t('yoyComparison.tooltip.yoy')}
                             </p>
                             <p className="text-xs text-gray-400 mt-1">
-                              {change >= 0 ? 'Increase' : 'Decrease'} in emissions
+                              {change >= 0 ? t('yoyComparison.tooltip.increase') : t('yoyComparison.tooltip.decrease')} {t('yoyComparison.tooltip.emissionsChange')}
                             </p>
                           </div>
                         );
@@ -2012,294 +1844,343 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   <Bar
                     dataKey="change"
                     radius={[4, 4, 4, 4]}
-                    fill="#8884d8"
-                  >
-                    {(() => {
-                      const chartData = monthlyTrends.map((trend: any) => {
-                        // Extract just the month name (e.g., "Jan" from "Jan 25")
-                        const currentMonthName = trend.month.split(' ')[0];
-
-                        // Find matching month from previous year by comparing just the month name
-                        const prevTrend = prevYearMonthlyTrends.find((prev: any) => {
-                          const prevMonthName = prev.month.split(' ')[0];
-                          return prevMonthName === currentMonthName;
-                        });
-
-                        let change = 0;
-                        if (prevTrend && prevTrend.total > 0) {
-                          change = ((trend.total - prevTrend.total) / prevTrend.total) * 100;
-                        } else if (totalEmissionsYoY !== null) {
-                          change = totalEmissionsYoY;
-                        }
-                        return change;
-                      });
-
-                      return chartData.map((change: number, index: number) => (
-                        <Cell key={`cell-${index}`} fill={change >= 0 ? '#EF4444' : '#10B981'} />
-                      ));
-                    })()}
-                  </Bar>
+                    fill="#8B5CF6"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
+
+          {/* Top Emission Sources */}
+          {topEmitters.length > 0 && (
+          <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm min-h-[480px]">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-orange-500" />
+                <div className="relative group inline-block">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('topEmitters.title')}</h3>
+                  {/* Tooltip */}
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                      {t('explanations.topEmitters')}
+                    </p>
+                    <div className="flex gap-1 mt-3 flex-wrap">
+                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                        GRI 305-1/2/3
+                      </span>
+                    </div>
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {topEmitters.map((source, index) => {
+                const sourceColor = getEmissionSourceColor(source.name, source.scope);
+                const sourceName = source.name.toLowerCase();
+                const categoryKey = sourceName.replace(/ /g, '_');
+                let SourceIcon = Factory;
+
+                // Determine icon based on scope and category
+                if (source.scope === 'Scope 1') {
+                  if (sourceName.includes('stationary')) SourceIcon = Flame;
+                  else if (sourceName.includes('mobile')) SourceIcon = Car;
+                  else if (sourceName.includes('fugitive')) SourceIcon = Wind;
+                  else if (sourceName.includes('process')) SourceIcon = Factory;
+                } else if (source.scope === 'Scope 2') {
+                  SourceIcon = getScope2CategoryIcon(categoryKey);
+                } else if (source.scope === 'Scope 3') {
+                  SourceIcon = getScope3CategoryIcon(categoryKey);
+                }
+
+                const carbonEquivalent = getCarbonEquivalent(source.emissions, 'portugal', tGlobal);
+                const recommendationKey = getActionRecommendationKey(source.name);
+                const recommendation = recommendationKey ? t(`topEmitters.recommendations.${recommendationKey}`) : '';
+
+                return (
+                  <div key={index} className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {index + 1}. {source.name}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-900 dark:text-white font-semibold">
+                          {source.emissions.toFixed(1)} tCO2e
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          ({source.percentage.toFixed(0)}%)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Progress bar with tooltip */}
+                    <div className="relative group">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 cursor-help">
+                        <div
+                          className="h-1.5 rounded-full transition-all"
+                          style={{
+                            width: `${source.percentage}%`,
+                            backgroundColor: sourceColor
+                          }}
+                        />
+                      </div>
+
+                      {/* Carbon Equivalent Tooltip */}
+                      {carbonEquivalent && (carbonEquivalent.educationalContext || carbonEquivalent.didYouKnow) && (
+                        <div className="absolute left-0 top-full mt-1 w-72 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                          {/* Intro */}
+                          <div className="mb-2">
+                            <p className="text-purple-200 text-[11px] font-medium mb-1.5">
+                              {tGlobal('carbonEquivalentTooltip.intro')}
+                            </p>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-lg">{carbonEquivalent.icon}</span>
+                              <span className="font-semibold text-white text-[11px] break-words">{carbonEquivalent.description}</span>
+                            </div>
+                          </div>
+
+                          {carbonEquivalent.educationalContext && (
+                            <div className="mb-2 pt-2 border-t border-purple-500/30">
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <span className="text-purple-300">ℹ️</span>
+                                <span className="font-semibold text-purple-200 text-[10px]">{tGlobal('carbonEquivalentTooltip.howThisWorks')}</span>
+                              </div>
+                              <p className="text-gray-200 text-[10px] leading-relaxed break-words">
+                                {carbonEquivalent.educationalContext}
+                              </p>
+                            </div>
+                          )}
+
+                          {carbonEquivalent.didYouKnow && (
+                            <div className="pt-2 border-t border-purple-500/30">
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <span className="text-yellow-300">💡</span>
+                                <span className="font-semibold text-yellow-200 text-[10px]">{tGlobal('carbonEquivalentTooltip.didYouKnow')}</span>
+                              </div>
+                              <p className="text-gray-200 text-[10px] leading-relaxed break-words">
+                                {carbonEquivalent.didYouKnow}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Recommendation */}
+                          {recommendation && (
+                            <div className="pt-2 border-t border-purple-500/30">
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <span className="text-green-300">✨</span>
+                                <span className="font-semibold text-green-200 text-[10px]">Recomendação</span>
+                              </div>
+                              <p className="text-gray-200 text-[10px] leading-relaxed break-words">
+                                {recommendation}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Compliance Badges */}
+                          <div className="mt-3 pt-2 border-t border-purple-500/30">
+                            <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                              {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                            </p>
+                            <div className="flex gap-1 flex-wrap">
+                              <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
+                                {tGlobal('carbonEquivalentTooltip.badges.ghgProtocol')}
+                              </span>
+                              <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                                {tGlobal('carbonEquivalentTooltip.badges.gri305')}
+                              </span>
+                              <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                                {tGlobal('carbonEquivalentTooltip.badges.tcfd')}
+                              </span>
+                              <span className="px-1.5 py-0.5 bg-orange-100/20 text-orange-300 text-[9px] rounded border border-orange-500/30">
+                                {tGlobal('carbonEquivalentTooltip.badges.esrsE1')}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Pointer arrow */}
+                          <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          )}
         </div>
       )}
 
       {/* All Detailed Breakdown Sections */}
       {(siteComparison.length > 1 || topEmitters.length > 0 || scope1Sources.length > 0 || scope2Total > 0 || scope3Total > 0) && (
-      <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Site Comparison by Emissions Intensity */}
         {siteComparison.length > 1 && (
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                Site Performance Comparison
-                <div className="group relative">
-                  <Info className="w-4 h-4 text-gray-400 cursor-help" />
-                  <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
-                    Sites are ranked by emissions intensity (kgCO2e/m²). Lower intensity indicates better energy efficiency and emissions performance per unit area.
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-cyan-500" />
+                <div className="relative group inline-block">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+                    {t('sitePerformance.title')}
+                  </h3>
+                  {/* Tooltip */}
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                      {t('explanations.sitePerformance')}
+                    </p>
+                    <div className="flex gap-1 mt-3 flex-wrap">
+                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                        GRI 305-4
+                      </span>
+                    </div>
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
                   </div>
                 </div>
-              </h3>
-              <div className="flex gap-1 flex-nowrap">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded whitespace-nowrap">
-                  GRI 305-4
-                </span>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded whitespace-nowrap">
-                  Intensity per m²
-                </span>
               </div>
             </div>
 
             <div>
-              {/* Podium - Top 3 */}
-              {siteComparison.length >= 3 && (
-                <div className="flex items-end justify-center gap-3 mb-6 mt-8">
-                  {(() => {
-                    const first = siteComparison[siteComparison.length - 1];
-                    const second = siteComparison[siteComparison.length - 2];
-                    const third = siteComparison[siteComparison.length - 3];
+              {/* Horizontal Bar Chart */}
+              {(() => {
+                // Benchmark from sector-intensity.ts for Professional Services: perArea
+                const benchmark = { low: 20.0, average: 35.0, high: 60.0 };
 
-                    // Benchmark from sector-intensity.ts for Professional Services: perArea
-                    const benchmark = { low: 20.0, average: 35.0, high: 60.0 };
+                const getBarColor = (intensity: number) => {
+                  if (intensity <= benchmark.low) return '#10b981'; // green-500
+                  if (intensity <= benchmark.average) return '#f59e0b'; // amber-500
+                  return '#ef4444'; // red-500
+                };
 
-                    const getPerformanceStyle = (intensity: number) => {
-                      if (intensity <= benchmark.low) {
-                        return {
-                          bg: 'bg-green-100 dark:bg-green-900/30',
-                          border: 'border-green-500',
-                          text: 'text-green-700 dark:text-green-400',
-                          unit: 'text-green-600 dark:text-green-500'
-                        };
-                      } else if (intensity <= benchmark.average) {
-                        return {
-                          bg: 'bg-yellow-100 dark:bg-yellow-900/30',
-                          border: 'border-yellow-500',
-                          text: 'text-yellow-700 dark:text-yellow-400',
-                          unit: 'text-yellow-600 dark:text-yellow-500'
-                        };
-                      } else {
-                        return {
-                          bg: 'bg-red-100 dark:bg-red-900/30',
-                          border: 'border-red-500',
-                          text: 'text-red-700 dark:text-red-400',
-                          unit: 'text-red-600 dark:text-red-500'
-                        };
-                      }
-                    };
+                // Prepare chart data - reverse to show best performers at top
+                const chartData = [...siteComparison].reverse().map((site, index) => ({
+                  name: site.name,
+                  intensity: parseFloat(site.intensity.toFixed(1)),
+                  fill: getBarColor(site.intensity),
+                  rank: siteComparison.length - index
+                }));
 
-                    const firstStyle = getPerformanceStyle(first.intensity);
-                    const secondStyle = getPerformanceStyle(second.intensity);
-                    const thirdStyle = getPerformanceStyle(third.intensity);
+                return (
+                  <div className="mt-4">
+                    <ResponsiveContainer width="100%" height={Math.max(300, siteComparison.length * 60)}>
+                      <BarChart
+                        data={chartData}
+                        layout="vertical"
+                        margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(156, 163, 175, 0.2)" />
+                        <XAxis
+                          type="number"
+                          stroke="rgba(156, 163, 175, 0.5)"
+                          tick={{ fill: 'rgba(156, 163, 175, 0.8)', fontSize: 12 }}
+                          label={{ value: 'kgCO2e/m²', position: 'insideBottom', offset: -5, fill: 'rgba(156, 163, 175, 0.8)', fontSize: 12 }}
+                        />
+                        <YAxis
+                          type="category"
+                          dataKey="name"
+                          stroke="rgba(156, 163, 175, 0.5)"
+                          tick={false}
+                          width={0}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                            border: '1px solid rgba(75, 85, 99, 0.3)',
+                            borderRadius: '8px',
+                            padding: '8px 12px'
+                          }}
+                          labelStyle={{ color: '#f3f4f6', fontWeight: 600, marginBottom: '4px' }}
+                          formatter={(value: any) => [`${value} kgCO2e/m²`, 'Intensidade']}
+                        />
+                        <Bar
+                          dataKey="intensity"
+                          radius={[0, 4, 4, 0]}
+                          label={(props: any) => {
+                            const { x, y, width, height, value, index } = props;
+                            const site = chartData[index];
+                            return (
+                              <g>
+                                {/* Site name above the value */}
+                                <text
+                                  x={x + width + 5}
+                                  y={y + height / 2 - 8}
+                                  fill="rgba(156, 163, 175, 0.9)"
+                                  fontSize={11}
+                                  fontWeight={500}
+                                  textAnchor="start"
+                                >
+                                  {site.name}
+                                </text>
+                                {/* Value below the site name, on the right of the bar */}
+                                <text
+                                  x={x + width + 5}
+                                  y={y + height / 2 + 8}
+                                  fill="rgba(156, 163, 175, 0.9)"
+                                  fontSize={11}
+                                  textAnchor="start"
+                                >
+                                  {value} kgCO2e/m²
+                                </text>
+                              </g>
+                            );
+                          }}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
 
-                    return (
-                      <>
-                        {/* 2nd Place */}
-                        <div className="flex flex-col items-center flex-1">
-                          <div className="text-4xl mb-3">🥈</div>
-                          <div className={`w-full ${secondStyle.bg} rounded-t-lg p-4 text-center border-2 ${secondStyle.border} flex flex-col justify-between`} style={{ height: '110px' }}>
-                            <div className="text-xs font-medium text-gray-900 dark:text-white mb-2 truncate px-1">
-                              {second.name}
-                            </div>
-                            <div>
-                              <div className={`text-2xl font-bold ${secondStyle.text}`}>
-                                {second.intensity.toFixed(1)}
-                              </div>
-                              <div className={`text-[10px] ${secondStyle.unit} mt-1`}>
-                                kgCO2e/m²
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 1st Place */}
-                        <div className="flex flex-col items-center flex-1">
-                          <div className="text-5xl mb-3">🥇</div>
-                          <div className={`w-full ${firstStyle.bg} rounded-t-lg p-4 text-center border-2 ${firstStyle.border} flex flex-col justify-between`} style={{ height: '140px' }}>
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white mb-2 truncate px-1">
-                              {first.name}
-                            </div>
-                            <div>
-                              <div className={`text-3xl font-bold ${firstStyle.text}`}>
-                                {first.intensity.toFixed(1)}
-                              </div>
-                              <div className={`text-xs ${firstStyle.unit} mt-1`}>
-                                kgCO2e/m²
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 3rd Place */}
-                        <div className="flex flex-col items-center flex-1">
-                          <div className="text-4xl mb-3">🥉</div>
-                          <div className={`w-full ${thirdStyle.bg} rounded-t-lg p-4 text-center border-2 ${thirdStyle.border} flex flex-col justify-between`} style={{ height: '90px' }}>
-                            <div className="text-xs font-medium text-gray-900 dark:text-white mb-2 truncate px-1">
-                              {third.name}
-                            </div>
-                            <div>
-                              <div className={`text-xl font-bold ${thirdStyle.text}`}>
-                                {third.intensity.toFixed(1)}
-                              </div>
-                              <div className={`text-[10px] ${thirdStyle.unit} mt-1`}>
-                                kgCO2e/m²
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              )}
-
-              {/* Remaining sites - Simple list */}
-              {siteComparison.length > 3 && (
-                <div className="space-y-1.5 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  {siteComparison.slice(0, siteComparison.length - 3).reverse().map((site, index) => {
-                    const actualRank = siteComparison.length - 3 - index;
-                    return (
-                      <div key={index} className="flex items-center justify-between py-2 px-3 bg-gray-50 dark:bg-gray-800/50 rounded">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 w-6">
-                            #{actualRank + 1}
-                          </span>
-                          <span className="text-sm text-gray-900 dark:text-white truncate">
-                            {site.name}
-                          </span>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">
-                          {site.intensity.toFixed(1)} <span className="text-xs text-gray-500">kgCO2e/m²</span>
+                    {/* Legend for performance levels */}
+                    <div className="flex items-center justify-center gap-4 mt-4 text-xs flex-wrap">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded bg-green-500"></div>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Excelente (≤{benchmark.low})
                         </span>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* If less than 3 sites, show simple list */}
-              {siteComparison.length < 3 && (
-                <div className="space-y-2">
-                  {siteComparison.map((site, index) => {
-                    const rank = siteComparison.length - index;
-                    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
-                    return (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{medal}</span>
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">
-                            {site.name}
-                          </span>
-                        </div>
-                        <span className="text-sm font-bold text-gray-900 dark:text-white">
-                          {site.intensity.toFixed(1)} <span className="text-xs font-normal text-gray-500">kgCO2e/m²</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded bg-amber-500"></div>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Bom ({benchmark.low}-{benchmark.average})
                         </span>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-        </div>
-        )}
-
-        {/* Top Emission Sources */}
-        {topEmitters.length > 0 && (
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Top Emission Sources</h3>
-            <div className="flex gap-1">
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-1/2/3
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {topEmitters.map((source, index) => {
-              const sourceColor = getEmissionSourceColor(source.name, source.scope);
-              const sourceName = source.name.toLowerCase();
-              const categoryKey = sourceName.replace(/ /g, '_');
-              let SourceIcon = Factory;
-
-              // Determine icon based on scope and category
-              if (source.scope === 'Scope 1') {
-                if (sourceName.includes('stationary')) SourceIcon = Flame;
-                else if (sourceName.includes('mobile')) SourceIcon = Car;
-                else if (sourceName.includes('fugitive')) SourceIcon = Wind;
-                else if (sourceName.includes('process')) SourceIcon = Factory;
-              } else if (source.scope === 'Scope 2') {
-                SourceIcon = getScope2CategoryIcon(categoryKey);
-              } else if (source.scope === 'Scope 3') {
-                SourceIcon = getScope3CategoryIcon(categoryKey);
-              }
-
-              return (
-                <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <SourceIcon className="w-4 h-4" style={{ color: sourceColor }} />
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{source.name}</span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">({formatScope(source.scope)})</span>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-gray-900 dark:text-white">
-                        {source.emissions.toFixed(1)} tCO2e
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {source.percentage.toFixed(1)}%
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded bg-red-500"></div>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Precisa Melhorar (&gt;{benchmark.average})
+                        </span>
                       </div>
                     </div>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div
-                      className="h-2 rounded-full transition-all"
-                      style={{
-                        width: `${source.percentage}%`,
-                        backgroundColor: sourceColor
-                      }}
-                    />
-                  </div>
-                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400" title={getActionRecommendation(source.name)}>
-                    💡 {getActionRecommendation(source.name)}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })()}
+            </div>
         </div>
         )}
 
         {/* Scope 1 Detailed Breakdown */}
         {scope1Sources.length > 0 && (
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Scope 1 Breakdown</h3>
-            <div className="flex gap-1">
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-1
-              </span>
+            <div className="flex items-center gap-2">
+              <Flame className="w-5 h-5 text-orange-500" />
+              <div className="relative group inline-block">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scope1Breakdown.title')}</h3>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    {t('explanations.scope1')}
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-400/30">
+                      GHG Protocol
+                    </span>
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      GRI 305-1
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2324,11 +2205,16 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               }
 
               return (
-                <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
+                <div key={index} className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <SourceIcon className="w-4 h-4" style={{ color: sourceColor }} />
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{source.name}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {(() => {
+                          const key = getCategoryNameKey(source.name);
+                          return key ? t(`topEmitters.categoryNames.${key}`) : source.name;
+                        })()}
+                      </span>
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-bold text-gray-900 dark:text-white">
@@ -2357,79 +2243,58 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
         {/* Scope 2 Detailed Breakdown */}
         {scope2Total > 0 && (
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Scope 2 Breakdown</h3>
-            <div className="flex gap-1">
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-2
-              </span>
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-yellow-500" />
+              <div className="relative group inline-block">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scope2Breakdown.title')}</h3>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    {t('explanations.scope2')}
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-400/30">
+                      GHG Protocol
+                    </span>
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      GRI 305-2
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Dual Reporting - Improved UI */}
-          <div className="bg-white dark:bg-gray-800/50 rounded-lg p-4 mb-4 relative group">
+          <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-4 mb-4">
             <div className="flex items-center gap-2 mb-3">
               <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">Dual Reporting Method</span>
-              <Info className="w-4 h-4 text-gray-400 cursor-help" />
-            </div>
-
-            {/* Tooltip */}
-            <div className="absolute top-full left-0 mt-2 p-4 bg-gray-900 border border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 w-80">
-              <div className="text-xs font-semibold text-white mb-3">
-                GHG Protocol Dual Reporting
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span className="text-xs font-semibold text-blue-400">Location-Based Method</span>
-                  </div>
-                  <p className="text-xs text-gray-300 leading-relaxed">
-                    Uses average emission factors for the local electricity grid. Reflects regional energy mix and grid infrastructure.
-                  </p>
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span className="text-xs font-semibold text-green-400">Market-Based Method</span>
-                  </div>
-                  <p className="text-xs text-gray-300 leading-relaxed">
-                    Uses emission factors from contractual instruments (RECs, GOs, PPAs). Reflects your energy purchasing choices and renewable commitments.
-                  </p>
-                </div>
-
-                <div className="pt-2 border-t border-gray-700">
-                  <p className="text-xs text-gray-400 italic">
-                    GRI 305-2 requires reporting both methods for complete transparency.
-                  </p>
-                </div>
-              </div>
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">{t('scope2Breakdown.dualReporting.title')}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Location-Based</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('scope2Breakdown.dualReporting.locationBased')}</div>
                 <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                   {scope2LocationBased.toFixed(1)}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
                 <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                  Grid average
+                  {t('scope2Breakdown.dualReporting.gridAverage')}
                 </div>
               </div>
 
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Market-Based</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('scope2Breakdown.dualReporting.marketBased')}</div>
                 <div className="text-xl font-bold text-green-600 dark:text-green-400">
                   {scope2MarketBased.toFixed(1)}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
                 <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                  RECs & GOs
+                  {t('scope2Breakdown.dualReporting.recsGOs')}
                 </div>
               </div>
             </div>
@@ -2439,14 +2304,14 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Leaf className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Renewable Energy Impact</span>
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{t('scope2Breakdown.dualReporting.renewableImpact.title')}</span>
                   </div>
                   <span className="text-sm font-bold text-green-600 dark:text-green-400">
                     {renewablePercentage.toFixed(0)}%
                   </span>
                 </div>
                 <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  {(scope2LocationBased - scope2MarketBased).toFixed(1)} tCO2e reduction
+                  {(scope2LocationBased - scope2MarketBased).toFixed(1)} {t('scope2Breakdown.dualReporting.renewableImpact.reduction')}
                 </div>
               </div>
             )}
@@ -2463,7 +2328,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   const CategoryIcon = getScope2CategoryIcon(category);
 
                   return (
-                    <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
+                    <div key={index} className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <CategoryIcon className="w-4 h-4" style={{ color: categoryColor }} />
@@ -2502,45 +2367,60 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
         {/* Scope 3 Detailed Breakdown */}
         {scope3Total > 0 && (
-        <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Scope 3 Breakdown</h3>
-            <div className="flex gap-1">
-              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                GRI 305-3
-              </span>
+            <div className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-blue-500" />
+              <div className="relative group inline-block">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scope3Breakdown.title')}</h3>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    {t('explanations.scope3')}
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-400/30">
+                      GHG Protocol
+                    </span>
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      GRI 305-3
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Coverage Status Card - Improved */}
-          <div className="bg-white dark:bg-gray-800/50 rounded-lg p-4 mb-4 relative group">
+          <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-4 mb-4 relative group">
             <div className="flex items-center gap-2 mb-3">
               <Cloud className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">Value Chain Coverage</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">{t('scope3Breakdown.valueChainCoverage.title')}</span>
               <Info className="w-4 h-4 text-gray-400 cursor-help" />
             </div>
 
             {/* Tooltip for Scope 3 */}
             <div className="absolute top-full left-0 mt-2 p-4 bg-gray-900 border border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 w-96">
               <div className="text-xs font-semibold text-white mb-3">
-                Scope 3: Value Chain Emissions (15 Categories)
+                {t('scope3Breakdown.valueChainCoverage.tooltip.title')}
               </div>
 
               <p className="text-xs text-gray-300 leading-relaxed mb-3">
-                Scope 3 covers all indirect emissions in your value chain, from suppliers to end-users. The GHG Protocol defines 15 categories across upstream and downstream activities.
+                {t('scope3Breakdown.valueChainCoverage.tooltip.description')}
               </p>
 
               <div className="space-y-2 mb-3">
-                <div className="text-xs font-semibold text-gray-400">Upstream (8 categories):</div>
-                <p className="text-xs text-gray-300">Purchased goods, capital goods, fuel & energy, transportation, waste, business travel, commuting, leased assets</p>
+                <div className="text-xs font-semibold text-gray-400">{t('scope3Breakdown.valueChainCoverage.tooltip.upstream.title')}</div>
+                <p className="text-xs text-gray-300">{t('scope3Breakdown.valueChainCoverage.tooltip.upstream.items')}</p>
 
-                <div className="text-xs font-semibold text-gray-400 mt-2">Downstream (7 categories):</div>
-                <p className="text-xs text-gray-300">Transportation, processing, use of products, end-of-life, leased assets, franchises, investments</p>
+                <div className="text-xs font-semibold text-gray-400 mt-2">{t('scope3Breakdown.valueChainCoverage.tooltip.downstream.title')}</div>
+                <p className="text-xs text-gray-300">{t('scope3Breakdown.valueChainCoverage.tooltip.downstream.items')}</p>
               </div>
 
               <div className="pt-2 border-t border-gray-700">
                 <p className="text-xs text-gray-400 italic">
-                  GRI 305-3 requires disclosure of significant Scope 3 categories. Aim for 80%+ coverage.
+                  {t('scope3Breakdown.valueChainCoverage.tooltip.footer')}
                 </p>
               </div>
             </div>
@@ -2550,14 +2430,14 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                   {scope3Coverage?.tracked || 0}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Tracked</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{t('scope3Breakdown.valueChainCoverage.tracked')}</div>
               </div>
 
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-gray-400 dark:text-gray-500 mb-1">
                   {scope3Coverage?.missing || 15}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Missing</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{t('scope3Breakdown.valueChainCoverage.missing')}</div>
               </div>
 
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
@@ -2568,7 +2448,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 }`}>
                   {(scope3Coverage?.percentage || 0).toFixed(0)}%
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Coverage</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{t('scope3Breakdown.valueChainCoverage.coverage')}</div>
               </div>
             </div>
 
@@ -2596,7 +2476,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
             {scope3Coverage && scope3Coverage.percentage < 80 && (
               <div className="mt-2 text-xs text-orange-600 dark:text-orange-400">
-                {scope3Coverage.percentage < 40 ? '⚠️ Low coverage - expand tracking to key categories' : '💡 Good progress - aim for 80% coverage'}
+                {scope3Coverage.percentage < 40 ? t('scope3Breakdown.valueChainCoverage.lowCoverage') : t('scope3Breakdown.valueChainCoverage.goodProgress')}
               </div>
             )}
           </div>
@@ -2613,7 +2493,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   const CategoryIcon = getScope3CategoryIcon(category);
 
                   return (
-                    <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-3">
+                    <div key={index} className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <CategoryIcon className="w-4 h-4" style={{ color: categoryColor }} />
@@ -2657,45 +2537,53 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
       {/* SBTi Target Progress - Only show for current year */}
       {targetData?.targets && targetData.targets.length > 0 &&
        new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
-        <div className="px-6 pb-12">
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-6">
+        <div className="mb-12">
+          <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  SBTi Target Progress
-                </h3>
+                  <div className="relative group inline-block">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+                      {t('sbtiProgress.title')}
+                    </h3>
+                    {/* Tooltip */}
+                    <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                      <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                        {t('explanations.sbtiProgress')}
+                      </p>
+                      <div className="flex gap-1 mt-3 flex-wrap">
+                        <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                          SBTi
+                        </span>
+                        <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded border border-purple-400/30">
+                          TCFD
+                        </span>
+                        <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-400/30">
+                          GRI 305-5
+                        </span>
+                      </div>
+                      <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                    </div>
+                  </div>
+                </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   {targetData.targets[0].target_name} • {targetData.targets[0].baseline_year} → {targetData.targets[0].target_year}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex gap-1 flex-wrap justify-end">
-                  <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
-                    SBTi
-                  </span>
-                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                    GRI 305-5
-                  </span>
-                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
-                    TCFD
-                  </span>
-                  <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                    ESRS E1
-                  </span>
-                </div>
                 <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
-                  {targetData.targets[0].target_reduction_percent?.toFixed(1) || '42.0'}% Reduction Target
+                  {targetData.targets[0].target_reduction_percent?.toFixed(1) || '42.0'}% {t('sbtiProgress.reductionTarget')}
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-5 gap-3">
               {/* Baseline */}
-              <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Baseline ({targetData.targets[0].baseline_year})
+                    {t('sbtiProgress.baseline')} ({targetData.targets[0].baseline_year})
                   </span>
                 </div>
                 <div className="text-xl font-bold text-gray-900 dark:text-white">
@@ -2705,10 +2593,10 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               </div>
 
               {/* Current */}
-              <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-orange-200/50 dark:border-orange-700/50">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-orange-200/50 dark:border-orange-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Current ({new Date().getFullYear()})
+                    {t('sbtiProgress.current')} ({new Date().getFullYear()})
                     {targetData.targets[0].is_forecast && (
                       <span className="ml-1 text-purple-500">*</span>
                     )}
@@ -2725,7 +2613,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   {projectedAnnualEmissions > 0 ? (
-                    <span className="text-purple-500">Actual + ML Forecast</span>
+                    <span className="text-purple-500">{t('sbtiProgress.actualMLForecast')}</span>
                   ) : (
                     <span>tCO2e</span>
                   )}
@@ -2733,10 +2621,10 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               </div>
 
               {/* Required (Current Year Target) */}
-              <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-blue-200/50 dark:border-blue-700/50">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-blue-200/50 dark:border-blue-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Required ({new Date().getFullYear()})
+                    {t('sbtiProgress.required')} ({new Date().getFullYear()})
                   </span>
                 </div>
                 <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
@@ -2756,14 +2644,14 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                     return requiredEmissions.toFixed(1);
                   })()}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e on track</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e {t('sbtiProgress.onTrack')}</div>
               </div>
 
               {/* Target */}
-              <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Target ({targetData.targets[0].target_year})
+                    {t('sbtiProgress.target')} ({targetData.targets[0].target_year})
                   </span>
                 </div>
                 <div className="text-xl font-bold text-gray-900 dark:text-white">
@@ -2773,9 +2661,9 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               </div>
 
               {/* Progress */}
-              <div className="bg-white/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Progress</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{t('sbtiProgress.progress')}</span>
                 </div>
                 <div className="text-xl font-bold">
                   {(() => {
@@ -2819,7 +2707,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                     const requiredReduction = annualRate * yearsElapsed;
 
                     if (current > baseline) {
-                      return 'Above Baseline';
+                      return t('sbtiProgress.aboveBaseline');
                     } else {
                       const actualReduction = baseline > 0 ? ((baseline - current) / baseline) * 100 : 0;
                       const status = actualReduction >= requiredReduction ? 'On Track' : 'At Risk';
@@ -2833,7 +2721,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
             {/* Waterfall Chart */}
             <div className="mt-6">
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Emissions Trajectory</h4>
-              <ResponsiveContainer width="100%" height={220}>
+              <ResponsiveContainer width="100%" height={320}>
                 <BarChart
                   data={(() => {
                     const baseline = targetData.targets[0].baseline_emissions || 0;
@@ -3005,7 +2893,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                       <div key={category}>
                         {/* Category Row - Clickable to expand */}
                         <div
-                          className="bg-white dark:bg-gray-800/50 rounded-lg p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors border border-gray-200 dark:border-gray-700"
+                          className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors border border-gray-200 dark:border-gray-700"
                           onClick={() => {
                             setExpandedCategories(prev => {
                               const next = new Set(prev);
@@ -3138,7 +3026,6 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           metricTarget={metricTargets.find(mt => mt.id === selectedMetricForInitiative)}
           onSave={async (initiative) => {
             try {
-              console.log('🌍 Saving emissions initiative:', initiative);
 
               const selectedMetric = metricTargets.find(mt => mt.id === selectedMetricForInitiative);
               if (!selectedMetric) {
@@ -3201,7 +3088,6 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               }
 
               const result = await response.json();
-              console.log('✅ Emissions initiative saved successfully:', result);
 
               // Close modal
               setSelectedMetricForInitiative(null);
@@ -3214,6 +3100,6 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           }}
         />
       )}
-    </div>
+    </>
   );
 }

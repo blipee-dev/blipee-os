@@ -23,14 +23,11 @@ export class PerformanceOptimizer extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('📈 Initializing Performance Optimizer...');
     await this.setupKPIMonitoring();
     await this.initializeOptimizationAlgorithms();
-    console.log('✅ Performance Optimizer initialized');
   }
 
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`📈 Performance Optimizer executing task: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -344,18 +341,14 @@ export class PerformanceOptimizer extends AutonomousAgent {
   }
 
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`📈 Performance Optimizer learning from feedback: ${feedback.outcome}`);
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('📈 Performance Optimizer shutting down...');
   }
 
   private async setupKPIMonitoring(): Promise<void> {
-    console.log('📈 Setting up KPI monitoring systems');
   }
 
   private async initializeOptimizationAlgorithms(): Promise<void> {
-    console.log('📈 Initializing optimization algorithms');
   }
 }

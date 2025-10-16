@@ -420,11 +420,9 @@ export class GDPRComplianceManager {
     if (riskLevel === 'High' && affectedDataSubjects > 0) {
       // Schedule supervisory authority notification (72 hours)
       const notificationDeadline = new Date(Date.now() + 72 * 60 * 60 * 1000);
-      console.log(`⚠️  High-risk breach ${breachId}: Supervisory authority notification required by ${notificationDeadline}`);
       
       // If high risk to individuals, notification may be required
       if (affectedDataSubjects > 100) {
-        console.log(`⚠️  Breach ${breachId}: Consider data subject notification due to high risk`);
       }
     }
 

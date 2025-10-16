@@ -52,7 +52,6 @@ class IsolationForest {
   }
 
   async fit(data: number[][]): Promise<void> {
-    console.log('🌲 Training Isolation Forest...');
     
     this.trees = [];
     const sampleSize = Math.min(this.maxSamples, data.length);
@@ -65,7 +64,6 @@ class IsolationForest {
     }
     
     this.trained = true;
-    console.log(`✅ Isolation Forest trained with ${this.nEstimators} trees`);
   }
 
   async detect(data: number[][]): Promise<AnomalyResult[]> {
@@ -179,7 +177,6 @@ class AutoEncoder {
   }
 
   async build(inputDim: number): Promise<void> {
-    console.log('🧠 Building AutoEncoder architecture...');
     
     // Input layer
     const input = tf.input({ shape: [inputDim] });
@@ -213,7 +210,6 @@ class AutoEncoder {
       metrics: ['mae']
     });
     
-    console.log('✅ AutoEncoder architecture built');
   }
 
   async fit(data: number[][]): Promise<void> {
@@ -221,7 +217,6 @@ class AutoEncoder {
       await this.build(data[0].length);
     }
 
-    console.log('🧠 Training AutoEncoder...');
     
     const xTrain = tf.tensor2d(data);
     
@@ -234,7 +229,6 @@ class AutoEncoder {
       callbacks: {
         onEpochEnd: (epoch, logs) => {
           if (epoch % 20 === 0) {
-            console.log(`Epoch ${epoch}: loss=${logs?.loss?.toFixed(4)}, val_loss=${logs?.val_loss?.toFixed(4)}`);
           }
         }
       }
@@ -255,7 +249,6 @@ class AutoEncoder {
     reconstructionErrors.dispose();
     
     this.trained = true;
-    console.log(`✅ AutoEncoder trained with threshold: ${this.threshold.toFixed(4)}`);
   }
 
   async detect(data: number[][]): Promise<AnomalyResult[]> {
@@ -326,7 +319,6 @@ export class AnomalyDetectionModel {
    * Train all anomaly detection models
    */
   async trainModels(data: MetricData[]): Promise<{ trained: boolean; threshold: number }> {
-    console.log('🔍 Training anomaly detection models...');
     
     // Convert metric data to feature matrix
     const features = this.convertMetricDataToFeatures(data);
@@ -342,7 +334,6 @@ export class AnomalyDetectionModel {
     }
     
     this.trained = true;
-    console.log('✅ Anomaly detection models trained successfully');
     
     return {
       trained: true,

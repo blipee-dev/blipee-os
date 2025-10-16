@@ -38,7 +38,6 @@ export function clearAllAuth() {
     console.error('Error clearing sessionStorage:', e);
   }
   
-  console.log('✅ All authentication data cleared');
 }
 
 // Auto-run if called directly

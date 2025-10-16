@@ -68,7 +68,6 @@ export class BayesianOptimizer {
     objectiveFunction: ObjectiveFunction,
     searchSpace: SearchSpace
   ): Promise<OptimizationResult> {
-    console.log('🔧 Starting Bayesian hyperparameter optimization...');
     const startTime = Date.now();
     
     // Step 1: Generate initial random points
@@ -76,7 +75,6 @@ export class BayesianOptimizer {
     
     // Step 2: Iterative optimization
     for (let iteration = 0; iteration < this.config.nIterations; iteration++) {
-      console.log(`   Iteration ${iteration + 1}/${this.config.nIterations}`);
       
       // Fit Gaussian Process to current data
       await this.gaussianProcess.fit(this.evaluationHistory);
@@ -96,7 +94,6 @@ export class BayesianOptimizer {
       
       // Check for convergence
       if (this.hasConverged()) {
-        console.log(`   Converged after ${iteration + 1} iterations`);
         break;
       }
     }
@@ -104,8 +101,6 @@ export class BayesianOptimizer {
     const optimizationTime = Date.now() - startTime;
     const bestPoint = this.getBestPoint();
     
-    console.log(`✅ Optimization complete in ${optimizationTime}ms`);
-    console.log(`   Best objective: ${bestPoint.objective.toFixed(6)}`);
     
     return {
       bestParameters: bestPoint.parameters,
@@ -124,7 +119,6 @@ export class BayesianOptimizer {
     objectiveFunction: ObjectiveFunction,
     searchSpace: SearchSpace
   ): Promise<void> {
-    console.log(`   Generating ${this.config.nInitialPoints} initial points...`);
     
     for (let i = 0; i < this.config.nInitialPoints; i++) {
       const randomPoint = this.sampleRandomPoint(searchSpace);
@@ -137,7 +131,6 @@ export class BayesianOptimizer {
       });
     }
     
-    console.log(`   Initial exploration complete, best so far: ${this.getBestPoint().objective.toFixed(6)}`);
   }
 
   /**

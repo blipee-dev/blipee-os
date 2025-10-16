@@ -59,7 +59,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
 
   describe('Monitoring Setup and Configuration', () => {
     it('should initialize monitoring with correct configuration', async () => {
-      console.log('🧪 Testing monitoring initialization...');
       
       expect(monitoring).toBeDefined();
       
@@ -75,12 +74,9 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(health.alerts).toBeInstanceOf(Array);
       expect(health.recommendations).toBeInstanceOf(Array);
       
-      console.log(`   ✅ Model status: ${health.status}`);
-      console.log(`   📊 Current alerts: ${health.alerts.length}`);
     });
 
     it('should set baseline data for drift detection', async () => {
-      console.log('🧪 Testing baseline data setup...');
       
       const baselineData: TrainingData = {
         features: [
@@ -99,11 +95,9 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       const health = await monitoring.getModelHealth();
       expect(health.driftStatus).toBeDefined();
       
-      console.log('   ✅ Baseline data set successfully');
     });
 
     it('should validate monitoring configuration', () => {
-      console.log('🧪 Testing configuration validation...');
       
       expect(config.performanceThresholds.maxLatency).toBeGreaterThan(0);
       expect(config.performanceThresholds.minAccuracy).toBeGreaterThan(0);
@@ -114,7 +108,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(config.samplingRate).toBeLessThanOrEqual(1);
       expect(config.alertChannels.length).toBeGreaterThan(0);
       
-      console.log('   ✅ Configuration validation passed');
     });
   });
 
@@ -124,7 +117,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
     });
 
     it('should record predictions and calculate metrics', async () => {
-      console.log('🧪 Testing prediction recording...');
       
       // Record multiple predictions
       const predictions = [
@@ -155,13 +147,9 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(health.currentMetrics.errorRate).toBe(0);
       expect(health.currentMetrics.throughput).toBeGreaterThan(0);
       
-      console.log(`   📊 Recorded ${health.currentMetrics.requestCount} predictions`);
-      console.log(`   ⏱️ Average latency: ${health.currentMetrics.averageLatency.toFixed(1)}ms`);
-      console.log(`   📈 Throughput: ${health.currentMetrics.throughput.toFixed(2)} req/s`);
     });
 
     it('should record outcomes and calculate accuracy', async () => {
-      console.log('🧪 Testing outcome recording and accuracy calculation...');
       
       // Record predictions
       const predictions = [
@@ -189,11 +177,9 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       // Accuracy should be 4/5 = 0.8 (4 correct predictions out of 5)
       expect(health.currentMetrics.accuracy).toBeCloseTo(0.8, 1);
       
-      console.log(`   🎯 Accuracy: ${(health.currentMetrics.accuracy! * 100).toFixed(1)}%`);
     });
 
     it('should handle sampling rate correctly', async () => {
-      console.log('🧪 Testing sampling rate...');
       
       // Create monitoring with 50% sampling rate
       const sampledConfig = { ...config, samplingRate: 0.5 };
@@ -218,7 +204,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(health.currentMetrics.requestCount).toBeLessThan(totalPredictions);
       expect(health.currentMetrics.requestCount).toBeGreaterThan(totalPredictions * 0.3); // Allow some variance
       
-      console.log(`   📊 Sampled ${health.currentMetrics.requestCount}/${totalPredictions} predictions (${sampledConfig.samplingRate * 100}% rate)`);
       
       sampledMonitoring.stopMonitoring();
     });
@@ -230,7 +215,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
     });
 
     it('should detect high latency and generate alerts', async () => {
-      console.log('🧪 Testing high latency detection...');
       
       // Record predictions with high latency (above threshold of 100ms)
       await monitoring.recordPrediction(
@@ -251,11 +235,9 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(latencyAlert).toBeDefined();
       expect(latencyAlert!.severity).toMatch(/^(high|critical)$/);
       
-      console.log(`   🚨 Generated alert: ${latencyAlert!.message}`);
     });
 
     it('should detect low confidence predictions', async () => {
-      console.log('🧪 Testing low confidence detection...');
       
       // Record prediction with low confidence
       await monitoring.recordPrediction(
@@ -274,11 +256,9 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(confidenceAlert).toBeDefined();
       expect(confidenceAlert!.type).toBe('performance');
       
-      console.log(`   🚨 Generated alert: ${confidenceAlert!.message}`);
     });
 
     it('should calculate error rates correctly', async () => {
-      console.log('🧪 Testing error rate calculation...');
       
       // Record predictions with some errors
       const predictions = [
@@ -311,11 +291,9 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(health.currentMetrics.errorRate).toBeGreaterThanOrEqual(0);
       expect(health.currentMetrics.errorRate).toBeLessThanOrEqual(1);
       
-      console.log(`   📊 Error rate: ${(health.currentMetrics.errorRate * 100).toFixed(1)}%`);
     });
 
     it('should generate appropriate recommendations', async () => {
-      console.log('🧪 Testing recommendation generation...');
       
       // Record normal predictions
       for (let i = 0; i < 10; i++) {
@@ -345,9 +323,7 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       
       expect(hasRecommendation).toBe(true);
       
-      console.log(`   💡 Generated ${health.recommendations.length} recommendations:`);
       health.recommendations.forEach((rec, i) => {
-        console.log(`   💡 ${i + 1}. ${rec}`);
       });
     });
   });
@@ -371,7 +347,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
     });
 
     it('should detect feature drift when input distribution changes', async () => {
-      console.log('🧪 Testing feature drift detection...');
       
       // Record predictions with normal features (similar to baseline)
       for (let i = 0; i < 50; i++) {
@@ -414,15 +389,11 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       const hasDriftAlerts = health.alerts.some(alert => alert.type === 'drift');
       if (hasDriftAlerts) {
         const driftAlert = health.alerts.find(alert => alert.type === 'drift');
-        console.log(`   🔍 Drift detected: ${driftAlert!.message}`);
       }
       
-      console.log(`   📊 Overall drift score: ${health.driftStatus.overallDriftScore.toFixed(3)}`);
-      console.log(`   📈 Drift trend: ${health.driftStatus.driftTrend}`);
     });
 
     it('should detect prediction drift when model outputs change', async () => {
-      console.log('🧪 Testing prediction drift detection...');
       
       // Record predictions with consistent pattern
       for (let i = 0; i < 50; i++) {
@@ -451,12 +422,9 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       // Drift detection should analyze the prediction patterns
       expect(health.driftStatus).toBeDefined();
       
-      console.log(`   📊 Prediction drift analysis completed`);
-      console.log(`   🎯 Current status: ${health.status}`);
     });
 
     it('should detect concept drift when accuracy degrades', async () => {
-      console.log('🧪 Testing concept drift detection...');
       
       // Record predictions with good accuracy initially
       for (let i = 0; i < 25; i++) {
@@ -487,14 +455,11 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       // Should detect accuracy degradation
       expect(health.currentMetrics.accuracy).toBeDefined();
       if (health.currentMetrics.accuracy! < 0.7) {
-        console.log(`   📉 Accuracy degradation detected: ${(health.currentMetrics.accuracy! * 100).toFixed(1)}%`);
       }
       
-      console.log(`   🎯 Final accuracy: ${(health.currentMetrics.accuracy! * 100).toFixed(1)}%`);
     });
 
     it('should handle insufficient data gracefully', async () => {
-      console.log('🧪 Testing insufficient data handling...');
       
       // Record very few predictions
       await monitoring.recordPrediction(
@@ -510,7 +475,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(health.driftStatus.overallDriftScore).toBeGreaterThanOrEqual(0);
       expect(health.recommendations).toContain('Low request volume - ensure monitoring has sufficient data');
       
-      console.log(`   ✅ Handled insufficient data correctly`);
     });
   });
 
@@ -520,7 +484,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
     });
 
     it('should calculate overall health status correctly', async () => {
-      console.log('🧪 Testing health status calculation...');
       
       // Record normal operations
       for (let i = 0; i < 20; i++) {
@@ -544,13 +507,9 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
         expect(health.status).toMatch(/^(healthy|warning)$/);
       }
       
-      console.log(`   💚 Model health: ${health.status}`);
-      console.log(`   📊 Active alerts: ${health.alerts.length}`);
-      console.log(`   💡 Recommendations: ${health.recommendations.length}`);
     });
 
     it('should track metrics over time windows', async () => {
-      console.log('🧪 Testing time window metrics...');
       
       // Record metrics at different times
       const startTime = Date.now();
@@ -575,12 +534,9 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(health.currentMetrics.averageLatency).toBeGreaterThan(50);
       
       const timeSpent = Date.now() - startTime;
-      console.log(`   ⏱️ Metrics collected over ${timeSpent}ms`);
-      console.log(`   📊 Average latency: ${health.currentMetrics.averageLatency.toFixed(1)}ms`);
     });
 
     it('should provide comprehensive monitoring report', async () => {
-      console.log('🧪 Testing comprehensive monitoring report...');
       
       // Set baseline for drift detection
       const baselineData: TrainingData = {
@@ -623,15 +579,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(health.alerts).toBeDefined();
       expect(health.recommendations).toBeDefined();
       
-      console.log('\n   📋 Comprehensive Health Report:');
-      console.log(`   🏷️  Model: ${health.modelName}`);
-      console.log(`   💚 Status: ${health.status}`);
-      console.log(`   📊 Requests: ${health.currentMetrics.requestCount}`);
-      console.log(`   ⏱️  Avg Latency: ${health.currentMetrics.averageLatency.toFixed(1)}ms`);
-      console.log(`   📈 Throughput: ${health.currentMetrics.throughput.toFixed(2)} req/s`);
-      console.log(`   🚨 Active Alerts: ${health.alerts.length}`);
-      console.log(`   🔍 Drift Score: ${health.driftStatus.overallDriftScore.toFixed(3)}`);
-      console.log(`   💡 Recommendations: ${health.recommendations.length}`);
     });
   });
 
@@ -641,7 +588,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
     });
 
     it('should send alerts through configured channels', async () => {
-      console.log('🧪 Testing alert channel functionality...');
       
       // Record a prediction that should trigger an alert (high latency)
       await monitoring.recordPrediction(
@@ -661,14 +607,10 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       
       const latencyAlert = alerts.find(a => a.message.includes('latency'));
       if (latencyAlert) {
-        console.log(`   📡 Alert would be sent via ${config.alertChannels.length} channels`);
-        console.log(`   🚨 Alert: ${latencyAlert.message}`);
-        console.log(`   📊 Severity: ${latencyAlert.severity}`);
       }
     });
 
     it('should filter alerts by severity levels', async () => {
-      console.log('🧪 Testing alert severity filtering...');
       
       // Test different severity scenarios
       const scenarios = [
@@ -695,7 +637,6 @@ describe('Enhanced Model Monitoring & Drift Detection', () => {
       expect(alerts.length).toBeGreaterThan(0);
       
       const severities = alerts.map(a => a.severity);
-      console.log(`   📊 Alert severities generated: ${severities.join(', ')}`);
       
       expect(severities).toContain('high');
     });

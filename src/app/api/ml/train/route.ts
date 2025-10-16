@@ -13,7 +13,6 @@ import { predictiveMaintenanceModel } from '@/lib/ai/ml-models/predictive-mainte
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🏃 ML Training API called');
 
     const body = await request.json();
     const { modelType, trainingData } = body;
@@ -28,7 +27,6 @@ export async function POST(request: NextRequest) {
     let result;
     const startTime = Date.now();
 
-    console.log(`🧠 Training ${modelType} model with ${trainingData.length} samples...`);
 
     // Route to appropriate model for training
     switch (modelType) {
@@ -71,7 +69,6 @@ export async function POST(request: NextRequest) {
 
     const trainingTime = Date.now() - startTime;
 
-    console.log(`✅ ${modelType} model trained in ${trainingTime}ms`);
 
     return NextResponse.json({
       success: true,

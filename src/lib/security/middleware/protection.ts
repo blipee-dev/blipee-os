@@ -132,7 +132,6 @@ export class SecurityMiddleware {
   ): Promise<NextResponse | null> {
     // Temporarily disable rate limiting to test performance
     if (process.env.NODE_ENV === 'development') {
-      console.log(`Auth rate limiting skipped for ${action} (development mode)`);
       return null;
     }
     

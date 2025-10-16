@@ -164,13 +164,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Log the successful invitation
-    console.log('Organization creation invitation sent successfully:', {
-      invitationId: invitation.id,
-      email: invitation.email,
-      organizationName: invitation.organization_name,
-      expiresAt: invitation.expires_at,
-      authUserId: authInvite.user?.id
-    });
 
     return NextResponse.json({
       success: true,

@@ -23,14 +23,11 @@ export class DataOrchestrator extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('📊 Initializing Data Orchestrator...');
     await this.setupDataPipelines();
     await this.initializeQualityMonitoring();
-    console.log('✅ Data Orchestrator initialized');
   }
 
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`📊 Data Orchestrator executing task: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -227,18 +224,14 @@ export class DataOrchestrator extends AutonomousAgent {
   }
 
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`📊 Data Orchestrator learning from feedback: ${feedback.outcome}`);
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('📊 Data Orchestrator shutting down...');
   }
 
   private async setupDataPipelines(): Promise<void> {
-    console.log('📊 Setting up data pipelines');
   }
 
   private async initializeQualityMonitoring(): Promise<void> {
-    console.log('📊 Initializing quality monitoring');
   }
 }

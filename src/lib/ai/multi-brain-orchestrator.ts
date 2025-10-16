@@ -121,7 +121,6 @@ export class MultiBrainOrchestrator {
    * The master orchestration method - routes tasks to optimal AI
    */
   async think(task: AITask): Promise<any> {
-    console.log(`🧠 Multi-brain thinking about: ${task.type}`);
 
     // Step 1: Determine optimal AI(s) for this task
     const selectedAIs = this.selectOptimalAIs(task);

@@ -124,7 +124,6 @@ export default async function UsersPage() {
 
     // If no organizations, redirect
     if (!userOrgs || userOrgs.length === 0) {
-      console.log('User has no organizations');
       redirect('/');
     }
 
@@ -143,7 +142,6 @@ export default async function UsersPage() {
 
     if (!hasPermission) {
       // User doesn't have permission to manage users
-      console.log('User does not have permission to manage users');
       redirect('/');
     }
 

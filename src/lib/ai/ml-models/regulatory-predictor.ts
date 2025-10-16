@@ -109,7 +109,6 @@ export class RegulatoryPredictor extends BaseModel {
   }
 
   async buildModel(): Promise<void> {
-    console.log('Building regulatory prediction models...');
     
     // In a real implementation, these would be actual ML models
     // For now, we'll simulate their presence
@@ -121,7 +120,6 @@ export class RegulatoryPredictor extends BaseModel {
       predict: (features: number[]) => this.predictImpactFromFeatures(features)
     };
     
-    console.log('Regulatory prediction models built');
   }
 
   async train(data: TrainingData): Promise<TrainingResult> {
@@ -145,7 +143,6 @@ export class RegulatoryPredictor extends BaseModel {
    * Analyze regulation text and predict impact
    */
   async analyzeRegulation(regulation: RegulationText): Promise<RegulationImpact> {
-    console.log(`Analyzing regulation: ${regulation.title}`);
     
     // Step 1: Extract embeddings from regulation text
     const embeddings = await this.getEmbeddings(regulation.content);
@@ -179,7 +176,6 @@ export class RegulatoryPredictor extends BaseModel {
     organization: Organization,
     regulations: RegulationText[]
   ): Promise<RiskAssessment> {
-    console.log(`Predicting compliance risk for ${organization.name}`);
     
     // Extract organization features
     const orgFeatures = await this.extractOrganizationFeatures(organization);

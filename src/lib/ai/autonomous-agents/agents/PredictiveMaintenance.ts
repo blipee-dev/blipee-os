@@ -30,8 +30,6 @@ export class PredictiveMaintenance extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('🔧 Initializing Predictive Maintenance...');
-    console.log('✅ Predictive Maintenance initialized and ready to predict failures');
   }
 
   protected async scheduleRecurringTasks(): Promise<void> {
@@ -51,7 +49,6 @@ export class PredictiveMaintenance extends AutonomousAgent {
   }
 
   async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`🔧 Predictive Maintenance executing: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -226,18 +223,14 @@ export class PredictiveMaintenance extends AutonomousAgent {
   }
 
   async learnFromFeedback(feedback: LearningFeedback): Promise<void> {
-    console.log(`🔧 Predictive Maintenance learning from feedback for task ${feedback.taskId}`);
 
     if (feedback.outcome === 'positive') {
       this.maintenanceMetrics.accuracyRate = Math.min(0.98, this.maintenanceMetrics.accuracyRate + 0.02);
-      console.log('🔧 Positive feedback - improving prediction accuracy');
     } else if (feedback.outcome === 'negative') {
-      console.log('🔧 Negative feedback - adjusting prediction algorithms');
     }
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('🔧 Predictive Maintenance cleaning up...');
   }
 
   getPerformanceMetrics() {

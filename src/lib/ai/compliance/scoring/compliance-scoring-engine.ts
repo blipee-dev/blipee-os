@@ -443,7 +443,6 @@ export class ComplianceScoringEngine {
     frameworks: string[],
     assessments?: Map<string, ComplianceAssessment>
   ): Promise<ScoringResult> {
-    console.log('📊 Calculating comprehensive compliance score...');
 
     const startTime = Date.now();
 
@@ -506,7 +505,6 @@ export class ComplianceScoringEngine {
     // Cache result for trend analysis
     this.cacheResult(result);
 
-    console.log(`✅ Compliance score calculated: ${overallScore}% (${Date.now() - startTime}ms)`);
 
     return result;
   }
@@ -518,7 +516,6 @@ export class ComplianceScoringEngine {
     frameworkCode: string,
     assessment: ComplianceAssessment
   ): Promise<GapAnalysis> {
-    console.log(`🔍 Performing gap analysis for ${frameworkCode}...`);
 
     const engine = FrameworkFactory.createEngine(frameworkCode, this.config.organizationId);
     const requirements = engine.mapRequirements();
@@ -572,7 +569,6 @@ export class ComplianceScoringEngine {
     correlations: AnalyticsCorrelation[];
     insights: AnalyticsInsight[];
   }> {
-    console.log('📈 Generating scoring analytics...');
 
     const history = this.getScoreHistory(timeframe);
 

@@ -70,12 +70,10 @@ export class UpstashClient {
 export function createRedisClient() {
   // Check if Upstash is configured
   if (process.env.UPSTASH_REDIS_REST_URL) {
-    console.log('Using Upstash Redis (Serverless)');
     return new UpstashClient();
   }
   
   // Fall back to regular Redis
-  console.log('Using standard Redis');
   const { redisClient } = require('./redis-client');
   return redisClient;
 }

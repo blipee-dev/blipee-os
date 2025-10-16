@@ -329,7 +329,6 @@ export class PatternRecognitionEngine extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('🔍 Initializing Pattern Recognition Engine...');
 
     // Initialize pattern recognition algorithms
     await this.initializeAlgorithms();
@@ -338,13 +337,11 @@ export class PatternRecognitionEngine extends EventEmitter {
     await this.loadHistoricalPatterns();
 
     this.isInitialized = true;
-    console.log('✅ Pattern Recognition Engine initialized');
   }
 
   async recognizePatterns(data: DataPoint[]): Promise<Pattern[]> {
     this.ensureInitialized();
 
-    console.log(`🔎 Analyzing ${data.length} data points for patterns...`);
 
     const patterns: Pattern[] = [];
 
@@ -413,7 +410,6 @@ export class PatternRecognitionEngine extends EventEmitter {
 
   private async loadHistoricalPatterns(): Promise<void> {
     // Load from pattern database or create new ones
-    console.log('📚 Loading historical patterns...');
   }
 
   private filterPatterns(patterns: Pattern[]): Pattern[] {
@@ -467,7 +463,6 @@ export class AnomalyDetectionEngine extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('🚨 Initializing Anomaly Detection Engine...');
 
     // Initialize individual detectors
     await this.initializeDetectors();
@@ -479,13 +474,11 @@ export class AnomalyDetectionEngine extends EventEmitter {
     await this.buildBaselineModels();
 
     this.isInitialized = true;
-    console.log('✅ Anomaly Detection Engine initialized');
   }
 
   async detectAnomalies(data: DataPoint[]): Promise<Anomaly[]> {
     this.ensureInitialized();
 
-    console.log(`🔍 Analyzing ${data.length} data points for anomalies...`);
 
     let anomalies: Anomaly[] = [];
 
@@ -521,7 +514,6 @@ export class AnomalyDetectionEngine extends EventEmitter {
   }
 
   async updateBaseline(data: DataPoint[]): Promise<void> {
-    console.log('📊 Updating baseline models...');
 
     for (const [modelName, model] of this.baselineModels) {
       await model.update(data);
@@ -901,7 +893,6 @@ export class BehavioralAnalysisEngine extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('👥 Initializing Behavioral Analysis Engine...');
 
     await Promise.all([
       this.segmentationModel.initialize(),
@@ -910,13 +901,11 @@ export class BehavioralAnalysisEngine extends EventEmitter {
     ]);
 
     this.isInitialized = true;
-    console.log('✅ Behavioral Analysis Engine initialized');
   }
 
   async analyzeBehavior(data: DataPoint[]): Promise<BehavioralInsight[]> {
     this.ensureInitialized();
 
-    console.log(`🧠 Analyzing behavioral patterns from ${data.length} data points...`);
 
     const insights: BehavioralInsight[] = [];
 
@@ -1345,7 +1334,6 @@ export class AdvancedAnalyticsEngine extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('🚀 Initializing Advanced Analytics Engine...');
 
     await Promise.all([
       this.patternEngine.initialize(),
@@ -1356,13 +1344,11 @@ export class AdvancedAnalyticsEngine extends EventEmitter {
     this.setupEventListeners();
 
     this.isInitialized = true;
-    console.log('✅ Advanced Analytics Engine initialized');
   }
 
   async analyze(data: DataPoint[]): Promise<AnalyticsResult> {
     this.ensureInitialized();
 
-    console.log(`📊 Running comprehensive analytics on ${data.length} data points...`);
 
     const startTime = Date.now();
 
@@ -1504,7 +1490,6 @@ export class AdvancedAnalyticsEngine extends EventEmitter {
 
   async dispose(): Promise<void> {
     this.isInitialized = false;
-    console.log('✅ Advanced Analytics Engine disposed');
   }
 }
 

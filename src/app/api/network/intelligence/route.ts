@@ -37,12 +37,10 @@ async function getNetworkIntelligence(req: NextRequest, context: any) {
       }, { status: 403 });
     }
 
-    console.log(`🌐 Fetching network intelligence for ${networkMembership.anonymous_id}`);
 
     // Get network insights
     let insights = [];
     if (generateFresh) {
-      console.log('🔄 Generating fresh network insights...');
       insights = await networkIntelligence.discoverNetworkInsights(user.organizationId);
     } else {
       // Get cached insights from database
@@ -216,7 +214,6 @@ async function joinNetworkIntelligence(req: NextRequest, context: any) {
       });
     }
 
-    console.log(`🌐 Joining network intelligence system: ${industry} / ${sizeCategory}`);
 
     // Create organization profile
     const organizationProfile = {
@@ -264,7 +261,6 @@ async function joinNetworkIntelligence(req: NextRequest, context: any) {
     });
 
     // Get initial network insights
-    console.log('🔍 Generating welcome insights...');
     const welcomeInsights = await networkIntelligence.discoverNetworkInsights(user.organizationId);
     
     // Store welcome insights

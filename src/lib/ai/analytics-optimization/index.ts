@@ -23,12 +23,8 @@ import { WhatIfAnalysisEngine } from './what-if-analysis-engine';
  * Demonstrate Phase 7 Analytics & Optimization capabilities
  */
 export async function demonstrateAnalyticsOptimization(): Promise<void> {
-  console.log('\n🚀 Phase 7: Advanced Analytics & Optimization Engines Demo');
-  console.log('============================================================\n');
 
   // 1. Real-Time Analytics Demo
-  console.log('📊 1. Real-Time Analytics Engine Demo');
-  console.log('-------------------------------------');
   
   const analyticsEngine = new RealTimeAnalyticsEngine();
   
@@ -103,7 +99,6 @@ export async function demonstrateAnalyticsOptimization(): Promise<void> {
   };
 
   await analyticsEngine.registerStream(emissionsStream);
-  console.log('✅ Registered real-time emissions monitoring stream');
 
   // Simulate analytics query
   const analyticsQuery = {
@@ -132,11 +127,8 @@ export async function demonstrateAnalyticsOptimization(): Promise<void> {
     outputFormat: 'json' as const
   };
 
-  console.log('✅ Created analytics query for 7-day emissions trend with predictions');
 
   // 2. Resource Optimization Demo
-  console.log('\n🔧 2. Resource Optimization Engine Demo');
-  console.log('---------------------------------------');
   
   const optimizationEngine = new ResourceOptimizationEngine();
 
@@ -285,10 +277,6 @@ export async function demonstrateAnalyticsOptimization(): Promise<void> {
     }
   };
 
-  console.log('✅ Created multi-objective energy allocation problem');
-  console.log('   - 3 energy sources (solar, wind, gas)');
-  console.log('   - 3 demand centers with different priorities');
-  console.log('   - Objectives: minimize cost (40%), minimize emissions (60%)');
 
   // Multi-Objective Optimization Demo
   const multiObjectiveProblem = {
@@ -350,9 +338,6 @@ export async function demonstrateAnalyticsOptimization(): Promise<void> {
     ]
   };
 
-  console.log('\n✅ Configured multi-objective optimization:');
-  console.log('   - Finding Pareto-optimal solutions');
-  console.log('   - Balancing cost vs emissions trade-offs');
 
   // Stochastic Optimization Demo
   const uncertainParameters = [
@@ -377,14 +362,8 @@ export async function demonstrateAnalyticsOptimization(): Promise<void> {
     }
   ];
 
-  console.log('\n✅ Configured stochastic optimization:');
-  console.log('   - Accounting for renewable generation uncertainty');
-  console.log('   - Handling demand forecast variations');
-  console.log('   - Finding robust solutions across scenarios');
 
   // Dynamic Optimization Demo
-  console.log('\n⏰ 3. Dynamic Optimization Demo');
-  console.log('--------------------------------');
   
   const stateDynamics = {
     initialState: {
@@ -413,121 +392,40 @@ export async function demonstrateAnalyticsOptimization(): Promise<void> {
     }
   };
 
-  console.log('✅ Configured dynamic optimization over 24-hour horizon');
-  console.log('   - Battery storage state management');
-  console.log('   - Accumulated emissions tracking');
-  console.log('   - Multi-period decision making');
 
   // 3. Portfolio Optimization Demo
-  console.log('\n💼 3. Portfolio Optimization Engine Demo');
-  console.log('----------------------------------------');
   
   const portfolioEngine = new PortfolioOptimizationEngine();
   
-  console.log('✅ Created ESG portfolio optimization engine');
-  console.log('   - Multi-objective optimization for ESG investments');
-  console.log('   - Risk parity and Black-Litterman models');
-  console.log('   - Climate scenario optimization');
-  console.log('   - Real-time portfolio monitoring');
   
   // 4. Scenario Analysis Demo
-  console.log('\n🎭 4. Scenario Analysis Engine Demo');
-  console.log('-----------------------------------');
   
   const scenarioEngine = new ScenarioAnalysisEngine();
   
-  console.log('✅ Created comprehensive scenario analysis engine');
-  console.log('   - Climate scenario modeling');
-  console.log('   - Multi-period optimization');
-  console.log('   - Integrated planning with contingencies');
-  console.log('   - Real-time scenario monitoring');
   
   // 5. Decision Support Demo
-  console.log('\n🤔 5. Decision Support System Demo');
-  console.log('----------------------------------');
   
   const decisionSystem = new DecisionSupportSystem();
   
-  console.log('✅ Created AI-powered decision support system');
-  console.log('   - Context-aware recommendations');
-  console.log('   - Multi-stakeholder facilitation');
-  console.log('   - Strategic alignment assessment');
-  console.log('   - Learning from outcomes');
   
   // 6. What-If Analysis Demo
-  console.log('\n❓ 6. What-If Analysis Engine Demo');
-  console.log('----------------------------------');
   
   const whatIfEngine = new WhatIfAnalysisEngine();
   
-  console.log('✅ Created interactive what-if analysis engine');
-  console.log('   - Multi-dimensional exploration');
-  console.log('   - Goal seeking capabilities');
-  console.log('   - Probabilistic analysis');
-  console.log('   - Real-time updates');
 
   // Summary
-  console.log('\n📊 Phase 7 Analytics & Optimization Summary');
-  console.log('===========================================');
-  console.log('✅ Real-Time Analytics Engine:');
-  console.log('   - Stream processing for IoT sensors');
-  console.log('   - Aggregations and anomaly detection');
-  console.log('   - Predictive analytics integration');
-  console.log('   - Dashboard and alert outputs');
   
-  console.log('\n✅ Resource Optimization Engine:');
-  console.log('   - Multi-objective optimization (cost vs emissions)');
-  console.log('   - Resource allocation across renewable and fossil sources');
-  console.log('   - Stochastic optimization for uncertainty');
-  console.log('   - Dynamic optimization with state evolution');
-  console.log('   - Pareto frontier analysis');
-  console.log('   - Sensitivity analysis capabilities');
   
-  console.log('\n✅ Portfolio Optimization Engine:');
-  console.log('   - ESG portfolio management');
-  console.log('   - Risk-adjusted returns optimization');
-  console.log('   - Climate-aligned investing');
-  console.log('   - Multi-strategy optimization');
   
-  console.log('\n✅ Scenario Analysis Engine:');
-  console.log('   - Comprehensive scenario planning');
-  console.log('   - Monte Carlo simulations');
-  console.log('   - Decision tree analysis');
-  console.log('   - Integrated planning framework');
   
-  console.log('\n✅ Decision Support System:');
-  console.log('   - AI-powered recommendations');
-  console.log('   - Multi-criteria decision analysis');
-  console.log('   - Stakeholder consensus building');
-  console.log('   - Continuous learning');
   
-  console.log('\n✅ What-If Analysis Engine:');
-  console.log('   - Interactive scenario exploration');
-  console.log('   - Sensitivity and threshold analysis');
-  console.log('   - Goal seeking optimization');
-  console.log('   - Uncertainty quantification');
 
-  console.log('\n🎯 Business Value Delivered:');
-  console.log('   - Real-time ESG metrics monitoring and optimization');
-  console.log('   - Data-driven decision making at scale');
-  console.log('   - Risk-adjusted sustainability strategies');
-  console.log('   - Proactive scenario planning');
-  console.log('   - Optimal resource allocation');
-  console.log('   - Strategic portfolio management');
-  console.log('   - Enhanced stakeholder confidence');
 
-  console.log('\n🏆 Phase 7 COMPLETE - Advanced Analytics & Optimization Engines Operational!');
-  console.log('============================================================================');
-  console.log('Total components: 6 major engines implemented');
-  console.log('Lines of code: ~15,000+ lines of TypeScript');
-  console.log('Capabilities: Real-time analytics, optimization, portfolio management,');
-  console.log('             scenario planning, decision support, and what-if analysis');
-  console.log('\n🚀 Ready for Phase 8: Network Features & Global Expansion!');
 }
 
 // Auto-execute demo if running directly
 if (require.main === module) {
   demonstrateAnalyticsOptimization()
-    .then(() => console.log('\n✅ Phase 7 demonstration completed!'))
+    .then(() =>)
     .catch(console.error);
 }

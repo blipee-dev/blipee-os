@@ -12,7 +12,6 @@ import { logger } from './lib/logging';
 const recordMetric = (name: string, value: number, labels?: Record<string, string>) => {
   // In Edge Runtime, we'll just log the metrics
   // The actual metrics collection will happen in the API routes
-  console.log(`[METRIC] ${name}:`, value, labels);
 };
 
 // Routes that require authentication

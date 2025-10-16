@@ -320,7 +320,6 @@ export class SupplyChainIntelligenceEngine {
     supplierData: SupplyChainNode[],
     customerData: SupplyChainNode[]
   ): Promise<SupplyChainNetwork> {
-    console.log(`🔗 Building supply chain network for ${organizationId}`);
     
     const totalNodes = [...supplierData, ...customerData];
     const criticalSuppliers = this.identifyCriticalSuppliers(supplierData);

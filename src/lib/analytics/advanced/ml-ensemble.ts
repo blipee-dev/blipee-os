@@ -375,7 +375,6 @@ class AdvancedMLEnsemble {
           if (epoch % 10 === 0) {
             const { predictions } = this.forwardPass(features, weights, biases, config.activation);
             const loss = this.calculateMSE(targets, predictions);
-            console.log(`Epoch ${epoch}, Loss: ${loss.toFixed(4)}`);
           }
         }
 

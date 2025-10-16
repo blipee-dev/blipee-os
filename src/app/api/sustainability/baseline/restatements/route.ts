@@ -44,7 +44,6 @@ export async function GET(request: NextRequest) {
     if (error) {
       // If table doesn't exist yet, return empty array
       if (error.message?.includes('does not exist')) {
-        console.log('⚠️ baseline_restatements table not found, returning empty array');
         return NextResponse.json({
           success: true,
           restatements: [],
@@ -106,7 +105,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`📝 Creating baseline restatement for target ${targetId}`);
 
     // Calculate restated baseline
     const additionalEmissions = newMetrics.reduce(
@@ -197,7 +195,6 @@ export async function POST(request: NextRequest) {
       // Don't fail the request - this is supplementary data
     }
 
-    console.log(`✅ Created restatement ${restatement.id}`);
 
     return NextResponse.json({
       success: true,
@@ -231,7 +228,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    console.log(`🔄 Updating restatement ${restatementId}: ${action}`);
 
     // Fetch the restatement
     const { data: restatement, error: fetchError } = await supabaseAdmin
@@ -317,7 +313,6 @@ export async function PATCH(request: NextRequest) {
 
     // If applying, update the sustainability target with restated baseline
     if (targetUpdateRequired) {
-      console.log(`📊 Applying restated baseline to target ${restatement.target_id}`);
 
       // Fetch the target to calculate new target emissions
       const { data: target, error: targetFetchError } = await supabaseAdmin
@@ -356,7 +351,6 @@ export async function PATCH(request: NextRequest) {
         );
       }
 
-      console.log(`✅ Applied restated baseline: ${restatement.original_baseline_emissions} → ${restatement.restated_baseline_emissions} tCO2e`);
     }
 
     return NextResponse.json({

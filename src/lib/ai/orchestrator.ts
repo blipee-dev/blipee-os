@@ -120,7 +120,6 @@ export class AIOrchestrator {
       this.initializeHealth('anthropic');
     }
 
-    console.log(`AI Orchestrator initialized with ${this.providers.size} providers`);
   }
 
   private initializeHealth(provider: string) {
@@ -270,7 +269,6 @@ export class AIOrchestrator {
     
     for (const provider of providersToTry) {
       try {
-        console.log(`🤖 Routing to ${provider.name} - ${routing.reason}`);
         
         const response = await provider.complete(prompt, options);
         const responseTime = Date.now() - startTime;
@@ -344,7 +342,6 @@ export class AIOrchestrator {
     
     for (const provider of providersToTry) {
       try {
-        console.log(`🌊 Streaming with ${provider.name} - ${routing.reason}`);
         
         let tokenCount = 0;
         const tokens: string[] = [];
@@ -428,7 +425,6 @@ export class AIOrchestrator {
       // Close circuit breaker if enough successful requests
       if (health.circuitBreakerOpen && health.failureCount < 2) {
         health.circuitBreakerOpen = false;
-        console.log(`🔓 Circuit breaker closed for ${provider}`);
       }
     } else {
       health.failureCount++;
@@ -437,7 +433,6 @@ export class AIOrchestrator {
       // Open circuit breaker after consecutive failures
       if (health.failureCount >= 3) {
         health.circuitBreakerOpen = true;
-        console.log(`🔒 Circuit breaker opened for ${provider}`);
       }
     }
     
@@ -459,11 +454,9 @@ export class AIOrchestrator {
             Date.now() - health.lastCheck.getTime() > 5 * 60 * 1000) {
           health.circuitBreakerOpen = false;
           health.failureCount = 0;
-          console.log(`🔄 Circuit breaker auto-reset for ${name}`);
         }
         
         // Log health status
-        console.log(`📊 ${name}: healthy=${health.isHealthy}, responseTime=${health.responseTime.toFixed(0)}ms, errorRate=${(health.errorRate * 100).toFixed(1)}%`);
       }
     }, 30000);
   }
@@ -510,7 +503,6 @@ export class AIOrchestrator {
       health.failureCount = 0;
       health.errorRate = 0;
       health.isHealthy = true;
-      console.log(`🔄 Manual circuit breaker reset for ${provider}`);
     }
   }
 

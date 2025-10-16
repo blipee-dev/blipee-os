@@ -168,12 +168,4 @@ export async function GET(request: NextRequest) {
  */
 function logInteraction(userId: string, message: string, response: any) {
   // In production, send to analytics service
-  console.log('Interaction logged:', {
-    userId,
-    messageLength: message.length,
-    intent: response.metadata?.intent?.primary,
-    agentsUsed: response.metadata?.agentsUsed,
-    confidence: response.metadata?.confidence,
-    responseTime: response.metadata?.responseTime
-  });
 }

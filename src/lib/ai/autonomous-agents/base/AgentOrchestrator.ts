@@ -82,7 +82,6 @@ export class AgentOrchestrator {
    * Start the agent orchestrator
    */
   async start(): Promise<void> {
-    console.log('🎼 Starting Agent Orchestrator...');
     
     // Start master scheduler
     this.masterScheduler.start(this.handleGlobalTask.bind(this));
@@ -96,14 +95,12 @@ export class AgentOrchestrator {
     // Start all registered agents
     await AgentRegistry.startAllAgents();
     
-    console.log('✅ Agent Orchestrator is now conducting the AI symphony!');
   }
   
   /**
    * Stop the orchestrator
    */
   async stop(): Promise<void> {
-    console.log('⏹️ Stopping Agent Orchestrator...');
     
     // Stop workload monitoring
     if (this.workloadMonitor) {
@@ -116,14 +113,12 @@ export class AgentOrchestrator {
     // Stop all agents
     await AgentRegistry.stopAllAgents();
     
-    console.log('✅ Agent Orchestrator stopped');
   }
   
   /**
    * Select optimal agent for a task type (called by chat API)
    */
   async selectAgent(taskType: string): Promise<AutonomousAgent | null> {
-    console.log(`🎯 Selecting agent for task type: ${taskType}`);
 
     try {
       // Create a temporary task to use existing agent selection logic
@@ -140,9 +135,7 @@ export class AgentOrchestrator {
       const optimalAgent = await this.findOptimalAgent(tempTask);
 
       if (optimalAgent) {
-        console.log(`✅ Selected agent: ${optimalAgent.agentName} for task type: ${taskType}`);
       } else {
-        console.log(`⚠️ No suitable agent found for task type: ${taskType}`);
       }
 
       return optimalAgent;
@@ -157,7 +150,6 @@ export class AgentOrchestrator {
    * Distribute task to optimal agent
    */
   async distributeTask(task: Task): Promise<string> {
-    console.log(`🎯 Distributing task ${task.id} (${task.type})`);
     
     try {
       // Find optimal agent for the task
@@ -165,7 +157,6 @@ export class AgentOrchestrator {
       
       if (!optimalAgent) {
         // No suitable agent available, schedule for later
-        console.log(`📋 No available agent for task ${task.id}, scheduling globally`);
         await this.masterScheduler.scheduleTask(task);
         return task.id;
       }
@@ -176,7 +167,6 @@ export class AgentOrchestrator {
       // Update workload tracking
       await this.updateWorkloadTracking(optimalAgent.agentName, 'task_assigned');
       
-      console.log(`✅ Task ${task.id} assigned to ${optimalAgent.agentName}`);
       
       return task.id;
       
@@ -196,7 +186,6 @@ export class AgentOrchestrator {
     requiredCapabilities: string[],
     context: AgentContext
   ): Promise<string> {
-    console.log(`🤝 Initiating collaboration: ${initiatingAgent} → [${targetAgents.join(', ')}]`);
     
     const collaborationRequest: CollaborationRequest = {
       id: `collab_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -228,7 +217,6 @@ export class AgentOrchestrator {
     // Store in database
     await this.storeCollaborationRequest(collaborationRequest);
     
-    console.log(`✅ Collaboration ${collaborationRequest.id} initiated`);
     
     return collaborationRequest.id;
   }
@@ -237,7 +225,6 @@ export class AgentOrchestrator {
    * Get system-wide orchestration metrics
    */
   async getOrchestrationMetrics(): Promise<OrchestrationMetrics> {
-    console.log('📊 Gathering orchestration metrics...');
     
     try {
       const agents = AgentRegistry.getAllAgents();
@@ -363,7 +350,6 @@ export class AgentOrchestrator {
    * Handle global tasks that couldn't be assigned to specific agents
    */
   private async handleGlobalTask(task: Task): Promise<TaskResult> {
-    console.log(`🌐 Handling global task ${task.id}`);
     
     // Try to find an agent again
     const optimalAgent = await this.findOptimalAgent(task);
@@ -568,13 +554,11 @@ export class AgentOrchestrator {
    * Rebalance workload across agents
    */
   private async rebalanceWorkload(distribution: WorkloadDistribution): Promise<void> {
-    console.log('⚖️ Rebalancing workload across agents...');
     
     // Implementation would move tasks from overloaded agents to available ones
     // This is a simplified placeholder
     
     for (const bottleneck of distribution.bottlenecks) {
-      console.log(`📋 Attempting to offload tasks from ${bottleneck}`);
       // Would implement task migration logic here
     }
   }
@@ -643,7 +627,6 @@ export class AgentOrchestrator {
    * Initialize collaboration hub
    */
   private async initializeCollaborationHub(): Promise<void> {
-    console.log('🤝 Initializing collaboration hub...');
     
     // Load active collaborations from database
     const { data: collaborations } = await this.supabase
@@ -666,7 +649,6 @@ export class AgentOrchestrator {
       this.collaborationHub.set(request.id, request);
     });
     
-    console.log(`✅ Loaded ${collaborations?.length || 0} active collaborations`);
   }
   
   /**

@@ -8,11 +8,9 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('Session API: Starting with cookies:', request.cookies.getAll().map(c => c.name));
 
     // Get the custom session from session manager
     const sessionData = await sessionManager.getSessionFromCookies();
-    console.log('Session API: Custom session result:', { hasSession: !!sessionData, userId: sessionData?.userId });
 
     if (!sessionData) {
       // No custom session found
@@ -28,7 +26,6 @@ export async function GET(request: NextRequest) {
 
     // Get user details from Supabase auth using the userId from session
     const { data: { user }, error: authError } = await supabaseAdmin.auth.admin.getUserById(sessionData.userId);
-    console.log('Session API: User lookup result:', { hasUser: !!user, error: authError?.message });
 
     if (authError || !user) {
       console.error('Auth error in session endpoint:', authError?.message);

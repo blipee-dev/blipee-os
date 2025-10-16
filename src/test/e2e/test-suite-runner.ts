@@ -86,7 +86,6 @@ export class E2ETestSuiteRunner {
     results: TestResults[];
   }> {
     
-    console.log('\n🚀 Starting E2E Test Suite Execution\n');
 
     const startTime = Date.now();
     this.results = [];
@@ -109,13 +108,10 @@ export class E2ETestSuiteRunner {
     // Sort by priority and dependencies
     suitesToRun = this.sortSuitesByDependencies(suitesToRun);
 
-    console.log(`📋 Test Plan:`);
     suitesToRun.forEach((suite, index) => {
-      console.log(`  ${index + 1}. ${suite.name} (${suite.priority}) - ~${suite.estimatedDuration}min`);
     });
 
     const totalEstimatedTime = suitesToRun.reduce((sum, suite) => sum + suite.estimatedDuration, 0);
-    console.log(`\n⏱️ Total Estimated Duration: ${totalEstimatedTime} minutes\n`);
 
     // Run test suites
     if (options.parallel) {
@@ -131,12 +127,6 @@ export class E2ETestSuiteRunner {
     // Generate comprehensive report
     await this.generateTestReport();
 
-    console.log('\n📊 Final Test Results Summary:');
-    console.log(`  Total Suites: ${this.results.length}`);
-    console.log(`  Passed: ${passedSuites} ✅`);
-    console.log(`  Failed: ${failedSuites} ❌`);
-    console.log(`  Success Rate: ${((passedSuites / this.results.length) * 100).toFixed(1)}%`);
-    console.log(`  Total Duration: ${Math.round(totalDuration / 1000 / 60)} minutes`);
 
     return {
       totalSuites: this.results.length,
@@ -152,15 +142,11 @@ export class E2ETestSuiteRunner {
     options: { browser?: string; headless?: boolean }
   ): Promise<void> {
     for (const suite of suites) {
-      console.log(`\n🧪 Running Test Suite: ${suite.name}`);
-      console.log(`   ${suite.description}`);
       
       const result = await this.runSingleSuite(suite, options);
       this.results.push(result);
 
       if (result.status === 'failed' && suite.priority === 'critical') {
-        console.log(`\n❌ Critical test suite failed: ${suite.name}`);
-        console.log('   Stopping execution due to critical failure');
         break;
       }
     }
@@ -176,7 +162,6 @@ export class E2ETestSuiteRunner {
 
     // Run independent suites in parallel
     if (independentSuites.length > 0) {
-      console.log(`\n🔄 Running ${independentSuites.length} independent suites in parallel...`);
       
       const promises = independentSuites.map(suite => this.runSingleSuite(suite, options));
       const results = await Promise.allSettled(promises);
@@ -203,7 +188,6 @@ export class E2ETestSuiteRunner {
 
     // Run dependent suites sequentially
     if (dependentSuites.length > 0) {
-      console.log(`\n🔗 Running ${dependentSuites.length} dependent suites sequentially...`);
       await this.runSuitesSequentially(dependentSuites, options);
     }
   }
@@ -249,7 +233,6 @@ export class E2ETestSuiteRunner {
         command += ` --headed=false`;
       }
 
-      console.log(`   Command: ${command}`);
       
       // Execute tests
       const output = execSync(command, { 
@@ -270,14 +253,12 @@ export class E2ETestSuiteRunner {
         result.status = 'passed'; // If no JSON found, assume success
       }
 
-      console.log(`   ✅ Suite completed: ${result.passed}/${result.passed + result.failed} tests passed`);
 
     } catch (error) {
       result.status = 'error';
       result.errorMessage = error instanceof Error ? error.message : String(error);
       result.failed = 1;
       
-      console.log(`   ❌ Suite failed: ${result.errorMessage}`);
     }
 
     result.endTime = new Date();
@@ -377,10 +358,6 @@ export class E2ETestSuiteRunner {
       markdownReport
     );
 
-    console.log(`\n📄 Test reports generated:`);
-    console.log(`   JSON: test-results/e2e-test-report-${timestamp}.json`);
-    console.log(`   HTML: test-results/e2e-test-report-${timestamp}.html`);
-    console.log(`   Markdown: test-results/E2E_TEST_REPORT.md`);
   }
 
   private generateHtmlReport(report: any): string {
@@ -522,7 +499,6 @@ if (require.main === module) {
 
   runner.runAllSuites(options)
     .then(results => {
-      console.log('\n🎉 E2E Test Suite Execution Complete!');
       process.exit(results.failedSuites > 0 ? 1 : 0);
     })
     .catch(error => {

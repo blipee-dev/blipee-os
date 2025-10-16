@@ -24,7 +24,6 @@ export async function GET() {
     }
 
     // ✅ USE CALCULATOR for energy totals (consistent with other APIs)
-    console.log('✅ Using calculator for energy baseline...');
 
     // Get 2024 data for annual baseline
     const startOf2024 = '2024-01-01';
@@ -33,7 +32,6 @@ export async function GET() {
     // Use calculator to get total energy
     const totalEnergyKWh = await getEnergyTotal(memberData.organization_id, startOf2024, endOf2024);
 
-    console.log('✅ Calculator energy total:', totalEnergyKWh, 'kWh');
 
     // Still fetch detailed breakdown for categorization (heating, cooling, EV, etc.)
     // This is additional detail not in calculator yet

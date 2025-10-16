@@ -69,7 +69,6 @@ export class EmissionsForecastModel {
   private lastValidationMae = 0;
 
   constructor() {
-    console.log('🌍 Initializing Emissions Forecast Model...');
   }
 
   /**
@@ -80,7 +79,6 @@ export class EmissionsForecastModel {
       throw new Error('Model is already training');
     }
 
-    console.log('🏃 Training Emissions Forecast Model with real data...');
     this.isTraining = true;
 
     try {
@@ -103,7 +101,6 @@ export class EmissionsForecastModel {
 
       this.lastValidationMae = metrics.mae || 0;
 
-      console.log(`✅ Emissions model trained - MAE: ${this.lastValidationMae.toFixed(4)} tCO2e`);
 
       if (this.lastValidationMae > 5.0) {
         console.warn('⚠️ Model MAE above target (5.0 tCO2e). Consider feature engineering or more data.');
@@ -118,7 +115,6 @@ export class EmissionsForecastModel {
    * Forecast future emissions using advanced ensemble models
    */
   async predict(input: EmissionsForecastInput): Promise<EmissionsForecastPrediction> {
-    console.log('🔮 Forecasting emissions with advanced ensemble (tons)...');
 
     try {
       // Combine all historical emissions for total and convert kg to tons
@@ -126,18 +122,15 @@ export class EmissionsForecastModel {
         (s1 + (input.historicalEmissions.scope2[i] || 0) + (input.historicalEmissions.scope3[i] || 0)) / 1000
       );
 
-      console.log('📊 Historical data in tons (first 3):', totalHistorical.slice(0, 3).map(v => v.toFixed(1)));
 
       // Analyze variance to detect spike patterns (business travel)
       const mean = totalHistorical.reduce((sum, val) => sum + val, 0) / totalHistorical.length;
       const variance = totalHistorical.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / totalHistorical.length;
       const coefficientOfVariation = Math.sqrt(variance) / mean;
 
-      console.log(`📈 Data analysis: Mean=${mean.toFixed(1)}, CV=${(coefficientOfVariation * 100).toFixed(1)}%`);
 
       // If high variance detected (CV > 40%), use spike-aware forecasting
       if (coefficientOfVariation > 0.4) {
-        console.log('🚀 High variance detected - using spike-aware forecasting for travel patterns');
 
         try {
           const startDate = new Date('2025-08-01');
@@ -147,9 +140,6 @@ export class EmissionsForecastModel {
             startDate
           );
 
-          console.log('✅ SPIKE-AWARE prediction completed');
-          console.log(`🎯 Expected spikes: ${spikeAwarePrediction.spike_info.expected_spikes}`);
-          console.log(`📅 Spike months: ${spikeAwarePrediction.spike_info.spike_months.join(', ')}`);
 
           return this.processEnsemblePrediction(spikeAwarePrediction, input);
         } catch (spikeError) {
@@ -177,20 +167,13 @@ export class EmissionsForecastModel {
         externalFeatures,
         12,
         startDate
-      );
-
-      console.log('✅ ENSEMBLE prediction completed with',
-        Object.keys(ensemblePrediction.model_weights).length, 'models');
-      console.log('🏆 Best model:', ensemblePrediction.best_model);
-      console.log('📊 Trend:', ensemblePrediction.trend.direction,
-        `(${ensemblePrediction.trend.rate.toFixed(1)}% per year)`);
+      );.length, 'models');}% per year)`);
 
       // Convert ensemble predictions to our format
       return this.processEnsemblePrediction(ensemblePrediction, input);
 
     } catch (error) {
       console.error('⚠️ Advanced ensemble failed:', error instanceof Error ? error.message : error);
-      console.log('📊 Using robust LSTM fallback...');
 
       // Fallback to single LSTM if ensemble fails - this works well
       try {
@@ -233,7 +216,6 @@ export class EmissionsForecastModel {
       const trends = this.analyzeTrends(input, forecastData);
       const targets = this.analyzeTargets(input, forecastData);
 
-      console.log('✅ Using in-memory ML pipeline for predictions');
       return {
         prediction: forecastData.totalEmissions,
         scope1Forecast: forecastData.scope1,
@@ -246,7 +228,6 @@ export class EmissionsForecastModel {
         targets
       };
     } catch (error) {
-      console.log('⚠️  ML pipeline not ready, using simple forecast...');
       // Simple fallback prediction
       return this.simpleForecast(input);
     }
@@ -306,9 +287,7 @@ export class EmissionsForecastModel {
   /**
    * Process ensemble predictions into our format
    */
-  private processEnsemblePrediction(ensemble: any, input: EmissionsForecastInput): EmissionsForecastPrediction {
-    console.log('🔍 Processing ensemble prediction:', {
-      ensembleKeys: Object.keys(ensemble),
+  private processEnsemblePrediction(ensemble: any, input: EmissionsForecastInput): EmissionsForecastPrediction {,
       predictionsLength: ensemble.predictions?.length,
       firstPrediction: ensemble.predictions?.[0]
     });
@@ -316,7 +295,6 @@ export class EmissionsForecastModel {
     // Extract predictions array (values are already in tons from the models)
     const predictions = ensemble.predictions.map((p: any) => p.predicted);
 
-    console.log('📊 Raw predictions in tons (first 3):', predictions.slice(0, 3));
 
     // Calculate scope breakdowns (proportional to historical) - convert kg to tons for ratios
     const totalCurrentKg = input.historicalEmissions.scope1[0] +
@@ -413,11 +391,6 @@ export class EmissionsForecastModel {
    * Process LSTM prediction into our format
    */
   private processLSTMPrediction(lstmPrediction: any, input: EmissionsForecastInput): EmissionsForecastPrediction {
-    console.log('🔄 Processing LSTM prediction format:', {
-      hasLstmPredictions: !!lstmPrediction.predictions,
-      predictionsLength: lstmPrediction.predictions?.length,
-      firstPrediction: lstmPrediction.predictions?.[0]
-    });
 
     const predictions = lstmPrediction.predictions;
 

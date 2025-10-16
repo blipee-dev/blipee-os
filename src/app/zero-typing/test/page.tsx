@@ -88,7 +88,6 @@ export default function ZeroTypingTestPage() {
       if (allCards.length === 0) {
         throw new Error('No cards registered');
       }
-      console.log(`✓ ${allCards.length} cards registered`);
     });
 
     // Test 2: Card Data Fetching
@@ -97,7 +96,6 @@ export default function ZeroTypingTestPage() {
       if (!cardData) {
         throw new Error('Failed to fetch card data');
       }
-      console.log('✓ Card data fetched:', cardData.title);
     });
 
     // Test 3: Card Store Operations
@@ -113,7 +111,6 @@ export default function ZeroTypingTestPage() {
       selectCard(testCard.id);
       unpinCard(testCard.id);
       
-      console.log('✓ Card store operations successful');
     });
 
     // Test 4: Context Engine Updates
@@ -128,7 +125,6 @@ export default function ZeroTypingTestPage() {
         throw new Error('Context not initialized');
       }
       
-      console.log('✓ Context engine initialized');
     });
 
     // Test 5: Card Predictions
@@ -149,7 +145,6 @@ export default function ZeroTypingTestPage() {
       ];
       
       updatePredictions(predictions);
-      console.log('✓ Predictions updated:', predictions.length);
     });
 
     // Test 6: Real-time Subscriptions
@@ -161,7 +156,6 @@ export default function ZeroTypingTestPage() {
       };
       
       await mockChannel.subscribe();
-      console.log('✓ Real-time subscription simulated');
     });
 
     // Test 7: Card Interactions
@@ -182,7 +176,6 @@ export default function ZeroTypingTestPage() {
         context: { direction: 'right' },
       });
       
-      console.log('✓ Card interactions recorded');
     });
 
     // Test 8: Agent Communication
@@ -200,7 +193,6 @@ export default function ZeroTypingTestPage() {
         }
       }
       
-      console.log('✓ Agent communication tested');
     });
 
     setIsRunning(false);

@@ -258,7 +258,6 @@ export class StructuredLogger {
         break;
       case 'file':
         // File output would be implemented here
-        console.log(output);
         break;
       case 'remote':
         this.remoteOutput(logEntry);
@@ -283,9 +282,7 @@ export class StructuredLogger {
     const reset = '\x1b[0m';
 
     if (this.config.prettyPrint) {
-      console.log(`${color}${output}${reset}`);
     } else {
-      console.log(output);
     }
   }
 
@@ -298,7 +295,6 @@ export class StructuredLogger {
     try {
       // In production, this would send to a logging service
       // For now, we'll just console log
-      console.log(JSON.stringify(logEntry));
     } catch (error) {
       // Fallback to console if remote logging fails
       console.error('Failed to send log to remote endpoint:', error);

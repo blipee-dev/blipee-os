@@ -251,11 +251,7 @@ export class TeamManagementService {
     message?: string,
   ): Promise<void> {
     // In production, integrate with email service
-    console.log(
-      `Sending invitation to ${email} for organization ${organizationId}`,
-    );
     if (message) {
-      console.log(`Custom message: ${message}`);
     }
   }
 

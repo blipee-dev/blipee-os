@@ -808,7 +808,6 @@ export class PrivacyPreservingNetwork {
     informationLoss: number
   ): Promise<void> {
     // Log anonymization for audit trail
-    console.log(`Anonymization: ${organizationId}, Level: ${level}, Privacy: ${privacyLevel}, Loss: ${informationLoss}`);
     
     // Could store in audit table if needed
   }

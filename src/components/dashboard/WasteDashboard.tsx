@@ -16,10 +16,18 @@ import {
   Cloud,
   ChevronDown,
   ChevronRight,
-  Plus
+  Plus,
+  PieChart as PieChartIcon,
+  TrendingUp as TrendingUpIcon,
+  BarChart3,
+  Settings,
+  Target,
+  Gauge
 } from 'lucide-react';
 import { SBTiWasteTarget } from '@/components/sustainability/waste/SBTiWasteTarget';
 import { RecommendationsModal } from '@/components/sustainability/RecommendationsModal';
+import { useTranslations, useLanguage } from '@/providers/LanguageProvider';
+import { useWasteDashboard } from '@/hooks/useDashboardData';
 import {
   BarChart,
   Bar,
@@ -59,7 +67,16 @@ const formatScope = (scope: string): string => {
 };
 
 export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }: WasteDashboardProps) {
-  const [loading, setLoading] = React.useState(true);
+  const t = useTranslations('sustainability.waste');
+  const { t: tGlobal } = useLanguage();
+  const [activeEducationalModal, setActiveEducationalModal] = useState<string | null>(null);
+
+  // Fetch data with React Query (cached, parallel)
+  const { streams, prevYearStreams, forecast, baseline2023, metricTargets: metricTargetsQuery, isLoading } = useWasteDashboard(
+    selectedPeriod || { start: new Date().toISOString().split('T')[0], end: new Date().toISOString().split('T')[0], label: 'Custom' },
+    selectedSite,
+    organizationId
+  );
   const [wasteStreams, setWasteStreams] = useState<WasteStream[]>([]);
   const [totalGenerated, setTotalGenerated] = useState(0);
   const [totalDiverted, setTotalDiverted] = useState(0);
@@ -92,206 +109,94 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [selectedMetricForInitiative, setSelectedMetricForInitiative] = useState<string | null>(null);
 
-  // Fetch waste data
+  // Process cached data from React Query when it changes
   React.useEffect(() => {
-    const fetchWasteData = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams();
-        if (selectedPeriod) {
-          params.append('start_date', selectedPeriod.start);
-          params.append('end_date', selectedPeriod.end);
-        }
-        if (selectedSite) {
-          params.append('site_id', selectedSite.id);
-        }
+    // Wait for data to be fetched
+    if (!streams.data) return;
 
-        const res = await fetch(`/api/waste/streams?${params}`);
-        const data = await res.json();
+    const data = streams.data;
+    const prevData = prevYearStreams.data;
+    const wasteForecastData = forecast.data;
+    const baseline2023Data = baseline2023.data;
 
-        if (data.streams) {
-          setWasteStreams(data.streams);
-          setTotalGenerated(data.total_generated || 0);
-          setTotalDiverted(data.total_diverted || 0);
-          setTotalDisposal(data.total_disposal || 0);
-          setTotalLandfill(data.total_landfill || 0);
-          setDiversionRate(data.diversion_rate || 0);
-          setRecyclingRate(data.recycling_rate || 0);
-          setTotalEmissions(data.total_emissions || 0);
+    // Process current period data
+    if (data.streams) {
+      setWasteStreams(data.streams);
+      setTotalGenerated(data.total_generated || 0);
+      setTotalDiverted(data.total_diverted || 0);
+      setTotalDisposal(data.total_disposal || 0);
+      setTotalLandfill(data.total_landfill || 0);
+      setDiversionRate(data.diversion_rate || 0);
+      setRecyclingRate(data.recycling_rate || 0);
+      setTotalEmissions(data.total_emissions || 0);
 
-          // Filter monthly trends to only show selected period
-          const filteredTrends = (data.monthly_trends || []).filter((trend: any) => {
-            if (!selectedPeriod) return true;
-            const trendYear = parseInt(trend.monthKey.split('-')[0]);
-            const selectedYear = new Date(selectedPeriod.start).getFullYear();
-            return trendYear === selectedYear;
-          });
-          setMonthlyTrends(filteredTrends);
-          setMaterialBreakdown(data.material_breakdown || []);
-        }
+      // Filter monthly trends to only show selected period
+      const filteredTrends = (data.monthly_trends || []).filter((trend: any) => {
+        if (!selectedPeriod) return true;
+        const trendYear = parseInt(trend.monthKey.split('-')[0]);
+        const selectedYear = new Date(selectedPeriod.start).getFullYear();
+        return trendYear === selectedYear;
+      });
+      setMonthlyTrends(filteredTrends);
+      setMaterialBreakdown(data.material_breakdown || []);
+    }
 
-        // Fetch previous year data for YoY comparison (matching Water/Energy dashboard pattern)
-        if (selectedPeriod && data.monthly_trends && data.monthly_trends.length > 0) {
-          const startDate = new Date(selectedPeriod.start);
-          const previousYearStart = new Date(startDate);
-          previousYearStart.setFullYear(startDate.getFullYear() - 1);
-
-          const endDate = new Date(selectedPeriod.end);
-          const previousYearEnd = new Date(endDate);
-          previousYearEnd.setFullYear(endDate.getFullYear() - 1);
-
-          const prevParams = new URLSearchParams({
-            start_date: previousYearStart.toISOString().split('T')[0],
-            end_date: previousYearEnd.toISOString().split('T')[0]
-          });
-          if (selectedSite) {
-            prevParams.append('site_id', selectedSite.id);
-          }
-
-          const prevRes = await fetch(`/api/waste/streams?${prevParams}`);
-          const prevData = await prevRes.json();
-
-          if (prevData.monthly_trends && prevData.monthly_trends.length > 0) {
-            setPrevYearMonthlyTrends(prevData.monthly_trends);
-          } else {
-            setPrevYearMonthlyTrends([]);
-          }
-        }
-
-        // Fetch previous year data for YoY comparison
-        if (selectedPeriod && data.total_generated && data.total_generated > 0) {
-          const startDate = new Date(selectedPeriod.start);
-          const previousYearStart = new Date(startDate);
-          previousYearStart.setFullYear(startDate.getFullYear() - 1);
-
-          const endDate = new Date(selectedPeriod.end);
-          const previousYearEnd = new Date(endDate);
-          previousYearEnd.setFullYear(endDate.getFullYear() - 1);
-
-          const prevParams = new URLSearchParams({
-            start_date: previousYearStart.toISOString().split('T')[0],
-            end_date: previousYearEnd.toISOString().split('T')[0],
-          });
-          if (selectedSite) {
-            prevParams.append('site_id', selectedSite.id);
-          }
-
-          const prevRes = await fetch(`/api/waste/streams?${prevParams}`);
-          const prevData = await prevRes.json();
-
-          // Calculate YoY changes
-          if (prevData.total_generated && prevData.total_generated > 0) {
-            const generatedChange = ((data.total_generated - prevData.total_generated) / prevData.total_generated) * 100;
-            const diversionChange = data.diversion_rate - prevData.diversion_rate;
-            const recyclingChange = data.recycling_rate - prevData.recycling_rate;
-            const emissionsChange = ((data.total_emissions - prevData.total_emissions) / prevData.total_emissions) * 100;
-
-            setYoyGeneratedChange(generatedChange);
-            setYoyDiversionChange(diversionChange);
-            setYoyRecyclingChange(recyclingChange);
-            setYoyEmissionsChange(emissionsChange);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching waste data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWasteData();
-  }, [selectedSite, selectedPeriod]);
-
-  // Fetch waste forecast data
-  React.useEffect(() => {
-    const fetchForecastData = async () => {
-      if (!selectedPeriod) return;
-
-      try {
-        const forecastParams = new URLSearchParams({
-          start_date: selectedPeriod.start,
-          end_date: selectedPeriod.end,
-        });
-        if (selectedSite) {
-          forecastParams.append('site_id', selectedSite.id);
-        }
-
-        const forecastRes = await fetch(`/api/waste/forecast?${forecastParams}`);
-        const forecastData = await forecastRes.json();
-
-        if (forecastData.forecast && forecastData.forecast.length > 0) {
-          console.log(`🔮 Waste Forecast: ${forecastData.forecast.length} months, Method: ${forecastData.model}`);
-          setForecastData(forecastData);
-        } else {
-          console.log('⚠️ No waste forecast data available');
-          setForecastData(null);
-        }
-      } catch (error) {
-        console.error('Error fetching waste forecast:', error);
-        setForecastData(null);
-      }
-    };
-
-    fetchForecastData();
-  }, [selectedSite, selectedPeriod]);
-
-  // Fetch SBTi baseline data (2023) - only for current year view
-  React.useEffect(() => {
-    const fetchBaselineData = async () => {
-      const currentYear = new Date().getFullYear();
-      const selectedYear = selectedPeriod ? new Date(selectedPeriod.start).getFullYear() : currentYear;
-
-      // Only fetch baseline data when viewing current year
-      if (selectedYear !== currentYear) {
-        setWasteTargetData(null);
-        return;
+    // Process previous year data for YoY comparison
+    if (prevData && data.monthly_trends && data.monthly_trends.length > 0) {
+      if (prevData.monthly_trends && prevData.monthly_trends.length > 0) {
+        setPrevYearMonthlyTrends(prevData.monthly_trends);
+      } else {
+        setPrevYearMonthlyTrends([]);
       }
 
-      try {
-        const baseline2023Params = new URLSearchParams({
-          start_date: '2023-01-01',
-          end_date: '2023-12-31',
-        });
-        if (selectedSite) {
-          baseline2023Params.append('site_id', selectedSite.id);
-        }
+      // Calculate YoY changes
+      if (prevData.total_generated && prevData.total_generated > 0) {
+        const generatedChange = ((data.total_generated - prevData.total_generated) / prevData.total_generated) * 100;
+        const diversionChange = data.diversion_rate - prevData.diversion_rate;
+        const recyclingChange = data.recycling_rate - prevData.recycling_rate;
+        const emissionsChange = ((data.total_emissions - prevData.total_emissions) / prevData.total_emissions) * 100;
 
-        const baseline2023Res = await fetch(`/api/waste/streams?${baseline2023Params}`);
-        const baseline2023Data = await baseline2023Res.json();
-
-        setWasteTargetData({
-          baseline2023Emissions: baseline2023Data.total_emissions || 0,
-          baseline2023DiversionRate: baseline2023Data.diversion_rate || 0,
-        });
-
-        // Fetch metric-level targets for expandable view (all waste-related categories)
-        try {
-          const wasteCategories = [
-            'Waste', 'Waste to Landfill', 'Waste Incinerated',
-            'Paper & Cardboard Recycling', 'Plastic Recycling', 'Metal Recycling',
-            'Glass Recycling', 'Mixed Materials Recycling',
-            'Food Waste Composting', 'Garden Waste Composting',
-            'E-Waste', 'Hazardous Waste'
-          ].join(',');
-
-          const metricTargetsRes = await fetch(
-            `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(wasteCategories)}`
-          );
-          const metricTargetsData = await metricTargetsRes.json();
-          if (metricTargetsData.success && metricTargetsData.data) {
-            setMetricTargets(metricTargetsData.data);
-            console.log('📊 Waste metric-level targets loaded:', metricTargetsData.data.length, 'targets');
-          }
-        } catch (err) {
-          console.error('Error fetching waste metric targets:', err);
-        }
-      } catch (error) {
-        console.error('Error fetching baseline waste data:', error);
+        setYoyGeneratedChange(generatedChange);
+        setYoyDiversionChange(diversionChange);
+        setYoyRecyclingChange(recyclingChange);
+        setYoyEmissionsChange(emissionsChange);
       }
-    };
+    } else {
+      // Clear YoY data if no previous year data
+      setPrevYearMonthlyTrends([]);
+      setYoyGeneratedChange(null);
+      setYoyDiversionChange(null);
+      setYoyRecyclingChange(null);
+      setYoyEmissionsChange(null);
+    }
 
-    fetchBaselineData();
-  }, [selectedSite, selectedPeriod, organizationId]);
+    // Process forecast data
+    if (wasteForecastData && wasteForecastData.forecast && wasteForecastData.forecast.length > 0) {
+      setForecastData(wasteForecastData);
+    } else {
+      setForecastData(null);
+    }
+
+    // Process SBTi baseline data (2023) - only for current year view
+    const currentYear = new Date().getFullYear();
+    const selectedYear = selectedPeriod ? new Date(selectedPeriod.start).getFullYear() : currentYear;
+
+    if (selectedYear === currentYear && baseline2023Data) {
+      setWasteTargetData({
+        baseline2023Emissions: baseline2023Data.total_emissions || 0,
+        baseline2023DiversionRate: baseline2023Data.diversion_rate || 0,
+      });
+    } else {
+      setWasteTargetData(null);
+    }
+
+    // Process metric targets from React Query
+    if (metricTargetsQuery.data) {
+      setMetricTargets(metricTargetsQuery.data);
+    } else {
+      setMetricTargets([]);
+    }
+  }, [streams.data, prevYearStreams.data, forecast.data, baseline2023.data, metricTargetsQuery.data, selectedPeriod]);
 
   // Helper functions
   const getDisposalColor = (method: string) => {
@@ -322,7 +227,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
     return labels[method] || method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500" />
@@ -350,33 +255,50 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   const totalQuantity = disposalBreakdown.reduce((sum, d) => sum + d.quantity, 0);
 
   return (
-    <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+    <div>
       {/* Header */}
-      <div className="p-6 pb-0">
+      <div className="mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Recycle className="w-6 h-6 text-green-500" />
-            Waste & Circular Economy
+            {t('title')}
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            GRI 306 • ESRS E5 • Waste generated, diverted from disposal & directed to disposal
+            {t('subtitle')}
           </p>
         </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="px-6 pb-6 grid grid-cols-6 gap-4">
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Generated</span>
-            <Trash2 className="w-4 h-4 text-gray-500" />
+      <div className="grid grid-cols-6 gap-4 mb-6">
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Trash2 className="w-5 h-5 text-gray-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.generated.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {totalGenerated.toFixed(1)}
+              <div className="relative group inline-block">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white cursor-help">
+                  {totalGenerated.toFixed(1)}
+                </div>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    {t('tooltips.wasteHierarchy')}
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      GRI 306-3
+                    </span>
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                      ESRS E5
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                </div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tons</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.generated.unit')}</div>
             </div>
             {yoyGeneratedChange !== null && (
               <div className="flex items-center gap-1">
@@ -393,17 +315,34 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           </div>
         </div>
 
-        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">Diverted</span>
-            <Recycle className="w-4 h-4 text-green-600" />
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Recycle className="w-5 h-5 text-green-600" />
+            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">{t('cards.diverted.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {diversionRate.toFixed(1)}
+              <div className="relative group inline-block">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400 cursor-help">
+                  {diversionRate.toFixed(1)}
+                </div>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    {t('tooltips.circularEconomy')}
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      GRI 306-4/5
+                    </span>
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                      ESRS E5
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                </div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">%</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.diverted.unit')}</div>
             </div>
             {yoyDiversionChange !== null && (
               <div className="flex items-center gap-1">
@@ -420,32 +359,66 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           </div>
         </div>
 
-        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">To Disposal</span>
-            <AlertTriangle className="w-4 h-4 text-orange-600" />
+        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle className="w-5 h-5 text-orange-600" />
+            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">{t('cards.toDisposal.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                {totalDisposal.toFixed(1)}
+              <div className="relative group inline-block">
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400 cursor-help">
+                  {totalDisposal.toFixed(1)}
+                </div>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    {t('tooltips.disposalDistribution')}
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      GRI 306-5
+                    </span>
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                      ESRS E5
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                </div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tons</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.toDisposal.unit')}</div>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Recycling</span>
-            <Package className="w-4 h-4 text-blue-500" />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Package className="w-5 h-5 text-blue-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.recycling.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {recyclingRate.toFixed(1)}
+              <div className="relative group inline-block">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white cursor-help">
+                  {recyclingRate.toFixed(1)}
+                </div>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    {t('tooltips.circularEconomy')}
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      GRI 306-4
+                    </span>
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                      ESRS E5
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                </div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">%</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.recycling.unit')}</div>
             </div>
             {yoyRecyclingChange !== null && (
               <div className="flex items-center gap-1">
@@ -462,17 +435,34 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           </div>
         </div>
 
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Emissions</span>
-            <Cloud className="w-4 h-4 text-gray-500" />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Cloud className="w-5 h-5 text-gray-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.emissions.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {totalEmissions.toFixed(1)}
+              <div className="relative group inline-block">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white cursor-help">
+                  {totalEmissions.toFixed(1)}
+                </div>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    Scope 3 emissions from waste disposal, including landfill methane, incineration CO2, and transportation. Lower emissions indicate better waste management and higher diversion rates.
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      GRI 305-3
+                    </span>
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                      ESRS E1
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                </div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.emissions.unit')}</div>
             </div>
             {yoyEmissionsChange !== null && (
               <div className="flex items-center gap-1">
@@ -489,40 +479,68 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           </div>
         </div>
 
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Intensity</span>
-            <Activity className="w-4 h-4 text-purple-500" />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Gauge className="w-5 h-5 text-purple-500" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {totalGenerated > 0 ? (totalEmissions / totalGenerated).toFixed(2) : '0.00'}
+              <div className="relative group inline-block">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white cursor-help">
+                  {totalGenerated > 0 ? (totalEmissions / totalGenerated).toFixed(2) : '0.00'}
+                </div>
+                {/* Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                    Emissions intensity per ton of waste generated (tCO2e/t). Lower intensity indicates more efficient waste management and higher diversion to low-emission methods like recycling and composting.
+                  </p>
+                  <div className="flex gap-1 mt-3 flex-wrap">
+                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                      GRI 306-3
+                    </span>
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                      ESRS E5
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                </div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e/t</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.intensity.unit')}</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Disposal Method Distribution and Monthly Trends */}
-      <div className="px-6 pb-6 grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         {/* Disposal Method Pie Chart */}
         {disposalBreakdown.length > 0 && (
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Disposal Method Distribution</h3>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
-                  GRI 306-4
-                </span>
-                <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                  GRI 306-5
-                </span>
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[440px]">
+            <div className="mb-4">
+              <div className="flex items-center gap-2">
+                <PieChartIcon className="w-5 h-5 text-blue-500" />
+                <div className="relative group inline-block">
+                  <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.disposalDistribution.title')}</h3>
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                      Breakdown of waste by disposal method, showing the proportion sent to each treatment pathway. Prioritize waste hierarchy: reduce, reuse, recycle, recover, then dispose.
+                    </p>
+                    <div className="flex gap-1 mt-3 flex-wrap">
+                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                        GRI 306-4/5
+                      </span>
+                      <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                        ESRS E5
+                      </span>
+                    </div>
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                  </div>
+                </div>
               </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={360}>
               <PieChart>
                 <Pie
                   data={disposalBreakdown}
@@ -605,25 +623,34 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
         {/* Monthly Waste Trends */}
         {monthlyTrends.length > 0 && (
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Waste Trends</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Generated, diverted, and disposal
-                </p>
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[440px]">
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <TrendingUpIcon className="w-5 h-5 text-purple-500" />
+                <div className="relative group inline-block">
+                  <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.monthlyTrends.title')}</h3>
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                      Monthly trends in waste generation, diversion, and emissions with ML-powered forecasting. Monitor progress toward circular economy goals and identify seasonal patterns.
+                    </p>
+                    <div className="flex gap-1 mt-3 flex-wrap">
+                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                        GRI 306-3/4/5
+                      </span>
+                      <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                        ESRS E5
+                      </span>
+                    </div>
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                  </div>
+                </div>
               </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  ESRS E5
-                </span>
-                <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                  GHG Protocol
-                </span>
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('charts.monthlyTrends.description')}
+              </p>
             </div>
 
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={340}>
               <LineChart data={(() => {
                 // Prepare chart data with separate keys for actual and forecast
                 const actualData = monthlyTrends;
@@ -641,22 +668,18 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   forecast: true
                 }));
 
-                // Create bridge point to connect actual and forecast lines
+                // Add forecast keys to the last actual data point to create smooth transition
+                const modifiedActualData = [...actualData];
                 const lastActual = actualData[actualData.length - 1];
-                const bridgePoint = {
-                  month: lastActual.month,
-                  // Actual data keys (for solid lines)
-                  generated: lastActual.generated,
-                  diverted: lastActual.diverted,
-                  emissions: lastActual.emissions,
-                  // Forecast data keys with same values (for dashed lines)
+                modifiedActualData[modifiedActualData.length - 1] = {
+                  ...lastActual,
+                  // Add forecast data keys with same values to create transition point
                   generatedForecast: lastActual.generated,
                   divertedForecast: lastActual.diverted,
-                  emissionsForecast: lastActual.emissions,
-                  bridge: true
+                  emissionsForecast: lastActual.emissions
                 };
 
-                return [...actualData, bridgePoint, ...forecastMonths];
+                return [...modifiedActualData, ...forecastMonths];
               })()}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                 <XAxis
@@ -787,23 +810,32 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
       {/* Year-over-Year Comparison and Diversion Rate */}
       {monthlyTrends.length > 0 && yoyGeneratedChange !== null && prevYearMonthlyTrends.length > 0 && (
-        <div className="px-6 pb-6 grid grid-cols-2 gap-4">
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Year-over-Year Comparison</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Monthly change vs previous year
-                </p>
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 flex flex-col h-[420px]">
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <BarChart3 className="w-5 h-5 text-indigo-500" />
+                <div className="relative group inline-block">
+                  <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.yoyComparison.title')}</h3>
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                      Year-over-year comparison of waste generation showing percentage changes. Track performance improvements and identify trends across reporting periods.
+                    </p>
+                    <div className="flex gap-1 mt-3 flex-wrap">
+                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                        GRI 306-3
+                      </span>
+                      <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                        ESRS E5
+                      </span>
+                    </div>
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                  </div>
+                </div>
               </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
-                  GRI 306-3
-                </span>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  ESRS E5
-                </span>
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('charts.yoyComparison.description')}
+              </p>
             </div>
 
             <div className="flex-1">
@@ -889,29 +921,30 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           </div>
 
           {/* Circular Economy Metrics */}
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 flex flex-col h-full">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 flex flex-col h-[420px]">
+            <div className="mb-6">
               <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-gray-900 dark:text-white">Circular Economy Metrics</h3>
-                <div
-                  className="group relative"
-                  title="Waste Hierarchy: Prevention → Reuse → Recycling → Recovery → Disposal. Diversion rate measures waste diverted from disposal through recycling and composting."
-                >
-                  <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
-                  <div className="opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto absolute z-[9999] w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-2xl right-0 top-7 border border-gray-700 transition-opacity duration-200">
-                    <strong>Waste Hierarchy:</strong> Prevention → Reuse → Recycling → Recovery → Disposal.
-                    <br /><br />
-                    Diversion rate measures waste diverted from disposal through recycling and composting.
+                <Recycle className="w-5 h-5 text-green-500" />
+                <div className="relative group inline-block">
+                  <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.circularEconomy.title')}</h3>
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                      Key circular economy indicators: diversion rate, recycling rate, landfill percentage, and Scope 3 emissions. These metrics track progress toward zero waste and circular business models.
+                    </p>
+                    <div className="flex gap-1 mt-3 flex-wrap">
+                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                        GRI 306-4/5
+                      </span>
+                      <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                        ESRS E5
+                      </span>
+                      <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-400/30">
+                        Circular Economy
+                      </span>
+                    </div>
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
                   </div>
                 </div>
-              </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  ESRS E5
-                </span>
-                <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                  GHG Protocol
-                </span>
               </div>
             </div>
 
@@ -922,7 +955,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <Recycle className="w-4 h-4 text-green-500" />
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">Diversion Rate</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{t('charts.circularEconomy.diversionRate')}</span>
                     </div>
                     <span className="text-sm font-bold text-green-600 dark:text-green-400">
                       {diversionRate.toFixed(1)}%
@@ -935,7 +968,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     />
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {totalDiverted.toFixed(1)} tons diverted from disposal
+                    {totalDiverted.toFixed(1)} {t('cards.generated.unit')} {t('charts.circularEconomy.divertedFromDisposal')}
                   </p>
                 </div>
 
@@ -944,7 +977,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <Package className="w-4 h-4 text-blue-500" />
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">Recycling Rate</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{t('charts.circularEconomy.recyclingRate')}</span>
                     </div>
                     <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                       {recyclingRate.toFixed(1)}%
@@ -963,7 +996,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4 text-orange-500" />
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">To Landfill</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{t('charts.circularEconomy.toLandfill')}</span>
                     </div>
                     <span className="text-sm font-bold text-orange-600 dark:text-orange-400">
                       {((totalLandfill / totalGenerated) * 100).toFixed(1)}%
@@ -976,7 +1009,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     />
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {totalLandfill.toFixed(1)} tons to landfill
+                    {totalLandfill.toFixed(1)} {t('cards.generated.unit')} {t('charts.circularEconomy.toLandfillAmount')}
                   </p>
                 </div>
 
@@ -985,10 +1018,10 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <Cloud className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">Scope 3 Emissions</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{t('charts.circularEconomy.scope3Emissions')}</span>
                     </div>
                     <span className="text-sm font-bold text-gray-900 dark:text-white">
-                      {totalEmissions.toFixed(1)} tCO2e
+                      {totalEmissions.toFixed(1)} {t('cards.emissions.unit')}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
@@ -998,7 +1031,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     />
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Category 5: Waste generated in operations
+                    {t('charts.circularEconomy.category5')}
                   </p>
                 </div>
               </div>
@@ -1009,26 +1042,32 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
       {/* Waste Hierarchy Stacked Bar Chart */}
       {monthlyTrends.length > 0 && (
-        <div className="px-6 pb-6">
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Waste by Disposal Method</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Waste hierarchy: Reduce → Reuse → Recycle → Recovery → Disposal
-                </p>
+        <div className="mb-6">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4">
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <BarChart3 className="w-5 h-5 text-orange-500" />
+                <div className="relative group inline-block">
+                  <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.monthlyByMethod.title')}</h3>
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                      Monthly breakdown by disposal method following the waste hierarchy. Prioritize reduction at source, then reuse, recycling, recovery, and finally disposal.
+                    </p>
+                    <div className="flex gap-1 mt-3 flex-wrap">
+                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                        GRI 306-4/5
+                      </span>
+                      <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                        ESRS E5
+                      </span>
+                    </div>
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                  </div>
+                </div>
               </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
-                  GRI 306-4
-                </span>
-                <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                  GRI 306-5
-                </span>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  ESRS E5
-                </span>
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('charts.monthlyByMethod.description')}
+              </p>
             </div>
 
             <ResponsiveContainer width="100%" height={350}>
@@ -1064,23 +1103,35 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
       {/* SBTi Waste Target Progress - Only for current year */}
       {wasteTargetData && monthlyTrends.length > 0 && metricTargets.length > 0 && (
-        <div className="px-6 pb-6">
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">SBTi Waste Target Progress</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  1.5°C pathway • 4.2% annual reduction • Baseline 2023
-                </p>
+        <div className="mb-6">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4">
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <div className="relative group inline-block">
+                  <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.sbtiProgress.title')}</h3>
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                      Science-Based Targets initiative (SBTi) waste reduction progress aligned with 1.5°C pathway. Tracks annual 4.2% reduction in waste-related emissions toward 2030 targets.
+                    </p>
+                    <div className="flex gap-1 mt-3 flex-wrap">
+                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                        SBTi
+                      </span>
+                      <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded border border-purple-400/30">
+                        TCFD
+                      </span>
+                      <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                        ESRS E5
+                      </span>
+                    </div>
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                  </div>
+                </div>
               </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                  GHG Protocol
-                </span>
-                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
-                  SBTi
-                </span>
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('charts.sbtiProgress.description')}
+              </p>
             </div>
 
             <div className="space-y-3">
@@ -1132,22 +1183,22 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                             {categoryMetrics.length > 0 ? categoryMetrics[0].progress.progressPercent.toFixed(0) : 0}%
                           </div>
                           <div className="text-xs font-medium text-green-600 dark:text-green-400">
-                            on track
+                            {t('charts.sbtiProgress.onTrack')}
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3 text-xs">
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
+                          <span className="text-gray-500 dark:text-gray-400">{t('charts.sbtiProgress.baseline')}</span>
                           <span className="ml-1 text-gray-900 dark:text-white font-medium">
-                            {wasteTargetData.baseline2023Emissions.toFixed(1)} tCO2e
+                            {wasteTargetData.baseline2023Emissions.toFixed(1)} {t('cards.emissions.unit')}
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Current:</span>
+                          <span className="text-gray-500 dark:text-gray-400">{t('charts.sbtiProgress.current')}</span>
                           <span className="ml-1 text-gray-900 dark:text-white font-medium">
-                            {totalEmissions.toFixed(1)} tCO2e
+                            {totalEmissions.toFixed(1)} {t('cards.emissions.unit')}
                           </span>
                         </div>
                       </div>
@@ -1241,26 +1292,32 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
       {/* Material Breakdown */}
       {materialBreakdown.length > 0 && (
-        <div className="px-6 pb-6">
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Package className="w-5 h-5 text-purple-500" />
-                  Material-Specific Breakdown
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Recycling and diversion rates by waste material type
-                </p>
+        <div className="mb-6">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-6">
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-1">
+                <Package className="w-5 h-5 text-purple-500" />
+                <div className="relative group inline-block">
+                  <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.materialBreakdown.title')}</h3>
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
+                      Waste performance by material type showing recycling and diversion rates. Identify material-specific improvement opportunities and track circular economy progress.
+                    </p>
+                    <div className="flex gap-1 mt-3 flex-wrap">
+                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                        GRI 306-3/4/5
+                      </span>
+                      <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                        ESRS E5
+                      </span>
+                    </div>
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+                  </div>
+                </div>
               </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
-                  GRI 306-4
-                </span>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  ESRS E5
-                </span>
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('charts.materialBreakdown.description')}
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -1300,7 +1357,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                               {material.material}
                             </h4>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {material.total.toFixed(2)} tons total
+                              {material.total.toFixed(2)} {t('charts.materialBreakdown.totalAmount')}
                             </p>
                           </div>
                         </div>
@@ -1309,7 +1366,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       {/* Recycling Rate */}
                       <div className="mb-3">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-gray-600 dark:text-gray-400">Recycling Rate</span>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">{t('charts.materialBreakdown.recyclingRate')}</span>
                           <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
                             {materialRecyclingRate.toFixed(1)}%
                           </span>
@@ -1321,14 +1378,14 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                           />
                         </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {material.recycled.toFixed(2)} tons recycled
+                          {material.recycled.toFixed(2)} {t('cards.generated.unit')} {t('charts.materialBreakdown.recycled')}
                         </p>
                       </div>
 
                       {/* Diversion Rate */}
                       <div className="mb-3">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-gray-600 dark:text-gray-400">Diversion Rate</span>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">{t('charts.materialBreakdown.diversionRate')}</span>
                           <span className="text-xs font-bold text-green-600 dark:text-green-400">
                             {materialDiversionRate.toFixed(1)}%
                           </span>
@@ -1340,7 +1397,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                           />
                         </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {material.diverted.toFixed(2)} tons diverted
+                          {material.diverted.toFixed(2)} {t('cards.generated.unit')} {t('charts.materialBreakdown.diverted')}
                         </p>
                       </div>
 
@@ -1348,9 +1405,9 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       {material.disposal > 0 && (
                         <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">To Disposal</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{t('charts.materialBreakdown.toDisposal')}</span>
                             <span className="text-xs font-medium text-orange-600 dark:text-orange-400">
-                              {material.disposal.toFixed(2)} tons
+                              {material.disposal.toFixed(2)} {t('cards.generated.unit')}
                             </span>
                           </div>
                         </div>
@@ -1364,9 +1421,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               <div className="flex items-start gap-2">
                 <Info className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-purple-700 dark:text-purple-300">
-                  <strong>Material Insights:</strong> Track recycling and diversion rates by specific material types.
-                  Historical data (2022-2024) has been split using industry-standard composition ratios.
-                  Future data can be entered at the material level for precise tracking.
+                  <strong>{t('insights.title')}</strong> {t('insights.description')}
                 </div>
               </div>
             </div>
@@ -1383,7 +1438,6 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           metricTarget={metricTargets.find(mt => mt.id === selectedMetricForInitiative)}
           onSave={async (initiative) => {
             try {
-              console.log('♻️ Saving waste initiative:', initiative);
 
               const selectedMetric = metricTargets.find(mt => mt.id === selectedMetricForInitiative);
               if (!selectedMetric) {
@@ -1435,7 +1489,6 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               }
 
               const result = await response.json();
-              console.log('✅ Waste initiative saved successfully:', result);
 
               // Close modal
               setSelectedMetricForInitiative(null);

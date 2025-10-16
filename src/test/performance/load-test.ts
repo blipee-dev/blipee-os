@@ -51,7 +51,6 @@ export class LoadTester {
   private endTime: number = 0;
 
   async runLoadTest(config: LoadTestConfig): Promise<LoadTestResult> {
-    console.log(`Starting load test: ${config.name}`);
     
     this.results = [];
     this.errors = {};
@@ -367,12 +366,7 @@ export async function testDatabaseConnectionPool(
   }
 
   // Clean up remaining connections
-  await Promise.all(connections.map(conn => closeDatabaseConnection(conn)));
-
-  console.log(`Database pool test completed:
-    - Max connections: ${maxConnections}
-    - Test duration: ${testDuration}ms
-    - Peak connections: ${Math.max(...connections.map((_, i) => i + 1))}
+  await Promise.all(connections.map(conn => closeDatabaseConnection(conn))); => i + 1))}
     - Errors: ${errors.length}
   `);
 

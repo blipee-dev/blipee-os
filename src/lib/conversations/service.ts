@@ -26,16 +26,10 @@ export class ConversationService {
         (!process.env['NEXT_PUBLIC_SUPABASE_URL'] ||
           !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
       ) {
-        console.log(
-          "📝 Supabase not configured - using local storage for demo mode",
-        );
         this.isSupabaseAvailable = false;
         return;
       }
     } catch (error) {
-      console.log(
-        "📝 Supabase not available - using local storage for demo mode",
-      );
       this.isSupabaseAvailable = false;
     }
   }

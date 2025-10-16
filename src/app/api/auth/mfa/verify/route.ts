@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
     );
 
     // Update last_login and status for successful MFA verification
-    console.log('🔥 MFA DIRECT LOGIN TRACKING: Updating user login status for user:', result.userId);
     
     try {
       const supabase = await createClient();
@@ -57,7 +56,6 @@ export async function POST(request: NextRequest) {
 
       if (selectError && selectError.code === 'PGRST116') {
         // User doesn't exist in app_users table, create them
-        console.log('👤 MFA: User not found in app_users, creating record...');
         
         const { error: insertError } = await supabase
           .from('app_users')
@@ -73,12 +71,10 @@ export async function POST(request: NextRequest) {
         if (insertError) {
           console.error('❌ MFA: Error creating user record:', insertError);
         } else {
-          console.log('✅ MFA: Successfully created user record and updated login time');
         }
       } else if (selectError) {
         console.error('❌ MFA: Error fetching current user:', selectError);
       } else {
-        console.log('👤 MFA: Current user status:', currentUser?.status);
 
         // Update last_login and change status from pending to active
         const updateData: { last_login: string; status?: string } = {
@@ -88,10 +84,8 @@ export async function POST(request: NextRequest) {
         // If user status is pending, change to active on first login
         if (currentUser?.status === 'pending') {
           updateData.status = 'active';
-          console.log('🔄 MFA: Changing status from pending to active');
         }
 
-        console.log('💾 MFA: Updating with data:', updateData);
 
         const { error: updateError } = await supabase
           .from('app_users')
@@ -101,7 +95,6 @@ export async function POST(request: NextRequest) {
         if (updateError) {
           console.error('❌ MFA: Error updating user login status:', updateError);
         } else {
-          console.log('✅ MFA: Successfully updated user login status');
         }
       }
     } catch (error) {

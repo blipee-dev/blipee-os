@@ -275,7 +275,6 @@ export class BLIPEEActionSystem {
 
     // Integration hub status updates
     this.integrationHub.on('connectionEstablished', (connection) => {
-      console.log(`Integration connection established: ${connection.id}`);
     });
 
     this.integrationHub.on('healthCheckFailed', (data) => {
@@ -284,24 +283,19 @@ export class BLIPEEActionSystem {
 
     // Agent integration events
     this.agentIntegration.on('agentRegistered', (agent) => {
-      console.log(`Agent registered: ${agent.id}`);
     });
 
     this.agentIntegration.on('collaborationCompleted', (collaboration) => {
-      console.log(`Agent collaboration completed: ${collaboration.id}`);
     });
 
     // Template library events
     this.templateLibrary.on('workflowCreated', (instance) => {
-      console.log(`Workflow created from template: ${instance.templateId}`);
     });
 
     // Builder framework events
     this.builderFramework.on('blueprintCreated', (blueprint) => {
-      console.log(`Action blueprint created: ${blueprint.id}`);
     });
 
-    console.log('BLIPEE Action System integration complete');
   }
 }
 
@@ -379,14 +373,3 @@ export * from './action-builder-framework';
 export * from './workflow-template-library';
 export * from './agent-integration-layer';
 
-console.log('🚀 BLIPEE AI Action Registry and Automation System Phase 4 Initialized');
-console.log('   ✅ 500+ Sustainability Actions Available');
-console.log('   ✅ Advanced Workflow Orchestration');
-console.log('   ✅ Real-time Monitoring & Analytics');
-console.log('   ✅ External System Integration Hub');
-console.log('   ✅ Custom Action Builder Framework');
-console.log('   ✅ Template Library & Marketplace');
-console.log('   ✅ Autonomous Agent Integration');
-console.log('   ✅ ML Model Orchestration');
-console.log('');
-console.log('🎯 Ready for Autonomous Sustainability Management');

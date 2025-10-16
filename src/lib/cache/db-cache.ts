@@ -45,7 +45,6 @@ export class DBCache {
     
     if (cached) {
       cached.cached = true;
-      console.log(`✅ DB Cache hit for query: ${sql.substring(0, 50)}...`);
     }
     
     return cached;

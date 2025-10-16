@@ -505,7 +505,6 @@ export class StreamingService {
         const timeSinceLastMessage = now - session.lastMessage.getTime();
         
         if (timeSinceLastMessage > this.sessionTimeout) {
-          console.log(`Cleaning up inactive session: ${sessionId}`);
           this.cleanupSession(sessionId);
         }
       });
@@ -516,7 +515,6 @@ export class StreamingService {
    * Graceful shutdown
    */
   async shutdown(): Promise<void> {
-    console.log('Shutting down streaming service...');
     
     // Send shutdown message to all clients
     this.clients.forEach((client, clientId) => {
@@ -532,7 +530,6 @@ export class StreamingService {
       this.cleanupSession(sessionId);
     });
 
-    console.log('Streaming service shutdown complete');
   }
 }
 

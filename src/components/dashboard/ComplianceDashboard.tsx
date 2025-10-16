@@ -11,6 +11,8 @@ import { TCFDDisclosuresWrapper } from '@/components/compliance/TCFDDisclosuresW
 import { RecommendedMetricsPanel } from '@/components/sustainability/RecommendedMetricsPanel';
 import { FileCheck, Info } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useTranslations } from '@/providers/LanguageProvider';
+import { useComplianceDashboard } from '@/hooks/useDashboardData';
 
 interface ComplianceDashboardProps {
   organizationId: string;
@@ -22,8 +24,10 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
+  const t = useTranslations('sustainability.compliance');
 
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  // Fetch compliance data using React Query
+  const { userRole, industry, isLoading } = useComplianceDashboard();
 
   // Initialize compliance tab from URL or default to 'overview'
   const [complianceTab, setComplianceTab] = useState<string>(() => {
@@ -31,20 +35,14 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
     return subtabFromUrl || 'overview';
   });
 
-  // Check super admin status
+  // Process user role data
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
   useEffect(() => {
-    async function checkSuperAdmin() {
-      if (!user) return;
-      try {
-        const response = await fetch('/api/auth/user-role');
-        const data = await response.json();
-        setIsSuperAdmin(data.isSuperAdmin || false);
-      } catch (error) {
-        console.error('Error checking super admin status:', error);
-      }
+    if (userRole.data) {
+      setIsSuperAdmin(userRole.data.isSuperAdmin || false);
     }
-    checkSuperAdmin();
-  }, [user]);
+  }, [userRole.data]);
 
   // Use selectedPeriod to determine the year, or default to current year
   const [selectedYear, setSelectedYear] = useState(() => {
@@ -53,11 +51,22 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
     return new Date().getFullYear();
   });
 
+  // Process industry data
   const [orgIndustry, setOrgIndustry] = useState<{
     industry: string;
     region: string;
     size: string;
   }>({ industry: 'professional_services', region: 'EU', size: '100-300' });
+
+  useEffect(() => {
+    if (industry.data && industry.data.industry) {
+      setOrgIndustry({
+        industry: industry.data.industry,
+        region: industry.data.region || 'EU',
+        size: industry.data.company_size_category || '100-300'
+      });
+    }
+  }, [industry.data]);
 
   // Sync URL when compliance tab changes
   useEffect(() => {
@@ -102,28 +111,6 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
     }
   }, [selectedPeriod]);
 
-  // Fetch industry settings
-  useEffect(() => {
-    const fetchIndustry = async () => {
-      try {
-        const industryResponse = await fetch('/api/organizations/industry');
-        const industryResult = await industryResponse.json();
-
-        if (industryResult && industryResult.industry) {
-          setOrgIndustry({
-            industry: industryResult.industry,
-            region: industryResult.region || 'EU',
-            size: industryResult.company_size_category || '100-300'
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching industry:', error);
-      }
-    };
-
-    fetchIndustry();
-  }, []);
-
   // Check if viewing historical data
   const isHistoricalYear = selectedYear < new Date().getFullYear();
 
@@ -133,10 +120,10 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
       <div>
         <h2 className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
           <FileCheck className="w-6 h-6 text-green-600 dark:text-green-500" />
-          Compliance Dashboard
+          {t('title')}
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
-          GHG Protocol • GRI • ESRS E1 • TCFD
+          {t('subtitle')}
         </p>
       </div>
 
@@ -147,10 +134,10 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
             <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
             <div>
               <p className="font-semibold text-blue-900 dark:text-blue-300 text-sm">
-                Viewing Historical Compliance Data ({selectedYear})
+                {t('historicalNotice.title')} {t('historicalNotice.year', { year: selectedYear })}
               </p>
               <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
-                This data is read-only to maintain audit trails and data integrity. All editing capabilities are disabled for past years.
+                {t('historicalNotice.description')}
               </p>
             </div>
           </div>
@@ -160,13 +147,13 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
       {/* Main Tabs */}
       <Tabs value={complianceTab} onValueChange={handleComplianceTabChange} className="w-full">
         <TabsList variant="underline" className="w-full">
-          <TabsTrigger value="overview" variant="underline" color="#64748b">Overview</TabsTrigger>
-          <TabsTrigger value="ghg-protocol" variant="underline" color="#16A34A">GHG Protocol</TabsTrigger>
-          <TabsTrigger value="gri" variant="underline" color="#16A34A">GRI</TabsTrigger>
+          <TabsTrigger value="overview" variant="underline" color="#64748b">{t('tabs.overview')}</TabsTrigger>
+          <TabsTrigger value="ghg-protocol" variant="underline" color="#16A34A">{t('tabs.ghgProtocol')}</TabsTrigger>
+          <TabsTrigger value="gri" variant="underline" color="#16A34A">{t('tabs.gri')}</TabsTrigger>
           {isSuperAdmin && (
             <>
-              <TabsTrigger value="esrs" variant="underline" color="#3B82F6">ESRS E1</TabsTrigger>
-              <TabsTrigger value="tcfd" variant="underline" color="#0EA5E9">TCFD</TabsTrigger>
+              <TabsTrigger value="esrs" variant="underline" color="#3B82F6">{t('tabs.esrs')}</TabsTrigger>
+              <TabsTrigger value="tcfd" variant="underline" color="#0EA5E9">{t('tabs.tcfd')}</TabsTrigger>
             </>
           )}
         </TabsList>

@@ -89,21 +89,14 @@ export class AutoMLPipeline {
     validationData: TrainingData,
     config: AutoMLConfig
   ): Promise<AutoMLResult> {
-    console.log('🤖 Starting AutoML Pipeline...');
-    console.log(`   Task: ${config.taskType}`);
-    console.log(`   Objective: ${config.objective}`);
-    console.log(`   Training samples: ${trainingData.features.length}`);
     
     const startTime = Date.now();
     
     // Step 1: Analyze data
     const dataInsights = await this.analyzeData(trainingData, config);
-    console.log(`   Data complexity: ${dataInsights.dataComplexity}`);
-    console.log(`   Data quality score: ${(dataInsights.dataQuality * 100).toFixed(1)}%`);
     
     // Step 2: Select candidate models
     const candidates = this.selectCandidateModels(config.taskType, dataInsights, config);
-    console.log(`   Selected ${candidates.length} candidate models`);
     
     // Step 3: Feature engineering (if enabled)
     let processedTrainingData = trainingData;
@@ -117,7 +110,6 @@ export class AutoMLPipeline {
       );
       processedTrainingData = engineeredData.training;
       processedValidationData = engineeredData.validation;
-      console.log(`   Feature engineering: ${processedTrainingData.features[0] ? Object.keys(processedTrainingData.features[0]).length : 0} features`);
     }
     
     // Step 4: Optimize each candidate model
@@ -126,7 +118,6 @@ export class AutoMLPipeline {
     
     for (let i = 0; i < candidates.length && i < (config.maxModels || 5); i++) {
       const candidate = candidates[i];
-      console.log(`\n   Optimizing model ${i + 1}/${Math.min(candidates.length, config.maxModels || 5)}: ${candidate.description}`);
       
       try {
         const result = await this.optimizeCandidate(
@@ -147,7 +138,6 @@ export class AutoMLPipeline {
         });
         
         modelsEvaluated++;
-        console.log(`     ✅ Score: ${result.bestScore.toFixed(4)} (${result.improvements.relativeImprovement.toFixed(1)}% improvement)`);
         
       } catch (error) {
         console.warn(`     ❌ Failed: ${error.message}`);
@@ -157,7 +147,6 @@ export class AutoMLPipeline {
       if (config.maxOptimizationTime) {
         const elapsed = (Date.now() - startTime) / 1000;
         if (elapsed > config.maxOptimizationTime) {
-          console.log(`   Time limit reached (${elapsed.toFixed(0)}s), stopping optimization`);
           break;
         }
       }
@@ -175,7 +164,6 @@ export class AutoMLPipeline {
     let ensemble: EnsembleModel | undefined;
     if (config.ensembleStrategy && config.ensembleStrategy !== 'none' && modelResults.length > 1) {
       ensemble = await this.createEnsemble(modelResults.slice(0, 3), config.ensembleStrategy);
-      console.log(`   Created ${config.ensembleStrategy} ensemble from top 3 models`);
     }
     
     // Step 7: Feature importance analysis
@@ -194,11 +182,6 @@ export class AutoMLPipeline {
       totalTime
     );
     
-    console.log(`\n🎉 AutoML Pipeline Complete!`);
-    console.log(`   Best model: ${bestResult.modelName}`);
-    console.log(`   Best score: ${bestResult.score.toFixed(4)}`);
-    console.log(`   Total time: ${(totalTime / 1000).toFixed(1)}s`);
-    console.log(`   Models evaluated: ${modelsEvaluated}`);
     
     return {
       bestModel: candidates.find(c => c.model.getModelName() === bestResult.modelName)!.model,

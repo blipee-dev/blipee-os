@@ -75,15 +75,12 @@ export class CodeDocumentationAuditor {
   }
 
   async auditCodeDocumentation(): Promise<CodeDocumentationReport> {
-    console.log('🔍 Starting code documentation audit...\n');
 
     const sourceFiles = await this.findSourceFiles();
-    console.log(`Found ${sourceFiles.length} source files\n`);
 
     const fileMetrics: CodeDocumentationMetrics[] = [];
 
     for (const file of sourceFiles) {
-      console.log(`📄 Analyzing ${path.relative(this.projectRoot, file)}...`);
       const metrics = await this.analyzeFile(file);
       fileMetrics.push(metrics);
     }
@@ -634,10 +631,6 @@ export class CodeDocumentationAuditor {
     const mdPath = path.join(outputDir, 'CODE_DOCUMENTATION_AUDIT.md');
     fs.writeFileSync(mdPath, mdReport);
     
-    console.log(`\n📄 Code documentation audit reports generated:`);
-    console.log(`   JSON: ${jsonPath}`);
-    console.log(`   HTML: ${htmlPath}`);
-    console.log(`   Markdown: ${mdPath}`);
   }
 
   private generateHTMLReport(report: CodeDocumentationReport): string {
@@ -820,7 +813,6 @@ if (require.main === module) {
   
   auditor.generateReports()
     .then(() => {
-      console.log('🎉 Code documentation audit completed successfully!');
       process.exit(0);
     })
     .catch(error => {

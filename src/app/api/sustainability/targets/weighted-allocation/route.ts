@@ -149,7 +149,6 @@ export async function GET(request: NextRequest) {
     const startDate = `${baselineYear}-01-01`;
     const endDate = `${baselineYear}-12-31`;
 
-    console.log('📊 Using baseline-calculator for category breakdown');
     const categoryBreakdown = await getCategoryBreakdown(organizationId, startDate, endDate);
 
     // Note: siteId and categoriesParam filtering not yet supported by calculator

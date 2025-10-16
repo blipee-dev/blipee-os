@@ -18,7 +18,6 @@ export function parseAIResponse(content: string): Partial<ChatResponse> {
     return response;
   } catch (error) {
     // If not valid JSON, treat as plain text response
-    console.log("Failed to parse as JSON, treating as plain text");
     return {
       message: content,
       components: undefined,

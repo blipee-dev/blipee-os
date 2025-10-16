@@ -80,7 +80,6 @@ export function DeviceStatusPanel({
       });
 
       newSocket.on('connect', () => {
-        console.log('Connected to device monitor');
         setIsConnected(true);
 
         // Subscribe to device health data
@@ -108,7 +107,6 @@ export function DeviceStatusPanel({
       });
 
       newSocket.on('disconnect', () => {
-        console.log('Disconnected from device monitor');
         setIsConnected(false);
       });
 

@@ -228,7 +228,6 @@ export class SecureSessionManager {
     };
 
     // In production, send to security logging service
-    console.log('[SESSION_SECURITY]', JSON.stringify(logEntry));
   }
 
   /**

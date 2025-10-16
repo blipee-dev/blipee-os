@@ -391,7 +391,6 @@ export class ScenarioAnalysisEngine {
    * Perform comprehensive scenario analysis
    */
   async analyzeScenarios(request: ScenarioAnalysisRequest): Promise<ScenarioAnalysisResult> {
-    console.log(`🎭 Analyzing ${request.scenarios.length} scenarios`);
     
     // Validate and prepare scenarios
     const validatedScenarios = this.validateScenarios(request.scenarios);
@@ -482,7 +481,6 @@ export class ScenarioAnalysisEngine {
     baseScenario: ScenarioDefinition,
     modifications: ScenarioModification[]
   ): Promise<ScenarioDefinition> {
-    console.log(`🛠️ Creating custom scenario based on ${baseScenario.name}`);
     
     const customScenario = { ...baseScenario };
     customScenario.scenarioId = `custom_${Date.now()}`;
@@ -512,7 +510,6 @@ export class ScenarioAnalysisEngine {
     organization: OrganizationProfile,
     climatePathways: ClimatePathway[]
   ): Promise<ClimateScenarioResult> {
-    console.log(`🌡️ Analyzing climate scenarios for ${organization.organizationId}`);
     
     const scenarios: ScenarioDefinition[] = climatePathways.map(pathway => ({
       scenarioId: `climate_${pathway.name.replace(/\s+/g, '_')}`,
@@ -579,7 +576,6 @@ export class ScenarioAnalysisEngine {
     activeScenarios: ScenarioDefinition[],
     currentData: RealTimeData
   ): Promise<ScenarioMonitoringResult> {
-    console.log(`📊 Monitoring ${activeScenarios.length} active scenarios`);
     
     const monitoringResults: ScenarioMonitoringResult = {
       timestamp: new Date(),
@@ -640,7 +636,6 @@ export class ScenarioAnalysisEngine {
     rootDecision: DecisionNode,
     scenarios: ScenarioDefinition[]
   ): Promise<DecisionTreeAnalysis> {
-    console.log(`🌳 Analyzing decision tree with ${scenarios.length} scenarios`);
     
     // Build full decision tree
     const tree = await this.buildDecisionTree(rootDecision, scenarios);
@@ -679,7 +674,6 @@ export class ScenarioAnalysisEngine {
     objectives: PlanningObjective[],
     constraints: PlanningConstraint[]
   ): Promise<IntegratedPlan> {
-    console.log(`📋 Creating integrated plan across ${scenarios.length} scenarios`);
     
     // Identify no-regret actions
     const noRegretActions = await this.identifyNoRegretActions(

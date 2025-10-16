@@ -142,7 +142,6 @@ export class CostOptimizer {
       token: process.env.UPSTASH_REDIS_REST_TOKEN!,
     });
     
-    console.log('💰 Cost Optimizer initialized with real-time tracking');
   }
 
   /**
@@ -195,7 +194,6 @@ export class CostOptimizer {
       // Generate optimization recommendations
       await this.generateRecommendations(organizationId);
       
-      console.log(`💰 Tracked request: ${provider}/${model} - $${cost.toFixed(6)} (${metadata.cached ? 'cached' : 'live'})`);
       
     } catch (error) {
       console.error('❌ Failed to track cost:', error);
@@ -479,7 +477,6 @@ export class CostOptimizer {
     const key = `${this.BUDGET_KEY}:${organizationId}:${budget.period}`;
     await this.redis.set(key, JSON.stringify(budgetData));
     
-    console.log(`💰 Budget set for ${organizationId}: $${budget.limit}/${budget.period}`);
     return key;
   }
 
@@ -541,7 +538,6 @@ export class CostOptimizer {
     const key = `${this.ALERT_KEY}:${organizationId}:${alert.id}`;
     await this.redis.setex(key, 7 * 24 * 60 * 60, JSON.stringify(alert)); // 7 days TTL
     
-    console.log(`🚨 Alert created: ${alert.type} - ${alert.message}`);
     return alert.id;
   }
 
@@ -769,7 +765,6 @@ export class CostOptimizer {
         await this.redis.zremrangebyscore(key, 0, cutoffTime);
       }
       
-      console.log('🧹 Cost optimization data cleanup completed');
       
     } catch (error) {
       console.error('❌ Failed to cleanup cost data:', error);
@@ -781,7 +776,6 @@ export class CostOptimizer {
    */
   async disconnect(): Promise<void> {
     // Upstash Redis is connectionless - no cleanup needed
-    console.log('📴 Cost Optimizer cleaned up');
   }
 }
 

@@ -29,8 +29,6 @@ export class CostSavingFinder extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('💰 Initializing Cost Saving Finder...');
-    console.log('✅ Cost Saving Finder initialized and ready to find savings opportunities');
   }
 
   protected async scheduleRecurringTasks(): Promise<void> {
@@ -52,7 +50,6 @@ export class CostSavingFinder extends AutonomousAgent {
   }
 
   async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`💰 Cost Saving Finder executing: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -206,19 +203,15 @@ export class CostSavingFinder extends AutonomousAgent {
 
   async learnFromFeedback(feedback: LearningFeedback): Promise<void> {
     // Learn from cost-saving feedback
-    console.log(`💰 Cost Saving Finder learning from feedback for task ${feedback.taskId}`);
 
     if (feedback.outcome === 'positive') {
       // Increase confidence in similar approaches
-      console.log('💰 Positive feedback received - reinforcing successful cost-saving strategies');
     } else if (feedback.outcome === 'negative') {
       // Adjust approach for future tasks
-      console.log('💰 Negative feedback received - adjusting cost analysis methodology');
     }
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('💰 Cost Saving Finder cleaning up...');
   }
 
   getPerformanceMetrics() {

@@ -211,7 +211,6 @@ export class IntegrationHub extends EventEmitter {
     // Emit registration event
     this.emit('integrationRegistered', integration);
 
-    console.log(`Integration registered: ${integration.id} (${integration.name})`);
   }
 
   /**
@@ -342,7 +341,6 @@ export class IntegrationHub extends EventEmitter {
     // ERP Systems
     this.registerERPIntegrations();
 
-    console.log(`Initialized ${this.prebuiltIntegrations.size} pre-built integrations`);
   }
 
   private registerBuilingSystemIntegrations(): void {

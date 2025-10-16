@@ -202,7 +202,6 @@ export class OrganizationService {
       if (existingAuthUser) {
         // User already exists in auth system
         userId = existingAuthUser.id;
-        console.log('Found existing auth user:', email);
 
         // Check if they have a profile
         const { data: profile } = await this.supabase
@@ -247,7 +246,6 @@ export class OrganizationService {
         if (!newAuthUser.user) throw new Error("Failed to create auth user");
 
         userId = newAuthUser.user.id;
-        console.log('Created new auth user:', email);
 
         // Create profile for new user
         const { error: profileError } = await this.supabase
@@ -274,7 +272,6 @@ export class OrganizationService {
         .single();
 
       if (existingMember) {
-        console.log('User is already a member of this organization');
         return existingMember;
       }
 
@@ -304,12 +301,10 @@ export class OrganizationService {
         if (inviteError) {
           console.error("Error sending invitation email:", inviteError);
         } else {
-          console.log('Invitation email sent to:', email);
         }
       } else {
         // For existing users, we'd send a different email
         // TODO: Implement organization invitation email for existing users
-        console.log('TODO: Send organization invitation to existing user:', email);
       }
 
       return data;

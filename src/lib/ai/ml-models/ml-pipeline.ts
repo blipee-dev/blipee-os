@@ -52,15 +52,12 @@ export class MLPipeline {
   private preprocessors = new Map<string, any>();
 
   constructor() {
-    console.log('🧠 Initializing BLIPEE ML Pipeline...');
-    console.log('✅ TensorFlow.js Backend:', tf.getBackend());
   }
 
   /**
    * Create LSTM model for time series prediction
    */
   async createLSTMModel(config: MLModelConfig): Promise<tf.LayersModel> {
-    console.log('🔬 Creating LSTM model for time series prediction...');
 
     // Generate unique layer names to avoid conflicts
     const modelId = `lstm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -115,7 +112,6 @@ export class MLPipeline {
       metrics: ['mae']
     });
 
-    console.log('✅ LSTM model created successfully');
     return model;
   }
 
@@ -123,7 +119,6 @@ export class MLPipeline {
    * Create Random Forest equivalent using ensemble of neural networks
    */
   async createRandomForestModel(config: MLModelConfig): Promise<tf.LayersModel> {
-    console.log('🌳 Creating Random Forest-style ensemble model...');
 
     const model = tf.sequential({
       layers: [
@@ -158,7 +153,6 @@ export class MLPipeline {
       metrics: ['accuracy']
     });
 
-    console.log('✅ Random Forest-style model created successfully');
     return model;
   }
 
@@ -166,7 +160,6 @@ export class MLPipeline {
    * Create Neural Network for complex predictions
    */
   async createNeuralNetworkModel(config: MLModelConfig): Promise<tf.LayersModel> {
-    console.log('🧠 Creating deep neural network...');
 
     const model = tf.sequential({
       layers: [
@@ -209,7 +202,6 @@ export class MLPipeline {
       metrics: ['mae', 'mse']
     });
 
-    console.log('✅ Neural network created successfully');
     return model;
   }
 
@@ -217,7 +209,6 @@ export class MLPipeline {
    * Create Anomaly Detection model using autoencoder
    */
   async createAnomalyDetectionModel(config: MLModelConfig): Promise<tf.LayersModel> {
-    console.log('🔍 Creating anomaly detection autoencoder...');
 
     const inputDim = config.inputShape[0];
     const encodingDim = Math.floor(inputDim / 2);
@@ -253,7 +244,6 @@ export class MLPipeline {
       metrics: ['mae']
     });
 
-    console.log('✅ Anomaly detection model created successfully');
     return model;
   }
 
@@ -265,7 +255,6 @@ export class MLPipeline {
     targets: tf.Tensor,
     scaler: any
   }> {
-    console.log(`🔧 Preprocessing data for model: ${modelId}`);
 
     // Get model config to determine if this is LSTM (3D) or regular (2D) data
     const config = this.modelConfigs.get(modelId);
@@ -330,7 +319,6 @@ export class MLPipeline {
     targetMin.dispose();
     targetMax.dispose();
 
-    console.log(`✅ Data preprocessed for ${modelId}`);
     return {
       inputs: normalizedInputs,
       targets: normalizedTargets,
@@ -345,7 +333,6 @@ export class MLPipeline {
     engineeredData: number[][],
     featureNames: string[]
   }> {
-    console.log('⚙️ Engineering features...');
 
     const engineeredData: number[][] = [];
     const featureNames: string[] = [];
@@ -378,7 +365,6 @@ export class MLPipeline {
       engineeredData.push(engineeredRow);
     }
 
-    console.log(`✅ Engineered ${featureNames.length} features`);
     return { engineeredData, featureNames };
   }
 
@@ -390,13 +376,11 @@ export class MLPipeline {
     config: MLModelConfig,
     trainingData: MLTrainingData
   ): Promise<MLModelMetrics> {
-    console.log(`🏃 Training ${config.modelType} model: ${modelId}`);
 
     // Dispose of existing model if it exists to avoid variable naming conflicts
     if (this.models.has(modelId)) {
       const existingModel = this.models.get(modelId);
       if (existingModel) {
-        console.log(`♻️ Disposing existing model: ${modelId}`);
         existingModel.dispose();
         this.models.delete(modelId);
       }
@@ -436,7 +420,6 @@ export class MLPipeline {
       callbacks: {
         onEpochEnd: (epoch, logs) => {
           if (epoch % 10 === 0) {
-            console.log(`Epoch ${epoch}: loss = ${logs?.loss?.toFixed(4)}`);
           }
         }
       }
@@ -461,8 +444,6 @@ export class MLPipeline {
     inputs.dispose();
     targets.dispose();
 
-    console.log(`✅ Model ${modelId} trained successfully`);
-    console.log(`📊 Metrics:`, metrics);
 
     return metrics;
   }
@@ -478,7 +459,6 @@ export class MLPipeline {
       throw new Error(`Model ${modelId} not found or not trained`);
     }
 
-    console.log(`🔮 Making prediction with model: ${modelId}`);
 
     // Preprocess input - handle both 2D and 3D based on model type
     const config = this.modelConfigs.get(modelId);
@@ -542,7 +522,6 @@ export class MLPipeline {
       timestamp: new Date()
     };
 
-    console.log(`✅ Prediction completed:`, prediction);
     return prediction;
   }
 
@@ -570,7 +549,6 @@ export class MLPipeline {
     }
 
     await model.save(`file://${path}`);
-    console.log(`💾 Model ${modelId} saved to ${path}`);
   }
 
   /**
@@ -579,7 +557,6 @@ export class MLPipeline {
   async loadModel(modelId: string, path: string): Promise<void> {
     const model = await tf.loadLayersModel(`file://${path}`);
     this.models.set(modelId, model);
-    console.log(`📥 Model ${modelId} loaded from ${path}`);
   }
 
   /**
@@ -591,7 +568,6 @@ export class MLPipeline {
     this.modelConfigs.clear();
     this.modelMetrics.clear();
     this.preprocessors.clear();
-    console.log('🧹 ML Pipeline disposed');
   }
 }
 
