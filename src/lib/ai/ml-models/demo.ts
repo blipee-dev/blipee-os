@@ -65,10 +65,6 @@ async function runMLPipelineDemo() {
   };
 
   const engineeredFeatures = await featureEngine.engineerFeatures(sampleData);
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([name, score]) => `${name}: ${score.toFixed(3)}`)
-  );
 
   // 3. Model Training Pipeline Demo
   const trainingPipeline = new ModelTrainingPipeline();

@@ -426,6 +426,6 @@ export async function demonstrateAnalyticsOptimization(): Promise<void> {
 // Auto-execute demo if running directly
 if (require.main === module) {
   demonstrateAnalyticsOptimization()
-    .then(() =>)
+    .then(() => {})
     .catch(console.error);
 }
