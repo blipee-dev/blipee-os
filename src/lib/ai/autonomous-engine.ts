@@ -309,8 +309,7 @@ export class AutonomousSustainabilityIntelligence {
   }
 
   private async processInsight(insight: PredictiveInsight) {
-    // Process and potentially act on insights`,
-    );
+    // Process and potentially act on insights
   }
 
   // Additional helper methods...

@@ -61,6 +61,6 @@ export async function demonstrateNetworkFeatures(): Promise<void> {
 // Auto-execute demo if running directly
 if (require.main === module) {
   demonstrateNetworkFeatures()
-    .then(() =>)
+    .then(() => {})
     .catch(console.error);
 }

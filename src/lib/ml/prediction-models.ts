@@ -356,8 +356,7 @@ export class MLPredictionSystem {
       }
 
       // Store predictions in database
-      await this.storePredictions(predictions); => sum + p.confidence, 0) / predictions.length).toFixed(1)
-      }%`);
+      await this.storePredictions(predictions);
 
       return predictions;
     } catch (error) {
