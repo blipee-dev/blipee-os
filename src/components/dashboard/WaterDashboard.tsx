@@ -353,7 +353,7 @@ export function WaterDashboard({
                   className={`text-xs ${yoyWithdrawalChange > 0 ? "text-red-500" : yoyWithdrawalChange < 0 ? "text-green-500" : "text-gray-400"}`}
                 >
                   {yoyWithdrawalChange > 0 ? "+" : ""}
-                  {yoyWithdrawalChange.toFixed(1)}% YoY
+                  {yoyWithdrawalChange.toFixed(1)}% {t('yoy')}
                 </span>
               </div>
             )}
@@ -387,7 +387,7 @@ export function WaterDashboard({
                   className={`text-xs ${yoyConsumptionChange > 0 ? "text-red-500" : yoyConsumptionChange < 0 ? "text-green-500" : "text-gray-400"}`}
                 >
                   {yoyConsumptionChange > 0 ? "+" : ""}
-                  {yoyConsumptionChange.toFixed(1)}% YoY
+                  {yoyConsumptionChange.toFixed(1)}% {t('yoy')}
                 </span>
               </div>
             )}
@@ -421,7 +421,7 @@ export function WaterDashboard({
                   className={`text-xs ${yoyDischargeChange > 0 ? "text-red-500" : yoyDischargeChange < 0 ? "text-green-500" : "text-gray-400"}`}
                 >
                   {yoyDischargeChange > 0 ? "+" : ""}
-                  {yoyDischargeChange.toFixed(1)}% YoY
+                  {yoyDischargeChange.toFixed(1)}% {t('yoy')}
                 </span>
               </div>
             )}
@@ -453,7 +453,7 @@ export function WaterDashboard({
                   className={`text-xs ${yoyRecyclingChange >= 0 ? "text-green-500" : "text-red-500"}`}
                 >
                   {yoyRecyclingChange > 0 ? "+" : ""}
-                  {yoyRecyclingChange.toFixed(1)}pp YoY
+                  {yoyRecyclingChange.toFixed(1)}{t('pp')} {t('yoy')}
                 </span>
               </div>
             )}
@@ -703,7 +703,7 @@ export function WaterDashboard({
                 <YAxis
                   tick={{ fill: "#888", fontSize: 12 }}
                   label={{
-                    value: "ML",
+                    value: t('axisLabels.ml'),
                     angle: -90,
                     position: "insideLeft",
                     style: { fill: "#888", fontSize: 12 },
@@ -735,7 +735,7 @@ export function WaterDashboard({
                         <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
                           <p className="text-white font-semibold mb-2">
                             {data.month}
-                            {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
+                            {isForecast && <span className="ml-2 text-xs text-blue-400">({t('forecast.label')})</span>}
                           </p>
                           <div className="space-y-1">
                             <p className="text-sm" style={{ color: "#3b82f6" }}>
@@ -948,7 +948,7 @@ export function WaterDashboard({
                       `${value > 0 ? "+" : ""}${value}%`
                     }
                     label={{
-                      value: "Change (%)",
+                      value: t('axisLabels.changePercent'),
                       angle: -90,
                       position: "insideLeft",
                       style: { fill: "#888", fontSize: 12 },
@@ -989,7 +989,7 @@ export function WaterDashboard({
                               className={`text-sm font-bold ${change >= 0 ? "text-red-400" : "text-green-400"}`}
                             >
                               {change > 0 ? "+" : ""}
-                              {change.toFixed(1)}% YoY
+                              {change.toFixed(1)}% {t('yoy')}
                             </p>
                             <p className="text-xs text-gray-400 mt-1">
                               {change >= 0 ? t('tooltips.increase') : t('tooltips.decrease')} {t('tooltips.inConsumption')}
