@@ -610,7 +610,9 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(energyCategories)}`
               );
               const metricTargetsData = await metricTargetsRes.json();
+              console.log('🎯 Metric targets response:', metricTargetsData);
               if (metricTargetsData.success && metricTargetsData.data) {
+                console.log('📊 Setting metric targets:', metricTargetsData.data);
                 setMetricTargets(metricTargetsData.data);
               }
             } catch (err) {
@@ -1670,6 +1672,11 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   m.category?.includes(cat.category) ||
                   cat.category?.includes(m.category)
                 );
+
+                console.log(`🔍 Category: "${cat.category}", Metrics found: ${categoryMetrics.length}`, {
+                  allMetricCategories: metricTargets.map(m => m.category),
+                  matchedMetrics: categoryMetrics.map(m => ({ name: m.metricName, category: m.category }))
+                });
 
                 return (
                   <div key={cat.category}>
