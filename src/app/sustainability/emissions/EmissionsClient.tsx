@@ -127,10 +127,6 @@ export default function EmissionsClient() {
 
       if (response.ok) {
         const data = await response.json();
-        // Handle the response structure correctly : [],
-          hasPredictions: !!data.predictions,
-          siteFilter: selectedSite !== 'all' ? selectedSite : 'all sites'
-        });
 
         if (data.success && data.prediction) {
           setMlPredictions(data.prediction);
@@ -346,7 +342,7 @@ export default function EmissionsClient() {
           {/* Anomaly Detection */}
           <AnomalyDetection
             anomalies={emissionsData.anomalies}
-            onInvestigate={(anomaly) =>}
+            onInvestigate={(anomaly) => {}}
           />
         </div>
 
