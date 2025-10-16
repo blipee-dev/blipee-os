@@ -14,7 +14,7 @@ export default function GHGEmissionsPage() {
   return (
     <PageLayout
       title="GHG Emissions"
-      description="GHG Protocol • GRI 305 • ESRS E1 • TCFD"
+      description="Comprehensive Scope 1, 2 & 3 emissions tracking and analysis • GHG Protocol • GRI 305 • ESRS E1"
       icon={Cloud}
       showFilters={true}
     >
