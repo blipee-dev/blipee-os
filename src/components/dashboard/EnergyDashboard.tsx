@@ -508,6 +508,12 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           const projected2025FullYear = current2025YTD + forecastRemaining;
 
 
+          console.log('🔎 Checking conditions for metric targets fetch:', {
+            energyCategoriesLength: energyCategories.length,
+            baseline2023Emissions: baseline2023Data.total_emissions,
+            willFetch: energyCategories.length > 0 && baseline2023Data.total_emissions
+          });
+
           if (energyCategories.length > 0 && baseline2023Data.total_emissions) {
             // energyCategories is already populated from database or API above
 
@@ -605,6 +611,9 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 'Natural Gas', 'Heating Oil', 'Diesel', 'Gasoline', 'Propane',
                 'Heating', 'Cooling', 'Steam'
               ].join(',');
+
+              console.log('📡 Fetching metric targets for categories:', energyCategories);
+              console.log('📡 API URL:', `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(energyCategories)}`);
 
               const metricTargetsRes = await fetch(
                 `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(energyCategories)}`
