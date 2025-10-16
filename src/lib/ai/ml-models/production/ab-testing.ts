@@ -131,7 +131,6 @@ export class ModelABTesting {
    * Start a new A/B test experiment
    */
   async startExperiment(config: ABTestConfig): Promise<string> {
-    console.log(`🧪 Starting A/B test: ${config.testName}`);
     
     // Validate configuration
     this.validateTestConfig(config);
@@ -142,10 +141,6 @@ export class ModelABTesting {
     this.activeTests.set(testId, test);
     this.testResults.set(testId, []);
     
-    console.log(`   📊 Test ID: ${testId}`);
-    console.log(`   🎯 Traffic split: Control ${config.trafficSplit.control.percentage}%, Variants: ${config.trafficSplit.variants.map(v => `${v.id} ${v.percentage}%`).join(', ')}`);
-    console.log(`   📈 Success metrics: ${config.successMetrics.join(', ')}`);
-    console.log(`   🕒 Duration: ${config.maxDuration ? `${config.maxDuration / 1000 / 60} minutes` : 'indefinite'}`);
     
     return testId;
   }
@@ -300,9 +295,7 @@ export class ModelABTesting {
 
     test.stop(reason);
     
-    console.log(`⏹️ Stopped A/B test: ${test.getConfig().testName}`);
     if (reason) {
-      console.log(`   📝 Reason: ${reason}`);
     }
     
     return await this.getExperimentResults(testId);

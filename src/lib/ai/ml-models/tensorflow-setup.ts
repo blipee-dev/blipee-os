@@ -15,14 +15,12 @@ import '@tensorflow/tfjs-backend-cpu';
 if (typeof window === 'undefined') {
   // We're in Node.js (serverless function)
   tf.setBackend('cpu').then(() => {
-    console.log('✅ TensorFlow.js CPU backend initialized for Node.js');
   }).catch((err) => {
     console.warn('⚠️  TensorFlow.js backend initialization failed:', err);
   });
 } else {
   // We're in browser - use WebGL if available
   tf.ready().then(() => {
-    console.log('✅ TensorFlow.js initialized in browser');
   });
 }
 

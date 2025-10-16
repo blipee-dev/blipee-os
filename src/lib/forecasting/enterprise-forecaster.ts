@@ -38,21 +38,17 @@ export class EnterpriseForecast {
     const n = values.length;
 
     if (debug) {
-      console.log(`📊 Forecasting with ${n} months of historical data`);
-      console.log(`📈 Last 6 months: ${values.slice(-6).map(v => v.toFixed(1)).join(', ')}`);
     }
 
     // For sparse data (< 36 months), use weighted exponential smoothing
     if (n < 36) {
       if (debug) {
-        console.log(`⚠️  Using exponential smoothing (only ${n} months of data, need 36 for full seasonal decomposition)`);
       }
       return this.exponentialSmoothingWithTrend(values, monthsToForecast, debug);
     }
 
     // Use full seasonal decomposition for 36+ months (3 years of data)
     if (debug) {
-      console.log(`✅ Using 36-month seasonal decomposition (${n} months available)`);
     }
     return this.seasonalDecompositionForecast(values, monthsToForecast, debug);
   }
@@ -72,7 +68,6 @@ export class EnterpriseForecast {
     const trend = this.extractTrend(data, period);
 
     if (debug) {
-      console.log(`📉 Trend (last 6): ${trend.slice(-6).map(v => v.toFixed(1)).join(', ')}`);
     }
 
     // Step 2: Detrend and extract seasonality
@@ -80,7 +75,6 @@ export class EnterpriseForecast {
     const seasonal = this.extractSeasonality(detrended, period);
 
     if (debug) {
-      console.log(`🔄 Seasonal pattern: ${seasonal.map(v => v.toFixed(1)).join(', ')}`);
     }
 
     // Step 3: Calculate residuals
@@ -88,7 +82,6 @@ export class EnterpriseForecast {
     const residualStd = Math.sqrt(this.calculateVariance(residuals));
 
     if (debug) {
-      console.log(`📊 Residual std dev: ${residualStd.toFixed(2)}`);
     }
 
     // Step 4: Forecast trend
@@ -101,8 +94,6 @@ export class EnterpriseForecast {
     }
 
     if (debug) {
-      console.log(`📈 Trend slope: ${trendSlope.toFixed(3)} tCO2e/month`);
-      console.log(`🔮 Trend forecast (next ${steps}): ${trendForecast.map(v => v.toFixed(1)).join(', ')}`);
     }
 
     // Step 5: Apply seasonality to forecast
@@ -114,8 +105,6 @@ export class EnterpriseForecast {
     }
 
     if (debug) {
-      console.log(`✨ Final forecast: ${forecasted.map(v => v.toFixed(1)).join(', ')}`);
-      console.log(`💰 Total forecasted: ${forecasted.reduce((a,b)=>a+b,0).toFixed(1)} tCO2e`);
     }
 
     // Calculate confidence intervals (95%)
@@ -249,7 +238,6 @@ export class EnterpriseForecast {
     }
 
     if (debug) {
-      console.log(`📊 Holt's method - Level: ${level.toFixed(1)}, Trend: ${trend.toFixed(3)}`);
     }
 
     // Forecast

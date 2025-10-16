@@ -46,7 +46,6 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
 
   // Fetch organizations from database
   const fetchOrganizations = async () => {
-    console.log("Fetching organizations...");
     try {
       setLoading(true);
       setError(null);
@@ -65,7 +64,6 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        console.log("Session check:", session);
 
         if (!session?.user) {
           setError(t("userNotAuthenticated"));
@@ -80,8 +78,6 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
         return;
       }
 
-      console.log("Current user ID:", currentUser.id);
-      console.log("Current user email:", currentUser.email);
 
       // Check if user is a super admin
       const { data: superAdminCheck, error: superAdminError } = await supabase
@@ -91,12 +87,10 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
         .maybeSingle();
 
       const isSuperAdmin = !superAdminError && !!superAdminCheck;
-      console.log("Is super admin:", isSuperAdmin);
 
       let orgs = [];
 
       if (isSuperAdmin) {
-        console.log("Fetching ALL organizations for super admin...");
 
         const response = await fetch('/api/organizations/all');
 
@@ -116,9 +110,7 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
             industry: org.industry_primary || "",
           })) || [];
 
-        console.log("Fetched all organizations for super admin:", allOrgs);
       } else {
-        console.log("Fetching user organizations via API...");
 
         const response = await fetch('/api/organizations/user-orgs');
 
@@ -130,7 +122,6 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
 
         const { organizations: userOrgs } = await response.json();
 
-        console.log("Fetched user organizations:", userOrgs);
 
         orgs = userOrgs.map((org: any) => {
           const mapped = {
@@ -140,27 +131,21 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
             status: org.subscription_status || "active",
             industry: org.industry_primary || "",
           };
-          console.log(`Mapping org ${org.name}: sites=${org.sites} -> ${mapped.sites}, users=${org.users} -> ${mapped.users}`);
           return mapped;
         });
 
-        console.log("Mapped organizations:", orgs);
-      }
-
-      console.log("Organizations with counts from API:", orgs.map((o: any) => ({
+      } => ({
         name: o.name,
         sites: o.sites,
         users: o.users
       })));
 
-      console.log("Setting organizations state with:", orgs);
       setOrganizations(orgs);
     } catch (err) {
       console.error("Error fetching organizations:", err);
       setError(t("failedToLoad"));
     } finally {
       setLoading(false);
-      console.log("Fetch complete, loading set to false");
     }
   };
 
@@ -257,9 +242,6 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
   };
 
   const handleModalSuccess = async () => {
-    console.log(
-      "Modal success callback triggered, refreshing organizations...",
-    );
     handleModalClose();
     // Refresh data immediately
     await fetchOrganizations();
@@ -641,7 +623,6 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
                           <div className="flex items-center justify-end">
                             <ActionsDropdown
                               onPin={() =>
-                                console.log("Pin organization:", org.name)
                               }
                               onEdit={userRole === 'super_admin' ? () => handleEdit(org) : undefined}
                               onDelete={userRole === 'super_admin' ? () => handleDelete(org) : undefined}

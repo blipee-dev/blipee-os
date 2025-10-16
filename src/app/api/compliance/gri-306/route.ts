@@ -135,14 +135,6 @@ export async function GET(request: NextRequest) {
     const intensityArea = totalArea ? totalWaste / totalArea : 0;
     const intensityFTE = totalEmployees ? totalWaste / totalEmployees : 0;
 
-    console.log('📊 GRI 306 Waste Intensity Calculations:');
-    console.log('  Total waste:', totalWaste, 'tonnes');
-    console.log('  Annual revenue:', annualRevenue, '€');
-    console.log('  Total area:', totalArea, 'm²');
-    console.log('  Total employees:', totalEmployees);
-    console.log('  Intensity per revenue:', intensityRevenue.toFixed(3), 'tonnes/€M');
-    console.log('  Intensity per area:', intensityArea.toFixed(3), 'tonnes/m²');
-    console.log('  Intensity per FTE:', intensityFTE.toFixed(3), 'tonnes/FTE');
 
     // Format response
     const response = {
@@ -163,14 +155,6 @@ export async function GET(request: NextRequest) {
       intensity_fte: Math.round(intensityFTE * 1000) / 1000 // 3 decimal places
     };
 
-    console.log('✅ GRI 306 Final Response:');
-    console.log('  Total waste:', response.total_waste, 'tonnes');
-    console.log('  Waste diverted:', response.waste_diverted, 'tonnes');
-    console.log('  Waste disposed:', response.waste_disposed, 'tonnes');
-    console.log('  Diversion rate:', response.diversion_rate, '%');
-    console.log('  Intensity per revenue:', response.intensity_revenue, 'tonnes/€M');
-    console.log('  Intensity per area:', response.intensity_area, 'tonnes/m²');
-    console.log('  Intensity per FTE:', response.intensity_fte, 'tonnes/FTE');
 
     return NextResponse.json(response);
   } catch (error) {

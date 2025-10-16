@@ -35,7 +35,6 @@ export class ComplianceGuardian extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('🛡️ Initializing Compliance Guardian...');
 
     // Load compliance frameworks
     await this.loadComplianceFrameworks();
@@ -50,11 +49,9 @@ export class ComplianceGuardian extends AutonomousAgent {
     this.monitoringActive = true;
     this.startContinuousMonitoring();
 
-    console.log('✅ Compliance Guardian initialized and monitoring active');
   }
 
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`🛡️ Compliance Guardian executing task: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -382,7 +379,6 @@ export class ComplianceGuardian extends AutonomousAgent {
   }
 
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`🛡️ Compliance Guardian learning from feedback: ${feedback.outcome}`);
 
     // Update compliance detection algorithms based on feedback
     if (feedback.outcome === 'positive') {
@@ -393,7 +389,6 @@ export class ComplianceGuardian extends AutonomousAgent {
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('🛡️ Compliance Guardian shutting down...');
     this.monitoringActive = false;
   }
 
@@ -461,12 +456,10 @@ export class ComplianceGuardian extends AutonomousAgent {
 
   private async setupRegulatoryMonitoring(): Promise<void> {
     // Set up monitoring for regulatory changes
-    console.log('🛡️ Setting up regulatory monitoring for 7 frameworks');
   }
 
   private async initializeDeadlineTracking(): Promise<void> {
     // Initialize tracking for all compliance deadlines
-    console.log('🛡️ Tracking deadlines for all compliance frameworks');
   }
 
   private async startContinuousMonitoring(): Promise<void> {
@@ -651,7 +644,6 @@ export class ComplianceGuardian extends AutonomousAgent {
 
   private async escalateUrgentDeadlines(urgentItems: any[]): Promise<void> {
     for (const item of urgentItems) {
-      console.log(`🚨 URGENT: ${item.framework} deadline in ${item.days_remaining} days`);
       // In real implementation, would send notifications to stakeholders
     }
   }
@@ -743,7 +735,6 @@ export class ComplianceGuardian extends AutonomousAgent {
   }
 
   private async escalateViolation(alert: any): Promise<void> {
-    console.log(`🚨 COMPLIANCE VIOLATION: ${alert.violationType} - Severity: ${alert.severity}`);
     // In real implementation, would trigger notification workflows
   }
 

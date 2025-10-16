@@ -61,7 +61,6 @@ export class MLPipeline {
 
   async train(model: string, data: any): Promise<void> {
     // Training would be done server-side
-    console.log(`Training ${model} with data:`, data);
   }
 
   async evaluate(model: string, testData: any): Promise<any> {

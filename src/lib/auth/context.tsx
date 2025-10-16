@@ -67,14 +67,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Check if MFA is required
       if (data.data.requiresMFA) {
-        console.log("MFA required, challengeId:", data.data.challengeId);
         // Return the MFA requirement info so the sign-in page can handle it
         return { requiresMFA: true, challengeId: data.data.challengeId };
       }
 
       setSession(data.data.session);
-      console.log("Sign in successful, session:", data.data.session);
-      console.log("Onboarding completed:", data.data.session?.user?.onboarding_completed);
 
       // Log successful login
       await auditLogger.logAuth('login', 'success', {
@@ -86,7 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       // Don't redirect here - let the signin page handle redirects based on URL params
-      console.log("Sign in successful, session established");
     } catch (err: any) {
       setError(err.message);
 

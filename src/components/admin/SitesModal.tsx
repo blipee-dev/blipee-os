@@ -196,7 +196,6 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
     setError(null);
     
     try {
-      console.log('Submitting site data:', formData);
       
       // Get current user for organization context
       const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -251,8 +250,6 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
 
       if (mode === 'edit' && data?.id) {
         // Update existing site via API
-        console.log('Updating site with ID:', data.id);
-        console.log('Update data being sent:', siteData);
 
         const response = await fetch(`/api/sites?id=${data.id}`, {
           method: 'PATCH',
@@ -269,8 +266,6 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         }
 
         const { site: updatedSite } = await response.json();
-        console.log('Site updated successfully:', updatedSite);
-        console.log('New values - Area:', updatedSite.total_area_sqm, 'Employees:', updatedSite.total_employees, 'Floors:', updatedSite.floors);
 
         // Log audit event for site update
         await auditLogger.logDataOperation(
@@ -301,7 +296,6 @@ export default function SitesModal({ isOpen, onClose, onSuccess, mode = 'create'
         }
 
         const { site: newSite } = await response.json();
-        console.log('Site created successfully:', newSite);
 
         // Log audit event for site creation
         await auditLogger.logDataOperation(

@@ -122,23 +122,19 @@ export default function DashboardClient() {
     // Fetch organization data for context
     const fetchOrgData = async () => {
       if (!user) {
-        console.log('No user available yet');
         return;
       }
 
       try {
         setLoading(true);
-        console.log('Fetching organization context for user:', user.id);
 
         const response = await fetch('/api/organization/context');
         const data = await response.json();
 
-        console.log('Organization API response:', data);
 
         if (response.ok) {
           // API returns { organization: {...}, sites: [...], ... }
           if (data.organization) {
-            console.log('Organization data loaded:', data.organization);
             setOrganizationData(data.organization);
           } else {
             console.error('No organization in response:', data);
@@ -168,7 +164,6 @@ export default function DashboardClient() {
         const response = await fetch('/api/sustainability/gri-sector-topics');
         const data = await response.json();
 
-        console.log('📊 GRI Sector Topics:', data);
         setSectorTopics(data);
 
         // Use recommended dashboards whether sector-specific or generic

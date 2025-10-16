@@ -101,7 +101,6 @@ async function getMetricsData(request: NextRequest): Promise<NextResponse> {
       const startDate = periods.reduce((min, p) => p.start < min ? p.start : min, periods[0].start);
       const endDate = periods.reduce((max, p) => p.end > max ? p.end : max, periods[0].end);
 
-      console.log(`✅ Using baseline calculator for metrics data summary (${startDate} to ${endDate})`);
 
       // Use calculator to get accurate emissions with scope-by-scope rounding
       const emissions = await getPeriodEmissions(member.organization_id, startDate, endDate);

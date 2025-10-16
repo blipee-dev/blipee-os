@@ -19,16 +19,7 @@ export class SessionAuthService {
   ): Promise<AuthResponse & { sessionId?: string; requiresMFA?: boolean; challengeId?: string }> {
     try {
       // Authenticate user
-      console.log('🔐 About to call authService.signIn...');
       const authResult = await authService.signIn(email, password);
-
-      console.log('🔐 authResult received:', {
-        hasResult: !!authResult,
-        hasUser: !!authResult?.user,
-        userId: authResult?.user?.id,
-        requiresMFA: authResult?.requiresMFA,
-        hasSession: !!authResult?.session
-      });
 
       // Check if we got a valid result
       if (!authResult || !authResult.user) {
@@ -36,21 +27,16 @@ export class SessionAuthService {
         throw new Error('Authentication failed - invalid credentials');
       }
 
-      console.log('🔐 authService.signIn completed, user:', authResult.user.id, 'requiresMFA:', !!authResult.requiresMFA);
 
       // If MFA is required, don't create session yet
       if (authResult.requiresMFA) {
-        console.log('🔒 MFA required, skipping login status update until MFA completion');
         return authResult;
       }
 
-      console.log('📝 About to update user login status for user:', authResult.user.id);
       // Update last_login and status (pending -> active) in app_users table
       await this.updateUserLoginStatus(authResult.user.id);
-      console.log('✅ Completed user login status update');
 
       // Create session
-      console.log('🏗️  Creating session for user:', authResult.user.id, 'auth_user_id:', authResult.user.auth_user_id, 'orgId:', authResult.session?.current_organization?.id);
       const { sessionId } = await sessionManager.createSession({
         userId: authResult.user.auth_user_id, // Use auth_user_id for session storage
         organizationId: authResult.session?.current_organization?.id,
@@ -59,7 +45,6 @@ export class SessionAuthService {
         ipAddress: request?.headers.get('x-forwarded-for') || request?.headers.get('x-real-ip') || undefined,
         userAgent: request?.headers.get('user-agent') || undefined,
       });
-      console.log('🏗️  Session created with ID:', sessionId);
 
       return {
         ...authResult,
@@ -93,10 +78,8 @@ export class SessionAuthService {
       throw new Error('Invalid MFA code');
     }
 
-    console.log('📝 MFA verified, updating user login status for user:', userId);
     // Update last_login and status (pending -> active) in app_users table
     await this.updateUserLoginStatus(userId);
-    console.log('✅ Completed user login status update after MFA');
 
     // Get user session
     const session = await authService.getSession();
@@ -158,7 +141,6 @@ export class SessionAuthService {
 
       if (fetchError && fetchError.code === 'PGRST116') {
         // User doesn't exist in app_users, create them
-        console.log('📝 Creating app_users record for auth user:', authUserId);
 
         // Get user details from auth
         const { data: { user } } = await supabase.auth.getUser();
@@ -178,7 +160,6 @@ export class SessionAuthService {
           if (insertError) {
             console.error('❌ Error creating app_users record:', insertError);
           } else {
-            console.log('✅ Created app_users record');
           }
         }
       } else if (!fetchError && existingUser) {
@@ -190,7 +171,6 @@ export class SessionAuthService {
         // Change status from pending to active on first login
         if (existingUser.status === 'pending') {
           updateData.status = 'active';
-          console.log('🔄 Changing user status from pending to active');
         }
 
         const { error: updateError } = await supabase
@@ -201,7 +181,6 @@ export class SessionAuthService {
         if (updateError) {
           console.error('❌ Error updating user login status:', updateError);
         } else {
-          console.log('✅ Updated user login status');
         }
       }
     } catch (error) {

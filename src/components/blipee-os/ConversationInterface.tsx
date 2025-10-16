@@ -111,7 +111,6 @@ export function ConversationInterface({
 
             if (data.isSuperAdmin) {
               userRole = 'SUPER_ADMIN';
-              console.log('👑 Super Admin detected!');
             } else if (data.role) {
               // Map database roles to suggestion engine roles
               switch(data.role) {
@@ -138,14 +137,6 @@ export function ConversationInterface({
                   userRole = 'MEMBER';
               }
             }
-
-            console.log('🤖 Blipee Assistant - User detected:', {
-              email: session.user.email,
-              role: userRole,
-              isSuperAdmin: data.isSuperAdmin,
-              authUserId: data.authUserId,
-              dbRole: data.role
-            });
           } else {
             console.error('Failed to get user role from API');
           }
@@ -160,7 +151,6 @@ export function ConversationInterface({
       }
 
       const suggestions = await generateRoleSuggestions(userRole, pathname);
-      console.log('📋 Generated suggestions for role', userRole, ':', suggestions);
       setDynamicSuggestions(suggestions);
     };
     loadSuggestions();
@@ -205,12 +195,10 @@ export function ConversationInterface({
       return null;
     }
 
-    console.log('Creating new conversation with buildingContext:', buildingContext?.id);
     try {
       const dbConversation = await ConversationClient.createConversation(
         buildingContext?.id
       );
-      console.log('Database conversation created:', dbConversation);
 
       const newConversation: StoredConversation = {
         id: dbConversation.id,
@@ -229,7 +217,6 @@ export function ConversationInterface({
       console.error('Error creating conversation:', error);
       // Fallback to local-only conversation
       const newId = `local_${Date.now()}`;
-      console.log('Using local fallback conversation ID:', newId);
       const newConversation: StoredConversation = {
         id: newId,
         title: t('newConversation'),
@@ -302,7 +289,6 @@ export function ConversationInterface({
 
     // Show which agent is responding if one was selected
     if (currentAgent) {
-      console.log(`🤖 Routing to ${currentAgent} agent...`);
     }
 
     // Create new conversation if needed
@@ -383,14 +369,6 @@ export function ConversationInterface({
       }
 
       // Get AI response
-      console.log('Sending to AI API:', {
-        message: message.substring(0, 50) + '...',
-        conversationId: conversationId,
-        buildingId: buildingContext?.id,
-        buildingContext: buildingContext,
-        attachments: uploadedFiles,
-      });
-
       const data = await apiClient.post("/api/ai/chat", {
         message,
         conversationId: conversationId,

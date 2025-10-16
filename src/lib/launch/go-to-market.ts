@@ -509,7 +509,6 @@ export class GoToMarketSystem extends EventEmitter {
       this.strategy.channels.push(channel);
     });
 
-    console.log('🚀 Marketing channels initialized for omnichannel domination');
   }
 
   private initializeCampaigns(): void {
@@ -603,14 +602,12 @@ export class GoToMarketSystem extends EventEmitter {
 
     this.campaigns.set(growthCampaign.id, growthCampaign);
 
-    console.log('📢 Launch campaigns configured for maximum impact');
   }
 
   public async launchCampaign(campaignId: string): Promise<void> {
     const campaign = this.campaigns.get(campaignId);
     if (!campaign) throw new Error('Campaign not found');
 
-    console.log(`🚀 Launching campaign: ${campaign.name}`);
 
     // Activate across channels
     await this.orchestrator.activateCampaign(campaign);
@@ -640,7 +637,6 @@ export class GoToMarketSystem extends EventEmitter {
 
   private applyCampaignOptimization(campaign: Campaign, optimization: any): void {
     // Apply specific optimization
-    console.log(`🔧 Applying optimization: ${optimization.type} to ${campaign.name}`);
     
     // Adjust budget allocation, messaging, targeting, etc.
     switch (optimization.type) {
@@ -658,7 +654,6 @@ export class GoToMarketSystem extends EventEmitter {
 
   private reallocateBudget(campaign: Campaign, params: any): void {
     // Shift budget to highest performing channels
-    console.log('💰 Reallocating budget to top performers');
   }
 
   private updateMessaging(campaign: Campaign, params: any): void {
@@ -701,7 +696,6 @@ export class GoToMarketSystem extends EventEmitter {
 // Marketing Automation Engine
 class MarketingAutomation {
   public async setupCampaignAutomation(campaign: Campaign): Promise<void> {
-    console.log(`🤖 Setting up automation for ${campaign.name}`);
     
     // Lead scoring
     this.setupLeadScoring(campaign);
@@ -722,7 +716,6 @@ class MarketingAutomation {
       intent: { weight: 25, values: { buying: 25, evaluating: 18, researching: 10 } }
     };
     
-    console.log('📊 Lead scoring configured');
   }
 
   private setupNurtureSequences(campaign: Campaign): void {
@@ -737,7 +730,6 @@ class MarketingAutomation {
       { day: 30, action: 'Success story', channel: 'email' }
     ];
     
-    console.log('📧 Nurture sequences activated');
   }
 
   private setupTriggers(campaign: Campaign): void {
@@ -750,7 +742,6 @@ class MarketingAutomation {
       { event: 'inactive_7_days', action: 're_engagement' }
     ];
     
-    console.log('⚡ Behavioral triggers configured');
   }
 }
 
@@ -770,7 +761,6 @@ class GTMAnalytics {
       }
     });
     
-    console.log(`📈 Tracking started for ${campaign.name}`);
   }
 
   public getOptimizationRecommendations(campaign: Campaign): any[] {
@@ -800,7 +790,6 @@ class GTMAnalytics {
 // Campaign Orchestrator
 class CampaignOrchestrator {
   public async activateCampaign(campaign: Campaign): Promise<void> {
-    console.log(`🎯 Orchestrating campaign across ${campaign.channels.length} channels`);
     
     // Coordinate multi-channel execution
     for (const channel of campaign.channels) {
@@ -809,7 +798,6 @@ class CampaignOrchestrator {
   }
 
   private async activateChannel(channel: string, campaign: Campaign): Promise<void> {
-    console.log(`  ✓ Activated ${channel} for ${campaign.name}`);
     // Channel-specific activation logic
   }
 }

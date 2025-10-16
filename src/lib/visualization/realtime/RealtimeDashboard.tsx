@@ -57,7 +57,6 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = ({
   const initializeSocket = useCallback(() => {
     if (socketRef.current?.connected) return;
 
-    console.log('Initializing WebSocket connection to:', socketUrl);
 
     socketRef.current = io(socketUrl, {
       transports: ['websocket'],
@@ -68,7 +67,6 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = ({
 
     // Connection events
     socketRef.current.on('connect', () => {
-      console.log('WebSocket connected');
       setConnected(true);
       setReconnecting(false);
       reconnectAttemptsRef.current = 0;
@@ -81,13 +79,11 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = ({
     });
 
     socketRef.current.on('disconnect', () => {
-      console.log('WebSocket disconnected');
       setConnected(false);
       onConnectionChange?.(false);
     });
 
     socketRef.current.on('reconnect_attempt', (attempt) => {
-      console.log(`Reconnection attempt ${attempt}`);
       setReconnecting(true);
       reconnectAttemptsRef.current = attempt;
     });
@@ -113,7 +109,6 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = ({
 
   // Handle dashboard updates
   const handleDashboardUpdate = useCallback((data: any) => {
-    console.log('Dashboard update received:', data);
 
     if (data.widgetId && data.payload) {
       const update: RealtimeData = {
@@ -158,7 +153,6 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = ({
 
   // Handle metrics updates
   const handleMetricsUpdate = useCallback((metrics: any) => {
-    console.log('Metrics update:', metrics);
 
     // Update metric widgets
     setWidgets(prev => prev.map(widget => {
@@ -177,7 +171,6 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = ({
 
   // Handle new alerts
   const handleNewAlert = useCallback((alert: any) => {
-    console.log('New alert:', alert);
 
     // Find alert widgets and update them
     setWidgets(prev => prev.map(widget => {

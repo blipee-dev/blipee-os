@@ -28,7 +28,6 @@ export async function GET(request: NextRequest) {
     const organizationId = memberData.organization_id;
 
     // ✅ USE CALCULATOR for current emissions (scope-by-scope rounding)
-    console.log('✅ Using calculator for current emissions...');
 
     // Determine baseline year dynamically
     const currentYear = new Date().getFullYear();
@@ -74,8 +73,6 @@ export async function GET(request: NextRequest) {
       new Date(metricsData[0].period_end).toISOString().split('T')[0] :
       null;
 
-    console.log('✅ Calculator emissions:', emissions);
-    console.log(`   Baseline year: ${actualBaselineYear}, Data points: ${dataPoints}`);
 
     return NextResponse.json({
       scope1: emissions.scope_1,

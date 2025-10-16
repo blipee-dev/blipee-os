@@ -218,11 +218,9 @@ export class OnboardingMagicSystem extends EventEmitter {
       }
     });
 
-    console.log('✨ Onboarding magic flow initialized - 5 minutes to value');
   }
 
   public async startOnboarding(userInfo: Partial<OnboardingPersonalization>): Promise<void> {
-    console.log('🚀 Starting magical onboarding experience');
     
     // Set personalization
     this.personalization = {
@@ -246,7 +244,6 @@ export class OnboardingMagicSystem extends EventEmitter {
   }
 
   private async startAutoDiscovery(): Promise<void> {
-    console.log('🔍 AI auto-discovery initiated');
     
     // Simulate AI discovering various data sources
     const discoverySources = [
@@ -417,7 +414,6 @@ export class OnboardingMagicSystem extends EventEmitter {
   private async completeOnboarding(): Promise<void> {
     const totalTime = (Date.now() - this.startTime.getTime()) / 1000;
     
-    console.log(`🎉 Onboarding completed in ${Math.round(totalTime)} seconds!`);
     
     // Final magic moment
     this.createMagicMoment(
@@ -455,7 +451,6 @@ export class OnboardingMagicSystem extends EventEmitter {
 
   public skipToValue(): void {
     // Emergency skip for power users
-    console.log('⚡ Power user mode - skipping to value');
     
     // Complete all discovery
     ['email', 'erp', 'building_systems'].forEach((source, index) => {

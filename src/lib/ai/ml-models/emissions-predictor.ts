@@ -94,7 +94,6 @@ export class EmissionsPredictionModel extends TimeSeriesModel {
     });
     
     this.model = model;
-    console.log('Emissions prediction model built successfully');
   }
 
   /**
@@ -165,7 +164,6 @@ export class EmissionsPredictionModel extends TimeSeriesModel {
         {
           onEpochEnd: async (epoch, logs) => {
             if (epoch % 10 === 0) {
-              console.log(`Epoch ${epoch}: loss=${logs?.loss?.toFixed(4)}, val_loss=${logs?.val_loss?.toFixed(4)}`);
             }
           }
         }

@@ -71,7 +71,6 @@ export function EnergyMonitor({
       });
 
       newSocket.on('connect', () => {
-        console.log('Connected to energy monitor');
         setIsConnected(true);
 
         // Subscribe to energy data
@@ -137,7 +136,6 @@ export function EnergyMonitor({
       });
 
       newSocket.on('disconnect', () => {
-        console.log('Disconnected from energy monitor');
         setIsConnected(false);
       });
 

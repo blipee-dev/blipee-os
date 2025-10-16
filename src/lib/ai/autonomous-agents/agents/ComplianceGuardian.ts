@@ -164,7 +164,6 @@ export class ComplianceGuardian extends AutonomousAgent {
    * Initialize the Compliance Guardian
    */
   protected async initialize(): Promise<void> {
-    console.log('🛡️ Initializing Compliance Guardian...');
     
     // Load regulatory frameworks
     await this.loadRegulatoryFrameworks();
@@ -178,14 +177,12 @@ export class ComplianceGuardian extends AutonomousAgent {
     // Perform initial compliance scan
     await this.performInitialComplianceScan();
     
-    console.log('✅ Compliance Guardian initialized and standing watch');
   }
   
   /**
    * Execute assigned tasks
    */
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`🛡️ Compliance Guardian executing: ${task.type}`);
     
     try {
       switch (task.type) {
@@ -277,7 +274,6 @@ export class ComplianceGuardian extends AutonomousAgent {
    * Update learning model based on feedback
    */
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`📚 Compliance Guardian learning from feedback: ${feedback.outcome}`);
     
     // Update compliance metrics
     if (feedback.outcome === 'positive') {
@@ -322,7 +318,6 @@ export class ComplianceGuardian extends AutonomousAgent {
    * Cleanup resources
    */
   protected async cleanup(): Promise<void> {
-    console.log('🧹 Compliance Guardian cleaning up...');
     
     // Save regulatory frameworks
     await this.saveRegulatoryFrameworks();
@@ -333,7 +328,6 @@ export class ComplianceGuardian extends AutonomousAgent {
     // Save compliance metrics
     await this.saveComplianceMetrics();
     
-    console.log('✅ Compliance Guardian cleanup completed');
   }
   
   /**
@@ -569,7 +563,6 @@ Focus on regulatory accuracy, compliance risks, and actionable guidance.`;
   }
   
   private async loadDefaultFrameworks(): Promise<void> {
-    console.log('📋 Loading default regulatory frameworks...');
     
     const defaultFrameworks = [
       {
@@ -604,7 +597,6 @@ Focus on regulatory accuracy, compliance risks, and actionable guidance.`;
   }
   
   private async performInitialComplianceScan(): Promise<void> {
-    console.log('🔍 Performing initial compliance scan...');
     
     await this.logActivity('initial_compliance_scan', {
       scan_type: 'comprehensive',

@@ -97,7 +97,6 @@ export default function ZeroTypingClient({
             filter: `organization_id=eq.${session.current_organization.id}`
           },
           (payload) => {
-            console.log('Metrics update:', payload);
             // Refresh metrics data
             refreshMetrics();
           }
@@ -133,7 +132,6 @@ export default function ZeroTypingClient({
   };
 
   const handleAction = (action: string, params?: any) => {
-    console.log('Action triggered:', action, params);
 
     // Track recent actions for context
     setRecentActions(prev => [...prev, { action, params, timestamp: new Date() }].slice(-10));

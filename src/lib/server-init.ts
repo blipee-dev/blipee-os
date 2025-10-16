@@ -11,7 +11,6 @@ export async function initializeServer() {
   if (initialized) return;
   
   try {
-    console.log('🚀 Initializing server services...');
     
     // Initialize monitoring
     await initializeMonitoring();
@@ -19,7 +18,6 @@ export async function initializeServer() {
     // Add other service initializations here as needed
     
     initialized = true;
-    console.log('✅ Server services initialized successfully');
   } catch (error) {
     console.error('❌ Failed to initialize server services:', error);
     // Don't throw - allow the server to start even if some services fail

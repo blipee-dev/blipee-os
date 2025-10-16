@@ -91,7 +91,6 @@ export class GlobalLocalizationSystem {
   }
 
   private async initializeSystem() {
-    console.log('🌍 Initializing Global Localization System...');
     
     await this.loadSupportedLanguages();
     await this.loadSupportedCurrencies();
@@ -101,7 +100,6 @@ export class GlobalLocalizationSystem {
     this.startTranslationProcessor();
     this.startExchangeRateUpdater();
     
-    console.log('✅ Global localization ready for 20+ languages and currencies!');
   }
 
   /**
@@ -115,7 +113,6 @@ export class GlobalLocalizationSystem {
     category: string = 'content'
   ): Promise<Record<string, string>> {
     try {
-      console.log(`🔤 Translating text from ${fromLanguage} to ${toLanguages.join(', ')}`);
 
       const translations: Record<string, string> = {};
       
@@ -201,7 +198,6 @@ export class GlobalLocalizationSystem {
       // Add to processing queue
       this.translationQueue.push(translationJob);
       
-      console.log(`📋 Queued batch translation job: ${items.length} items to ${toLanguages.length} languages`);
       
       return jobId;
     } catch (error) {
@@ -509,7 +505,6 @@ export class GlobalLocalizationSystem {
           updated_at: new Date().toISOString()
         });
 
-      console.log(`🌍 Updated localization for user ${userId}: ${preferences.language}/${preferences.currency}`);
     } catch (error) {
       console.error('User localization error:', error);
       throw error;
@@ -618,7 +613,6 @@ export class GlobalLocalizationSystem {
           ai_generated: content.aiGenerated
         });
 
-      console.log(`📝 Updated localized content: ${key} (${Object.keys(translations).length} languages)`);
     } catch (error) {
       console.error('Update localized content error:', error);
       throw error;
@@ -635,7 +629,6 @@ export class GlobalLocalizationSystem {
     const job = this.translationQueue.shift()!;
 
     try {
-      console.log(`🔄 Processing translation job: ${job.id}`);
       
       job.status = 'processing';
       await this.updateTranslationJob(job);
@@ -677,7 +670,6 @@ export class GlobalLocalizationSystem {
       
       await this.updateTranslationJob(job);
 
-      console.log(`✅ Translation job completed: ${job.id} (${job.content.length} items)`);
       
     } catch (error) {
       console.error('Translation job processing error:', error);
@@ -723,7 +715,6 @@ export class GlobalLocalizationSystem {
       this.supportedLanguages.set(lang.code, lang);
     });
 
-    console.log(`🌐 Loaded ${this.supportedLanguages.size} supported languages`);
   }
 
   private async loadSupportedCurrencies(): Promise<void> {
@@ -754,7 +745,6 @@ export class GlobalLocalizationSystem {
       this.supportedCurrencies.set(curr.code, curr);
     });
 
-    console.log(`💰 Loaded ${this.supportedCurrencies.size} supported currencies`);
   }
 
   private async loadLocalizedContent(): Promise<void> {
@@ -778,7 +768,6 @@ export class GlobalLocalizationSystem {
         });
       }
 
-      console.log(`📝 Loaded ${this.localizedContent.size} localized content items`);
     } catch (error) {
       console.error('Failed to load localized content:', error);
     }
@@ -828,7 +817,6 @@ export class GlobalLocalizationSystem {
       this.regionalSettings.set(region.country, region);
     });
 
-    console.log(`🏛️ Loaded ${this.regionalSettings.size} regional settings`);
   }
 
   /**
@@ -893,7 +881,6 @@ export class GlobalLocalizationSystem {
       }
     }, 30000);
 
-    console.log('🔄 Translation processor started');
   }
 
   private startExchangeRateUpdater(): void {
@@ -906,11 +893,9 @@ export class GlobalLocalizationSystem {
       }
     }, 6 * 60 * 60 * 1000);
 
-    console.log('💱 Exchange rate updater started');
   }
 
   private async updateExchangeRates(): Promise<void> {
-    console.log('💱 Updating exchange rates...');
     // In production, would fetch from financial API
     
     // Simulate rate updates with small fluctuations

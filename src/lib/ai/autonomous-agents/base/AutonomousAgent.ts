@@ -120,7 +120,6 @@ export abstract class AutonomousAgent {
    * Begins background processing and scheduled tasks
    */
   async start(): Promise<void> {
-    console.log(`🤖 Starting ${this.name} v${this.version}...`);
     
     this.isActive = true;
     
@@ -133,21 +132,18 @@ export abstract class AutonomousAgent {
     // Schedule recurring tasks
     await this.scheduleRecurringTasks();
     
-    console.log(`✅ ${this.name} is now active and autonomous!`);
   }
 
   /**
    * Stop the autonomous agent
    */
   async stop(): Promise<void> {
-    console.log(`⏹️ Stopping ${this.name}...`);
     
     this.isActive = false;
     this.taskScheduler.stop();
     
     await this.cleanup();
     
-    console.log(`✅ ${this.name} stopped safely`);
   }
 
   /**

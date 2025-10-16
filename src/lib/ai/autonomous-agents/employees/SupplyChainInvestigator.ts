@@ -65,7 +65,6 @@ export class SupplyChainInvestigator extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('🕵️ Initializing Supply Chain Investigator...');
 
     // Load supplier database
     await this.loadSupplierDatabase();
@@ -80,11 +79,9 @@ export class SupplyChainInvestigator extends AutonomousAgent {
     this.monitoringActive = true;
     this.startContinuousInvestigation();
 
-    console.log('✅ Supply Chain Investigator initialized and actively monitoring');
   }
 
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`🕵️ Supply Chain Investigator executing task: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -452,7 +449,6 @@ export class SupplyChainInvestigator extends AutonomousAgent {
   }
 
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`🕵️ Supply Chain Investigator learning from feedback: ${feedback.outcome}`);
 
     // Update investigation algorithms based on feedback
     if (feedback.outcome === 'positive') {
@@ -463,7 +459,6 @@ export class SupplyChainInvestigator extends AutonomousAgent {
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('🕵️ Supply Chain Investigator shutting down...');
     this.monitoringActive = false;
   }
 
@@ -513,11 +508,9 @@ export class SupplyChainInvestigator extends AutonomousAgent {
   }
 
   private async setupRiskMonitoring(): Promise<void> {
-    console.log('🕵️ Setting up supply chain risk monitoring');
   }
 
   private async initializeInvestigationProtocols(): Promise<void> {
-    console.log('🕵️ Initializing investigation protocols');
   }
 
   private async startContinuousInvestigation(): Promise<void> {

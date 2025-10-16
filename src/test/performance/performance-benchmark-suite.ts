@@ -214,15 +214,10 @@ export class PerformanceBenchmarkSuite {
   }
 
   async runAllBenchmarks(): Promise<PerformanceReport> {
-    console.log('🚀 Starting Performance Benchmarking Suite...\n');
-    console.log(`Running ${this.benchmarks.length} benchmarks with ${this.iterations} iterations each\n`);
 
     this.results = [];
 
     for (const benchmark of this.benchmarks) {
-      console.log(`📊 Running benchmark: ${benchmark.name}`);
-      console.log(`   Category: ${benchmark.category}`);
-      console.log(`   Target: ${benchmark.target}ms`);
 
       try {
         const result = await this.runBenchmark(benchmark);
@@ -233,8 +228,6 @@ export class PerformanceBenchmarkSuite {
                            result.performance === 'acceptable' ? '🟡' :
                            result.performance === 'poor' ? '🟠' : '🔴';
 
-        console.log(`   Result: ${result.statistics.mean.toFixed(2)}ms (${performance} ${result.performance})`);
-        console.log(`   P95: ${result.statistics.p95.toFixed(2)}ms | P99: ${result.statistics.p99.toFixed(2)}ms`);
 
       } catch (error) {
         console.error(`   ❌ Benchmark failed: ${(error as Error).message}`);
@@ -250,9 +243,7 @@ export class PerformanceBenchmarkSuite {
           environment: this.getEnvironmentInfo()
         };
         this.results.push(failedResult);
-      }
-
-      console.log(''); // Empty line for readability
+      } // Empty line for readability
     }
 
     return this.generateReport();
@@ -679,10 +670,6 @@ export class PerformanceBenchmarkSuite {
     const csvPath = path.join(outputDir, `performance-benchmark-${timestamp}.csv`);
     fs.writeFileSync(csvPath, csvReport);
 
-    console.log(`\n📄 Performance benchmark reports saved:`);
-    console.log(`   JSON: ${jsonPath}`);
-    console.log(`   HTML: ${htmlPath}`);
-    console.log(`   CSV: ${csvPath}`);
   }
 
   private generateHTMLReport(report: PerformanceReport): string {
@@ -829,19 +816,12 @@ if (require.main === module) {
   
   suite.runAllBenchmarks()
     .then(async (report) => {
-      console.log('\n📊 Performance Benchmark Summary:');
-      console.log(`Overall Score: ${report.summary.overallScore}/100`);
-      console.log(`Passed: ${report.summary.passedBenchmarks}/${report.summary.totalBenchmarks}`);
-      console.log(`Excellent: ${report.summary.excellentResults} | Good: ${report.summary.goodResults}`);
-      console.log(`Acceptable: ${report.summary.acceptableResults} | Poor: ${report.summary.poorResults} | Critical: ${report.summary.criticalResults}`);
       
       if (report.regressions.length > 0) {
-        console.log(`\n⚠️ Performance Regressions: ${report.regressions.length}`);
       }
 
       await suite.saveResults();
       
-      console.log('\n🎉 Performance benchmarking completed!');
       
       // Exit with appropriate code
       const hasFailures = report.summary.criticalResults > 0 || report.summary.poorResults > 0;

@@ -423,7 +423,6 @@ export class AdvancedPredictiveIntelligence {
    * Register a new prediction model
    */
   async registerModel(model: PredictionModel): Promise<void> {
-    console.log(`🧠 Registering predictive model: ${model.name}`);
 
     // Validate model configuration
     await this.validateModel(model);
@@ -434,7 +433,6 @@ export class AdvancedPredictiveIntelligence {
     // Initialize monitoring
     await this.monitoringService.setupModelMonitoring(model);
 
-    console.log(`✅ Model registered for ${model.domain} predictions`);
   }
 
   /**
@@ -446,7 +444,6 @@ export class AdvancedPredictiveIntelligence {
       throw new Error(`Model ${request.modelId} not found`);
     }
 
-    console.log(`🔮 Generating predictions with model: ${model.name}`);
     const startTime = Date.now();
 
     // Validate and preprocess features
@@ -501,7 +498,6 @@ export class AdvancedPredictiveIntelligence {
     // Update model monitoring
     await this.monitoringService.recordPrediction(result);
 
-    console.log(`✅ Generated ${allPredictions.length} predictions with ${confidence.overall.toFixed(2)} confidence`);
     return result;
   }
 
@@ -513,7 +509,6 @@ export class AdvancedPredictiveIntelligence {
     features: Record<string, any>,
     ensembleMethod: EnsembleMethod = 'weighted_average'
   ): Promise<EnsemblePredictionResult> {
-    console.log(`🎼 Creating ensemble prediction from ${modelIds.length} models`);
 
     // Get individual predictions
     const individualPredictions = await Promise.all(
@@ -547,7 +542,6 @@ export class AdvancedPredictiveIntelligence {
     data: TrainingData,
     objectives: OptimizationObjective[]
   ): Promise<AutoMLResult> {
-    console.log(`🤖 Starting AutoML optimization for ${domain} domain`);
 
     return this.autoML.optimize(domain, data, objectives);
   }
@@ -556,7 +550,6 @@ export class AdvancedPredictiveIntelligence {
    * Batch prediction for multiple requests
    */
   async batchPredict(requests: PredictionRequest[]): Promise<PredictionResult[]> {
-    console.log(`📦 Processing batch of ${requests.length} prediction requests`);
 
     // Group by model for efficiency
     const requestsByModel = this.groupRequestsByModel(requests);
@@ -587,7 +580,6 @@ export class AdvancedPredictiveIntelligence {
       throw new Error(`Model ${modelId} not found`);
     }
 
-    console.log(`📡 Starting prediction stream for model: ${model.name}`);
 
     const stream = new PredictionStream(model, streamConfig, callback);
     await stream.start();
@@ -620,7 +612,6 @@ export class AdvancedPredictiveIntelligence {
       throw new Error(`Model ${modelId} not found`);
     }
 
-    console.log(`🔄 Retraining model: ${model.name}`);
 
     const trainer = new ModelTrainer();
     const result = await trainer.retrain(model, newData, incrementalLearning);
@@ -631,7 +622,6 @@ export class AdvancedPredictiveIntelligence {
       model.metadata.lastTrained = new Date();
       model.metadata.version = result.newVersion;
 
-      console.log(`✅ Model retrained successfully. New version: ${result.newVersion}`);
     }
 
     return result;
@@ -652,7 +642,6 @@ export class AdvancedPredictiveIntelligence {
       throw new Error('Both models must exist for A/B testing');
     }
 
-    console.log(`🧪 Starting A/B test: ${modelA.name} vs ${modelB.name}`);
 
     const abTest = new ABTestManager(modelA, modelB, testConfig);
     await abTest.start();
@@ -668,7 +657,6 @@ export class AdvancedPredictiveIntelligence {
       ? Array.from(this.models.values()).filter(m => m.domain === domain)
       : Array.from(this.models.values());
 
-    console.log(`📊 Analyzing feature importance across ${relevantModels.length} models`);
 
     const analysis: FeatureImportanceAnalysis = {
       globalImportance: await this.calculateGlobalFeatureImportance(relevantModels),
@@ -689,7 +677,6 @@ export class AdvancedPredictiveIntelligence {
       throw new Error(`Model ${modelId} not found`);
     }
 
-    console.log(`📋 Generating interpretability report for: ${model.name}`);
 
     return {
       modelId,
@@ -704,7 +691,6 @@ export class AdvancedPredictiveIntelligence {
 
   // Private helper methods
   private initializeEngine(): void {
-    console.log('🚀 Initializing Advanced Predictive Intelligence Engine');
 
     // Set up monitoring intervals
     setInterval(() => this.performHealthChecks(), 300000); // 5 minutes
@@ -1117,7 +1103,6 @@ class ABTestManager {
   constructor(private modelA: PredictionModel, private modelB: PredictionModel, private config: ABTestConfig) {}
 
   async start(): Promise<void> {
-    console.log('A/B test started');
   }
 }
 
@@ -1129,6 +1114,5 @@ class PredictionStream {
   ) {}
 
   async start(): Promise<void> {
-    console.log('Prediction stream started');
   }
 }

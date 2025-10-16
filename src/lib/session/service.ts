@@ -117,7 +117,6 @@ export class SessionService {
 
         // Test connection
         await this.redis.ping();
-        console.log('✅ Upstash Redis session store connected');
         return;
       }
 
@@ -138,7 +137,6 @@ export class SessionService {
           commandTimeout: 5000,
           retryStrategy: (times) => {
             if (process.env.NODE_ENV !== 'production' && times > 5) {
-              console.log('Redis not available after 5 attempts, using in-memory sessions');
               return null;
             }
             if (times > 10) {
@@ -157,12 +155,10 @@ export class SessionService {
             setTimeout(() => reject(new Error('Redis connection timeout')), 5000)
           )
         ]);
-        console.log('✅ ioredis session store connected');
         return;
       }
 
       // No Redis configured, use in-memory
-      console.log('ℹ️ No Redis configured, using in-memory sessions');
     } catch (error) {
       console.error('Failed to connect to Redis, falling back to in-memory sessions:', error);
       this.redis = null;
@@ -199,8 +195,9 @@ export class SessionService {
         const data = await this.redis.get(sessionId);
         if (!data) return null;
 
-        const session: SessionData = JSON.parse(data);
-        
+        // Upstash Redis auto-deserializes JSON, so data might already be an object
+        const session: SessionData = typeof data === 'string' ? JSON.parse(data) : data;
+
         // Check expiration
         if (new Date(session.expiresAt) < new Date()) {
           await this.deleteSession(sessionId);
@@ -272,7 +269,7 @@ export class SessionService {
       for (const key of keys) {
         const data = await this.redis.get(key);
         if (data) {
-          const session: SessionData = JSON.parse(data);
+          const session: SessionData = typeof data === 'string' ? JSON.parse(data) : data;
           if (session.userId === userId) {
             await this.redis.del(key);
             deletedCount++;
@@ -303,7 +300,7 @@ export class SessionService {
       for (const key of keys) {
         const data = await this.redis.get(key);
         if (data) {
-          const session: SessionData = JSON.parse(data);
+          const session: SessionData = typeof data === 'string' ? JSON.parse(data) : data;
           if (session.userId === userId && new Date(session.expiresAt) > new Date()) {
             sessions.push({
               ...session,
@@ -396,7 +393,7 @@ export class SessionService {
         totalSessions++;
         const data = await this.redis.get(key);
         if (data) {
-          const session: SessionData = JSON.parse(data);
+          const session: SessionData = typeof data === 'string' ? JSON.parse(data) : data;
           if (new Date(session.expiresAt) > new Date()) {
             activeSessions++;
             uniqueUsers.add(session.userId);
@@ -431,7 +428,7 @@ export class SessionService {
       for (const key of keys) {
         const data = await this.redis.get(key);
         if (data) {
-          const session: SessionData = JSON.parse(data);
+          const session: SessionData = typeof data === 'string' ? JSON.parse(data) : data;
           if (new Date(session.expiresAt) < new Date()) {
             await this.redis.del(key);
             cleanedCount++;
@@ -471,14 +468,8 @@ export class SessionService {
   private inMemorySessions: Map<string, SessionData>;
 
   private getInMemorySession(sessionId: string): SessionData | null {
-    console.log('🔍 Getting in-memory session:', {
-      sessionId,
-      totalSessions: this.inMemorySessions.size,
-      sessionKeys: Array.from(this.inMemorySessions.keys())
-    });
     const session = this.inMemorySessions.get(sessionId);
     if (!session) {
-      console.log('❌ Session not found in memory store');
       return null;
     }
 
@@ -496,13 +487,7 @@ export class SessionService {
   }
 
   private setInMemorySession(sessionId: string, data: SessionData): void {
-    console.log('💾 Setting in-memory session:', {
-      sessionId,
-      userId: data.userId,
-      totalSessionsBefore: this.inMemorySessions.size
-    });
     this.inMemorySessions.set(sessionId, data);
-    console.log('✅ Session stored, total sessions now:', this.inMemorySessions.size);
     
     // Schedule cleanup
     setTimeout(() => {

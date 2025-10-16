@@ -154,7 +154,6 @@ export async function POST(request: NextRequest) {
           // The modified Supabase URL that will redirect to our callback
           const confirmationUrl = url.toString();
 
-          console.log('Invitation link generated:', confirmationUrl);
 
           // Send our custom invitation email
           await sendInvitationEmailViaGmail({
@@ -167,7 +166,6 @@ export async function POST(request: NextRequest) {
             language: userLanguage as 'en' | 'es' | 'pt'
           });
 
-          console.log(`Custom invitation email sent to ${email} in ${userLanguage}`);
         }
       } catch (emailError) {
         console.error('Error sending custom invitation email:', emailError);
@@ -342,8 +340,6 @@ export async function PUT(request: NextRequest) {
       site_ids: access_level === 'site' ? siteIdsArray : []
     };
 
-    console.log('Updating user with data:', updateData);
-    console.log('User ID:', id);
 
     const { data: updatedUser, error: updateError } = await supabaseAdmin
       .from('app_users')
@@ -378,9 +374,7 @@ export async function PUT(request: NextRequest) {
         if (authUpdateError) {
           console.error('Error updating auth user metadata:', authUpdateError);
           // Don't fail the whole operation if metadata update fails
-          console.log('Warning: Could not update auth user metadata, but app_user was updated successfully');
         } else {
-          console.log(`Successfully updated both app_user and auth metadata for user ${id}`);
         }
       } catch (authError) {
         console.error('Failed to update auth user:', authError);
@@ -465,9 +459,7 @@ export async function DELETE(request: NextRequest) {
         console.error('Error deleting auth user:', authDeleteError);
         // Don't fail the whole operation if auth deletion fails
         // The app_user is already deleted
-        console.log('Warning: Could not delete auth user, but app_user was deleted successfully');
       } else {
-        console.log(`Successfully deleted both app_user and auth user for ${userId}`);
       }
     }
 

@@ -114,7 +114,6 @@ export class NetworkIntelligenceService {
         .single();
 
       if (nodeError || !orgNode) {
-        console.log('Organization not found in network');
         return undefined;
       }
 

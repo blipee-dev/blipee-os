@@ -12,7 +12,6 @@ export function AuthRedirectHandler() {
 
     if (hash && hash.includes('access_token')) {
       // We have auth tokens, redirect to callback to handle them
-      console.log('Auth tokens detected, redirecting to callback...');
 
       // Redirect to auth callback with the hash
       router.push(`/auth/callback${hash}`);

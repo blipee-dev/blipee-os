@@ -622,13 +622,6 @@ export class SelfImprovementEngine extends AutonomousAgent {
     await this.metaLearningSystem.initialize();
     await this.performanceAnalyzer.initialize();
     await this.adaptationController.initialize();
-
-    console.log('self_improvement_engine_initialized', {
-      learning_loops_active: this.learningLoops.size,
-      capability_acquisitions: this.capabilityAcquisitions.size,
-      meta_learning_enabled: true,
-      self_modification_enabled: true
-    });
   }
 
   async getScheduledTasks(): Promise<AgentTask[]> {

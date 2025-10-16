@@ -380,7 +380,6 @@ export class MLAgentIntegration extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('🤖 Initializing ML-Agent Integration...');
 
     try {
       // Initialize all ML components
@@ -408,7 +407,6 @@ export class MLAgentIntegration extends EventEmitter {
       this.isInitialized = true;
       this.emit('initialized');
 
-      console.log('✅ ML-Agent Integration initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize ML-Agent Integration:', error);
       throw error;
@@ -424,7 +422,6 @@ export class MLAgentIntegration extends EventEmitter {
     const startTime = Date.now();
     const traceId = `trace_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    console.log(`🔄 Processing agent request: ${request.id} from ${request.agentId}`);
 
     try {
       // Store active request
@@ -523,7 +520,6 @@ export class MLAgentIntegration extends EventEmitter {
     recommendations: string[];
     predictedTrends: any;
   }> {
-    console.log('🔍 Enhancing Carbon Hunter with ML anomaly detection...');
 
     // Detect anomalies in real-time data using analytics engine
     const analyticsEngine = this.analyticsEngines.get('default');
@@ -587,7 +583,6 @@ export class MLAgentIntegration extends EventEmitter {
     recommendedActions: string[];
     regulatoryTrends: any[];
   }> {
-    console.log('🛡️ Enhancing Compliance Guardian with ML predictions...');
 
     // Assess compliance risk for each regulation
     const complianceRisk: Record<string, number> = {};
@@ -638,7 +633,6 @@ export class MLAgentIntegration extends EventEmitter {
     riskMitigationPlan: any[];
     supplyChainAnomalies: any[];
   }> {
-    console.log('🕵️ Enhancing Supply Chain Investigator with ML analysis...');
 
     // Assess individual supplier risks
     const supplierRiskAssessment: Record<string, number> = {};
@@ -709,7 +703,6 @@ export class MLAgentIntegration extends EventEmitter {
     optimizationOpportunities: any[];
     riskFactors: any[];
   }> {
-    console.log('🧠 Generating ML-enhanced insights for all agents...');
 
     // Calculate overall health score
     const overallHealthScore = await this.calculateHealthScore(
@@ -1180,7 +1173,6 @@ export class MLAgentIntegration extends EventEmitter {
     this.agents.set(agent.id, agent);
     this.performanceMetrics.set(agent.id, agent.performance);
 
-    console.log(`✅ Registered agent: ${agent.name} (${agent.id})`);
     this.emit('agent_registered', agent);
   }
 
@@ -1191,7 +1183,6 @@ export class MLAgentIntegration extends EventEmitter {
     this.performanceMetrics.delete(agentId);
     this.learningData.delete(agentId);
 
-    console.log(`🗑️ Unregistered agent: ${agentId}`);
     this.emit('agent_unregistered', { agentId });
   }
 
@@ -1634,7 +1625,6 @@ export async function createMLAgentIntegration(
   modelServingManager: ModelServingManager,
   abTestingFramework: ABTestingFramework
 ): Promise<MLAgentIntegration> {
-  console.log('🤖 Creating ML-Agent Integration...');
 
   const integration = new MLAgentIntegration(
     mlPipeline,
@@ -1647,7 +1637,6 @@ export async function createMLAgentIntegration(
 
   await integration.initialize();
 
-  console.log('✅ ML-Agent integration created and initialized');
 
   return integration;
 }
@@ -1657,7 +1646,6 @@ export async function integrateMLWithAgents(
   mlPipeline: EnhancedMLPipeline,
   agents: AutonomousAgent[]
 ): Promise<MLAgentIntegration> {
-  console.log('🤖 Integrating ML Pipeline with Autonomous Agents...');
 
   // Create placeholder instances for backwards compatibility
   const predConfig = {
@@ -1722,7 +1710,6 @@ export async function integrateMLWithAgents(
     await integration.registerAgent(agent);
   }
 
-  console.log(`✅ ML integration ready for ${agents.length} autonomous agents`);
 
   return integration;
 }

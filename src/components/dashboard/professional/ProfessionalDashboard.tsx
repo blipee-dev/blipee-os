@@ -144,7 +144,6 @@ export const ProfessionalDashboard: React.FC = () => {
   };
 
   const handleExport = () => {
-    console.log('Exporting dashboard...');
   };
 
   if (!data) {

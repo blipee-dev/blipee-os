@@ -7,11 +7,9 @@ import { FullConfig } from '@playwright/test';
 import { execSync } from 'child_process';
 
 async function globalSetup(config: FullConfig) {
-  console.log('\n🚀 Starting E2E Test Environment Setup...\n');
 
   try {
     // 1. Environment validation
-    console.log('1️⃣ Validating test environment...');
     
     const requiredEnvVars = [
       'NEXT_PUBLIC_SUPABASE_URL',
@@ -25,39 +23,31 @@ async function globalSetup(config: FullConfig) {
       }
     }
 
-    console.log('✅ Environment variables validated');
 
     // 2. Database setup
-    console.log('\n2️⃣ Setting up test database...');
     
     try {
       // Run database migrations for test environment
       execSync('npm run db:migrate:test', { stdio: 'inherit' });
-      console.log('✅ Database migrations completed');
     } catch (error) {
       console.warn('⚠️ Database migration failed, continuing...', error);
     }
 
     // 3. Create test data
-    console.log('\n3️⃣ Creating test data...');
     
     await createTestUsers();
     await createTestOrganizations();
     await seedTestData();
     
-    console.log('✅ Test data created');
 
     // 4. Start test services
-    console.log('\n4️⃣ Starting test services...');
     
     // Start mock services if needed
     if (process.env.USE_MOCK_SERVICES === 'true') {
       await startMockServices();
-      console.log('✅ Mock services started');
     }
 
     // 5. Verify application is running
-    console.log('\n5️⃣ Verifying application health...');
     
     const baseURL = config.projects[0]?.use?.baseURL || 'http://localhost:3000';
     const maxRetries = 30;
@@ -67,13 +57,11 @@ async function globalSetup(config: FullConfig) {
       try {
         const response = await fetch(`${baseURL}/health`);
         if (response.ok) {
-          console.log('✅ Application is healthy and ready');
           break;
         }
         throw new Error(`Health check failed: ${response.status}`);
       } catch (error) {
         retries++;
-        console.log(`⏳ Waiting for application... (${retries}/${maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         if (retries === maxRetries) {
@@ -82,7 +70,6 @@ async function globalSetup(config: FullConfig) {
       }
     }
 
-    console.log('\n🎉 E2E Test Environment Setup Complete!\n');
 
   } catch (error) {
     console.error('\n❌ E2E Test Setup Failed:', error);
@@ -139,9 +126,7 @@ async function createTestUsers() {
       });
 
       if (response.ok) {
-        console.log(`✅ Created test user: ${user.email}`);
       } else {
-        console.log(`ℹ️ User may already exist: ${user.email}`);
       }
     } catch (error) {
       console.warn(`⚠️ Failed to create user ${user.email}:`, error);
@@ -179,9 +164,7 @@ async function createTestOrganizations() {
       });
 
       if (response.ok) {
-        console.log(`✅ Created test organization: ${org.name}`);
       } else {
-        console.log(`ℹ️ Organization may already exist: ${org.name}`);
       }
     } catch (error) {
       console.warn(`⚠️ Failed to create organization ${org.name}:`, error);
@@ -225,7 +208,6 @@ async function seedTestData() {
       });
 
       if (response.ok) {
-        console.log(`✅ Created sample emission: ${emission.category}`);
       }
     } catch (error) {
       console.warn(`⚠️ Failed to create emission data:`, error);
@@ -235,9 +217,6 @@ async function seedTestData() {
 
 async function startMockServices() {
   // Start mock external services if needed
-  console.log('Starting mock AI services...');
-  console.log('Starting mock utility APIs...');
-  console.log('Starting mock compliance services...');
 }
 
 export default globalSetup;

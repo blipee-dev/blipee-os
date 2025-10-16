@@ -162,7 +162,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`Looking up organization: ${organizationName}`);
 
     // Get company information
     const responseText = await getCompanyInfo(organizationName);
@@ -222,7 +221,6 @@ export async function POST(request: NextRequest) {
       slug: organizationName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 8)
     };
 
-    console.log('Returning organization data:', finalData);
 
     return NextResponse.json(finalData);
     

@@ -308,7 +308,6 @@ export class EmissionsForecastingModel extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('🔮 Initializing Emissions Forecasting Model...');
 
     // Initialize ensemble models
     await this.initializeEnsembleModels();
@@ -317,13 +316,11 @@ export class EmissionsForecastingModel extends EventEmitter {
     await this.featureEngineering.initialize();
 
     this.isInitialized = true;
-    console.log('✅ Emissions Forecasting Model initialized');
   }
 
   async forecast(input: EmissionsForecastInput): Promise<EmissionsForecastOutput> {
     this.ensureInitialized();
 
-    console.log(`📊 Generating emissions forecast for ${input.forecastHorizon} periods`);
 
     // Preprocess and engineer features
     const processedData = await this.featureEngineering.process(input.historicalData);
@@ -726,7 +723,6 @@ export class ComplianceRiskModel extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('⚖️ Initializing Compliance Risk Model...');
 
     // Load regulatory frameworks
     await this.loadRegulatoryFrameworks();
@@ -734,11 +730,9 @@ export class ComplianceRiskModel extends EventEmitter {
     // Initialize risk assessment models
     await this.initializeRiskModels();
 
-    console.log('✅ Compliance Risk Model initialized');
   }
 
   async assessRisk(input: ComplianceRiskInput): Promise<ComplianceRiskOutput> {
-    console.log('🔍 Assessing compliance risk...');
 
     // Assess overall risk
     const overallRisk = await this.assessOverallRisk(input);
@@ -1080,7 +1074,6 @@ class FeatureEngineeringPipeline {
   constructor(private config: FeatureConfig) {}
 
   async initialize(): Promise<void> {
-    console.log('🔧 Initializing Feature Engineering Pipeline...');
   }
 
   async process(data: EmissionsTimeSeries[]): Promise<any> {

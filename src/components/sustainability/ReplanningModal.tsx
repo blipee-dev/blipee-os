@@ -140,7 +140,6 @@ export default function ReplanningModal({
 
       if (response.ok && result.success) {
         setFeasibilityData(result.feasibility);
-        console.log('📊 Feasibility data loaded:', result.feasibility);
       } else {
         console.error('Failed to fetch feasibility:', result.error);
       }
@@ -226,12 +225,10 @@ export default function ReplanningModal({
         throw new Error(result.error || 'Failed to apply replanning');
       }
 
-      console.log('✅ Replanning applied successfully, result:', result.data);
 
       // Show success step with results
       setAppliedResult(result.data);
       setStep('success');
-      console.log('🎯 Set step to success, appliedResult:', result.data);
       // Don't call onReplanComplete() here - let user see results first
 
     } catch (err: any) {

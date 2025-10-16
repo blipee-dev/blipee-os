@@ -600,7 +600,6 @@ export class PricingStrategySystem extends EventEmitter {
       }
     });
 
-    console.log('💰 Pricing plans initialized with value-based strategy');
   }
 
   private setupDynamicPricing(): void {
@@ -609,7 +608,6 @@ export class PricingStrategySystem extends EventEmitter {
       this.optimizer.optimizePricing(this.plans);
     }, 24 * 60 * 60 * 1000); // Daily optimization
 
-    console.log('📊 Dynamic pricing engine activated');
   }
 
   public calculatePrice(
@@ -822,7 +820,6 @@ class PricingOptimizer {
       );
     });
 
-    console.log('💹 Pricing optimized based on market conditions');
   }
 }
 

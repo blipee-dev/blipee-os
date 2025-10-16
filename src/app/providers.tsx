@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AppearanceProvider } from "@/providers/AppearanceProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { ReactQueryProvider } from "@/providers/ReactQueryProvider";
 import { clearMalformedSupabaseCookies } from "@/lib/supabase/clear-cookies";
 import { AuthTokenHandler } from "@/components/auth/AuthTokenHandler";
 
@@ -24,18 +25,20 @@ function ModuleSystemInitializer() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <AppearanceProvider>
-            <SettingsProvider>
-              <ModuleSystemInitializer />
-              <AuthTokenHandler />
-              {children}
-            </SettingsProvider>
-          </AppearanceProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </LanguageProvider>
+    <ReactQueryProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <AppearanceProvider>
+              <SettingsProvider>
+                <ModuleSystemInitializer />
+                <AuthTokenHandler />
+                {children}
+              </SettingsProvider>
+            </AppearanceProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </LanguageProvider>
+    </ReactQueryProvider>
   );
 }

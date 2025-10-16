@@ -299,7 +299,6 @@ export function MetricTargetsCard({
           organizationId={organizationId}
           metricTarget={metricTargets.find(mt => mt.id === selectedMetricForInitiative)}
           onSave={async (initiative) => {
-            console.log('Saving initiative:', initiative);
             // TODO: Implement initiative saving logic
             setSelectedMetricForInitiative(null);
           }}

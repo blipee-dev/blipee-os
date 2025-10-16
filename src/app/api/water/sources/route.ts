@@ -129,12 +129,12 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const siteId = searchParams.get('site_id');
 
-    // Get water metrics from metrics_catalog
+    // Get water metrics from metrics_catalog - OPTIMIZED: only fetch needed fields
     // Water metrics are in "Purchased Goods & Services" category with "Water" subcategory
     // Also include wastewater treatment from Process Emissions
     const { data: waterMetrics, error: metricsError } = await supabaseAdmin
       .from('metrics_catalog')
-      .select('*')
+      .select('id, code, name, unit, consumption_rate')
       .or('subcategory.eq.Water,code.ilike.%water%');
 
     if (metricsError) {
@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
     while (hasMore) {
       let query = supabaseAdmin
         .from('metrics_data')
-        .select('*')
+        .select('metric_id, value, period_start, unit')
         .eq('organization_id', organizationId)
         .in('metric_id', metricIds)
         .range(from, from + pageSize - 1);
@@ -294,8 +294,8 @@ export async function GET(request: NextRequest) {
         totalWithdrawal += value;
       }
 
-      // Add cost if available
-      sourcesByType[sourceInfo.type].cost += parseFloat(record.cost) || 0;
+      // Cost tracking removed - cost column does not exist in metrics_data
+      // Future: Add cost tracking when column is added to schema
     });
 
     const sources = Object.values(sourcesByType);
@@ -403,11 +403,6 @@ export async function GET(request: NextRequest) {
 
     // Water intensity = consumption per employee (m³/employee)
     const waterIntensity = totalEmployees > 0 ? totalConsumption / totalEmployees : 0;
-
-    console.log('💧 Water Intensity Calculation:');
-    console.log('  Total Consumption:', totalConsumption, 'm³');
-    console.log('  Total Employees:', totalEmployees);
-    console.log('  Water Intensity:', waterIntensity, 'm³/employee');
 
     // Calculate end-use breakdown for consumption visualization
     const endUseBreakdown = sources

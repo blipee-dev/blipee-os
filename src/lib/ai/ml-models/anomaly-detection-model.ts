@@ -45,7 +45,6 @@ export class AnomalyDetectionModel {
   private reconstructionThreshold = 0.1;
 
   constructor() {
-    console.log('🔍 Initializing Anomaly Detection Model...');
   }
 
   /**
@@ -56,7 +55,6 @@ export class AnomalyDetectionModel {
       throw new Error('Model is already training');
     }
 
-    console.log('🏃 Training Anomaly Detection Model with real data...');
     this.isTraining = true;
 
     try {
@@ -80,7 +78,6 @@ export class AnomalyDetectionModel {
       // Set threshold based on training reconstruction error
       this.reconstructionThreshold = (metrics.mae || 0.1) * 2; // 2x training MAE
 
-      console.log(`✅ Anomaly model trained - Threshold: ${this.reconstructionThreshold.toFixed(4)}`);
 
     } finally {
       this.isTraining = false;
@@ -91,7 +88,6 @@ export class AnomalyDetectionModel {
    * Detect anomalies in real-time
    */
   async detect(input: AnomalyDetectionInput): Promise<AnomalyDetectionResult> {
-    console.log('🔍 Detecting anomalies in time series...');
 
     // Prepare features from time series
     const features = this.extractTimeSeriesFeatures(input);

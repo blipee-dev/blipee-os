@@ -391,7 +391,6 @@ export class TenantManager {
       });
     });
 
-    console.log('🏢 Default tenants initialized:', defaultTenants.length);
   }
 
   /**
@@ -513,7 +512,6 @@ export class TenantManager {
       retentionDays: type === 'enterprise' ? 30 : 7
     });
 
-    console.log(`🏢 New tenant created: ${name} (${tenantId})`);
 
     return tenant;
   }
@@ -833,7 +831,6 @@ export class TenantManager {
 
     this.tenants.set(tenantId, tenant);
 
-    console.log(`🏢 Tenant ${tenant.name} status updated to: ${status}${reason ? ` (${reason})` : ''}`);
   }
 }
 

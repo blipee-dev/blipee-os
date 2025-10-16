@@ -66,7 +66,6 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
     const body = (request as any).parsedBody || await request.json();
 
     // Debug: Log the incoming request body
-    console.log('AI Chat API - Incoming request body:', JSON.stringify(body, null, 2));
 
     // Body is already validated by middleware, so we can safely destructure
     const { message, conversationId, buildingContext, attachments } = body;
@@ -89,7 +88,6 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
     // Check if AI agents are initialized
     const workforceStatus = await getAIWorkforceStatus();
     if (!workforceStatus.operational) {
-      console.log('🤖 AI Workforce not initialized, starting agents...');
       await initializeAutonomousAgents(organizationId);
     }
 
@@ -155,7 +153,6 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
     // ===================================================================
     // PRIMARY: Use Conversation Intelligence Orchestrator with Agent Insights
     // ===================================================================
-    console.log('🤖 Processing with Conversation Intelligence Orchestrator + AI Agents...');
 
     try {
       const intelligenceResult = await conversationalIntelligenceOrchestrator.processConversation(
@@ -215,10 +212,6 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
         }
       };
 
-      console.log('✅ Conversation Intelligence processing completed successfully');
-      console.log(`📊 Quality Score: ${intelligenceResult.qualityScores.overall.toFixed(2)}`);
-      console.log(`🎯 Personalization Score: ${intelligenceResult.personalizedResponse.personalizationScore.toFixed(2)}`);
-      console.log(`⚡ Processing Time: ${intelligenceResult.processingTime}ms`);
 
       return NextResponse.json(response);
 
@@ -226,7 +219,6 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
       console.error('❌ Conversation Intelligence Error:', intelligenceError);
 
       // Fallback to legacy processing with enhanced error handling
-      console.log('🔄 Falling back to legacy processing...');
 
       return await handleLegacyProcessing(
         user,
@@ -374,7 +366,6 @@ async function handleLegacyProcessing(
     const dbIntel = createDatabaseIntelligence(supabase);
 
     // Simplified legacy processing - basic AI response without full intelligence
-    console.log('🔄 Using simplified legacy processing...');
 
     // Get basic organization context
     let emissionsSummary = null;
@@ -455,7 +446,6 @@ ${attachments?.length ? `User has attached ${attachments.length} file(s)` : ''}`
       }
     };
 
-    console.log('✅ Legacy processing completed');
     return NextResponse.json(response);
 
   } catch (legacyError) {

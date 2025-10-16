@@ -3,7 +3,6 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getPeriodEmissions } from '@/lib/sustainability/baseline-calculator';
 
 export async function GET(request: NextRequest) {
-  console.log('🔍 Data Comparison: Starting analysis');
   
   try {
     const supabase = await createServerSupabaseClient();
@@ -79,8 +78,6 @@ export async function GET(request: NextRequest) {
       throw dataError;
     }
 
-    console.log(`🔍 Data Comparison: Found ${rawData?.length || 0} total records for ${year}`);
-    console.log('✅ Using calculator for data-comparison emissions calculation');
 
     // Group data by month
     const monthlyComparison: any = {};

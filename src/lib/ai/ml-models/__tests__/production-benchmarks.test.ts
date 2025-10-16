@@ -14,16 +14,13 @@ describe('Production Benchmarking Suite', () => {
 
   describe('Benchmark Framework', () => {
     it('should initialize benchmark suite correctly', () => {
-      console.log('🧪 Testing benchmark suite initialization...');
       
       expect(benchmarkSuite).toBeDefined();
       expect(benchmarkSuite).toBeInstanceOf(ProductionBenchmarkSuite);
       
-      console.log('   ✅ Benchmark suite initialized successfully');
     });
 
     it('should generate comprehensive benchmark report', async () => {
-      console.log('🧪 Testing benchmark report generation...');
       
       // Create mock benchmark results
       const mockSuite = {
@@ -73,13 +70,11 @@ describe('Production Benchmarking Suite', () => {
       expect(report).toContain('Test 2');
       expect(report).toContain('Fix error handling');
       
-      console.log('   ✅ Benchmark report generated successfully');
     });
   });
 
   describe('Sample Benchmark Tests', () => {
     it('should run performance benchmark subset', async () => {
-      console.log('🧪 Testing performance benchmark subset...');
       
       // Note: We run a limited subset for testing to avoid long test times
       const startTime = Date.now();
@@ -103,12 +98,9 @@ describe('Production Benchmarking Suite', () => {
       expect(testResult.metrics.latency).toBeLessThan(100);
       expect(duration).toBeLessThan(1000); // Should complete quickly
       
-      console.log(`   ✅ Performance test completed in ${duration}ms`);
-      console.log(`   📊 Simulated latency: ${testResult.metrics.latency}ms`);
     }, 10000);
 
     it('should validate benchmark result structure', async () => {
-      console.log('🧪 Testing benchmark result structure validation...');
       
       // Create a mock benchmark result
       const mockResult = {
@@ -151,13 +143,9 @@ describe('Production Benchmarking Suite', () => {
       expect(mockResult.metrics.latency).toBeGreaterThan(0);
       expect(mockResult.metrics.throughput).toBeGreaterThan(0);
       
-      console.log('   ✅ Benchmark result structure is valid');
-      console.log(`   📊 Accuracy: ${(mockResult.metrics.accuracy * 100).toFixed(1)}%`);
-      console.log(`   ⏱️ Latency: ${mockResult.metrics.latency}ms`);
     });
 
     it('should calculate benchmark scores correctly', async () => {
-      console.log('🧪 Testing benchmark score calculation...');
       
       // Mock test results for scoring
       const mockResults = [
@@ -178,11 +166,9 @@ describe('Production Benchmarking Suite', () => {
       expect(failedTests).toBe(1);
       expect(overallScore).toBe(80);
       
-      console.log(`   ✅ Score calculation: ${passedTests}/${totalTests} = ${overallScore}%`);
     });
 
     it('should handle benchmark errors gracefully', async () => {
-      console.log('🧪 Testing benchmark error handling...');
       
       // Simulate a benchmark test that throws an error
       const testFunction = async () => {
@@ -216,14 +202,11 @@ describe('Production Benchmarking Suite', () => {
       expect(errorResult.details.error).toBeDefined();
       expect(errorResult.recommendations.length).toBeGreaterThan(0);
       
-      console.log('   ✅ Error handling working correctly');
-      console.log(`   ❌ Captured error: ${resultError}`);
     });
   });
 
   describe('Benchmark Categories', () => {
     it('should validate performance benchmark criteria', () => {
-      console.log('🧪 Testing performance benchmark criteria...');
       
       const performanceCriteria = {
         maxLatency: 200,         // milliseconds
@@ -250,12 +233,10 @@ describe('Production Benchmarking Suite', () => {
 
         expect(passes).toBe(scenario.shouldPass);
         
-        console.log(`   ${passes ? '✅' : '❌'} Scenario ${index + 1}: ${passes ? 'PASS' : 'FAIL'}`);
       }
     });
 
     it('should validate reliability benchmark criteria', () => {
-      console.log('🧪 Testing reliability benchmark criteria...');
       
       const reliabilityCriteria = {
         maxErrorRate: 0.05,      // 5%
@@ -281,13 +262,9 @@ describe('Production Benchmarking Suite', () => {
       expect(reliabilityMetrics.errorRate).toBeLessThan(reliabilityCriteria.maxErrorRate);
       expect(reliabilityMetrics.recoveryRate).toBeGreaterThan(reliabilityCriteria.minRecoveryRate);
       
-      console.log('   ✅ Reliability criteria validation passed');
-      console.log(`   📊 Error rate: ${(reliabilityMetrics.errorRate * 100).toFixed(1)}%`);
-      console.log(`   🔄 Recovery rate: ${(reliabilityMetrics.recoveryRate * 100).toFixed(1)}%`);
     });
 
     it('should validate scalability benchmark criteria', () => {
-      console.log('🧪 Testing scalability benchmark criteria...');
       
       const scalabilityCriteria = {
         maxResponseTimeIncrease: 2.0,  // 2x maximum
@@ -317,16 +294,11 @@ describe('Production Benchmarking Suite', () => {
       expect(responseTimeIncrease).toBeLessThanOrEqual(scalabilityCriteria.maxResponseTimeIncrease);
       expect(loadTestResults.concurrentUsers).toBeGreaterThanOrEqual(scalabilityCriteria.minConcurrentUsers);
       
-      console.log('   ✅ Scalability criteria validation passed');
-      console.log(`   📈 Response time increase: ${responseTimeIncrease.toFixed(1)}x`);
-      console.log(`   👥 Concurrent users: ${loadTestResults.concurrentUsers}`);
-      console.log(`   ⚡ Scaling efficiency: ${(loadTestResults.throughputScaling * 100).toFixed(1)}%`);
     });
   });
 
   describe('Production Readiness Assessment', () => {
     it('should assess production readiness correctly', () => {
-      console.log('🧪 Testing production readiness assessment...');
       
       // Test scenarios with different readiness levels
       const scenarios = [
@@ -361,12 +333,10 @@ describe('Production Benchmarking Suite', () => {
         
         expect(isReady).toBe(scenario.expected);
         
-        console.log(`   ${isReady ? '✅' : '❌'} ${scenario.name}: Score ${scenario.score}%, Issues: ${scenario.criticalIssues.length}`);
       }
     });
 
     it('should generate appropriate recommendations', () => {
-      console.log('🧪 Testing recommendation generation...');
       
       const testResults = [
         {
@@ -408,9 +378,7 @@ describe('Production Benchmarking Suite', () => {
       expect(performanceRecommendations.length).toBeGreaterThan(0);
       expect(reliabilityRecommendations.length).toBeGreaterThan(0);
       
-      console.log('   ✅ Recommendations generated appropriately');
-      console.log(`   💡 Total recommendations: ${allRecommendations.length}`);
-      allRecommendations.forEach(rec => console.log(`   💡 - ${rec}`));
+      allRecommendations.forEach(rec =>);
     });
   });
 

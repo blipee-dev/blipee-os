@@ -313,7 +313,6 @@ export class PerformanceMonitor extends EventEmitter {
       }, 600000); // Every 10 minutes
     }
 
-    console.log('Performance monitoring started');
   }
 
   /**

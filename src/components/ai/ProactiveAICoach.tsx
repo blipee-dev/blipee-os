@@ -156,7 +156,6 @@ export function ProactiveAICoach({
   };
 
   const handleAction = (action: string) => {
-    console.log('Coach action:', action);
     onInteraction?.(action);
 
     // Handle specific actions
@@ -233,13 +232,11 @@ export function ProactiveAICoach({
 
   const viewMonthlyAnalysis = () => {
     // This would navigate to the analysis page
-    console.log('Navigating to monthly analysis...');
   };
 
   const handleQuickReply = () => {
     if (!quickReply.trim()) return;
 
-    console.log('User message:', quickReply);
     onInteraction?.(`chat: ${quickReply}`);
 
     setQuickReply('');

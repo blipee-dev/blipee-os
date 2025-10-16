@@ -97,7 +97,6 @@ export class ApprovalWorkflow {
    * Request approval for an agent decision
    */
   async requestApproval(request: Omit<ApprovalRequest, 'id' | 'requestedAt'>): Promise<ApprovalDecision> {
-    console.log(`🤝 Requesting approval for ${request.agentName} decision`);
     
     const approvalRequest: ApprovalRequest = {
       ...request,
@@ -129,7 +128,6 @@ export class ApprovalWorkflow {
       // 5. Wait for approval or timeout (in real implementation, this would be event-driven)
       const decision = await this.waitForApproval(approvalRequest.id, timeoutHours);
       
-      console.log(`✅ Approval ${decision.approved ? 'granted' : 'denied'} for ${request.agentName}`);
       
       return decision;
       
@@ -156,7 +154,6 @@ export class ApprovalWorkflow {
     reason?: string,
     conditions?: string[]
   ): Promise<boolean> {
-    console.log(`📝 Processing approval response for request ${requestId}`);
     
     try {
       // Get approval request
@@ -191,7 +188,6 @@ export class ApprovalWorkflow {
       if (approvals >= request.requiredApprovals) {
         // Mark as approved
         await this.finalizeApproval(requestId, true, response.approverId);
-        console.log(`✅ Request ${requestId} approved (${approvals}/${request.requiredApprovals} approvals)`);
       } else {
         // Check if any rejection makes it final
         const rejections = allResponses.filter(r => !r.approved).length;
@@ -200,7 +196,6 @@ export class ApprovalWorkflow {
         if (approvals + remainingStakeholders < request.requiredApprovals) {
           // Not enough potential approvals left
           await this.finalizeApproval(requestId, false, response.approverId);
-          console.log(`❌ Request ${requestId} rejected (insufficient approvals)`);
         }
       }
       
@@ -282,7 +277,6 @@ export class ApprovalWorkflow {
     organizationId: string,
     rules: Omit<ApprovalRule, 'id' | 'organizationId'>[]
   ): Promise<ApprovalRule[]> {
-    console.log(`⚙️ Managing ${rules.length} approval rules for organization ${organizationId}`);
     
     try {
       const rulesToStore = rules.map(rule => ({
@@ -526,7 +520,6 @@ export class ApprovalWorkflow {
     stakeholders: string[]
   ): Promise<void> {
     // This would integrate with notification system (email, Slack, etc.)
-    console.log(`📧 Sending approval notifications to ${stakeholders.length} stakeholders`);
     
     const notifications = stakeholders.map(stakeholderId => ({
       request_id: request.id,

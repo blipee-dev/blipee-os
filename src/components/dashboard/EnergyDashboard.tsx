@@ -17,7 +17,13 @@ import {
   Gauge,
   ChevronDown,
   ChevronRight,
-  Plus
+  Plus,
+  PieChart as PieChartIcon,
+  TrendingUp as TrendingUpIcon,
+  BarChart3,
+  Target,
+  Settings,
+  Activity
 } from 'lucide-react';
 import {
   LineChart,
@@ -41,6 +47,8 @@ import type { Building } from '@/types/auth';
 import type { TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import { MetricTargetsCard } from '@/components/sustainability/MetricTargetsCard';
 import { RecommendationsModal } from '@/components/sustainability/RecommendationsModal';
+import { useTranslations, useLanguage } from '@/providers/LanguageProvider';
+import { useEnergyDashboard } from '@/hooks/useDashboardData';
 
 interface EnergyDashboardProps {
   organizationId: string;
@@ -133,7 +141,17 @@ const formatScope = (scope: string): string => {
 };
 
 export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }: EnergyDashboardProps) {
-  const [loading, setLoading] = useState(true);
+  // Translation hooks
+  const t = useTranslations('sustainability.energy');
+  const { t: tGlobal } = useLanguage();
+
+  // Fetch data with React Query (cached)
+  const { sources, intensity, forecast, prevYearSources, targets, isLoading } = useEnergyDashboard(
+    selectedPeriod,
+    selectedSite,
+    organizationId
+  );
+
   const [selectedTab, setSelectedTab] = useState<'overview' | 'source' | 'type' | 'trends'>('overview');
 
   // Summary data
@@ -187,21 +205,13 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
     } | null;
   }>>([]);
 
+  // Process cached data when it changes
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams({
-          start_date: selectedPeriod.start,
-          end_date: selectedPeriod.end,
-        });
-        if (selectedSite) {
-          params.append('site_id', selectedSite.id);
-        }
+    if (!sources.data) return;
 
-        // Fetch energy sources
-        const sourcesRes = await fetch(`/api/energy/sources?${params}`);
-        const sourcesData = await sourcesRes.json();
+    const processData = async () => {
+      try {
+        const sourcesData = sources.data;
 
         if (sourcesData.sources) {
           setTotalEnergy(sourcesData.total_consumption || 0);
@@ -216,11 +226,6 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
             emissions: s.emissions
           }));
 
-          console.log('📊 Energy Sources Data:', processedSources);
-          console.log('📊 Total Consumption:', sourcesData.total_consumption);
-          console.log('📊 Renewable %:', sourcesData.renewable_percentage);
-          console.log('📈 Monthly Trends from API:', sourcesData.monthly_trends);
-
           setSourceBreakdown(processedSources);
 
           // Use only real energy type breakdown from API - no fallback
@@ -232,21 +237,16 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
 
           // Use only real monthly trends from API - no fallback
           if (sourcesData.monthly_trends && sourcesData.monthly_trends.length > 0) {
-            console.log('✅ Using real monthly trends from API');
-            console.log('📊 Monthly trends sample:', sourcesData.monthly_trends[0]);
             setMonthlyTrends(sourcesData.monthly_trends);
           } else {
-            console.log('⚠️ No monthly trends data from API');
             setMonthlyTrends([]);
           }
 
           // Set energy mix data if available (can be multiple types)
           if (sourcesData.energy_mixes && Array.isArray(sourcesData.energy_mixes)) {
-            console.log('✅ Energy mix data available:', sourcesData.energy_mixes);
             setEnergyMixes(sourcesData.energy_mixes);
           } else if (sourcesData.grid_mix) {
             // Backward compatibility: convert old grid_mix format
-            console.log('✅ Grid mix data available (legacy format):', sourcesData.grid_mix);
             const legacyMix = sourcesData.grid_mix;
             const converted = [{
               energy_type: 'electricity' as const,
@@ -256,65 +256,19 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               renewable_percentage: legacyMix.renewable_percentage || 0,
               has_unknown_sources: legacyMix.has_unknown_sources || false
             }];
-            console.log('🔄 Converted to new format:', converted);
             setEnergyMixes(converted);
           }
         }
 
-        // Fetch intensity
-        const intensityRes = await fetch(`/api/energy/intensity?${params}`);
-        const intensityData = await intensityRes.json();
+        // Process intensity data (cached)
+        const intensityData = intensity.data;
         if (intensityData?.perSquareMeter?.value) {
           setEnergyIntensity(intensityData.perSquareMeter.value);
         }
 
-        // Fetch previous year data for YoY comparison
-        // Find the last actual data point from the monthly trends we just fetched
-        let actualEndDate = new Date(selectedPeriod.end);
-
-        if (sourcesData.monthly_trends && sourcesData.monthly_trends.length > 0) {
-          // Get the last month with data
-          const lastDataPoint = sourcesData.monthly_trends[sourcesData.monthly_trends.length - 1];
-          const lastDataMonth = lastDataPoint.monthKey; // Format: "2025-07"
-
-          // Set actualEndDate to the end of the last month with data
-          const [year, month] = lastDataMonth.split('-').map(Number);
-          actualEndDate = new Date(year, month, 0); // Last day of the month
-
-          console.log('📅 Last data available:', lastDataMonth, '→', actualEndDate.toISOString().split('T')[0]);
-        }
-
-        const startDate = new Date(selectedPeriod.start);
-        const previousYearStart = new Date(startDate);
-        previousYearStart.setFullYear(startDate.getFullYear() - 1);
-        const previousYearEnd = new Date(actualEndDate);
-        previousYearEnd.setFullYear(actualEndDate.getFullYear() - 1);
-
-        const prevParams = new URLSearchParams({
-          start_date: previousYearStart.toISOString().split('T')[0],
-          end_date: previousYearEnd.toISOString().split('T')[0],
-        });
-        if (selectedSite) {
-          prevParams.append('site_id', selectedSite.id);
-        }
-
-        const prevSourcesRes = await fetch(`/api/energy/sources?${prevParams}`);
-        const prevSourcesData = await prevSourcesRes.json();
-
-        console.log('📊 YoY Comparison Debug:');
-        console.log('  Selected Period:', selectedPeriod.start, 'to', selectedPeriod.end);
-        console.log('  Actual End Date (adjusted to today):', actualEndDate.toISOString().split('T')[0]);
-        console.log('  Current Period (for comparison):', selectedPeriod.start, 'to', actualEndDate.toISOString().split('T')[0]);
-        console.log('  Previous Period (for comparison):', previousYearStart.toISOString().split('T')[0], 'to', previousYearEnd.toISOString().split('T')[0]);
-        console.log('  Current Energy:', sourcesData.total_consumption, 'kWh');
-        console.log('  Previous Energy:', prevSourcesData.total_consumption, 'kWh');
-        console.log('  Current Emissions:', sourcesData.total_emissions, 'tCO2e');
-        console.log('  Previous Emissions:', prevSourcesData.total_emissions, 'tCO2e');
-        console.log('  Current monthly trends count:', sourcesData.monthly_trends?.length || 0);
-        console.log('  Previous monthly trends count:', prevSourcesData.monthly_trends?.length || 0);
-        console.log('  Previous data keys:', Object.keys(prevSourcesData));
-
-        if (prevSourcesData.sources && prevSourcesData.total_consumption > 0) {
+        // Process previous year data for YoY comparison (cached)
+        const prevSourcesData = prevYearSources.data;
+        if (prevSourcesData?.sources && prevSourcesData.total_consumption > 0) {
           // Calculate YoY changes
           const energyChange = ((sourcesData.total_consumption - prevSourcesData.total_consumption) / prevSourcesData.total_consumption) * 100;
           const emissionsChange = ((sourcesData.total_emissions - prevSourcesData.total_emissions) / prevSourcesData.total_emissions) * 100;
@@ -333,56 +287,25 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               emissions: s.emissions
             }));
             setPrevYearSourceBreakdown(processedPrevSources);
-            console.log('📊 Previous Year Source Breakdown:', processedPrevSources.length, 'sources');
           }
 
           // Store previous year monthly trends for comparison
           if (prevSourcesData.monthly_trends && prevSourcesData.monthly_trends.length > 0) {
             setPrevYearMonthlyTrends(prevSourcesData.monthly_trends);
-            console.log('📊 Previous Year Monthly Trends:', prevSourcesData.monthly_trends.length, 'months');
-            console.log('📊 Previous Year Sample:', prevSourcesData.monthly_trends.slice(0, 3));
-          } else {
-            console.log('⚠️ No previous year monthly trends available');
-            console.log('⚠️ prevSourcesData:', prevSourcesData);
           }
-
-          console.log('📊 YoY Comparison Results:');
-          console.log('  Energy Change:', energyChange.toFixed(1) + '%');
-          console.log('  Emissions Change:', emissionsChange.toFixed(1) + '%');
-          console.log('  Renewable Change:', renewableChange.toFixed(2) + ' percentage points');
-          console.log('  Current Renewable %:', sourcesData.renewable_percentage.toFixed(2));
-          console.log('  Previous Renewable %:', prevSourcesData.renewable_percentage.toFixed(2));
-          console.log('  Will display YoY?', Math.abs(renewableChange) >= 0.1 ? 'YES' : 'NO (below 0.1pp threshold)');
-        } else {
-          console.log('⚠️ No previous year data available for comparison');
         }
 
-        // Fetch ML forecast for remaining months (after we have previous year data)
-        const forecastRes = await fetch(`/api/energy/forecast?${params}`);
-        const forecastDataRes = await forecastRes.json();
-
-        // Extract forecast data and filter to only future months
+        // Process ML forecast data (cached)
+        const forecastDataRes = forecast.data;
         let currentForecastData: any[] = [];
 
-        if (forecastDataRes.forecast && forecastDataRes.forecast.length > 0) {
+        if (forecastDataRes?.forecast && forecastDataRes.forecast.length > 0) {
           // The API returns forecast for all months after the last actual data
           // Since we have data through July 2025, all forecast months (Aug-Dec) should be included
           // We use all forecast data since it represents months without actual data
           currentForecastData = forecastDataRes.forecast;
 
-          console.log('🔮 ML Forecast loaded:', forecastDataRes.forecast.length, 'months');
-          console.log('📊 Forecast method:', forecastDataRes.model);
-          console.log('📊 Last actual month:', forecastDataRes.lastActualMonth);
-          console.log('📈 Forecast values (Total):', forecastDataRes.forecast.map((f: any) => `${f.month}: ${(f.total / 1000).toFixed(1)} MWh`));
-          console.log('📈 Forecast values (Renewable):', forecastDataRes.forecast.map((f: any) => `${f.month}: ${(f.renewable / 1000).toFixed(1)} MWh`));
-          console.log('📈 Forecast values (Fossil):', forecastDataRes.forecast.map((f: any) => `${f.month}: ${(f.fossil / 1000).toFixed(1)} MWh`));
-          console.log('📅 Forecast months:', currentForecastData.map((f: any) => f.monthKey));
-          console.log('🔍 First forecast object full:', forecastDataRes.forecast[0]);
           if (forecastDataRes.metadata) {
-            console.log('📊 R²:', forecastDataRes.metadata.r2?.toFixed(3));
-            console.log('📈 Total trend:', forecastDataRes.metadata.totalTrend?.toFixed(3), 'kWh/month');
-            console.log('📈 Renewable trend:', forecastDataRes.metadata.renewableTrend?.toFixed(3), 'kWh/month');
-            console.log('📈 Fossil trend:', forecastDataRes.metadata.fossilTrend?.toFixed(3), 'kWh/month');
           }
 
           // Map forecast data with different keys to avoid overlapping with actual data
@@ -428,10 +351,6 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           const categoryRes = await fetch(`/api/sustainability/targets/category?${categoryParams}`);
           const categoryData = await categoryRes.json();
 
-          console.log('🎯 Category targets from database:', categoryData.targets?.map((t: any) =>
-            `${t.category}: ${t.baseline_emissions} tCO2e → ${t.adjusted_target_percent}% annual`
-          ));
-
           // Use database targets if available, otherwise fall back to weighted allocation API
           let energyCategories: any[] = [];
 
@@ -448,10 +367,8 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               absoluteTarget: t.target_emissions,
               feasibility: t.feasibility
             }));
-            console.log('✅ Using category targets from database');
           } else {
             // Fall back to weighted allocation API
-            console.log('⚠️ No category targets in database, falling back to API');
             const allocParams = new URLSearchParams({
               baseline_year: baselineYear.toString(),
             });
@@ -487,28 +404,17 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           const RENEWABLE_EMISSION_FACTOR = 0.02; // kgCO2e/kWh
           const FOSSIL_EMISSION_FACTOR = 0.4; // kgCO2e/kWh (IEA average)
 
-          console.log('🔍 Inspecting forecast data structure:', currentForecastData);
-          console.log('🔍 First forecast object:', currentForecastData[0]);
 
           const forecastRemaining = currentForecastData.reduce((sum: number, f: any) => {
-            console.log('🔍 Processing forecast:', f);
             const renewableKWh = f.renewable || 0;
             const fossilKWh = f.fossil || 0;
-            console.log(`  renewable: ${renewableKWh} kWh, fossil: ${fossilKWh} kWh`);
             const renewableEmissions = renewableKWh * RENEWABLE_EMISSION_FACTOR / 1000; // Convert to tCO2e
             const fossilEmissions = fossilKWh * FOSSIL_EMISSION_FACTOR / 1000; // Convert to tCO2e
-            console.log(`  emissions: ${renewableEmissions + fossilEmissions} tCO2e`);
             return sum + renewableEmissions + fossilEmissions;
           }, 0);
 
           const projected2025FullYear = current2025YTD + forecastRemaining;
 
-          console.log('📊 Full Year Comparison (2023 Baseline vs 2025 Projected):');
-          console.log('  2023 Full Year (baseline):', baseline2023Data.total_emissions, 'tCO2e');
-          console.log('  2025 YTD (Jan-Jul actual):', current2025YTD.toFixed(2), 'tCO2e');
-          console.log('  2025 Forecast (Aug-Dec):', forecastRemaining.toFixed(2), 'tCO2e');
-          console.log('  2025 Projected Full Year:', projected2025FullYear.toFixed(2), 'tCO2e');
-          console.log('  Change:', ((projected2025FullYear - baseline2023Data.total_emissions) / baseline2023Data.total_emissions * 100).toFixed(1), '%');
 
           if (energyCategories.length > 0 && baseline2023Data.total_emissions) {
             // energyCategories is already populated from database or API above
@@ -531,8 +437,6 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               };
             };
 
-            console.log('🔍 2025 YTD Sources:', sourcesData.sources.map((s: any) => `${s.name} (${s.type}): ${s.emissions.toFixed(2)} tCO2e`));
-            console.log('🔍 2023 Full Year Sources:', baseline2023Data.sources.map((s: any) => `${s.name} (${s.type}): ${s.emissions.toFixed(2)} tCO2e`));
 
             const current2025YTDCategories = mapSourcesToCategories(sourcesData.sources);
             const baseline2023FullYearCategories = mapSourcesToCategories(baseline2023Data.sources);
@@ -543,10 +447,6 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
             const forecastTotal = forecastRemaining;
             const projectedTotal = projected2025FullYear;
 
-            console.log('🔢 Projection Calculation:');
-            console.log('  YTD Total:', ytdTotal, 'tCO2e');
-            console.log('  Forecast Total:', forecastTotal, 'tCO2e');
-            console.log('  Projected Total:', projectedTotal, 'tCO2e');
 
             const projected2025FullYearCategories: any = {};
             Object.keys(current2025YTDCategories).forEach(category => {
@@ -554,12 +454,8 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               const categoryShare = ytdCategoryEmissions / ytdTotal;
               const forecastCategoryEmissions = forecastTotal * categoryShare;
               projected2025FullYearCategories[category] = ytdCategoryEmissions + forecastCategoryEmissions;
-              console.log(`  ${category}: ${ytdCategoryEmissions.toFixed(1)} + ${forecastCategoryEmissions.toFixed(1)} = ${projected2025FullYearCategories[category].toFixed(1)} tCO2e`);
             });
 
-            console.log('📊 2023 Full Year Categories:', baseline2023FullYearCategories);
-            console.log('📊 2025 YTD Categories:', current2025YTDCategories);
-            console.log('📊 2025 Projected Full Year Categories:', projected2025FullYearCategories);
 
             const enrichedCategories = energyCategories.map((cat: any) => {
               // Calculate expected reduction based on ANNUAL COMPOUNDING
@@ -567,21 +463,14 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               const targetYear = 2030; // SBTi target year
               const annualReductionRate = cat.adjustedTargetPercent / 100; // e.g., 5.2% = 0.052
 
-              console.log(`\n🔍 ${cat.category} calculation:`);
-              console.log(`  Annual rate from API: ${cat.adjustedTargetPercent}% → ${annualReductionRate}`);
-              console.log(`  Years elapsed: ${yearsElapsed}`);
 
               // Calculate target emissions using compound reduction: baseline × (1 - rate)^years
               const categoryFullYearBaseline = baseline2023FullYearCategories[cat.category] || 0;
               const expectedEmissions2025 = categoryFullYearBaseline * Math.pow(1 - annualReductionRate, yearsElapsed);
 
-              console.log(`  Baseline: ${categoryFullYearBaseline.toFixed(1)} tCO2e`);
-              console.log(`  Compound factor: (1 - ${annualReductionRate})^${yearsElapsed} = ${Math.pow(1 - annualReductionRate, yearsElapsed).toFixed(4)}`);
-              console.log(`  Expected 2025: ${expectedEmissions2025.toFixed(1)} tCO2e`);
 
               // Calculate cumulative reduction percentage from baseline to current year
               const cumulativeReductionPercent = ((categoryFullYearBaseline - expectedEmissions2025) / categoryFullYearBaseline) * 100;
-              console.log(`  Cumulative reduction: ${cumulativeReductionPercent.toFixed(2)}%`);
 
               // Get actual projected emissions for this category
               const categoryProjected2025 = projected2025FullYearCategories[cat.category] || 0;
@@ -614,15 +503,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
 
             setCategoryTargets(enrichedCategories);
             setOverallTargetPercent(4.2); // SBTi 1.5°C target
-            console.log('📊 Energy Category Progress (Annual Compounding):');
             enrichedCategories.forEach((cat: any) => {
-              console.log(`  ${cat.category}:`);
-              console.log(`    2023 baseline: ${cat.baseline2023FullYear.toFixed(1)} tCO2e`);
-              console.log(`    2025 target: ${cat.expectedEmissions2025.toFixed(1)} tCO2e (${cat.annualReductionRate.toFixed(1)}% annual reduction)`);
-              console.log(`    2025 projected: ${cat.projected2025FullYear.toFixed(1)} tCO2e`);
-              console.log(`    Expected cumulative reduction: ${cat.expectedReductionPercent.toFixed(1)}%`);
-              console.log(`    Actual change: ${cat.actualReductionPercent >= 0 ? cat.actualReductionPercent.toFixed(1) + '% reduction' : Math.abs(cat.actualReductionPercent).toFixed(1) + '% increase'}`);
-              console.log(`    Progress: ${cat.progressPercent.toFixed(0)}%`);
             });
 
             // Fetch metric-level targets for expandable view (all energy categories)
@@ -639,7 +520,6 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               const metricTargetsData = await metricTargetsRes.json();
               if (metricTargetsData.success && metricTargetsData.data) {
                 setMetricTargets(metricTargetsData.data);
-                console.log('📊 Metric-level targets loaded:', metricTargetsData.data.length, 'targets');
               }
             } catch (err) {
               console.error('Error fetching metric targets:', err);
@@ -648,16 +528,14 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
         }
 
       } catch (error) {
-        console.error('Error fetching energy data:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error processing energy data:', error);
       }
     };
 
-    fetchData();
-  }, [selectedPeriod, selectedSite, organizationId]);
+    processData();
+  }, [sources.data, intensity.data, forecast.data, prevYearSources.data, targets.data, organizationId, selectedSite, selectedPeriod]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
@@ -665,37 +543,68 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
     );
   }
 
-  console.log('🎨 Rendering Energy Dashboard with energyMixes:', energyMixes);
 
   return (
-    <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+    <div>
       {/* Header */}
-      <div className="p-6 pb-0">
+      <div className="mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Zap className="w-6 h-6 text-amber-500" />
-            Energy Management
+            {t('title')}
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            GRI 302 • ESRS E1-5 • Energy consumption and intensity tracking
+            {t('subtitle')}
           </p>
         </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="p-6 grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-4 mb-6">
         {/* Total Energy */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Total Energy</span>
-            <Zap className="w-4 h-4 text-amber-500" />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2 relative group">
+            <Zap className="w-5 h-5 text-amber-500" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+              {t('cards.totalEnergy.title')}
+            </h3>
+
+            {/* Hover Tooltip */}
+            <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="mb-2">
+                <p className="text-gray-200 text-[11px] leading-relaxed">
+                  {t('cards.totalEnergy.explanation')}
+                </p>
+              </div>
+
+              {/* Compliance Badges */}
+              <div className="mt-3 pt-2 border-t border-purple-500/30">
+                <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                  {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                </p>
+                <div className="flex gap-1 flex-wrap">
+                  <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                    GRI 302-1
+                  </span>
+                  <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                    ESRS E1-5
+                  </span>
+                  <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                    ISO 50001
+                  </span>
+                </div>
+              </div>
+
+              {/* Arrow indicator */}
+              <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
+            </div>
           </div>
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {(totalEnergy / 1000).toFixed(1)}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">MWh</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.totalEnergy.unit')}</div>
             </div>
             {yoyEnergyChange !== null && (
               <div className="flex items-center gap-1">
@@ -705,7 +614,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   <TrendingDown className="w-3 h-3 text-green-500" />
                 )}
                 <span className={`text-xs ${yoyEnergyChange > 0 ? 'text-red-500' : yoyEnergyChange < 0 ? 'text-green-500' : 'text-gray-400'}`}>
-                  {yoyEnergyChange > 0 ? '+' : ''}{yoyEnergyChange.toFixed(1)}% YoY
+                  {yoyEnergyChange > 0 ? '+' : ''}{yoyEnergyChange.toFixed(1)}% {t('units.yoy')}
                 </span>
               </div>
             )}
@@ -713,17 +622,49 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
         </div>
 
         {/* Renewable Percentage */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Renewable</span>
-            <Leaf className="w-4 h-4 text-green-500" />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2 relative group">
+            <Leaf className="w-5 h-5 text-green-500" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+              {t('cards.renewable.title')}
+            </h3>
+
+            {/* Hover Tooltip */}
+            <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="mb-2">
+                <p className="text-gray-200 text-[11px] leading-relaxed">
+                  {t('cards.renewable.explanation')}
+                </p>
+              </div>
+
+              {/* Compliance Badges */}
+              <div className="mt-3 pt-2 border-t border-purple-500/30">
+                <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                  {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                </p>
+                <div className="flex gap-1 flex-wrap">
+                  <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                    GRI 302-1
+                  </span>
+                  <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                    ESRS E1-5
+                  </span>
+                  <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                    RE100
+                  </span>
+                </div>
+              </div>
+
+              {/* Arrow indicator */}
+              <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
+            </div>
           </div>
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {renewablePercentage.toFixed(1)}%
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">of total</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.renewable.unit')}</div>
             </div>
             {yoyRenewableChange !== null && Math.abs(yoyRenewableChange) >= 0.1 && (
               <div className="flex items-center gap-1">
@@ -733,7 +674,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   <TrendingDown className="w-3 h-3 text-red-500" />
                 )}
                 <span className={`text-xs ${yoyRenewableChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {yoyRenewableChange > 0 ? '+' : ''}{yoyRenewableChange.toFixed(1)}pp YoY
+                  {yoyRenewableChange > 0 ? '+' : ''}{yoyRenewableChange.toFixed(1)}{t('units.pp')} {t('units.yoy')}
                 </span>
               </div>
             )}
@@ -741,17 +682,49 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
         </div>
 
         {/* Emissions */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Emissions</span>
-            <Cloud className="w-4 h-4 text-gray-500" />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2 relative group">
+            <Cloud className="w-5 h-5 text-gray-500" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+              {t('cards.emissions.title')}
+            </h3>
+
+            {/* Hover Tooltip */}
+            <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="mb-2">
+                <p className="text-gray-200 text-[11px] leading-relaxed">
+                  {t('cards.emissions.explanation')}
+                </p>
+              </div>
+
+              {/* Compliance Badges */}
+              <div className="mt-3 pt-2 border-t border-purple-500/30">
+                <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                  {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                </p>
+                <div className="flex gap-1 flex-wrap">
+                  <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
+                    GHG Protocol
+                  </span>
+                  <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                    SBTi
+                  </span>
+                  <span className="px-1.5 py-0.5 bg-orange-100/20 text-orange-300 text-[9px] rounded border border-orange-500/30">
+                    ESRS E1
+                  </span>
+                </div>
+              </div>
+
+              {/* Arrow indicator */}
+              <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
+            </div>
           </div>
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {totalEmissions.toFixed(1)}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.emissions.unit')}</div>
             </div>
             {yoyEmissionsChange !== null && (
               <div className="flex items-center gap-1">
@@ -761,7 +734,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   <TrendingDown className="w-3 h-3 text-green-500" />
                 )}
                 <span className={`text-xs ${yoyEmissionsChange > 0 ? 'text-red-500' : yoyEmissionsChange < 0 ? 'text-green-500' : 'text-gray-400'}`}>
-                  {yoyEmissionsChange > 0 ? '+' : ''}{yoyEmissionsChange.toFixed(1)}% YoY
+                  {yoyEmissionsChange > 0 ? '+' : ''}{yoyEmissionsChange.toFixed(1)}% {t('units.yoy')}
                 </span>
               </div>
             )}
@@ -769,32 +742,88 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
         </div>
 
         {/* Intensity */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Intensity</span>
-            <Gauge className="w-4 h-4 text-purple-500" />
+        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2 relative group">
+            <Gauge className="w-5 h-5 text-purple-500" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+              {t('cards.intensity.title')}
+            </h3>
+
+            {/* Hover Tooltip */}
+            <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="mb-2">
+                <p className="text-gray-200 text-[11px] leading-relaxed">
+                  {t('cards.intensity.explanation')}
+                </p>
+              </div>
+
+              {/* Compliance Badges */}
+              <div className="mt-3 pt-2 border-t border-purple-500/30">
+                <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                  {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                </p>
+                <div className="flex gap-1 flex-wrap">
+                  <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                    GRI 302-3
+                  </span>
+                  <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                    ESRS E1-5
+                  </span>
+                  <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                    ISO 50001
+                  </span>
+                </div>
+              </div>
+
+              {/* Arrow indicator */}
+              <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
+            </div>
           </div>
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
             {energyIntensity.toFixed(1)}
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">kWh/m²</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.intensity.unit')}</div>
         </div>
       </div>
 
       {/* Energy Sources Pie Chart and Monthly Evolution - Side by Side */}
-      <div className="px-6 pb-6 grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         {/* Energy Sources Pie Chart */}
         {sourceBreakdown.length > 0 && (
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Energy Sources Distribution</h3>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
-                  GRI 302-1
-                </span>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  ESRS E1-5
-                </span>
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm h-[440px]">
+            <div className="mb-4">
+              <div className="flex items-center gap-2 relative group">
+                <PieChartIcon className="w-5 h-5 text-blue-500" />
+                <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">
+                  {t('charts.sourcesDistribution.title')}
+                </h3>
+
+              {/* Hover Tooltip */}
+              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="mb-2">
+                  <p className="text-gray-200 text-[11px] leading-relaxed">
+                    {t('charts.sourcesDistribution.explanation')}
+                  </p>
+                </div>
+
+                {/* Compliance Badges */}
+                <div className="mt-3 pt-2 border-t border-purple-500/30">
+                  <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                    {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                  </p>
+                  <div className="flex gap-1 flex-wrap">
+                    <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                      GRI 302-1
+                    </span>
+                    <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                      ESRS E1-5
+                    </span>
+                  </div>
+                </div>
+
+                {/* Arrow indicator */}
+                <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
+              </div>
               </div>
             </div>
 
@@ -892,56 +921,67 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
 
         {/* Monthly Evolution Chart */}
         {monthlyTrends.length > 0 && (
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Evolution</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Includes ML forecast for {forecastData.length} remaining months
-                  {forecastData.length > 0 && forecastData[0].renewableForecast === 0 && (
-                    <span className="ml-2 text-amber-500 dark:text-amber-400">
-                      (Renewable forecast: 0 MWh - based on historical trend)
-                    </span>
-                  )}
-                </p>
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1 relative group">
+                <TrendingUpIcon className="w-5 h-5 text-purple-500" />
+                <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">
+                  {t('charts.monthlyEvolution.title')}
+                </h3>
+
+                {/* Hover Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="mb-2">
+                    <p className="text-gray-200 text-[11px] leading-relaxed">
+                      {t('charts.monthlyEvolution.explanation')}
+                    </p>
+                  </div>
+
+                  {/* Compliance Badges */}
+                  <div className="mt-3 pt-2 border-t border-purple-500/30">
+                    <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                      {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                    </p>
+                    <div className="flex gap-1 flex-wrap">
+                      <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                        ESRS E1-5
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                        TCFD
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Arrow indicator */}
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
+                </div>
               </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  ESRS E1-5
-                </span>
-                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
-                  TCFD
-                </span>
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Includes ML forecast for {forecastData.length} remaining months
+                {forecastData.length > 0 && forecastData[0].renewableForecast === 0 && (
+                  <span className="ml-2 text-amber-500 dark:text-amber-400">
+                    (Renewable forecast: 0 MWh - based on historical trend)
+                  </span>
+                )}
+              </p>
             </div>
 
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={(() => {
-                // Combine actual and forecast data with bridging point
-                const combinedData = [...monthlyTrends];
+                // Combine actual and forecast data
+                let combinedData = [...monthlyTrends];
 
                 if (forecastData.length > 0) {
-                  console.log('🔮 Adding forecast to chart:', forecastData.length, 'points');
-                  console.log('🔍 First forecast item:', forecastData[0]);
 
-                  // Get last actual data point to create bridge
+                  // Add forecast keys to the last actual data point to create smooth transition
                   const lastActual = monthlyTrends[monthlyTrends.length - 1];
-
-                  // Add bridge point: has both actual and forecast keys with same values
-                  // This connects the solid line to the dashed line
-                  combinedData.push({
-                    month: lastActual.month,
-                    monthKey: lastActual.monthKey,
-                    // Actual data (for solid line endpoint)
-                    renewable: lastActual.renewable,
-                    fossil: lastActual.fossil,
-                    total: lastActual.total,
-                    // Forecast data (for dashed line startpoint) - same values
+                  combinedData[combinedData.length - 1] = {
+                    ...lastActual,
+                    // Add forecast data keys with same values to create transition point
                     renewableForecast: lastActual.renewable,
                     fossilForecast: lastActual.fossil,
-                    totalForecast: lastActual.total,
-                    bridge: true
-                  });
+                    totalForecast: lastActual.total
+                  };
 
                   // Add remaining forecast data with only forecast keys
                   forecastData.forEach((f: any) => {
@@ -955,9 +995,6 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                     });
                   });
 
-                  console.log('📊 Combined data length:', combinedData.length);
-                  console.log('🌉 Bridge point:', combinedData[monthlyTrends.length]);
-                  console.log('📊 Last 3 items:', combinedData.slice(-3));
                 }
 
                 return combinedData;
@@ -1068,34 +1105,51 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
             </ResponsiveContainer>
           </div>
         )}
+      </div>
 
-        {/* Year-over-Year Comparison and Energy Mix Side by Side */}
+      {/* Year-over-Year Comparison and Energy Mix Side by Side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {monthlyTrends.length > 0 && yoyEnergyChange !== null && (() => {
-          console.log('🔍 YoY Chart Rendering:', {
-            monthlyTrendsCount: monthlyTrends.length,
-            prevYearTrendsCount: prevYearMonthlyTrends.length,
-            yoyEnergyChange,
-            currentSample: monthlyTrends.slice(0, 2),
-            prevSample: prevYearMonthlyTrends.slice(0, 2)
-          });
           return true;
         })() && (
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Year-over-Year Comparison</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Monthly change vs previous year
-                </p>
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm flex flex-col h-[420px]">
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1 relative group">
+                <BarChart3 className="w-5 h-5 text-indigo-500" />
+                <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">
+                  {t('charts.yoyComparison.title')}
+                </h3>
+
+                {/* Hover Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="mb-2">
+                    <p className="text-gray-200 text-[11px] leading-relaxed">
+                      {t('charts.yoyComparison.explanation')}
+                    </p>
+                  </div>
+
+                  {/* Compliance Badges */}
+                  <div className="mt-3 pt-2 border-t border-purple-500/30">
+                    <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                      {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                    </p>
+                    <div className="flex gap-1 flex-wrap">
+                      <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                        GRI 302-1
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                        ESRS E1-5
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Arrow indicator */}
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
+                </div>
               </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
-                  GRI 302-1
-                </span>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  ESRS E1-5
-                </span>
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Monthly change vs previous year
+              </p>
             </div>
 
             <div className="flex-1">
@@ -1135,7 +1189,6 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                     };
                   });
 
-                  console.log('📊 Bar Chart Data:', chartData);
                   return chartData;
                 })()}
                 layout="horizontal"
@@ -1202,7 +1255,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           const getEnergyTypeConfig = (type: string) => {
             switch (type) {
               case 'electricity':
-                return { title: 'Electricity Grid Mix', icon: Zap, color: 'text-blue-500' };
+                return { title: t('charts.gridMix.title'), icon: Zap, color: 'text-blue-500' };
               case 'district_heating':
                 return { title: 'District Heating Mix', icon: Flame, color: 'text-orange-500' };
               case 'district_cooling':
@@ -1218,34 +1271,54 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           const IconComponent = config.icon;
 
           return (
-            <div key={idx} className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 flex flex-col" style={{ height: '430px' }}>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
+            <div key={idx} className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm flex flex-col h-[420px]">
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-1 relative group">
+                  <IconComponent className="w-5 h-5" style={{ color: config.color }} />
+                  <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">
                     {config.title}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Year {mix.year}
-                  </p>
+
+                  {/* Hover Tooltip */}
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <div className="mb-2">
+                      <p className="text-gray-200 text-[11px] leading-relaxed">
+                        {t('charts.gridMix.explanation')}
+                      </p>
+                    </div>
+
+                    {/* Compliance Badges */}
+                    <div className="mt-3 pt-2 border-t border-purple-500/30">
+                      <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                        {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                      </p>
+                      <div className="flex gap-1 flex-wrap">
+                        <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
+                          GHG Scope 2
+                        </span>
+                        {mix.emission_factors && (
+                          <span className="px-1.5 py-0.5 bg-orange-100/20 text-orange-300 text-[9px] rounded border border-orange-500/30">
+                            GHG Scope 3.3
+                          </span>
+                        )}
+                        <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                          TCFD
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Arrow indicator */}
+                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
+                  </div>
                 </div>
-                <div className="flex gap-1 flex-wrap justify-end">
-                  <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                    GHG Scope 2
-                  </span>
-                  {mix.emission_factors && (
-                    <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs rounded">
-                      GHG Scope 3.3
-                    </span>
-                  )}
-                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
-                    TCFD
-                  </span>
-                </div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Year {mix.year}
+                </p>
               </div>
 
               {/* Renewable Share with Emission Factors Tooltip */}
               <div className="mb-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg text-center relative group">
-                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Renewable Energy</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('gridMix.renewableEnergy')}</div>
                 <div className="text-3xl font-bold text-green-600 dark:text-green-400">
                   {mix.renewable_percentage.toFixed(1)}%
                 </div>
@@ -1256,29 +1329,29 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                     <Info className="w-4 h-4 text-gray-400 absolute top-3 right-3 cursor-help" />
                     <div className="absolute top-full right-0 mt-2 p-3 bg-gray-900 border border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 w-72">
                       <div className="text-xs font-semibold text-gray-300 mb-2 text-center">
-                        Emission Factors (gCO₂eq/kWh)
+                        {t('emissionFactors.title')}
                       </div>
                       <div className="grid grid-cols-3 gap-2 text-xs">
                         <div className="text-center">
-                          <div className="text-gray-400 mb-1">Scope 2</div>
+                          <div className="text-gray-400 mb-1">{t('emissionFactors.scope2')}</div>
                           <div className="font-bold text-green-400">
                             {mix.emission_factors.carbon_intensity_scope2.toFixed(0)}
                           </div>
-                          <div className="text-xs text-gray-500">Direct</div>
+                          <div className="text-xs text-gray-500">{t('emissionFactors.direct')}</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-gray-400 mb-1">Scope 3.3</div>
+                          <div className="text-gray-400 mb-1">{t('emissionFactors.scope3')}</div>
                           <div className="font-bold text-orange-400">
                             {mix.emission_factors.carbon_intensity_scope3_cat3.toFixed(0)}
                           </div>
-                          <div className="text-xs text-gray-500">Upstream</div>
+                          <div className="text-xs text-gray-500">{t('emissionFactors.upstream')}</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-gray-400 mb-1">Total</div>
+                          <div className="text-gray-400 mb-1">{t('emissionFactors.total')}</div>
                           <div className="font-bold text-blue-400">
                             {mix.emission_factors.carbon_intensity_lifecycle.toFixed(0)}
                           </div>
-                          <div className="text-xs text-gray-500">Lifecycle</div>
+                          <div className="text-xs text-gray-500">{t('emissionFactors.lifecycle')}</div>
                         </div>
                       </div>
                     </div>
@@ -1304,7 +1377,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                               <Flame className="w-2.5 h-2.5 text-gray-400" />
                             )}
                             {(source.percentage === null || source.percentage === undefined) && (
-                              <span className="text-xs text-orange-500 dark:text-orange-400">Unknown</span>
+                              <span className="text-xs text-orange-500 dark:text-orange-400">{t('gridMix.unknown')}</span>
                             )}
                           </div>
                           <span className="text-xs font-bold text-gray-900 dark:text-white">
@@ -1327,10 +1400,10 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               ) : (
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-center">
                   <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
-                    Detailed source breakdown not yet available
+                    {t('gridMix.detailedBreakdownUnavailable')}
                   </p>
                   <p className="text-xs text-blue-600 dark:text-blue-500">
-                    Apply migrations to see Wind, Solar, Hydro, Gas, Coal breakdown
+                    {t('gridMix.applyMigrations')}
                   </p>
                 </div>
               )}
@@ -1339,7 +1412,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 <div className="mt-3 p-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
                   <p className="text-xs text-orange-700 dark:text-orange-400 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
-                    Some energy sources are unknown. Contact your supplier for complete mix data.
+                    {t('gridMix.someSourcesUnknown')}
                   </p>
                 </div>
               )}
@@ -1350,17 +1423,39 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
 
       {/* Monthly Consumption by Source - Stacked Bar Chart */}
       {monthlyTrends.length > 0 && (
-        <div className="px-6 pb-6">
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Monthly Consumption by Source</h3>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded">
-                  GRI 302-1
-                </span>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
-                  ESRS E1-5
-                </span>
+        <div className="mb-6">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+            <div className="mb-4">
+              <div className="flex items-center gap-2 relative group">
+                <BarChart3 className="w-5 h-5 text-orange-500" />
+                <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">Monthly Consumption by Source</h3>
+
+                {/* Hover Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="mb-2">
+                    <p className="text-gray-200 text-[11px] leading-relaxed">
+                      Stacked breakdown of monthly energy consumption by source, showing contribution of each energy type to total consumption over time.
+                    </p>
+                  </div>
+
+                  {/* Compliance Badges */}
+                  <div className="mt-3 pt-2 border-t border-purple-500/30">
+                    <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                      {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                    </p>
+                    <div className="flex gap-1 flex-wrap">
+                      <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                        GRI 302-1
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                        ESRS E1-5
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Arrow indicator */}
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
+                </div>
               </div>
             </div>
 
@@ -1381,9 +1476,6 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   }
                   return flattened;
                 });
-                console.log('📊 Stacked Bar Data:', transformed);
-                console.log('📊 Available sources:', sourceBreakdown.map(s => s.name));
-                console.log('📊 Monthly trend keys sample:', transformed[0] ? Object.keys(transformed[0]) : []);
                 return transformed;
               })()}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -1450,23 +1542,43 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
 
       {/* Target Progress */}
       {categoryTargets.length > 0 && (
-        <div className="px-6 pb-6">
-          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">SBTi Target Progress</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  1.5°C pathway • {overallTargetPercent}% annual reduction • Baseline 2023
-                </p>
+        <div className="mb-6">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1 relative group">
+                <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">SBTi Target Progress</h3>
+
+                {/* Hover Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="mb-2">
+                    <p className="text-gray-200 text-[11px] leading-relaxed">
+                      Science Based Targets initiative (SBTi) progress tracking for energy-related emissions. Shows annual reduction targets aligned with 1.5°C pathway to limit global warming.
+                    </p>
+                  </div>
+
+                  {/* Compliance Badges */}
+                  <div className="mt-3 pt-2 border-t border-purple-500/30">
+                    <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                      {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                    </p>
+                    <div className="flex gap-1 flex-wrap">
+                      <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
+                        GHG Protocol
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                        SBTi
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Arrow indicator */}
+                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
+                </div>
               </div>
-              <div className="flex gap-1">
-                <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs rounded">
-                  GHG Protocol
-                </span>
-                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs rounded">
-                  SBTi
-                </span>
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                1.5°C pathway • {overallTargetPercent}% annual reduction • Baseline 2023
+              </p>
             </div>
 
             <div className="space-y-3">
@@ -1478,7 +1590,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   <div key={cat.category}>
                     {/* Category Row - Click able to expand */}
                     <div
-                      className="bg-white dark:bg-gray-800/50 rounded-lg p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors"
+                      className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#1f1f1f] transition-colors"
                       onClick={() => {
                         setExpandedCategories(prev => {
                           const next = new Set(prev);
@@ -1661,7 +1773,6 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           metricTarget={metricTargets.find(mt => mt.id === selectedMetricForInitiative)}
           onSave={async (initiative) => {
             try {
-              console.log('⚡ Saving energy initiative:', initiative);
 
               const selectedMetric = metricTargets.find(mt => mt.id === selectedMetricForInitiative);
               if (!selectedMetric) {
@@ -1713,7 +1824,6 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               }
 
               const result = await response.json();
-              console.log('✅ Energy initiative saved successfully:', result);
 
               // Close modal
               setSelectedMetricForInitiative(null);

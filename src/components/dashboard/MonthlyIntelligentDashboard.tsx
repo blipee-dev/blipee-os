@@ -85,7 +85,6 @@ export function MonthlyIntelligentDashboard({ organizationId, userId }: Dashboar
         const data = await response.json();
         setMonthlyStatus(data.status);
         setWorkforceInitialized(true);
-        console.log('🎯 Monthly Intelligence System activated:', data);
       }
     } catch (error) {
       console.error('Failed to initialize monthly system:', error);
@@ -103,7 +102,6 @@ export function MonthlyIntelligentDashboard({ organizationId, userId }: Dashboar
 
       if (response.ok) {
         const data = await response.json();
-        console.log('📊 Manual processing triggered:', data);
         await checkMonthlyIntelligence();
       }
     } catch (error) {
@@ -168,7 +166,6 @@ export function MonthlyIntelligentDashboard({ organizationId, userId }: Dashboar
 
   const handleAskQuestion = (question: string) => {
     // This would trigger the AI chat
-    console.log('User asked:', question);
     setShowAI(true);
   };
 

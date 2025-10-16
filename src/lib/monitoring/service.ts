@@ -686,10 +686,7 @@ export class MonitoringService extends EventEmitter {
     const { emailMFAService } = await import('@/lib/auth/mfa/email');
     
     for (const recipient of this.notificationConfig.email.recipients) {
-      // Reuse email service for sending alerts
-      console.log('📧 Alert Email:', {
-        to: recipient,
-        subject: `[${alert.severity.toUpperCase()}] ${alert.name}`,
+      // Reuse email service for sending alerts}] ${alert.name}`,
         message: alert.message,
       });
     }
@@ -704,10 +701,7 @@ export class MonitoringService extends EventEmitter {
     const { smsMFAService } = await import('@/lib/auth/mfa/sms');
     
     for (const recipient of this.notificationConfig.sms.recipients) {
-      // Reuse SMS service for sending alerts
-      console.log('📱 Alert SMS:', {
-        to: recipient,
-        message: `[${alert.severity.toUpperCase()}] ${alert.name}: ${alert.message}`,
+      // Reuse SMS service for sending alerts}] ${alert.name}: ${alert.message}`,
       });
     }
   }
@@ -744,7 +738,6 @@ export class MonitoringService extends EventEmitter {
     };
     
     // Send to Slack webhook
-    console.log('💬 Slack Alert:', payload);
   }
 
   /**
@@ -768,7 +761,6 @@ export class MonitoringService extends EventEmitter {
     };
     
     // Send to PagerDuty
-    console.log('🚨 PagerDuty Alert:', event);
   }
 
   /**
@@ -792,13 +784,7 @@ export class MonitoringService extends EventEmitter {
         .digest('hex');
       
       // Add signature to headers
-      console.log('🔗 Webhook Alert with signature:', signature);
     }
-    
-    console.log('🔗 Webhook Alert:', {
-      url: this.notificationConfig.webhook.url,
-      payload,
-    });
   }
 
   /**

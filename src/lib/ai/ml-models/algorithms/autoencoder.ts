@@ -122,7 +122,6 @@ export class AutoEncoder {
       callbacks: {
         onEpochEnd: (epoch, logs) => {
           if (epoch % 10 === 0) {
-            console.log(`Epoch ${epoch}: loss = ${logs?.loss?.toFixed(4)}`);
           }
         }
       }
@@ -343,11 +342,9 @@ export class AutoEncoder {
    */
   getSummary(): void {
     if (this.autoencoder) {
-      console.log('AutoEncoder Architecture:');
       this.autoencoder.summary();
     }
     if (this.encoder) {
-      console.log('\nEncoder Architecture:');
       this.encoder.summary();
     }
   }

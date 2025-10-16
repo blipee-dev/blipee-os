@@ -702,7 +702,6 @@ export class AutomatedReportingEngine {
    * Start the automated reporting engine
    */
   public async start(): Promise<void> {
-    console.log('📊 Starting automated reporting engine...');
 
     // Schedule all configured reports
     await this.scheduleAllReports();
@@ -713,14 +712,12 @@ export class AutomatedReportingEngine {
     // Start automation rules processor
     this.startAutomationProcessor();
 
-    console.log('✅ Automated reporting engine started successfully');
   }
 
   /**
    * Stop the automated reporting engine
    */
   public async stop(): Promise<void> {
-    console.log('⏹️ Stopping automated reporting engine...');
 
     // Clear all scheduled tasks
     this.scheduledTasks.forEach(task => clearTimeout(task));
@@ -729,14 +726,12 @@ export class AutomatedReportingEngine {
     // Stop queue processing
     this.processingQueue = false;
 
-    console.log('✅ Automated reporting engine stopped');
   }
 
   /**
    * Generate a compliance report
    */
   public async generateReport(request: ReportGenerationRequest): Promise<ReportGenerationResult> {
-    console.log(`📄 Generating report: ${request.frameworkCode} - ${request.reportType}`);
 
     const startTime = Date.now();
     const requestId = `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -769,7 +764,6 @@ export class AutomatedReportingEngine {
         warnings: validationResults.filter(v => v.type === 'warning').map(v => v.message)
       };
 
-      console.log(`✅ Report generated successfully (${result.processingTime}ms)`);
 
       return result;
 
@@ -797,7 +791,6 @@ export class AutomatedReportingEngine {
     outputs: ReportOutput[],
     channelId: string
   ): Promise<SubmissionDetails> {
-    console.log(`📤 Submitting report through channel: ${channelId}`);
 
     const channel = this.config.submissionChannels.find(c => c.id === channelId);
     if (!channel) {
@@ -818,7 +811,6 @@ export class AutomatedReportingEngine {
       report.status = 'submitted';
       report.submission = result;
 
-      console.log(`✅ Report submitted successfully: ${result.confirmationNumber}`);
 
       return result;
 
@@ -851,7 +843,6 @@ export class AutomatedReportingEngine {
     // Save template
     this.templates.set(template.id, template);
 
-    console.log(`💾 Template saved: ${template.name}`);
   }
 
   /**
@@ -920,7 +911,6 @@ export class AutomatedReportingEngine {
 
     this.scheduledTasks.set(schedule.id, taskId);
 
-    console.log(`📅 Scheduled report "${schedule.name}" in ${Math.round(delay / 1000 / 60)} minutes`);
   }
 
   private calculateScheduleDelay(schedule: ReportingSchedule): number {
@@ -950,7 +940,6 @@ export class AutomatedReportingEngine {
   }
 
   private async executeScheduledReport(schedule: ReportingSchedule): Promise<void> {
-    console.log(`🔄 Executing scheduled report: ${schedule.name}`);
 
     try {
       const request: ReportGenerationRequest = {
@@ -1050,7 +1039,6 @@ export class AutomatedReportingEngine {
   private async evaluateAutomationRule(rule: AutomationRule): Promise<void> {
     // Evaluate automation rule triggers and conditions
     // Execute actions if conditions are met
-    console.log(`🤖 Evaluating automation rule: ${rule.name}`);
   }
 
   private async getTemplate(request: ReportGenerationRequest): Promise<ReportTemplate> {
@@ -1240,25 +1228,21 @@ export class AutomatedReportingEngine {
 
   private async generatePDF(report: ComplianceReport, template: ReportTemplate): Promise<Buffer> {
     // Generate PDF using a PDF library
-    console.log('📄 Generating PDF output...');
     return Buffer.from('PDF content would be generated here');
   }
 
   private async generateWord(report: ComplianceReport, template: ReportTemplate): Promise<Buffer> {
     // Generate Word document
-    console.log('📝 Generating Word output...');
     return Buffer.from('Word content would be generated here');
   }
 
   private async generateExcel(report: ComplianceReport, template: ReportTemplate): Promise<Buffer> {
     // Generate Excel spreadsheet
-    console.log('📊 Generating Excel output...');
     return Buffer.from('Excel content would be generated here');
   }
 
   private async generateHTML(report: ComplianceReport, template: ReportTemplate): Promise<string> {
     // Generate HTML output
-    console.log('🌐 Generating HTML output...');
     return '<html><body>HTML content would be generated here</body></html>';
   }
 
@@ -1310,7 +1294,6 @@ export class AutomatedReportingEngine {
 
   private async executeSubmission(submissionData: any, channel: SubmissionChannel): Promise<SubmissionDetails> {
     // Execute actual submission
-    console.log(`📤 Executing submission via ${channel.type}`);
 
     // This would implement actual submission logic based on channel type
     return {

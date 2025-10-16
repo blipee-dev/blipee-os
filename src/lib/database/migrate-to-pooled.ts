@@ -90,7 +90,6 @@ export async function checkFilesForMigration(): Promise<string[]> {
   
   // This would be implemented to scan the codebase
   // For now, return a placeholder
-  console.log('Scanning for files that need migration to pooled connections...');
   
   return filesToMigrate;
 }

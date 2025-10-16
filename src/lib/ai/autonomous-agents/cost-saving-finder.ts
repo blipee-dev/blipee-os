@@ -152,7 +152,6 @@ export class CostSavingFinderAgent extends AutonomousAgent {
 
   async executeTask(task: AgentTask): Promise<AgentResult> {
     const startTime = Date.now();
-    console.log(`💰 Cost Saving Finder executing: ${task.type}`);
 
     try {
       let result: AgentResult;
@@ -182,7 +181,6 @@ export class CostSavingFinderAgent extends AutonomousAgent {
 
       const executionTime = Date.now() - startTime;
       result.executionTimeMs = executionTime;
-      console.log(`💰 Task completed in ${executionTime}ms`);
 
       return result;
     } catch (error) {

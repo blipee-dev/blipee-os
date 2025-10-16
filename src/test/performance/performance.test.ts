@@ -369,15 +369,9 @@ describe('Performance Test Suite', () => {
 
   afterAll(() => {
     // Output performance summary
-    console.log('\n=== Performance Test Summary ===');
     const allMetrics = performanceMonitor.getAllMetrics();
     
     Object.entries(allMetrics).forEach(([name, metrics]) => {
-      console.log(`\n${name}:`);
-      console.log(`  Count: ${metrics.count}`);
-      console.log(`  Avg: ${metrics.avg.toFixed(2)}ms`);
-      console.log(`  P95: ${metrics.p95.toFixed(2)}ms`);
-      console.log(`  P99: ${metrics.p99.toFixed(2)}ms`);
     });
   });
 });

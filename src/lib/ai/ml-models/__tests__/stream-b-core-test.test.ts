@@ -6,11 +6,8 @@
 describe('Stream B Week 3-4 Core Test', () => {
   
   it('should verify core advanced ML components are working perfectly', async () => {
-    console.log('\n🧠 Stream B Week 3-4: Core Advanced Models Test');
-    console.log('===============================================');
     
     // Test 1: Genetic Algorithm - Advanced Optimization
-    console.log('\n✅ Testing Genetic Algorithm for ESG Optimization...');
     const { GeneticAlgorithm } = await import('../algorithms/genetic-algorithm');
     
     const ga = new GeneticAlgorithm({
@@ -49,11 +46,6 @@ describe('Stream B Week 3-4 Core Test', () => {
     expect(esgResult.fitness).toBeGreaterThan(0.5);
     expect(esgResult.genes).toHaveLength(4);
     
-    console.log(`   → ESG optimization score: ${esgResult.fitness.toFixed(4)}`);
-    console.log(`   → Energy efficiency: ${esgResult.genes[0].toFixed(1)}%`);
-    console.log(`   → Waste reduction: ${(90 - esgResult.genes[1]).toFixed(1)}%`);
-    console.log(`   → Carbon offset: ${esgResult.genes[2].toFixed(1)} tCO2e`);
-    console.log(`   → Renewable energy: ${esgResult.genes[3].toFixed(1)}%`);
     
     // Verify constraints are satisfied
     const totalCost = esgResult.genes[0] * 2 + esgResult.genes[1] * 1.5 + esgResult.genes[2] * 3 + esgResult.genes[3] * 2.5;
@@ -62,7 +54,6 @@ describe('Stream B Week 3-4 Core Test', () => {
     expect(esgResult.genes[3]).toBeGreaterThanOrEqual(29);
     
     // Test 2: Regulatory Predictor - Comprehensive Analysis
-    console.log('\n✅ Testing Regulatory Predictor for Real-World Scenarios...');
     const { RegulatoryPredictor } = await import('../regulatory-predictor');
     
     const predictor = new RegulatoryPredictor();
@@ -110,9 +101,6 @@ describe('Stream B Week 3-4 Core Test', () => {
         criticalRegulations++;
       }
       
-      console.log(`   → ${reg.id}: Impact ${impact.impactScore.toFixed(3)} (${impact.riskLevel})`);
-      console.log(`     Areas: ${impact.affectedAreas.slice(0, 3).join(', ')}`);
-      console.log(`     Timeline: ${impact.timeline.preparation}d prep + ${impact.timeline.implementation}d impl`);
       
       expect(impact.impactScore).toBeGreaterThan(0);
       expect(impact.affectedAreas.length).toBeGreaterThan(0);
@@ -120,8 +108,6 @@ describe('Stream B Week 3-4 Core Test', () => {
     }
     
     const averageImpact = totalImpactScore / regulations.length;
-    console.log(`   → Average regulatory impact: ${averageImpact.toFixed(3)}`);
-    console.log(`   → High/critical regulations: ${criticalRegulations}/${regulations.length}`);
     
     // Test organization-specific risk assessment
     const testOrganization = {
@@ -172,20 +158,15 @@ describe('Stream B Week 3-4 Core Test', () => {
     expect(organizationRisk.recommendations.length).toBeGreaterThan(0);
     expect(organizationRisk.priorityAreas.length).toBeGreaterThan(0);
     
-    console.log(`   → Organization risk score: ${(organizationRisk.overallRisk * 100).toFixed(1)}%`);
-    console.log(`   → Priority areas: ${organizationRisk.priorityAreas.join(', ')}`);
-    console.log(`   → Action recommendations: ${organizationRisk.recommendations.length}`);
     
     const topRecommendations = organizationRisk.recommendations
       .filter(r => r.priority === 'critical' || r.priority === 'high')
       .slice(0, 3);
     
     for (const rec of topRecommendations) {
-      console.log(`     • ${rec.action} (${rec.priority}, ${rec.timeline})`);
     }
     
     // Test 3: Optimization Scenarios and Business Logic
-    console.log('\n✅ Testing Optimization Scenarios for Business Applications...');
     const { OptimizationScenarios } = await import('../optimization-engine');
     
     const scenarios = [
@@ -200,8 +181,6 @@ describe('Stream B Week 3-4 Core Test', () => {
       expect(scenario.objectives.length).toBeGreaterThan(0);
       expect(scenario.timeHorizon).toBeGreaterThan(0);
       
-      console.log(`   → ${scenario.type}: ${scenario.objectives.length} objectives, ${scenario.constraints.length} constraints`);
-      console.log(`     Timeline: ${scenario.timeHorizon} days`);
       
       // Verify objective weights sum to reasonable total
       const totalWeight = scenario.objectives.reduce((sum, obj) => sum + obj.weight, 0);
@@ -209,7 +188,6 @@ describe('Stream B Week 3-4 Core Test', () => {
     }
     
     // Test 4: End-to-End ESG Intelligence Workflow
-    console.log('\n✅ Testing End-to-End ESG Intelligence Workflow...');
     
     // Step 1: Optimize ESG performance
     const workflowOptimization = {
@@ -261,13 +239,8 @@ describe('Stream B Week 3-4 Core Test', () => {
       }
     };
     
-    console.log(`   → ESG optimization score: ${esgIntelligence.optimization.score.toFixed(4)}`);
-    console.log(`   → Compliance risk reduction: ${(esgIntelligence.compliance.riskReduction * 100).toFixed(1)}%`);
-    console.log(`   → Estimated emission reduction: ${esgIntelligence.business.emissionReduction.toFixed(0)} tCO2e`);
-    console.log(`   → Implementation timeline: ${esgIntelligence.business.implementationTime} months`);
     
     // Test 5: Performance and Scalability
-    console.log('\n✅ Testing Performance and Scalability...');
     
     const performanceTests = [
       {
@@ -298,27 +271,11 @@ describe('Stream B Week 3-4 Core Test', () => {
     for (const perfTest of performanceTests) {
       const duration = await perfTest.test();
       expect(duration).toBeLessThan(10000); // Should complete within 10 seconds
-      console.log(`   → ${perfTest.name}: ${duration}ms`);
     }
     
     // Final Verification
-    console.log('\n🎉 Stream B Week 3-4 Core Implementation Verification Complete!');
-    console.log('================================================================');
-    console.log('✅ Genetic Algorithm: Advanced ESG optimization working perfectly');
-    console.log('✅ Regulatory Predictor: Multi-regulation analysis and risk assessment working');
-    console.log('✅ Optimization Scenarios: Business-ready optimization templates available');
-    console.log('✅ End-to-End Workflow: Complete ESG intelligence pipeline operational');
-    console.log('✅ Performance: Scalable algorithms meeting enterprise requirements');
     
-    console.log('\n📊 Final Results Summary:');
-    console.log(`   • ESG Optimization Score: ${esgResult.fitness.toFixed(4)} (${(esgResult.fitness * 100).toFixed(1)}%)`);
-    console.log(`   • Average Regulatory Impact: ${averageImpact.toFixed(3)}`);
-    console.log(`   • Organization Risk Score: ${(organizationRisk.overallRisk * 100).toFixed(1)}%`);
-    console.log(`   • Risk Reduction Potential: ${(esgIntelligence.compliance.riskReduction * 100).toFixed(1)}%`);
-    console.log(`   • Emission Reduction: ${esgIntelligence.business.emissionReduction.toFixed(0)} tCO2e`);
     
-    console.log('\n🚀 Advanced ML Models Successfully Implemented!');
-    console.log('   Ready for autonomous ESG intelligence in production');
     
     // Final assertions
     expect(esgResult.fitness).toBeGreaterThan(0.5);

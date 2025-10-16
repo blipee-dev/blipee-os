@@ -891,7 +891,6 @@ export class ValidationMonitoringPipelines extends EventEmitter {
             await this.attemptAutoFix(rule);
             break;
           case 'log':
-            console.log(rule.message);
             break;
         }
       }

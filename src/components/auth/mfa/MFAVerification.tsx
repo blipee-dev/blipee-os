@@ -40,7 +40,6 @@ export function MFAVerification({ challengeId, onSuccess, onCancel }: MFAVerific
         throw new Error('Invalid verification code');
       }
 
-      console.log('Two-factor authentication verified successfully');
 
       onSuccess?.();
     } catch (error) {
@@ -131,7 +130,6 @@ export function MFAVerification({ challengeId, onSuccess, onCancel }: MFAVerific
             className="text-sm text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
             onClick={() => {
               // TODO: Implement backup code entry
-              console.log('Backup code entry coming soon');
             }}
           >
             Use a backup code instead

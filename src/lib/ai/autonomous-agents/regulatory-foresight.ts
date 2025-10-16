@@ -134,7 +134,6 @@ export class RegulatoryForesightAgent extends AutonomousAgent {
 
   async executeTask(task: AgentTask): Promise<AgentResult> {
     const startTime = Date.now();
-    console.log(`⚖️ Regulatory Foresight executing: ${task.type}`);
 
     try {
       let result: AgentResult;
@@ -163,7 +162,6 @@ export class RegulatoryForesightAgent extends AutonomousAgent {
       }
 
       const executionTime = Date.now() - startTime;
-      console.log(`⚖️ Task completed in ${executionTime}ms`);
 
       return result;
     } catch (error) {

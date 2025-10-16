@@ -49,7 +49,6 @@ export default function DataComparisonPage() {
     try {
       const res = await fetch(`/api/sustainability/data-comparison?year=${selectedYear}`);
       const data = await res.json();
-      console.log('📊 Comparison data:', data);
       setComparisonData(data);
     } catch (error) {
       console.error('Error fetching comparison data:', error);
@@ -61,7 +60,6 @@ export default function DataComparisonPage() {
     try {
       const res = await fetch(`/api/sustainability/dashboard?range=${selectedYear}&site=all`);
       const data = await res.json();
-      console.log('📊 Dashboard data:', data);
       setDashboardData(data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);

@@ -138,10 +138,8 @@ export default function SignInPage() {
       
       // Check if there's a redirect parameter in the URL
       if (redirectParam) {
-        console.log('Sign in successful, redirecting to:', redirectParam);
         router.push(redirectParam);
       } else {
-        console.log('Sign in successful, redirecting to default page');
         // Default redirect to sustainability overview if no redirect param
         router.push('/sustainability');
       }

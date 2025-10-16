@@ -193,7 +193,6 @@ export class GlobalBenchmarkingSystem {
   }
 
   private async initializeSystem() {
-    console.log('🌍 Initializing Global Benchmarking System...');
     
     await this.loadCountryProfiles();
     await this.loadRegulatoryFrameworks();
@@ -202,7 +201,6 @@ export class GlobalBenchmarkingSystem {
     this.startGlobalDataSync();
     this.startRegulatoryMonitoring();
     
-    console.log('✅ Global benchmarking ready for worldwide intelligence!');
   }
 
   /**
@@ -224,7 +222,6 @@ export class GlobalBenchmarkingSystem {
         return cached;
       }
 
-      console.log(`🌍 Generating global benchmark: ${request.metric} (${request.country}/${request.industry})`);
 
       const countryProfile = this.countryProfiles.get(request.country);
       if (!countryProfile) {
@@ -274,7 +271,6 @@ export class GlobalBenchmarkingSystem {
       this.benchmarkCache.set(cacheKey, benchmark);
       await this.storeBenchmark(benchmark);
 
-      console.log(`✅ Global benchmark generated with ${statistics.sampleSize} samples (${statistics.dataQuality} quality)`);
       
       return benchmark;
     } catch (error) {
@@ -293,7 +289,6 @@ export class GlobalBenchmarkingSystem {
     performanceData: Record<string, number>;
   }): Promise<MarketPosition> {
     try {
-      console.log(`🎯 Assessing global market position: ${request.country}/${request.industry}`);
 
       // Get relevant benchmarks
       const benchmarks = await Promise.all([
@@ -353,7 +348,6 @@ export class GlobalBenchmarkingSystem {
       // Store market position
       await this.storeMarketPosition(marketPosition);
 
-      console.log(`✅ Global market position: ${overall.tier} (${overall.score}/100) - Rank ${overall.ranking}%`);
       
       return marketPosition;
     } catch (error) {
@@ -385,7 +379,6 @@ export class GlobalBenchmarkingSystem {
     }>;
   }> {
     try {
-      console.log(`⚖️ Generating regulatory intelligence for ${request.countries.join(', ')}`);
 
       const upcomingChanges: RegulatoryChange[] = [];
       const complianceGaps: any[] = [];
@@ -427,7 +420,6 @@ export class GlobalBenchmarkingSystem {
         return impactOrder[b.impact] - impactOrder[a.impact];
       });
 
-      console.log(`✅ Found ${upcomingChanges.length} regulatory changes and ${complianceGaps.length} compliance gaps`);
       
       return {
         upcomingChanges: upcomingChanges.slice(0, 50), // Top 50
@@ -450,7 +442,6 @@ export class GlobalBenchmarkingSystem {
     focusAreas: string[];
   }): Promise<GlobalInsight[]> {
     try {
-      console.log(`🔍 Discovering global insights for ${request.countries.length} countries`);
 
       const insights: GlobalInsight[] = [];
 
@@ -476,7 +467,6 @@ export class GlobalBenchmarkingSystem {
         return b.confidence - a.confidence;
       });
 
-      console.log(`✅ Discovered ${insights.length} global insights`);
       
       return insights.slice(0, 25); // Top 25 insights
     } catch (error) {
@@ -1150,17 +1140,14 @@ export class GlobalBenchmarkingSystem {
       this.countryProfiles.set(profile.code, profile);
     });
 
-    console.log(`🌍 Loaded ${this.countryProfiles.size} country profiles`);
   }
 
   private async loadRegulatoryFrameworks(): Promise<void> {
     // Load regulatory updates and frameworks
-    console.log('⚖️ Loading regulatory frameworks...');
   }
 
   private async loadBenchmarkCache(): Promise<void> {
     // Load recent benchmarks from database
-    console.log('📊 Loading global benchmark cache...');
   }
 
   private startGlobalDataSync(): void {
@@ -1171,7 +1158,6 @@ export class GlobalBenchmarkingSystem {
       }
     }, 6 * 60 * 60 * 1000);
 
-    console.log('🔄 Global data sync scheduler started');
   }
 
   private startRegulatoryMonitoring(): void {
@@ -1180,13 +1166,11 @@ export class GlobalBenchmarkingSystem {
       await this.monitorRegulatoryChanges();
     }, 24 * 60 * 60 * 1000);
 
-    console.log('⚖️ Regulatory monitoring started');
   }
 
   private async syncGlobalData(): Promise<void> {
     this.isUpdating = true;
     try {
-      console.log('🔄 Syncing global benchmark data...');
       // In production, would sync with external data sources
     } finally {
       this.isUpdating = false;
@@ -1194,7 +1178,6 @@ export class GlobalBenchmarkingSystem {
   }
 
   private async monitorRegulatoryChanges(): Promise<void> {
-    console.log('⚖️ Monitoring regulatory changes...');
     // In production, would monitor regulatory databases and news sources
   }
 

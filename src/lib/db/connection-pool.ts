@@ -85,7 +85,6 @@ export class ConnectionPool {
       this.readReplicaClients = [this.primaryClient!];
     }
 
-    console.log(`Connection pool initialized with ${this.readReplicaClients.length} read replicas`);
   }
 
   // Get a connection for write operations
@@ -126,7 +125,6 @@ export class ConnectionPool {
 
     // Fallback to primary if all replicas fail
     try {
-      console.log('Falling back to primary for read operation');
       return await query(this.getWriteClient());
     } catch (error) {
       throw lastError || error;

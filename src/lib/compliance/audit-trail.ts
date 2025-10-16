@@ -144,11 +144,6 @@ export class ComplianceAuditTrail {
     this.events.set(eventId, auditEvent);
     
     // Log to console for immediate visibility
-    console.log(`🔍 [${framework}] ${severity}: ${action} - ${description}`, {
-      eventId,
-      actor: actor.userEmail,
-      target: `${target.type}:${target.id}`
-    });
     
     return eventId;
   }
@@ -369,7 +364,6 @@ export class ComplianceAuditTrail {
     
     this.reports.set(reportId, report);
     
-    console.log(`📊 Audit report generated: ${reportId} (${events.length} events analyzed)`);
     
     return reportId;
   }
@@ -399,7 +393,6 @@ export class ComplianceAuditTrail {
       }
     }
     
-    console.log(`🧹 Audit cleanup completed: ${deletedCount} deleted, ${retainedCount} retained, ${legalHoldCount} on legal hold`);
     
     return {
       deletedEvents: deletedCount,

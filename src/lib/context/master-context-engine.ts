@@ -276,7 +276,6 @@ export class MasterContextEngine {
       this.initializePatternRecognition();
 
       this.isInitialized = true;
-      console.log('Master Context Engine initialized successfully');
     } catch (error) {
       console.error('Failed to initialize context engine:', error);
       throw error;
@@ -338,7 +337,6 @@ export class MasterContextEngine {
         });
       } catch (error) {
         // Silently handle database errors - table may not exist yet
-        console.log('Action recorded locally (database pending)');
       }
     }
 

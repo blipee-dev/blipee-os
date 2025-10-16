@@ -272,7 +272,6 @@ export class LocalProvider implements EncryptionProvider {
       if (keyData.metadata.status === 'active') {
         const created = new Date(keyData.metadata.created).getTime();
         if (created < rotationThreshold) {
-          console.log(`Rotating key ${keyId} due to age`);
           await this.rotateKey(keyId);
         }
       }

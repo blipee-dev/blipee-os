@@ -350,29 +350,24 @@ export async function POST(_request: Request) {
       await handleMilestoneReached(event);
       break;
     default:
-      console.log('Unknown event type:', eventType);
   }
   
   return new Response('OK', { status: 200 });
 }
 
 async function handleBuildingCreated(event: any) {
-  console.log('New building created:', event.data.building);
   // Your business logic here
 }
 
 async function handleEmissionRecorded(event: any) {
-  console.log('New emission recorded:', event.data.emission);
   // Your business logic here
 }
 
 async function handleAlertTriggered(event: any) {
-  console.log('Alert triggered:', event.data.alert);
   // Send notification, escalate, etc.
 }
 
 async function handleMilestoneReached(event: any) {
-  console.log('Milestone reached:', event.data.sustainability);
   // Celebrate, notify stakeholders, etc.
 }
 `;

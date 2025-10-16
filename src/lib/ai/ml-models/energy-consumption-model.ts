@@ -49,7 +49,6 @@ export class EnergyConsumptionModel {
   private lastTrainingAccuracy = 0;
 
   constructor() {
-    console.log('⚡ Initializing Energy Consumption Model...');
   }
 
   /**
@@ -60,7 +59,6 @@ export class EnergyConsumptionModel {
       throw new Error('Model is already training');
     }
 
-    console.log('🏃 Training Energy Consumption Model with real data...');
     this.isTraining = true;
 
     try {
@@ -83,7 +81,6 @@ export class EnergyConsumptionModel {
 
       this.lastTrainingAccuracy = metrics.accuracy || 0;
 
-      console.log(`✅ Energy model trained - Accuracy: ${(this.lastTrainingAccuracy * 100).toFixed(1)}%`);
 
       if (this.lastTrainingAccuracy < 0.85) {
         console.warn('⚠️ Model accuracy below target (85%). Consider more training data or feature engineering.');
@@ -98,7 +95,6 @@ export class EnergyConsumptionModel {
    * Predict energy consumption
    */
   async predict(input: EnergyConsumptionInput): Promise<EnergyConsumptionPrediction> {
-    console.log('🔮 Predicting energy consumption...');
 
     // Prepare input features for LSTM (needs sequence of 10 timesteps)
     const features = this.extractFeatures(input);

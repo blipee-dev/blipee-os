@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'start_date and end_date required' }, { status: 400 });
     }
 
-    console.log(`📊 Emissions Detailed API: ${startDate} to ${endDate}, site: ${siteId || 'all'}`);
 
     // Fetch all emissions data with full details
     let query = supabaseAdmin
@@ -81,7 +80,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch emissions data' }, { status: 500 });
     }
 
-    console.log(`📊 Fetched ${metricsData?.length || 0} records`);
 
     // Get organization employees count for intensity metrics
     const { data: orgData } = await supabaseAdmin
@@ -111,7 +109,6 @@ export async function GET(request: NextRequest) {
     }, 0) || 0;
 
     // ✅ USE CALCULATOR for ALL emissions calculations
-    console.log('✅ Using calculator for detailed emissions...');
 
     // Get emissions from calculator (scope-by-scope rounding)
     const emissions = await getPeriodEmissions(orgInfo.organizationId, startDate, endDate);
@@ -150,13 +147,6 @@ export async function GET(request: NextRequest) {
       metricsData || [],
       sites || []
     );
-
-    console.log('✅ Calculator values:', {
-      total: emissions.total,
-      scope1: scopes.scope_1,
-      scope2: scopes.scope_2,
-      scope3: scopes.scope_3
-    });
 
     return NextResponse.json({
       ...processedData,
@@ -637,7 +627,6 @@ function processEmissionsData(metricsData: any[], sites: any[], orgData: any) {
     ? ((dataQuality.measured / dataQuality.totalRecords) * 100)
     : 0;
 
-  console.log(`✅ Processed emissions: ${summary.total.toFixed(2)} tCO2e (Scope 1: ${summary.scope1.toFixed(2)}, Scope 2: ${summary.scope2.toFixed(2)}, Scope 3: ${summary.scope3.toFixed(2)})`);
 
   return {
     summary,

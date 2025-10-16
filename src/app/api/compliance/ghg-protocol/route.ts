@@ -38,73 +38,99 @@ export async function GET(request: NextRequest) {
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
     const siteId = searchParams.get('siteId');
 
-    // Fetch GHG inventory settings
-    const { data: settings } = await supabaseAdmin
-      .from('ghg_inventory_settings')
-      .select('*')
-      .eq('organization_id', organizationId)
-      .eq('reporting_year', year)
-      .single();
+    // Parallelize database queries for better performance
+    const [
+      { data: settings },
+      { data: metricsData, error: metricsError }
+    ] = await Promise.all([
+      // Fetch GHG inventory settings
+      supabaseAdmin
+        .from('ghg_inventory_settings')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .eq('reporting_year', year)
+        .single(),
 
-    // Fetch emissions data for the year
-    let metricsQuery = supabaseAdmin
-      .from('metrics_data')
-      .select(`
-        *,
-        metrics_catalog (
-          code,
-          scope,
-          category,
-          subcategory
+      // Fetch only necessary fields from metrics_data (not *)
+      supabaseAdmin
+        .from('metrics_data')
+        .select(`
+          co2e_emissions,
+          scope2_method,
+          metrics_catalog!inner (
+            scope,
+            subcategory
+          )
+        `)
+        .eq('organization_id', organizationId)
+        .gte('period_start', `${year}-01-01`)
+        .lte('period_end', `${year}-12-31`)
+        .then(result => siteId ?
+          supabaseAdmin
+            .from('metrics_data')
+            .select(`
+              co2e_emissions,
+              scope2_method,
+              metrics_catalog!inner (
+                scope,
+                subcategory
+              )
+            `)
+            .eq('organization_id', organizationId)
+            .eq('site_id', siteId)
+            .gte('period_start', `${year}-01-01`)
+            .lte('period_end', `${year}-12-31`)
+          : result
         )
-      `)
-      .eq('organization_id', organizationId)
-      .gte('period_start', `${year}-01-01`)
-      .lte('period_end', `${year}-12-31`);
-
-    // Filter by site if provided
-    if (siteId) {
-      metricsQuery = metricsQuery.eq('site_id', siteId);
-    }
-
-    const { data: metricsData, error: metricsError } = await metricsQuery;
+    ]);
 
     if (metricsError) {
       console.error('Error fetching metrics data:', metricsError);
     }
 
-    // Calculate Scope 1, 2, 3 emissions
-    const scope1Data = metricsData?.filter(m => m.metrics_catalog?.scope === 'scope_1') || [];
-    const scope1Gross = scope1Data.reduce((sum, m) => sum + (m.co2e_emissions || 0), 0);
+    // Optimized: Calculate all scopes in a single pass
+    let scope1Gross = 0;
+    let scope2LocationBased = 0;
+    let scope2MarketBased = 0;
+    let scope3Gross = 0;
+    const scope3Categories = new Set<string>();
 
-    const scope2Data = metricsData?.filter(m => m.metrics_catalog?.scope === 'scope_2') || [];
-    const scope2LocationBased = scope2Data
-      .filter(m => !m.scope2_method || m.scope2_method === 'location_based')
-      .reduce((sum, m) => sum + (m.co2e_emissions || 0), 0);
-    const scope2MarketBased = scope2Data
-      .filter(m => m.scope2_method === 'market_based')
-      .reduce((sum, m) => sum + (m.co2e_emissions || 0), 0) || scope2LocationBased;
+    metricsData?.forEach(m => {
+      const emissions = m.co2e_emissions || 0;
+      const scope = m.metrics_catalog?.scope;
 
-    const scope3Data = metricsData?.filter(m => m.metrics_catalog?.scope === 'scope_3') || [];
-    const scope3Gross = scope3Data.reduce((sum, m) => sum + (m.co2e_emissions || 0), 0);
+      if (scope === 'scope_1') {
+        scope1Gross += emissions;
+      } else if (scope === 'scope_2') {
+        if (m.scope2_method === 'market_based') {
+          scope2MarketBased += emissions;
+        } else {
+          scope2LocationBased += emissions;
+        }
+      } else if (scope === 'scope_3') {
+        scope3Gross += emissions;
+        if (m.metrics_catalog?.subcategory) {
+          scope3Categories.add(m.metrics_catalog.subcategory);
+        }
+      }
+    });
 
-    // Get Scope 3 categories present in data
-    const scope3CategoriesInData = [...new Set(
-      scope3Data
-        .map(m => m.metrics_catalog?.subcategory)
-        .filter(Boolean)
-    )];
+    // If no market-based data, use location-based
+    if (scope2MarketBased === 0) {
+      scope2MarketBased = scope2LocationBased;
+    }
 
+    const scope3CategoriesInData = Array.from(scope3Categories);
     const totalGross = scope1Gross + scope2MarketBased + scope3Gross;
 
-    // Get base year data if base year is set
+    // Get base year data if needed (optimized query)
     let baseYearEmissions = null;
     if (settings?.base_year && settings.base_year !== year) {
       const { data: baseYearData } = await supabaseAdmin
         .from('metrics_data')
         .select(`
-          *,
-          metrics_catalog (
+          co2e_emissions,
+          metrics_catalog!inner (
             scope
           )
         `)
@@ -112,10 +138,19 @@ export async function GET(request: NextRequest) {
         .gte('period_start', `${settings.base_year}-01-01`)
         .lte('period_end', `${settings.base_year}-12-31`);
 
-      if (baseYearData) {
-        const baseScope1 = baseYearData.filter(m => m.metrics_catalog?.scope === 'scope_1').reduce((sum, m) => sum + (m.co2e_emissions || 0), 0);
-        const baseScope2 = baseYearData.filter(m => m.metrics_catalog?.scope === 'scope_2').reduce((sum, m) => sum + (m.co2e_emissions || 0), 0);
-        const baseScope3 = baseYearData.filter(m => m.metrics_catalog?.scope === 'scope_3').reduce((sum, m) => sum + (m.co2e_emissions || 0), 0);
+      if (baseYearData && baseYearData.length > 0) {
+        let baseScope1 = 0;
+        let baseScope2 = 0;
+        let baseScope3 = 0;
+
+        baseYearData.forEach(m => {
+          const emissions = m.co2e_emissions || 0;
+          const scope = m.metrics_catalog?.scope;
+
+          if (scope === 'scope_1') baseScope1 += emissions;
+          else if (scope === 'scope_2') baseScope2 += emissions;
+          else if (scope === 'scope_3') baseScope3 += emissions;
+        });
 
         baseYearEmissions = {
           scope_1: parseFloat(baseScope1.toFixed(2)),

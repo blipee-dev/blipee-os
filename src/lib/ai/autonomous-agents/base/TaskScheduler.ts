@@ -65,7 +65,6 @@ export class TaskScheduler {
     this.taskProcessor = taskProcessor;
     this.isRunning = true;
     
-    console.log('🚀 TaskScheduler starting...');
     
     // Start main processing loop
     this.processingInterval = setInterval(() => {
@@ -75,7 +74,6 @@ export class TaskScheduler {
     // Load persisted tasks from database
     this.loadPersistedTasks();
     
-    console.log('✅ TaskScheduler is now active');
   }
 
   /**
@@ -84,7 +82,6 @@ export class TaskScheduler {
   stop(): void {
     if (!this.isRunning) return;
     
-    console.log('⏹️ TaskScheduler stopping...');
     
     this.isRunning = false;
     
@@ -99,7 +96,6 @@ export class TaskScheduler {
       execution.endTime = new Date();
     });
     
-    console.log('✅ TaskScheduler stopped');
   }
 
   /**
@@ -126,7 +122,6 @@ export class TaskScheduler {
     // Persist to database for durability
     await this.persistTask(scheduledTask);
     
-    console.log(`📋 Task ${task.id} scheduled with priority: ${task.priority}`);
   }
 
   /**
@@ -338,7 +333,6 @@ export class TaskScheduler {
     
     this.processingTasks.set(task.id, execution);
     
-    console.log(`🔥 Executing task ${task.id} (${task.type})`);
     
     try {
       // Set timeout if specified
@@ -363,7 +357,6 @@ export class TaskScheduler {
       execution.endTime = new Date();
       execution.result = result;
       
-      console.log(`✅ Task ${task.id} completed successfully`);
       
       // Handle recurring task
       if (task.isRecurring && task.intervalMs) {
@@ -393,7 +386,6 @@ export class TaskScheduler {
           nextExecution: new Date(Date.now() + retryDelay)
         };
         
-        console.log(`🔄 Scheduling retry ${task.executionAttempts + 1}/${this.maxRetries} for task ${task.id} in ${retryDelay}ms`);
         await this.scheduleTask(retryTask);
       }
     }
@@ -475,7 +467,6 @@ export class TaskScheduler {
       if (error) throw error;
       
       if (tasks && tasks.length > 0) {
-        console.log(`📚 Loading ${tasks.length} persisted tasks`);
         
         for (const taskData of tasks) {
           const scheduledTask: ScheduledTask = {

@@ -146,10 +146,8 @@ describe('Stream B Production Integration Tests', () => {
 
   describe('End-to-End ML Pipeline', () => {
     it('should execute complete ML pipeline from optimization to production monitoring', async () => {
-      console.log('🚀 Testing complete end-to-end ML pipeline...');
       
       // Step 1: AutoML - Find best model
-      console.log('   📊 Step 1: Running AutoML to find best model...');
       const autoMLConfig: AutoMLConfig = {
         taskType: 'classification',
         objective: 'accuracy',
@@ -168,10 +166,8 @@ describe('Stream B Production Integration Tests', () => {
 
       expect(autoMLResult.bestModel).toBeDefined();
       expect(autoMLResult.bestScore).toBeGreaterThan(0.5);
-      console.log(`      ✅ Best model: ${autoMLResult.bestModel.getModelName()} (score: ${autoMLResult.bestScore.toFixed(3)})`);
 
       // Step 2: Hyperparameter Optimization
-      console.log('   🔧 Step 2: Optimizing hyperparameters...');
       const model = new RegulatoryPredictor();
       const searchSpace = HyperparameterOptimizer.createSearchSpace('regulatory_predictor');
       
@@ -187,10 +183,8 @@ describe('Stream B Production Integration Tests', () => {
 
       const optimizedModel = await hyperOptimizer.optimizeModel(optimizationConfig);
       expect(optimizedModel.bestScore).toBeGreaterThan(0);
-      console.log(`      ✅ Optimization complete (score: ${optimizedModel.bestScore.toFixed(3)})`);
 
       // Step 3: Performance Optimization
-      console.log('   ⚡ Step 3: Applying performance optimizations...');
       const performanceResults = await modelOptimizer.optimizeModel(
         model,
         productionTrainingData.features.slice(0, 10)
@@ -198,10 +192,8 @@ describe('Stream B Production Integration Tests', () => {
 
       expect(performanceResults.success).toBe(true);
       expect(performanceResults.strategies.length).toBeGreaterThan(0);
-      console.log(`      ✅ Applied ${performanceResults.strategies.length} optimization strategies`);
 
       // Step 4: Set up A/B Testing
-      console.log('   🧪 Step 4: Setting up A/B testing framework...');
       const controlModel = new ProductionTestModel(0.12, 90);
       const variantModel = new ProductionTestModel(0.18, 85);
 
@@ -232,15 +224,12 @@ describe('Stream B Production Integration Tests', () => {
 
       const testId = await abTesting.startExperiment(abTestConfig);
       expect(testId).toBeDefined();
-      console.log(`      ✅ A/B test started (ID: ${testId})`);
 
       // Step 5: Production Monitoring Setup
-      console.log('   📈 Step 5: Setting up production monitoring...');
       await monitoring.startMonitoring();
       monitoring.setBaseline(productionTrainingData);
 
       // Step 6: Simulate Production Traffic
-      console.log('   🚦 Step 6: Simulating production traffic...');
       const predictions = [];
       for (let i = 0; i < 50; i++) {
         const request: ABTestRequest = {
@@ -269,34 +258,27 @@ describe('Stream B Production Integration Tests', () => {
         await monitoring.recordOutcome(`req_${i}`, success);
       }
 
-      console.log(`      ✅ Processed ${predictions.length} production requests`);
 
       // Step 7: Validate Results
-      console.log('   ✅ Step 7: Validating end-to-end results...');
       
       // Check A/B test results
       const abResults = await abTesting.getExperimentResults(testId);
       expect(abResults.totalRequests).toBe(50);
       expect(abResults.variantPerformance.size).toBe(2);
-      console.log(`      📊 A/B test: ${abResults.totalRequests} requests processed`);
 
       // Check monitoring health
       const health = await monitoring.getModelHealth();
       expect(health.currentMetrics.requestCount).toBe(50);
       expect(health.status).toMatch(/^(healthy|warning|critical|degraded)$/);
-      console.log(`      💚 Model health: ${health.status}`);
-      console.log(`      📊 Monitoring: ${health.currentMetrics.requestCount} requests, ${health.currentMetrics.averageLatency.toFixed(1)}ms avg latency`);
 
       // Stop the A/B test
       await abTesting.stopExperiment(testId, 'Integration test completed');
       
-      console.log('   🎉 End-to-end pipeline completed successfully!');
     }, 60000);
   });
 
   describe('Production Scalability Tests', () => {
     it('should handle high-throughput production workloads', async () => {
-      console.log('🔥 Testing high-throughput production scalability...');
       
       // Register models with scaler
       const models = [
@@ -332,14 +314,11 @@ describe('Stream B Production Integration Tests', () => {
       const totalTime = endTime - startTime;
       const throughput = (concurrentRequests / totalTime) * 1000; // requests per second
 
-      console.log(`      ✅ Processed ${concurrentRequests} concurrent requests in ${totalTime}ms`);
-      console.log(`      📈 Throughput: ${throughput.toFixed(1)} requests/second`);
 
       expect(throughput).toBeGreaterThan(10); // Should handle at least 10 req/s
     }, 30000);
 
     it('should maintain performance under continuous monitoring', async () => {
-      console.log('📊 Testing continuous monitoring performance...');
       
       await monitoring.startMonitoring();
       const startTime = Date.now();
@@ -370,15 +349,11 @@ describe('Stream B Production Integration Tests', () => {
       expect(health.currentMetrics.averageLatency).toBeGreaterThan(0);
       expect(health.status).toBeDefined();
 
-      console.log(`      ✅ Monitored ${requestCount} requests in ${endTime - startTime}ms`);
-      console.log(`      📊 Average latency: ${health.currentMetrics.averageLatency.toFixed(1)}ms`);
-      console.log(`      💚 Final status: ${health.status}`);
     }, 45000);
   });
 
   describe('Error Recovery and Resilience', () => {
     it('should recover gracefully from model failures', async () => {
-      console.log('🛡️ Testing error recovery and resilience...');
       
       // Create a model that fails intermittently
       class FlakyModel extends BaseModel {
@@ -463,14 +438,11 @@ describe('Stream B Production Integration Tests', () => {
       expect(successCount).toBeGreaterThan(0);
       expect(successRate).toBeGreaterThan(0.5); // Should succeed more than 50% of the time
       
-      console.log(`      ✅ Handled ${failureCount} failures out of 100 requests`);
-      console.log(`      📊 Success rate: ${(successRate * 100).toFixed(1)}%`);
 
       await abTesting.stopExperiment(testId);
     }, 30000);
 
     it('should maintain monitoring during system stress', async () => {
-      console.log('⚡ Testing monitoring under system stress...');
       
       await monitoring.startMonitoring();
       
@@ -501,14 +473,11 @@ describe('Stream B Production Integration Tests', () => {
       const latencyAlerts = health.alerts.filter(a => a.message.includes('latency'));
       expect(latencyAlerts.length).toBeGreaterThan(0);
       
-      console.log(`      ✅ Processed stress test with ${health.currentMetrics.averageLatency.toFixed(1)}ms avg latency`);
-      console.log(`      🚨 Generated ${latencyAlerts.length} latency alerts`);
     }, 20000);
   });
 
   describe('Production Configuration Validation', () => {
     it('should validate all production configurations', () => {
-      console.log('⚙️ Testing production configuration validation...');
       
       // Test monitoring configuration
       expect(monitoring).toBeDefined();
@@ -534,11 +503,9 @@ describe('Stream B Production Integration Tests', () => {
       expect(hyperOptConfig.nIterations).toBeGreaterThan(0);
       expect(hyperOptConfig.acquisitionFunction).toBeDefined();
       
-      console.log('      ✅ All production configurations validated');
     });
 
     it('should ensure resource limits are properly configured', () => {
-      console.log('🔒 Testing resource limit configurations...');
       
       // Test model scaler limits
       const scalerConfig = modelScaler.getConfig();
@@ -553,7 +520,6 @@ describe('Stream B Production Integration Tests', () => {
       expect(monitoringConfig.samplingRate).toBeGreaterThan(0);
       expect(monitoringConfig.samplingRate).toBeLessThanOrEqual(1);
       
-      console.log('      ✅ Resource limits properly configured');
     });
   });
 });

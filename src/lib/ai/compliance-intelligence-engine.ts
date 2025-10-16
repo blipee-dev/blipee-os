@@ -1038,7 +1038,6 @@ class RegulatoryChangeMonitor {
 
   public async checkForUpdates() {
     // In production, this would check external regulatory databases
-    console.log('Checking for regulatory updates...');
   }
 }
 

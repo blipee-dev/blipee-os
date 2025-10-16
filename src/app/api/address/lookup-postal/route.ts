@@ -217,7 +217,6 @@ export async function POST(request: NextRequest) {
     // First, try Serper API for any postal code
     const serperResult = await lookupAddressWithSerper(cleanedCode, country || '');
     if (serperResult) {
-      console.log('Address found via Serper API:', serperResult);
       return NextResponse.json({
         success: true,
         data: serperResult,

@@ -45,17 +45,10 @@ test.describe('Accessibility Tests', () => {
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
       .analyze();
 
-    console.log('\n♿ Landing Page Accessibility Results:');
-    console.log(`  Violations: ${accessibilityScanResults.violations.length}`);
-    console.log(`  Passes: ${accessibilityScanResults.passes.length}`);
 
     // Log any violations
     if (accessibilityScanResults.violations.length > 0) {
-      console.log('\n❌ Accessibility Violations:');
       accessibilityScanResults.violations.forEach((violation, index) => {
-        console.log(`  ${index + 1}. ${violation.id}: ${violation.description}`);
-        console.log(`     Impact: ${violation.impact}`);
-        console.log(`     Help: ${violation.helpUrl}`);
       });
     }
 
@@ -72,13 +65,9 @@ test.describe('Accessibility Tests', () => {
         .withTags(['wcag2a', 'wcag2aa'])
         .analyze();
 
-      console.log(`\n♿ ${pagePath} Accessibility Results:`);
-      console.log(`  Violations: ${accessibilityScanResults.violations.length}`);
 
       if (accessibilityScanResults.violations.length > 0) {
-        console.log('\n❌ Violations:');
         accessibilityScanResults.violations.forEach((violation, index) => {
-          console.log(`  ${index + 1}. ${violation.id}: ${violation.description}`);
         });
       }
 
@@ -95,16 +84,10 @@ test.describe('Accessibility Tests', () => {
       .exclude('[data-testid="chart-canvas"]') // Charts may need special handling
       .analyze();
 
-    console.log('\n♿ Dashboard Accessibility Results:');
-    console.log(`  Violations: ${accessibilityScanResults.violations.length}`);
-    console.log(`  Passes: ${accessibilityScanResults.passes.length}`);
 
     if (accessibilityScanResults.violations.length > 0) {
-      console.log('\n❌ Dashboard Violations:');
       accessibilityScanResults.violations.forEach((violation, index) => {
-        console.log(`  ${index + 1}. ${violation.id}: ${violation.description}`);
         violation.nodes.forEach(node => {
-          console.log(`     Element: ${node.html.substring(0, 100)}...`);
         });
       });
     }
@@ -121,8 +104,6 @@ test.describe('Accessibility Tests', () => {
       .withTags(['wcag2a', 'wcag2aa'])
       .analyze();
 
-    console.log('\n♿ Chat Interface Accessibility Results:');
-    console.log(`  Violations: ${accessibilityScanResults.violations.length}`);
 
     expect(accessibilityScanResults.violations).toEqual([]);
 
@@ -134,8 +115,6 @@ test.describe('Accessibility Tests', () => {
       .withTags(['wcag2a', 'wcag2aa'])
       .analyze();
 
-    console.log('\n♿ Chat with Messages Accessibility Results:');
-    console.log(`  Violations: ${accessibilityScanResults.violations.length}`);
 
     expect(accessibilityScanResults.violations).toEqual([]);
   });
@@ -143,7 +122,6 @@ test.describe('Accessibility Tests', () => {
   test('Keyboard navigation works correctly', async () => {
     await framework.navigateTo('/signin');
 
-    console.log('\n⌨️ Testing keyboard navigation...');
 
     // Test Tab navigation through form
     await framework.page.keyboard.press('Tab'); // Should focus email input
@@ -163,13 +141,11 @@ test.describe('Accessibility Tests', () => {
     focused = await framework.page.evaluate(() => document.activeElement?.getAttribute('data-testid'));
     expect(focused).toBe('password');
 
-    console.log('✅ Keyboard navigation working correctly');
   });
 
   test('Form accessibility and ARIA labels', async () => {
     await framework.navigateTo('/signup');
 
-    console.log('\n🏷️ Testing form accessibility...');
 
     // Check for proper ARIA labels and roles
     const emailInput = await framework.page.locator('[data-testid="email"]');
@@ -180,12 +156,10 @@ test.describe('Accessibility Tests', () => {
     const emailLabel = await emailInput.getAttribute('aria-label') || 
                       await framework.page.locator('label[for*="email"]').textContent();
     expect(emailLabel).toBeTruthy();
-    console.log(`  Email input label: "${emailLabel}"`);
 
     const passwordLabel = await passwordInput.getAttribute('aria-label') || 
                          await framework.page.locator('label[for*="password"]').textContent();
     expect(passwordLabel).toBeTruthy();
-    console.log(`  Password input label: "${passwordLabel}"`);
 
     // Test form validation accessibility
     await framework.page.fill('[data-testid="email"]', 'invalid-email');
@@ -195,7 +169,6 @@ test.describe('Accessibility Tests', () => {
     // Check for error messages with proper ARIA attributes
     const errorMessages = await framework.page.locator('[role="alert"], [aria-live="assertive"]');
     const errorCount = await errorMessages.count();
-    console.log(`  Error messages with ARIA: ${errorCount}`);
 
     expect(errorCount).toBeGreaterThan(0);
   });
@@ -203,7 +176,6 @@ test.describe('Accessibility Tests', () => {
   test('Color contrast meets WCAG standards', async () => {
     await framework.navigateTo('/');
 
-    console.log('\n🎨 Testing color contrast...');
 
     // Test with axe-core color contrast rules
     const accessibilityScanResults = await new AxeBuilder({ page: framework.page })
@@ -211,17 +183,11 @@ test.describe('Accessibility Tests', () => {
       .withRules(['color-contrast'])
       .analyze();
 
-    console.log(`  Color contrast violations: ${accessibilityScanResults.violations.length}`);
 
     if (accessibilityScanResults.violations.length > 0) {
-      console.log('\n❌ Color Contrast Issues:');
       accessibilityScanResults.violations.forEach((violation, index) => {
-        console.log(`  ${index + 1}. ${violation.description}`);
         violation.nodes.forEach(node => {
-          console.log(`     Element: ${node.html.substring(0, 80)}...`);
           if (node.any.length > 0) {
-            console.log(`     Expected: ${node.any[0].data?.expectedContrastRatio}`);
-            console.log(`     Actual: ${node.any[0].data?.contrastRatio}`);
           }
         });
       });
@@ -234,15 +200,12 @@ test.describe('Accessibility Tests', () => {
     await framework.signIn(testUser);
     await framework.navigateTo('/dashboard');
 
-    console.log('\n🔊 Testing screen reader compatibility...');
 
     // Check for proper heading structure
     const headings = await framework.page.locator('h1, h2, h3, h4, h5, h6').all();
     const headingTexts = await Promise.all(headings.map(h => h.textContent()));
     
-    console.log(`  Found ${headings.length} headings:`);
     headingTexts.forEach((text, index) => {
-      console.log(`    ${index + 1}. "${text}"`);
     });
 
     // Verify main content area is properly marked
@@ -252,19 +215,16 @@ test.describe('Accessibility Tests', () => {
     // Check for skip links
     const skipLinks = await framework.page.locator('a[href="#main"], a[href="#content"], .skip-link');
     const skipLinkCount = await skipLinks.count();
-    console.log(`  Skip links: ${skipLinkCount}`);
 
     // Check for landmark regions
     const landmarks = await framework.page.locator('[role="navigation"], [role="main"], [role="banner"], [role="contentinfo"], nav, main, header, footer');
     const landmarkCount = await landmarks.count();
-    console.log(`  Landmark regions: ${landmarkCount}`);
     expect(landmarkCount).toBeGreaterThan(0);
   });
 
   test('Focus management and visual indicators', async () => {
     await framework.navigateTo('/signin');
 
-    console.log('\n🎯 Testing focus management...');
 
     // Test that focused elements have visible focus indicators
     const focusableElements = await framework.page.locator('input, button, a, [tabindex="0"]').all();
@@ -292,7 +252,6 @@ test.describe('Accessibility Tests', () => {
         focusStyles.boxShadow !== 'none';
       
       const elementInfo = await element.getAttribute('data-testid') || await element.textContent() || 'Unknown element';
-      console.log(`  Element "${elementInfo}": ${hasFocusIndicator ? '✅ Has focus indicator' : '❌ No focus indicator'}`);
     }
   });
 
@@ -301,13 +260,11 @@ test.describe('Accessibility Tests', () => {
     await framework.page.setViewportSize({ width: 375, height: 667 });
     await framework.navigateTo('/');
 
-    console.log('\n📱 Testing mobile accessibility...');
 
     const accessibilityScanResults = await new AxeBuilder({ page: framework.page })
       .withTags(['wcag2a', 'wcag2aa'])
       .analyze();
 
-    console.log(`  Mobile violations: ${accessibilityScanResults.violations.length}`);
 
     // Test touch target sizes
     const buttons = await framework.page.locator('button, a, input[type="button"], input[type="submit"]').all();
@@ -321,7 +278,6 @@ test.describe('Accessibility Tests', () => {
         const meetsSize = box.width >= minSize && box.height >= minSize;
         
         const buttonText = await button.textContent() || await button.getAttribute('aria-label') || 'Unknown button';
-        console.log(`  Button "${buttonText}": ${box.width}x${box.height}px ${meetsSize ? '✅' : '❌'}`);
       }
     }
 
@@ -329,7 +285,6 @@ test.describe('Accessibility Tests', () => {
   });
 
   test('High contrast mode compatibility', async () => {
-    console.log('\n🌓 Testing high contrast mode...');
 
     // Simulate high contrast mode with CSS media query
     await framework.page.emulateMedia({ colorScheme: 'dark' });
@@ -341,7 +296,6 @@ test.describe('Accessibility Tests', () => {
       .withRules(['color-contrast'])
       .analyze();
 
-    console.log(`  High contrast violations: ${accessibilityScanResults.violations.length}`);
 
     // Reset to light mode
     await framework.page.emulateMedia({ colorScheme: 'light' });

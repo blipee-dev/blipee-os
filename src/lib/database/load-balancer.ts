@@ -251,7 +251,6 @@ export class AdaptiveStrategy implements LoadBalancerStrategy {
   private switchStrategy(name: string): void {
     const newStrategy = this.strategies.get(name);
     if (newStrategy && newStrategy !== this.currentStrategy) {
-      console.log(`Switching load balancing strategy to: ${name}`);
       this.currentStrategy = newStrategy;
     }
   }

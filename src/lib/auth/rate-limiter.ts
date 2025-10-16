@@ -156,7 +156,6 @@ export function cleanupRateLimitStore(): void {
 
   keysToDelete.forEach(key => rateLimitStore.delete(key));
 
-  console.log(`Rate limit store cleaned up: removed ${keysToDelete.length} expired entries`);
 }
 
 // Set up periodic cleanup (every 10 minutes)

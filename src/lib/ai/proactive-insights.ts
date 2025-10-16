@@ -94,7 +94,6 @@ Just drop your files here, or let's set things up step by step:`;
         type: "quick-start-upload",
         props: {
           onFileUpload: (files: FileList) => {
-            console.log("Files uploaded:", files);
           }
         }
       },

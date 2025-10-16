@@ -38,6 +38,7 @@ import { useTranslations, useLanguage } from '@/providers/LanguageProvider';
 import { FloatingHelpButton } from '@/components/education/FloatingHelpButton';
 import { EducationalModal } from '@/components/education/EducationalModal';
 import { getCarbonEquivalent } from '@/lib/education/carbon-equivalents';
+import { useOverviewDashboard } from '@/hooks/useDashboardData';
 
 interface OverviewDashboardProps {
   organizationId: string;
@@ -56,7 +57,18 @@ interface ScopeData {
 export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod }: OverviewDashboardProps) {
   const t = useTranslations('sustainability.dashboard');
   const { t: tGlobal } = useLanguage(); // For carbon equivalents translations
-  const [loading, setLoading] = useState(true);
+
+  // Fetch data with React Query (cached, parallel)
+  const {
+    scopeAnalysis,
+    targets: targetsQuery,
+    prevYearScopeAnalysis,
+    fullPrevYearScopeAnalysis,
+    dashboard: dashboardQuery,
+    forecast: forecastQuery,
+    topMetrics: topMetricsQuery,
+    isLoading
+  } = useOverviewDashboard(selectedPeriod, selectedSite, organizationId);
 
   // Helper function to get action recommendations
   const getActionRecommendation = (categoryName: string): string => {
@@ -154,69 +166,31 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
   // Educational modal state
   const [activeEducationalModal, setActiveEducationalModal] = useState<string | null>(null);
 
+  // Processing useEffect - runs when cached data changes
   useEffect(() => {
-    const fetchOverviewData = async () => {
-      setLoading(true);
+    // Wait for all required data to be available
+    if (!scopeAnalysis.data || !dashboardQuery.data) return;
+
+    const processOverviewData = async () => {
       try {
-        // Build params exactly like Energy dashboard
-        const params = new URLSearchParams({
-          start_date: selectedPeriod.start,
-          end_date: selectedPeriod.end,
-        });
-        if (selectedSite) {
-          params.append('site_id', selectedSite.id);
+        // Get data from React Query hooks
+        const scopeData = scopeAnalysis.data;
+        const sbtiTargetsResult = targetsQuery.data;
+        const prevScopeData = prevYearScopeAnalysis.data;
+        const fullPrevYearData = fullPrevYearScopeAnalysis.data;
+        const dashboardData = dashboardQuery.data;
+        const forecastResult = forecastQuery.data;
+        const topMetricsData = topMetricsQuery.data;
+
+        // Set targetData
+        if (sbtiTargetsResult) {
+          setTargetData(sbtiTargetsResult);
         }
-
-        // Fetch scope analysis for current period
-        const scopeResponse = await fetch(`/api/sustainability/scope-analysis?${params}`);
-        const scopeData = await scopeResponse.json();
-
-        // Fetch SBTi targets data (will be used later for both target card and progress calculations)
-        const sbtiTargetsResponse = await fetch('/api/sustainability/targets');
-        const sbtiTargetsResult = await sbtiTargetsResponse.json();
-        console.log('🎯 SBTi Targets Response:', sbtiTargetsResult);
-        console.log('🎯 Has targets?', sbtiTargetsResult?.targets, 'Length:', sbtiTargetsResult?.targets?.length);
-        setTargetData(sbtiTargetsResult);
-
-        // Fetch previous year for YoY comparison
-        const currentYear = new Date(selectedPeriod.start).getFullYear();
-        const previousYear = currentYear - 1;
-
-        const prevYearStart = new Date(selectedPeriod.start);
-        prevYearStart.setFullYear(previousYear);
-        const prevYearEnd = new Date(selectedPeriod.end);
-        prevYearEnd.setFullYear(previousYear);
-
-        const prevParams = new URLSearchParams({
-          start_date: prevYearStart.toISOString().split('T')[0],
-          end_date: prevYearEnd.toISOString().split('T')[0],
-        });
-        if (selectedSite) {
-          prevParams.append('site_id', selectedSite.id);
-        }
-
-        const prevScopeResponse = await fetch(`/api/sustainability/scope-analysis?${prevParams}`);
-        const prevScopeData = await prevScopeResponse.json();
-
-        // Also fetch FULL previous year data for projected YoY comparison
-        const fullPrevYearParams = new URLSearchParams({
-          start_date: `${previousYear}-01-01`,
-          end_date: `${previousYear}-12-31`,
-        });
-        if (selectedSite) {
-          fullPrevYearParams.append('site_id', selectedSite.id);
-        }
-        const fullPrevYearResponse = await fetch(`/api/sustainability/scope-analysis?${fullPrevYearParams}`);
-        const fullPrevYearData = await fullPrevYearResponse.json();
-
-        console.log('Current year scope data:', scopeData);
-        console.log('Previous year scope data (same period):', prevScopeData);
-        console.log('Previous year scope data (full year):', fullPrevYearData);
 
         // Extract scope totals
         const extractedScopeData = scopeData.scopeData || scopeData;
-        const prevExtractedScopeData = prevScopeData.scopeData || prevScopeData;
-        const fullPrevYearExtractedScopeData = fullPrevYearData.scopeData || fullPrevYearData;
+        const prevExtractedScopeData = prevScopeData?.scopeData || prevScopeData || {};
+        const fullPrevYearExtractedScopeData = fullPrevYearData?.scopeData || fullPrevYearData || {};
 
         const s1Current = extractedScopeData.scope_1?.total || 0;
         const s2Current = extractedScopeData.scope_2?.total || 0;
@@ -234,14 +208,6 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         const previousTotal = s1Previous + s2Previous + s3Previous;
         const fullPreviousYearTotal = s1FullPrevYear + s2FullPrevYear + s3FullPrevYear;
 
-        console.log('📊 Calculated emissions:');
-        console.log('  Scope 1:', s1Current.toFixed(2), 'tCO2e');
-        console.log('  Scope 2:', s2Current.toFixed(2), 'tCO2e');
-        console.log('  Scope 3:', s3Current.toFixed(2), 'tCO2e');
-        console.log('  Total:', currentTotal.toFixed(2), 'tCO2e');
-        console.log('  Previous year total (same period):', previousTotal.toFixed(2), 'tCO2e');
-        console.log('  Previous year total (FULL YEAR):', fullPreviousYearTotal.toFixed(2), 'tCO2e');
-
         setScope1Total(s1Current);
         setScope2Total(s2Current);
         setScope3Total(s3Current);
@@ -258,7 +224,6 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         setScopeYoY({ scope1: s1YoY, scope2: s2YoY, scope3: s3YoY });
 
         // Extract new enhanced data from API
-        console.log('📊 Data Quality from API:', scopeData.dataQuality);
         if (scopeData.dataQuality) {
           setDataQuality(scopeData.dataQuality);
         }
@@ -296,19 +261,17 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         setIntensityMetric(currentIntensity);
         setIntensityYoY(intensityYoYCalc);
 
-        // Fetch monthly trends (for chart) - use same approach as Energy
-        const dashboardParams = new URLSearchParams({
-          start_date: selectedPeriod.start,
-          end_date: selectedPeriod.end,
-        });
-        if (selectedSite) {
-          dashboardParams.append('site_id', selectedSite.id);
+        // Process top emitters data
+        if (topMetricsData?.metrics && topMetricsData.metrics.length > 0) {
+          const topFive = topMetricsData.metrics.slice(0, 5).map((metric: any) => ({
+            name: metric.name,
+            emissions: metric.emissions,
+            percentage: currentTotal > 0 ? (metric.emissions / currentTotal) * 100 : 0
+          }));
+          setTopEmitters(topFive);
+        } else {
+          setTopEmitters([]);
         }
-
-        const dashboardResponse = await fetch(`/api/sustainability/dashboard?${dashboardParams}`);
-        const dashboardData = await dashboardResponse.json();
-
-        console.log('📈 Monthly trends data:', dashboardData);
 
         // Transform to monthly emissions with enterprise forecasting
         if (dashboardData.trendData && dashboardData.trendData.length > 0) {
@@ -321,18 +284,11 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
             forecast: false
           }));
 
-          console.log('📈 Monthly trends (actual):', trends.length, 'months');
-          console.log('📈 Actual months:', trends.map(t => t.month));
-
-          // Fetch enterprise forecast for remaining months (same approach as Energy)
-          const forecastRes = await fetch(`/api/sustainability/forecast?${dashboardParams}`);
-          if (forecastRes.ok) {
-            const forecastData = await forecastRes.json();
+          // Process forecast data (already fetched in parallel)
+          if (forecastResult && forecastResult.forecast && forecastResult.forecast.length > 0) {
+            const forecastData = forecastResult;
 
             if (forecastData.forecast && forecastData.forecast.length > 0) {
-              console.log('🔮 Enterprise forecast loaded:', forecastData.forecast.length, 'months');
-              console.log('🔮 Forecast months:', forecastData.forecast.map((f: any) => f.month));
-              console.log('📊 Model:', forecastData.model, 'Confidence:', forecastData.confidence);
 
               // Filter forecast months to only include months AFTER actual data
               // Create a Set of actual month keys for fast lookup
@@ -348,8 +304,6 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   scope3Forecast: f.scope3 || 0,
                   forecast: true
                 }));
-
-              console.log('🔮 Filtered forecast months:', forecastMonths.length, '(removed', forecastData.forecast.length - forecastMonths.length, 'overlapping months)');
 
               // Calculate total projected emissions for the year (actual + forecast)
               // Sum up actual emissions from trends data
@@ -370,30 +324,24 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               setActualEmissionsYTD(actualEmissions);
               setForecastedEmissions(forecastedEmissionsTotal);
 
-              // Create bridge point to connect actual and forecast lines
+              // Add forecast keys to the last actual data point to create smooth transition
               const lastActual = trends[trends.length - 1];
-              const bridgePoint = {
-                month: lastActual.month,
-                // Actual data keys (for solid lines)
-                total: lastActual.total,
-                scope1: lastActual.scope1,
-                scope2: lastActual.scope2,
-                scope3: lastActual.scope3,
-                // Forecast data keys with same values (for dashed lines)
+              const modifiedTrends = [...trends];
+              modifiedTrends[modifiedTrends.length - 1] = {
+                ...lastActual,
+                // Add forecast data keys with same values to create transition point
                 totalForecast: lastActual.total,
                 scope1Forecast: lastActual.scope1,
                 scope2Forecast: lastActual.scope2,
-                scope3Forecast: lastActual.scope3,
-                bridge: true
+                scope3Forecast: lastActual.scope3
               };
 
-              console.log('📊 Final combined:', trends.length, 'actual +', forecastMonths.length, 'forecast =', trends.length + forecastMonths.length + 1, 'total months (with bridge)');
-              setMonthlyTrends([...trends, bridgePoint, ...forecastMonths]);
+              setMonthlyTrends([...modifiedTrends, ...forecastMonths]);
 
               // Calculate target tracking AFTER we have the projected total
               // This ensures we use the ML-forecasted projection, not just YTD
               // IMPORTANT: This must be inside the forecast block to access projectedTotal
-              if (sbtiTargetsResult.targets && sbtiTargetsResult.targets.length > 0) {
+              if (sbtiTargetsResult?.targets && sbtiTargetsResult.targets.length > 0) {
                 const allTargets = sbtiTargetsResult.targets;
                 // Filter out auto-calculated targets (they have 'calculated-' prefix in their ID)
                 // Only show committed targets that exist in the database
@@ -404,7 +352,6 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                 const activeTargets = committedTargets.filter((t: any) =>
                   t.status === 'on_track' || t.status === 'at_risk' || t.status === 'off_track' || t.status === 'active'
                 );
-                console.log('📊 All targets:', allTargets.length, 'Committed targets:', committedTargets.length, 'Active targets:', activeTargets.length, activeTargets);
                 setTotalTargets(activeTargets.length);
 
                 // Calculate targets on track based on projected vs required progress
@@ -425,14 +372,6 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                   const requiredReduction = (totalReduction * yearsElapsed) / totalYears;
                   const requiredEmissions = baseline - requiredReduction;
 
-                  console.log('🎯 Target check:', {
-                    target: t.target_name,
-                    current: current.toFixed(1),
-                    required: requiredEmissions.toFixed(1),
-                    tolerance: (requiredEmissions * 1.1).toFixed(1),
-                    onTrack: current <= requiredEmissions * 1.1
-                  });
-
                   // On track if projected emissions <= required emissions (with 10% tolerance)
                   return current <= requiredEmissions * 1.1;
                 }).length;
@@ -445,66 +384,33 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                 setOverallProgress(avgProgress);
               }
             } else {
-              console.log('⚠️ No forecast data returned');
               setMonthlyTrends(trends);
             }
           } else {
             console.warn('⚠️ Forecast API not available, showing actual data only');
             setMonthlyTrends(trends);
           }
-        } else {
-          console.log('⚠️ No trendData received');
         }
-
-        // Fetch Top Emitters at METRIC level (not category level)
-        // This shows individual metrics like "Grid Electricity", "EV Chargers", "District Heating"
-        // instead of aggregated categories like "Purchased Electricity"
-        console.log('🔍 [Top Emitters] Fetching metric-level data...');
-
-        const topMetricsParams = new URLSearchParams({
-          start_date: selectedPeriod.start,
-          end_date: selectedPeriod.end,
-        });
-        if (selectedSite) {
-          topMetricsParams.append('site_id', selectedSite.id);
-        }
-
-        try {
-          const topMetricsResponse = await fetch(`/api/sustainability/top-metrics?${topMetricsParams}`);
-          const topMetricsData = await topMetricsResponse.json();
-
-          console.log('🔍 [Top Emitters] API response:', topMetricsData);
-
-          if (topMetricsData.metrics && topMetricsData.metrics.length > 0) {
-            // Map the metric-level data to the format expected by the UI
-            const topFive = topMetricsData.metrics.slice(0, 5).map((metric: any) => ({
-              name: metric.name,
-              emissions: metric.emissions,
-              percentage: currentTotal > 0 ? (metric.emissions / currentTotal) * 100 : 0
-            }));
-
-            console.log('🔍 [Top Emitters] Top 5 metrics:', topFive);
-            setTopEmitters(topFive);
-          } else {
-            console.log('⚠️ [Top Emitters] No metrics data returned from API');
-            setTopEmitters([]);
-          }
-        } catch (error) {
-          console.error('❌ [Top Emitters] Error fetching top metrics:', error);
-          setTopEmitters([]);
-        }
-
       } catch (error) {
-        console.error('Error fetching overview data:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error processing overview data:', error);
       }
     };
 
-    fetchOverviewData();
-  }, [organizationId, selectedSite, selectedPeriod]);
+    processOverviewData();
+  }, [
+    scopeAnalysis.data,
+    targetsQuery.data,
+    prevYearScopeAnalysis.data,
+    fullPrevYearScopeAnalysis.data,
+    dashboardQuery.data,
+    forecastQuery.data,
+    topMetricsQuery.data,
+    selectedPeriod,
+    selectedSite,
+    organizationId
+  ]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[400px]">
         <div className="text-center space-y-2">
@@ -581,7 +487,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       {/* Executive Summary Cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         {/* Total Emissions */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 relative shadow-sm">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
           <div className="flex items-center gap-2 mb-2">
             <Cloud className="w-5 h-5 text-purple-500" />
             <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -717,7 +623,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         </div>
 
         {/* Emissions Intensity */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 relative shadow-sm">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
           <div className="flex items-center gap-2 mb-2">
             <Leaf className="w-5 h-5 text-green-500" />
             <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
@@ -826,7 +732,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         </div>
 
         {/* Target Progress */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 relative shadow-sm">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
           <div className="flex items-center gap-2 mb-2">
             <Target className="w-5 h-5 text-blue-500" />
             <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.targetProgress.title')}</span>
@@ -891,7 +797,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         </div>
 
         {/* Data Quality */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 relative shadow-sm">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
           <div className="flex items-center gap-2 mb-2">
             <Zap className="w-5 h-5 text-yellow-500" />
             <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.dataQuality.title')}</span>
@@ -934,7 +840,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       {/* Scope Breakdown & Trend */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Scope Breakdown */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[420px] shadow-sm relative">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 h-[420px] shadow-sm relative">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 relative group">
               <PieChartIcon className="w-5 h-5 text-blue-500" />
@@ -1058,7 +964,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         </div>
 
         {/* Emissions Trend */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[420px] shadow-sm">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 h-[420px] shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 relative group">
               <TrendingUpIcon className="w-5 h-5 text-purple-500" />
@@ -1262,7 +1168,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
       {/* Organizational Boundaries */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[440px] flex flex-col overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 h-[440px] flex flex-col overflow-hidden shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 relative group">
               <Building2 className="w-5 h-5 text-indigo-500" />
@@ -1413,7 +1319,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
         </div>
 
         {/* Top Emitters */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[440px] flex flex-col shadow-sm relative">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 h-[440px] flex flex-col shadow-sm relative">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 relative group">
               <AlertTriangle className="w-5 h-5 text-orange-500" />
@@ -1580,7 +1486,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
       {targetData?.targets && targetData.targets.length > 0 &&
        new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
         <div className="mb-6">
-          <div className="bg-white dark:bg-[#212121] rounded-lg p-6 shadow-sm">
+          <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 relative group">

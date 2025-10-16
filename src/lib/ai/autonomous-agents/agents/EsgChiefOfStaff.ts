@@ -96,7 +96,6 @@ export class EsgChiefOfStaff extends AutonomousAgent {
    * Initialize the ESG Chief of Staff
    */
   protected async initialize(): Promise<void> {
-    console.log('👔 Initializing ESG Chief of Staff...');
     
     // Load existing strategic objectives
     await this.loadStrategicObjectives();
@@ -110,14 +109,12 @@ export class EsgChiefOfStaff extends AutonomousAgent {
     // Perform initial system assessment
     await this.performSystemAssessment();
     
-    console.log('✅ ESG Chief of Staff initialized and ready for strategic leadership');
   }
   
   /**
    * Execute assigned tasks
    */
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`👔 ESG Chief executing: ${task.type}`);
     
     try {
       switch (task.type) {
@@ -207,7 +204,6 @@ export class EsgChiefOfStaff extends AutonomousAgent {
    * Update learning model based on feedback
    */
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`📚 ESG Chief learning from feedback: ${feedback.outcome}`);
     
     // Update performance metrics
     if (feedback.outcome === 'positive') {
@@ -251,7 +247,6 @@ export class EsgChiefOfStaff extends AutonomousAgent {
    * Cleanup resources
    */
   protected async cleanup(): Promise<void> {
-    console.log('🧹 ESG Chief of Staff cleaning up...');
     
     // Save current strategic objectives
     await this.saveStrategicObjectives();
@@ -262,7 +257,6 @@ export class EsgChiefOfStaff extends AutonomousAgent {
     // Save identified opportunities
     await this.saveOpportunities();
     
-    console.log('✅ ESG Chief of Staff cleanup completed');
   }
   
   /**
@@ -509,7 +503,6 @@ Provide a strategic analysis and recommended actions in JSON format:
   }
   
   private async performSystemAssessment(): Promise<void> {
-    console.log('🔍 Performing initial ESG system assessment...');
     
     // This would assess current ESG maturity, identify gaps, and set priorities
     // Simplified implementation
@@ -540,7 +533,6 @@ Provide a strategic analysis and recommended actions in JSON format:
   
   private async implementStrategicAdjustments(review: any): Promise<void> {
     // Implement strategic adjustments based on quarterly review
-    console.log('🔄 Implementing strategic adjustments...');
   }
   
   private async gatherPerformanceData(scope: string, metrics: string[]): Promise<any> {

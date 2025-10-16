@@ -420,13 +420,7 @@ export class EmailMFAService {
     code: string
   ): Promise<{ success: boolean; message: string }> {
     // Log for development
-    console.log('📧 Mock Email:', {
-      to: email,
-      subject,
-      text,
-      code,
-      timestamp: new Date().toISOString(),
-    });
+    console.log('[Email MFA] Mock email sent:', { email, subject, code });
 
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 500));

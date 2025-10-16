@@ -83,43 +83,71 @@ export class RateLimitService {
 
   private async initializeRedis() {
     try {
-      if (this.config.redis && typeof window === 'undefined') {
+      if (typeof window === 'undefined') {
+        // Check for Upstash Redis first (production-ready solution)
+        if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+          try {
+            const { Redis: UpstashRedis } = await import('@upstash/redis');
+
+            this.redis = new UpstashRedis({
+              url: process.env.UPSTASH_REDIS_REST_URL,
+              token: process.env.UPSTASH_REDIS_REST_TOKEN,
+              retry: {
+                retries: 3,
+                backoff: (retryCount) => Math.exp(retryCount) * 50,
+              },
+            });
+
+            // Test connection
+            await this.redis.ping();
+            console.log('✅ Rate limiting using Upstash Redis');
+            return;
+          } catch (error) {
+            console.warn('⚠️ Failed to connect to Upstash Redis for rate limiting:', error);
+            this.redis = null;
+            // Fall through to in-memory
+            return;
+          }
+        }
+
+        // Only try local Redis if REDIS_HOST is explicitly set
+        if (!process.env.REDIS_HOST || !this.config.redis) {
+          // No Redis configured - use in-memory
+          console.log('ℹ️ Rate limiting using in-memory storage (no Redis configured)');
+          this.redis = null;
+          return;
+        }
+
+        // Fall back to regular Redis (only if explicitly configured)
         const start = Date.now();
-        console.log('Initializing Redis rate limiter...');
-        
-        // Only load Redis on server side
         const ioredis = await import('ioredis');
         const Redis = ioredis.default || ioredis.Redis;
-        
+
         this.redis = new Redis({
           host: this.config.redis.host,
           port: this.config.redis.port,
           password: this.config.redis.password,
           tls: this.config.redis.tls ? {} : undefined,
           keyPrefix: this.config.redis.keyPrefix,
-          maxRetriesPerRequest: 3, // Limit retries to prevent flooding
+          maxRetriesPerRequest: 3,
           enableReadyCheck: true,
-          connectTimeout: 5000, // 5 second connection timeout
-          commandTimeout: 5000, // 5 second command timeout
+          connectTimeout: 5000,
+          commandTimeout: 5000,
           retryStrategy: (times) => {
-            console.log(`Redis retry attempt ${times}/3`);
-            // In development, limit retries to avoid log flooding
             if (process.env.NODE_ENV !== 'production' && times > 3) {
-              console.log('Redis rate limiting not available, using in-memory');
-              return null; // Stop retrying
+              return null;
             }
             const delay = Math.min(times * 50, 2000);
             return delay;
           },
         });
 
-        // Test connection
         await this.redis.ping();
         const duration = Date.now() - start;
-        console.log(`Redis rate limiter connected in ${duration}ms`);
+        console.log(`✅ Rate limiting using local Redis (${duration}ms)`);
       }
     } catch (error) {
-      console.error('Failed to connect to Redis for rate limiting, using in-memory:', error);
+      console.warn('⚠️ Failed to connect to Redis for rate limiting, using in-memory:', error);
       this.redis = null;
     }
   }

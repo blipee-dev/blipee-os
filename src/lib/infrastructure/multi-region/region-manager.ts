@@ -306,7 +306,6 @@ export class RegionManager {
     failedRegionId: string,
     reason: string
   ): Promise<{ success: boolean; newPrimaryRegion?: string; error?: string }> {
-    console.log(`🚨 Triggering failover from ${failedRegionId}: ${reason}`);
 
     try {
       // Find best secondary region
@@ -338,7 +337,6 @@ export class RegionManager {
       newPrimaryRegion.isPrimary = true;
       this.regions.set(newPrimaryRegion.id, newPrimaryRegion);
 
-      console.log(`✅ Failover successful: New primary region is ${newPrimaryRegion.id}`);
 
       return {
         success: true,
@@ -380,7 +378,6 @@ export class RegionManager {
       }
     }, this.failoverConfig.healthCheckInterval * 1000);
 
-    console.log(`🔄 Started health monitoring (${this.failoverConfig.healthCheckInterval}s intervals)`);
   }
 
   /**
@@ -391,7 +388,6 @@ export class RegionManager {
       clearInterval(this.healthCheckInterval);
       this.healthCheckInterval = undefined;
     }
-    console.log('⏹️ Stopped health monitoring');
   }
 
   /**

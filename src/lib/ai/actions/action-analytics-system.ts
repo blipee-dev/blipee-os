@@ -204,7 +204,6 @@ export class ActionAnalyticsSystem extends EventEmitter {
     this.startAlertMonitoring();
     this.startPerformanceOptimization();
 
-    console.log('Action Analytics System initialized');
   }
 
   /**

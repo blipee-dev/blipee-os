@@ -72,10 +72,6 @@ export class PerformanceTestSuite {
     const results: number[] = [];
     const testDetails: any = {};
 
-    console.log(`🧪 Running test: ${test.name}`);
-    console.log(`   Description: ${test.description}`);
-    console.log(`   Category: ${test.category}`);
-    console.log(`   Iterations: ${iterations}`);
 
     for (let i = 0; i < iterations; i++) {
       const startTime = performance.now();
@@ -123,8 +119,6 @@ export class PerformanceTestSuite {
     history.push(result);
     this.testHistory.set(test.name, history.slice(-10)); // Keep last 10 results
 
-    console.log(`   ⏱️  Average execution time: ${averageTime.toFixed(2)}ms`);
-    console.log(`   📊 Status: ${this.getStatusEmoji(status)} ${status.toUpperCase()}`);
 
     return result;
   }
@@ -462,12 +456,8 @@ export class PerformanceTestSuite {
       ? tests.filter(test => test.category === category)
       : tests;
 
-    console.log(`🎯 Running Performance Test Suite`);
-    console.log(`   Tests to run: ${filteredTests.length}`);
     if (category) {
-      console.log(`   Category filter: ${category}`);
     }
-    console.log('');
 
     const results: PerformanceResult[] = [];
 
@@ -475,7 +465,6 @@ export class PerformanceTestSuite {
       try {
         const result = await this.executeTest(test, 3); // Run each test 3 times
         results.push(result);
-        console.log(`   ${this.getStatusEmoji(result.status)} ${test.name}: ${result.executionTime.toFixed(2)}ms\n`);
       } catch (error) {
         const failedResult: PerformanceResult = {
           testName: test.name,
@@ -486,7 +475,6 @@ export class PerformanceTestSuite {
           environment: process.env.NODE_ENV || 'development'
         };
         results.push(failedResult);
-        console.log(`   ❌ ${test.name}: FAILED (${error})\n`);
       }
     }
 

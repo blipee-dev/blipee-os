@@ -417,7 +417,6 @@ export class SupplyChainInvestigator implements AutonomousAgent {
   ];
 
   async initialize(context: AgentContext): Promise<void> {
-    console.log(`Initializing ${this.name} with advanced network capabilities...`);
     
     // Initialize network graph
     await this.networkGraph.initialize();
@@ -438,7 +437,6 @@ export class SupplyChainInvestigator implements AutonomousAgent {
   }
 
   async planTask(task: AgentTask, context: AgentContext): Promise<any> {
-    console.log(`Planning investigation: ${task.description}`);
     
     const investigationPlan: SupplierInvestigation = {
       investigationId: `inv_${Date.now()}`,
@@ -852,17 +850,14 @@ export class SupplyChainInvestigator implements AutonomousAgent {
 
   private async loadHistoricalData(context: AgentContext): Promise<void> {
     // Load past investigations and outcomes
-    console.log('Loading historical investigation data...');
   }
 
   private async initializeSwarmProtocols(): Promise<void> {
     // Setup swarm communication protocols
-    console.log('Initializing swarm intelligence protocols...');
   }
 
   private async startContinuousMonitoring(): Promise<void> {
     // Start background monitoring of all suppliers
-    console.log('Starting continuous supplier monitoring...');
   }
 }
 
@@ -872,7 +867,6 @@ class NetworkGraph {
   private edges: Map<string, NetworkConnection[]> = new Map();
   
   async initialize(): Promise<void> {
-    console.log('Initializing supply chain network graph...');
   }
   
   async addNode(entity: NetworkEntity): Promise<void> {

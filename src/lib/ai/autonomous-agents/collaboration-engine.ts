@@ -168,7 +168,6 @@ export class CollaborationEngine {
     // Initialize consensus managers
     await this.initializeConsensusManagers();
 
-    console.log(`Collaboration engine initialized with ${agents.length} agents`);
   }
 
   async createCollaborativeWorkflow(

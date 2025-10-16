@@ -60,7 +60,6 @@ export async function GET(request: NextRequest) {
 
     // If no recommendations exist, generate them
     if (!existingRecs || existingRecs.length === 0) {
-      console.log('🎯 Generating recommendations for org:', userOrg.organization_id);
 
       // Call the generate_recommendations_for_org function
       const { data: generatedRecs, error: genError } = await supabaseAdmin

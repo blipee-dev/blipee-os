@@ -13,10 +13,7 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      // Add more debug info for auth failures
-      console.log('Auth failed in organizations/all:', {
-        error: authError?.message,
-        cookies: Array.from(request.cookies.getAll()).map(c => c.name)
+      // Add more debug info for auth failures).map(c => c.name)
       });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -29,11 +26,9 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     if (!superAdminRecord) {
-      console.log('Not super admin:', user.id);
       return NextResponse.json({ error: 'Forbidden - Super admin access required' }, { status: 403 });
     }
 
-    console.log('Super admin authenticated:', user.id);
 
     // Super admin - fetch ALL organizations using admin client to bypass RLS
     const { data: allOrgs, error: orgsError } = await supabaseAdmin

@@ -93,7 +93,6 @@ export default function ReplanningResultsModal({
       );
       const metricsData = await metricsResponse.json();
 
-      console.log('📊 Replanning Results:', metricsData);
       setMetricTargets(metricsData.metricTargets || []);
     } catch (error) {
       console.error('Error fetching replanning results:', error);

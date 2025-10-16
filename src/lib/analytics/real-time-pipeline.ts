@@ -76,7 +76,6 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
   }
 
   private async initializePipeline() {
-    console.log('🚀 Initializing Real-Time Analytics Pipeline...');
     
     // Load existing streams and processors
     await this.loadDataStreams();
@@ -89,7 +88,6 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
     // Start the pipeline
     this.start();
     
-    console.log('✅ Real-Time Analytics Pipeline ready for millions of data points!');
   }
 
   /**
@@ -109,7 +107,6 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
     // Start buffer processing
     this.startBufferProcessing();
     
-    console.log('⚡ Real-time analytics pipeline STARTED');
     this.emit('pipelineStarted');
   }
 
@@ -117,7 +114,6 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
     if (!this.isRunning) return;
     
     this.isRunning = false;
-    console.log('⏹️ Real-time analytics pipeline STOPPED');
     this.emit('pipelineStopped');
   }
 
@@ -344,7 +340,6 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
         created_at: new Date().toISOString()
       });
 
-    console.log(`📡 Created default stream for ${dataPoint.type} data`);
     return stream;
   }
 
@@ -395,7 +390,6 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
       const totalLatency = Date.now() - startTime;
       stream.lastProcessed = new Date();
       
-      console.log(`📊 Processed ${batchSize} data points in ${totalLatency}ms (${stream.dataType} stream)`);
       
       this.emit('streamProcessed', {
         streamId: stream.id,
@@ -729,7 +723,6 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
   private async forwardDataPoints(dataPoints: AnalyticsDataPoint[], destination: string): Promise<void> {
     try {
       // Forward to external system (webhook, API, etc.)
-      console.log(`📤 Forwarding ${dataPoints.length} data points to ${destination}`);
       // Implementation would depend on destination type
     } catch (error) {
       console.error('Data forwarding error:', error);
@@ -851,7 +844,6 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
         }
       }
 
-      console.log(`📡 Loaded ${this.streams.size} data streams`);
     } catch (error) {
       console.error('Failed to load data streams:', error);
     }
@@ -884,7 +876,6 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
         });
       }
 
-      console.log(`🔧 Loaded ${this.processors.size} stream processors`);
     } catch (error) {
       console.error('Failed to load stream processors:', error);
     }
@@ -926,7 +917,6 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
       }
     ];
 
-    console.log(`✅ Loaded ${this.qualityRules.length} data quality rules`);
   }
 
   private async getDefaultProcessors(): Promise<StreamProcessor[]> {
@@ -1040,10 +1030,7 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
     this.metrics.processingRate = processed / (timeWindow / 1000);
   }
 
-  private collectDetailedMetrics(): void {
-    console.log('📊 Pipeline Metrics:', {
-      totalDataPoints: this.metrics.totalDataPoints,
-      processingRate: `${this.metrics.processingRate.toFixed(2)} points/sec`,
+  private collectDetailedMetrics(): void {} points/sec`,
       activeStreams: this.metrics.activeStreams,
       bufferSize: this.metrics.bufferSize,
       memoryUsage: `${this.metrics.memoryUsage.toFixed(2)} MB`

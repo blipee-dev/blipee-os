@@ -332,7 +332,6 @@ export class DQNAgent implements Policy {
       
       if (options.verbose && episode % 10 === 0) {
         const avgReward = rewards.slice(-100).reduce((a, b) => a + b, 0) / Math.min(100, rewards.length);
-        console.log(`Episode ${episode}, Average Reward: ${avgReward.toFixed(2)}, Epsilon: ${this.epsilon.toFixed(3)}`);
       }
       
       // Save model periodically

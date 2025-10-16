@@ -86,7 +86,6 @@ export function AlertsFeed({
       });
 
       newSocket.on('connect', () => {
-        console.log('Connected to alerts feed');
         setIsConnected(true);
 
         // Subscribe to alerts
@@ -134,7 +133,6 @@ export function AlertsFeed({
       });
 
       newSocket.on('disconnect', () => {
-        console.log('Disconnected from alerts feed');
         setIsConnected(false);
       });
 

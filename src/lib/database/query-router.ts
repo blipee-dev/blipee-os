@@ -143,7 +143,6 @@ export class QueryRouter {
   ): Promise<T[]> {
     const plan = this.planQuery(sql, options);
     
-    console.log(`Query routing: ${plan.target} (${plan.reason})`);
     
     if (plan.target === 'replica') {
       try {
@@ -195,7 +194,6 @@ export function createSmartSupabaseClient(): SupabaseClient<Database> {
             // Check if a read replica is available
             const replicaClient = createReadReplicaClient();
             if (replicaClient) {
-              console.log(`Routing SELECT on ${table} to read replica`);
               return replicaClient.from(table).select(...args);
             }
             

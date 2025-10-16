@@ -6,11 +6,8 @@
 describe('Stream B Week 3-4 Summary', () => {
   
   it('should demonstrate complete advanced ML pipeline functionality', async () => {
-    console.log('\n🧠 Testing Stream B Week 3-4: Advanced Models');
-    console.log('===============================================');
     
     // Test 1: Genetic Algorithm Optimization
-    console.log('\n✅ Testing Genetic Algorithm...');
     const { GeneticAlgorithm } = await import('../algorithms/genetic-algorithm');
     
     const ga = new GeneticAlgorithm({
@@ -35,10 +32,8 @@ describe('Stream B Week 3-4 Summary', () => {
     
     expect(gaResult.fitness).toBeGreaterThan(0);
     expect(gaResult.genes).toHaveLength(3);
-    console.log(`   → GA achieved fitness: ${gaResult.fitness.toFixed(4)} after ${gaResult.generation} generations`);
     
     // Test 2: Regulatory Prediction
-    console.log('\n✅ Testing Regulatory Predictor...');
     const { RegulatoryPredictor } = await import('../regulatory-predictor');
     
     const predictor = new RegulatoryPredictor();
@@ -59,11 +54,8 @@ describe('Stream B Week 3-4 Summary', () => {
     expect(regulatoryImpact.impactScore).toBeGreaterThan(0);
     expect(regulatoryImpact.affectedAreas.length).toBeGreaterThan(0);
     expect(['low', 'medium', 'high', 'critical']).toContain(regulatoryImpact.riskLevel);
-    console.log(`   → Regulatory impact score: ${regulatoryImpact.impactScore.toFixed(3)} (${regulatoryImpact.riskLevel} risk)`);
-    console.log(`   → Affected areas: ${regulatoryImpact.affectedAreas.join(', ')}`);
     
     // Test 3: Optimization Engine
-    console.log('\n✅ Testing Advanced Optimization Engine...');
     const { OptimizationEngine, OptimizationScenarios } = await import('../optimization-engine');
     
     const optimizer = new OptimizationEngine();
@@ -85,11 +77,8 @@ describe('Stream B Week 3-4 Summary', () => {
     expect(['genetic', 'reinforcement', 'hybrid']).toContain(optimizationResult.algorithm);
     expect(optimizationResult.feasible).toBe(true);
     expect(optimizationResult.confidence).toBeGreaterThan(0);
-    console.log(`   → Optimization algorithm: ${optimizationResult.algorithm}`);
-    console.log(`   → Feasible solution: ${optimizationResult.feasible}, confidence: ${optimizationResult.confidence.toFixed(3)}`);
     
     // Test 4: Model Integration
-    console.log('\n✅ Testing Model Integration Layer...');
     const { ModelIntegration } = await import('../model-integration');
     
     const integration = new ModelIntegration();
@@ -117,7 +106,6 @@ describe('Stream B Week 3-4 Summary', () => {
     expect(integrationResponse.confidence).toBeGreaterThan(0);
     expect(integrationResponse.metadata).toBeDefined();
     expect(integrationResponse.metadata.processingTime).toBeGreaterThan(0);
-    console.log(`   → Integration processing time: ${integrationResponse.metadata.processingTime}ms`);
     
     // Test regulatory prediction
     const regulatoryRequest = {
@@ -147,7 +135,6 @@ describe('Stream B Week 3-4 Summary', () => {
     expect(regulatoryResponse.type).toBe('regulatory');
     expect(regulatoryResponse.prediction).toBeDefined();
     expect(regulatoryResponse.confidence).toBeGreaterThan(0);
-    console.log(`   → Regulatory prediction confidence: ${regulatoryResponse.confidence.toFixed(3)}`);
     
     // Test system health
     const systemHealth = await integration.getSystemHealth();
@@ -156,11 +143,8 @@ describe('Stream B Week 3-4 Summary', () => {
     expect(['healthy', 'degraded', 'unhealthy']).toContain(systemHealth.status);
     expect(systemHealth.models.length).toBeGreaterThan(0);
     expect(systemHealth.overallPerformance).toBeDefined();
-    console.log(`   → System health: ${systemHealth.status}`);
-    console.log(`   → Models online: ${systemHealth.models.filter(m => m.status === 'online').length}/${systemHealth.models.length}`);
     
     // Test 5: Performance Metrics
-    console.log('\n✅ Testing Performance Monitoring...');
     
     const performanceMetrics = integration.getPerformanceMetrics();
     
@@ -175,24 +159,7 @@ describe('Stream B Week 3-4 Summary', () => {
       expect(metric.errorRate).toBeLessThanOrEqual(1);
     }
     
-    console.log(`   → Monitored models: ${performanceMetrics.map(m => m.modelName).join(', ')}`);
-    console.log(`   → Average latency: ${(performanceMetrics.reduce((sum, m) => sum + m.latency, 0) / performanceMetrics.length).toFixed(1)}ms`);
     
     // Final Summary
-    console.log('\n🎉 Stream B Week 3-4 Test Summary:');
-    console.log('=====================================');
-    console.log('✅ Genetic Algorithm: Advanced evolutionary optimization');
-    console.log('✅ DQN Agent: Reinforcement learning for sequential decisions');
-    console.log('✅ Regulatory Predictor: NLP-based compliance risk assessment');
-    console.log('✅ Optimization Engine: Multi-algorithm optimization with GA + RL');
-    console.log('✅ Model Integration: Unified API with performance monitoring');
-    console.log('✅ System Health: Real-time monitoring and metrics collection');
-    console.log('\n💡 Key Capabilities Demonstrated:');
-    console.log('   • Evolutionary optimization for ESG resource allocation');
-    console.log('   • Regulatory text analysis and impact prediction');
-    console.log('   • Multi-model orchestration and ensemble methods');
-    console.log('   • Performance monitoring and system health tracking');
-    console.log('   • Cross-model insights and correlation analysis');
-    console.log('\nStream B Week 3-4 implementation is COMPLETE! 🚀');
   }, 30000); // Allow 30 seconds for comprehensive test
 });

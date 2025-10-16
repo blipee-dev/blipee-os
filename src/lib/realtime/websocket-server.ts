@@ -26,24 +26,20 @@ export class WebSocketServer {
   }
 
   async start(): Promise<void> {
-    console.log(`WebSocket server starting on port ${this.config.port}`);
     // Server initialization would go here
   }
 
   async stop(): Promise<void> {
-    console.log('WebSocket server stopping');
     this.clients.clear();
   }
 
   broadcast(channel: string, data: any): void {
-    console.log(`Broadcasting to channel ${channel}:`, data);
     // Broadcast implementation would go here
   }
 
   sendToClient(clientId: string, data: any): void {
     const client = this.clients.get(clientId);
     if (client) {
-      console.log(`Sending to client ${clientId}:`, data);
       // Send implementation would go here
     }
   }

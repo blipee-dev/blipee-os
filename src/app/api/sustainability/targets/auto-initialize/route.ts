@@ -50,7 +50,6 @@ export async function POST(request: NextRequest) {
     const baselineYear = 2023;
 
     // ✅ Using calculator for baseline year emissions (ensures consistent calculation)
-    console.log('📊 Using baseline-calculator for auto-initialize baseline emissions');
     const baselineEmissions = await getYearEmissions(organizationId, baselineYear);
 
     if (baselineEmissions === 0) {
@@ -127,7 +126,6 @@ export async function POST(request: NextRequest) {
 
       if (weightedResponse.ok) {
         const weightedData = await weightedResponse.json();
-        console.log('📊 Weighted category targets calculated:', weightedData.allocations?.length, 'categories');
       }
     } catch (error) {
       console.error('Error calculating weighted targets:', error);

@@ -84,15 +84,11 @@ export async function PUT(request: NextRequest) {
       .single();
 
     // Log for debugging
-    console.log('Profile check for user:', user.id);
-    console.log('Existing profile:', existingProfile);
-    console.log('Check error:', checkError);
 
     let result;
 
     if (existingProfile) {
       // Update existing profile
-      console.log('Updating profile for user:', user.id);
       const { data, error } = await supabaseAdmin
         .from('app_users')
         .update({
@@ -122,7 +118,6 @@ export async function PUT(request: NextRequest) {
       result = data;
     } else {
       // Create new profile
-      console.log('Creating new profile for user:', user.id);
       const insertData = {
         auth_user_id: user.id,
         name: name || user.user_metadata?.full_name || '',
@@ -138,7 +133,6 @@ export async function PUT(request: NextRequest) {
         updated_at: new Date().toISOString(),
       };
 
-      console.log('Insert data:', insertData);
 
       const { data, error } = await supabaseAdmin
         .from('app_users')

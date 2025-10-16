@@ -316,7 +316,6 @@ export class MultiObjectiveOptimizationEngine {
    * Define a new optimization problem
    */
   async defineProblem(problem: OptimizationProblem): Promise<void> {
-    console.log(`🎯 Defining optimization problem: ${problem.name}`);
 
     // Validate problem definition
     await this.validateProblem(problem);
@@ -327,7 +326,6 @@ export class MultiObjectiveOptimizationEngine {
     // Initialize solver for the problem
     await this.initializeSolver(problem);
 
-    console.log(`✅ Problem defined with ${problem.objectives.length} objectives and ${problem.variables.length} variables`);
   }
 
   /**
@@ -339,14 +337,12 @@ export class MultiObjectiveOptimizationEngine {
       throw new Error(`Problem ${problemId} not found`);
     }
 
-    console.log(`🔧 Solving optimization problem: ${problem.name}`);
     const startTime = Date.now();
 
     // Check cache first
     const cacheKey = this.generateCacheKey(problem, options);
     const cached = this.cache.get(cacheKey);
     if (cached && !options?.forceRecompute) {
-      console.log(`📦 Using cached solution for ${problemId}`);
       return cached;
     }
 
@@ -389,7 +385,6 @@ export class MultiObjectiveOptimizationEngine {
     // Store solution
     this.solutions.set(problemId, result);
 
-    console.log(`✅ Problem solved with ${paretoFront.length} Pareto-optimal solutions`);
     return result;
   }
 
@@ -406,7 +401,6 @@ export class MultiObjectiveOptimizationEngine {
       throw new Error(`Problem ${problemId} not found`);
     }
 
-    console.log(`🎮 Starting interactive optimization for: ${problem.name}`);
 
     let currentSolutions: OptimizationSolution[] = [];
     let iteration = 0;
@@ -424,7 +418,6 @@ export class MultiObjectiveOptimizationEngine {
         preferences = await this.updatePreferencesFromFeedback(preferences, feedback);
 
         if (feedback.satisfactory) {
-          console.log(`✅ User satisfied with solutions after ${iteration + 1} iterations`);
           break;
         }
       } else {
@@ -449,7 +442,6 @@ export class MultiObjectiveOptimizationEngine {
       throw new Error(`Problem ${problemId} not found`);
     }
 
-    console.log(`🛡️ Performing robust optimization with ${uncertaintyScenarios.length} scenarios`);
 
     const robustSolutions: OptimizationSolution[] = [];
     const scenarioResults: Map<string, OptimizationResult> = new Map();
@@ -489,7 +481,6 @@ export class MultiObjectiveOptimizationEngine {
       throw new Error(`Problem ${problemId} not found`);
     }
 
-    console.log(`📅 Performing multi-period optimization over ${periods.length} periods`);
 
     const periodResults: Map<number, OptimizationResult> = new Map();
     let currentState: Record<string, number> = {};
@@ -508,7 +499,6 @@ export class MultiObjectiveOptimizationEngine {
       // Update state for next period
       currentState = await this.updateStateFromSolution(currentState, result.recommendedSolution, period);
 
-      console.log(`✅ Period ${i + 1}/${periods.length} optimized`);
     }
 
     // Analyze multi-period performance
@@ -535,7 +525,6 @@ export class MultiObjectiveOptimizationEngine {
       throw new Error(`Problem ${problemId} not found`);
     }
 
-    console.log(`🎯 Performing goal programming with ${goals.length} goals`);
 
     // Convert goals to deviational variables
     const goalProblem = await this.convertToGoalProblem(problem, goals);
@@ -595,7 +584,6 @@ export class MultiObjectiveOptimizationEngine {
 
   // Private helper methods
   private initializeEngine(): void {
-    console.log('🚀 Initializing Multi-Objective Optimization Engine');
 
     // Initialize solvers
     this.solvers.set('nsga2', new NSGA2Solver());
@@ -962,7 +950,6 @@ export interface OptimizationSolver {
 // Basic solver implementations (simplified)
 class NSGA2Solver implements OptimizationSolver {
   async initialize(problem: OptimizationProblem): Promise<void> {
-    console.log('Initializing NSGA-II solver');
   }
 
   async solve(problem: OptimizationProblem): Promise<OptimizationSolution[]> {

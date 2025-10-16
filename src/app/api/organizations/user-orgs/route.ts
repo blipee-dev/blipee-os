@@ -128,13 +128,7 @@ export async function GET(request: NextRequest) {
           users: usersCount || 0
         };
       })
-    );
-
-    console.log('Final organizations with counts:', orgsWithCounts.map(o => ({
-      name: o.name,
-      sites: o.sites,
-      users: o.users
-    })));
+    );));
 
     return NextResponse.json({ organizations: orgsWithCounts });
   } catch (error) {

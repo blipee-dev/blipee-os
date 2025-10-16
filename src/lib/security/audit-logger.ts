@@ -164,10 +164,10 @@ export class SecurityAuditLogger {
     
     // Add to buffer
     this.buffer.push(logEntry);
-    
+
     // Console log in development
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[SECURITY_AUDIT] ${logEntry.severity.toUpperCase()}:`, {
+      console.log('[SECURITY_AUDIT]', {
         event: logEntry.eventType,
         user: logEntry.userId,
         ip: logEntry.ipAddress,

@@ -49,7 +49,6 @@ export default function DashboardPage() {
   // No redirect - AI Butler will guide users based on their state
   useEffect(() => {
     if (session && !session.current_organization && !session.organizations?.length) {
-      console.log('User has no organization - AI Butler will provide guidance');
     }
   }, [session]);
 

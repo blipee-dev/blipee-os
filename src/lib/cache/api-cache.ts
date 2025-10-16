@@ -90,7 +90,6 @@ export class APICache {
     const cached = await cache.get<APIResponse<T>>(key);
     
     if (cached) {
-      console.log(`✅ API Cache hit: ${method} ${path}`);
     }
     
     return cached;

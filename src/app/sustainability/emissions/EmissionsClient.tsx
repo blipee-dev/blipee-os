@@ -96,13 +96,6 @@ export default function EmissionsClient() {
 
       const data = await response.json();
 
-      console.log('🟡🟡🟡 CLIENT - API RESPONSE DATA:', {
-        totalAreaM2: data.totalAreaM2,
-        hasCurrent: !!data.current,
-        historicalCount: data.historical?.length,
-        firstHistorical: data.historical?.[0]
-      });
-
       setEmissionsData({
         current: data.current,
         historical: data.historical || [],
@@ -134,27 +127,19 @@ export default function EmissionsClient() {
 
       if (response.ok) {
         const data = await response.json();
-        // Handle the response structure correctly
-        console.log('🔍 ML API Response:', {
-          hasSuccess: !!data.success,
-          hasPrediction: !!data.prediction,
-          predictionKeys: data.prediction ? Object.keys(data.prediction) : [],
+        // Handle the response structure correctly : [],
           hasPredictions: !!data.predictions,
           siteFilter: selectedSite !== 'all' ? selectedSite : 'all sites'
         });
 
         if (data.success && data.prediction) {
-          console.log('🎯 Setting prediction from data.prediction:', data.prediction);
           setMlPredictions(data.prediction);
         } else if (data.predictions) {
           // Direct predictions format
-          console.log('🎯 Setting prediction from data directly');
           setMlPredictions(data);
         } else {
-          console.log('ML prediction response:', data);
           // Set the prediction data even if structure is different
           if (data.prediction) {
-            console.log('🎯 Setting prediction from fallback');
             setMlPredictions(data.prediction);
           }
         }
@@ -162,7 +147,6 @@ export default function EmissionsClient() {
         // Handle API errors (like insufficient data for individual sites)
         const errorData = await response.json();
         if (response.status === 500 && errorData.details?.includes('Insufficient historical data')) {
-          console.log(`⚠️ Site ${selectedSite} has insufficient data for predictions`);
           setMlPredictions(null); // Clear predictions for sites with insufficient data
         } else {
           console.error('ML API error:', errorData);
@@ -208,13 +192,6 @@ export default function EmissionsClient() {
         hasMlPredictions = true;
 
         // Log to verify we have real predictions
-        console.log('ML Prediction available:', {
-          current: emissionsData.current.total,
-          predicted: totalPredicted,
-          predictedMonthly: totalPredicted / 12,
-          firstMonth: mlPredictions.predictions[0]?.predicted,
-          change: projectedChange
-        });
       }
     }
 
@@ -369,7 +346,7 @@ export default function EmissionsClient() {
           {/* Anomaly Detection */}
           <AnomalyDetection
             anomalies={emissionsData.anomalies}
-            onInvestigate={(anomaly) => console.log('Investigating:', anomaly)}
+            onInvestigate={(anomaly) =>}
           />
         </div>
 

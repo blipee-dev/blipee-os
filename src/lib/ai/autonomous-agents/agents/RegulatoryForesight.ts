@@ -30,8 +30,6 @@ export class RegulatoryForesight extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('📜 Initializing Regulatory Foresight...');
-    console.log('✅ Regulatory Foresight initialized and ready to monitor regulations');
   }
 
   protected async scheduleRecurringTasks(): Promise<void> {
@@ -51,7 +49,6 @@ export class RegulatoryForesight extends AutonomousAgent {
   }
 
   async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`📜 Regulatory Foresight executing: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -279,18 +276,14 @@ export class RegulatoryForesight extends AutonomousAgent {
   }
 
   async learnFromFeedback(feedback: LearningFeedback): Promise<void> {
-    console.log(`📜 Regulatory Foresight learning from feedback for task ${feedback.taskId}`);
 
     if (feedback.outcome === 'positive') {
       this.complianceMetrics.complianceIssuesResolved++;
-      console.log('📜 Positive feedback - reinforcing compliance strategies');
     } else if (feedback.outcome === 'negative') {
-      console.log('📜 Negative feedback - adjusting regulatory monitoring approach');
     }
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('📜 Regulatory Foresight cleaning up...');
   }
 
   getPerformanceMetrics() {

@@ -30,8 +30,6 @@ export class AutonomousOptimizer extends AutonomousAgent {
   }
 
   protected async initialize(): Promise<void> {
-    console.log('⚙️ Initializing Autonomous Optimizer...');
-    console.log('✅ Autonomous Optimizer initialized and ready to optimize operations');
   }
 
   protected async scheduleRecurringTasks(): Promise<void> {
@@ -51,7 +49,6 @@ export class AutonomousOptimizer extends AutonomousAgent {
   }
 
   async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`⚙️ Autonomous Optimizer executing: ${task.type}`);
 
     try {
       switch (task.type) {
@@ -274,17 +271,13 @@ export class AutonomousOptimizer extends AutonomousAgent {
   }
 
   async learnFromFeedback(feedback: LearningFeedback): Promise<void> {
-    console.log(`⚙️ Autonomous Optimizer learning from feedback for task ${feedback.taskId}`);
 
     if (feedback.outcome === 'positive') {
-      console.log('⚙️ Positive feedback - reinforcing successful optimization strategies');
     } else if (feedback.outcome === 'negative') {
-      console.log('⚙️ Negative feedback - adjusting optimization algorithms');
     }
   }
 
   protected async cleanup(): Promise<void> {
-    console.log('⚙️ Autonomous Optimizer cleaning up...');
   }
 
   getPerformanceMetrics() {

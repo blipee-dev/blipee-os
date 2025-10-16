@@ -211,7 +211,6 @@ export class DataRetentionManager {
 
     this.records.set(recordId, record);
 
-    console.log(`📋 Retention record created: ${dataType} (${dataIdentifier}) - Delete after ${retentionDeadline.toISOString()}`);
 
     return recordId;
   }
@@ -252,7 +251,6 @@ export class DataRetentionManager {
     }
 
     if (!dryRun) {
-      console.log(`🗑️  Found ${eligibleRecords.length} records for automatic deletion, ${requiresReview.length} requiring review, ${onLegalHold.length} on legal hold`);
     }
 
     return {
@@ -291,7 +289,6 @@ export class DataRetentionManager {
 
     this.deletionJobs.set(jobId, job);
 
-    console.log(`📅 Deletion job scheduled: ${jobId} (${recordIds.length} records)${dryRun ? ' [DRY RUN]' : ''}`);
 
     return jobId;
   }
@@ -316,7 +313,6 @@ export class DataRetentionManager {
       throw new Error(`Job ${jobId} is not in scheduled state`);
     }
 
-    console.log(`🚀 Starting deletion job: ${jobId}${job.dryRun ? ' [DRY RUN]' : ''}`);
 
     job.status = 'Running';
     job.startedAt = new Date();
@@ -337,7 +333,6 @@ export class DataRetentionManager {
             }
 
             if (job.dryRun) {
-              console.log(`[DRY RUN] Would delete: ${record.dataType} (${record.dataIdentifier})`);
             } else {
               // In a real implementation, this would call the actual deletion logic
               // For now, we'll just mark the record as deleted
@@ -345,7 +340,6 @@ export class DataRetentionManager {
               record.actualDeletion = new Date();
               this.records.set(recordId, record);
               
-              console.log(`🗑️  Deleted: ${record.dataType} (${record.dataIdentifier})`);
             }
 
             job.progress.succeeded++;
@@ -377,7 +371,6 @@ export class DataRetentionManager {
         errors: job.errors
       };
 
-      console.log(`✅ Deletion job completed: ${jobId} - ${result.succeeded} succeeded, ${result.failed} failed`);
 
       return result;
 
@@ -415,7 +408,6 @@ export class DataRetentionManager {
 
     this.records.set(recordId, record);
 
-    console.log(`⚖️  Legal hold placed: ${record.dataType} (${record.dataIdentifier}) - Reason: ${reason}`);
   }
 
   /**
@@ -448,7 +440,6 @@ export class DataRetentionManager {
 
     this.records.set(recordId, record);
 
-    console.log(`⚖️  Legal hold removed: ${record.dataType} (${record.dataIdentifier})`);
   }
 
   /**

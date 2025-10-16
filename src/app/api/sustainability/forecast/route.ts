@@ -36,14 +36,12 @@ export async function GET(request: NextRequest) {
     }
 
     // ✅ USE CALCULATOR for monthly emissions (now with pagination support)
-    console.log('✅ Using calculator for monthly emissions...');
 
     // Get all historical data using calculator (now handles pagination internally)
     const historicalStartDate = '2020-01-01';
     const monthlyEmissionsData = await getMonthlyEmissions(orgInfo.organizationId, historicalStartDate, endDate);
 
     if (!monthlyEmissionsData || monthlyEmissionsData.length === 0) {
-      console.log('⚠️ No historical data found');
       return NextResponse.json({ forecast: [] });
     }
 
@@ -56,14 +54,9 @@ export async function GET(request: NextRequest) {
       scope3: m.scope_3 * 1000
     }));
 
-    console.log(`✅ Calculator monthly data: ${historicalMonthly.length} months (scope-by-scope rounding)`);
-    console.log(`📊 Month range: ${historicalMonthly[0]?.monthKey} to ${historicalMonthly[historicalMonthly.length - 1]?.monthKey}`);
 
-    console.log(`📊 Historical monthly aggregated: ${historicalMonthly.length} months`);
-    console.log(`📊 Month range: ${historicalMonthly[0]?.monthKey} to ${historicalMonthly[historicalMonthly.length - 1]?.monthKey}`);
 
     if (historicalMonthly.length === 0) {
-      console.log('⚠️ No historical data available');
       return NextResponse.json({ forecast: [] });
     }
 
@@ -71,19 +64,16 @@ export async function GET(request: NextRequest) {
     const selectedStartDate = new Date(startDate);
     const selectedEndDate = new Date(endDate);
 
-    console.log(`📊 Selected period: ${selectedStartDate.toISOString().split('T')[0]} to ${selectedEndDate.toISOString().split('T')[0]}`);
 
     // Find the last month in our historical data
     const lastDataMonth = historicalMonthly[historicalMonthly.length - 1];
     const [lastYear, lastMonth] = lastDataMonth.monthKey.split('-').map(Number);
 
-    console.log(`📊 Last historical data month: ${lastDataMonth.monthKey} (year=${lastYear}, month=${lastMonth})`);
 
     // Calculate how many months to forecast from last historical data to end of selected period
     const endYear = selectedEndDate.getFullYear();
     const endMonth = selectedEndDate.getMonth() + 1;
 
-    console.log(`📊 Forecast target: ${endYear}-${String(endMonth).padStart(2, '0')}`);
 
     let monthsToForecast = 0;
     let currentYear = lastYear;
@@ -99,15 +89,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(`📊 Months to forecast: ${monthsToForecast} (from ${lastYear}-${String(lastMonth).padStart(2, '0')} to ${endYear}-${String(endMonth).padStart(2, '0')})`);
 
     // If no months to forecast (last data is after selected period), return empty
     if (monthsToForecast === 0) {
-      console.log('⚠️ No months to forecast (last historical data is after selected period)');
       return NextResponse.json({ forecast: [] });
     }
 
-    console.log(`🔬 Emissions Enterprise Forecasting: ${historicalMonthly.length} historical months → ${monthsToForecast} forecast months`);
 
     // Use enterprise forecaster for total emissions
     const totalEmissionsData = historicalMonthly.map(m => ({
@@ -178,11 +165,6 @@ export async function GET(request: NextRequest) {
       currentMonth++;
     }
 
-    console.log('✅ Emissions Enterprise Forecast:');
-    console.log(`  Method: ${totalForecast.method}`);
-    console.log(`  Model Quality: R²=${totalForecast.metadata.r2.toFixed(3)}`);
-    console.log(`  Last actual: ${lastDataMonth.monthKey} (${(lastDataMonth.total / 1000).toFixed(1)} tCO2e)`);
-    console.log(`  Forecasted total: ${(forecastMonths.reduce((sum, f) => sum + f.total, 0)).toFixed(1)} tCO2e`);
 
     return NextResponse.json({
       forecast: forecastMonths,

@@ -5,7 +5,7 @@ import { designTokens } from '@/styles/design-tokens';
 
 interface MetricGridProps {
   children: ReactNode;
-  columns?: 2 | 3 | 4;
+  columns?: 2 | 3 | 4 | 5;
   className?: string;
 }
 
@@ -23,10 +23,14 @@ interface MetricGridProps {
  * ```
  */
 export function MetricGrid({ children, columns = 4, className = '' }: MetricGridProps) {
-  const gridClass = `grid grid-cols-${columns} ${designTokens.spacing.gridGap}`;
+  // Use explicit className to avoid Tailwind purging
+  const gridClass = columns === 2 ? 'grid grid-cols-1 md:grid-cols-2'
+    : columns === 3 ? 'grid grid-cols-1 md:grid-cols-3'
+    : columns === 4 ? 'grid grid-cols-1 md:grid-cols-4'
+    : 'grid grid-cols-1 md:grid-cols-5';
 
   return (
-    <div className={`${gridClass} ${className}`}>
+    <div className={`${gridClass} ${designTokens.spacing.gridGap} ${className}`}>
       {children}
     </div>
   );

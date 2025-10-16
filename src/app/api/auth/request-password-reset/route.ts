@@ -11,7 +11,6 @@ const requestSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('Password reset request for:', body.email);
 
     const validated = requestSchema.parse(body);
     const email = validated.email.toLowerCase().trim();
@@ -28,7 +27,6 @@ export async function POST(request: NextRequest) {
 
     // Always return success to avoid email enumeration
     if (!user) {
-      console.log('User not found, but returning success');
       return NextResponse.json({
         success: true,
         message: "If an account exists with that email, you will receive a password reset link.",
@@ -85,7 +83,6 @@ export async function POST(request: NextRequest) {
       html: htmlContent,
     });
 
-    console.log('✅ Password reset email sent to:', email);
 
     return NextResponse.json({
       success: true,

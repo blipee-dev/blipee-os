@@ -104,7 +104,6 @@ export class PerformanceOptimizer {
   }
 
   private async initializeOptimizer() {
-    console.log('⚡ Initializing Performance Optimizer for sub-50ms global response times...');
     
     await this.loadOptimizationStrategies();
     await this.setupCacheStrategies();
@@ -114,7 +113,6 @@ export class PerformanceOptimizer {
     this.startPerformanceMonitoring();
     this.startAutoOptimization();
     
-    console.log('✅ Performance Optimizer ready for lightning-fast responses!');
   }
 
   /**
@@ -131,7 +129,6 @@ export class PerformanceOptimizer {
     let newLatency = currentLatency;
 
     try {
-      console.log(`⚡ Optimizing endpoint: ${endpoint} (current: ${currentLatency}ms)`);
 
       // 1. Apply intelligent caching
       if (currentLatency > 100) {
@@ -188,7 +185,6 @@ export class PerformanceOptimizer {
         recommendations.push('Implement WebSocket connections for real-time data');
       }
 
-      console.log(`✅ Optimization complete: ${currentLatency}ms → ${Math.round(newLatency)}ms`);
 
       return {
         optimized: newLatency < currentLatency,
@@ -238,7 +234,6 @@ export class PerformanceOptimizer {
       const expectedHitRate = await this.predictCacheHitRate(endpoint);
       const improvement = expectedHitRate * 0.8; // 80% improvement on cache hits
 
-      console.log(`💾 Cache applied: ${endpoint} (${(improvement * 100).toFixed(1)}% improvement expected)`);
 
       return {
         success: true,
@@ -288,7 +283,6 @@ export class PerformanceOptimizer {
       // Edge computing typically reduces latency by 30-60%
       const improvement = 0.45; // 45% average improvement
 
-      console.log(`🌍 Edge computing enabled: ${endpoint} deployed to ${edgeRegions.length} regions`);
 
       return {
         success: true,
@@ -302,7 +296,6 @@ export class PerformanceOptimizer {
 
   private async deployToEdgeNode(endpoint: string, region: string): Promise<void> {
     // Simulate edge deployment
-    console.log(`  Deploying ${endpoint} to ${region} edge node...`);
     
     // In production, this would:
     // 1. Deploy compute functions to edge locations
@@ -338,7 +331,6 @@ export class PerformanceOptimizer {
 
       const totalImprovement = optimizations.reduce((sum, opt) => sum + opt, 0) / optimizations.length;
 
-      console.log(`🔧 Query optimization: ${(totalImprovement * 100).toFixed(1)}% improvement`);
 
       return {
         success: true,
@@ -371,7 +363,6 @@ export class PerformanceOptimizer {
       // This translates to 20-30% latency improvement
       const improvement = 0.25;
 
-      console.log(`📦 Compression enabled: ${endpoint} (25% improvement)`);
 
       return {
         success: true,
@@ -403,7 +394,6 @@ export class PerformanceOptimizer {
       // But only applies to ~30% of requests
       const improvement = 0.3;
 
-      console.log(`🔮 Predictive preloading: ${predictedEndpoints.length} endpoints pre-cached`);
 
       return {
         success: true,
@@ -486,7 +476,6 @@ export class PerformanceOptimizer {
     this.isOptimizing = true;
 
     try {
-      console.log('🤖 Running auto-optimization cycle...');
 
       // Get current performance metrics
       const metrics = await this.getGlobalPerformanceMetrics();
@@ -499,14 +488,12 @@ export class PerformanceOptimizer {
         const result = await this.optimizeEndpoint(endpoint.path, endpoint.latency);
         
         if (result.optimized) {
-          console.log(`  ✓ Optimized ${endpoint.path}: ${endpoint.latency}ms → ${result.newLatency}ms`);
         }
       }
 
       // Update optimization strategies based on results
       await this.updateOptimizationStrategies(metrics);
 
-      console.log('✅ Auto-optimization cycle complete');
     } finally {
       this.isOptimizing = false;
     }
@@ -558,22 +545,18 @@ export class PerformanceOptimizer {
 
   private async setupBrowserCache(strategy: CacheStrategy): Promise<void> {
     // Configure browser caching headers
-    console.log(`  Setting up browser cache for ${strategy.pattern}`);
   }
 
   private async setupEdgeCache(strategy: CacheStrategy): Promise<void> {
     // Configure CDN edge caching
-    console.log(`  Setting up edge cache for ${strategy.pattern}`);
   }
 
   private async setupRedisCache(strategy: CacheStrategy): Promise<void> {
     // Configure Redis caching
-    console.log(`  Setting up Redis cache for ${strategy.pattern}`);
   }
 
   private async setupQueryCache(strategy: CacheStrategy): Promise<void> {
     // Configure database query caching
-    console.log(`  Setting up query cache for ${strategy.pattern}`);
   }
 
   private async implementQueryCaching(endpoint: string): Promise<number> {
@@ -614,7 +597,6 @@ export class PerformanceOptimizer {
 
   private async preloadEndpoint(endpoint: string): Promise<void> {
     // Preload endpoint data into cache
-    console.log(`  Preloading ${endpoint}`);
   }
 
   private async identifySlowEndpoints(metrics: PerformanceMetrics): Promise<Array<{
@@ -634,7 +616,6 @@ export class PerformanceOptimizer {
     for (const [id, strategy] of Array.from(this.strategies)) {
       if (strategy.autoTune && strategy.implementation.status === 'active') {
         // Auto-tune strategy parameters based on metrics
-        console.log(`  Auto-tuning strategy: ${strategy.name}`);
       }
     }
   }
@@ -686,26 +667,21 @@ export class PerformanceOptimizer {
       this.strategies.set(strategy.id, strategy);
     });
 
-    console.log(`⚡ Loaded ${this.strategies.size} optimization strategies`);
   }
 
   private async setupCacheStrategies(): Promise<void> {
-    console.log('💾 Setting up intelligent cache strategies...');
   }
 
   private async initializeEdgeComputing(): Promise<void> {
-    console.log('🌍 Initializing global edge computing network...');
   }
 
   private async setupPredictivePreloading(): Promise<void> {
-    console.log('🔮 Setting up AI-powered predictive preloading...');
   }
 
   private startPerformanceMonitoring(): void {
     // Monitor performance every minute
     setInterval(async () => {
       const metrics = await this.getGlobalPerformanceMetrics();
-      console.log(`📊 Performance: ${metrics.latency.p50}ms (p50) | ${metrics.latency.p95}ms (p95) | ${metrics.latency.p99}ms (p99)`);
     }, 60000);
   }
 
@@ -771,7 +747,6 @@ export class PerformanceOptimizer {
    * Public Methods for Victory Launch
    */
   public async warmupCache(): Promise<void> {
-    console.log('🔥 Warming up caches...');
     
     // Pre-load critical data into all cache layers
     const criticalPaths = [
@@ -786,11 +761,9 @@ export class PerformanceOptimizer {
       this.caches.browser.set(path, { warmed: true, timestamp: Date.now() });
     }
 
-    console.log('✅ Cache warmed up successfully');
   }
 
   public async autoOptimize(): Promise<void> {
-    console.log('🤖 Running auto-optimization...');
     
     const metrics = this.getMetrics();
     
@@ -803,11 +776,9 @@ export class PerformanceOptimizer {
       await this.optimizeEndpoint('/api/ai/chat', 100);
     }
     
-    console.log('✅ Auto-optimization complete');
   }
 
   public scaleResources(level: 'low' | 'medium' | 'high'): void {
-    console.log(`📈 Scaling resources to ${level} level`);
     
     const configs = {
       low: { cache: 100, connections: 10, workers: 2 },
@@ -817,7 +788,6 @@ export class PerformanceOptimizer {
     
     const config = configs[level];
     // Apply scaling configuration
-    console.log(`✅ Resources scaled: ${JSON.stringify(config)}`);
   }
 }
 

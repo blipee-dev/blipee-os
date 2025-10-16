@@ -202,7 +202,6 @@ export class IndustryIntelligenceEngine {
    * Generate comprehensive industry intelligence for organization
    */
   async generateIntelligence(profile: OrganizationProfile): Promise<IndustryIntelligence> {
-    console.log(`🏭 Generating industry intelligence for ${profile.name} in ${profile.industry}`);
     
     // Map to GRI sector
     const sector = this.griMapper.mapOrganizationToSector(

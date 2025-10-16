@@ -59,7 +59,6 @@ export class FeatureEngineeringPipeline {
     targetVariable?: string
   ): Promise<EngineeredFeatures> {
     const startTime = Date.now();
-    console.log('⚙️ Engineering features from ESG data...');
     
     const dataArray = Array.isArray(rawData) ? rawData : [rawData];
     const allFeatures: Feature[] = [];
@@ -127,7 +126,6 @@ export class FeatureEngineeringPipeline {
     
     const engineeringTime = Date.now() - startTime;
     
-    console.log(`✅ Feature engineering completed: ${finalFeatures.length} features in ${engineeringTime}ms`);
     
     return {
       features: finalFeatures,

@@ -108,7 +108,6 @@ export class AdvancedAnalyticsEngine extends EventEmitter {
   }
 
   private async initializeEngine() {
-    console.log('🧠 Initializing Advanced Analytics Engine...');
     
     // Load existing models and streams
     await this.loadPredictionModels();
@@ -120,7 +119,6 @@ export class AdvancedAnalyticsEngine extends EventEmitter {
     // Initialize processors
     this.initializeProcessors();
     
-    console.log('✅ Advanced Analytics Engine ready for autonomous intelligence!');
   }
 
   /**
@@ -408,7 +406,6 @@ export class AdvancedAnalyticsEngine extends EventEmitter {
           version: model.version
         });
 
-      console.log(`✅ Trained ${dataType} prediction model with ${accuracy}% accuracy`);
       return model;
     } catch (error) {
       console.error('Model training error:', error);
@@ -796,7 +793,6 @@ export class AdvancedAnalyticsEngine extends EventEmitter {
         });
       }
 
-      console.log(`📊 Loaded ${this.models.size} prediction models`);
     } catch (error) {
       console.error('Failed to load prediction models:', error);
     }
@@ -805,7 +801,6 @@ export class AdvancedAnalyticsEngine extends EventEmitter {
   private async loadAnalyticsStreams(): Promise<void> {
     // Load analytics streams from database
     // For now, create default streams
-    console.log('📡 Setting up default analytics streams...');
     // Implementation would load from database
   }
 
@@ -817,7 +812,6 @@ export class AdvancedAnalyticsEngine extends EventEmitter {
       }
     }, 5000);
 
-    console.log('⚡ Real-time processing engine started');
   }
 
   private async processQueueBatch(): Promise<void> {
@@ -838,7 +832,6 @@ export class AdvancedAnalyticsEngine extends EventEmitter {
 
   private initializeProcessors(): void {
     // Initialize default processors
-    console.log('🔧 Initializing analytics processors...');
     // Implementation would set up processors
   }
 

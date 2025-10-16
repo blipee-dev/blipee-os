@@ -738,7 +738,6 @@ export class IndustryBenchmarkingPlatform {
    * Configure benchmarking analysis
    */
   async configureBenchmarking(config: BenchmarkingConfig): Promise<void> {
-    console.log(`🏭 Configuring benchmarking for industry: ${config.industryClassification.primary.name}`);
 
     // Validate configuration
     await this.validateConfiguration(config);
@@ -749,7 +748,6 @@ export class IndustryBenchmarkingPlatform {
     // Initialize peer selection
     await this.initializePeerSelection(config);
 
-    console.log(`✅ Benchmarking configured with ${config.metrics.length} metrics`);
   }
 
   /**
@@ -761,7 +759,6 @@ export class IndustryBenchmarkingPlatform {
       throw new Error(`Configuration ${configId} not found`);
     }
 
-    console.log(`📊 Performing benchmarking analysis: ${configId}`);
     const startTime = Date.now();
 
     // Select peer organizations
@@ -817,7 +814,6 @@ export class IndustryBenchmarkingPlatform {
     // Send alerts if configured
     await this.checkAndSendAlerts(result, config);
 
-    console.log(`✅ Benchmarking analysis completed in ${Date.now() - startTime}ms`);
     return result;
   }
 
@@ -834,7 +830,6 @@ export class IndustryBenchmarkingPlatform {
       throw new Error(`Analysis ${analysisId} not found`);
     }
 
-    console.log(`📋 Generating ${format} report for analysis: ${analysisId}`);
 
     return this.reportingService.generateReport(result, format, customization);
   }
@@ -851,7 +846,6 @@ export class IndustryBenchmarkingPlatform {
       throw new Error(`Configuration ${configId} not found`);
     }
 
-    console.log(`👥 Starting peer monitoring for: ${configId}`);
 
     const monitor = new PeerMonitor(config, callback);
     await monitor.start();
@@ -867,7 +861,6 @@ export class IndustryBenchmarkingPlatform {
     metric: string,
     topPercentile: number = 10
   ): Promise<BestPracticesAnalysis> {
-    console.log(`🏆 Discovering best practices for ${metric} in ${industryCode}`);
 
     // Get top performers
     const topPerformers = await this.peerDatabase.getTopPerformers(
@@ -906,7 +899,6 @@ export class IndustryBenchmarkingPlatform {
     competitors: string[],
     analysisScope: CompetitiveScope
   ): Promise<CompetitiveAnalysis> {
-    console.log(`🎯 Analyzing competitive position for: ${organizationId}`);
 
     // Get competitor data
     const competitorData = await this.collectCompetitorData(competitors, analysisScope);
@@ -945,7 +937,6 @@ export class IndustryBenchmarkingPlatform {
     horizon: number, // months
     scenarios: ScenarioConfig[]
   ): Promise<IndustryTrendForecast> {
-    console.log(`🔮 Predicting industry trends for: ${industryCode}`);
 
     // Get historical industry data
     const historicalData = await this.peerDatabase.getIndustryData(industryCode);
@@ -986,7 +977,6 @@ export class IndustryBenchmarkingPlatform {
     esgFramework: ESGFramework,
     materiality: MaterialityAssessment
   ): Promise<ESGBenchmarkingResult> {
-    console.log(`🌱 Performing ESG benchmarking with ${esgFramework} framework`);
 
     // Get ESG-specific peer group
     const esgPeers = await this.selectESGPeerGroup(organizationId, materiality);
@@ -1019,7 +1009,6 @@ export class IndustryBenchmarkingPlatform {
 
   // Private helper methods
   private initializePlatform(): void {
-    console.log('🚀 Initializing Industry Benchmarking Platform');
 
     // Set up data refresh schedules
     setInterval(() => this.refreshPeerData(), 24 * 60 * 60 * 1000); // Daily
@@ -1136,7 +1125,6 @@ export class IndustryBenchmarkingPlatform {
     // Check thresholds and send alerts
     for (const threshold of config.analysis.alerting.thresholds) {
       // Simplified alert checking logic
-      console.log(`Checking alert threshold for ${threshold.metric}`);
     }
   }
 
@@ -1323,6 +1311,5 @@ class PeerMonitor {
   constructor(private config: BenchmarkingConfig, private callback: (update: PeerUpdate) => void) {}
 
   async start(): Promise<void> {
-    console.log('Peer monitoring started');
   }
 }

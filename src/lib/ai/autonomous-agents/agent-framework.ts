@@ -139,7 +139,6 @@ export abstract class AutonomousAgent {
   
   // Core lifecycle
   async start() {
-    console.log(`🤖 ${this.agentId} starting for org ${this.organizationId}`);
     this.isRunning = true;
     await this.logAgentEvent('started');
 
@@ -157,7 +156,6 @@ export abstract class AutonomousAgent {
   }
   
   async stop() {
-    console.log(`🛑 ${this.agentId} stopping`);
     this.isRunning = false;
     if (this.runTimeout) {
       clearTimeout(this.runTimeout);
@@ -233,7 +231,6 @@ export abstract class AutonomousAgent {
     );
 
     if (!hasCapability) {
-      console.log(`❌ Agent ${this.agentId} lacks capability for task type: ${task.type}`);
       return false;
     }
 
@@ -333,7 +330,6 @@ export abstract class AutonomousAgent {
   // Apply learnings to improve agent behavior
   protected async applyLearning(learning: Learning): Promise<void> {
     // Update agent configuration based on learning
-    console.log(`📚 Applying high-impact learning: ${learning.insight}`);
 
     // Store as active rule for future decisions
     await supabaseAdmin
@@ -365,7 +361,6 @@ export abstract class AutonomousAgent {
       
     // Attempt recovery
     if (this.isRunning) {
-      console.log(`🔄 ${this.agentId} attempting recovery...`);
       this.scheduleNextRun();
     }
   }
@@ -506,7 +501,6 @@ export abstract class AutonomousAgent {
       .limit(100);
 
     if (data) {
-      console.log(`📚 Loaded ${data.length} previous learnings for ${this.agentId}`);
     }
   }
 

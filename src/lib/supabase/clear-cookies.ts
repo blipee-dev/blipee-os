@@ -17,7 +17,6 @@ export function clearMalformedSupabaseCookies() {
     // Always clear the specific corrupted cookie
     if (name === targetCookie) {
       clearCookieAggressively(name);
-      console.log(`Cleared specific corrupted cookie: ${name}`);
       clearedCount++;
       return;
     }
@@ -27,14 +26,12 @@ export function clearMalformedSupabaseCookies() {
       // Check if the value looks malformed
       if (value && (value.startsWith('base64-') || value.includes('"base64-'))) {
         clearCookieAggressively(name);
-        console.log(`Cleared malformed cookie: ${name}`);
         clearedCount++;
       }
     }
   });
   
   if (clearedCount > 0) {
-    console.log(`Cleared ${clearedCount} malformed Supabase cookies`);
   }
 }
 

@@ -28,10 +28,10 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const siteId = searchParams.get('site_id');
 
-    // Get energy metrics from metrics_catalog
+    // Get energy metrics from metrics_catalog - OPTIMIZED: only fetch needed fields
     const { data: energyMetrics, error: metricsError } = await supabaseAdmin
       .from('metrics_catalog')
-      .select('*')
+      .select('id, code, name, unit, is_renewable, energy_type, cost_per_ton')
       .in('category', ['Purchased Energy', 'Electricity']);
 
     if (metricsError) {
@@ -52,11 +52,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Get energy data from metrics_data (using admin to bypass RLS)
+    // Get energy data from metrics_data (using admin to bypass RLS) - OPTIMIZED: only fetch needed fields
     const metricIds = energyMetrics.map(m => m.id);
     let query = supabaseAdmin
       .from('metrics_data')
-      .select('*')
+      .select('metric_id, value, co2e_emissions, period_start, unit, metadata')
       .eq('organization_id', organizationId)
       .in('metric_id', metricIds);
 
@@ -136,8 +136,11 @@ export async function GET(request: NextRequest) {
       // Convert emissions from kgCO2e (database) to tCO2e (GRI 305 standard)
       acc[sourceInfo.type].emissions += (parseFloat(record.co2e_emissions) || 0) / 1000;
 
-      // Add cost if available
-      acc[sourceInfo.type].cost += parseFloat(record.cost) || 0;
+      // Calculate cost if cost_per_ton is available in the metric
+      if (metric?.cost_per_ton) {
+        const emissionsTons = (parseFloat(record.co2e_emissions) || 0) / 1000;
+        acc[sourceInfo.type].cost += emissionsTons * metric.cost_per_ton;
+      }
 
       return acc;
     }, {});
@@ -335,20 +338,6 @@ export async function GET(request: NextRequest) {
       ? (totalRenewableEnergy / totalConsumption * 100)
       : 0;
 
-    console.log('🌱 Renewable Calculation:');
-    console.log('  Date range:', startDate, 'to', endDate);
-    console.log('  Pure renewable (solar/wind):', pureRenewableConsumption, 'kWh');
-    console.log('  Grid renewable (from EDP):', totalRenewableFromGrid, 'kWh');
-    console.log('  Grid non-renewable (from EDP):', totalNonRenewableFromGrid, 'kWh');
-    console.log('  Total grid electricity:', totalRenewableFromGrid + totalNonRenewableFromGrid, 'kWh');
-    console.log('  Total renewable:', totalRenewableEnergy, 'kWh');
-    console.log('  Total consumption (all energy types):', totalConsumption, 'kWh');
-    console.log('  Renewable %:', renewablePercentage.toFixed(2), '%');
-    console.log('  Grid mix data points:', gridMixDataPoints);
-    console.log('\n📊 Energy breakdown by type:');
-    sources.forEach((s: any) => {
-      console.log(`    ${s.name}: ${s.consumption.toFixed(0)} kWh (${s.renewable ? 'renewable' : 'non-renewable'})`);
-    });
 
     // Calculate monthly trends with source breakdown
     const monthlyData = (energyData || []).reduce((acc: any, record: any) => {
@@ -417,13 +406,6 @@ export async function GET(request: NextRequest) {
     // Convert to array and sort by month
     const monthlyTrends = Object.values(monthlyData)
       .sort((a: any, b: any) => a.monthKey.localeCompare(b.monthKey));
-
-    console.log('🔍 Energy API Debug:');
-    console.log('  - Total energy records:', energyData?.length || 0);
-    console.log('  - Monthly trends count:', monthlyTrends.length);
-    console.log('  - Monthly trends sample:', monthlyTrends.slice(0, 3));
-    console.log('  - Energy mixes found:', energyMixes.length);
-    console.log('  - Energy mixes:', energyMixes);
 
     return NextResponse.json({
       sources,

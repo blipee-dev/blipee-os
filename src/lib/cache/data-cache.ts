@@ -178,7 +178,6 @@ export class DataCache {
   ): Promise<void> {
     // This method can be called during app initialization
     // to warm up the cache with frequently accessed data
-    console.log(`Preloading cache for org ${orgId} with ${buildingIds.length} buildings`);
   }
 }
 

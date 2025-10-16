@@ -273,7 +273,6 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   };
 
   const handleResendInvitation = async (user: AppUser) => {
-    console.log('🔄 Resending invitation to:', user.email, 'User ID:', user.id);
     setLoading(true);
     try {
       const response = await fetch('/api/users/resend-invitation', {
@@ -286,7 +285,6 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         })
       });
 
-      console.log('📨 Response status:', response.status);
 
       if (!response.ok) {
         const error = await response.json();
@@ -296,7 +294,6 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
       }
 
       const result = await response.json();
-      console.log('✅ Invitation resent successfully:', result);
       toast.success(t('invitationResent') || `Invitation resent to ${user.email}`);
     } catch (error) {
       console.error('❌ Error resending invitation:', error);
@@ -392,7 +389,6 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
 
   const handlePin = async (user: AppUser) => {
     // Implement pin functionality if needed
-    console.log('Pin user:', user.name);
   };
 
   // Can user perform actions? Using Simple RBAC roles (owner, manager, member, viewer) + super_admin

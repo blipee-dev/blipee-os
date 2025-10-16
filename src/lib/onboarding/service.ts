@@ -186,7 +186,6 @@ export class OnboardingService {
             await this.registerUnit(data, userId);
             break;
           default:
-            console.log(`Unhandled action type: ${action.type}`);
         }
       } catch (error) {
         console.error(`Error executing action ${action.type}:`, error);

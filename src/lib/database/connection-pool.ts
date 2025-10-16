@@ -150,17 +150,14 @@ export function createConnectionPool(): Pool {
   });
   
   connectionPool.on('connect', (client) => {
-    console.log('New client connected to pool');
     // Set session configuration
     client.query('SET statement_timeout = $1', [config.pgBouncer.statementTimeout]);
   });
   
   connectionPool.on('acquire', (client) => {
-    console.debug('Client acquired from pool');
   });
   
   connectionPool.on('remove', (client) => {
-    console.debug('Client removed from pool');
   });
   
   return connectionPool;
@@ -266,19 +263,16 @@ export async function closeConnectionPool(): Promise<void> {
   if (connectionPool) {
     await connectionPool.end();
     connectionPool = null;
-    console.log('Database connection pool closed');
   }
 }
 
 // Register shutdown handlers
 if (typeof process !== 'undefined') {
   process.on('SIGTERM', async () => {
-    console.log('SIGTERM received, closing connection pool...');
     await closeConnectionPool();
   });
   
   process.on('SIGINT', async () => {
-    console.log('SIGINT received, closing connection pool...');
     await closeConnectionPool();
   });
 }

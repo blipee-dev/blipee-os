@@ -143,7 +143,7 @@ export function DynamicUIRenderer({ components }: DynamicUIRendererProps) {
           <IntelligentDashboard
             key={key}
             {...component.props}
-            onOptimize={() => console.log("🚀 AI Optimization triggered!")}
+            onOptimize={() => {}}
           />
         );
 

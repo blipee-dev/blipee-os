@@ -195,7 +195,6 @@ async function generateInsights(req: NextRequest, context: any) {
       });
     }
 
-    console.log(`🔍 Generating insights for ${dataPoints.length} data points (${dataType})`);
 
     // Generate insights using the analytics engine
     const insights = [];
@@ -248,7 +247,6 @@ async function generateInsights(req: NextRequest, context: any) {
           timestamp: new Date().toISOString()
         });
 
-      console.log(`✅ Generated ${uniqueInsights.length} unique insights in ${processingTime}ms`);
 
       return NextResponse.json({
         success: true,

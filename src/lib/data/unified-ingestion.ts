@@ -29,10 +29,6 @@ export class UnifiedDataIngestion {
     insights: DataInsight[];
     recommendations: string[];
   }> {
-    console.log(
-      "🌍 Starting unified data ingestion for organization:",
-      organizationId,
-    );
 
     // Fetch all data sources in parallel
     const [

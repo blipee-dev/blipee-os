@@ -207,7 +207,6 @@ export class PWAManager {
       // Request permissions
       await this.requestPermissions();
       
-      console.log('✅ PWA initialized successfully');
     } catch (error) {
       console.error('❌ PWA initialization failed:', error);
     }
@@ -227,7 +226,6 @@ export class PWAManager {
         updateViaCache: 'none'
       });
 
-      console.log('Service Worker registered:', registration);
       
       // Handle updates
       registration.addEventListener('updatefound', () => {
@@ -266,7 +264,6 @@ export class PWAManager {
     });
 
     window.addEventListener('appinstalled', () => {
-      console.log('✅ PWA installed successfully');
       this.installPrompt = null;
       
       // Track installation
@@ -369,7 +366,6 @@ export class PWAManager {
         });
       }
 
-      console.log('Offline storage initialized');
     } catch (error) {
       console.error('Failed to initialize offline storage:', error);
     }
@@ -390,7 +386,6 @@ export class PWAManager {
       const offlineData = Object.fromEntries(this.offlineStorage);
       localStorage.setItem('blipee-offline-data', JSON.stringify(offlineData));
       
-      console.log(`Stored offline data: ${key}`);
     } catch (error) {
       console.error('Failed to store offline data:', error);
     }
@@ -450,7 +445,6 @@ export class PWAManager {
   private async processSyncQueue(): Promise<void> {
     if (this.syncQueue.length === 0) return;
 
-    console.log(`Processing ${this.syncQueue.length} sync items...`);
 
     const itemsToRemove: string[] = [];
 
@@ -458,7 +452,6 @@ export class PWAManager {
       try {
         await this.syncItem(item);
         itemsToRemove.push(item.id);
-        console.log(`✅ Synced: ${item.action}`);
       } catch (error) {
         item.retries++;
         if (item.retries >= 3) {
@@ -517,7 +510,6 @@ export class PWAManager {
    */
   private async syncOrganizationUpdate(data: any): Promise<void> {
     // Implementation for syncing organization updates
-    console.log('Syncing organization update:', data);
   }
 
   /**
@@ -525,7 +517,6 @@ export class PWAManager {
    */
   private async syncBuildingUpdate(data: any): Promise<void> {
     // Implementation for syncing building updates
-    console.log('Syncing building update:', data);
   }
 
   /**
@@ -560,7 +551,6 @@ export class PWAManager {
 
     try {
       const results = await Promise.all(permissions);
-      console.log('Permissions requested:', results);
     } catch (error) {
       console.error('Permission request failed:', error);
     }
@@ -572,14 +562,11 @@ export class PWAManager {
   private handleServiceWorkerMessage(message: ServiceWorkerMessage): void {
     switch (message.type) {
       case 'SYNC_COMPLETE':
-        console.log('Background sync completed');
         this.processSyncQueue();
         break;
       case 'CACHE_UPDATED':
-        console.log('Cache updated:', message.data);
         break;
       case 'OFFLINE_FALLBACK':
-        console.log('Using offline fallback');
         this.handleOfflineMode();
         break;
     }
@@ -679,7 +666,6 @@ export class PWAManager {
    */
   private trackEvent(event: string, data: any): void {
     // Send to analytics
-    console.log(`PWA Event: ${event}`, data);
     
     // Store locally for sync
     this.addToSyncQueue('analytics', {

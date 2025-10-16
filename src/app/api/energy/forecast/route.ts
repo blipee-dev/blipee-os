@@ -155,7 +155,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(`🔬 Energy Enterprise Forecasting: ${historicalMonthly.length} historical months → ${monthsToForecast} forecast months`);
 
     // Use enterprise forecaster for total energy
     const totalEnergyData = historicalMonthly.map(m => ({
@@ -212,11 +211,6 @@ export async function GET(request: NextRequest) {
       currentMonth++;
     }
 
-    console.log('✅ Energy Enterprise Forecast:');
-    console.log(`  Method: ${totalForecast.method}`);
-    console.log(`  Model Quality: R²=${totalForecast.metadata.r2.toFixed(3)}`);
-    console.log(`  Last actual: ${lastDataMonth.monthKey} (${(lastDataMonth.total / 1000).toFixed(1)} MWh)`);
-    console.log(`  Forecasted total: ${(forecastMonths.reduce((sum, f) => sum + f.total, 0) / 1000).toFixed(1)} MWh`);
 
     return NextResponse.json({
       forecast: forecastMonths,

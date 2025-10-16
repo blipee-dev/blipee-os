@@ -83,21 +83,7 @@ function validateEnv() {
     );
   }
   
-  // Log configuration summary (without sensitive data)
-  console.log('✅ Environment configuration validated');
-  console.log('   Core services: Configured');
-  console.log(`   AI providers: ${[
-    parsed.data.OPENAI_API_KEY && 'OpenAI',
-    parsed.data.ANTHROPIC_API_KEY && 'Anthropic',
-    parsed.data.DEEPSEEK_API_KEY && 'DeepSeek',
-  ].filter(Boolean).join(', ')}`);
-  console.log(`   External APIs: ${[
-    parsed.data.OPENWEATHERMAP_API_KEY && 'Weather',
-    parsed.data.CARBON_INTERFACE_API_KEY && 'Carbon Interface',
-    parsed.data.ELECTRICITY_MAPS_API_KEY && 'Electricity Maps',
-    parsed.data.CLIMATIQ_API_KEY && 'Climatiq',
-  ].filter(Boolean).join(', ') || 'None'}`);
-  console.log(`   Environment: ${parsed.data.NODE_ENV}`);
+  // Log configuration summary (without sensitive data).join(', ')}`);.join(', ') || 'None'}`);
   
   return parsed.data;
 }

@@ -1984,7 +1984,6 @@ export class StrategicPlanningAI {
    * Create a comprehensive strategic plan
    */
   async createStrategicPlan(planRequest: PlanRequest): Promise<StrategicPlan> {
-    console.log(`🎯 Creating strategic plan: ${planRequest.name}`);
 
     // Validate request
     await this.validatePlanRequest(planRequest);
@@ -2045,7 +2044,6 @@ export class StrategicPlanningAI {
     // Initialize monitoring
     await this.monitor.initializePlanMonitoring(plan);
 
-    console.log(`✅ Strategic plan created with ${objectives.length} objectives and ${initiatives.length} initiatives`);
     return plan;
   }
 
@@ -2061,7 +2059,6 @@ export class StrategicPlanningAI {
       throw new Error(`Plan ${planId} not found`);
     }
 
-    console.log(`🎭 Performing scenario analysis for plan: ${plan.name}`);
 
     // Generate scenarios
     const scenarios = await this.scenarios.generateScenarios(scenarioParameters);
@@ -2102,7 +2099,6 @@ export class StrategicPlanningAI {
       throw new Error(`Plan ${planId} not found`);
     }
 
-    console.log(`⚡ Optimizing strategic plan: ${plan.name}`);
 
     return this.optimizer.optimizePlan(plan, optimizationCriteria);
   }
@@ -2119,7 +2115,6 @@ export class StrategicPlanningAI {
       throw new Error(`Plan ${planId} not found`);
     }
 
-    console.log(`💡 Generating strategic recommendations for: ${plan.name}`);
 
     // Analyze current performance
     const performance = await this.monitor.getCurrentPerformance(plan);
@@ -2158,7 +2153,6 @@ export class StrategicPlanningAI {
       throw new Error(`Plan ${planId} not found`);
     }
 
-    console.log(`🔄 Updating strategic plan: ${plan.name}`);
 
     // Apply updates
     const updatedPlan = await this.applyPlanUpdates(plan, updates);
@@ -2179,7 +2173,6 @@ export class StrategicPlanningAI {
 
   // Private helper methods
   private initializeEngine(): void {
-    console.log('🚀 Initializing Strategic Planning AI Engine');
 
     // Set up periodic plan reviews
     setInterval(() => this.performPeriodicReviews(), 24 * 60 * 60 * 1000); // Daily

@@ -38,7 +38,6 @@ export const retailModule: Module = {
 
 // Initialize retail services
 async function initializeRetailServices(): Promise<void> {
-  console.log('🛍️ Initializing Retail Intelligence services...');
   
   try {
     // Skip health check during module initialization to avoid circular dependency
@@ -47,7 +46,6 @@ async function initializeRetailServices(): Promise<void> {
     // Initialize any background services here
     // Example: WebSocket connections, data sync, etc.
     
-    console.log('✅ Retail Intelligence services initialized successfully');
   } catch (error) {
     console.error('❌ Failed to initialize Retail Intelligence services:', error);
     throw error;
@@ -56,11 +54,9 @@ async function initializeRetailServices(): Promise<void> {
 
 // Cleanup retail services
 async function cleanupRetailServices(): Promise<void> {
-  console.log('🧹 Cleaning up Retail Intelligence services...');
   
   // Cleanup any background services, connections, etc.
   
-  console.log('✅ Retail Intelligence services cleaned up');
 }
 
 // Module registration

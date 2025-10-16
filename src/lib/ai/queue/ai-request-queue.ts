@@ -97,7 +97,6 @@ export class AIRequestQueue {
   private initializeQueue(): void {
     try {
       // Upstash Redis is connectionless - no need to connect
-      console.log('✅ AI Request Queue initialized successfully with Upstash Redis');
     } catch (error) {
       console.error('❌ Failed to initialize AI Request Queue:', error);
       throw error;
@@ -155,7 +154,6 @@ export class AIRequestQueue {
       // Update queue stats
       await this.updateQueueStats('pending', 1);
 
-      console.log(`📥 Enqueued AI request ${requestId} with priority ${request.priority}`);
       return requestId;
 
     } catch (error) {
@@ -191,7 +189,6 @@ export class AIRequestQueue {
       await this.updateQueueStats('pending', -1);
       await this.updateQueueStats('processing', 1);
 
-      console.log(`📤 Dequeued AI request ${request.id} for processing`);
       return request;
 
     } catch (error) {
@@ -237,7 +234,6 @@ export class AIRequestQueue {
 
       // Note: Event publishing can be added later if needed
 
-      console.log(`✅ Completed AI request ${requestId} (${response.success ? 'success' : 'error'})`);
 
     } catch (error) {
       console.error(`❌ Failed to complete request ${requestId}:`, error);
@@ -267,7 +263,6 @@ export class AIRequestQueue {
         await this.redis.zadd(this.QUEUE_KEY, { score: priorityScore, member: JSON.stringify(request) });
         await this.redis.hdel(this.PROCESSING_KEY, requestId);
         
-        console.log(`🔄 Retrying AI request ${requestId} (attempt ${request.retryCount}/${request.maxRetries})`);
         return true; // Will retry
       }
 
@@ -294,7 +289,6 @@ export class AIRequestQueue {
       await this.updateQueueStats('failed', 1);
       this.errorCount++;
 
-      console.log(`❌ Failed AI request ${requestId} permanently after ${request.maxRetries} retries`);
       return false; // Won't retry
 
     } catch (error) {
@@ -415,7 +409,6 @@ export class AIRequestQueue {
         }
       }
 
-      console.log('🧹 Queue cleanup completed');
 
     } catch (error) {
       console.error('❌ Failed to cleanup queue:', error);
@@ -461,7 +454,6 @@ export class AIRequestQueue {
     }
 
     this.isProcessing = true;
-    console.log(`🔄 Starting queue processing with concurrency ${concurrency}`);
 
     // Start multiple workers
     const workers = Array.from({ length: concurrency }, (_, i) => 
@@ -476,14 +468,12 @@ export class AIRequestQueue {
    */
   async stopProcessing(): Promise<void> {
     this.isProcessing = false;
-    console.log('⏹️ Stopping queue processing');
   }
 
   /**
    * Worker process to handle queued requests
    */
   private async processWorker(workerId: number): Promise<void> {
-    console.log(`🏃 Worker ${workerId} started`);
 
     while (this.isProcessing) {
       try {
@@ -504,7 +494,6 @@ export class AIRequestQueue {
       }
     }
 
-    console.log(`🛑 Worker ${workerId} stopped`);
   }
 
   /**
@@ -514,7 +503,6 @@ export class AIRequestQueue {
     const startTime = Date.now();
     
     try {
-      console.log(`🤖 Worker ${workerId} processing ${request.id} (${request.provider})`);
       
       // TODO: This will be replaced with actual AI service calls
       // For now, simulate processing
@@ -573,7 +561,6 @@ export class AIRequestQueue {
   async disconnect(): Promise<void> {
     await this.stopProcessing();
     // Upstash Redis is connectionless - no need to disconnect
-    console.log('📴 AI Request Queue cleaned up');
   }
 }
 

@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    console.log('Current user:', user?.email);
     
     // Query ALL organizations (using service role if available)
     const { data: allOrgs, error: allOrgsError, count: allCount } = await supabase

@@ -95,7 +95,6 @@ class GeneticAlgorithm {
     constraints: Constraint[],
     objectives: Objective[]
   ): Promise<Individual> {
-    console.log('🧬 Starting genetic algorithm optimization...');
     
     this.resources = resources;
     this.constraints = constraints;
@@ -125,13 +124,11 @@ class GeneticAlgorithm {
       
       // Early stopping
       if (stagnationCount >= maxStagnation) {
-        console.log(`🏁 Converged at generation ${generation}`);
         break;
       }
       
       // Progress logging
       if (generation % 100 === 0) {
-        console.log(`Generation ${generation}: Best fitness = ${bestFitness.toFixed(4)}`);
       }
       
       // Create next generation
@@ -175,7 +172,6 @@ class GeneticAlgorithm {
     const finalPopulation = population.map(individual => this.evaluateFitness(individual));
     finalPopulation.sort((a, b) => b.fitness - a.fitness);
     
-    console.log(`✅ Genetic algorithm completed with fitness: ${finalPopulation[0].fitness.toFixed(4)}`);
     return finalPopulation[0];
   }
 
@@ -323,7 +319,6 @@ class ReinforcementLearningAgent {
     confidence: number;
     learningSteps: number;
   }> {
-    console.log('🤖 Refining allocation with reinforcement learning...');
     
     let currentAllocation = [...initialAllocation];
     let bestAllocation = [...initialAllocation];
@@ -361,7 +356,6 @@ class ReinforcementLearningAgent {
     
     const confidence = Math.min(0.95, 0.5 + (improvementCount / 100));
     
-    console.log(`✅ RL refinement completed with ${improvementCount} improvements`);
     
     return {
       allocation: bestAllocation,
@@ -520,7 +514,6 @@ export class OptimizationEngine {
     constraints: Constraint[],
     objectives: Objective[]
   ): Promise<OptimizationResult> {
-    console.log('⚡ Starting resource allocation optimization...');
     
     try {
       // Phase 1: Genetic Algorithm for global optimization
@@ -554,7 +547,6 @@ export class OptimizationEngine {
         expectedImpact
       );
       
-      console.log('✅ Resource allocation optimization completed');
       
       return {
         allocation,
@@ -573,7 +565,6 @@ export class OptimizationEngine {
    * Train optimizers with historical data
    */
   async trainOptimizers(historicalData: any[]): Promise<{ trained: boolean; iterations: number }> {
-    console.log('🎯 Training optimization models...');
     
     // Simulate training with historical data
     // In a real implementation, this would use historical allocation decisions
@@ -589,7 +580,6 @@ export class OptimizationEngine {
       }
     }
     
-    console.log(`✅ Optimization models trained with ${iterations} iterations`);
     
     return {
       trained: true,

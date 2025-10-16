@@ -35,7 +35,6 @@ export async function GET(request: NextRequest) {
     const currentYear = yearParam ? parseInt(yearParam) : now.getFullYear();
     const currentMonth = now.getMonth() + 1; // 1-12
 
-    console.log(`📊 Calculating feasibility for ${organizationId}, year ${currentYear}, month ${currentMonth}`);
 
     // Get target
     let resolvedTargetId = targetId;
@@ -78,7 +77,6 @@ export async function GET(request: NextRequest) {
     const yearsFromBaseline = currentYear - target.baseline_year;
     const annualTarget = target.baseline_emissions - (annualReduction * yearsFromBaseline);
 
-    console.log(`🎯 Annual target for ${currentYear}: ${annualTarget.toFixed(2)} tCO2e`);
 
     // Get YTD actual emissions
     const startOfYear = `${currentYear}-01-01`;
@@ -101,7 +99,6 @@ export async function GET(request: NextRequest) {
 
     const ytdActualEmissions = ytdData?.reduce((sum, row) => sum + (parseFloat(row.co2e_emissions as any) || 0), 0) || 0;
 
-    console.log(`📈 YTD actual emissions: ${ytdActualEmissions.toFixed(2)} tCO2e`);
 
     // Calculate feasibility
     const feasibilityInput: FeasibilityInput = {
@@ -117,7 +114,6 @@ export async function GET(request: NextRequest) {
 
     const feasibility = calculateFeasibility(feasibilityInput);
 
-    console.log(`✅ Feasibility: ${feasibility.status} (${feasibility.reductionRequiredPercent.toFixed(1)}% reduction needed)`);
 
     return NextResponse.json({
       success: true,

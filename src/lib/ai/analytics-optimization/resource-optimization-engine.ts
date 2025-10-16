@@ -380,7 +380,6 @@ export class ResourceOptimizationEngine {
    * Solve general optimization problem
    */
   async optimize(problem: OptimizationProblem): Promise<OptimizationResult> {
-    console.log(`🔧 Starting optimization: ${problem.name}`);
     
     const startTime = Date.now();
     
@@ -406,7 +405,6 @@ export class ResourceOptimizationEngine {
     this.resultCache.set(problem.problemId, result);
     
     const endTime = Date.now();
-    console.log(`✅ Optimization completed in ${endTime - startTime}ms`);
     
     return result;
   }
@@ -415,7 +413,6 @@ export class ResourceOptimizationEngine {
    * Solve resource allocation problem
    */
   async optimizeResourceAllocation(problem: ResourceAllocationProblem): Promise<AllocationSolution> {
-    console.log(`📊 Optimizing resource allocation`);
     
     // Convert to standard optimization problem
     const optimizationProblem = this.convertAllocationProblem(problem);
@@ -431,7 +428,6 @@ export class ResourceOptimizationEngine {
    * Solve scheduling problem
    */
   async optimizeSchedule(problem: SchedulingProblem): Promise<SchedulingSolution> {
-    console.log(`📅 Optimizing schedule`);
     
     // Convert to optimization problem
     const optimizationProblem = this.convertSchedulingProblem(problem);
@@ -447,7 +443,6 @@ export class ResourceOptimizationEngine {
    * Solve vehicle routing problem
    */
   async optimizeRouting(problem: RoutingProblem): Promise<RoutingSolution> {
-    console.log(`🚚 Optimizing routes`);
     
     // Convert to optimization problem
     const optimizationProblem = this.convertRoutingProblem(problem);
@@ -467,7 +462,6 @@ export class ResourceOptimizationEngine {
     constraints: Constraint[],
     variables: DecisionVariable[]
   ): Promise<ParetoSolution> {
-    console.log(`🎯 Multi-objective optimization with ${objectives.length} objectives`);
     
     // Create weighted sum problem for initial solution
     const weights = this.calculateInitialWeights(objectives);
@@ -508,7 +502,6 @@ export class ResourceOptimizationEngine {
     problem: OptimizationProblem,
     uncertainParameters: UncertainParameter[]
   ): Promise<StochasticSolution> {
-    console.log(`🎲 Stochastic optimization with ${uncertainParameters.length} uncertain parameters`);
     
     // Generate scenarios
     const scenarios = this.generateScenarios(uncertainParameters);
@@ -540,7 +533,6 @@ export class ResourceOptimizationEngine {
     timeSteps: number,
     stateDynamics: StateDynamics
   ): Promise<DynamicSolution> {
-    console.log(`⏰ Dynamic optimization over ${timeSteps} time steps`);
     
     const solutions: OptimizationResult[] = [];
     let currentState = stateDynamics.initialState;
@@ -572,7 +564,6 @@ export class ResourceOptimizationEngine {
     problem: OptimizationProblem,
     result: OptimizationResult
   ): Promise<SensitivityAnalysis> {
-    console.log(`📊 Performing sensitivity analysis`);
     
     const analysis: SensitivityAnalysis = {
       objectiveCoefficients: {},

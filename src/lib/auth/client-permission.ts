@@ -40,7 +40,6 @@ export async function getUserRole(userId: string): Promise<{ organizationId: str
       .maybeSingle();
 
     if (appUserError) {
-      console.log('app_users query error:', appUserError);
     }
 
     if (appUser?.organization_id) {
@@ -60,7 +59,6 @@ export async function getUserRole(userId: string): Promise<{ organizationId: str
       .maybeSingle();
 
     if (accessError) {
-      console.log('user_access query error:', accessError);
     }
 
     if (userAccess) {
@@ -79,7 +77,6 @@ export async function getUserRole(userId: string): Promise<{ organizationId: str
       .maybeSingle();
 
     if (memberError) {
-      console.log('organization_members query error:', memberError);
     }
 
     if (member) {

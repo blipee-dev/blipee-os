@@ -251,7 +251,6 @@ export class PortfolioOptimizationEngine {
    * Optimize ESG portfolio allocation
    */
   async optimizePortfolio(portfolio: ESGPortfolio): Promise<OptimizationResult> {
-    console.log(`📊 Optimizing ESG portfolio: ${portfolio.name}`);
     
     // Prepare optimization inputs
     const returns = await this.estimateReturns(portfolio.assets);
@@ -310,7 +309,6 @@ export class PortfolioOptimizationEngine {
     periods: number,
     constraints: DynamicConstraint[]
   ): Promise<MultiPeriodResult> {
-    console.log(`⏱️ Multi-period optimization over ${periods} periods`);
     
     const results: OptimizationResult[] = [];
     let currentPortfolio = portfolio;
@@ -352,7 +350,6 @@ export class PortfolioOptimizationEngine {
     portfolio: ESGPortfolio,
     marketViews: MarketView[]
   ): Promise<OptimizationResult> {
-    console.log(`🎯 Black-Litterman optimization with ${marketViews.length} views`);
     
     // Get market equilibrium weights
     const marketWeights = await this.getMarketWeights(portfolio.assets);
@@ -384,7 +381,6 @@ export class PortfolioOptimizationEngine {
    * Risk parity optimization
    */
   async optimizeRiskParity(portfolio: ESGPortfolio): Promise<OptimizationResult> {
-    console.log(`⚖️ Risk parity optimization`);
     
     const riskMatrix = await this.calculateRiskMatrix(portfolio.assets);
     
@@ -412,7 +408,6 @@ export class PortfolioOptimizationEngine {
     portfolio: ESGPortfolio,
     lookbackPeriod: number
   ): Promise<OptimizationResult> {
-    console.log(`📈 ESG momentum strategy optimization`);
     
     // Calculate ESG momentum scores
     const momentumScores = await this.calculateESGMomentum(
@@ -440,7 +435,6 @@ export class PortfolioOptimizationEngine {
     portfolio: ESGPortfolio,
     climateScenarios: ClimateScenario[]
   ): Promise<ClimateOptimizationResult> {
-    console.log(`🌍 Climate scenario optimization`);
     
     const scenarioResults: Map<string, OptimizationResult> = new Map();
     

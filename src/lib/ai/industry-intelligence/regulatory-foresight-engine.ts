@@ -454,7 +454,6 @@ export class RegulatoryForesightEngine {
     jurisdictions: string[],
     businessActivities: string[]
   ): Promise<RegulatoryIntelligence> {
-    console.log(`🏛️ Generating regulatory intelligence for ${organizationId}`);
     
     const [
       currentCompliance,

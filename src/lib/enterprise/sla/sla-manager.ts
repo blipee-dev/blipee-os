@@ -374,7 +374,6 @@ export class SLAManager {
       this.slaDefinitions.set(sla.id, sla);
     });
 
-    console.log('📊 SLA definitions initialized:', enterpriseSLAs.length);
   }
 
   /**
@@ -384,7 +383,6 @@ export class SLAManager {
     if (this.isMonitoring) return;
 
     this.isMonitoring = true;
-    console.log('🔍 SLA monitoring started');
 
     // Monitor SLAs every minute
     this.monitoringInterval = setInterval(() => {
@@ -409,7 +407,6 @@ export class SLAManager {
       this.monitoringInterval = undefined;
     }
 
-    console.log('⏹️  SLA monitoring stopped');
   }
 
   /**
@@ -518,7 +515,6 @@ export class SLAManager {
 
     if (existingBreach) {
       // Update existing breach
-      console.log(`⚠️  Ongoing SLA breach: ${sla.name} - ${metric.name}`);
       return;
     }
 
@@ -543,7 +539,6 @@ export class SLAManager {
     // Trigger notifications and escalation
     await this.triggerBreachNotifications(sla, metric, breach);
 
-    console.log(`🚨 SLA breach detected: ${sla.name} - ${metric.name} (${severity})`);
   }
 
   /**
@@ -594,9 +589,7 @@ export class SLAManager {
     const escalationSteps = sla.penalties.escalationProcedure;
     
     // Simulate notification dispatch
-    console.log(`📧 SLA breach notifications sent:`);
     escalationSteps.forEach((step, index) => {
-      console.log(`  ${index + 1}. ${step}`);
     });
 
     // In real implementation, would send actual notifications via email, Slack, PagerDuty, etc.
@@ -606,7 +599,6 @@ export class SLAManager {
    * Generate daily SLA reports
    */
   private async generateDailySLAReports(): Promise<void> {
-    console.log('📈 Generating daily SLA reports...');
 
     for (const [slaId, sla] of Array.from(this.slaDefinitions)) {
       if (!sla.isActive) continue;
@@ -615,7 +607,6 @@ export class SLAManager {
         const report = await this.generateSLAReport(slaId, 'daily');
         this.reports.set(report.id, report);
         
-        console.log(`✅ Daily SLA report generated: ${sla.name} (${report.overallAchievement}% achievement)`);
       } catch (error) {
         console.error(`Failed to generate daily report for SLA ${slaId}:`, error);
       }
@@ -801,7 +792,6 @@ export class SLAManager {
     
     this.maintenanceWindows.set(windowId, maintenanceWindow);
     
-    console.log(`🔧 Maintenance window scheduled: ${name} (${startTime.toISOString()} - ${endTime.toISOString()})`);
     
     return windowId;
   }

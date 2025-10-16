@@ -432,7 +432,6 @@ export class BrandingManager {
       this.presets.set(preset.id, preset);
     });
 
-    console.log('🎨 Branding presets initialized:', presets.length);
   }
 
   /**
@@ -658,7 +657,6 @@ export class BrandingManager {
     
     this.brandingConfigs.set(configId, newConfig);
     
-    console.log(`🎨 New branding configuration created: ${name} (${configId})`);
     
     return newConfig;
   }
@@ -692,7 +690,6 @@ export class BrandingManager {
       this.activeConfig = updatedConfig;
     }
     
-    console.log(`🎨 Branding configuration updated: ${updatedConfig.name}`);
     
     return updatedConfig;
   }
@@ -718,7 +715,6 @@ export class BrandingManager {
     this.brandingConfigs.set(configId, config);
     this.activeConfig = config;
     
-    console.log(`✅ Branding configuration activated: ${config.name}`);
   }
 
   /**
@@ -822,7 +818,6 @@ export class BrandingManager {
       
       this.brandingConfigs.set(config.id, config);
       
-      console.log(`📥 Branding configuration imported: ${config.name}`);
       
       return config;
     } catch (error) {

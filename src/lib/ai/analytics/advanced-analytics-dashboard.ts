@@ -446,7 +446,6 @@ export class AdvancedAnalyticsDashboard {
    * Create a new analytics dashboard
    */
   async createDashboard(config: DashboardConfig): Promise<void> {
-    console.log(`📊 Creating advanced analytics dashboard: ${config.name}`);
 
     // Validate configuration
     await this.validateDashboardConfig(config);
@@ -465,7 +464,6 @@ export class AdvancedAnalyticsDashboard {
     // Initialize widget data sources
     await this.initializeWidgetDataSources(config);
 
-    console.log(`✅ Dashboard created with ${config.widgets.length} widgets`);
   }
 
   /**
@@ -557,7 +555,6 @@ export class AdvancedAnalyticsDashboard {
     // Clear cache to force refresh
     this.cache.delete(dashboardId);
 
-    console.log(`✅ Dashboard ${dashboardId} updated successfully`);
   }
 
   /**
@@ -845,7 +842,6 @@ export class AdvancedAnalyticsDashboard {
 
   // Private helper methods
   private initializeDashboard(): void {
-    console.log('🚀 Initializing Advanced Analytics Dashboard System');
 
     // Set up default configurations
     this.setupDefaultConfigurations();

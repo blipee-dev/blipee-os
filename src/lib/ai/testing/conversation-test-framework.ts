@@ -112,8 +112,6 @@ export class ConversationTestFramework {
     
     const duration = Date.now() - startTime;
     
-    console.log(`Test suite ${suiteId} completed in ${duration}ms`);
-    console.log(`Passed: ${results.filter(r => r.passed).length}/${results.length}`);
     
     return results;
   }

@@ -83,7 +83,6 @@ export class LSTMPredictor {
         validationData: [xVal, yVal],
         callbacks: {
           onEpochEnd: async (epoch, logs) => {
-            console.log(`Epoch ${epoch}: loss = ${logs?.loss}, val_loss = ${logs?.val_loss}`);
 
             // Store training metrics
             await supabaseAdmin
@@ -488,7 +487,6 @@ export class MLPipeline {
       try {
         await predictor['loadModel']();
       } catch (error) {
-        console.log(`No existing model for ${key}, will train on first use`);
       }
     }
   }
@@ -632,7 +630,6 @@ export class MLPipeline {
     const hoursSinceLastTraining = (Date.now() - lastTraining.getTime()) / (1000 * 60 * 60);
 
     if (hoursSinceLastTraining > 24) {
-      console.log('Starting continuous learning cycle...');
       await this.trainAll();
 
       // Evaluate models
@@ -640,7 +637,6 @@ export class MLPipeline {
         const testData = await this.fetchTestData(key as any);
         if (testData.input.length > 0) {
           const metrics = await predictor.evaluate(testData);
-          console.log(`${key} model evaluation:`, metrics);
         }
       }
 

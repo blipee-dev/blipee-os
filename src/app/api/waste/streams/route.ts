@@ -28,11 +28,11 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const siteId = searchParams.get('site_id');
 
-    // Get waste metrics from metrics_catalog with new metadata
+    // Get waste metrics from metrics_catalog with new metadata - OPTIMIZED: only fetch needed fields
     // Exclude wastewater metrics (they have waste in the code but are in "Purchased Goods & Services")
     const { data: wasteMetrics, error: metricsError } = await supabaseAdmin
       .from('metrics_catalog')
-      .select('*')
+      .select('id, code, name, unit, waste_material_type, disposal_method, is_diverted, is_recycling, has_energy_recovery, cost_per_ton')
       .eq('category', 'Waste');
 
     if (metricsError) {
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     while (hasMore) {
       let query = supabaseAdmin
         .from('metrics_data')
-        .select('*')
+        .select('metric_id, value, co2e_emissions, unit, period_start')
         .eq('organization_id', organizationId)
         .in('metric_id', metricIds)
         .order('period_start', { ascending: false })

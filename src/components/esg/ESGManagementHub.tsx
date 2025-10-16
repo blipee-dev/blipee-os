@@ -199,7 +199,6 @@ export function ESGManagementHub({ organizationId }: Props) {
             organizationId={organizationId}
             onSuccess={() => {
               // Could trigger a refresh of the dashboard
-              console.log('Emission record added successfully');
             }}
           />
         </TabsContent>
@@ -208,7 +207,6 @@ export function ESGManagementHub({ organizationId }: Props) {
           <BulkDataImport 
             organizationId={organizationId}
             onSuccess={(result) => {
-              console.log('Bulk import completed:', result);
             }}
           />
         </TabsContent>
@@ -217,7 +215,6 @@ export function ESGManagementHub({ organizationId }: Props) {
           <ConversationalTargetSetting 
             organizationId={organizationId}
             onTargetCreated={(target) => {
-              console.log('Target created:', target);
             }}
           />
         </TabsContent>

@@ -344,8 +344,7 @@ export class DeveloperPortalManager {
     'API-Version': '2024-09-01'
   }
 });
-const data = await response.json();
-console.log(data.organizations);`,
+const data = await response.json();`,
             runnable: true
           }
         ],
@@ -395,9 +394,7 @@ const client = new BlipeeClient({
 // Send AI chat message
 const response = await client.ai.chat({
   message: 'What is our carbon footprint?'
-});
-
-console.log(response.content);`,
+});`,
             runnable: true
           }
         ]
@@ -561,8 +558,7 @@ First, you'll need to create a developer account and get your API key:
   }
 });
 
-const data = await response.json();
-console.log('Your organizations:', data.organizations);`,
+const data = await response.json();`,
                 runnable: true
               }
             ]
@@ -635,9 +631,7 @@ const chat = new BlipeeChat('your-api-key');
 const response = await chat.sendMessage(
   'What are the top 3 energy efficiency opportunities in our building?',
   { buildingId: 'building-123' }
-);
-
-console.log(response.content);`,
+);`,
                 runnable: true
               }
             ]

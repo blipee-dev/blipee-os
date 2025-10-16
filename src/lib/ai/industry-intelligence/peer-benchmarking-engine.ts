@@ -148,7 +148,6 @@ export class PeerBenchmarkingEngine {
     networkBenefits: NetworkBenefit[];
     dataContributionImpact: number;
   }> {
-    console.log(`🌐 ${profile.organizationId} joining benchmarking network`);
     
     // Store profile and privacy settings
     this.participantData.set(profile.organizationId, profile);

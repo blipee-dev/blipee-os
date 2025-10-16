@@ -96,7 +96,6 @@ export function AIWorkforceDashboard() {
         const data = await response.json();
         setIsInitialized(true);
         await checkWorkforceStatus();
-        console.log('🎯 AI Workforce initialized:', data);
       }
     } catch (error) {
       console.error('Failed to initialize workforce:', error);

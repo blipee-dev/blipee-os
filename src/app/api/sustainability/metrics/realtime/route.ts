@@ -34,7 +34,6 @@ export async function GET(request: NextRequest) {
     const lastDayCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const lastDayPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
 
-    console.log(`✅ Using baseline calculator for realtime metrics (current: ${currentMonth}, prev: ${prevMonthStr})`);
 
     // Use calculator to get current and previous month emissions with scope-by-scope rounding
     const currentEmissions = await getPeriodEmissions(

@@ -107,7 +107,6 @@ export class AgentOrchestrator extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('🚀 Initializing Agent Orchestrator with ALL 8 agents...');
 
     // Initialize all 8 autonomous agents
     const agents: AutonomousAgent[] = [
@@ -145,14 +144,12 @@ export class AgentOrchestrator extends EventEmitter {
     // Start the orchestration engine
     await this.startOrchestration();
 
-    console.log(`✅ Agent Orchestrator initialized with ${this.agents.size} agents`);
   }
 
   async orchestrateAgents(): Promise<void> {
     if (!this.isRunning) return;
 
     const startTime = Date.now();
-    console.log('🔄 Starting parallel agent orchestration cycle...');
 
     try {
       // 1. Collect tasks from all agents IN PARALLEL
@@ -449,7 +446,6 @@ export class AgentOrchestrator extends EventEmitter {
   }
 
   private async executeWorkflow(workflow: WorkflowExecution): Promise<WorkflowExecution> {
-    console.log(`Executing workflow: ${workflow.name}`);
     
     workflow.status = 'running';
     workflow.started_at = new Date().toISOString();
@@ -890,7 +886,6 @@ export class AgentOrchestrator extends EventEmitter {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    console.log('🎯 Starting autonomous orchestration engine...');
 
     // Run orchestration every 5 minutes
     this.orchestrationInterval = setInterval(() => {
@@ -911,11 +906,9 @@ export class AgentOrchestrator extends EventEmitter {
 
     // Wait for all current executions to complete
     if (this.executionPool.size > 0) {
-      console.log(`Waiting for ${this.executionPool.size} tasks to complete...`);
       await Promise.all(Array.from(this.executionPool.values()));
     }
 
-    console.log('🛑 Orchestration engine stopped');
   }
 
   // Setup event handlers for agent communication
@@ -938,7 +931,6 @@ export class AgentOrchestrator extends EventEmitter {
 
   private async handleDataRequest(agentId: string, dataType: string): Promise<void> {
     // Coordinate data sharing between agents
-    console.log(`Agent ${agentId} requested ${dataType} data`);
 
     // Find agent that can provide this data
     const providerAgent = this.findDataProvider(dataType);
@@ -975,7 +967,6 @@ export class AgentOrchestrator extends EventEmitter {
     // Reduce parallel executions if needed
     if (metrics.avgExecutionTime > 30000) {
       this.maxParallelExecutions = Math.max(2, this.maxParallelExecutions - 2);
-      console.log(`Reduced parallel executions to ${this.maxParallelExecutions}`);
     }
   }
 
@@ -1024,7 +1015,6 @@ export class AgentOrchestrator extends EventEmitter {
     const agent = this.agents.get(agentId);
     if (agent) {
       await agent.stop();
-      console.log(`⏸️ Paused agent: ${agentId}`);
     }
   }
 
@@ -1032,7 +1022,6 @@ export class AgentOrchestrator extends EventEmitter {
     const agent = this.agents.get(agentId);
     if (agent) {
       await agent.start();
-      console.log(`▶️ Resumed agent: ${agentId}`);
     }
   }
 

@@ -410,13 +410,6 @@ export class SwarmIntelligenceCoordinator extends AutonomousAgent {
     await this.setupCommunicationInfrastructure();
     await this.emergenceDetector.initialize();
     await this.coordinationEngine.initialize();
-
-    console.log('swarm_intelligence_initialized', {
-      networks_loaded: this.swarmNetworks.size,
-      agents_registered: this.agentRegistry.size,
-      communication_channels: this.communicationChannels.size,
-      swarm_coordination_enabled: true
-    });
   }
 
   async getScheduledTasks(): Promise<AgentTask[]> {

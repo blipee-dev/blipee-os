@@ -178,7 +178,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    console.log('Successfully added user to organization:', userAccessData);
     
     return NextResponse.json({ 
       success: true, 

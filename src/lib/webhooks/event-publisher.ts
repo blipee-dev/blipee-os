@@ -36,7 +36,6 @@ export class EventPublisher {
     }
 
     if (!endpoints || endpoints.length === 0) {
-      console.log(`No webhook endpoints found for event ${eventType} in organization ${organizationId}`);
       return;
     }
 
@@ -78,7 +77,6 @@ export class EventPublisher {
       }
     });
 
-    console.log(`Published event ${eventType} to ${endpoints.length} endpoints`);
   }
 
   /**
@@ -366,7 +364,6 @@ export class EventPublisher {
       return;
     }
 
-    console.log(`Processing ${deliveries.length} pending webhook deliveries`);
 
     const processingPromises = deliveries.map(delivery => 
       this.processDeliveryAsync(delivery.id)
@@ -392,7 +389,6 @@ export class EventPublisher {
     if (error) {
       console.error('Failed to cleanup old webhook deliveries:');
     } else {
-      console.log(`Cleaned up webhook deliveries older than ${daysToKeep} days`);
     }
   }
 }

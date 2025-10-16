@@ -337,14 +337,10 @@ export class PhaseGateReviewSystem {
   }
 
   async runPhaseGateReview(): Promise<PhaseGateReport> {
-    console.log('🎯 Starting Phase Gate Review...\n');
-    console.log(`Evaluating ${this.gates.length} quality gates\n`);
 
     this.results = [];
 
     for (const gate of this.gates) {
-      console.log(`🔍 Evaluating: ${gate.name}`);
-      console.log(`   Category: ${gate.category} | Weight: ${gate.weight}/10`);
 
       const startTime = Date.now();
       const result = await this.evaluateGate(gate);
@@ -355,13 +351,10 @@ export class PhaseGateReviewSystem {
 
       const status = result.passed ? '✅ PASS' : '❌ FAIL';
       const score = `${gate.score}/100`;
-      console.log(`   Result: ${status} (${score})`);
 
       if (result.details.length > 0) {
-        result.details.forEach(detail => console.log(`   ${detail}`));
-      }
-
-      console.log(''); // Empty line for readability
+        result.details.forEach(detail =>);
+      } // Empty line for readability
     }
 
     return this.generatePhaseGateReport();
@@ -1079,10 +1072,6 @@ export class PhaseGateReviewSystem {
     const summaryPath = path.join(outputDir, 'PHASE_GATE_EXECUTIVE_SUMMARY.md');
     fs.writeFileSync(summaryPath, executiveSummary);
 
-    console.log(`\n📄 Phase gate reports generated:`);
-    console.log(`   JSON: ${jsonPath}`);
-    console.log(`   HTML: ${htmlPath}`);
-    console.log(`   Executive Summary: ${summaryPath}`);
 
     return report;
   }
@@ -1302,19 +1291,11 @@ if (require.main === module) {
   
   phaseGate.generateReports()
     .then(async (report) => {
-      console.log('\n🎯 Phase Gate Review Summary:');
-      console.log(`Overall Score: ${report.summary.overallScore}/100`);
-      console.log(`Gates Passed: ${report.summary.passedGates}/${report.summary.totalGates}`);
-      console.log(`Deployment Status: ${report.summary.deploymentApproved ? '✅ APPROVED' : '❌ BLOCKED'}`);
-      console.log(`Critical Blockers: ${report.summary.blockers}`);
 
       if (report.summary.deploymentApproved) {
-        console.log('\n🚀 System is ready for production deployment!');
       } else {
-        console.log(`\n🚫 Deployment blocked by ${report.summary.blockers} critical issues`);
       }
 
-      console.log('\n🎉 Phase Gate Review completed!');
       
       const hasBlockers = report.summary.blockers > 0;
       process.exit(hasBlockers ? 1 : 0);

@@ -126,10 +126,6 @@ export class EnhancedModelMonitoring {
    * Start monitoring a model
    */
   async startMonitoring(): Promise<void> {
-    console.log(`📊 Starting enhanced monitoring for: ${this.config.modelName}`);
-    console.log(`   🔍 Drift detection: ${this.config.driftDetectionEnabled ? 'enabled' : 'disabled'}`);
-    console.log(`   ⏱️ Monitoring interval: ${this.config.monitoringInterval / 1000}s`);
-    console.log(`   📈 Sampling rate: ${(this.config.samplingRate * 100).toFixed(1)}%`);
     
     this.monitoringInterval = setInterval(async () => {
       await this.performMonitoringCheck();
@@ -144,7 +140,6 @@ export class EnhancedModelMonitoring {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = undefined;
     }
-    console.log(`⏹️ Stopped monitoring for: ${this.config.modelName}`);
   }
 
   /**
@@ -207,8 +202,6 @@ export class EnhancedModelMonitoring {
    * Set baseline data for drift detection
    */
   setBaseline(baselineData: TrainingData): void {
-    console.log(`📊 Setting baseline data for drift detection...`);
-    console.log(`   📈 Baseline samples: ${baselineData.features.length}`);
     
     // Store feature distributions
     for (const sample of baselineData.features) {
@@ -514,7 +507,6 @@ export class EnhancedModelMonitoring {
   private initializeDriftDetectors(): void {
     // We'll create detectors when we have baseline data
     // For now, just log that drift detection is ready
-    console.log(`🔍 Drift detection system initialized for: ${this.config.modelName}`);
   }
 
   /**
@@ -682,7 +674,6 @@ export class EnhancedModelMonitoring {
    * Send alert through configured channels
    */
   private async sendAlert(alert: Alert): Promise<void> {
-    console.log(`🚨 Alert: [${alert.severity.toUpperCase()}] ${alert.message}`);
     
     for (const channel of this.config.alertChannels) {
       if (this.shouldSendToChannel(alert, channel)) {
@@ -705,16 +696,13 @@ export class EnhancedModelMonitoring {
   private async sendToChannel(alert: Alert, channel: AlertChannel): Promise<void> {
     switch (channel.type) {
       case 'console':
-        console.log(`📡 [${channel.type}] ${alert.message}`);
         break;
       case 'webhook':
         // In practice, would send HTTP request
-        console.log(`📡 [${channel.type}] Would send to: ${channel.target}`);
         break;
       case 'email':
       case 'slack':
         // In practice, would integrate with respective APIs
-        console.log(`📡 [${channel.type}] Would send to: ${channel.target}`);
         break;
     }
   }

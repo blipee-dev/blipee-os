@@ -30,7 +30,6 @@ export class SimpleAPIDocGenerator {
    * Generate API documentation
    */
   async generate(): Promise<void> {
-    console.log('🔍 Scanning API routes...');
     
     const routeFiles = await this.findRouteFiles();
     const endpoints: any[] = [];
@@ -39,7 +38,6 @@ export class SimpleAPIDocGenerator {
       try {
         const routeEndpoints = await this.analyzeRouteFile(filePath);
         endpoints.push(...routeEndpoints);
-        console.log(`✅ Analyzed ${filePath}`);
       } catch (error) {
         console.warn(`⚠️  Failed to analyze ${filePath}:`, error);
       }
@@ -65,10 +63,6 @@ export class SimpleAPIDocGenerator {
     const htmlPath = path.join(this.outputDir, 'index.html');
     fs.writeFileSync(htmlPath, html);
 
-    console.log('📚 API documentation generated successfully!');
-    console.log(`📄 OpenAPI spec: ${specPath}`);
-    console.log(`📝 Markdown docs: ${markdownPath}`);
-    console.log(`🌐 HTML docs: ${htmlPath}`);
   }
 
   /**

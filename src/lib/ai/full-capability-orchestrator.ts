@@ -27,49 +27,35 @@ export class FullCapabilityOrchestrator {
 
   async initialize(organizationId: string) {
     if (this.isInitialized) {
-      console.log('✅ Full AI System already initialized');
       return;
     }
 
-    console.log('🚀 INITIALIZING FULL AI CAPABILITY SYSTEM');
-    console.log('================================================');
     this.organizationId = organizationId;
 
     // 1. Initialize Autonomous Agents (8 AI Employees)
-    console.log('👥 Activating AI Workforce...');
     this.aiWorkforce = await initializeAutonomousAgents(organizationId);
     this.activeCapabilities.add('autonomous-agents');
 
     // 2. Initialize ML Pipeline
-    console.log('🧠 Starting ML Pipeline...');
     await MLPipeline.initialize();
     this.activeCapabilities.add('ml-pipeline');
 
     // 3. Initialize Predictive Intelligence
-    console.log('📊 Enabling Predictive Intelligence...');
     // predictiveIntelligence auto-initializes
     this.activeCapabilities.add('predictive-intelligence');
 
     // 4. Initialize Database Intelligence
-    console.log('💾 Connecting Database Intelligence...');
     const dbIntelligence = await createDatabaseIntelligence();
     this.activeCapabilities.add('database-intelligence');
 
     // 5. Initialize Zero-Typing Navigation
-    console.log('🎯 Activating Zero-Typing Navigation...');
     // zeroTypingEngine auto-initializes
     this.activeCapabilities.add('zero-typing');
 
     // 6. Connect all systems for collaboration
-    console.log('🔗 Establishing inter-system connections...');
     await this.establishConnections();
 
     this.isInitialized = true;
-    console.log('================================================');
-    console.log('✅ FULL AI CAPABILITY SYSTEM OPERATIONAL');
-    console.log(`🎯 ${this.activeCapabilities.size} AI systems active and collaborating`);
-    console.log('🤖 8 AI employees working 24/7');
-    console.log('🚀 System operating at 100% capability');
   }
 
   private async establishConnections() {
@@ -281,7 +267,6 @@ export class FullCapabilityOrchestrator {
   }
 
   async shutdown() {
-    console.log('🛑 Shutting down Full Capability System...');
 
     // Shutdown all systems gracefully
     if (this.aiWorkforce) {
@@ -291,7 +276,6 @@ export class FullCapabilityOrchestrator {
     this.activeCapabilities.clear();
     this.isInitialized = false;
 
-    console.log('✅ Full Capability System shutdown complete');
   }
 }
 

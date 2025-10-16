@@ -38,7 +38,6 @@ class ModuleRegistry implements ModuleAPI {
       });
     }
 
-    console.log(`✅ Module registered: ${module.name} (${module.id})`);
   }
 
   unregister(moduleId: string): void {
@@ -60,7 +59,6 @@ class ModuleRegistry implements ModuleAPI {
     // Remove from registry
     this.modules.delete(moduleId);
 
-    console.log(`❌ Module unregistered: ${moduleId}`);
   }
 
   getModule(moduleId: string): Module | undefined {
@@ -123,7 +121,6 @@ class ModuleRegistry implements ModuleAPI {
     registration.module.status = 'active';
     this.activeModules.add(moduleId);
 
-    console.log(`✅ Module activated: ${moduleId}`);
   }
 
   deactivateModule(moduleId: string): void {
@@ -135,7 +132,6 @@ class ModuleRegistry implements ModuleAPI {
     registration.module.status = 'inactive';
     this.activeModules.delete(moduleId);
 
-    console.log(`⏸️ Module deactivated: ${moduleId}`);
   }
 
   getAllModules(): Module[] {

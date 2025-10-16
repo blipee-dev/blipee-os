@@ -29,7 +29,6 @@ export function AuthTokenHandler() {
 
     if (accessToken) {
       // Log for monitoring (in production, send to monitoring service)
-      console.log('[AuthTokenHandler] Detected auth tokens, type:', type);
 
       // Construct proper callback URL
       // In enterprise apps, we handle tokens server-side when possible

@@ -105,13 +105,6 @@ export class SupplyChainInvestigatorAgent extends AutonomousAgent {
     await this.setupEmissionCategories();
     await this.loadRiskAssessmentRules();
     await this.loadBenchmarkData();
-    
-    console.log('supply_chain_investigator_initialized', {
-      supplier_profiles_loaded: this.supplierProfiles.size,
-      emission_categories: this.emissionCategories.size,
-      risk_rules: this.riskAssessmentRules.length,
-      investigation_enabled: true
-    });
   }
 
   async getScheduledTasks(): Promise<AgentTask[]> {

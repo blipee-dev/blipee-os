@@ -60,7 +60,6 @@ export class InferenceEngine {
     if (this.config.predictionCaching && !options.batch) {
       const cachedResult = this.getCachedPrediction(cacheKey);
       if (cachedResult) {
-        console.log('⚡ Cache hit for prediction');
         return cachedResult;
       }
     }
@@ -91,7 +90,6 @@ export class InferenceEngine {
    */
   async enableBatchProcessing(): Promise<void> {
     this.config.batchProcessing = true;
-    console.log('📊 Batch processing enabled');
   }
 
   /**
@@ -99,7 +97,6 @@ export class InferenceEngine {
    */
   async enableModelCaching(): Promise<void> {
     this.config.modelCaching = true;
-    console.log('💾 Model caching enabled');
   }
 
   /**
@@ -141,7 +138,6 @@ export class InferenceEngine {
    * Clear caches and optimize memory
    */
   async optimize(): Promise<void> {
-    console.log('🧹 Optimizing inference engine...');
     
     // Clear expired cache entries
     this.cleanupCache();
@@ -149,7 +145,6 @@ export class InferenceEngine {
     // Dispose unused tensors
     tf.dispose();
     
-    console.log('✅ Inference engine optimized');
   }
 
   /**
@@ -173,7 +168,6 @@ export class InferenceEngine {
     }
     this.batchTimers.clear();
     
-    console.log('✅ Inference engine disposed');
   }
 
   // Private methods
@@ -389,7 +383,6 @@ export class InferenceEngine {
       this.predictionCache.delete(key);
     }
     
-    console.log(`🧹 Cleaned up ${expiredKeys.length} expired cache entries`);
   }
 
   private async generateExplanation(input: any, output: any): Promise<{

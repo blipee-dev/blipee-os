@@ -45,7 +45,6 @@ export default function EmissionsClientFixed() {
       }
 
       if (session) {
-        console.log('✅ User authenticated:', session.user.email);
         setAuthStatus('authenticated');
         setDebugInfo(prev => ({
           ...prev,
@@ -58,7 +57,6 @@ export default function EmissionsClientFixed() {
         // Only test APIs if authenticated
         testAPI(session.access_token);
       } else {
-        console.log('❌ No active session');
         setAuthStatus('unauthenticated');
         setDebugInfo(prev => ({
           ...prev,
@@ -79,7 +77,6 @@ export default function EmissionsClientFixed() {
     setLoading(true);
     try {
       // Test emissions API with auth token
-      console.log('Testing emissions API...');
       const emissionsResponse = await fetch('/api/sustainability/emissions?period=12m', {
         credentials: 'include',
         headers: {
@@ -94,7 +91,6 @@ export default function EmissionsClientFixed() {
 
       if (emissionsResponse.ok) {
         emissionsData = await emissionsResponse.json();
-        console.log('✅ Emissions API success');
       } else {
         const errorText = await emissionsResponse.text();
         emissionsError = `Status ${emissionsStatus}: ${errorText}`;
@@ -102,7 +98,6 @@ export default function EmissionsClientFixed() {
       }
 
       // Test ML API with auth token
-      console.log('Testing ML predict API...');
       const mlResponse = await fetch('/api/ml/predict', {
         method: 'POST',
         headers: {
@@ -122,7 +117,6 @@ export default function EmissionsClientFixed() {
 
       if (mlResponse.ok) {
         mlData = await mlResponse.json();
-        console.log('✅ ML API success');
       } else {
         const errorText = await mlResponse.text();
         mlError = `Status ${mlStatus}: ${errorText}`;

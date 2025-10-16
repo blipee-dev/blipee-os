@@ -47,7 +47,6 @@ export class AutomatedSecurityScanner {
     lowIssues: number;
     reports: VulnerabilityReport[];
   }> {
-    console.log('🔍 Starting Automated Security Scan...\n');
 
     // Ensure output directory exists
     if (!fs.existsSync(this.config.outputDir!)) {
@@ -70,12 +69,6 @@ export class AutomatedSecurityScanner {
     const mediumIssues = this.reports.filter(r => r.severity === 'medium').length;
     const lowIssues = this.reports.filter(r => r.severity === 'low').length;
 
-    console.log('\n📊 Security Scan Summary:');
-    console.log(`🔴 Critical: ${criticalIssues}`);
-    console.log(`🟠 High: ${highIssues}`);
-    console.log(`🟡 Medium: ${mediumIssues}`);
-    console.log(`🔵 Low: ${lowIssues}`);
-    console.log(`📋 Total: ${this.reports.length}\n`);
 
     return {
       totalVulnerabilities: this.reports.length,
@@ -88,7 +81,6 @@ export class AutomatedSecurityScanner {
   }
 
   private async runDependencySecurityScan(): Promise<void> {
-    console.log('1️⃣ Running dependency security scan...');
 
     try {
       // NPM Audit
@@ -115,10 +107,8 @@ export class AutomatedSecurityScanner {
         }
       }
 
-      console.log(`   Found ${Object.keys(auditData.vulnerabilities || {}).length} dependency issues`);
 
     } catch (error) {
-      console.log('   npm audit completed with issues detected');
       
       // Parse npm audit output even when it exits with error code
       try {
@@ -134,7 +124,6 @@ export class AutomatedSecurityScanner {
           });
         }
       } catch (parseError) {
-        console.log('   Could not parse npm audit output');
       }
     }
 
@@ -167,7 +156,6 @@ export class AutomatedSecurityScanner {
   }
 
   private async runStaticCodeSecurityAnalysis(): Promise<void> {
-    console.log('2️⃣ Running static code security analysis...');
 
     const securityPatterns = [
       {
@@ -223,7 +211,6 @@ export class AutomatedSecurityScanner {
       }
     }
 
-    console.log(`   Scanned source code for security patterns`);
   }
 
   private async scanDirectoryForPatterns(
@@ -286,7 +273,6 @@ export class AutomatedSecurityScanner {
   }
 
   private async runContainerSecurityScan(): Promise<void> {
-    console.log('3️⃣ Running container security scan...');
 
     // Check for Dockerfile
     const dockerfilePath = 'Dockerfile';
@@ -327,14 +313,11 @@ export class AutomatedSecurityScanner {
         });
       }
 
-      console.log('   Analyzed Dockerfile for security issues');
     } else {
-      console.log('   No Dockerfile found, skipping container security scan');
     }
   }
 
   private async runSecretsDetection(): Promise<void> {
-    console.log('4️⃣ Running secrets detection...');
 
     const secretPatterns = [
       {
@@ -403,11 +386,9 @@ export class AutomatedSecurityScanner {
       }
     }
 
-    console.log(`   Scanned ${filesToScan.length} files for secrets`);
   }
 
   private async runLicenseCompliance(): Promise<void> {
-    console.log('5️⃣ Running license compliance check...');
 
     try {
       // Check for license-checker package, if not available, use basic check
@@ -446,15 +427,12 @@ export class AutomatedSecurityScanner {
         }
       }
 
-      console.log('   Checked package licenses for compliance');
 
     } catch (error) {
-      console.log('   License compliance check completed with limitations');
     }
   }
 
   private async runDockerfileSecurity(): Promise<void> {
-    console.log('6️⃣ Running Dockerfile security analysis...');
 
     const dockerComposePath = 'docker-compose.yml';
     if (fs.existsSync(dockerComposePath)) {
@@ -483,7 +461,6 @@ export class AutomatedSecurityScanner {
         });
       }
 
-      console.log('   Analyzed docker-compose.yml for security issues');
     }
   }
 
@@ -496,7 +473,6 @@ export class AutomatedSecurityScanner {
     this.reports.push(fullReport);
     
     if (!this.config.silent) {
-      console.log(`   🚨 ${report.severity.toUpperCase()}: ${report.vulnerability}`);
     }
   }
 
@@ -546,9 +522,6 @@ export class AutomatedSecurityScanner {
     const htmlReportPath = path.join(this.config.outputDir!, 'security-scan-report.html');
     fs.writeFileSync(htmlReportPath, htmlReport);
 
-    console.log(`\n📄 Security scan reports generated:`);
-    console.log(`   JSON: ${jsonReportPath}`);
-    console.log(`   HTML: ${htmlReportPath}`);
   }
 
   private generateHTMLReport(data: any): string {
@@ -654,16 +627,12 @@ if (require.main === module) {
   
   scanner.runFullSecurityScan()
     .then(results => {
-      console.log('🎉 Automated security scan completed!');
       
       if (results.criticalIssues > 0) {
-        console.log('❌ Critical security issues found - please address immediately');
         process.exit(1);
       } else if (results.highIssues > 0) {
-        console.log('⚠️ High severity issues found - review and address');
         process.exit(0);
       } else {
-        console.log('✅ No critical or high severity issues found');
         process.exit(0);
       }
     })

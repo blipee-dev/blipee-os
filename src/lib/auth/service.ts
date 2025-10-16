@@ -225,7 +225,6 @@ export class AuthService {
   async signIn(email: string, password: string): Promise<AuthResponse & { requiresMFA?: boolean; challengeId?: string }> {
     const supabase = await this.getSupabase();
 
-    console.log('🔐 AuthService.signIn - attempting authentication for:', email);
     const { data: authData, error: authError } =
       await supabase.auth.signInWithPassword({
         email,
@@ -241,7 +240,6 @@ export class AuthService {
       throw new Error("Authentication failed");
     }
 
-    console.log('✅ Supabase auth successful, user ID:', authData.user.id);
 
     // Use admin client to bypass RLS for fetching user data
     const adminSupabase = await this.getSupabaseAdmin();
@@ -285,14 +283,8 @@ export class AuthService {
     // Get user profile directly if session is null
     const session = await this.getSession();
 
-    console.log('🔐 AuthService.signIn - session check:', {
-      hasSession: !!session,
-      userId: authData.user.id
-    });
-
     if (!session) {
       // If no session (no organizations), return minimal auth response
-      console.log('🔐 No session found, fetching user profile for:', authData.user.id);
 
       // Use admin client to bypass RLS issues
       const adminSupabase = await this.getSupabaseAdmin();
@@ -301,11 +293,6 @@ export class AuthService {
         .select("*")
         .eq("auth_user_id", authData.user.id)
         .single();
-
-      console.log('🔐 Profile fetch result:', {
-        hasProfile: !!profile,
-        error: profileError?.message
-      });
 
       if (!profile) throw new Error("User profile not found");
 

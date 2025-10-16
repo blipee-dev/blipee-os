@@ -150,7 +150,6 @@ async function ingestAnalyticsData(req: NextRequest, context: any) {
     results.averageLatency = results.accepted > 0 ? processingTime / results.accepted : 0;
 
     // Log ingestion metrics
-    console.log(`📊 Ingested ${results.accepted}/${results.total} data points in ${processingTime}ms`);
 
     // Log ingestion event (commented out - table not in schema yet)
     // const supabase = createClient();

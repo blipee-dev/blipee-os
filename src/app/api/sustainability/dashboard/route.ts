@@ -34,7 +34,6 @@ async function fetchAllMetricsData(
   const batchSize = 1000;
   let hasMore = true;
 
-  console.log(`📊 Fetching metrics with pagination for org ${organizationId.slice(0, 8)}...`);
 
   while (hasMore) {
     let query = supabaseAdmin
@@ -71,21 +70,17 @@ async function fetchAllMetricsData(
     }
   }
 
-  console.log(`✅ Fetched ${allData.length} total records (${Math.ceil(allData.length / batchSize)} batches)`);
   return allData;
 }
 
 export async function GET(request: NextRequest) {
-  console.log('🔧 API: Dashboard endpoint called');
   try {
     const supabase = await createServerSupabaseClient();
 
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    console.log('🔧 API: User auth:', user ? `User ${user.id.slice(0, 8)}...` : 'Not authenticated');
 
     if (!user) {
-      console.log('🔧 API: Returning 401 - not authenticated');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -95,7 +90,6 @@ export async function GET(request: NextRequest) {
     const endDateParam = searchParams.get('end_date');
     const siteId = searchParams.get('site') || searchParams.get('site_id') || 'all';
 
-    console.log('📅 Dashboard API: URL params - start_date:', startDateParam, 'end_date:', endDateParam, 'range:', range);
 
     // Get user's organization
     let organizationId: string | null = null;
@@ -107,7 +101,6 @@ export async function GET(request: NextRequest) {
       .eq('user_id', user.id)
       .maybeSingle();
 
-    console.log('🔧 API: Is super admin:', !!superAdmin);
 
     if (superAdmin) {
       // Get PLMJ organization for super admin
@@ -117,7 +110,6 @@ export async function GET(request: NextRequest) {
         .eq('name', 'PLMJ')
         .single();
       organizationId = org?.id;
-      console.log('🔧 API: PLMJ org found:', organizationId);
 
       if (!organizationId) {
         // Fallback to first organization
@@ -146,11 +138,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (!organizationId) {
-      console.log('🔧 API: No organization found for user');
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
 
-    console.log('🔧 API: Using organization:', organizationId);
 
     // Get sites with their details for the organization - use admin to bypass RLS
     const { data: sites } = await supabaseAdmin
@@ -158,8 +148,6 @@ export async function GET(request: NextRequest) {
       .select('id, name, total_area_sqm, total_employees, type')
       .eq('organization_id', organizationId);
 
-    console.log('📊 Dashboard API: Found', sites?.length || 0, 'sites for organization', organizationId);
-    console.log('📊 Dashboard API: Sites:', sites?.map(s => ({ id: s.id, name: s.name })));
 
     const sitesMap = new Map(sites?.map(s => [s.id, {
       ...s,
@@ -168,14 +156,8 @@ export async function GET(request: NextRequest) {
       site_type: s.type
     }]) || []);
 
-    console.log('📊 Dashboard API: Sites with areas:', sites?.map(s => ({
-      name: s.name,
-      area: s.total_area_sqm
-    })));
-
     // Calculate date range - support both explicit dates and range parameter
     const now = new Date();
-    console.log('📊 Dashboard API: Current date (now):', now.toISOString());
 
     let startDate: Date;
     let endDate: Date;
@@ -184,7 +166,6 @@ export async function GET(request: NextRequest) {
     if (startDateParam && endDateParam) {
       startDate = new Date(startDateParam);
       endDate = new Date(endDateParam);
-      console.log('📊 Dashboard API: Using explicit dates:', startDateParam, 'to', endDateParam);
     } else {
       // Fallback to range-based calculation
       startDate = new Date();
@@ -228,71 +209,40 @@ export async function GET(request: NextRequest) {
           startDate = new Date(now.getFullYear(), 0, 1);
           endDate = now;
       }
-      console.log('📊 Dashboard API: Using range-based dates:', range);
     }
 
-    // Fetch metrics data with pagination - use admin client for full data access
+    // ⚡ PERFORMANCE OPTIMIZATION: Fetch ALL data once with minimal fields
+    const startTime = Date.now();
     const metricsData = await fetchAllMetricsData(
       organizationId,
       `
-        *,
-        metrics_catalog (
-          id, name, code, unit, scope, category, subcategory,
-          emission_factor, emission_factor_unit
-        )
+        value,
+        co2e_emissions,
+        period_start,
+        site_id,
+        metrics_catalog!inner(name, unit, scope, category)
       `,
       startDate,
       endDate,
       siteId
     );
+    const fetchTime = Date.now() - startTime;
 
     const dataError = null; // Error handling is done in fetchAllMetricsData
-
-    console.log('🔧 API: Query params:', { organizationId, startDate: startDate.toISOString(), endDate: endDate.toISOString(), siteId });
-    console.log('🔧 API: Metrics data count:', metricsData?.length || 0);
-
-    // Log unique site_ids in the data
-    if (metricsData && metricsData.length > 0) {
-      const uniqueSiteIds = [...new Set(metricsData.map(d => d.site_id).filter(Boolean))];
-      console.log('📊 Dashboard API: Unique site_ids in metrics data:', uniqueSiteIds);
-      console.log('📊 Dashboard API: Sample data records:', metricsData.slice(0, 3).map(d => ({
-        site_id: d.site_id,
-        co2e_emissions: d.co2e_emissions,
-        period_start: d.period_start
-      })));
-    }
 
     if (dataError) {
       console.error('🔧 API: Error fetching metrics data:', dataError);
       throw dataError;
     }
 
-    // Process data for dashboard
-    const processedData = await processDashboardData(metricsData || [], range, sitesMap, organizationId, startDate, endDate);
-
-    console.log('📊 Year-over-Year data in API:', {
-      hasData: !!processedData.yearOverYearComparison,
-      currentYear: processedData.yearOverYearComparison?.currentYear,
-      previousYear: processedData.yearOverYearComparison?.previousYear,
-      dataPoints: processedData.yearOverYearComparison?.data?.length
-    });
+    // Process data for dashboard (now uses pre-fetched data)
+    const processedData = await processDashboardData(metricsData || [], range, sitesMap, organizationId, startDate, endDate, fetchTime);
 
     console.error('🚨 SITE COMPARISON DEBUG:', {
       siteComparisonData: processedData.siteComparison,
       siteComparisonLength: processedData.siteComparison?.length,
       sitesMapSize: sitesMap.size,
       metricsDataLength: metricsData?.length
-    });
-
-    // Log site comparison data for debugging
-    console.log('📊 Site comparison data final:', {
-      count: processedData.siteComparison?.length,
-      sites: processedData.siteComparison?.map((s: any) => ({
-        name: s.site,
-        intensity: s.intensity,
-        total: s.total,
-        performance: s.performance
-      }))
     });
 
     return NextResponse.json(processedData);
@@ -312,13 +262,12 @@ async function processDashboardData(
   sitesMap: Map<string, any>,
   organizationId: string,
   providedStartDate: Date,
-  providedEndDate: Date
+  providedEndDate: Date,
+  fetchTime?: number
 ) {
-  console.log('🔧 Processing: Input data length:', data.length);
-  console.log('🔧 Processing: Sites map:', Array.from(sitesMap.entries()));
 
-  // ✅ USE CALCULATOR for emissions calculations (scope-by-scope rounding)
-  console.log('✅ Using calculator for all dashboard metrics...');
+  // ⚡ OPTIMIZED: Calculate ALL metrics from the single dataset
+  const processingStartTime = Date.now();
 
   // Use provided dates (already validated and calculated in main GET function)
   const startDate = providedStartDate instanceof Date
@@ -328,34 +277,40 @@ async function processDashboardData(
     ? providedEndDate.toISOString().split('T')[0]
     : String(providedEndDate);
 
-  console.log('📅 processDashboardData: Using dates', startDate, 'to', endDate);
-
-  // Get emissions using calculator
-  const emissions = await getPeriodEmissions(organizationId, startDate, endDate);
-  const scopes = await getScopeBreakdown(organizationId, startDate, endDate);
+  // ⚡ SINGLE-PASS CALCULATION: Calculate everything from the data we already have
+  const emissions = calculateEmissionsFromData(data);
+  const scopes = {
+    scope_1: emissions.scope_1,
+    scope_2: emissions.scope_2,
+    scope_3: emissions.scope_3,
+    total: emissions.total
+  };
 
   const totalEmissions = emissions.total;
   const scope1Emissions = emissions.scope_1;
   const scope2Emissions = emissions.scope_2;
   const scope3Emissions = emissions.scope_3;
 
-  console.log('✅ Calculator emissions:', totalEmissions, 'tCO2e');
-  console.log('✅ By scope - S1:', scope1Emissions, 'S2:', scope2Emissions, 'S3:', scope3Emissions);
 
-  // ✅ USE CALCULATOR for YoY comparison
-  let emissionsChange = 0;
-  let previousEmissions = 0;
+  // ⚡ OPTIMIZED: Calculate monthly emissions from data (NO database call)
+  const monthlyEmissions = calculateMonthlyEmissionsFromData(data);
+  const trendData = formatTrendDataFromCalculator(monthlyEmissions, range);
 
-  if (range !== 'all') {
-    const yoyComparison = await getYoYComparison(organizationId, startDate, endDate, 'emissions');
-    emissionsChange = yoyComparison.percentageChange;
-    previousEmissions = yoyComparison.previousValue;
-    console.log('✅ Calculator YoY:', emissionsChange, '% (prev:', previousEmissions, 'tCO2e)');
-  }
+  // ⚡ OPTIMIZED: Calculate category breakdown from data (NO database call)
+  const categories = calculateCategoryBreakdownFromData(data);
+  const categoryHeatmap = formatCategoryHeatmap(categories);
 
-  // ✅ USE CALCULATOR for scope breakdown, trends, and categories
-  // Convert scope breakdown object to array format for dashboard
-  const totalForPercentage = scopes.total || 0.001; // Avoid division by zero
+  // ⚡ OPTIMIZED: Calculate metric totals from data (NO database call)
+  const metricTotals = calculateMetricTotalsFromData(data);
+  const energyConsumption = metricTotals.energy;
+  const waterUsage = metricTotals.water;
+  const wasteGenerated = metricTotals.waste;
+
+  // Site comparison (uses raw data for site-specific filtering)
+  const siteComparison = generateSiteComparison(data, sitesMap);
+
+  // Convert scope breakdown to array format for dashboard
+  const totalForPercentage = scopes.total || 0.001;
   const scopeBreakdown = [
     {
       name: 'Scope 1',
@@ -377,60 +332,7 @@ async function processDashboardData(
     }
   ].filter(s => s.value > 0);
 
-  // Get monthly emissions from calculator
-  // Convert Date objects to ISO date strings (YYYY-MM-DD)
-  console.log('🔍 DEBUG: startDate type:', typeof startDate, 'value:', startDate);
-  console.log('🔍 DEBUG: endDate type:', typeof endDate, 'value:', endDate);
-  console.log('🔍 DEBUG: startDate instanceof Date?', startDate instanceof Date);
-
-  const startDateStr = typeof startDate.toISOString === 'function'
-    ? startDate.toISOString().split('T')[0]
-    : String(startDate);
-  const endDateStr = typeof endDate.toISOString === 'function'
-    ? endDate.toISOString().split('T')[0]
-    : String(endDate);
-  console.log(`📅 Dashboard API: Calling getMonthlyEmissions with startDate=${startDateStr}, endDate=${endDateStr}`);
-  const monthlyEmissions = await getMonthlyEmissions(organizationId, startDateStr, endDateStr);
-  console.log(`📊 Dashboard API: getMonthlyEmissions returned ${monthlyEmissions.length} months`);
-  console.log(`📊 Dashboard API: First 3 months from calculator:`, JSON.stringify(monthlyEmissions.slice(0, 3).map(m => ({ month: m.month, emissions: m.emissions }))));
-  const trendData = formatTrendDataFromCalculator(monthlyEmissions, range);
-  console.log(`📊 Dashboard API: First 3 formatted months:`, JSON.stringify(trendData.slice(0, 3).map(t => ({ month: t.month, emissions: t.emissions }))));
-
-  // Site comparison (still needs raw data for site-specific filtering)
-  console.log('📊 Dashboard API: Generating site comparison with', data.length, 'data records and', sitesMap.size, 'sites');
-  const siteComparison = generateSiteComparison(data, sitesMap);
-  console.log('📊 Dashboard API: Site comparison result:', siteComparison);
-
-  // Get category breakdown from calculator
-  const categories = await getCategoryBreakdown(organizationId, startDate, endDate);
-  const categoryHeatmap = formatCategoryHeatmap(categories);
-
-  // ✅ USE CALCULATOR for energy, water, waste
-  const energyConsumption = await getEnergyTotal(organizationId, startDate, endDate);
-  const waterUsage = await getWaterTotal(organizationId, startDate, endDate);
-  const wasteGenerated = await getWasteTotal(organizationId, startDate, endDate);
-
-  console.log('✅ Calculator metrics - Energy:', energyConsumption, 'kWh, Water:', waterUsage, 'm³, Waste:', wasteGenerated, 'kg');
-
-  // ✅ USE CALCULATOR for YoY comparisons
-  let energyChange = 0;
-  let waterChange = 0;
-  let wasteChange = 0;
-
-  if (range !== 'all') {
-    const energyYoY = await getYoYComparison(organizationId, startDate, endDate, 'energy');
-    const waterYoY = await getYoYComparison(organizationId, startDate, endDate, 'water');
-    const wasteYoY = await getYoYComparison(organizationId, startDate, endDate, 'waste');
-
-    energyChange = energyYoY.percentageChange;
-    waterChange = waterYoY.percentageChange;
-    wasteChange = wasteYoY.percentageChange;
-
-    console.log('✅ Calculator YoY changes - Energy:', energyChange, '%, Water:', waterChange, '%, Waste:', wasteChange, '%');
-  }
-
-  // ✅ USE CALCULATOR for intensity metrics
-  // Calculate total area from sites
+  // Calculate total area from sites for intensity
   let totalAreaM2 = 0;
   sitesMap.forEach(site => {
     const area = typeof site.total_area_sqm === 'string'
@@ -439,23 +341,24 @@ async function processDashboardData(
     totalAreaM2 += area;
   });
 
-  // Get organization data for employee count and revenue
+  // Get organization data for employee count
   const { data: orgData } = await supabaseAdmin
     .from('organizations')
-    .select('employee_count, annual_revenue')
+    .select('employee_count')
     .eq('id', organizationId)
     .single();
 
-  const intensityMetrics = await getIntensityMetrics(
-    organizationId,
-    startDate,
-    endDate,
-    orgData?.employee_count || 0,
-    orgData?.annual_revenue || 0,
-    totalAreaM2
-  );
+  const perArea = totalAreaM2 > 0 ? Math.round((emissions.total * 1000 / totalAreaM2) * 10) / 10 : 0;
 
-  console.log('✅ Calculator intensity metrics:', intensityMetrics);
+  // TODO: YoY comparison requires previous year data - keep as 0 for now (can add later with caching)
+  let emissionsChange = 0;
+  let energyChange = 0;
+  let waterChange = 0;
+  let wasteChange = 0;
+
+  const processingTime = Date.now() - processingStartTime;
+  console.log(`⚡ Dashboard Performance: Fetch=${fetchTime}ms, Processing=${processingTime}ms, Total=${(fetchTime || 0) + processingTime}ms`);
+
 
   return {
     metrics: {
@@ -466,13 +369,13 @@ async function processDashboardData(
         trend: emissionsChange < 0 ? 'down' : emissionsChange > 0 ? 'up' : 'stable'
       },
       energyConsumption: {
-        value: Math.round(energyConsumption / 1000 * 10) / 10, // Convert kWh to MWh
+        value: energyConsumption, // Already converted to MWh
         unit: 'MWh',
         change: energyChange,
         trend: energyChange < 0 ? 'down' : energyChange > 0 ? 'up' : 'stable'
       },
       waterUsage: {
-        value: Math.round(waterUsage),
+        value: waterUsage, // Already rounded
         unit: 'm³',
         change: waterChange,
         trend: waterChange < 0 ? 'down' : waterChange > 0 ? 'up' : 'stable'
@@ -484,9 +387,9 @@ async function processDashboardData(
         trend: wasteChange < 0 ? 'down' : wasteChange > 0 ? 'up' : 'stable'
       },
       carbonIntensity: {
-        value: intensityMetrics.perArea || 0,
+        value: perArea,
         unit: 'kgCO2e/m²',
-        change: emissionsChange, // Use emissions change as proxy
+        change: emissionsChange,
         trend: emissionsChange < 0 ? 'down' : emissionsChange > 0 ? 'up' : 'stable'
       }
     },
@@ -528,6 +431,123 @@ function formatCategoryHeatmap(categories: any[]) {
     scope_2: cat.scope_2 || 0,
     scope_3: cat.scope_3 || 0
   }));
+}
+
+// ⚡ PERFORMANCE HELPER: Calculate emissions from pre-fetched data (NO database calls)
+function calculateEmissionsFromData(data: any[]) {
+  let scope1Sum = 0, scope2Sum = 0, scope3Sum = 0;
+
+  data.forEach(d => {
+    const emissions = d.co2e_emissions || 0;
+    const scope = d.metrics_catalog?.scope;
+    if (scope === 'scope_1') scope1Sum += emissions;
+    else if (scope === 'scope_2') scope2Sum += emissions;
+    else if (scope === 'scope_3') scope3Sum += emissions;
+  });
+
+  const scope1 = Math.round(scope1Sum / 1000 * 10) / 10;
+  const scope2 = Math.round(scope2Sum / 1000 * 10) / 10;
+  const scope3 = Math.round(scope3Sum / 1000 * 10) / 10;
+  const total = Math.round((scope1 + scope2 + scope3) * 10) / 10;
+
+  return { total, scope_1: scope1, scope_2: scope2, scope_3: scope3 };
+}
+
+// ⚡ PERFORMANCE HELPER: Calculate monthly emissions from pre-fetched data
+function calculateMonthlyEmissionsFromData(data: any[]) {
+  const monthlyMap = new Map<string, { scope_1: number; scope_2: number; scope_3: number }>();
+
+  data.forEach(d => {
+    const month = d.period_start?.substring(0, 7);
+    if (!month) return;
+
+    const scope = d.metrics_catalog?.scope;
+    const emissions = (d.co2e_emissions || 0) / 1000;
+
+    if (!monthlyMap.has(month)) {
+      monthlyMap.set(month, { scope_1: 0, scope_2: 0, scope_3: 0 });
+    }
+
+    const monthData = monthlyMap.get(month)!;
+    if (scope === 'scope_1') monthData.scope_1 += emissions;
+    else if (scope === 'scope_2') monthData.scope_2 += emissions;
+    else if (scope === 'scope_3') monthData.scope_3 += emissions;
+  });
+
+  const monthlyData: any[] = [];
+  monthlyMap.forEach((scopes, month) => {
+    const scope1 = Math.round(scopes.scope_1 * 10) / 10;
+    const scope2 = Math.round(scopes.scope_2 * 10) / 10;
+    const scope3 = Math.round(scopes.scope_3 * 10) / 10;
+    const total = Math.round((scope1 + scope2 + scope3) * 10) / 10;
+
+    monthlyData.push({ month, emissions: total, scope_1: scope1, scope_2: scope2, scope_3: scope3 });
+  });
+
+  return monthlyData.sort((a, b) => a.month.localeCompare(b.month));
+}
+
+// ⚡ PERFORMANCE HELPER: Calculate category breakdown from pre-fetched data
+function calculateCategoryBreakdownFromData(data: any[]) {
+  const categoryMap = new Map<string, { scope_1: number; scope_2: number; scope_3: number }>();
+
+  data.forEach(d => {
+    const category = d.metrics_catalog?.category || 'Unknown';
+    const scope = d.metrics_catalog?.scope;
+    const emissions = (d.co2e_emissions || 0) / 1000;
+
+    if (!categoryMap.has(category)) {
+      categoryMap.set(category, { scope_1: 0, scope_2: 0, scope_3: 0 });
+    }
+
+    const cat = categoryMap.get(category)!;
+    if (scope === 'scope_1') cat.scope_1 += emissions;
+    else if (scope === 'scope_2') cat.scope_2 += emissions;
+    else if (scope === 'scope_3') cat.scope_3 += emissions;
+  });
+
+  const categories: any[] = [];
+  let grandTotal = 0;
+
+  categoryMap.forEach((scopes, category) => {
+    const scope1 = Math.round(scopes.scope_1 * 10) / 10;
+    const scope2 = Math.round(scopes.scope_2 * 10) / 10;
+    const scope3 = Math.round(scopes.scope_3 * 10) / 10;
+    const total = Math.round((scope1 + scope2 + scope3) * 10) / 10;
+
+    categories.push({ category, scope_1: scope1, scope_2: scope2, scope_3: scope3, total, percentage: 0 });
+    grandTotal += total;
+  });
+
+  return categories.map(cat => ({
+    ...cat,
+    percentage: grandTotal > 0 ? Math.round((cat.total / grandTotal) * 1000) / 10 : 0
+  })).sort((a, b) => b.total - a.total);
+}
+
+// ⚡ PERFORMANCE HELPER: Calculate energy/water/waste from pre-fetched data
+function calculateMetricTotalsFromData(data: any[]) {
+  let energy = 0, water = 0, waste = 0;
+
+  data.forEach(d => {
+    const category = d.metrics_catalog?.category;
+    const name = d.metrics_catalog?.name;
+    const value = d.value || 0;
+
+    if (category === 'Electricity' || category === 'Purchased Energy') {
+      energy += value;
+    } else if (name === 'Water' || name === 'Wastewater' || category === 'Water') {
+      water += value;
+    } else if (category === 'Waste') {
+      waste += value;
+    }
+  });
+
+  return {
+    energy: Math.round(energy / 1000 * 10) / 10, // kWh to MWh
+    water: Math.round(water),
+    waste: Math.round(waste)
+  };
 }
 
 /**
@@ -656,18 +676,12 @@ function generateTrendData(data: any[], range: string) {
 function generateSiteComparison(data: any[], sitesMap: Map<string, any>) {
   const siteData: any = {};
 
-  console.log('🔧 Site Comparison: Processing', data.length, 'data records');
-  console.log('🔧 Site Comparison: Sites available:', Array.from(sitesMap.keys()));
-  console.log('🔧 Site Comparison: Sites in map:', Array.from(sitesMap.entries()).map(([id, info]) => ({ id, name: info.name })));
-  console.log('🔧 Site Comparison: Sample data site_ids:', data.slice(0, 3).map(d => d.site_id));
-  console.log('🔧 Site Comparison: First data record:', data[0]);
 
   data.forEach(d => {
     const siteInfo = sitesMap.get(d.site_id);
     if (!siteInfo) {
       // Only log first few missing sites to avoid spam
       if (Object.keys(siteData).length < 3) {
-        console.log('🔧 Site Comparison: Site not found for ID:', d.site_id);
       }
       return; // Skip if site not found
     }
@@ -703,7 +717,6 @@ function generateSiteComparison(data: any[], sitesMap: Map<string, any>) {
     }
   });
 
-  console.log('🔧 Site Comparison: Site data collected:', Object.keys(siteData));
 
   const result = Object.values(siteData).map((site: any) => {
     // Calculate intensity metrics using actual site data
@@ -773,7 +786,6 @@ function generateSiteComparison(data: any[], sitesMap: Map<string, any>) {
     };
   });
 
-  console.log('🔧 Site Comparison: Final result:', result);
   return result;
 }
 
@@ -826,22 +838,13 @@ function calculateCarbonIntensity(data: any[], sitesMap: Map<string, any>) {
     }
   });
 
-  console.log('🔧 Carbon Intensity Calculation:', {
-    totalEmissionsKg: totalEmissions,
-    totalArea,
-    siteCount: sitesMap.size,
-    sitesWithArea: siteAreas
-  });
-
   // If no area data, return 0
   if (totalArea === 0) {
-    console.log('⚠️ No area data available, returning 0 intensity');
     return 0;
   }
 
   // Calculate intensity: kgCO2e / m²
   const intensity = totalEmissions / totalArea;
-  console.log('✅ Carbon intensity calculated:', Math.round(intensity * 10) / 10, 'kgCO2e/m²');
   return Math.round(intensity * 10) / 10; // Round to 1 decimal place
 }
 

@@ -83,7 +83,6 @@ export function TargetsDashboard({
       const response = await fetch(`/api/sustainability/targets?organization_id=${organizationId}`);
       const data = await response.json();
 
-      console.log('🎯 Targets from API:', data.targets);
 
       // Use targets directly from API (already includes calculated + existing merged)
       setTargets(data.targets || []);

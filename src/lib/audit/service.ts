@@ -61,7 +61,6 @@ export class AuditService {
       try {
         const ioredis = await import('ioredis');
         this.redis = new ioredis.default(this.config.redis);
-        console.log('Audit log Redis backend initialized');
       } catch (error) {
         console.error('Failed to initialize Redis for audit logs:', error);
       }

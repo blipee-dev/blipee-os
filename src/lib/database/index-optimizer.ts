@@ -238,7 +238,6 @@ export class IndexOptimizer {
         });
       }
       
-      console.log(`✅ Created index: ${index.name}`);
       return true;
       
     } catch (error) {
@@ -263,7 +262,6 @@ export class IndexOptimizer {
         return false;
       }
       
-      console.log(`✅ Dropped index: ${indexName}`);
       return true;
       
     } catch (error) {
@@ -315,7 +313,6 @@ export class IndexOptimizer {
         return false;
       }
       
-      console.log(`✅ Rebuilt index: ${indexName}`);
       return true;
       
     } catch (error) {

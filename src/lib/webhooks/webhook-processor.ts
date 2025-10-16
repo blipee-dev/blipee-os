@@ -20,11 +20,9 @@ export class WebhookProcessor {
    */
   start(): void {
     if (this.processingInterval) {
-      console.log('Webhook processor already running');
       return;
     }
 
-    console.log('Starting webhook processor...');
 
     // Process pending deliveries every 30 seconds
     this.processingInterval = setInterval(async () => {
@@ -44,7 +42,6 @@ export class WebhookProcessor {
       }
     }, 3600000);
 
-    console.log('Webhook processor started');
   }
 
   /**
@@ -61,7 +58,6 @@ export class WebhookProcessor {
       this.cleanupInterval = null;
     }
 
-    console.log('Webhook processor stopped');
   }
 
   /**
@@ -108,7 +104,6 @@ export class WebhookProcessor {
       return;
     }
 
-    console.log(`Processing ${retryDeliveries.length} retry deliveries`);
 
     const processingPromises = retryDeliveries.map(async (delivery) => {
       try {
@@ -234,12 +229,10 @@ if (typeof window === 'undefined') {
     
     // Graceful shutdown
     process.on('SIGTERM', () => {
-      console.log('Shutting down webhook processor...');
       processor.stop();
     });
     
     process.on('SIGINT', () => {
-      console.log('Shutting down webhook processor...');
       processor.stop();
     });
   }

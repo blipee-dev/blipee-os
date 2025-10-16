@@ -29,7 +29,6 @@ class ModelManager {
   private scalerParams: { mean: number; std: number } | null = null;
 
   private constructor() {
-    console.log('🎯 Initializing Model Manager');
   }
 
   static getInstance(): ModelManager {
@@ -43,7 +42,6 @@ class ModelManager {
    * Train models with historical data
    */
   async trainModels(historicalData: number[]): Promise<void> {
-    console.log('🚀 Starting model training with', historicalData.length, 'data points');
 
     try {
       // Initialize LSTM if not already done
@@ -94,8 +92,6 @@ class ModelManager {
 
       // Get and store the trained weights
       // Note: In production, you'd extract weights from the LSTM model here
-      console.log('✅ Model training complete!');
-      console.log(`📊 Training stats: mean=${this.modelState.meanValue.toFixed(1)} tCO2e, std=${this.modelState.stdValue.toFixed(1)} tCO2e`);
 
     } catch (error) {
       console.error('❌ Training failed:', error);
@@ -150,7 +146,6 @@ class ModelManager {
     this.trainedWeights = null;
     this.scalerParams = null;
     inMemoryLSTM.dispose();
-    console.log('🗑️ Models cleared');
   }
 }
 

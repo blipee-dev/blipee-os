@@ -132,6 +132,19 @@ designTokens.colors.framework.sbti   // Green
 </Section>
 ```
 
+### 5 Compact Metrics (New!)
+```tsx
+<Section>
+  <MetricGrid columns={5}>
+    <MetricCard compact ... />
+    <MetricCard compact ... />
+    <MetricCard compact ... />
+    <MetricCard compact ... />
+    <MetricCard compact ... />
+  </MetricGrid>
+</Section>
+```
+
 ### 2 Charts Side by Side
 ```tsx
 <Section>
@@ -209,6 +222,19 @@ designTokens.colors.framework.sbti   // Green
   iconColor={designTokens.colors.category.water}
   trend={{ value: -8.5, label: "YoY" }}
   tooltip="Total water withdrawal from all sources"
+/>
+```
+
+### Compact Metric with Subtitle (New!)
+```tsx
+<MetricCard
+  title="ML Forecast"
+  value="+12.5%"
+  icon={Brain}
+  iconColor="#10B981"
+  subtitle="Next 12 months"
+  subtitleColor="text-gray-500"
+  compact
 />
 ```
 

@@ -11,23 +11,18 @@ export async function GET() {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      console.log('❌ Auth error:', authError);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('✅ User authenticated:', user.id);
 
     // Get user's organization
     const orgInfo = await getUserOrganizationById(user.id);
-    console.log('📋 getUserOrganizationById result:', orgInfo);
 
     if (!orgInfo.organizationId) {
-      console.log('❌ No organization found for user');
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
 
     const organizationId = orgInfo.organizationId;
-    console.log('🏢 Using organization:', organizationId);
 
     // Fetch business travel metrics from metrics_catalog (using admin for consistency)
     const { data: travelMetrics, error: metricsError } = await supabaseAdmin
@@ -49,7 +44,6 @@ export async function GET() {
 
     // Fetch business travel data from metrics_data (using admin to bypass RLS)
     const metricIds = travelMetrics.map(m => m.id);
-    console.log('📊 Metric IDs to query:', metricIds);
 
     const { data: travelData, error: dataError } = await supabaseAdmin
       .from('metrics_data')
@@ -58,7 +52,6 @@ export async function GET() {
       .in('metric_id', metricIds)
       .order('period_start', { ascending: false });
 
-    console.log('📈 Travel data rows found:', travelData?.length || 0);
 
     if (dataError) {
       console.error('❌ Error fetching business travel data:', dataError);
@@ -133,13 +126,7 @@ export async function GET() {
     const response = {
       travel: travelWithIntensity,
       raw: travelData
-    };
-
-    console.log('📤 Business Travel API - Final response:', {
-      travelCount: response.travel.length,
-      rawCount: response.raw?.length || 0,
-      sampleData: response.travel[0],
-      totalEmissions: response.travel.reduce((sum: number, t: any) => sum + t.emissions_tco2e, 0).toFixed(2) + ' tCO2e'
+    }; => sum + t.emissions_tco2e, 0).toFixed(2) + ' tCO2e'
     });
 
     return NextResponse.json(response);

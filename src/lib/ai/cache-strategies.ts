@@ -218,7 +218,6 @@ export class AIResponseCacheManager {
     await this.semanticCache.addQuery(query);
     
     // Log cache metrics
-    console.log(`Cached with strategy: ${strategy.name}, TTL: ${ttl}s`);
   }
 
   private selectStrategy(query: string): CacheStrategy {
@@ -255,7 +254,6 @@ export class AIResponseCacheManager {
       'Show me this month\'s report',
     ];
 
-    console.log('Preloading common queries...');
     
     for (const query of commonQueries) {
       // This would trigger the AI to generate and cache responses
@@ -275,7 +273,6 @@ export class AIResponseCacheManager {
     const relatedTerms = patterns[topic as keyof typeof patterns] || [topic];
     
     // This would invalidate all caches containing these terms
-    console.log(`Invalidating caches related to: ${relatedTerms.join(', ')}`);
   }
 }
 

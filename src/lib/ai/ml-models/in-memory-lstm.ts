@@ -36,7 +36,6 @@ export class InMemoryLSTM {
       return; // Already initialized
     }
 
-    console.log('🚀 Initializing in-memory LSTM model...');
 
     try {
       // Clean up existing model if any
@@ -95,7 +94,6 @@ export class InMemoryLSTM {
       });
 
       this.isInitialized = true;
-      console.log('✅ In-memory LSTM model initialized successfully');
 
     } catch (error) {
       console.error('❌ Failed to initialize LSTM model:', error);
@@ -109,7 +107,6 @@ export class InMemoryLSTM {
   async train(historicalData: number[][], targets: number[]): Promise<void> {
     if (!this.model) await this.initialize();
 
-    console.log('🎯 Training in-memory LSTM model...');
 
     try {
       // Prepare training data
@@ -123,7 +120,6 @@ export class InMemoryLSTM {
       }
 
       if (sequences.length === 0) {
-        console.log('⚠️  Insufficient data for training, using pre-trained weights');
         return;
       }
 
@@ -140,7 +136,6 @@ export class InMemoryLSTM {
         callbacks: {
           onEpochEnd: (epoch, logs) => {
             if (epoch % 5 === 0) {
-              console.log(`  Epoch ${epoch}: loss=${logs?.loss?.toFixed(4)}, mae=${logs?.mae?.toFixed(4)}`);
             }
           }
         }
@@ -150,7 +145,6 @@ export class InMemoryLSTM {
       xs.dispose();
       ys.dispose();
 
-      console.log('✅ LSTM model trained successfully');
 
     } catch (error) {
       console.error('❌ Training failed:', error);
@@ -164,7 +158,6 @@ export class InMemoryLSTM {
   async predict(inputSequence: number[][], horizon: number = 12): Promise<any> {
     if (!this.model) await this.initialize();
 
-    console.log('🔮 Making REAL LSTM prediction with time series analysis...');
 
     try {
       const predictions = [];
@@ -277,7 +270,6 @@ export class InMemoryLSTM {
       return overallAverage > 0 ? avg / overallAverage : 1.0;
     });
 
-    console.log('📊 Detected seasonal patterns:', seasonalFactors.map(f => f.toFixed(2)));
     return seasonalFactors;
   }
 
@@ -306,7 +298,6 @@ export class InMemoryLSTM {
     // Convert slope to percentage change per year
     const trendPercentage = avgY > 0 ? (slope / avgY) * 12 : 0;
 
-    console.log(`📈 Detected trend: ${(trendPercentage * 100).toFixed(1)}% per year`);
     return trendPercentage;
   }
 
@@ -325,7 +316,6 @@ export class InMemoryLSTM {
       std: std || 20
     };
 
-    console.log(`📊 Scaler updated: mean=${this.scaler.mean.toFixed(2)}, std=${this.scaler.std.toFixed(2)}`);
   }
 
   /**

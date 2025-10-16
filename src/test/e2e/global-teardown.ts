@@ -9,43 +9,31 @@ import fs from 'fs';
 import path from 'path';
 
 async function globalTeardown(config: FullConfig) {
-  console.log('\n🧹 Starting E2E Test Environment Cleanup...\n');
 
   try {
     // 1. Generate test reports
-    console.log('1️⃣ Generating test reports...');
     await generateTestReport();
-    console.log('✅ Test reports generated');
 
     // 2. Cleanup test data
-    console.log('\n2️⃣ Cleaning up test data...');
     await cleanupTestData();
-    console.log('✅ Test data cleaned up');
 
     // 3. Archive test artifacts
-    console.log('\n3️⃣ Archiving test artifacts...');
     await archiveTestArtifacts();
-    console.log('✅ Test artifacts archived');
 
     // 4. Stop mock services
     if (process.env.USE_MOCK_SERVICES === 'true') {
-      console.log('\n4️⃣ Stopping mock services...');
       await stopMockServices();
-      console.log('✅ Mock services stopped');
     }
 
     // 5. Database cleanup
     if (process.env.CLEANUP_TEST_DB === 'true') {
-      console.log('\n5️⃣ Cleaning up test database...');
       try {
         execSync('npm run db:reset:test', { stdio: 'inherit' });
-        console.log('✅ Test database cleaned');
       } catch (error) {
         console.warn('⚠️ Test database cleanup failed:', error);
       }
     }
 
-    console.log('\n🎉 E2E Test Environment Cleanup Complete!\n');
 
   } catch (error) {
     console.error('\n❌ E2E Test Cleanup Failed:', error);
@@ -57,7 +45,6 @@ async function generateTestReport() {
   const testResultsPath = 'test-results/test-results.json';
   
   if (!fs.existsSync(testResultsPath)) {
-    console.log('ℹ️ No test results file found, skipping report generation');
     return;
   }
 
@@ -96,8 +83,6 @@ async function generateTestReport() {
     const markdownPath = 'test-results/TEST_REPORT.md';
     fs.writeFileSync(markdownPath, markdownReport);
 
-    console.log(`📊 Test summary: ${report.summary.passed}/${report.summary.total} tests passed`);
-    console.log(`⏱️ Total duration: ${(report.summary.duration / 1000).toFixed(1)}s`);
 
   } catch (error) {
     console.warn('⚠️ Failed to generate test report:', error);
@@ -166,7 +151,6 @@ async function cleanupTestData() {
       });
 
       if (response.ok) {
-        console.log(`🗑️ Deleted test organization: ${orgId}`);
       }
     } catch (error) {
       console.warn(`⚠️ Failed to delete organization ${orgId}:`, error);
@@ -184,7 +168,6 @@ async function cleanupTestData() {
       });
 
       if (response.ok) {
-        console.log(`🗑️ Deleted test user: ${userEmail}`);
       }
     } catch (error) {
       console.warn(`⚠️ Failed to delete user ${userEmail}:`, error);
@@ -215,7 +198,6 @@ async function archiveTestArtifacts() {
         }
       }
       
-      console.log(`📦 Archived ${files.length} test artifacts`);
     }
 
     // Cleanup old archives (keep last 10)
@@ -235,7 +217,6 @@ async function archiveTestArtifacts() {
         for (const archive of toRemove) {
           fs.rmSync(archive.path, { recursive: true, force: true });
         }
-        console.log(`🗑️ Cleaned up ${toRemove.length} old archives`);
       }
     }
 
@@ -245,9 +226,6 @@ async function archiveTestArtifacts() {
 }
 
 async function stopMockServices() {
-  console.log('Stopping mock AI services...');
-  console.log('Stopping mock utility APIs...');
-  console.log('Stopping mock compliance services...');
 }
 
 export default globalTeardown;

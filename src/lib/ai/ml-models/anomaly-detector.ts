@@ -63,25 +63,21 @@ export class AnomalyDetectionModel extends BaseModel {
    */
   async buildModel(): Promise<void> {
     // Models are built during training
-    console.log('Anomaly detection models initialized');
   }
 
   /**
    * Train both models
    */
   async train(data: TrainingData): Promise<TrainingResult> {
-    console.log('Training anomaly detection models...');
     
     // Convert training data to appropriate format
     const samples = this.prepareTrainingData(data);
     
     // Train Isolation Forest
     await this.isolationForest.fit(samples);
-    console.log('Isolation Forest trained');
     
     // Train AutoEncoder
     await this.autoEncoder.fit(samples);
-    console.log('AutoEncoder trained');
     
     // Calculate ensemble weights based on validation performance
     await this.optimizeEnsembleWeights(samples);

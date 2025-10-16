@@ -96,7 +96,6 @@ export class ModelIntegration {
   }
 
   private async initializeModels(): Promise<void> {
-    console.log('Initializing ML model integration layer...');
     
     // Initialize all models
     this.pipeline = new MLPipeline({
@@ -131,7 +130,6 @@ export class ModelIntegration {
     // Initialize performance tracking
     this.initializePerformanceTracking();
 
-    console.log('Model integration layer initialized');
   }
 
   private initializePerformanceTracking(): void {
@@ -302,7 +300,6 @@ export class ModelIntegration {
    * Multi-model prediction combining all models
    */
   private async multiModelPredict(data: any, options?: any): Promise<MultiModelPrediction> {
-    console.log('Running multi-model prediction...');
     
     // Run all predictions in parallel for efficiency
     const [emissions, anomalies, optimization, regulatory] = await Promise.all([
@@ -452,7 +449,6 @@ export class ModelIntegration {
     
     if (loadPromises.length > 0) {
       await Promise.all(loadPromises);
-      console.log('All models loaded successfully');
     }
   }
 

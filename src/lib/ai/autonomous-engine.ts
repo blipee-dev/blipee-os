@@ -42,7 +42,6 @@ export class AutonomousSustainabilityIntelligence {
    * Initialize the AI consciousness
    */
   private async awaken() {
-    console.log("🧠 blipee is awakening...");
 
     // Load historical patterns
     await this.loadMemory();
@@ -57,9 +56,6 @@ export class AutonomousSustainabilityIntelligence {
     this.enableAutonomousActions();
 
     this.isAwake = true;
-    console.log(
-      "✨ blipee is now fully conscious and ready to optimize your sustainability",
-    );
   }
 
   /**
@@ -313,9 +309,7 @@ export class AutonomousSustainabilityIntelligence {
   }
 
   private async processInsight(insight: PredictiveInsight) {
-    // Process and potentially act on insights
-    console.log(
-      `🔮 Insight: ${insight.description} (${insight.probability * 100}% probability)`,
+    // Process and potentially act on insights`,
     );
   }
 

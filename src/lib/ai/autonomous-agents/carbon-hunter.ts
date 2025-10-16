@@ -123,12 +123,6 @@ export class CarbonHunterAgent extends AutonomousAgent {
     await this.loadBenchmarkData();
     
     // Carbon hunter initialized successfully
-    console.log('Carbon Hunter Agent initialized with:', {
-      detection_algorithms: this.detectionAlgorithms.size,
-      optimization_strategies: this.optimizationStrategies.length,
-      benchmark_datasets: this.benchmarkData.size,
-      hunting_enabled: true
-    });
   }
 
   async getScheduledTasks(): Promise<AgentTask[]> {
@@ -731,7 +725,6 @@ export class CarbonHunterAgent extends AutonomousAgent {
       timestamp: new Date().toISOString()
     };
 
-    console.log('Carbon Hunter learning from result:', learningData);
     
     // Pattern stored
   }
@@ -941,11 +934,9 @@ export class CarbonHunterAgent extends AutonomousAgent {
   }
 
   private async storeOpportunities(opportunities: CarbonOpportunity[]): Promise<void> {
-    console.log(`Storing ${opportunities.length} carbon opportunities`);
   }
 
   private async storeAnomalies(anomalies: EmissionAnomaly[]): Promise<void> {
-    console.log(`Storing ${anomalies.length} emission anomalies`);
   }
 
   private async performTrendAnalysis(type: string, timeRange: string): Promise<any> {
@@ -979,7 +970,6 @@ export class CarbonHunterAgent extends AutonomousAgent {
   }
 
   private async storeCarbonInsights(insights: CarbonInsight[]): Promise<void> {
-    console.log(`Storing ${insights.length} carbon insights`);
   }
 
   private async calculateEfficiencyMetrics(): Promise<any> {

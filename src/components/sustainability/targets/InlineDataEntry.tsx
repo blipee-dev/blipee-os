@@ -441,7 +441,6 @@ export function InlineDataEntry({
               unit={unit}
               scope={scope}
               onComplete={(totalEmissions) => {
-                console.log(`Bulk data saved with total emissions: ${totalEmissions} tCO2e`);
                 onDataSubmit?.(totalEmissions);
               }}
             />

@@ -418,7 +418,6 @@ export class DecisionSupportSystem {
    * Generate decision recommendation
    */
   async generateRecommendation(request: DecisionRequest): Promise<DecisionRecommendation> {
-    console.log(`🤔 Generating decision recommendation for ${request.context.contextId}`);
     
     // Analyze context
     const contextAnalysis = await this.analyzeContext(request.context);
@@ -487,7 +486,6 @@ export class DecisionSupportSystem {
     context: DecisionContext,
     criteria: EvaluationCriteria
   ): Promise<ComparisonResult> {
-    console.log(`⚖️ Comparing ${options.length} decision options`);
     
     const comparisons: OptionComparison[] = [];
     
@@ -539,7 +537,6 @@ export class DecisionSupportSystem {
     context: DecisionContext,
     process: GroupDecisionProcess
   ): Promise<GroupDecisionResult> {
-    console.log(`👥 Facilitating group decision with ${stakeholders.length} stakeholders`);
     
     // Elicit individual preferences
     const preferences = await this.elicitPreferences(stakeholders);
@@ -594,7 +591,6 @@ export class DecisionSupportSystem {
     situation: RealTimeSituation,
     decisionMaker: DecisionMaker
   ): Promise<RealTimeGuidance> {
-    console.log(`⚡ Providing real-time decision support`);
     
     // Rapid situation assessment
     const assessment = await this.rapidAssess(situation);
@@ -638,7 +634,6 @@ export class DecisionSupportSystem {
     decision: DecisionRecommendation,
     outcome: DecisionOutcome
   ): Promise<LearningResult> {
-    console.log(`📚 Learning from decision outcome ${decision.recommendationId}`);
     
     // Compare predicted vs actual
     const comparison = this.compareOutcomes(
@@ -682,7 +677,6 @@ export class DecisionSupportSystem {
     decision: DecisionRecommendation,
     strategy: OrganizationStrategy
   ): Promise<AlignmentAssessment> {
-    console.log(`🎯 Assessing strategic alignment`);
     
     // Map to strategic objectives
     const objectiveMapping = this.mapToObjectives(

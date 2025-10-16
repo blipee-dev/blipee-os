@@ -189,7 +189,6 @@ export class RegulatoryIntelligenceEngine {
       throw new Error('Regulatory intelligence engine is already running');
     }
 
-    console.log('🧠 Starting regulatory intelligence engine...');
 
     this.isRunning = true;
 
@@ -204,7 +203,6 @@ export class RegulatoryIntelligenceEngine {
       await this.initializeMLModels();
     }
 
-    console.log('✅ Regulatory intelligence engine started successfully');
   }
 
   /**
@@ -215,7 +213,6 @@ export class RegulatoryIntelligenceEngine {
       return;
     }
 
-    console.log('⏹️ Stopping regulatory intelligence engine...');
 
     this.isRunning = false;
 
@@ -223,14 +220,12 @@ export class RegulatoryIntelligenceEngine {
     this.scheduledTasks.forEach(task => clearTimeout(task));
     this.scheduledTasks.clear();
 
-    console.log('✅ Regulatory intelligence engine stopped');
   }
 
   /**
    * Detect regulatory updates from all sources
    */
   public async detectUpdates(): Promise<DetectionResult[]> {
-    console.log('🔍 Detecting regulatory updates from all sources...');
 
     const results: DetectionResult[] = [];
 
@@ -292,7 +287,6 @@ export class RegulatoryIntelligenceEngine {
    * Analyze a regulatory update
    */
   public async analyzeUpdate(update: RegulatoryUpdate): Promise<AnalysisResult> {
-    console.log(`🔬 Analyzing regulatory update: ${update.title}`);
 
     const startTime = Date.now();
 
@@ -510,7 +504,6 @@ export class RegulatoryIntelligenceEngine {
   }
 
   private async detectFromSource(source: RegulatorySource): Promise<RegulatoryUpdate[]> {
-    console.log(`🔍 Detecting updates from source: ${source.name}`);
 
     switch (source.type) {
       case 'rss':
@@ -529,7 +522,6 @@ export class RegulatoryIntelligenceEngine {
   private async detectFromRSS(source: RegulatorySource): Promise<RegulatoryUpdate[]> {
     // Implementation for RSS feed monitoring
     // This would use a RSS parser library
-    console.log(`📡 Parsing RSS feed: ${source.url}`);
 
     // Mock implementation
     return [
@@ -575,7 +567,6 @@ export class RegulatoryIntelligenceEngine {
 
   private async detectFromAPI(source: RegulatorySource): Promise<RegulatoryUpdate[]> {
     // Implementation for API-based monitoring
-    console.log(`🔌 Querying API: ${source.url}`);
 
     // This would make actual API calls
     return [];
@@ -583,7 +574,6 @@ export class RegulatoryIntelligenceEngine {
 
   private async detectFromWebScraper(source: RegulatorySource): Promise<RegulatoryUpdate[]> {
     // Implementation for web scraping
-    console.log(`🕷️ Scraping website: ${source.url}`);
 
     // This would use a web scraping library
     return [];
@@ -591,7 +581,6 @@ export class RegulatoryIntelligenceEngine {
 
   private async detectFromManualSource(source: RegulatorySource): Promise<RegulatoryUpdate[]> {
     // Implementation for manual source monitoring
-    console.log(`👥 Checking manual source: ${source.name}`);
 
     // This would check a manual input system
     return [];
@@ -703,13 +692,11 @@ export class RegulatoryIntelligenceEngine {
   private async sendIntelligenceNotifications(update: RegulatoryUpdate, result: AnalysisResult): Promise<void> {
     // Send notifications based on configuration
     if (this.config.notificationSettings.enabled) {
-      console.log(`📢 Sending intelligence notification for: ${update.title}`);
     }
   }
 
   private async initializeMLModels(): Promise<void> {
     // Initialize machine learning models
-    console.log('🤖 Initializing ML models for regulatory intelligence');
   }
 }
 

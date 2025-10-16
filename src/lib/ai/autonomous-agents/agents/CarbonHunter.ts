@@ -142,7 +142,6 @@ export class CarbonHunter extends AutonomousAgent {
    * Initialize the Carbon Hunter
    */
   protected async initialize(): Promise<void> {
-    console.log('🔍 Initializing Carbon Hunter...');
     
     // Load existing emission sources
     await this.loadEmissionSources();
@@ -156,14 +155,12 @@ export class CarbonHunter extends AutonomousAgent {
     // Perform initial system scan
     await this.performInitialScan();
     
-    console.log('✅ Carbon Hunter initialized and ready to track every gram of CO2');
   }
   
   /**
    * Execute assigned tasks
    */
   protected async executeTask(task: Task): Promise<TaskResult> {
-    console.log(`🔍 Carbon Hunter executing: ${task.type}`);
     
     try {
       switch (task.type) {
@@ -255,7 +252,6 @@ export class CarbonHunter extends AutonomousAgent {
    * Update learning model based on feedback
    */
   protected async updateLearningModel(feedback: LearningFeedback): Promise<void> {
-    console.log(`📚 Carbon Hunter learning from feedback: ${feedback.outcome}`);
     
     // Update hunting metrics
     if (feedback.outcome === 'positive') {
@@ -301,7 +297,6 @@ export class CarbonHunter extends AutonomousAgent {
    * Cleanup resources
    */
   protected async cleanup(): Promise<void> {
-    console.log('🧹 Carbon Hunter cleaning up...');
     
     // Save emission sources
     await this.saveEmissionSources();
@@ -312,7 +307,6 @@ export class CarbonHunter extends AutonomousAgent {
     // Save hunting metrics
     await this.saveHuntingMetrics();
     
-    console.log('✅ Carbon Hunter cleanup completed');
   }
   
   /**
@@ -570,7 +564,6 @@ Focus on carbon accounting accuracy, emission source identification, and data qu
   }
   
   private async performInitialScan(): Promise<void> {
-    console.log('🔍 Performing initial carbon emissions scan...');
     
     // This would scan all available data sources for emissions
     await this.logActivity('initial_scan', {

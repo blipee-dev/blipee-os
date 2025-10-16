@@ -113,7 +113,6 @@ export class ProductionMLManager {
       versions: new Map()
     };
 
-    console.log(`🚀 Production ML Manager initialized for ${this.config.environment.name} environment`);
   }
 
   /**
@@ -140,7 +139,6 @@ export class ProductionMLManager {
       HyperparameterOptimizer.createOptimizationConfig('balanced')
     );
 
-    console.log('   ✅ All ML components initialized');
   }
 
   /**
@@ -155,7 +153,6 @@ export class ProductionMLManager {
     metadata: any,
     owner: string
   ): Promise<void> {
-    console.log(`📝 Registering model: ${name} (${modelId}) version ${version}`);
 
     // Register model
     const registeredModel: RegisteredModel = {
@@ -195,16 +192,12 @@ export class ProductionMLManager {
     // Register with scaler
     this.scaler.registerModel(modelId, () => model);
 
-    console.log(`   ✅ Model ${name} registered successfully`);
   }
 
   /**
    * Deploy a model to production
    */
   async deployModel(deploymentPlan: DeploymentPlan): Promise<boolean> {
-    console.log(`🚀 Deploying model ${deploymentPlan.modelId} version ${deploymentPlan.targetVersion}`);
-    console.log(`   📋 Strategy: ${deploymentPlan.rolloutStrategy}`);
-    console.log(`   📊 Traffic split: ${deploymentPlan.trafficSplitPercentage}%`);
 
     try {
       // Get model version
@@ -263,7 +256,6 @@ export class ProductionMLManager {
         failedRequests: 0
       });
 
-      console.log(`   ✅ Model ${deploymentPlan.modelId} deployed successfully`);
       return true;
 
     } catch (error) {
@@ -304,14 +296,12 @@ export class ProductionMLManager {
     await monitoring.startMonitoring();
     this.monitoring.set(modelId, monitoring);
 
-    console.log(`   📊 Monitoring set up for model ${modelId}`);
   }
 
   /**
    * Blue-green deployment strategy
    */
   private async blueGreenDeployment(plan: DeploymentPlan, version: ModelVersion): Promise<void> {
-    console.log(`   🔵 Executing blue-green deployment for ${plan.modelId}`);
     
     // In a real implementation, this would:
     // 1. Deploy new version to green environment
@@ -321,14 +311,12 @@ export class ProductionMLManager {
     // 5. Keep blue as backup for quick rollback
     
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate deployment time
-    console.log(`   ✅ Blue-green deployment completed`);
   }
 
   /**
    * Canary deployment strategy
    */
   private async canaryDeployment(plan: DeploymentPlan, version: ModelVersion): Promise<void> {
-    console.log(`   🐤 Executing canary deployment for ${plan.modelId}`);
     
     // Set up A/B test for canary
     const currentModel = this.getProductionModel(plan.modelId);
@@ -363,14 +351,12 @@ export class ProductionMLManager {
     const testId = await abTesting.startExperiment(testConfig);
     this.abTesting.set(plan.modelId, abTesting);
 
-    console.log(`   ✅ Canary deployment initiated with ${plan.trafficSplitPercentage}% traffic`);
   }
 
   /**
    * Rolling deployment strategy
    */
   private async rollingDeployment(plan: DeploymentPlan, version: ModelVersion): Promise<void> {
-    console.log(`   🔄 Executing rolling deployment for ${plan.modelId}`);
     
     // In a real implementation, this would:
     // 1. Gradually replace instances with new version
@@ -380,38 +366,31 @@ export class ProductionMLManager {
     const steps = 5; // Number of rolling steps
     for (let i = 1; i <= steps; i++) {
       const percentage = (i / steps) * 100;
-      console.log(`   📈 Rolling step ${i}/${steps}: ${percentage}% deployed`);
       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate gradual rollout
       
       // Simulate health check
       if (Math.random() < 0.95) { // 95% success rate
-        console.log(`   ✅ Step ${i} healthy`);
       } else {
         throw new Error(`Health check failed at step ${i}`);
       }
     }
     
-    console.log(`   ✅ Rolling deployment completed`);
   }
 
   /**
    * Immediate deployment strategy
    */
   private async immediateDeployment(plan: DeploymentPlan, version: ModelVersion): Promise<void> {
-    console.log(`   ⚡ Executing immediate deployment for ${plan.modelId}`);
     
     // Replace all traffic immediately
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate deployment
     
-    console.log(`   ✅ Immediate deployment completed`);
   }
 
   /**
    * Rollback a failed deployment
    */
   async rollbackDeployment(modelId: string, reason: string): Promise<void> {
-    console.log(`🔄 Rolling back deployment for model ${modelId}`);
-    console.log(`   📝 Reason: ${reason}`);
 
     const status = this.deploymentStatus.get(modelId);
     if (status) {
@@ -437,7 +416,6 @@ export class ProductionMLManager {
     // In a real implementation, would restore previous version
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    console.log(`   ✅ Rollback completed for model ${modelId}`);
   }
 
   /**
@@ -525,7 +503,6 @@ export class ProductionMLManager {
    * Cleanup resources
    */
   async shutdown(): Promise<void> {
-    console.log('🛑 Shutting down Production ML Manager...');
 
     // Stop all monitoring
     for (const [modelId, monitoring] of this.monitoring) {
@@ -540,6 +517,5 @@ export class ProductionMLManager {
       }
     }
 
-    console.log('   ✅ Production ML Manager shutdown complete');
   }
 }

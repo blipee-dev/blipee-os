@@ -45,7 +45,6 @@ export class HyperparameterOptimizer {
    * Optimize hyperparameters for a given model
    */
   async optimizeModel(config: ModelOptimizationConfig): Promise<OptimizedModel> {
-    console.log(`🔧 Optimizing hyperparameters for ${config.model.getModelName()}`);
     
     // Get baseline performance
     const baselineScore = await this.evaluateModelPerformance(
@@ -56,7 +55,6 @@ export class HyperparameterOptimizer {
       config.customObjective
     );
     
-    console.log(`   Baseline ${config.objective}: ${baselineScore.toFixed(4)}`);
     
     // Define objective function for optimization
     const objectiveFunction = async (parameters: Record<string, any>): Promise<number> => {
@@ -82,9 +80,6 @@ export class HyperparameterOptimizer {
     
     const relativeImprovement = ((finalScore - baselineScore) / Math.abs(baselineScore)) * 100;
     
-    console.log(`✅ Optimization complete!`);
-    console.log(`   Best ${config.objective}: ${finalScore.toFixed(4)}`);
-    console.log(`   Improvement: ${relativeImprovement.toFixed(1)}%`);
     
     return {
       model: optimizedModel,
@@ -111,13 +106,11 @@ export class HyperparameterOptimizer {
     allResults: OptimizedModel[];
     comparison: ModelComparison[];
   }> {
-    console.log(`🏆 Optimizing ${models.length} models to find the best performer`);
     
     const results: OptimizedModel[] = [];
     
     for (let i = 0; i < models.length; i++) {
       const model = models[i];
-      console.log(`\n   Optimizing model ${i + 1}/${models.length}: ${model.getModelName()}`);
       
       try {
         const result = await this.optimizeModel({
@@ -138,9 +131,6 @@ export class HyperparameterOptimizer {
     // Generate comparison
     const comparison = this.generateModelComparison(results);
     
-    console.log(`\n🎯 Best model: ${bestModel.model.getModelName()}`);
-    console.log(`   Score: ${bestModel.bestScore.toFixed(4)}`);
-    console.log(`   Improvement: ${bestModel.improvements.relativeImprovement.toFixed(1)}%`);
     
     return {
       bestModel,

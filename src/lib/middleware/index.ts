@@ -89,7 +89,6 @@ export function withMiddleware(
           if (sanitizedBody !== undefined) {
             body = sanitizedBody;
             bodyText = securityBodyText || JSON.stringify(sanitizedBody);
-            console.log('Middleware - Using sanitized body from security middleware');
           } else {
             // Read body if not already processed by security middleware
             try {
@@ -104,7 +103,6 @@ export function withMiddleware(
 
               bodyText = await request.text();
               body = JSON.parse(bodyText);
-              console.log('Middleware - Reading fresh body from request');
             } catch (error) {
               console.error('Middleware - Failed to read/parse request body:', error);
               return addSecurityHeaders(NextResponse.json(
@@ -114,7 +112,6 @@ export function withMiddleware(
             }
           }
 
-          console.log('Middleware - Validating body:', JSON.stringify(body, null, 2));
 
           const bodyValidation = validateAndSanitize(validation.body, body);
           if (!bodyValidation.success) {
@@ -122,14 +119,12 @@ export function withMiddleware(
               field: err.path.join('.'),
               message: err.message,
             }));
-            console.log('Middleware - Validation failed:', errors);
             return addSecurityHeaders(NextResponse.json(
               { error: 'Invalid request body', details: errors },
               { status: 400 }
             ));
           }
 
-          console.log('Middleware - Validation passed');
 
           // Attach the parsed body to the original request object for the handler to use
           // This avoids the issue of recreating a NextRequest with a consumed body stream

@@ -11,23 +11,18 @@ export async function GET() {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      console.log('❌ Fleet API Auth error:', authError);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('✅ Fleet API - User authenticated:', user.id);
 
     // Get user's organization
     const orgInfo = await getUserOrganizationById(user.id);
-    console.log('📋 Fleet API - getUserOrganizationById result:', orgInfo);
 
     if (!orgInfo.organizationId) {
-      console.log('❌ Fleet API - No organization found for user');
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
 
     const organizationId = orgInfo.organizationId;
-    console.log('🏢 Fleet API - Using organization:', organizationId);
 
     // Fetch fleet-related metrics from metrics_catalog (using admin for consistency)
     const { data: fleetMetrics, error: metricsError } = await supabaseAdmin
@@ -49,7 +44,6 @@ export async function GET() {
 
     // Fetch fleet data from metrics_data (using admin to bypass RLS)
     const metricIds = fleetMetrics.map(m => m.id);
-    console.log('📊 Fleet API - Metric IDs to query:', metricIds);
 
     const { data: fleetData, error: dataError } = await supabaseAdmin
       .from('metrics_data')
@@ -58,7 +52,6 @@ export async function GET() {
       .in('metric_id', metricIds)
       .order('period_start', { ascending: false });
 
-    console.log('📈 Fleet API - Data rows found:', fleetData?.length || 0);
 
     if (dataError) {
       console.error('❌ Fleet API - Error fetching fleet data:', dataError);

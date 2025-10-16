@@ -113,12 +113,6 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
   override async initialize(): Promise<void> {
     await this.loadComplianceFrameworks();
     await this.setupValidationRules();
-    
-    console.log('compliance_guardian_initialized', {
-      frameworks_loaded: this.complianceFrameworks.size,
-      validation_rules: this.validationRules.size,
-      monitoring_enabled: true
-    });
   }
 
   async getScheduledTasks(): Promise<AgentTask[]> {
@@ -746,7 +740,6 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
 
   private async storeComplianceAlerts(alerts: ComplianceAlert[]): Promise<void> {
     // Store in database - mock for now
-    console.log(`Storing ${alerts.length} compliance alerts`);
   }
 
   private async generateFrameworkReport(framework: ComplianceFramework): Promise<any> {
@@ -786,7 +779,6 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
 
   private async storeComplianceReport(report: any): Promise<void> {
     // Store in database
-    console.log(`Storing compliance report: ${report.id}`);
   }
 
   private prioritizeIssues(issues: any[]): any[] {
@@ -821,6 +813,5 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
 
   private async storeRemediationPlan(plan: any): Promise<void> {
     // Store in database
-    console.log(`Storing remediation plan: ${plan.id}`);
   }
 }

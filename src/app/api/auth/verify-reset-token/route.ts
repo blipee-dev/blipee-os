@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = verifySchema.parse(body);
 
-    console.log('Verifying reset token...');
 
     // Get token from database
     const { data: tokenRecord, error: tokenError } = await supabaseAdmin
@@ -23,7 +22,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (tokenError || !tokenRecord) {
-      console.log('Token not found or already used');
       return NextResponse.json(
         { success: false, error: "Invalid or expired reset link" },
         { status: 400 }
@@ -32,7 +30,6 @@ export async function POST(request: NextRequest) {
 
     // Check if token is expired
     if (new Date(tokenRecord.expires_at) < new Date()) {
-      console.log('Token expired');
       return NextResponse.json(
         { success: false, error: "Reset link has expired" },
         { status: 400 }
@@ -56,7 +53,6 @@ export async function POST(request: NextRequest) {
       .update({ used_at: new Date().toISOString() })
       .eq('id', tokenRecord.id);
 
-    console.log('✅ Password updated successfully');
 
     return NextResponse.json({
       success: true,

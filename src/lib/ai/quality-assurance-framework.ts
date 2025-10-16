@@ -915,7 +915,6 @@ export class QualityAssuranceFramework {
     // Execute action based on type
     switch (action) {
       case 'proceed':
-        console.log('Gate passed, proceeding with deployment');
         break;
       case 'block':
         throw new Error('Quality gate failed, blocking deployment');
@@ -923,7 +922,6 @@ export class QualityAssuranceFramework {
         console.warn('Quality gate warning');
         break;
       case 'rollback':
-        console.log('Initiating rollback');
         break;
     }
 

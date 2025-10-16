@@ -31,7 +31,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log(`🔍 Detecting new metrics for org ${organizationId} with baseline year ${baselineYear}`);
 
     // Query to detect metrics that started being tracked AFTER the baseline year
     const { data: newMetrics, error: metricsError } = await supabaseAdmin.rpc(
@@ -47,7 +46,6 @@ export async function GET(request: NextRequest) {
 
       // If the function doesn't exist yet, fall back to manual query
       if (metricsError.message?.includes('function') && metricsError.message?.includes('does not exist')) {
-        console.log('⚠️ Database function not found, using fallback query...');
 
         // Strategy: Find metrics that have data AFTER baseline year but NO data IN baseline year
 
@@ -68,7 +66,6 @@ export async function GET(request: NextRequest) {
         }
 
         const uniqueMetricsAfter = [...new Set(metricsAfterBaseline?.map(m => m.metric_id) || [])];
-        console.log(`Found ${uniqueMetricsAfter.length} metrics with data after ${baselineYear}`);
 
         // Step 2: Check which of these metrics have NO data in baseline year
         const newMetricsList = [];
@@ -114,7 +111,6 @@ export async function GET(request: NextRequest) {
           }
         }
 
-        console.log(`✅ Found ${newMetricsList.length} TRUE new metrics (no baseline year data)`);
 
         return NextResponse.json({
           success: true,
@@ -134,7 +130,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log(`✅ Detected ${newMetrics?.length || 0} new metrics using database function`);
 
     return NextResponse.json({
       success: true,

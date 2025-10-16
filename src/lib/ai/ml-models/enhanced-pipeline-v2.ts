@@ -217,7 +217,6 @@ export class EnhancedMLPipeline extends EventEmitter {
    * Initialize the ML pipeline
    */
   async initialize(): Promise<void> {
-    console.log('🚀 Initializing Enhanced ML Pipeline v2...');
 
     try {
       // Initialize security first
@@ -242,7 +241,6 @@ export class EnhancedMLPipeline extends EventEmitter {
       this.isInitialized = true;
       this.emit('initialized');
 
-      console.log('✅ Enhanced ML Pipeline v2 initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize ML Pipeline:', error);
       throw error;
@@ -258,7 +256,6 @@ export class EnhancedMLPipeline extends EventEmitter {
     const jobId = await this.trainingQueue.submit(config);
     this.emit('training_started', jobId);
 
-    console.log(`🏃 Training job ${jobId} submitted`);
     return jobId;
   }
 
@@ -303,7 +300,6 @@ export class EnhancedMLPipeline extends EventEmitter {
     await this.modelRegistry.updateVersion(model);
     this.emit('model_deployed', { modelVersion, environment });
 
-    console.log(`🚀 Model ${modelVersion} deployed to ${environment}`);
   }
 
   /**
@@ -375,7 +371,6 @@ export class EnhancedMLPipeline extends EventEmitter {
   async dispose(): Promise<void> {
     if (!this.isInitialized) return;
 
-    console.log('🔄 Disposing Enhanced ML Pipeline...');
 
     await Promise.all([
       this.monitoringSystem.stop(),
@@ -387,7 +382,6 @@ export class EnhancedMLPipeline extends EventEmitter {
     this.isInitialized = false;
     this.emit('disposed');
 
-    console.log('✅ Enhanced ML Pipeline disposed');
   }
 
   private setupEventListeners(): void {
@@ -428,7 +422,6 @@ export class ModelRegistry {
 
   async initialize(): Promise<void> {
     // Load existing models from storage
-    console.log('📚 Initializing Model Registry...');
   }
 
   async register(model: ModelVersion): Promise<void> {
@@ -479,7 +472,6 @@ export class ModelRegistry {
 
   private async saveToStorage(model: ModelVersion): Promise<void> {
     // Implementation for persistent storage
-    console.log(`💾 Saving model ${model.id} to storage`);
   }
 }
 
@@ -498,7 +490,6 @@ export class TrainingJobQueue extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('🔄 Initializing Training Queue...');
     // Start processing jobs
     this.processQueue();
   }
@@ -559,7 +550,6 @@ export class TrainingJobQueue extends EventEmitter {
   }
 
   private async runTrainingJob(job: TrainingJob): Promise<ModelVersion> {
-    console.log(`🏃 Running training job ${job.id}`);
 
     // Simulate training process
     for (let i = 0; i <= 100; i += 10) {
@@ -625,7 +615,6 @@ export class InferenceEngine extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('🎯 Initializing Inference Engine...');
   }
 
   async deploy(model: ModelVersion, environment: string): Promise<void> {
@@ -747,7 +736,6 @@ export class ExperimentTracker {
   constructor(private config: EnhancedMLConfig) {}
 
   async initialize(): Promise<void> {
-    console.log('🧪 Initializing Experiment Tracker...');
   }
 
   async startABTest(config: ABTestConfig): Promise<string> {
@@ -761,7 +749,6 @@ export class MonitoringSystem extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('📊 Initializing Monitoring System...');
   }
 
   async start(): Promise<void> {
@@ -797,7 +784,6 @@ export class ResourceManager {
   constructor(private config: EnhancedMLConfig) {}
 
   async initialize(): Promise<void> {
-    console.log('⚡ Initializing Resource Manager...');
   }
 
   async dispose(): Promise<void> {
@@ -809,7 +795,6 @@ export class SecurityManager {
   constructor(private config: EnhancedMLConfig) {}
 
   async initialize(): Promise<void> {
-    console.log('🔒 Initializing Security Manager...');
   }
 
   async validateRequest(request: InferenceRequest): Promise<void> {

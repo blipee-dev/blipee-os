@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     const isSuperAdmin = !!superAdminRecord;
-    console.log('User is super admin:', isSuperAdmin);
 
     let organizationIds = [];
     let sites = [];
@@ -37,7 +36,6 @@ export async function GET(request: NextRequest) {
       }
 
       sites = allSites || [];
-      console.log('Super admin - fetched all sites:', sites.length);
     } else {
       // Get user's primary organization directly with admin client
       const { data: memberData } = await supabaseAdmin
@@ -66,7 +64,6 @@ export async function GET(request: NextRequest) {
         console.error('Error fetching user access:', accessError);
       }
 
-      console.log('User access:', userAccess);
 
       // Add user_access organizations to the set
       if (userAccess && userAccess.length > 0) {
@@ -76,7 +73,6 @@ export async function GET(request: NextRequest) {
       organizationIds = Array.from(orgIds);
 
       if (organizationIds.length > 0) {
-        console.log('User is member of organizations:', organizationIds);
 
         // Fetch sites for user's organizations (only select what we need) - use admin client
         const { data: userSites, error: sitesError } = await supabaseAdmin
@@ -91,9 +87,7 @@ export async function GET(request: NextRequest) {
         }
 
         sites = userSites || [];
-        console.log('Regular user - fetched sites:', sites.length);
       } else {
-        console.log('User has no organization memberships - returning empty sites array');
         sites = [];
       }
     }

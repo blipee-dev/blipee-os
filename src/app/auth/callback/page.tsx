@@ -31,7 +31,6 @@ export default function AuthCallbackPage() {
       const errorCode = hashParams.get("error_code") || searchParams.get("error_code");
       const errorDescription = hashParams.get("error_description") || searchParams.get("error_description");
 
-      console.log("Auth callback - type:", type, "code:", !!code, "token:", !!accessToken, "error:", error);
 
       // Handle errors
       if (error) {
@@ -50,7 +49,6 @@ export default function AuthCallbackPage() {
 
       if (code) {
         // OAuth/code flow (PKCE)
-        console.log("Exchanging code for session...");
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (error) {
@@ -60,7 +58,6 @@ export default function AuthCallbackPage() {
           return;
         }
 
-        console.log("Code exchange successful, session:", !!data.session);
       } else if (accessToken && refreshToken) {
         // Magic link/invite flow with tokens
         const { error } = await supabase.auth.setSession({
@@ -104,7 +101,6 @@ export default function AuthCallbackPage() {
         const isPasswordRecovery = type === "recovery";
         const isInvitation = type === "invite";
 
-        console.log("Session found - type:", type, "isPasswordRecovery:", isPasswordRecovery, "isInvitation:", isInvitation);
 
         // If it's a password recovery, redirect to reset password page
         if (isPasswordRecovery) {
@@ -122,7 +118,6 @@ export default function AuthCallbackPage() {
           router.push("/sustainability");
         }
       } else {
-        console.log("No session found, redirecting to signin");
         router.push("/signin");
       }
     };

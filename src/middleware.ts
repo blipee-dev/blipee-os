@@ -14,7 +14,6 @@ const recordMetric = (name: string, value: number, labels?: Record<string, strin
   // In Edge Runtime, we'll just log the metrics in development
   // The actual metrics collection will happen in the API routes
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[METRIC] ${name}:`, value, labels);
   }
 };
 
@@ -272,7 +271,6 @@ async function executeMiddleware(
         // Clear the invalid session cookie
         response.cookies.delete('blipee-session');
         if (process.env.NODE_ENV === 'development') {
-          console.log('🧹 Cleared invalid session cookie on public route:', path);
         }
       }
     }

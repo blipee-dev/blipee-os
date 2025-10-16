@@ -608,12 +608,10 @@ export class DatabaseBackup {
           const tableMatch = statement.match(/CREATE TABLE.*public\.(\w+)/);
           if (tableMatch) {
             // For now, skip drop table
-            console.log(`Would drop table: ${tableMatch[1]}`);
           }
         }
         
         // For now, skip SQL execution
-        console.log('Would execute:', statement.substring(0, 50) + '...');
         
       } catch (error) {
         logger.error('Failed to execute statement', { statement, error });

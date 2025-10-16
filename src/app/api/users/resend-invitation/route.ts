@@ -6,27 +6,22 @@ import { PermissionService } from '@/lib/auth/permission-service';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔄 Resend invitation API called');
     const supabase = await createServerSupabaseClient();
 
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      console.log('❌ Unauthorized - no user');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('✅ Authenticated user:', user.email);
 
     // Get request body
     const body = await request.json();
     const { userId } = body;
 
-    console.log('📝 Target user ID:', userId);
 
     if (!userId) {
-      console.log('❌ No user ID provided');
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
@@ -51,13 +46,7 @@ export async function POST(request: NextRequest) {
     // Check permission using centralized service
     const canResend = await PermissionService.canManageUsers(user.id, targetUser.organization_id);
 
-    console.log('🔐 Permission check:', {
-      userRole: currentUser?.role,
-      canResend
-    });
-
     if (!canResend) {
-      console.log('❌ Insufficient permissions');
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
@@ -119,8 +108,6 @@ export async function POST(request: NextRequest) {
 
     // Send the invitation email
     try {
-      console.log('📧 Sending invitation email to:', targetUser.email);
-      console.log('🔗 Confirmation URL:', confirmationUrl);
 
       await sendInvitationEmailViaGmail({
         email: targetUserDetails.email,
@@ -132,7 +119,6 @@ export async function POST(request: NextRequest) {
         language: userLanguage as 'en' | 'es' | 'pt'
       });
 
-      console.log(`✅ Invitation resent successfully to ${targetUserDetails.email}`);
 
       // Update user status to pending if it was inactive
       if (targetUserDetails.status === 'inactive') {

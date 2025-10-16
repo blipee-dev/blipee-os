@@ -112,7 +112,6 @@ export class OptimizationEngine extends BaseModel {
    */
   async buildModel(): Promise<void> {
     // Optimization algorithms don't require traditional model building
-    console.log('Advanced optimization engine initialized with GA and RL');
   }
 
   /**

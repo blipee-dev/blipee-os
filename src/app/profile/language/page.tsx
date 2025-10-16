@@ -190,7 +190,6 @@ export default function LanguagePage() {
   }, [locale]);
 
   const saveSettings = async () => {
-    console.log('💾 Saving language settings:', settings);
 
     try {
       const response = await fetch('/api/profile/language', {
@@ -201,11 +200,9 @@ export default function LanguagePage() {
         body: JSON.stringify(settings),
       });
 
-      console.log('💾 API Response status:', response.status);
 
       if (response.ok) {
         const result = await response.json();
-        console.log('💾 API Response:', result);
 
         // Save to LanguageProvider's localStorage (for locale/autoDetect)
         const languageProviderSettings = {
@@ -218,9 +215,6 @@ export default function LanguagePage() {
         localStorage.setItem("profileLanguageSettings", JSON.stringify(settings));
 
         setHasChanges(false);
-        console.log('✅ Settings saved successfully');
-        console.log('  LanguageProvider settings:', languageProviderSettings);
-        console.log('  Full settings:', settings);
 
         // Show success notification
         alert('Settings saved successfully!');
@@ -237,7 +231,6 @@ export default function LanguagePage() {
         localStorage.setItem("profileLanguageSettings", JSON.stringify(settings));
 
         setHasChanges(false);
-        console.log('✅ Settings saved to localStorage (API failed)');
 
         alert('Settings saved locally (API error)');
       }
@@ -253,7 +246,6 @@ export default function LanguagePage() {
       localStorage.setItem("profileLanguageSettings", JSON.stringify(settings));
 
       setHasChanges(false);
-      console.log('✅ Settings saved to localStorage (catch)');
 
       alert('Settings saved locally');
     }
