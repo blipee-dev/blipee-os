@@ -116,17 +116,6 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
-          <FileCheck className="w-6 h-6 text-green-600 dark:text-green-500" />
-          {t('title')}
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          {t('subtitle')}
-        </p>
-      </div>
-
       {/* Historical Data Notice */}
       {isHistoricalYear && (
         <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
