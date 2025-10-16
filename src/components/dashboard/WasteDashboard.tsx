@@ -256,19 +256,6 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <Recycle className="w-6 h-6 text-green-500" />
-            {t('title')}
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {t('subtitle')}
-          </p>
-        </div>
-      </div>
-
       {/* Summary Cards */}
       <div className="grid grid-cols-6 gap-4 mb-6">
         <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
