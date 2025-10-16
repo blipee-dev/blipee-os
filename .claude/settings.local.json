@@ -95,7 +95,8 @@
       "Bash(bash:*)",
       "Bash(npm run type-check:*)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_rSwUtr/**)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_Mz02d9/**)"
     ],
     "deny": [],
     "ask": []

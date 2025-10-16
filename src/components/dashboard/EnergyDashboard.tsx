@@ -604,7 +604,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
             enrichedCategories.forEach((cat: any) => {
             });
 
-            // Fetch metric-level targets for expandable view (all energy categories)
+            // Fetch metric-level targets dynamically (calculated from category targets + baseline data)
             try {
               const energyCategories = [
                 'Electricity', 'Purchased Energy', 'Purchased Heating', 'Purchased Cooling', 'Purchased Steam',
@@ -612,20 +612,16 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 'Heating', 'Cooling', 'Steam'
               ].join(',');
 
-              console.log('📡 Fetching metric targets for categories:', energyCategories);
-              console.log('📡 API URL:', `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(energyCategories)}`);
-
               const metricTargetsRes = await fetch(
-                `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(energyCategories)}`
+                `/api/sustainability/targets/by-category-dynamic?organizationId=${organizationId}&categories=${encodeURIComponent(energyCategories)}&baselineYear=2023&targetYear=2025`
               );
               const metricTargetsData = await metricTargetsRes.json();
-              console.log('🎯 Metric targets response:', metricTargetsData);
+
               if (metricTargetsData.success && metricTargetsData.data) {
-                console.log('📊 Setting metric targets:', metricTargetsData.data);
                 setMetricTargets(metricTargetsData.data);
               }
             } catch (err) {
-              console.error('Error fetching metric targets:', err);
+              console.error('Error fetching dynamic metric targets:', err);
             }
           }
         }
