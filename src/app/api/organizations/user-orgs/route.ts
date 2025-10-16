@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
           users: usersCount || 0
         };
       })
-    );));
+    );
 
     return NextResponse.json({ organizations: orgsWithCounts });
   } catch (error) {

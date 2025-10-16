@@ -126,8 +126,7 @@ export async function GET() {
     const response = {
       travel: travelWithIntensity,
       raw: travelData
-    }; => sum + t.emissions_tco2e, 0).toFixed(2) + ' tCO2e'
-    });
+    };
 
     return NextResponse.json(response);
   } catch (error) {

@@ -19,8 +19,8 @@ export function SettingsLayout({ children, pageTitle = "Settings" }: SettingsLay
     <AppLayout
       conversations={[]}
       onNewConversation={() => router.push("/blipee-ai")}
-      onSelectConversation={(id) =>}
-      onDeleteConversation={(id) =>}
+      onSelectConversation={(id) => {}}
+      onDeleteConversation={(id) => {}}
       showSidebar={false}
       pageTitle={pageTitle}
     >

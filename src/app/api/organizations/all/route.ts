@@ -13,8 +13,6 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      // Add more debug info for auth failures).map(c => c.name)
-      });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
