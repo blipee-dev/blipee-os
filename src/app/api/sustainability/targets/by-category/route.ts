@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all metric targets (will filter by category client-side)
+    console.log('🔍 Fetching metric targets for:', { organizationId, targetId, categories });
     const { data: allMetricTargets, error: targetsError } = await supabase
       .from('metric_targets')
       .select(`
@@ -76,8 +77,13 @@ export async function GET(request: NextRequest) {
         )
       `)
       .eq('organization_id', organizationId)
-      .eq('target_id', targetId)
-      .eq('status', 'active');
+      .eq('target_id', targetId);
+      // Removed .eq('status', 'active') to see all targets regardless of status
+
+    console.log('📊 Found metric targets:', allMetricTargets?.length || 0, 'targets');
+    if (allMetricTargets && allMetricTargets.length > 0) {
+      console.log('📋 Categories in results:', allMetricTargets.map(mt => mt.metrics_catalog?.category));
+    }
 
     if (targetsError) {
       console.error('Error fetching metric targets:', targetsError);
@@ -91,6 +97,13 @@ export async function GET(request: NextRequest) {
     const metricTargets = (allMetricTargets || []).filter(mt =>
       categories.includes(mt.metrics_catalog?.category)
     );
+    console.log('✅ After category filter:', metricTargets.length, 'targets matched');
+    console.log('🎯 Requested categories:', categories);
+    console.log('📦 Matched metrics:', metricTargets.map(mt => ({
+      name: mt.metrics_catalog?.name,
+      category: mt.metrics_catalog?.category,
+      status: mt.status
+    })));
 
     // Get monthly actuals for progress tracking
     const metricTargetIds = metricTargets?.map(mt => mt.id) || [];
