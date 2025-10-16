@@ -819,7 +819,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           setTopEmitters([]);
         }
 
-        // Fetch Scope 2 individual metrics
+        // Fetch Scope 2 individual metrics (using s2Current for accurate percentages)
         try {
           const scope2MetricsParams = new URLSearchParams({
             start_date: selectedPeriod.start,
@@ -834,13 +834,13 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           const scope2MetricsData = await scope2MetricsResponse.json();
 
           if (scope2MetricsData.metrics && scope2MetricsData.metrics.length > 0) {
-            // Filter for only Scope 2 metrics
+            // Filter for only Scope 2 metrics and calculate percentages using s2Current
             const scope2Only = scope2MetricsData.metrics
               .filter((metric: any) => metric.scope === 'scope_2')
               .map((metric: any) => ({
                 name: metric.name,
                 emissions: metric.emissions,
-                percentage: scope2Total > 0 ? (metric.emissions / scope2Total) * 100 : 0
+                percentage: s2Current > 0 ? (metric.emissions / s2Current) * 100 : 0
               }));
 
             setScope2Metrics(scope2Only);
