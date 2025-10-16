@@ -3063,6 +3063,7 @@
       "cards": {
         "totalEmissions": {
           "title": "Emissões Totais",
+          "ytdTitle": "Emissões YTD",
           "unit": "tCO2e",
           "yoy": "YoY",
           "projected": "Projetado"

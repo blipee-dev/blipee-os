@@ -2925,6 +2925,7 @@
       "cards": {
         "totalEmissions": {
           "title": "Emisiones Totales",
+          "ytdTitle": "Emisiones YTD",
           "unit": "tCO2e",
           "yoy": "YoY",
           "projected": "Proyectado"
