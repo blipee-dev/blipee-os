@@ -1025,12 +1025,15 @@ export class RealTimeAnalyticsPipeline extends EventEmitter {
   private updateProcessingRate(processed: number): void {
     const now = Date.now();
     const timeWindow = 60000; // 1 minute
-    
+
     // Simple rate calculation (would be more sophisticated in production)
     this.metrics.processingRate = processed / (timeWindow / 1000);
   }
 
-  private collectDetailedMetrics(): void {} points/sec`,
+  private collectDetailedMetrics(): void {
+    // Collect detailed metrics for monitoring
+    this.emit('detailedMetrics', {
+      processingRate: `${this.metrics.processingRate.toFixed(2)} points/sec`,
       activeStreams: this.metrics.activeStreams,
       bufferSize: this.metrics.bufferSize,
       memoryUsage: `${this.metrics.memoryUsage.toFixed(2)} MB`

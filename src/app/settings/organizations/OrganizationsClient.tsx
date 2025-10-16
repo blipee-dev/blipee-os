@@ -618,8 +618,7 @@ export default function OrganizationsClient({ initialOrganizations, userRole }: 
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end">
                             <ActionsDropdown
-                              onPin={() =>
-                              }
+                              onPin={() => {}}
                               onEdit={userRole === 'super_admin' ? () => handleEdit(org) : undefined}
                               onDelete={userRole === 'super_admin' ? () => handleDelete(org) : undefined}
                             />
