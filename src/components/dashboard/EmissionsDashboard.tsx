@@ -220,35 +220,51 @@ const addTargetPath = (trends: any[], targetsResult: any, replanningTrajectory?:
   });
 };
 
-// Function to get category-specific colors
+// Function to get category-specific colors (replicated from OverviewDashboard)
 const getCategoryColor = (name: string): string => {
   const nameLower = name.toLowerCase();
 
+  // Electricity - Blue
   if (nameLower.includes('electricity') || nameLower.includes('grid')) {
     return '#3B82F6'; // Blue
   }
-  if (nameLower.includes('gas') || nameLower.includes('heating') || nameLower.includes('stationary')) {
+
+  // Natural Gas / Heating - Orange
+  if (nameLower.includes('gas') || nameLower.includes('heating')) {
     return '#F97316'; // Orange
   }
-  if (nameLower.includes('transport') || nameLower.includes('vehicle') || nameLower.includes('fleet') || nameLower.includes('mobile')) {
+
+  // Transportation / Vehicles - Purple
+  if (nameLower.includes('transport') || nameLower.includes('vehicle') || nameLower.includes('fleet')) {
     return '#8B5CF6'; // Purple
   }
+
+  // Waste - Brown
   if (nameLower.includes('waste')) {
     return '#92400E'; // Brown
   }
+
+  // Business Travel - Indigo
   if (nameLower.includes('travel') || nameLower.includes('flight')) {
     return '#4F46E5'; // Indigo
   }
-  if (nameLower.includes('fugitive') || nameLower.includes('refrigerant')) {
+
+  // Cooling / Refrigerants - Cyan
+  if (nameLower.includes('cooling') || nameLower.includes('refrigerant') || nameLower.includes('hvac')) {
     return '#06B6D4'; // Cyan
   }
-  if (nameLower.includes('commut')) {
-    return '#10B981'; // Green
-  }
-  if (nameLower.includes('purchase') || nameLower.includes('supply')) {
-    return '#EC4899'; // Pink
+
+  // Fuel - Red
+  if (nameLower.includes('fuel') || nameLower.includes('diesel') || nameLower.includes('petrol')) {
+    return '#EF4444'; // Red
   }
 
+  // Water - Teal
+  if (nameLower.includes('water')) {
+    return '#14B8A6'; // Teal
+  }
+
+  // Default - Gray
   return '#6B7280'; // Gray
 };
 
@@ -1877,7 +1893,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
             <div className="space-y-3">
               {topEmitters.map((source, index) => {
-                const sourceColor = getEmissionSourceColor(source.name, source.scope);
+                const sourceColor = getCategoryColor(source.name);
                 const sourceName = source.name.toLowerCase();
                 const categoryKey = sourceName.replace(/ /g, '_');
                 let SourceIcon = Factory;
