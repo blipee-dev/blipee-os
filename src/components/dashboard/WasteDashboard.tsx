@@ -214,17 +214,22 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   };
 
   const formatDisposalMethod = (method: string) => {
-    const labels: { [key: string]: string } = {
-      'recycling': 'Recycling',
-      'composting': 'Composting',
-      'incineration_no_recovery': 'Incineration',
-      'incineration_recovery': 'Waste-to-Energy',
-      'landfill': 'Landfill',
-      'hazardous_treatment': 'Hazardous Treatment',
-      'reuse': 'Reuse',
-      'other': 'Other'
-    };
-    return labels[method] || method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const methodKey = method.replace('incineration_no_recovery', 'incineration')
+                            .replace('incineration_recovery', 'wasteToEnergy')
+                            .replace('hazardous_treatment', 'hazardousTreatment');
+
+    // Try to get translation, fallback to formatted method name
+    try {
+      const translationKey = `disposalMethods.${methodKey}`;
+      const translated = t(translationKey);
+      // If translation returns the key itself (not found), format the method name
+      if (translated === translationKey) {
+        return method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      }
+      return translated;
+    } catch {
+      return method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
   };
 
   if (isLoading) {
@@ -295,7 +300,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   <TrendingDown className="w-3 h-3 text-green-500" />
                 )}
                 <span className={`text-xs ${yoyGeneratedChange > 0 ? 'text-red-500' : yoyGeneratedChange < 0 ? 'text-green-500' : 'text-gray-400'}`}>
-                  {yoyGeneratedChange > 0 ? '+' : ''}{yoyGeneratedChange.toFixed(1)}% YoY
+                  {yoyGeneratedChange > 0 ? '+' : ''}{yoyGeneratedChange.toFixed(1)}% {t('yoy')}
                 </span>
               </div>
             )}
@@ -339,7 +344,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   <TrendingDown className="w-3 h-3 text-red-500" />
                 )}
                 <span className={`text-xs ${yoyDiversionChange > 0 ? 'text-green-500' : yoyDiversionChange < 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                  {yoyDiversionChange > 0 ? '+' : ''}{yoyDiversionChange.toFixed(1)}pp YoY
+                  {yoyDiversionChange > 0 ? '+' : ''}{yoyDiversionChange.toFixed(1)}pp {t('yoy')}
                 </span>
               </div>
             )}
@@ -415,7 +420,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   <TrendingDown className="w-3 h-3 text-red-500" />
                 )}
                 <span className={`text-xs ${yoyRecyclingChange > 0 ? 'text-green-500' : yoyRecyclingChange < 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                  {yoyRecyclingChange > 0 ? '+' : ''}{yoyRecyclingChange.toFixed(1)}pp YoY
+                  {yoyRecyclingChange > 0 ? '+' : ''}{yoyRecyclingChange.toFixed(1)}pp {t('yoy')}
                 </span>
               </div>
             )}
@@ -436,7 +441,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 {/* Tooltip */}
                 <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
-                    Scope 3 emissions from waste disposal, including landfill methane, incineration CO2, and transportation. Lower emissions indicate better waste management and higher diversion rates.
+                    {t('tooltips.emissionsTooltip')}
                   </p>
                   <div className="flex gap-1 mt-3 flex-wrap">
                     <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
@@ -459,7 +464,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   <TrendingDown className="w-3 h-3 text-green-500" />
                 )}
                 <span className={`text-xs ${yoyEmissionsChange > 0 ? 'text-red-500' : yoyEmissionsChange < 0 ? 'text-green-500' : 'text-gray-400'}`}>
-                  {yoyEmissionsChange > 0 ? '+' : ''}{yoyEmissionsChange.toFixed(1)}% YoY
+                  {yoyEmissionsChange > 0 ? '+' : ''}{yoyEmissionsChange.toFixed(1)}% {t('yoy')}
                 </span>
               </div>
             )}
@@ -480,7 +485,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 {/* Tooltip */}
                 <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
-                    Emissions intensity per ton of waste generated (tCO2e/t). Lower intensity indicates more efficient waste management and higher diversion to low-emission methods like recycling and composting.
+                    {t('tooltips.intensityTooltip')}
                   </p>
                   <div className="flex gap-1 mt-3 flex-wrap">
                     <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
@@ -584,17 +589,17 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                         <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
                           <p className="text-white font-semibold mb-2">{formatDisposalMethod(data.method)}</p>
                           <p className="text-sm" style={{ color }}>
-                            Quantity: {data.quantity.toFixed(2)} tons
+                            {t('charts.disposalDistribution.tooltip.quantity')} {data.quantity.toFixed(2)} {t('cards.generated.unit')}
                           </p>
                           <p className="text-sm" style={{ color }}>
-                            Share: {((data.quantity / totalQuantity) * 100).toFixed(1)}%
+                            {t('charts.disposalDistribution.tooltip.share')} {((data.quantity / totalQuantity) * 100).toFixed(1)}%
                           </p>
                           <p className="text-sm text-gray-400 mt-1">
-                            Emissions: {data.emissions.toFixed(2)} tCO2e
+                            {t('charts.disposalDistribution.tooltip.emissions')} {data.emissions.toFixed(2)} tCO2e
                           </p>
                           {data.diverted && (
                             <span className="inline-block mt-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
-                              Diverted from Disposal
+                              {t('charts.disposalDistribution.tooltip.divertedFromDisposal')}
                             </span>
                           )}
                         </div>
@@ -675,7 +680,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 />
                 <YAxis
                   tick={{ fill: '#888', fontSize: 12 }}
-                  label={{ value: 'tons', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                  label={{ value: t('axisLabels.tons'), angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
                   tickFormatter={(value) => value.toFixed(0)}
                 />
                 <Tooltip
@@ -703,17 +708,17 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                         <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
                           <p className="text-white font-semibold mb-2">
                             {data.month}
-                            {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
+                            {isForecast && <span className="ml-2 text-xs text-blue-400">({t('forecast.label')})</span>}
                           </p>
                           <div className="space-y-1">
                             <p className="text-sm" style={{ color: "#6b7280" }}>
-                              Generated: {(generated || 0).toFixed(2)} tons
+                              {t('charts.monthlyTrends.tooltip.generated')} {(generated || 0).toFixed(2)} {t('axisLabels.tons')}
                             </p>
                             <p className="text-sm" style={{ color: "#10b981" }}>
-                              Diverted: {(diverted || 0).toFixed(2)} tons
+                              {t('charts.monthlyTrends.tooltip.diverted')} {(diverted || 0).toFixed(2)} {t('axisLabels.tons')}
                             </p>
                             <p className="text-sm" style={{ color: "#ef4444" }}>
-                              Emissions: {(emissions || 0).toFixed(2)} tCO2e
+                              {t('charts.monthlyTrends.tooltip.emissions')} {(emissions || 0).toFixed(2)} tCO2e
                             </p>
                           </div>
                         </div>
@@ -730,7 +735,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   stroke="#6b7280"
                   strokeWidth={2}
                   dot={{ r: 3, fill: "#6b7280" }}
-                  name="Generated"
+                  name={t('charts.monthlyTrends.legends.generated')}
                   connectNulls
                 />
                 <Line
@@ -739,7 +744,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   stroke="#10b981"
                   strokeWidth={2}
                   dot={{ r: 3, fill: "#10b981" }}
-                  name="Diverted"
+                  name={t('charts.monthlyTrends.legends.diverted')}
                   connectNulls
                 />
                 <Line
@@ -748,7 +753,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   stroke="#ef4444"
                   strokeWidth={2}
                   dot={{ r: 3, fill: "#ef4444" }}
-                  name="Emissions (tCO2e)"
+                  name={t('charts.monthlyTrends.legends.emissions')}
                   connectNulls
                 />
                 {/* Forecast data - dashed lines (hidden from legend) */}
@@ -761,7 +766,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: "#6b7280", strokeWidth: 2, r: 3 }}
-                      name="Generated"
+                      name={t('charts.monthlyTrends.legends.generated')}
                       connectNulls
                       legendType="none"
                     />
@@ -772,7 +777,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: "#10b981", strokeWidth: 2, r: 3 }}
-                      name="Diverted"
+                      name={t('charts.monthlyTrends.legends.diverted')}
                       connectNulls
                       legendType="none"
                     />
@@ -783,7 +788,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: "#ef4444", strokeWidth: 2, r: 3 }}
-                      name="Emissions (tCO2e)"
+                      name={t('charts.monthlyTrends.legends.emissions')}
                       connectNulls
                       legendType="none"
                     />
@@ -860,7 +865,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   <YAxis
                     tick={{ fill: '#888', fontSize: 12 }}
                     tickFormatter={(value) => `${value > 0 ? '+' : ''}${value}%`}
-                    label={{ value: 'Change (%)', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                    label={{ value: t('axisLabels.changePercent'), angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
                   />
                   <Tooltip
                     contentStyle={{
@@ -879,17 +884,17 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                             <p className="text-white font-semibold mb-2">{data.month}</p>
                             <div className="space-y-1 text-xs mb-2">
                               <p className="text-gray-300">
-                                Current: <span className="font-medium text-white">{current.toFixed(1)} tons</span>
+                                {t('charts.yoyComparison.tooltip.current')} <span className="font-medium text-white">{current.toFixed(1)} {t('axisLabels.tons')}</span>
                               </p>
                               <p className="text-gray-300">
-                                Last Year: <span className="font-medium text-white">{previous.toFixed(1)} tons</span>
+                                {t('charts.yoyComparison.tooltip.lastYear')} <span className="font-medium text-white">{previous.toFixed(1)} {t('axisLabels.tons')}</span>
                               </p>
                             </div>
                             <p className={`text-sm font-bold ${change >= 0 ? 'text-red-400' : 'text-green-400'}`}>
-                              {change > 0 ? '+' : ''}{change.toFixed(1)}% YoY
+                              {change > 0 ? '+' : ''}{change.toFixed(1)}% {t('yoy')}
                             </p>
                             <p className="text-xs text-gray-400 mt-1">
-                              {change >= 0 ? 'Increase' : 'Decrease'} in waste generated
+                              {change >= 0 ? t('charts.yoyComparison.tooltip.increase') : t('charts.yoyComparison.tooltip.decrease')} {t('charts.yoyComparison.tooltip.inWasteGenerated')}
                             </p>
                           </div>
                         );
@@ -1066,7 +1071,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 />
                 <YAxis
                   tick={{ fill: '#888', fontSize: 12 }}
-                  label={{ value: 'tons', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
+                  label={{ value: t('axisLabels.tons'), angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
                   tickFormatter={(value) => value.toFixed(0)}
                 />
                 <Tooltip
@@ -1075,13 +1080,13 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '8px'
                   }}
-                  formatter={(value: any) => [value.toFixed(2) + ' tons', '']}
+                  formatter={(value: any) => [value.toFixed(2) + ' ' + t('axisLabels.tons'), '']}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="recycled" stackId="waste" fill="#10b981" name="Recycled" />
-                <Bar dataKey="composted" stackId="waste" fill="#22c55e" name="Composted" />
-                <Bar dataKey="incinerated" stackId="waste" fill="#f97316" name="Incinerated" />
-                <Bar dataKey="landfill" stackId="waste" fill="#ef4444" name="Landfill" />
+                <Bar dataKey="recycled" stackId="waste" fill="#10b981" name={t('charts.monthlyByMethod.legends.recycled')} />
+                <Bar dataKey="composted" stackId="waste" fill="#22c55e" name={t('charts.monthlyByMethod.legends.composted')} />
+                <Bar dataKey="incinerated" stackId="waste" fill="#f97316" name={t('charts.monthlyByMethod.legends.incinerated')} />
+                <Bar dataKey="landfill" stackId="waste" fill="#ef4444" name={t('charts.monthlyByMethod.legends.landfill')} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -1156,12 +1161,12 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                               {category}
                               {categoryMetrics.length > 0 && (
                                 <span className="text-xs px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded">
-                                  {categoryMetrics.length} metrics
+                                  {categoryMetrics.length} {t('charts.sbtiProgress.metrics')}
                                 </span>
                               )}
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                              4.2% annual • SBTi 1.5°C pathway
+                              {t('charts.sbtiProgress.annualReduction')}
                             </div>
                           </div>
                         </div>
@@ -1225,19 +1230,19 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
                             <div className="grid grid-cols-3 gap-2 text-xs mb-2">
                               <div>
-                                <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
+                                <span className="text-gray-500 dark:text-gray-400">{t('charts.sbtiProgress.baseline')}</span>
                                 <div className="font-medium text-gray-900 dark:text-white">
                                   {metric.baselineEmissions?.toFixed(1)} tCO2e
                                 </div>
                               </div>
                               <div>
-                                <span className="text-gray-500 dark:text-gray-400">Target:</span>
+                                <span className="text-gray-500 dark:text-gray-400">{t('charts.sbtiProgress.target')}</span>
                                 <div className="font-medium text-gray-900 dark:text-white">
                                   {metric.targetEmissions?.toFixed(1)} tCO2e
                                 </div>
                               </div>
                               <div>
-                                <span className="text-gray-500 dark:text-gray-400">Current:</span>
+                                <span className="text-gray-500 dark:text-gray-400">{t('charts.sbtiProgress.current')}</span>
                                 <div className="font-medium text-gray-900 dark:text-white">
                                   {metric.currentEmissions?.toFixed(1)} tCO2e
                                 </div>
@@ -1263,7 +1268,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                               className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 rounded text-purple-300 text-xs font-medium transition-all"
                             >
                               <Plus className="h-3 w-3" />
-                              Add Initiative
+                              {t('addInitiative')}
                             </button>
                           </div>
                         ))}
@@ -1341,7 +1346,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                           <span className="text-2xl">{getMaterialIcon(material.material)}</span>
                           <div>
                             <h4 className="font-medium text-gray-900 dark:text-white capitalize">
-                              {material.material}
+                              {t(`materials.${material.material}`) !== `materials.${material.material}` ? t(`materials.${material.material}`) : material.material}
                             </h4>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
                               {material.total.toFixed(2)} {t('charts.materialBreakdown.totalAmount')}
@@ -1365,7 +1370,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                           />
                         </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {material.recycled.toFixed(2)} {t('cards.generated.unit')} {t('charts.materialBreakdown.recycled')}
+                          {material.recycled.toFixed(2)} {t('charts.materialBreakdown.recycled')}
                         </p>
                       </div>
 
@@ -1384,7 +1389,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                           />
                         </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {material.diverted.toFixed(2)} {t('cards.generated.unit')} {t('charts.materialBreakdown.diverted')}
+                          {material.diverted.toFixed(2)} {t('charts.materialBreakdown.diverted')}
                         </p>
                       </div>
 

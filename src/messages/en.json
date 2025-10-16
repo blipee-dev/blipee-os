@@ -2640,6 +2640,20 @@
       "actions": {
         "addInitiative": "Add Initiative"
       },
+      "legends": {
+        "withdrawal": "Withdrawal",
+        "discharge": "Discharge",
+        "consumptionTotal": "Consumption (Total)"
+      },
+      "axisLabels": {
+        "changePercent": "Change (%)",
+        "ml": "ML"
+      },
+      "forecast": {
+        "label": "Forecast"
+      },
+      "yoy": "YoY",
+      "pp": "pp",
       "waterSourcesExplanation": "Water withdrawal by source tracks where your organization obtains water from (municipal, groundwater, surface water, etc.). Understanding your water sources helps identify dependencies, stress levels, and opportunities for conservation or alternative sources like rainwater harvesting.",
       "waterBalanceExplanation": "The water balance shows the complete flow of water through your organization: withdrawal (intake), discharge (output), and consumption (water not returned). This helps identify water efficiency opportunities and compliance with GRI 303-3 and ESRS E3 standards.",
       "yoyComparisonExplanation": "Year-over-year comparison of water consumption shows trends and the effectiveness of water reduction initiatives. Decreasing consumption indicates successful water management, while increases may signal the need for new conservation measures.",
@@ -2756,7 +2770,13 @@
       },
       "charts": {
         "disposalDistribution": {
-          "title": "Disposal Method Distribution"
+          "title": "Disposal Method Distribution",
+          "tooltip": {
+            "quantity": "Quantity:",
+            "share": "Share:",
+            "emissions": "Emissions:",
+            "divertedFromDisposal": "Diverted from Disposal"
+          }
         },
         "monthlyTrends": {
           "title": "Monthly Waste Trends",
@@ -2765,11 +2785,23 @@
             "generated": "Generated",
             "diverted": "Diverted",
             "emissions": "Emissions (tCO2e)"
+          },
+          "tooltip": {
+            "generated": "Generated:",
+            "diverted": "Diverted:",
+            "emissions": "Emissions:"
           }
         },
         "yoyComparison": {
           "title": "Year-over-Year Comparison",
-          "description": "Monthly change vs previous year"
+          "description": "Monthly change vs previous year",
+          "tooltip": {
+            "current": "Current:",
+            "lastYear": "Last Year:",
+            "increase": "Increase",
+            "decrease": "Decrease",
+            "inWasteGenerated": "in waste generated"
+          }
         },
         "circularEconomy": {
           "title": "Circular Economy Metrics",
@@ -2798,6 +2830,7 @@
           "annualReduction": "4.2% annual • SBTi 1.5°C pathway",
           "onTrack": "on track",
           "baseline": "Baseline:",
+          "target": "Target:",
           "current": "Current:"
         },
         "materialBreakdown": {
@@ -2831,7 +2864,8 @@
         "food": "Food",
         "garden": "Garden",
         "ewaste": "E-Waste",
-        "hazardous": "Hazardous"
+        "hazardous": "Hazardous",
+        "mixed": "Mixed"
       },
       "tooltips": {
         "wasteHierarchy": "Waste Hierarchy: Prevention → Reuse → Recycling → Recovery → Disposal. Diversion rate measures waste diverted from disposal through recycling and composting.",
@@ -2840,12 +2874,30 @@
         "yoyComparison": "Year-over-year comparison of waste generation shows progress toward waste reduction goals. Decreasing generation and increasing diversion rates indicate successful waste management programs. Per ESRS E5, organizations should demonstrate continuous improvement in waste performance.",
         "circularEconomy": "Circular economy metrics track how effectively waste is kept in productive use. Diversion rate (% diverted from disposal) and recycling rate (% recycled) are key performance indicators. The waste hierarchy prioritizes prevention, reuse, and recycling over disposal.",
         "sbtiProgress": "Science Based Targets (SBTi) for waste aim to reduce Scope 3 emissions from waste disposal by 4.2% annually, aligned with a 1.5°C warming pathway. Progress is tracked against baseline year emissions, with targets adjusted for business growth.",
-        "materialBreakdown": "Material-specific tracking shows recycling and diversion rates by waste type (paper, plastic, metal, etc.). This granular data helps identify improvement opportunities and ensures compliance with extended producer responsibility regulations."
+        "materialBreakdown": "Material-specific tracking shows recycling and diversion rates by waste type (paper, plastic, metal, etc.). This granular data helps identify improvement opportunities and ensures compliance with extended producer responsibility regulations.",
+        "emissionsTooltip": "Scope 3 emissions from waste disposal, including landfill methane, incineration CO2, and transportation. Lower emissions indicate better waste management and higher diversion rates.",
+        "intensityTooltip": "Emissions intensity per ton of waste generated (tCO2e/t). Lower intensity indicates more efficient waste management and higher diversion to low-emission methods like recycling and composting.",
+        "disposalPieTooltip": "Breakdown of waste by disposal method, showing the proportion sent to each treatment pathway. Prioritize waste hierarchy: reduce, reuse, recycle, recover, then dispose.",
+        "monthlyTrendsTooltip": "Monthly trends in waste generation, diversion, and emissions with ML-powered forecasting. Monitor progress toward circular economy goals and identify seasonal patterns.",
+        "yoyComparisonTooltip": "Year-over-year comparison of waste generation showing percentage changes. Track performance improvements and identify trends across reporting periods.",
+        "circularEconomyTooltip": "Key circular economy indicators: diversion rate, recycling rate, landfill percentage, and Scope 3 emissions. These metrics track progress toward zero waste and circular business models.",
+        "monthlyByMethodTooltip": "Monthly breakdown by disposal method following the waste hierarchy. Prioritize reduction at source, then reuse, recycling, recovery, and finally disposal.",
+        "sbtiProgressTooltip": "Science-Based Targets initiative (SBTi) waste reduction progress aligned with 1.5°C pathway. Tracks annual 4.2% reduction in waste-related emissions toward 2030 targets.",
+        "materialBreakdownTooltip": "Waste performance by material type showing recycling and diversion rates. Identify material-specific improvement opportunities and track circular economy progress."
       },
       "insights": {
         "title": "Material Insights:",
         "description": "Track recycling and diversion rates by specific material types. Historical data (2022-2024) has been split using industry-standard composition ratios. Future data can be entered at the material level for precise tracking."
-      }
+      },
+      "axisLabels": {
+        "tons": "tons",
+        "changePercent": "Change (%)"
+      },
+      "forecast": {
+        "label": "Forecast"
+      },
+      "yoy": "YoY",
+      "addInitiative": "Add Initiative"
     },
     "dataInvestigation": {
       "title": "Data Investigation",
@@ -3293,7 +3345,80 @@
       },
       "charts2": {
         "monthlyConsumptionBySource": "Monthly Consumption by Source",
-        "noMonthlyData": "No monthly data available for the selected period"
+        "noMonthlyData": "No monthly data available for the selected period",
+        "stackedBreakdownDescription": "Stacked breakdown of monthly energy consumption by source, showing contribution of each energy type to total consumption over time."
+      },
+      "energyMixTitles": {
+        "electricity": "Electricity Grid Mix",
+        "districtHeating": "District Heating Mix",
+        "districtCooling": "District Cooling Mix",
+        "steam": "Steam Mix",
+        "default": "Energy Mix"
+      },
+      "forecast": {
+        "includesMLForecast": "Includes ML forecast for {count} remaining months",
+        "renewableForecastZero": "(Renewable forecast: 0 MWh - based on historical trend)"
+      },
+      "sbti": {
+        "title": "SBTi Target Progress",
+        "description": "Science Based Targets initiative (SBTi) progress tracking for energy-related emissions. Shows annual reduction targets aligned with 1.5°C pathway to limit global warming.",
+        "pathway": "1.5°C pathway",
+        "annualReduction": "annual reduction",
+        "baseline": "Baseline",
+        "baseline2023": "Baseline 2023",
+        "metrics": "metrics",
+        "addInitiative": "Add Initiative"
+      },
+      "axisLabels": {
+        "mwh": "MWh",
+        "changePercent": "Change (%)"
+      },
+      "energySources": {
+        "purchasedCooling": "Purchased Cooling",
+        "gridElectricity": "Grid Electricity",
+        "purchasedHeating": "Purchased Heating",
+        "evCharging": "EV Charging",
+        "purchasedEnergy": "Purchased Energy",
+        "electricity": "Electricity",
+        "solar": "Solar",
+        "wind": "Wind",
+        "hydro": "Hydro",
+        "geothermal": "Geothermal",
+        "biomass": "Biomass",
+        "coal": "Coal",
+        "naturalGas": "Natural Gas",
+        "oil": "Oil",
+        "nuclear": "Nuclear",
+        "other": "Other",
+        "unknown": "Unknown"
+      },
+      "progressStatus": {
+        "onTrack": "on track",
+        "atRisk": "at risk",
+        "offTrack": "off track",
+        "exceeding": "exceeding"
+      },
+      "categories": {
+        "electricity": "Electricity",
+        "purchasedEnergy": "Purchased Energy",
+        "purchasedHeating": "Purchased Heating",
+        "purchasedCooling": "Purchased Cooling",
+        "purchasedSteam": "Purchased Steam",
+        "naturalGas": "Natural Gas",
+        "heatingOil": "Heating Oil",
+        "diesel": "Diesel",
+        "gasoline": "Gasoline",
+        "propane": "Propane",
+        "heating": "Heating",
+        "cooling": "Cooling",
+        "steam": "Steam"
+      },
+      "allocationReasons": {
+        "highRenewableEfficiency": "High: renewable energy, efficiency, on-site generation",
+        "highRenewableProcurement": "High: renewable procurement, grid mix improvement, PPAs",
+        "mediumEfficiency": "Medium: energy efficiency, operational improvements",
+        "lowBaselineOptimized": "Low: baseline optimized, limited reduction potential",
+        "targetedReduction": "Targeted reduction potential"
       },
       "targetSection": {
         "energyReductionTargets": "Energy Reduction Targets",
@@ -3301,7 +3426,8 @@
         "target2025": "Target 2025:",
         "projected": "Projected:",
         "current": "Current:",
-        "yearLabel": "Year"
+        "yearLabel": "Year",
+        "annual": "annual"
       }
     }
   },

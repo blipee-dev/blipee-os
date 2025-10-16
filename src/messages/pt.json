@@ -2794,11 +2794,6 @@
         "recycled": "Reciclada",
         "consumption": "Consumo:"
       },
-      "legends": {
-        "withdrawal": "Captação",
-        "discharge": "Descarga",
-        "consumptionTotal": "Consumo (Total)"
-      },
       "sources": {
         "waterSupplyMunicipal": "Abastecimento de Água (Municipal)",
         "recycledWaterToiletFlush": "Água Reciclada - Autoclismo",
@@ -2812,6 +2807,20 @@
       "actions": {
         "addInitiative": "Adicionar Iniciativa"
       },
+      "legends": {
+        "withdrawal": "Captação",
+        "discharge": "Descarga",
+        "consumptionTotal": "Consumo (Total)"
+      },
+      "axisLabels": {
+        "changePercent": "Mudança (%)",
+        "ml": "ML"
+      },
+      "forecast": {
+        "label": "Previsão"
+      },
+      "yoy": "YoY",
+      "pp": "pp",
       "waterSourcesExplanation": "A captação de água por fonte rastreia de onde a sua organização obtém água (municipal, subterrânea, superficial, etc.). Compreender as suas fontes de água ajuda a identificar dependências, níveis de stress e oportunidades de conservação ou fontes alternativas como captação de água da chuva.",
       "waterBalanceExplanation": "O balanço hídrico mostra o fluxo completo de água através da sua organização: captação (entrada), descarga (saída) e consumo (água não devolvida). Isto ajuda a identificar oportunidades de eficiência hídrica e conformidade com as normas GRI 303-3 e ESRS E3.",
       "yoyComparisonExplanation": "A comparação ano-a-ano do consumo de água mostra tendências e a eficácia das iniciativas de redução de água. A diminuição do consumo indica gestão hídrica bem-sucedida, enquanto aumentos podem sinalizar a necessidade de novas medidas de conservação.",
@@ -2928,7 +2937,13 @@
       },
       "charts": {
         "disposalDistribution": {
-          "title": "Distribuição por Método de Eliminação"
+          "title": "Distribuição por Método de Eliminação",
+          "tooltip": {
+            "quantity": "Quantidade:",
+            "share": "Quota:",
+            "emissions": "Emissões:",
+            "divertedFromDisposal": "Desviado da Eliminação"
+          }
         },
         "monthlyTrends": {
           "title": "Tendências Mensais de Resíduos",
@@ -2937,11 +2952,23 @@
             "generated": "Gerado",
             "diverted": "Desviado",
             "emissions": "Emissões (tCO2e)"
+          },
+          "tooltip": {
+            "generated": "Gerado:",
+            "diverted": "Desviado:",
+            "emissions": "Emissões:"
           }
         },
         "yoyComparison": {
           "title": "Comparação Ano-a-Ano",
-          "description": "Variação mensal vs. ano anterior"
+          "description": "Variação mensal vs. ano anterior",
+          "tooltip": {
+            "current": "Atual:",
+            "lastYear": "Ano Anterior:",
+            "increase": "Aumento",
+            "decrease": "Diminuição",
+            "inWasteGenerated": "nos resíduos gerados"
+          }
         },
         "circularEconomy": {
           "title": "Métricas de Economia Circular",
@@ -2970,6 +2997,7 @@
           "annualReduction": "4.2% anual • Trajetória SBTi 1.5°C",
           "onTrack": "no caminho",
           "baseline": "Baseline:",
+          "target": "Meta:",
           "current": "Atual:"
         },
         "materialBreakdown": {
@@ -3003,7 +3031,8 @@
         "food": "Alimentar",
         "garden": "Jardim",
         "ewaste": "Resíduos Eletrónicos",
-        "hazardous": "Perigosos"
+        "hazardous": "Perigosos",
+        "mixed": "Misturado"
       },
       "tooltips": {
         "wasteHierarchy": "Hierarquia de Resíduos: Prevenção → Reutilização → Reciclagem → Recuperação → Eliminação. A taxa de desvio mede resíduos desviados da eliminação através de reciclagem e compostagem.",
@@ -3012,12 +3041,30 @@
         "yoyComparison": "A comparação ano-a-ano da geração de resíduos mostra progresso em direção às metas de redução. Diminuição da geração e aumento das taxas de desvio indicam programas de gestão de resíduos bem-sucedidos. Conforme ESRS E5, organizações devem demonstrar melhoria contínua no desempenho de resíduos.",
         "circularEconomy": "Métricas de economia circular rastreiam quão eficazmente os resíduos são mantidos em uso produtivo. Taxa de desvio (% desviado da eliminação) e taxa de reciclagem (% reciclado) são indicadores-chave de desempenho. A hierarquia de resíduos prioriza prevenção, reutilização e reciclagem sobre eliminação.",
         "sbtiProgress": "Metas Science Based Targets (SBTi) para resíduos visam reduzir emissões Âmbito 3 da eliminação de resíduos em 4,2% anualmente, alinhadas com trajetória de aquecimento de 1,5°C. O progresso é rastreado em relação às emissões do ano baseline, com metas ajustadas para crescimento do negócio.",
-        "materialBreakdown": "Rastreamento específico por material mostra taxas de reciclagem e desvio por tipo de resíduo (papel, plástico, metal, etc.). Estes dados granulares ajudam a identificar oportunidades de melhoria e garantir conformidade com regulamentações de responsabilidade alargada do produtor."
+        "materialBreakdown": "Rastreamento específico por material mostra taxas de reciclagem e desvio por tipo de resíduo (papel, plástico, metal, etc.). Estes dados granulares ajudam a identificar oportunidades de melhoria e garantir conformidade com regulamentações de responsabilidade alargada do produtor.",
+        "emissionsTooltip": "Emissões Âmbito 3 da eliminação de resíduos, incluindo metano de aterros, CO2 de incineração e transporte. Emissões mais baixas indicam melhor gestão de resíduos e taxas de desvio mais elevadas.",
+        "intensityTooltip": "Intensidade de emissões por tonelada de resíduo gerado (tCO2e/t). Menor intensidade indica gestão de resíduos mais eficiente e maior desvio para métodos de baixa emissão como reciclagem e compostagem.",
+        "disposalPieTooltip": "Desagregação de resíduos por método de eliminação, mostrando a proporção enviada para cada via de tratamento. Priorize a hierarquia de resíduos: reduzir, reutilizar, reciclar, recuperar, depois eliminar.",
+        "monthlyTrendsTooltip": "Tendências mensais de geração, desvio e emissões de resíduos com previsão baseada em ML. Monitorize o progresso em direção a objetivos de economia circular e identifique padrões sazonais.",
+        "yoyComparisonTooltip": "Comparação ano-a-ano da geração de resíduos mostrando variações percentuais. Rastreie melhorias de desempenho e identifique tendências através dos períodos de reporte.",
+        "circularEconomyTooltip": "Indicadores-chave de economia circular: taxa de desvio, taxa de reciclagem, percentagem de aterro e emissões Âmbito 3. Estas métricas rastreiam o progresso em direção a resíduos zero e modelos de negócio circulares.",
+        "monthlyByMethodTooltip": "Desagregação mensal por método de eliminação seguindo a hierarquia de resíduos. Priorize a redução na fonte, depois reutilização, reciclagem, recuperação e finalmente eliminação.",
+        "sbtiProgressTooltip": "Progresso de redução de resíduos da Science-Based Targets initiative (SBTi) alinhado com trajetória de 1,5°C. Rastreia redução anual de 4,2% nas emissões relacionadas com resíduos em direção às metas de 2030.",
+        "materialBreakdownTooltip": "Desempenho de resíduos por tipo de material mostrando taxas de reciclagem e desvio. Identifique oportunidades de melhoria específicas por material e rastreie o progresso da economia circular."
       },
       "insights": {
         "title": "Insights de Materiais:",
         "description": "Rastreie taxas de reciclagem e desvio por tipos específicos de material. Dados históricos (2022-2024) foram divididos usando rácios de composição padrão da indústria. Dados futuros podem ser inseridos ao nível do material para rastreamento preciso."
-      }
+      },
+      "axisLabels": {
+        "tons": "toneladas",
+        "changePercent": "Mudança (%)"
+      },
+      "forecast": {
+        "label": "Previsão"
+      },
+      "yoy": "YoY",
+      "addInitiative": "Adicionar Iniciativa"
     },
     "dataInvestigation": {
       "title": "Investigação de Dados",
@@ -3465,7 +3512,80 @@
       },
       "charts2": {
         "monthlyConsumptionBySource": "Consumo Mensal por Fonte",
-        "noMonthlyData": "Sem dados mensais disponíveis para o período selecionado"
+        "noMonthlyData": "Sem dados mensais disponíveis para o período selecionado",
+        "stackedBreakdownDescription": "Desagregação empilhada do consumo mensal de energia por fonte, mostrando a contribuição de cada tipo de energia para o consumo total ao longo do tempo."
+      },
+      "energyMixTitles": {
+        "electricity": "Mix da Rede Elétrica",
+        "districtHeating": "Mix de Aquecimento Urbano",
+        "districtCooling": "Mix de Arrefecimento Urbano",
+        "steam": "Mix de Vapor",
+        "default": "Mix Energético"
+      },
+      "forecast": {
+        "includesMLForecast": "Inclui previsão ML para {count} meses restantes",
+        "renewableForecastZero": "(Previsão renovável: 0 MWh - baseado em tendência histórica)"
+      },
+      "sbti": {
+        "title": "Progresso Metas SBTi",
+        "description": "Acompanhamento de progresso da Science Based Targets initiative (SBTi) para emissões relacionadas com energia. Mostra metas anuais de redução alinhadas com o caminho de 1,5°C para limitar o aquecimento global.",
+        "pathway": "caminho 1,5°C",
+        "annualReduction": "redução anual",
+        "baseline": "Base de Referência",
+        "baseline2023": "Base de Referência 2023",
+        "metrics": "métricas",
+        "addInitiative": "Adicionar Iniciativa"
+      },
+      "axisLabels": {
+        "mwh": "MWh",
+        "changePercent": "Mudança (%)"
+      },
+      "energySources": {
+        "purchasedCooling": "Arrefecimento Adquirido",
+        "gridElectricity": "Eletricidade da Rede",
+        "purchasedHeating": "Aquecimento Adquirido",
+        "evCharging": "Carregamento VE",
+        "purchasedEnergy": "Energia Adquirida",
+        "electricity": "Eletricidade",
+        "solar": "Solar",
+        "wind": "Eólica",
+        "hydro": "Hídrica",
+        "geothermal": "Geotérmica",
+        "biomass": "Biomassa",
+        "coal": "Carvão",
+        "naturalGas": "Gás Natural",
+        "oil": "Petróleo",
+        "nuclear": "Nuclear",
+        "other": "Outro",
+        "unknown": "Desconhecido"
+      },
+      "progressStatus": {
+        "onTrack": "no caminho certo",
+        "atRisk": "em risco",
+        "offTrack": "fora do caminho",
+        "exceeding": "excedendo"
+      },
+      "categories": {
+        "electricity": "Eletricidade",
+        "purchasedEnergy": "Energia Adquirida",
+        "purchasedHeating": "Aquecimento Adquirido",
+        "purchasedCooling": "Arrefecimento Adquirido",
+        "purchasedSteam": "Vapor Adquirido",
+        "naturalGas": "Gás Natural",
+        "heatingOil": "Óleo de Aquecimento",
+        "diesel": "Gasóleo",
+        "gasoline": "Gasolina",
+        "propane": "Propano",
+        "heating": "Aquecimento",
+        "cooling": "Arrefecimento",
+        "steam": "Vapor"
+      },
+      "allocationReasons": {
+        "highRenewableEfficiency": "Alto: energia renovável, eficiência, geração no local",
+        "highRenewableProcurement": "Alto: aquisição de renováveis, melhoria do mix da rede, PPAs",
+        "mediumEfficiency": "Médio: eficiência energética, melhorias operacionais",
+        "lowBaselineOptimized": "Baixo: base otimizada, potencial de redução limitado",
+        "targetedReduction": "Potencial de redução direcionado"
       },
       "targetSection": {
         "energyReductionTargets": "Metas de Redução de Energia",
@@ -3473,7 +3593,8 @@
         "target2025": "Meta 2025:",
         "projected": "Projetado:",
         "current": "Atual:",
-        "yearLabel": "Ano"
+        "yearLabel": "Ano",
+        "annual": "anual"
       }
     }
   },
