@@ -6,11 +6,7 @@ import { EnergyDashboard } from '@/components/dashboard/EnergyDashboard';
 
 export default function EnergyPage() {
   return (
-    <DashboardPageBase
-      title="Energy"
-      description="GRI 302 • Energy consumption & renewable sources"
-      icon={Zap}
-    >
+    <DashboardPageBase>
       {({ organizationId, selectedSite, selectedPeriod }) => (
         <EnergyDashboard
           organizationId={organizationId}
