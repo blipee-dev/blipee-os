@@ -11,9 +11,9 @@ import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePer
 import type { Building } from '@/types/auth';
 
 interface DashboardPageBaseProps {
-  title: string;
-  description: string;
-  icon: LucideIcon;
+  title?: string;
+  description?: string;
+  icon?: LucideIcon;
   children: (props: {
     organizationId: string;
     selectedSite: Building | null;
@@ -76,7 +76,7 @@ export function DashboardPageBase({ title, description, icon: Icon, children }: 
               className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto"
               style={{ borderColor: accentColorHex }}
             />
-            <p className="text-gray-400">Loading {title.toLowerCase()}...</p>
+            <p className="text-gray-400">Loading{title ? ` ${title.toLowerCase()}` : ''}...</p>
           </div>
         </div>
       </SustainabilityLayout>
@@ -89,7 +89,7 @@ export function DashboardPageBase({ title, description, icon: Icon, children }: 
         <div className="flex items-center justify-center min-h-[600px]">
           <div className="text-center space-y-4">
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
-            <h3 className="text-xl font-semibold">Error Loading {title}</h3>
+            {title && <h3 className="text-xl font-semibold">Error Loading {title}</h3>}
             <p className="text-gray-400">{error}</p>
             <button
               onClick={() => window.location.reload()}
@@ -112,15 +112,21 @@ export function DashboardPageBase({ title, description, icon: Icon, children }: 
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-start justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                <Icon className="w-6 h-6" style={{ color: accentColorHex }} />
-                {title}
-              </h1>
-              <p className="text-[#616161] dark:text-[#757575]">
-                {description}
-              </p>
-            </div>
+            {(title || description) && (
+              <div>
+                {title && (
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                    {Icon && <Icon className="w-6 h-6" style={{ color: accentColorHex }} />}
+                    {title}
+                  </h1>
+                )}
+                {description && (
+                  <p className="text-[#616161] dark:text-[#757575]">
+                    {description}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Selectors */}
             <div className="flex items-center gap-3">
