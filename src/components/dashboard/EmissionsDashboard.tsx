@@ -460,6 +460,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
   const [scope2MarketBased, setScope2MarketBased] = useState(0);
   const [renewablePercentage, setRenewablePercentage] = useState(0);
   const [scope2CategoriesData, setScope2CategoriesData] = useState<any>({});
+  const [scope2Metrics, setScope2Metrics] = useState<any[]>([]); // Individual metrics for Scope 2
 
   // Scope 3 coverage
   const [scope3Coverage, setScope3Coverage] = useState<any>(null);
@@ -816,6 +817,39 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         } catch (error) {
           console.error('❌ [Top Emitters] Error fetching top metrics:', error);
           setTopEmitters([]);
+        }
+
+        // Fetch Scope 2 individual metrics
+        try {
+          const scope2MetricsParams = new URLSearchParams({
+            start_date: selectedPeriod.start,
+            end_date: selectedPeriod.end,
+            limit: '50' // Get up to 50 metrics to ensure we capture all Scope 2 sources
+          });
+          if (selectedSite) {
+            scope2MetricsParams.append('site_id', selectedSite.id);
+          }
+
+          const scope2MetricsResponse = await fetch(`/api/sustainability/top-metrics?${scope2MetricsParams}`);
+          const scope2MetricsData = await scope2MetricsResponse.json();
+
+          if (scope2MetricsData.metrics && scope2MetricsData.metrics.length > 0) {
+            // Filter for only Scope 2 metrics
+            const scope2Only = scope2MetricsData.metrics
+              .filter((metric: any) => metric.scope === 'scope_2')
+              .map((metric: any) => ({
+                name: metric.name,
+                emissions: metric.emissions,
+                percentage: scope2Total > 0 ? (metric.emissions / scope2Total) * 100 : 0
+              }));
+
+            setScope2Metrics(scope2Only);
+          } else {
+            setScope2Metrics([]);
+          }
+        } catch (error) {
+          console.error('❌ [Scope 2 Metrics] Error fetching scope 2 metrics:', error);
+          setScope2Metrics([]);
         }
 
         // Scope 1 detailed breakdown
@@ -2329,44 +2363,53 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
             )}
           </div>
 
-          {/* Scope 2 Category List */}
-          {Object.keys(scope2CategoriesData).filter(key => (scope2CategoriesData[key] as number) > 0).length > 0 ? (
+          {/* Scope 2 Metrics List (individual metrics) */}
+          {scope2Metrics.length > 0 ? (
             <div className="space-y-3">
-              {Object.entries(scope2CategoriesData)
-                .filter(([_, emissions]) => (emissions as number) > 0)
-                .map(([category, emissions], index) => {
-                  const categoryName = category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                  const categoryColor = getCategoryColor(categoryName);
-                  const CategoryIcon = getScope2CategoryIcon(category);
+              {scope2Metrics.map((metric, index) => {
+                const metricColor = getCategoryColor(metric.name);
+                const metricName = metric.name.toLowerCase();
+                let MetricIcon = Zap;
 
-                  return (
-                    <div key={index} className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <CategoryIcon className="w-4 h-4" style={{ color: categoryColor }} />
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">{categoryName}</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-bold text-gray-900 dark:text-white">
-                            {(emissions as number).toFixed(1)} tCO2e
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {scope2Total > 0 ? (((emissions as number) / scope2Total) * 100).toFixed(1) : 0}%
-                          </div>
-                        </div>
+                // Determine icon based on metric name
+                if (metricName.includes('heating') || metricName.includes('heat')) {
+                  MetricIcon = Flame;
+                } else if (metricName.includes('cooling') || metricName.includes('cool')) {
+                  MetricIcon = Snowflake;
+                } else if (metricName.includes('steam')) {
+                  MetricIcon = Thermometer;
+                } else {
+                  MetricIcon = Zap; // Default to electricity icon
+                }
+
+                return (
+                  <div key={index} className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <MetricIcon className="w-4 h-4" style={{ color: metricColor }} />
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{metric.name}</span>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className="h-2 rounded-full transition-all"
-                          style={{
-                            width: `${scope2Total > 0 ? ((emissions as number) / scope2Total) * 100 : 0}%`,
-                            backgroundColor: categoryColor
-                          }}
-                        />
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-gray-900 dark:text-white">
+                          {metric.emissions.toFixed(1)} tCO2e
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {metric.percentage.toFixed(1)}%
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div
+                        className="h-2 rounded-full transition-all"
+                        style={{
+                          width: `${metric.percentage}%`,
+                          backgroundColor: metricColor
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
