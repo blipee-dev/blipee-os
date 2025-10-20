@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Droplet,
@@ -21,7 +21,9 @@ import {
   TrendingUp as TrendingUpIcon,
   BarChart3,
   Target,
-  Settings
+  Settings,
+  AlertTriangle,
+  Building2
 } from "lucide-react";
 import {
   BarChart,
@@ -37,11 +39,12 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
 } from "recharts";
 import { MetricTargetsCard } from '@/components/sustainability/MetricTargetsCard';
 import { RecommendationsModal } from '@/components/sustainability/RecommendationsModal';
 import { useTranslations, useLanguage } from '@/providers/LanguageProvider';
-import { useWaterDashboard } from '@/hooks/useDashboardData';
+import { useWaterDashboard, useWaterSiteComparison } from '@/hooks/useDashboardData';
 
 interface WaterDashboardProps {
   organizationId: string;
@@ -65,6 +68,36 @@ const formatScope = (scope: string): string => {
   return scope.replace(/scope_(\d+)/i, 'Scope $1').replace(/scope(\d+)/i, 'Scope $1');
 };
 
+// Helper function to translate month abbreviations
+const translateMonth = (monthAbbr: string, t: (key: string) => string): string => {
+  const monthLower = monthAbbr.toLowerCase().trim();
+
+  const monthMap: { [key: string]: string } = {
+    'jan': 'jan',
+    'feb': 'feb',
+    'mar': 'mar',
+    'apr': 'apr',
+    'may': 'may',
+    'jun': 'jun',
+    'jul': 'jul',
+    'aug': 'aug',
+    'sep': 'sep',
+    'oct': 'oct',
+    'nov': 'nov',
+    'dec': 'dec'
+  };
+
+  const key = monthMap[monthLower];
+  if (key) {
+    const translated = t(key);
+    if (translated && translated !== key) {
+      return translated;
+    }
+  }
+
+  return monthAbbr;
+};
+
 export function WaterDashboard({
   organizationId,
   selectedSite,
@@ -73,211 +106,186 @@ export function WaterDashboard({
   const t = useTranslations('sustainability.water');
   const { t: tGlobal } = useLanguage();
 
-  // Fetch data with React Query (cached, parallel)
-  const { sources, prevYearSources, forecast, isLoading } = useWaterDashboard(
+  // Fetch data with React Query (cached, parallel) - includes waterTarget and metricTargets
+  const { sources, prevYearSources, fullPrevYearSources, forecast, waterTarget, metricTargets, isLoading } = useWaterDashboard(
     selectedPeriod || { start: new Date().toISOString().split('T')[0], end: new Date().toISOString().split('T')[0], label: 'Custom' },
     selectedSite,
     organizationId
   );
 
-  // Local state for processed data
-  const [waterSources, setWaterSources] = useState<WaterSource[]>([]);
-  const [totalWithdrawal, setTotalWithdrawal] = useState(0);
-  const [totalConsumption, setTotalConsumption] = useState(0);
-  const [totalDischarge, setTotalDischarge] = useState(0);
-  const [totalRecycled, setTotalRecycled] = useState(0);
-  const [totalCost, setTotalCost] = useState(0);
-  const [recyclingRate, setRecyclingRate] = useState(0);
-  const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
-  const [prevYearMonthlyTrends, setPrevYearMonthlyTrends] = useState<any[]>([]);
-  const [waterIntensity, setWaterIntensity] = useState(0);
-  const [endUseBreakdown, setEndUseBreakdown] = useState<any[]>([]);
-  const [endUseYoY, setEndUseYoY] = useState<any[]>([]);
-  const [forecastData, setForecastData] = useState<any>(null);
+  // Fetch site comparison data (only when no site is selected)
+  const siteComparisonQuery = useWaterSiteComparison(
+    selectedPeriod || { start: new Date().toISOString().split('T')[0], end: new Date().toISOString().split('T')[0], label: 'Custom' },
+    selectedSite,
+    organizationId
+  );
+
+  const siteComparison = siteComparisonQuery.data || [];
+
+  // UI-only state (modal and expansion)
   const [activeEducationalModal, setActiveEducationalModal] = useState<string | null>(null);
-
-  // YoY comparison state
-  const [yoyWithdrawalChange, setYoyWithdrawalChange] = useState<number | null>(null);
-  const [yoyConsumptionChange, setYoyConsumptionChange] = useState<number | null>(null);
-  const [yoyDischargeChange, setYoyDischargeChange] = useState<number | null>(null);
-  const [yoyRecyclingChange, setYoyRecyclingChange] = useState<number | null>(null);
-
-  // Water reduction target state
-  const [waterTarget, setWaterTarget] = useState<any>(null);
-  const [defaultTargetPercent] = useState(2.5); // CDP Water Security benchmark: 2.5% annual reduction
-
-  // Metric-level targets for expandable view (similar to energy dashboard)
-  const [metricTargets, setMetricTargets] = useState<any[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [selectedMetricForInitiative, setSelectedMetricForInitiative] = useState<string | null>(null);
 
-  // Process cached data from React Query when it changes
-  React.useEffect(() => {
-    // Wait for all data to be fetched
-    if (!sources.data) return;
+  // Compute all dashboard metrics with useMemo (synchronous, single re-render)
+  const dashboardMetrics = useMemo(() => {
+    if (!sources.data) {
+      return {
+        waterSources: [],
+        totalWithdrawal: 0,
+        totalConsumption: 0,
+        totalDischarge: 0,
+        totalRecycled: 0,
+        totalCost: 0,
+        recyclingRate: 0,
+        monthlyTrends: [],
+        prevYearMonthlyTrends: [],
+        waterIntensity: 0,
+        endUseBreakdown: [],
+        endUseYoY: [],
+        forecastData: null,
+        yoyWithdrawalChange: null,
+        yoyConsumptionChange: null,
+        yoyDischargeChange: null,
+        yoyRecyclingChange: null,
+      };
+    }
 
     const data = sources.data;
     const prevData = prevYearSources.data;
     const waterForecastData = forecast.data;
 
     // Process current period data
-    if (data.sources) {
-      setWaterSources(data.sources);
-      setTotalWithdrawal(data.total_withdrawal || 0);
-      setTotalConsumption(data.total_consumption || 0);
-      setTotalDischarge(data.total_discharge || 0);
-      setTotalRecycled(data.total_recycled || 0);
-      setTotalCost(data.total_cost || 0);
-      setRecyclingRate(data.recycling_rate || 0);
-      setMonthlyTrends(data.monthly_trends || []);
-      setWaterIntensity(data.water_intensity || 0);
-      setEndUseBreakdown(data.end_use_breakdown || []);
-      setEndUseYoY(data.end_use_yoy || []);
-    }
+    const waterSources = data.sources || [];
+    const totalWithdrawal = data.total_withdrawal || 0;
+    const totalConsumption = data.total_consumption || 0;
+    const totalDischarge = data.total_discharge || 0;
+    const totalRecycled = data.total_recycled || 0;
+    const totalCost = data.total_cost || 0;
+    const recyclingRate = data.recycling_rate || 0;
+    const monthlyTrends = data.monthly_trends || [];
+    const waterIntensity = data.water_intensity || 0;
+    const endUseBreakdown = data.end_use_breakdown || [];
+    const endUseYoY = data.end_use_yoy || [];
 
     // Process previous year data for YoY comparison
-    if (prevData && data.monthly_trends && data.monthly_trends.length > 0) {
+    let prevYearMonthlyTrends: any[] = [];
+    let yoyWithdrawalChange: number | null = null;
+    let yoyConsumptionChange: number | null = null;
+    let yoyDischargeChange: number | null = null;
+    let yoyRecyclingChange: number | null = null;
+
+    if (prevData && monthlyTrends.length > 0) {
       if (prevData.monthly_trends && prevData.monthly_trends.length > 0) {
-        setPrevYearMonthlyTrends(prevData.monthly_trends);
-      } else {
-        setPrevYearMonthlyTrends([]);
+        prevYearMonthlyTrends = prevData.monthly_trends;
       }
 
       // Calculate YoY changes
       if (prevData.total_withdrawal && prevData.total_withdrawal > 0) {
-        const withdrawalChange =
-          ((data.total_withdrawal - prevData.total_withdrawal) /
-            prevData.total_withdrawal) *
-          100;
-        const consumptionChange =
-          ((data.total_consumption - prevData.total_consumption) /
-            prevData.total_consumption) *
-          100;
-        const dischargeChange =
-          ((data.total_discharge - prevData.total_discharge) /
-            prevData.total_discharge) *
-          100;
-        const recyclingChange =
-          data.recycling_rate - prevData.recycling_rate;
-
-        setYoyWithdrawalChange(withdrawalChange);
-        setYoyConsumptionChange(consumptionChange);
-        setYoyDischargeChange(dischargeChange);
-        setYoyRecyclingChange(recyclingChange);
+        yoyWithdrawalChange =
+          ((totalWithdrawal - prevData.total_withdrawal) / prevData.total_withdrawal) * 100;
+        yoyConsumptionChange =
+          ((totalConsumption - prevData.total_consumption) / prevData.total_consumption) * 100;
+        yoyDischargeChange =
+          ((totalDischarge - prevData.total_discharge) / prevData.total_discharge) * 100;
+        yoyRecyclingChange = recyclingRate - prevData.recycling_rate;
       }
-    } else {
-      // Clear YoY data if no previous year data
-      setPrevYearMonthlyTrends([]);
-      setYoyWithdrawalChange(null);
-      setYoyConsumptionChange(null);
-      setYoyDischargeChange(null);
-      setYoyRecyclingChange(null);
     }
 
     // Process forecast data
-    if (waterForecastData && waterForecastData.forecast && waterForecastData.forecast.length > 0) {
-      setForecastData(waterForecastData);
-    } else {
-      setForecastData(null);
+    const forecastData =
+      waterForecastData && waterForecastData.forecast && waterForecastData.forecast.length > 0
+        ? waterForecastData
+        : null;
+
+    // Calculate projected annual withdrawal (YTD + forecasted remaining months)
+    let forecastedWithdrawal = 0;
+    let projectedAnnualWithdrawal = 0;
+    // For YTD YoY: use same period last year
+    // For Projected YoY: use FULL previous year (Jan-Dec)
+    let previousYearTotalWithdrawal = fullPrevYearSources?.data?.total_withdrawal || prevData?.total_withdrawal || 0;
+
+    if (forecastData && forecastData.forecast && forecastData.forecast.length > 0) {
+      // Calculate forecasted withdrawal from remaining months
+      forecastedWithdrawal = forecastData.forecast.reduce((sum: number, f: any) => sum + (f.withdrawal || 0), 0);
+
+      // Projected annual = YTD + forecasted remaining months
+      projectedAnnualWithdrawal = totalWithdrawal + forecastedWithdrawal;
     }
 
-    // Calculate water reduction target (CDP Water Security benchmark)
-    // Only show for current year
-    const calculateTarget = async () => {
-      const baselineYear = 2023;
-      const currentYear = new Date().getFullYear();
-      const selectedYear = selectedPeriod ? new Date(selectedPeriod.start).getFullYear() : currentYear;
-
-      // Only calculate target if viewing current year
-      if (selectedYear === currentYear) {
-        const yearsSinceBaseline = currentYear - baselineYear;
-
-        // For baseline, we need full year 2023 data
-        const baseline2023Params = new URLSearchParams({
-          start_date: "2023-01-01",
-          end_date: "2023-12-31",
-        });
-        if (selectedSite) {
-          baseline2023Params.append("site_id", selectedSite.id);
-        }
-
-        try {
-          const baseline2023Res = await fetch(
-            `/api/water/sources?${baseline2023Params}`,
-          );
-          const baseline2023Data = await baseline2023Res.json();
-          const baseline2023Consumption = baseline2023Data.total_consumption || 0;
-
-          // Calculate target for current year using compound reduction
-          const annualReductionRate = defaultTargetPercent / 100; // 2.5% = 0.025
-          const targetConsumption =
-            baseline2023Consumption *
-            Math.pow(1 - annualReductionRate, yearsSinceBaseline);
-
-          // Project full year consumption using YTD actual + forecast
-          let projectedFullYear = 0;
-          const currentYTD = data.total_consumption || 0;
-
-          if (waterForecastData && waterForecastData.forecast && waterForecastData.forecast.length > 0) {
-            // Sum up forecast consumption for remaining months
-            const forecastRemaining = waterForecastData.forecast.reduce((sum: number, f: any) => {
-              return sum + (f.consumption || 0);
-            }, 0);
-
-            projectedFullYear = currentYTD + forecastRemaining;
-
-          } else {
-            // Fallback: simple linear projection if no forecast available
-            const monthsOfData = data.monthly_trends?.length || 0;
-            projectedFullYear = monthsOfData > 0 ? (currentYTD / monthsOfData) * 12 : 0;
-          }
-
-          // Calculate progress
-          const reductionNeeded = baseline2023Consumption - targetConsumption;
-          const reductionAchieved = baseline2023Consumption - projectedFullYear;
-          const progressPercent =
-            reductionNeeded > 0 ? (reductionAchieved / reductionNeeded) * 100 : 0;
-
-          setWaterTarget({
-            baseline: baseline2023Consumption,
-            target: targetConsumption,
-            projected: projectedFullYear,
-            progressPercent,
-            annualReductionRate: defaultTargetPercent,
-            isDefault: true, // Flag to show it's using CDP default
-            targetYear: currentYear,
-          });
-
-          // Fetch metric-level targets for expandable view (all water-related categories)
-          try {
-            const waterCategories = [
-              'Water Consumption', 'Water Withdrawal', 'Water Discharge',
-              'Water Recycling', 'Water Reuse', 'Rainwater Harvesting',
-              'Groundwater', 'Surface Water', 'Municipal Water', 'Wastewater'
-            ].join(',');
-
-            const metricTargetsRes = await fetch(
-              `/api/sustainability/targets/by-category?organizationId=${organizationId}&targetId=d4a00170-7964-41e2-a61e-3d7b0059cfe5&categories=${encodeURIComponent(waterCategories)}`
-            );
-            const metricTargetsData = await metricTargetsRes.json();
-            if (metricTargetsData.success && metricTargetsData.data) {
-              setMetricTargets(metricTargetsData.data);
-            }
-          } catch (err) {
-            console.error('Error fetching water metric targets:', err);
-          }
-        } catch (error) {
-          console.error("Error calculating water target:", error);
-        }
-      } else {
-        // Clear target when viewing past years
-        setWaterTarget(null);
-        setMetricTargets([]);
-      }
+    return {
+      waterSources,
+      totalWithdrawal,
+      totalConsumption,
+      totalDischarge,
+      totalRecycled,
+      totalCost,
+      recyclingRate,
+      monthlyTrends,
+      prevYearMonthlyTrends,
+      waterIntensity,
+      endUseBreakdown,
+      endUseYoY,
+      forecastData,
+      yoyWithdrawalChange,
+      yoyConsumptionChange,
+      yoyDischargeChange,
+      yoyRecyclingChange,
+      forecastedWithdrawal,
+      projectedAnnualWithdrawal,
+      previousYearTotalWithdrawal,
     };
+  }, [sources.data, prevYearSources.data, fullPrevYearSources?.data, forecast.data]);
 
-    calculateTarget();
-  }, [sources.data, prevYearSources.data, forecast.data, selectedSite, selectedPeriod, defaultTargetPercent, organizationId]);
+  // Destructure computed metrics for cleaner code
+  const {
+    waterSources,
+    totalWithdrawal,
+    totalConsumption,
+    totalDischarge,
+    totalRecycled,
+    totalCost,
+    recyclingRate,
+    monthlyTrends,
+    prevYearMonthlyTrends,
+    waterIntensity,
+    endUseBreakdown,
+    endUseYoY,
+    forecastData,
+    yoyWithdrawalChange,
+    yoyConsumptionChange,
+    yoyDischargeChange,
+    yoyRecyclingChange,
+    forecastedWithdrawal,
+    projectedAnnualWithdrawal,
+    previousYearTotalWithdrawal,
+  } = dashboardMetrics;
+
+  // Check if selected period is current year
+  const isCurrentYear = new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear();
+
+  // Smart kL/ML unit selection based on total withdrawal magnitude
+  const threshold = 10000; // 10,000 m³
+  const useKL = totalWithdrawal < threshold;
+
+  // Helper function to format water volume with smart unit selection
+  const formatWaterVolume = (m3: number) => {
+    if (useKL) {
+      return {
+        value: m3.toFixed(0),
+        unit: 'kL',
+        yAxisLabel: 'Water Volume (kL)',
+        fullLabel: `${m3.toFixed(0)} kL`
+      };
+    } else {
+      return {
+        value: (m3 / 1000).toFixed(1),
+        unit: 'ML',
+        yAxisLabel: 'Water Volume (ML)',
+        fullLabel: `${(m3 / 1000).toFixed(1)} ML`
+      };
+    }
+  };
 
   // Show loading spinner while fetching data
   if (isLoading) {
@@ -308,14 +316,16 @@ export function WaterDashboard({
     return colors[type] || colors["other"];
   };
 
-  // Prepare data for source breakdown pie chart
-  const sourceBreakdown = waterSources.map((source) => ({
-    name: source.name,
-    value: source.withdrawal,
-    type: source.type,
-    discharge: source.discharge,
-    isRecycled: source.isRecycled,
-  }));
+  // Prepare data for source breakdown pie chart - filter out sources with 0 withdrawal
+  const sourceBreakdown = waterSources
+    .filter((source) => source.withdrawal > 0)
+    .map((source) => ({
+      name: source.name,
+      value: source.withdrawal,
+      type: source.type,
+      discharge: source.discharge,
+      isRecycled: source.isRecycled,
+    }));
 
   const totalWithdrawalForPie = sourceBreakdown.reduce(
     (sum, s) => sum + s.value,
@@ -330,15 +340,17 @@ export function WaterDashboard({
           <div className="flex items-center gap-2 mb-2">
             <Droplet className="w-5 h-5 text-blue-500" />
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              {t('cards.withdrawal.title')}
+              {isCurrentYear ? t('cards.withdrawal.ytdTitle') : t('cards.withdrawal.title')}
             </span>
           </div>
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {(totalWithdrawal / 1000).toFixed(1)}
+                {formatWaterVolume(totalWithdrawal).value}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.withdrawal.unit')}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {formatWaterVolume(totalWithdrawal).unit}
+              </div>
             </div>
             {yoyWithdrawalChange !== null && (
               <div className="flex items-center gap-1">
@@ -358,6 +370,34 @@ export function WaterDashboard({
               </div>
             )}
           </div>
+          {projectedAnnualWithdrawal > 0 &&
+           forecastedWithdrawal > 0 &&
+           isCurrentYear && (
+            <div className="flex items-center justify-between mt-4">
+              <span className="text-xs text-purple-500 dark:text-purple-400">
+                {t('cards.withdrawal.projected')}: {formatWaterVolume(projectedAnnualWithdrawal).value} {formatWaterVolume(projectedAnnualWithdrawal).unit}
+              </span>
+              {(() => {
+                // Calculate YoY for projected withdrawal: compare projected annual vs previous year's total
+                const projectedYoY = previousYearTotalWithdrawal > 0
+                  ? ((projectedAnnualWithdrawal - previousYearTotalWithdrawal) / previousYearTotalWithdrawal) * 100
+                  : 0;
+
+                return (
+                  <div className="flex items-center gap-1">
+                    {projectedYoY < 0 ? (
+                      <TrendingDown className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <TrendingUp className={`w-3 h-3 ${projectedYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                    )}
+                    <span className={`text-xs ${projectedYoY < 0 ? 'text-green-500' : projectedYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                      {projectedYoY > 0 ? '+' : ''}{projectedYoY.toFixed(1)}% YoY
+                    </span>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </div>
 
         <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
@@ -370,9 +410,11 @@ export function WaterDashboard({
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {(totalConsumption / 1000).toFixed(1)}
+                {formatWaterVolume(totalConsumption).value}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.consumption.unit')}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {formatWaterVolume(totalConsumption).unit}
+              </div>
             </div>
             {yoyConsumptionChange !== null && (
               <div className="flex items-center gap-1">
@@ -404,9 +446,11 @@ export function WaterDashboard({
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {(totalDischarge / 1000).toFixed(1)}
+                {formatWaterVolume(totalDischarge).value}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.discharge.unit')}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {formatWaterVolume(totalDischarge).unit}
+              </div>
             </div>
             {yoyDischargeChange !== null && (
               <div className="flex items-center gap-1">
@@ -468,10 +512,10 @@ export function WaterDashboard({
             </span>
           </div>
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {(waterIntensity / 1000).toFixed(3)}
+            {useKL ? waterIntensity.toFixed(3) : (waterIntensity / 1000).toFixed(3)}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {t('cards.intensity.unit')}
+            {useKL ? t('cards.intensity.unit').replace('ML', 'kL') : t('cards.intensity.unit')}
           </div>
         </div>
       </div>
@@ -480,7 +524,7 @@ export function WaterDashboard({
       <div className="grid grid-cols-2 gap-4 mb-6">
         {/* Water Sources Distribution Pie Chart */}
         {sourceBreakdown.length > 0 && (
-          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[440px]">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4">
             <div className="mb-4">
               <div className="flex items-center gap-2 relative group">
                 <PieChartIcon className="w-5 h-5 text-blue-500" />
@@ -530,36 +574,116 @@ export function WaterDashboard({
               </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={420}>
               <PieChart>
                 <Pie
                   data={sourceBreakdown}
                   cx="50%"
                   cy="50%"
                   labelLine={true}
-                  label={(entry) => {
-                    const percent = (
-                      (entry.value / totalWithdrawalForPie) *
-                      100
-                    ).toFixed(1);
-                    const words = entry.name.split(" ");
-                    // If name has multiple words, split into 3 lines max
-                    if (words.length > 2) {
-                      return `${words.slice(0, 2).join(" ")}\n${words.slice(2).join(" ")}\n${percent}%`;
-                    } else if (words.length === 2) {
-                      return `${words[0]}\n${words[1]}\n${percent}%`;
-                    }
-                    return `${entry.name}\n${percent}%`;
-                  }}
-                  outerRadius={80}
+                  label={(() => {
+                    const labelPositions: Array<{ x: number; y: number; angle: number; name: string; value: number }> = [];
+                    const MIN_LABEL_SPACING = 50; // Increased for multi-line labels
+                    const SMALL_SEGMENT_THRESHOLD = 5; // Segments < 5% are considered small
+
+                    return ({ cx, cy, midAngle, outerRadius, name, value, percent, index }: any) => {
+                      const RADIAN = Math.PI / 180;
+                      const radius = outerRadius + 30;
+                      let x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      let y = cy + radius * Math.sin(-midAngle * RADIAN);
+                      const percentage = ((value / totalWithdrawalForPie) * 100).toFixed(1);
+                      const color = getSourceColor(sourceBreakdown.find(s => s.name === name)?.type || '');
+                      const textAnchor = x > cx ? 'start' : 'end';
+                      const isSmallSegment = percent < (SMALL_SEGMENT_THRESHOLD / 100);
+
+                      // Split name into words and wrap into max 3 lines
+                      const words = name.split(' ');
+                      let lines: string[] = [];
+
+                      if (words.length <= 2) {
+                        lines = words;
+                      } else if (words.length === 3) {
+                        lines = words;
+                      } else {
+                        const midPoint = Math.ceil(words.length / 2);
+                        lines = [
+                          words.slice(0, midPoint).join(' '),
+                          words.slice(midPoint).join(' ')
+                        ];
+                      }
+
+                      // Check for overlap with existing labels on the same side
+                      const isRightSide = x > cx;
+                      const labelsOnSameSide = labelPositions.filter(pos =>
+                        (pos.x > cx) === isRightSide
+                      );
+
+                      // Smart positioning for small segments
+                      if (isSmallSegment && labelsOnSameSide.length >= 2) {
+                        const sortedLabels = [...labelsOnSameSide].sort((a, b) => a.y - b.y);
+                        let largestGap = 0;
+                        let bestY = y;
+
+                        for (let i = 0; i < sortedLabels.length - 1; i++) {
+                          const gap = sortedLabels[i + 1].y - sortedLabels[i].y;
+                          const midpoint = (sortedLabels[i].y + sortedLabels[i + 1].y) / 2;
+
+                          if (gap > largestGap && gap > MIN_LABEL_SPACING) {
+                            largestGap = gap;
+                            bestY = midpoint;
+                          }
+                        }
+
+                        if (largestGap > MIN_LABEL_SPACING * 1.5) {
+                          y = bestY;
+                        }
+                      }
+
+                      // Final overlap check and adjustment
+                      let needsAdjustment = true;
+                      let attempts = 0;
+                      const maxAttempts = 10;
+
+                      while (needsAdjustment && attempts < maxAttempts) {
+                        needsAdjustment = false;
+                        attempts++;
+
+                        for (const existingLabel of labelsOnSameSide) {
+                          const distance = Math.abs(y - existingLabel.y);
+                          if (distance < MIN_LABEL_SPACING) {
+                            needsAdjustment = true;
+                            if (y < existingLabel.y) {
+                              y = existingLabel.y - MIN_LABEL_SPACING;
+                            } else {
+                              y = existingLabel.y + MIN_LABEL_SPACING;
+                            }
+                          }
+                        }
+                      }
+
+                      // Store this label's position
+                      labelPositions.push({ x, y, angle: midAngle, name, value });
+
+                      return (
+                        <text x={x} y={y} fill={color} textAnchor={textAnchor} dominantBaseline="central" style={{ fontSize: '12px' }}>
+                          {lines.map((line, i) => (
+                            <tspan key={i} x={x} dy={i === 0 ? 0 : 13}>{line}</tspan>
+                          ))}
+                          <tspan x={x} dy="13" fontWeight="bold" style={{ fontSize: '13px' }}>{percentage}%</tspan>
+                        </text>
+                      );
+                    };
+                  })()}
+                  outerRadius={130}
+                  innerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
-                  style={{ fontSize: "11px" }}
                 >
                   {sourceBreakdown.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={getSourceColor(entry.type)}
+                      stroke="none"
                     />
                   ))}
                 </Pie>
@@ -580,7 +704,7 @@ export function WaterDashboard({
                             {data.name}
                           </p>
                           <p className="text-sm" style={{ color }}>
-                            {t('tooltips.withdrawal')} {(data.value / 1000).toFixed(2)} ML
+                            {t('tooltips.withdrawal')} {formatWaterVolume(data.value).value} {formatWaterVolume(data.value).unit}
                           </p>
                           <p className="text-sm" style={{ color }}>
                             {t('tooltips.share')}{" "}
@@ -591,7 +715,7 @@ export function WaterDashboard({
                             %
                           </p>
                           <p className="text-sm text-gray-400 mt-1">
-                            {t('tooltips.discharge')} {(data.discharge / 1000).toFixed(2)} ML
+                            {t('tooltips.discharge')} {formatWaterVolume(data.discharge).value} {formatWaterVolume(data.discharge).unit}
                           </p>
                           {data.isRecycled && (
                             <span className="inline-block mt-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
@@ -611,7 +735,7 @@ export function WaterDashboard({
 
         {/* Monthly Water Balance Trend */}
         {monthlyTrends.length > 0 && (
-          <div className="bg-white dark:bg-[#212121] rounded-lg p-4 h-[440px]">
+          <div className="bg-white dark:bg-[#212121] rounded-lg p-4">
             <div className="mb-4">
               <div className="flex items-center gap-2 relative group mb-1">
                 <TrendingUpIcon className="w-5 h-5 text-purple-500" />
@@ -664,10 +788,13 @@ export function WaterDashboard({
               </p>
             </div>
 
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={420}>
               <LineChart data={(() => {
-                // Prepare chart data with separate keys for actual and forecast
-                const actualData = monthlyTrends;
+                // Prepare chart data with separate keys for actual and forecast, translating months
+                const actualData = monthlyTrends.map((trend: any) => ({
+                  ...trend,
+                  month: translateMonth(trend.month, t)
+                }));
 
                 if (!forecastData || !forecastData.forecast || forecastData.forecast.length === 0) {
                   return actualData;
@@ -675,7 +802,7 @@ export function WaterDashboard({
 
                 // Create forecast months with separate keys
                 const forecastMonths = forecastData.forecast.map((f: any) => ({
-                  month: f.month,
+                  month: translateMonth(f.month, t),
                   withdrawalForecast: f.withdrawal || 0,
                   dischargeForecast: f.discharge || 0,
                   consumptionForecast: f.consumption || 0,
@@ -697,18 +824,20 @@ export function WaterDashboard({
               })()}>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.1)"
+                  className="stroke-gray-200 dark:stroke-white/10"
+                  vertical={true}
+                  horizontal={true}
                 />
                 <XAxis dataKey="month" tick={{ fill: "#888", fontSize: 12 }} />
                 <YAxis
                   tick={{ fill: "#888", fontSize: 12 }}
                   label={{
-                    value: t('axisLabels.ml'),
+                    value: formatWaterVolume(totalWithdrawal).yAxisLabel,
                     angle: -90,
                     position: "insideLeft",
                     style: { fill: "#888", fontSize: 12 },
                   }}
-                  tickFormatter={(value) => (value / 1000).toFixed(0)}
+                  tickFormatter={(value) => useKL ? value.toFixed(0) : (value / 1000).toFixed(0)}
                 />
                 <Tooltip
                   contentStyle={{
@@ -739,13 +868,13 @@ export function WaterDashboard({
                           </p>
                           <div className="space-y-1">
                             <p className="text-sm" style={{ color: "#3b82f6" }}>
-                              {t('tooltips.withdrawal')} {((withdrawal || 0) / 1000).toFixed(2)} ML
+                              {t('tooltips.withdrawal')} {formatWaterVolume(withdrawal || 0).value} {formatWaterVolume(withdrawal || 0).unit}
                             </p>
                             <p className="text-sm" style={{ color: "#06b6d4" }}>
-                              {t('tooltips.discharge')} {((discharge || 0) / 1000).toFixed(2)} ML
+                              {t('tooltips.discharge')} {formatWaterVolume(discharge || 0).value} {formatWaterVolume(discharge || 0).unit}
                             </p>
                             <p className="text-sm" style={{ color: "#6366f1" }}>
-                              {t('tooltips.consumption')} {((consumption || 0) / 1000).toFixed(2)} ML
+                              {t('tooltips.consumption')} {formatWaterVolume(consumption || 0).value} {formatWaterVolume(consumption || 0).unit}
                             </p>
                           </div>
                         </div>
@@ -832,7 +961,7 @@ export function WaterDashboard({
         <div className="grid grid-cols-2 gap-4 mb-6">
           {/* Monthly YoY Comparison - only show when we have previous year data */}
           {yoyWithdrawalChange !== null && prevYearMonthlyTrends.length > 0 && (
-            <div className="bg-white dark:bg-[#212121] rounded-lg p-4 flex flex-col h-[420px]">
+            <div className="bg-white dark:bg-[#212121] rounded-lg p-4 flex flex-col">
               <div className="mb-4">
                 <div className="flex items-center gap-2 relative group mb-1">
                   <BarChart3 className="w-5 h-5 text-indigo-500" />
@@ -885,7 +1014,7 @@ export function WaterDashboard({
                 </p>
               </div>
 
-              <ResponsiveContainer width="100%" height={350}>
+              <ResponsiveContainer width="100%" height={420}>
                 <BarChart
                   data={(() => {
                     // GRI 303-5: Water Consumption YoY comparison
@@ -923,7 +1052,7 @@ export function WaterDashboard({
                       }
 
                       return {
-                        month: trend.month,
+                        month: translateMonth(trend.month, t),
                         monthKey: trend.monthKey,
                         change: change,
                         current: currentConsumption,
@@ -934,10 +1063,8 @@ export function WaterDashboard({
                     return chartData;
                   })()}
                 >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="rgba(255,255,255,0.1)"
-                  />
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-white/10" vertical={true} horizontal={true} />
+                  <ReferenceLine y={0} stroke="rgba(156, 163, 175, 0.3)" strokeWidth={1} strokeDasharray="" />
                   <XAxis
                     dataKey="month"
                     tick={{ fill: "#888", fontSize: 12 }}
@@ -947,12 +1074,6 @@ export function WaterDashboard({
                     tickFormatter={(value) =>
                       `${value > 0 ? "+" : ""}${value}%`
                     }
-                    label={{
-                      value: t('axisLabels.changePercent'),
-                      angle: -90,
-                      position: "insideLeft",
-                      style: { fill: "#888", fontSize: 12 },
-                    }}
                   />
                   <Tooltip
                     contentStyle={{
@@ -963,35 +1084,28 @@ export function WaterDashboard({
                     content={({ active, payload }: any) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
-                        const change = data.change;
-                        const current = data.current;
-                        const previous = data.previous;
+                        const { current, previous, change } = data;
+
+                        // Skip if data is incomplete
+                        if (current == null || previous == null || change == null) {
+                          return null;
+                        }
+
                         return (
-                          <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
-                            <p className="text-white font-semibold mb-2">
-                              {data.month}
-                            </p>
+                          <div className="bg-[#111111] border border-[#1A1A1A] rounded-lg p-3">
+                            <p className="text-white font-semibold mb-2">{data.month}</p>
                             <div className="space-y-1 text-xs mb-2">
-                              <p className="text-gray-300">
-                                {t('tooltips.current')}{" "}
-                                <span className="font-medium text-white">
-                                  {(current / 1000).toFixed(2)} ML
-                                </span>
+                              <p className="text-[#A1A1AA]">
+                                {t('tooltips.current')} <span className="font-medium text-white">{formatWaterVolume(current).value} {formatWaterVolume(current).unit}</span>
                               </p>
-                              <p className="text-gray-300">
-                                {t('tooltips.lastYear')}{" "}
-                                <span className="font-medium text-white">
-                                  {(previous / 1000).toFixed(2)} ML
-                                </span>
+                              <p className="text-[#A1A1AA]">
+                                {t('tooltips.lastYear')} <span className="font-medium text-white">{formatWaterVolume(previous).value} {formatWaterVolume(previous).unit}</span>
                               </p>
                             </div>
-                            <p
-                              className={`text-sm font-bold ${change >= 0 ? "text-red-400" : "text-green-400"}`}
-                            >
-                              {change > 0 ? "+" : ""}
-                              {change.toFixed(1)}% {t('yoy')}
+                            <p className={`text-sm font-bold ${change >= 0 ? 'text-red-400' : 'text-green-400'}`}>
+                              {change > 0 ? '+' : ''}{change.toFixed(1)}% {t('yoy')}
                             </p>
-                            <p className="text-xs text-gray-400 mt-1">
+                            <p className="text-xs text-[#A1A1AA] mt-1">
                               {change >= 0 ? t('tooltips.increase') : t('tooltips.decrease')} {t('tooltips.inConsumption')}
                             </p>
                           </div>
@@ -1000,7 +1114,35 @@ export function WaterDashboard({
                       return null;
                     }}
                   />
-                  <Bar dataKey="change" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                  <Bar
+                    dataKey="change"
+                    fill="#3b82f6"
+                    shape={(props: any) => {
+                      const { x, y, width, height, value } = props;
+                      const absHeight = Math.abs(height);
+
+                      if (value > 0) {
+                        // Positive bar - round top corners only
+                        return (
+                          <g>
+                            <rect x={x} y={y} width={width} height={absHeight} fill="#3b82f6" rx={4} ry={4} />
+                            <rect x={x} y={y + absHeight - 4} width={width} height={4} fill="#3b82f6" />
+                          </g>
+                        );
+                      } else if (value < 0) {
+                        // Negative bar - round bottom corners only, adjust y to start from zero line
+                        const adjustedY = y + height; // height is negative, so this moves up to zero line
+                        return (
+                          <g>
+                            <rect x={x} y={adjustedY} width={width} height={absHeight} fill="#3b82f6" rx={4} ry={4} />
+                            <rect x={x} y={adjustedY} width={width} height={4} fill="#3b82f6" />
+                          </g>
+                        );
+                      } else {
+                        return <rect x={x} y={y} width={width} height={absHeight} fill="#3b82f6" />;
+                      }
+                    }}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -1008,7 +1150,7 @@ export function WaterDashboard({
 
           {/* Water Balance Summary */}
           {waterSources.length > 0 && (
-            <div className="bg-white dark:bg-[#212121] rounded-lg p-4 flex flex-col h-[420px]">
+            <div className="bg-white dark:bg-[#212121] rounded-lg p-4 flex flex-col">
               <div className="mb-4">
                 <div className="flex items-center gap-2 relative group">
                   <Activity className="w-5 h-5 text-cyan-500" />
@@ -1070,7 +1212,7 @@ export function WaterDashboard({
                         </span>
                       </div>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">
-                        {(totalWithdrawal / 1000).toFixed(1)} ML
+                        {formatWaterVolume(totalWithdrawal).fullLabel}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -1091,7 +1233,7 @@ export function WaterDashboard({
                         </span>
                       </div>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">
-                        {(totalDischarge / 1000).toFixed(1)} ML
+                        {formatWaterVolume(totalDischarge).fullLabel}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -1114,7 +1256,7 @@ export function WaterDashboard({
                         </span>
                       </div>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">
-                        {(totalConsumption / 1000).toFixed(1)} ML
+                        {formatWaterVolume(totalConsumption).fullLabel}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -1137,7 +1279,7 @@ export function WaterDashboard({
                         </span>
                       </div>
                       <span className="text-sm font-bold text-green-600 dark:text-green-400">
-                        {(totalRecycled / 1000).toFixed(1)} ML (
+                        {formatWaterVolume(totalRecycled).fullLabel} (
                         {recyclingRate.toFixed(1)}%)
                       </span>
                     </div>
@@ -1155,176 +1297,577 @@ export function WaterDashboard({
         </div>
       )}
 
-      {/* Water Reduction Target */}
-      {waterTarget && (
-        <div className="mb-6">
-          <div className="bg-white dark:bg-[#212121] rounded-lg p-4">
-            <div className="mb-4">
-              <div className="flex items-center gap-2 relative group mb-1">
-                <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
-                <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">
-                  {t('charts.reductionTarget.title')}
-                </h3>
-
-                {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                  <div className="mb-2">
-                    <p className="text-gray-200 text-[11px] leading-relaxed">
-                      {t('waterReductionTargetExplanation')}
-                    </p>
-                  </div>
-
-                  {/* Compliance Badges */}
-                  <div className="mt-3 pt-2 border-t border-purple-500/30">
-                    <p className="text-purple-200 text-[10px] font-medium mb-1.5">
-                      {tGlobal('carbonEquivalentTooltip.compliantWith')}
-                    </p>
-                    <div className="flex gap-1 flex-wrap">
-                      <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
-                        GRI 303-5
-                      </span>
-                      <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
-                        CDP Water
-                      </span>
-                      <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
-                        ESRS E3
-                      </span>
+      {/* Site Performance Ranking - Moved here, one column only */}
+      {siteComparison.length > 1 && (
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-cyan-500" />
+                <div className="relative group inline-block">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+                    {t('sitePerformance.title')}
+                  </h3>
+                  {/* Tooltip */}
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <div className="mb-2">
+                      <p className="text-white text-[11px] leading-relaxed whitespace-pre-line">
+                        {t('explanations.sitePerformance')}
+                      </p>
                     </div>
-                  </div>
 
-                  {/* Learn More Link */}
-                  <div className="mt-3 text-right">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveEducationalModal('water-targets');
-                      }}
-                      className="text-purple-200 hover:text-white underline font-medium transition-colors text-[11px]"
-                    >
-                      {t('learnMore')} →
-                    </button>
-                  </div>
+                    {/* Compliance Badges */}
+                    <div className="mt-3 pt-2 border-t border-purple-500/30">
+                      <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                        {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                      </p>
+                      <div className="flex gap-1 flex-wrap">
+                        <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                          GRI 303-1
+                        </span>
+                      </div>
+                    </div>
 
-                  {/* Arrow indicator */}
-                  <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
+                    {/* Arrow indicator */}
+                    <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
+                  </div>
                 </div>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {waterTarget.isDefault ? t('target.cdpBenchmark') : t('target.custom')} •{" "}
-                {waterTarget.annualReductionRate}% {t('target.annualReduction')} • {t('target.baseline')}
-                2023
-              </p>
             </div>
 
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <div className="font-medium text-gray-900 dark:text-white">
-                    {t('target.waterConsumption')}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {waterTarget.isDefault
-                      ? t('target.cdpDescription')
-                      : t('target.customDescription', { rate: waterTarget.annualReductionRate })}
+            <div>
+              {/* Horizontal Bar Chart */}
+              {(() => {
+                // Benchmark for water intensity (m³/m²/year)
+                const benchmark = { low: 0.5, average: 1.0, high: 2.0 };
+
+                const getBarColor = (intensity: number) => {
+                  if (intensity <= benchmark.low) return '#10b981'; // green-500
+                  if (intensity <= benchmark.average) return '#f59e0b'; // amber-500
+                  return '#ef4444'; // red-500
+                };
+
+                // Prepare chart data - reverse to show best performers at top
+                const chartData = [...siteComparison].reverse().map((siteData, index) => ({
+                  name: siteData.name,
+                  intensity: siteData.intensity,
+                  fill: getBarColor(siteData.intensity),
+                  rank: siteComparison.length - index
+                }));
+
+                return (
+                  <>
+                    <div className="mt-4">
+                      <ResponsiveContainer width="100%" height={420}>
+                        <BarChart
+                          data={chartData}
+                          layout="vertical"
+                          margin={{ top: 5, right: 20, left: 20, bottom: 60 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-white/10" vertical={true} horizontal={true} />
+                          <XAxis
+                            type="number"
+                            stroke="#9CA3AF"
+                            tick={{ fill: '#9CA3AF', fontSize: 11 }}
+                            tickLine={{ stroke: '#9CA3AF' }}
+                            axisLine={{ stroke: '#9CA3AF' }}
+                            label={{ value: 'm³/m²', position: 'bottom', offset: 10, fill: '#9CA3AF', fontSize: 11 }}
+                          />
+                          <YAxis
+                            type="category"
+                            dataKey="name"
+                            className="stroke-gray-400 dark:stroke-gray-500"
+                            tick={false}
+                            tickLine={false}
+                            width={0}
+                          />
+                          <Tooltip
+                            cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+                            content={({ active, payload }: any) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
+                                    <p className="text-white font-semibold mb-1">
+                                      {data.name}
+                                    </p>
+                                    <p className="text-white text-sm">
+                                      {data.intensity} m³/m²
+                                    </p>
+                                    <p className="text-gray-400 text-xs mt-1">
+                                      Rank #{data.rank} of {chartData.length}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Bar
+                            dataKey="intensity"
+                            radius={[0, 4, 4, 0]}
+                            label={(props: any) => {
+                              const { x, y, width, height, value, index } = props;
+                              const site = chartData[index];
+                              return (
+                                <g>
+                                  {/* Site name on top */}
+                                  <text
+                                    x={x + 10}
+                                    y={y + height / 2 - 8}
+                                    fill="white"
+                                    fontSize={11}
+                                    fontWeight={600}
+                                    textAnchor="start"
+                                  >
+                                    {site.name}
+                                  </text>
+                                  {/* Intensity value below site name */}
+                                  <text
+                                    x={x + 10}
+                                    y={y + height / 2 + 8}
+                                    fill="white"
+                                    fontSize={10}
+                                    fontWeight={400}
+                                    textAnchor="start"
+                                  >
+                                    {value} m³/m²
+                                  </text>
+                                </g>
+                              );
+                            }}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {/* Legend for performance levels */}
+                    <div className="flex items-center justify-center gap-4 mt-6 text-xs flex-wrap">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded bg-green-500"></div>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          {t('performanceLevels.excellent')} (≤{benchmark.low})
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded bg-amber-500"></div>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          {t('performanceLevels.good')} ({benchmark.low}-{benchmark.average})
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded bg-red-500"></div>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          {t('performanceLevels.needsImprovement')} (&gt;{benchmark.average})
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+          {/* Empty space in second column */}
+          <div></div>
+        </div>
+      )}
+
+      {/* Water Reduction Target */}
+      {/* CDP Water Security Target Progress - Only show for current year */}
+      {waterTarget.data &&
+       new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (() => {
+        const baseline = waterTarget.data.baseline || 0;
+
+        return (
+        <div className="mb-12">
+          <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <div className="flex items-center gap-2 relative group">
+                  <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('cdpProgress.title')}</h3>
+
+                  {/* Hover Tooltip */}
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <div className="mb-2">
+                      <p className="text-gray-200 text-[11px] leading-relaxed">
+                        {t('waterReductionTargetExplanation')}
+                      </p>
+                    </div>
+
+                    {/* Compliance Badges */}
+                    <div className="mt-3 pt-3 border-t border-purple-500/30">
+                      <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                        {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                      </p>
+                      <div className="flex gap-1 flex-wrap">
+                        <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                          CDP Water
+                        </span>
+                        <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                          GRI 303-5
+                        </span>
+                        <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
+                          ESRS E3
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Learn More Link */}
+                    <div className="mt-4 text-right">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveEducationalModal('water-targets');
+                        }}
+                        className="text-purple-200 hover:text-white underline font-medium transition-colors text-[11px]"
+                      >
+                        {t('learnMore')} →
+                      </button>
+                    </div>
+
+                    {/* Arrow indicator */}
+                    <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div
-                    className={`text-xl font-bold ${
-                      waterTarget.progressPercent >= 100
-                        ? "text-green-600 dark:text-green-400"
-                        : waterTarget.progressPercent >= 80
-                          ? "text-blue-600 dark:text-blue-400"
-                          : waterTarget.progressPercent >= 50
-                            ? "text-yellow-600 dark:text-yellow-400"
-                            : "text-red-600 dark:text-red-400"
-                    }`}
-                  >
-                    {waterTarget.progressPercent.toFixed(0)}%
-                  </div>
-                  <div
-                    className={`text-sm font-medium ${
-                      waterTarget.progressPercent >= 100
-                        ? "text-green-600 dark:text-green-400"
-                        : waterTarget.progressPercent >= 80
-                          ? "text-blue-600 dark:text-blue-400"
-                          : waterTarget.progressPercent >= 50
-                            ? "text-yellow-600 dark:text-yellow-400"
-                            : "text-red-600 dark:text-red-400"
-                    }`}
-                  >
-                    {waterTarget.progressPercent >= 100
-                      ? t('target.status.exceeding')
-                      : waterTarget.progressPercent >= 80
-                        ? t('target.status.onTrack')
-                        : waterTarget.progressPercent >= 50
-                          ? t('target.status.atRisk')
-                          : t('target.status.offTrack')}
-                  </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {waterTarget.data.isDefault ? 'CDP Water Security Benchmark' : 'Custom Target'} • {waterTarget.data.baselineYear} → {waterTarget.data.targetYear}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-xs font-medium">
+                  {(waterTarget.data.annualReductionRate || 0).toFixed(1)}% {t('cdpProgress.reductionTarget')}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-5 gap-3">
+              {/* Baseline */}
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('cdpProgress.baseline')} ({waterTarget.data.baselineYear})
+                  </span>
+                </div>
+                <div className="text-xl font-bold text-gray-900 dark:text-white">
+                  {formatWaterVolume(waterTarget.data.baseline).value}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{formatWaterVolume(waterTarget.data.baseline).unit}</div>
+              </div>
+
+              {/* Current */}
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-orange-200/50 dark:border-orange-700/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('cdpProgress.current')} ({new Date().getFullYear()})
+                  </span>
+                </div>
+                <div className="text-xl font-bold text-gray-900 dark:text-white">
+                  {(() => {
+                    const currentYTD = totalWithdrawal || 0;
+                    let projectedFullYear = 0;
+                    if (forecast.data?.forecast?.length > 0) {
+                      const forecastRemaining = forecast.data.forecast.reduce((sum: number, f: any) => {
+                        return sum + (f.withdrawal || 0);
+                      }, 0);
+                      projectedFullYear = currentYTD + forecastRemaining;
+                    } else {
+                      const monthsOfData = sources.data?.monthly_trends?.length || 0;
+                      projectedFullYear = monthsOfData > 0 ? (currentYTD / monthsOfData) * 12 : currentYTD;
+                    }
+                    const projected = projectedFullYear || waterTarget.data.baseline;
+                    return formatWaterVolume(projected).value;
+                  })()}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {(() => {
+                    const currentYTD = totalWithdrawal || 0;
+                    let projectedFullYear = 0;
+                    if (forecast.data?.forecast?.length > 0) {
+                      const forecastRemaining = forecast.data.forecast.reduce((sum: number, f: any) => {
+                        return sum + (f.withdrawal || 0);
+                      }, 0);
+                      projectedFullYear = currentYTD + forecastRemaining;
+                    } else {
+                      const monthsOfData = sources.data?.monthly_trends?.length || 0;
+                      projectedFullYear = monthsOfData > 0 ? (currentYTD / monthsOfData) * 12 : currentYTD;
+                    }
+                    const projected = projectedFullYear || waterTarget.data.baseline;
+                    return formatWaterVolume(projected).unit;
+                  })()}
+                  {' (projected)'}
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 text-xs mb-3">
-                <div>
-                  <div className="text-gray-500 dark:text-gray-400">
-                    {t('target.columns.baseline')}
-                  </div>
-                  <div className="text-gray-500 dark:text-gray-400">2023</div>
-                  <div className="text-gray-900 dark:text-white font-medium">
-                    {(waterTarget.baseline / 1000).toFixed(2)} ML
-                  </div>
+              {/* Required (Current Year Target) */}
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-blue-200/50 dark:border-blue-700/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('cdpProgress.required')} ({new Date().getFullYear()})
+                  </span>
                 </div>
-                <div>
-                  <div className="text-gray-500 dark:text-gray-400">{t('target.columns.target')}</div>
-                  <div className="text-gray-500 dark:text-gray-400">
-                    {waterTarget.targetYear}
-                  </div>
-                  <div className="text-gray-900 dark:text-white font-medium">
-                    {(waterTarget.target / 1000).toFixed(2)} ML
-                  </div>
+                <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                  {(() => {
+                    const baseline = waterTarget.data.baseline || 0;
+                    const target = waterTarget.data.target || 0;
+                    const baselineYear = waterTarget.data.baselineYear;
+                    const targetYear = waterTarget.data.targetYear;
+                    const currentYear = new Date().getFullYear();
+
+                    const yearsElapsed = currentYear - baselineYear;
+                    const totalYears = targetYear - baselineYear;
+                    const totalReduction = baseline - target;
+                    const requiredReduction = (totalReduction * yearsElapsed) / totalYears;
+                    const requiredConsumption = baseline - requiredReduction;
+
+                    return formatWaterVolume(requiredConsumption).value;
+                  })()}
                 </div>
-                <div>
-                  <div className="text-gray-500 dark:text-gray-400">
-                    {t('target.columns.projected')}
-                  </div>
-                  <div className="text-gray-500 dark:text-gray-400">
-                    {waterTarget.targetYear}
-                  </div>
-                  <div
-                    className={`font-medium ${
-                      waterTarget.projected <= waterTarget.target
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-red-600 dark:text-red-400"
-                    }`}
-                  >
-                    {(waterTarget.projected / 1000).toFixed(2)} ML
-                  </div>
-                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{t('cdpProgress.onTrack')}</div>
               </div>
 
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${
-                    waterTarget.progressPercent >= 100
-                      ? "bg-green-500"
-                      : waterTarget.progressPercent >= 80
-                        ? "bg-blue-500"
-                        : waterTarget.progressPercent >= 50
-                          ? "bg-yellow-500"
-                          : "bg-red-500"
-                  }`}
-                  style={{
-                    width: `${Math.min(Math.max(waterTarget.progressPercent, 0), 100)}%`,
-                  }}
-                />
+              {/* Target */}
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('cdpProgress.target')} ({waterTarget.data.targetYear})
+                  </span>
+                </div>
+                <div className="text-xl font-bold text-gray-900 dark:text-white">
+                  {formatWaterVolume(waterTarget.data.target).value}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{formatWaterVolume(waterTarget.data.target).unit}</div>
+              </div>
+
+              {/* Progress */}
+              <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{t('cdpProgress.progress')}</span>
+                </div>
+                <div className="text-xl font-bold">
+                  {(() => {
+                    const baseline = waterTarget.data.baseline || 0;
+                    const current = totalWithdrawal || waterTarget.data.baseline;
+                    const target = waterTarget.data.target || 0;
+
+                    // Check if consumption increased or decreased
+                    if (current > baseline) {
+                      // Consumption INCREASED - show as % above baseline
+                      const increasePercent = baseline > 0 ? ((current - baseline) / baseline) * 100 : 0;
+                      return (
+                        <span className="text-red-600 dark:text-red-400">
+                          ↑ {increasePercent.toFixed(1)}%
+                        </span>
+                      );
+                    } else {
+                      // Consumption DECREASED - show progress toward target
+                      const progress = baseline > 0 ? ((baseline - current) / (baseline - target)) * 100 : 0;
+                      const progressColor = progress >= 95 ? 'text-green-600 dark:text-green-400' :
+                                          progress >= 85 ? 'text-yellow-600 dark:text-yellow-400' :
+                                          'text-orange-600 dark:text-orange-400';
+                      return (
+                        <span className={progressColor}>
+                          {progress.toFixed(1)}%
+                        </span>
+                      );
+                    }
+                  })()}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {(() => {
+                    const baseline = waterTarget.data.baseline || 0;
+                    const current = totalWithdrawal || waterTarget.data.baseline;
+                    const baselineYear = waterTarget.data.baselineYear;
+                    const currentYear = new Date().getFullYear();
+                    const yearsElapsed = currentYear - baselineYear;
+                    const annualRate = waterTarget.data.annualReductionRate || 2.5;
+                    const requiredReduction = annualRate * yearsElapsed;
+
+                    if (current > baseline) {
+                      return t('cdpProgress.aboveBaseline');
+                    } else {
+                      const actualReduction = baseline > 0 ? ((baseline - current) / baseline) * 100 : 0;
+                      const status = actualReduction >= requiredReduction ? t('cdpProgress.onTrackStatus') : t('cdpProgress.atRisk');
+                      return status;
+                    }
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Waterfall Chart */}
+            <div className="mt-6">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('cdpProgress.waterfallChart.title')}</h4>
+              <div className="h-[420px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={(() => {
+                      const baseline = waterTarget.data.baseline || 0;
+                      const currentYTD = totalWithdrawal || 0;
+
+                      // Calculate projected full year withdrawal
+                      let projectedFullYear = 0;
+                      if (forecast.data?.forecast?.length > 0) {
+                        const forecastRemaining = forecast.data.forecast.reduce((sum: number, f: any) => {
+                          return sum + (f.withdrawal || 0);
+                        }, 0);
+                        projectedFullYear = currentYTD + forecastRemaining;
+                      } else {
+                        const monthsOfData = sources.data?.monthly_trends?.length || 0;
+                        projectedFullYear = monthsOfData > 0 ? (currentYTD / monthsOfData) * 12 : currentYTD;
+                      }
+
+                      const current = projectedFullYear || waterTarget.data.baseline;
+                      const target = waterTarget.data.target || 0;
+                      const baselineYear = waterTarget.data.baselineYear;
+                      const currentYear = new Date().getFullYear();
+                      const targetYear = waterTarget.data.targetYear;
+
+                      // Calculate the change from baseline to current
+                      const changeFromBaseline = current - baseline;
+
+                      // Calculate required consumption for current year (linear trajectory)
+                      const yearsElapsed = currentYear - baselineYear;
+                      const totalYears = targetYear - baselineYear;
+                      const totalReduction = baseline - target;
+                      const requiredReduction = (totalReduction * yearsElapsed) / totalYears;
+                      const requiredConsumption = baseline - requiredReduction;
+                      const gapFromRequired = current - requiredConsumption;
+
+                      // Waterfall data with invisible base bars and visible change bars
+                      return [
+                        {
+                          name: `${baselineYear}\n${t('cdpProgress.waterfallChart.baseline')}`,
+                          base: 0,
+                          value: baseline,
+                          total: baseline,
+                          label: formatWaterVolume(baseline).value + ' ' + formatWaterVolume(baseline).unit
+                        },
+                        {
+                          name: `${t('cdpProgress.waterfallChart.required')}\n${t('cdpProgress.waterfallChart.reduction')}`,
+                          base: requiredConsumption,
+                          value: requiredReduction,
+                          total: baseline,
+                          label: `-${formatWaterVolume(requiredReduction).value} ${formatWaterVolume(requiredReduction).unit}`,
+                          isRequiredReduction: true
+                        },
+                        {
+                          name: `${currentYear}\n${t('cdpProgress.waterfallChart.required')}`,
+                          base: 0,
+                          value: requiredConsumption,
+                          total: requiredConsumption,
+                          label: formatWaterVolume(requiredConsumption).value + ' ' + formatWaterVolume(requiredConsumption).unit,
+                          isRequired: true
+                        },
+                        {
+                          name: `${t('cdpProgress.waterfallChart.gap')}\n${t('cdpProgress.waterfallChart.required')}`,
+                          base: requiredConsumption,
+                          value: gapFromRequired,
+                          total: current,
+                          label: `+${formatWaterVolume(gapFromRequired).value} ${formatWaterVolume(gapFromRequired).unit}`,
+                          isGap: true
+                        },
+                        {
+                          name: `${currentYear}\n${t('cdpProgress.waterfallChart.actual')}`,
+                          base: 0,
+                          value: current,
+                          total: current,
+                          label: formatWaterVolume(current).value + ' ' + formatWaterVolume(current).unit,
+                          isCurrent: true
+                        },
+                        {
+                          name: `${targetYear}\n${t('cdpProgress.waterfallChart.target')}`,
+                          base: 0,
+                          value: target,
+                          total: target,
+                          label: formatWaterVolume(target).value + ' ' + formatWaterVolume(target).unit,
+                          isTarget: true
+                        }
+                      ];
+                    })()}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-white/10" vertical={true} horizontal={true} />
+                    <XAxis
+                      dataKey="name"
+                      stroke="#6b7280"
+                      fontSize={11}
+                      tick={{ fill: '#6b7280' }}
+                    />
+                    <YAxis
+                      stroke="#6b7280"
+                      fontSize={11}
+                      tick={{ fill: '#6b7280' }}
+                      label={{ value: formatWaterVolume(baseline).yAxisLabel, angle: -90, position: 'insideLeft', fill: '#6b7280', fontSize: 11 }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '8px',
+                      }}
+                      content={({ active, payload }: any) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          const value = Math.abs(data.value || 0);
+                          const total = data.total || 0;
+
+                          return (
+                            <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
+                              <p className="text-white font-semibold mb-2">
+                                {data.name.replace('\n', ' ')}
+                              </p>
+                              <div className="space-y-1 text-xs">
+                                {data.label && data.label.includes('-') ? (
+                                  <p className="text-green-400">
+                                    {t('cdpProgress.waterfallChart.tooltip.reduction')}: <span className="font-medium">{formatWaterVolume(value).value} {formatWaterVolume(value).unit}</span>
+                                  </p>
+                                ) : data.label && data.label.includes('+') ? (
+                                  <p className="text-red-400">
+                                    {t('cdpProgress.waterfallChart.tooltip.increase')}: <span className="font-medium">{formatWaterVolume(value).value} {formatWaterVolume(value).unit}</span>
+                                  </p>
+                                ) : (
+                                  <p className="text-gray-300">
+                                    {t('cdpProgress.waterfallChart.tooltip.total')}: <span className="font-medium text-white">{formatWaterVolume(total).value} {formatWaterVolume(total).unit}</span>
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    {/* Invisible base bars to create waterfall effect */}
+                    <Bar dataKey="base" stackId="a" fill="transparent" />
+                    {/* Visible value bars */}
+                    <Bar dataKey="value" stackId="a" radius={[4, 4, 0, 0]}>
+                      {(() => {
+                        const colors = [
+                          '#6b7280', // baseline - gray
+                          '#10b981', // required reduction - green (downward)
+                          '#3b82f6', // required target - blue
+                          '#ef4444', // gap from required - red (upward, showing we're off track)
+                          '#f97316', // current actual - orange
+                          '#10b981' // final target - green
+                        ];
+
+                        return colors.map((color, index) => (
+                          <Cell key={`cell-${index}`} fill={color} />
+                        ));
+                      })()}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Water Metric Targets - Expandable View with Initiatives */}
-      {metricTargets.length > 0 && (
+      {metricTargets.data && (metricTargets.data.data || metricTargets.data).length > 0 && (
         <div className="mb-6">
           <div className="bg-white dark:bg-[#212121] rounded-lg p-4">
             <div className="mb-4">
@@ -1382,9 +1925,9 @@ export function WaterDashboard({
 
             <div className="space-y-3">
               {/* Group metrics by category */}
-              {Array.from(new Set(metricTargets.map(m => m.category))).map((category) => {
+              {Array.from(new Set((metricTargets.data.data || metricTargets.data).map(m => m.category))).map((category) => {
                 const isExpanded = expandedCategories.has(category);
-                const categoryMetrics = metricTargets.filter(m => m.category === category);
+                const categoryMetrics = (metricTargets.data.data || metricTargets.data).filter(m => m.category === category);
 
                 // Calculate category-level aggregate progress
                 const categoryTotalBaseline = categoryMetrics.reduce((sum, m) => sum + (m.baselineEmissions || 0), 0);
@@ -1578,11 +2121,11 @@ export function WaterDashboard({
           isOpen={true}
           onClose={() => setSelectedMetricForInitiative(null)}
           organizationId={organizationId}
-          metricTarget={metricTargets.find(mt => mt.id === selectedMetricForInitiative)}
+          metricTarget={(metricTargets.data?.data || metricTargets.data)?.find(mt => mt.id === selectedMetricForInitiative)}
           onSave={async (initiative) => {
             try {
 
-              const selectedMetric = metricTargets.find(mt => mt.id === selectedMetricForInitiative);
+              const selectedMetric = (metricTargets.data?.data || metricTargets.data)?.find(mt => mt.id === selectedMetricForInitiative);
               if (!selectedMetric) {
                 throw new Error('Metric target not found');
               }

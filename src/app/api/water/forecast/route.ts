@@ -33,9 +33,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'start_date and end_date required' }, { status: 400 });
     }
 
-    // Get historical water data for the past 36 months to build forecast model
-    const historicalStartDate = new Date(startDate);
-    historicalStartDate.setMonth(historicalStartDate.getMonth() - 36);
+    // Use ALL available historical data from 2022 onwards, including 2025 YTD
+    // This gives the ML model the most comprehensive dataset with recent patterns
+    const historicalStartDate = new Date('2022-01-01');
+
+    // Filter out future months from current year to avoid using forecast data as historical data
+    const now = new Date();
+    const filterYear = now.getFullYear();
+    const filterMonth = now.getMonth() + 1; // JavaScript months are 0-indexed
+    const maxHistoricalDate = new Date(filterYear, filterMonth, 0); // Last day of current month
 
     // Get water-related metrics (they're categorized as "Purchased Goods & Services")
     const { data: waterMetrics } = await supabaseAdmin
@@ -86,7 +92,25 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const historicalData = allData;
+    // DEDUPLICATION: Remove duplicate records before processing
+    // The database has duplicate records (same metric_id, period_start, site_id)
+    const seenRecords = new Set<string>();
+    const historicalData = allData.filter((record: any) => {
+      // Skip future months from current year (they might be forecasts stored in the database)
+      const recordDate = new Date(record.period_start);
+      if (recordDate > maxHistoricalDate) {
+        return false;
+      }
+
+      const key = `${record.metric_id}|${record.period_start}|${record.site_id || 'null'}`;
+      if (seenRecords.has(key)) {
+        return false; // Skip duplicate
+      }
+      seenRecords.add(key);
+      return true;
+    });
+
+    console.log(`📊 Water forecast data: ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)`);
 
     if (!historicalData || historicalData.length === 0) {
       return NextResponse.json({ forecast: [] });

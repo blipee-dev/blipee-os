@@ -7,7 +7,7 @@
 
 import type { PersistedClient, Persister } from '@tanstack/react-query-persist-client';
 
-const CACHE_VERSION = 1;
+const CACHE_VERSION = 12; // Fixed scope-analysis endpoint date filtering
 const CACHE_KEY = `blipee-dashboard-cache-v${CACHE_VERSION}`;
 const MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
 

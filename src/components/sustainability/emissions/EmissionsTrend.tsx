@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { TrendingUp, TrendingDown, Activity, Target } from 'lucide-react';
 import { GHG_PROTOCOL_COLORS, getScopeColor } from '@/lib/constants/ghg-colors';
+import { useTranslations } from 'next-intl';
 
 interface EmissionsTrendProps {
   historicalData: any[];
@@ -45,6 +46,8 @@ export function EmissionsTrend({
   scope3Forecast = [],
   sbtiTarget
 }: EmissionsTrendProps) {
+  const t = useTranslations('sustainability.dashboard.emissionsTrend');
+
   // Calculate SBTi target trajectory with seasonality
   const calculateSBTiTrajectory = () => {
     if (historicalData.length === 0) return [];
@@ -123,18 +126,41 @@ export function EmissionsTrend({
 
   const sbtiTrajectory = calculateSBTiTrajectory();
 
+  // Get current date to determine what's actual vs forecast
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1; // 1-12
+
   // Combine historical and forecast data with separate fields
   const combinedData = [
-    ...historicalData.map((d, index) => ({
-      ...d,
-      type: 'historical',
-      historical_total: d.total,
-      // Use intensity from API if available, otherwise calculate with real area
-      historical_intensity: d.intensity || (totalAreaM2 > 0 ? (d.total * 1000) / totalAreaM2 : 0),
-      forecast_total: null,
-      forecast_intensity: null,
-      sbti_target: sbtiTrajectory[index]?.sbti_target || null
-    })),
+    ...historicalData.map((d, index) => {
+      // Determine if this data point is actually historical or should be forecast
+      const dataYear = parseInt(d.year);
+      const monthMap: { [key: string]: number } = {
+        'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+        'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+      };
+      const dataMonth = monthMap[d.month] || 0;
+
+      // If this is current year and month is in the future, it should be forecast
+      const isFutureMonth = dataYear === currentYear && dataMonth > currentMonth;
+
+      if (isFutureMonth) {
+        // This should be treated as forecast, not historical
+        return null; // We'll filter these out
+      }
+
+      return {
+        ...d,
+        type: 'historical',
+        historical_total: d.total,
+        // Use intensity from API if available, otherwise calculate with real area
+        historical_intensity: d.intensity || (totalAreaM2 > 0 ? (d.total * 1000) / totalAreaM2 : 0),
+        forecast_total: null,
+        forecast_intensity: null,
+        sbti_target: sbtiTrajectory[index]?.sbti_target || null
+      };
+    }).filter(Boolean), // Remove null entries
     ...forecastData.map((d, index) => ({
       month: d.month,
       year: d.year,
@@ -156,7 +182,9 @@ export function EmissionsTrend({
     }))
   ];
 
-  const currentMonthIndex = historicalData.length - 1;
+  // Find the last actual data point (not forecast)
+  const actualDataPoints = combinedData.filter(d => d.type === 'historical');
+  const currentMonthIndex = actualDataPoints.length - 1;
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload[0]) {
@@ -169,18 +197,18 @@ export function EmissionsTrend({
           {data.type === 'historical' ? (
             <>
               <p className="text-sm text-gray-300">
-                Total: {data.total.toFixed(1)} tCO2e
+                {t('tooltipLabels.total')} {data.total.toFixed(1)} tCO2e
               </p>
               {selectedMetric === 'breakdown' && (
                 <>
                   <p className="text-xs text-red-400">
-                    Scope 1: {data.scope1.toFixed(1)} tCO2e
+                    {t('tooltipLabels.scope1')} {data.scope1.toFixed(1)} tCO2e
                   </p>
                   <p className="text-xs text-orange-400">
-                    Scope 2: {data.scope2.toFixed(1)} tCO2e
+                    {t('tooltipLabels.scope2')} {data.scope2.toFixed(1)} tCO2e
                   </p>
                   <p className="text-xs text-blue-400">
-                    Scope 3: {data.scope3.toFixed(1)} tCO2e
+                    {t('tooltipLabels.scope3')} {data.scope3.toFixed(1)} tCO2e
                   </p>
                 </>
               )}
@@ -188,21 +216,21 @@ export function EmissionsTrend({
           ) : (
             <>
               <p className="text-sm text-green-300">
-                Forecast: {data.total.toFixed(1)} tCO2e
+                {t('tooltipLabels.forecast')} {data.total.toFixed(1)} tCO2e
               </p>
               <p className="text-xs text-gray-400">
-                Range: {data.lower_bound?.toFixed(1)} - {data.upper_bound?.toFixed(1)}
+                {t('tooltipLabels.range')} {data.lower_bound?.toFixed(1)} - {data.upper_bound?.toFixed(1)}
               </p>
             </>
           )}
           {selectedMetric === 'intensity' && (
             <p className="text-xs text-gray-400">
-              Intensity: {(data.intensity || data.historical_intensity || data.forecast_intensity || 0).toFixed(1)} kgCO2e/m²
+              {t('tooltipLabels.intensity')} {(data.intensity || data.historical_intensity || data.forecast_intensity || 0).toFixed(1)} kgCO2e/m²
             </p>
           )}
           {selectedMetric === 'absolute' && data.sbti_target && (
             <p className="text-xs text-red-400">
-              SBTi Target: {data.sbti_target.toFixed(1)} tCO2e
+              {t('tooltipLabels.sbtiTarget')} {data.sbti_target.toFixed(1)} tCO2e
             </p>
           )}
         </div>
@@ -214,7 +242,7 @@ export function EmissionsTrend({
   const renderChart = () => {
     if (selectedMetric === 'breakdown') {
       return (
-        <ResponsiveContainer width="100%" height={350}>
+        <ResponsiveContainer width="100%" height={420} minHeight={420}>
           <AreaChart data={combinedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               {/* GHG Protocol Official Colors */}
@@ -275,19 +303,21 @@ export function EmissionsTrend({
             />
 
             {/* Current month marker */}
-            <ReferenceLine
-              x={historicalData[currentMonthIndex]?.month}
-              stroke="#666"
-              strokeDasharray="3 3"
-              label={{ value: "Now", position: "top" }}
-            />
+            {actualDataPoints[currentMonthIndex] && (
+              <ReferenceLine
+                x={actualDataPoints[currentMonthIndex]?.month}
+                stroke="#666"
+                strokeDasharray="3 3"
+                label={{ value: t('now'), position: "top" }}
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       );
     }
 
     return (
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={420} minHeight={420}>
         <LineChart data={combinedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.1)" />
 
@@ -368,29 +398,32 @@ export function EmissionsTrend({
           )}
 
           {/* Current month marker */}
-          <ReferenceLine
-            x={historicalData[currentMonthIndex]?.month}
-            stroke="#666"
-            strokeDasharray="3 3"
-            label={{ value: "Now", position: "top" }}
-          />
+          {actualDataPoints[currentMonthIndex] && (
+            <ReferenceLine
+              x={actualDataPoints[currentMonthIndex]?.month}
+              stroke="#666"
+              strokeDasharray="3 3"
+              label={{ value: t('now'), position: "top" }}
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
     );
   };
 
-  // Calculate trend
-  const recentTrend = historicalData.length >= 2
-    ? ((historicalData[historicalData.length - 1].total - historicalData[historicalData.length - 2].total) /
-       historicalData[historicalData.length - 2].total) * 100
+  // Calculate trend using only actual data points
+  const recentTrend = actualDataPoints.length >= 2
+    ? ((actualDataPoints[actualDataPoints.length - 1].total - actualDataPoints[actualDataPoints.length - 2].total) /
+       actualDataPoints[actualDataPoints.length - 2].total) * 100
     : 0;
 
-  // Calculate SBTi performance (using seasonal-aware targets)
+  // Calculate SBTi performance (using seasonal-aware targets and actual data only)
   const sbtiPerformance = (() => {
-    if (historicalData.length === 0 || sbtiTrajectory.length === 0) return null;
+    if (actualDataPoints.length === 0 || sbtiTrajectory.length === 0) return null;
 
-    const latestData = historicalData[historicalData.length - 1];
-    const latestTarget = sbtiTrajectory[historicalData.length - 1];
+    const latestData = actualDataPoints[actualDataPoints.length - 1];
+    const latestTargetIndex = actualDataPoints.length - 1;
+    const latestTarget = sbtiTrajectory[latestTargetIndex];
 
     if (!latestData || !latestTarget) return null;
 
@@ -398,9 +431,9 @@ export function EmissionsTrend({
     const difference = latestData.total - latestTarget.sbti_target;
     const percentageOff = (difference / latestTarget.sbti_target) * 100;
 
-    // Calculate overall annual performance (rolling 12 months vs target)
-    const last12Months = historicalData.slice(-12);
-    const last12Targets = sbtiTrajectory.slice(-12);
+    // Calculate overall annual performance (rolling 12 months vs target) using only actual data
+    const last12Months = actualDataPoints.slice(-12);
+    const last12Targets = sbtiTrajectory.slice(Math.max(0, actualDataPoints.length - 12), actualDataPoints.length);
 
     const actualAnnual = last12Months.reduce((sum, d) => sum + d.total, 0);
     const targetAnnual = last12Targets.reduce((sum, t) => sum + t.sbti_target, 0);
@@ -420,10 +453,10 @@ export function EmissionsTrend({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Emissions Trend & Forecast
+            {t('title')}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Historical data with ML-powered predictions
+            {t('subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -435,7 +468,7 @@ export function EmissionsTrend({
                 : 'bg-gray-100 dark:bg-white/[0.05] text-gray-700 dark:text-gray-300'
             }`}
           >
-            Absolute
+            {t('buttons.absolute')}
           </button>
           <button
             onClick={() => onMetricChange('intensity')}
@@ -445,7 +478,7 @@ export function EmissionsTrend({
                 : 'bg-gray-100 dark:bg-white/[0.05] text-gray-700 dark:text-gray-300'
             }`}
           >
-            Intensity
+            {t('buttons.intensity')}
           </button>
           <button
             onClick={() => onMetricChange('breakdown')}
@@ -455,7 +488,7 @@ export function EmissionsTrend({
                 : 'bg-gray-100 dark:bg-white/[0.05] text-gray-700 dark:text-gray-300'
             }`}
           >
-            Breakdown
+            {t('buttons.breakdown')}
           </button>
         </div>
       </div>
@@ -473,10 +506,10 @@ export function EmissionsTrend({
             )}
             <div>
               <p className="text-sm font-medium text-gray-900 dark:text-white">
-                Recent Trend
+                {t('recentTrend.title')}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Month-over-month change
+                {t('recentTrend.monthOverMonth')}
               </p>
             </div>
           </div>
@@ -487,7 +520,7 @@ export function EmissionsTrend({
               {recentTrend > 0 ? '+' : ''}{recentTrend.toFixed(1)}%
             </p>
             <p className="text-xs text-gray-500">
-              {historicalData[historicalData.length - 1]?.total.toFixed(1)} tCO2e
+              {actualDataPoints[actualDataPoints.length - 1]?.total.toFixed(1)} tCO2e
             </p>
           </div>
         </div>
@@ -501,10 +534,10 @@ export function EmissionsTrend({
                 <Target className={`w-4 h-4 ${sbtiPerformance.isOnTrack ? 'text-green-500' : 'text-red-500'}`} />
                 <div>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    SBTi Monthly Target
+                    {t('sbtiTarget.monthly')}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {sbtiPerformance.isOnTrack ? 'On track' : 'Behind target'} (seasonal-adjusted)
+                    {sbtiPerformance.isOnTrack ? t('sbtiTarget.onTrack') : t('sbtiTarget.behindTarget')} {t('sbtiTarget.seasonalAdjusted')}
                   </p>
                 </div>
               </div>
@@ -515,7 +548,7 @@ export function EmissionsTrend({
                   {sbtiPerformance.isOnTrack ? '-' : '+'}{sbtiPerformance.percentageOff.toFixed(1)}%
                 </p>
                 <p className="text-xs text-gray-500">
-                  vs monthly target
+                  {t('sbtiTarget.vsMonthlyTarget')}
                 </p>
               </div>
             </div>
@@ -526,10 +559,10 @@ export function EmissionsTrend({
                 <div className={`w-4 h-4 rounded-full ${sbtiPerformance.isAnnualOnTrack ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <div>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    Annual Progress
+                    {t('sbtiTarget.annualProgress')}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Rolling 12-month performance
+                    {t('sbtiTarget.rolling12Months')}
                   </p>
                 </div>
               </div>
@@ -540,7 +573,7 @@ export function EmissionsTrend({
                   {sbtiPerformance.isAnnualOnTrack ? '-' : '+'}{sbtiPerformance.annualPerformance.toFixed(1)}%
                 </p>
                 <p className="text-xs text-gray-500">
-                  vs annual target
+                  {t('sbtiTarget.vsAnnualTarget')}
                 </p>
               </div>
             </div>
@@ -555,21 +588,21 @@ export function EmissionsTrend({
       <div className="mt-4 flex items-center justify-center gap-6 text-xs">
         <div className="flex items-center gap-2">
           <div className="w-3 h-0.5 bg-gray-600"></div>
-          <span className="text-gray-500 dark:text-gray-400">Historical</span>
+          <span className="text-gray-500 dark:text-gray-400">{t('legend.historical')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-0.5 bg-emerald-600 border-dashed border-t border-emerald-600"></div>
-          <span className="text-gray-500 dark:text-gray-400">Forecast</span>
+          <span className="text-gray-500 dark:text-gray-400">{t('legend.forecast')}</span>
         </div>
         {selectedMetric === 'absolute' && (
           <>
             <div className="flex items-center gap-2">
               <div className="w-3 h-0.5 bg-red-500 border-dotted border-t-2 border-red-500"></div>
-              <span className="text-gray-500 dark:text-gray-400">SBTi Target</span>
+              <span className="text-gray-500 dark:text-gray-400">{t('legend.sbtiTarget')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-blue-500 opacity-20"></div>
-              <span className="text-gray-500 dark:text-gray-400">Confidence Band</span>
+              <span className="text-gray-500 dark:text-gray-400">{t('legend.confidenceBand')}</span>
             </div>
           </>
         )}

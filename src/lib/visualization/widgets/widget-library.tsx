@@ -68,10 +68,8 @@ export const MetricCard: React.FC<{
   const trendColor = trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-gray-400';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="p-6 relative overflow-hidden"
+    <div
+      className="p-6 rounded-xl relative overflow-hidden"
       style={glassStyle}
     >
       <div className="flex items-start justify-between">
@@ -100,7 +98,7 @@ export const MetricCard: React.FC<{
           background: `radial-gradient(circle at top right, ${color}, transparent)`
         }}
       />
-    </motion.div>
+    </div>
   );
 };
 

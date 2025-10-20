@@ -31,13 +31,14 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const limitParam = searchParams.get('limit');
     const limit = limitParam ? parseInt(limitParam) : 10;
+    const siteId = searchParams.get('site_id');
 
     if (!startDate || !endDate) {
       return NextResponse.json({ error: 'start_date and end_date are required' }, { status: 400 });
     }
 
     // Get top metrics using the baseline calculator
-    const metrics = await getTopMetrics(organizationId, startDate, endDate, limit);
+    const metrics = await getTopMetrics(organizationId, startDate, endDate, limit, siteId || undefined);
 
 
     return NextResponse.json({

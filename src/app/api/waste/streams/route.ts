@@ -96,7 +96,17 @@ export async function GET(request: NextRequest) {
       }
 
       if (queryEndDate) {
-        query = query.lte('period_start', queryEndDate);
+        // Filter out future months - only include data through current month
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1;
+        const maxHistoricalDate = new Date(currentYear, currentMonth, 0); // Last day of current month
+        const requestedEndDate = new Date(queryEndDate);
+
+        // Use the earlier of: requested end date OR current month end
+        const effectiveEndDate = requestedEndDate <= maxHistoricalDate ? queryEndDate : maxHistoricalDate.toISOString().split('T')[0];
+
+        query = query.lte('period_start', effectiveEndDate);
       }
 
       if (siteId) {

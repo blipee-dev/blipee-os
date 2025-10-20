@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Building2,
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { GHGProtocolForm } from './GHGProtocolForm';
 import { useTranslations } from '@/providers/LanguageProvider';
+import { useGHGProtocolInventory } from '@/hooks/useDashboardData';
 
 interface GHGInventoryData {
   reporting_year: number;
@@ -65,39 +66,16 @@ export function GHGProtocolInventory({
 }: GHGProtocolInventoryProps) {
   const t = useTranslations('sustainability.compliance.ghgProtocol');
 
-  const [data, setData] = useState<GHGInventoryData | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Fetch data using React Query hook
+  const { data, isLoading, refetch } = useGHGProtocolInventory(selectedYear, selectedSite);
+
+  // UI-only state
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Check if viewing a past year (read-only mode)
   const isHistoricalYear = selectedYear < new Date().getFullYear();
   const isReadOnly = isHistoricalYear;
-
-  useEffect(() => {
-    fetchData();
-  }, [selectedYear, selectedSite]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        year: selectedYear.toString()
-      });
-
-      if (selectedSite?.id) {
-        params.append('siteId', selectedSite.id);
-      }
-
-      const response = await fetch(`/api/compliance/ghg-protocol?${params}`);
-      const result = await response.json();
-      setData(result);
-    } catch (error) {
-      console.error('Error fetching GHG Protocol data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSave = async (formData: any) => {
     setSaving(true);
@@ -110,7 +88,7 @@ export function GHGProtocolInventory({
 
       if (response.ok) {
         setShowForm(false);
-        fetchData(); // Refresh data
+        refetch(); // Refresh data from React Query
       } else {
         console.error('Failed to save GHG Protocol settings');
       }
@@ -121,7 +99,7 @@ export function GHGProtocolInventory({
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />

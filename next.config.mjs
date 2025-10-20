@@ -58,10 +58,12 @@ const nextConfig = {
         headers: securityHeaders,
       },
       {
-        // Additional headers for API routes
+        // Additional headers for API routes - force no caching
         source: '/api/:path*',
         headers: [
-          { key: 'Cache-Control', value: 'no-store, max-age=0' },
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' },
+          { key: 'Pragma', value: 'no-cache' },
+          { key: 'Expires', value: '0' },
         ],
       },
     ];

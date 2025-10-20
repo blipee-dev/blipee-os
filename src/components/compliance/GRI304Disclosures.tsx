@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Leaf, MapPin, Shield, TrendingUp } from 'lucide-react';
+import { useGRIDisclosures } from '@/hooks/useDashboardData';
 
 interface GRI304DisclosuresProps {
   organizationId: string;
@@ -63,43 +64,11 @@ export function GRI304Disclosures({
   selectedSite,
   selectedPeriod
 }: GRI304DisclosuresProps) {
-  const [data, setData] = useState<BiodiversityData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Fetch data using React Query hook
+  const { data, isLoading, error: queryError } = useGRIDisclosures('304', selectedYear, selectedSite);
 
-  useEffect(() => {
-    async function fetchBiodiversityData() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const params = new URLSearchParams({
-          year: selectedYear.toString(),
-          organizationId: organizationId
-        });
-
-        if (selectedSite) {
-          params.append('siteId', selectedSite);
-        }
-
-        const response = await fetch(`/api/compliance/gri-304?${params}`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch biodiversity data');
-        }
-
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        console.error('Error fetching GRI 304 data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchBiodiversityData();
-  }, [organizationId, selectedYear, selectedSite]);
+  const loading = isLoading;
+  const error = queryError?.message || null;
 
   if (loading) {
     return (

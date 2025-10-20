@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Scale, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { useGRIDisclosures } from '@/hooks/useDashboardData';
 
 interface GRI307DisclosuresProps {
   organizationId: string;
@@ -49,43 +50,11 @@ export function GRI307Disclosures({
   selectedSite,
   selectedPeriod
 }: GRI307DisclosuresProps) {
-  const [data, setData] = useState<ComplianceData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Fetch data using React Query hook
+  const { data, isLoading, error: queryError } = useGRIDisclosures('307', selectedYear, selectedSite);
 
-  useEffect(() => {
-    async function fetchComplianceData() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const params = new URLSearchParams({
-          year: selectedYear.toString(),
-          organizationId: organizationId
-        });
-
-        if (selectedSite) {
-          params.append('siteId', selectedSite);
-        }
-
-        const response = await fetch(`/api/compliance/gri-307?${params}`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch compliance data');
-        }
-
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        console.error('Error fetching GRI 307 data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchComplianceData();
-  }, [organizationId, selectedYear, selectedSite]);
+  const loading = isLoading;
+  const error = queryError?.message || null;
 
   if (loading) {
     return (

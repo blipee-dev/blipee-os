@@ -203,7 +203,17 @@ export async function GET(request: NextRequest) {
     }
 
     if (endDate) {
-      query = query.lte('period_start', endDate);
+      // Filter out future months - only include data through current month
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      const maxHistoricalDate = new Date(currentYear, currentMonth, 0); // Last day of current month
+      const requestedEndDate = new Date(endDate);
+
+      // Use the earlier of: requested end date OR current month end
+      const effectiveEndDate = requestedEndDate <= maxHistoricalDate ? endDate : maxHistoricalDate.toISOString().split('T')[0];
+
+      query = query.lte('period_start', effectiveEndDate);
     }
 
     const { data, error } = await query;

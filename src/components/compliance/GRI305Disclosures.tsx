@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Factory,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { complianceColors } from '@/styles/compliance-design-tokens';
 import { ReductionInitiativeForm } from './ReductionInitiativeForm';
+import { useGRIDisclosures, useReductionInitiatives } from '@/hooks/useDashboardData';
 
 interface GRIData {
   scope1_total: number;
@@ -65,68 +66,20 @@ export function GRI305Disclosures({
   selectedSite,
   selectedPeriod
 }: GRI305DisclosuresProps) {
-  const [data, setData] = useState<GRIData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Fetch data using React Query hooks
+  const { data, isLoading, error: queryError, refetch } = useGRIDisclosures('305', selectedYear, selectedSite);
+  const { data: initiatives, refetch: refetchInitiatives } = useReductionInitiatives(organizationId);
+
+  // UI-only state
   const [showInitiativeForm, setShowInitiativeForm] = useState(false);
   const [selectedInitiative, setSelectedInitiative] = useState<any>(null);
   const [saving, setSaving] = useState(false);
-  const [initiatives, setInitiatives] = useState<any[]>([]);
 
   // Check if viewing a past year (read-only mode)
   const isHistoricalYear = selectedYear < new Date().getFullYear();
   const isReadOnly = isHistoricalYear;
 
-  useEffect(() => {
-    async function fetchGRIData() {
-      try {
-        const params = new URLSearchParams({
-          year: selectedYear.toString()
-        });
-
-        if (selectedSite?.id) {
-          params.append('siteId', selectedSite.id);
-        }
-
-        const response = await fetch(`/api/compliance/gri-305?${params}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch GRI 305 data');
-        }
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchGRIData();
-  }, [selectedYear, selectedSite]);
-
-  useEffect(() => {
-    async function fetchInitiatives() {
-      try {
-        const params = new URLSearchParams({
-          year: selectedYear.toString()
-        });
-
-        if (selectedSite?.id) {
-          params.append('siteId', selectedSite.id);
-        }
-
-        const response = await fetch(`/api/compliance/reduction-initiatives?${params}`);
-        if (response.ok) {
-          const result = await response.json();
-          setInitiatives(result);
-        }
-      } catch (err) {
-        console.error('Failed to fetch initiatives:', err);
-      }
-    }
-
-    fetchInitiatives();
-  }, [selectedYear, selectedSite]);
+  const error = queryError?.message || null;
 
   const handleSaveInitiative = async (formData: any) => {
     setSaving(true);
@@ -142,19 +95,9 @@ export function GRI305Disclosures({
         throw new Error('Failed to save initiative');
       }
 
-      // Refresh initiatives list
-      const initiativesResponse = await fetch('/api/compliance/reduction-initiatives');
-      if (initiativesResponse.ok) {
-        const result = await initiativesResponse.json();
-        setInitiatives(result);
-      }
-
-      // Refresh GRI data
-      const griResponse = await fetch('/api/compliance/gri-305');
-      if (griResponse.ok) {
-        const griResult = await griResponse.json();
-        setData(griResult);
-      }
+      // Refresh data using React Query
+      refetchInitiatives();
+      refetch();
 
       setShowInitiativeForm(false);
       setSelectedInitiative(null);
@@ -178,26 +121,16 @@ export function GRI305Disclosures({
         throw new Error('Failed to delete initiative');
       }
 
-      // Refresh initiatives list
-      const initiativesResponse = await fetch('/api/compliance/reduction-initiatives');
-      if (initiativesResponse.ok) {
-        const result = await initiativesResponse.json();
-        setInitiatives(result);
-      }
-
-      // Refresh GRI data
-      const griResponse = await fetch('/api/compliance/gri-305');
-      if (griResponse.ok) {
-        const griResult = await griResponse.json();
-        setData(griResult);
-      }
+      // Refresh data using React Query
+      refetchInitiatives();
+      refetch();
     } catch (err) {
       console.error('Error deleting initiative:', err);
       alert('Failed to delete initiative. Please try again.');
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/[0.05] rounded-xl p-12 shadow-sm">
         <div className="flex items-center justify-center">
@@ -458,7 +391,7 @@ export function GRI305Disclosures({
             )}
           </div>
 
-          {initiatives.length > 0 ? (
+          {initiatives && initiatives.length > 0 ? (
             <div className="space-y-2">
               {initiatives.map((initiative) => (
                 <div

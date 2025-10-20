@@ -50,7 +50,17 @@ async function fetchAllMetricsData(
     }
 
     if (endDate) {
-      query = query.lte('period_end', endDate);
+      // Filter out future months - only include data through current month
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      const maxHistoricalDate = new Date(currentYear, currentMonth, 0); // Last day of current month
+      const requestedEndDate = new Date(endDate);
+
+      // Use the earlier of: requested end date OR current month end
+      const effectiveEndDate = requestedEndDate <= maxHistoricalDate ? endDate : maxHistoricalDate.toISOString().split('T')[0];
+
+      query = query.lte('period_end', effectiveEndDate);
     }
 
     // Apply any additional filters
@@ -122,10 +132,13 @@ export interface MetricTotal {
  */
 export async function getBaselineEmissions(
   organizationId: string,
-  baselineYear?: number
+  baselineYear?: number,
+  siteId?: string
 ): Promise<BaselineEmissions | null> {
   const currentYear = new Date().getFullYear();
   const year = baselineYear || currentYear - 2;
+
+  const additionalFilters = siteId ? { site_id: siteId } : undefined;
 
   // Get scope-specific emissions for baseline year by joining with metrics_catalog
   const metricsData = await fetchAllMetricsData(
@@ -135,7 +148,8 @@ export async function getBaselineEmissions(
       metrics_catalog!inner(scope)
     `,
     `${year}-01-01`,
-    `${year}-12-31`
+    `${year}-12-31`,
+    additionalFilters
   );
 
   if (!metricsData || metricsData.length === 0) {
@@ -183,8 +197,11 @@ export async function getBaselineEmissions(
  */
 export async function getYearEmissions(
   organizationId: string,
-  year: number
+  year: number,
+  siteId?: string
 ): Promise<number> {
+  const additionalFilters = siteId ? { site_id: siteId } : undefined;
+
   const metricsData = await fetchAllMetricsData(
     organizationId,
     `
@@ -192,7 +209,8 @@ export async function getYearEmissions(
       metrics_catalog!inner(scope)
     `,
     `${year}-01-01`,
-    `${year}-12-31`
+    `${year}-12-31`,
+    additionalFilters
   );
 
   if (!metricsData || metricsData.length === 0) {
@@ -223,8 +241,11 @@ export async function getYearEmissions(
 export async function getPeriodEmissions(
   organizationId: string,
   startDate: string,
-  endDate: string
+  endDate: string,
+  siteId?: string
 ): Promise<{ total: number; scope_1: number; scope_2: number; scope_3: number }> {
+  const additionalFilters = siteId ? { site_id: siteId } : undefined;
+
   const metricsData = await fetchAllMetricsData(
     organizationId,
     `
@@ -232,7 +253,8 @@ export async function getPeriodEmissions(
       metrics_catalog!inner(scope)
     `,
     startDate,
-    endDate
+    endDate,
+    additionalFilters
   );
 
   if (!metricsData || metricsData.length === 0) {
@@ -275,9 +297,10 @@ export async function getPeriodEmissions(
 export async function getScopeBreakdown(
   organizationId: string,
   startDate: string,
-  endDate: string
+  endDate: string,
+  siteId?: string
 ): Promise<ScopeBreakdown> {
-  const emissions = await getPeriodEmissions(organizationId, startDate, endDate);
+  const emissions = await getPeriodEmissions(organizationId, startDate, endDate, siteId);
   return {
     scope_1: emissions.scope_1,
     scope_2: emissions.scope_2,
@@ -289,12 +312,20 @@ export async function getScopeBreakdown(
 /**
  * Calculate emissions by category with scope breakdown
  * Returns array of categories sorted by total emissions (highest first)
+ *
+ * @param organizationId - Organization UUID
+ * @param startDate - Start date for the period
+ * @param endDate - End date for the period
+ * @param siteId - Optional site ID to filter by specific site
  */
 export async function getCategoryBreakdown(
   organizationId: string,
   startDate: string,
-  endDate: string
+  endDate: string,
+  siteId?: string
 ): Promise<CategoryBreakdown[]> {
+  const additionalFilters = siteId ? { site_id: siteId } : undefined;
+
   const metricsData = await fetchAllMetricsData(
     organizationId,
     `
@@ -302,7 +333,8 @@ export async function getCategoryBreakdown(
       metrics_catalog!inner(scope, category)
     `,
     startDate,
-    endDate
+    endDate,
+    additionalFilters
   );
 
   if (!metricsData || metricsData.length === 0) {
@@ -371,8 +403,11 @@ export async function getCategoryBreakdown(
 export async function getEnergyTotal(
   organizationId: string,
   startDate: string,
-  endDate: string
+  endDate: string,
+  siteId?: string
 ): Promise<MetricTotal> {
+  const additionalFilters = siteId ? { site_id: siteId } : undefined;
+
   const metricsData = await fetchAllMetricsData(
     organizationId,
     `
@@ -380,7 +415,8 @@ export async function getEnergyTotal(
       metrics_catalog!inner(category, unit)
     `,
     startDate,
-    endDate
+    endDate,
+    additionalFilters
   );
 
   if (!metricsData || metricsData.length === 0) {
@@ -415,8 +451,11 @@ export async function getEnergyTotal(
 export async function getWaterTotal(
   organizationId: string,
   startDate: string,
-  endDate: string
+  endDate: string,
+  siteId?: string
 ): Promise<MetricTotal> {
+  const additionalFilters = siteId ? { site_id: siteId } : undefined;
+
   const metricsData = await fetchAllMetricsData(
     organizationId,
     `
@@ -424,7 +463,8 @@ export async function getWaterTotal(
       metrics_catalog!inner(name, category)
     `,
     startDate,
-    endDate
+    endDate,
+    additionalFilters
   );
 
   if (!metricsData || metricsData.length === 0) {
@@ -458,8 +498,11 @@ export async function getWaterTotal(
 export async function getWasteTotal(
   organizationId: string,
   startDate: string,
-  endDate: string
+  endDate: string,
+  siteId?: string
 ): Promise<MetricTotal> {
+  const additionalFilters = siteId ? { site_id: siteId } : undefined;
+
   const metricsData = await fetchAllMetricsData(
     organizationId,
     `
@@ -467,7 +510,8 @@ export async function getWasteTotal(
       metrics_catalog!inner(category)
     `,
     startDate,
-    endDate
+    endDate,
+    additionalFilters
   );
 
   if (!metricsData || metricsData.length === 0) {
@@ -517,7 +561,8 @@ export interface MonthlyData {
 export async function getMonthlyEmissions(
   organizationId: string,
   startDate: string,
-  endDate: string
+  endDate: string,
+  siteId?: string
 ): Promise<MonthlyData[]> {
   // Fetch ALL data with pagination to avoid 1000-record limit
   let allData: any[] = [];
@@ -526,7 +571,17 @@ export async function getMonthlyEmissions(
   let hasMore = true;
 
   while (hasMore) {
-    const { data: batchData, error } = await supabaseAdmin
+    // Filter out future months - only include data through current month
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const maxHistoricalDate = new Date(currentYear, currentMonth, 0); // Last day of current month
+    const requestedEndDate = new Date(endDate);
+
+    // Use the earlier of: requested end date OR current month end
+    const effectiveEndDate = requestedEndDate <= maxHistoricalDate ? endDate : maxHistoricalDate.toISOString().split('T')[0];
+
+    let query = supabaseAdmin
       .from('metrics_data')
       .select(`
         co2e_emissions,
@@ -535,9 +590,15 @@ export async function getMonthlyEmissions(
       `)
       .eq('organization_id', organizationId)
       .gte('period_start', startDate)
-      .lte('period_end', endDate)
+      .lte('period_end', effectiveEndDate)
       .order('period_start', { ascending: true })
       .range(rangeStart, rangeStart + batchSize - 1);
+
+    if (siteId) {
+      query = query.eq('site_id', siteId);
+    }
+
+    const { data: batchData, error } = await query;
 
     if (error || !batchData || batchData.length === 0) {
       hasMore = false;
@@ -627,10 +688,11 @@ export async function getIntensityMetrics(
   endDate: string,
   employees: number,
   revenue: number,
-  totalAreaSqm: number
+  totalAreaSqm: number,
+  siteId?: string
 ): Promise<IntensityMetrics> {
   // Get current period emissions
-  const emissions = await getPeriodEmissions(organizationId, startDate, endDate);
+  const emissions = await getPeriodEmissions(organizationId, startDate, endDate, siteId);
 
   // Calculate intensities (rounded to 2 decimals for precision)
   const perEmployee = employees > 0 ? Math.round((emissions.total / employees) * 100) / 100 : 0;
@@ -646,7 +708,8 @@ export async function getIntensityMetrics(
   const prevEmissions = await getPeriodEmissions(
     organizationId,
     prevStartDate.toISOString().split('T')[0],
-    prevEndDate.toISOString().split('T')[0]
+    prevEndDate.toISOString().split('T')[0],
+    siteId
   );
 
   // Calculate YoY percentages
@@ -703,21 +766,22 @@ export async function getYoYComparison(
   organizationId: string,
   startDate: string,
   endDate: string,
-  metricType: 'emissions' | 'energy' | 'water' | 'waste'
+  metricType: 'emissions' | 'energy' | 'water' | 'waste',
+  siteId?: string
 ): Promise<YoYComparison> {
   // Get current period value
   let current = 0;
   if (metricType === 'emissions') {
-    const emissions = await getPeriodEmissions(organizationId, startDate, endDate);
+    const emissions = await getPeriodEmissions(organizationId, startDate, endDate, siteId);
     current = emissions.total;
   } else if (metricType === 'energy') {
-    const energy = await getEnergyTotal(organizationId, startDate, endDate);
+    const energy = await getEnergyTotal(organizationId, startDate, endDate, siteId);
     current = energy.value;
   } else if (metricType === 'water') {
-    const water = await getWaterTotal(organizationId, startDate, endDate);
+    const water = await getWaterTotal(organizationId, startDate, endDate, siteId);
     current = water.value;
   } else if (metricType === 'waste') {
-    const waste = await getWasteTotal(organizationId, startDate, endDate);
+    const waste = await getWasteTotal(organizationId, startDate, endDate, siteId);
     current = waste.value;
   }
 
@@ -732,28 +796,32 @@ export async function getYoYComparison(
     const emissions = await getPeriodEmissions(
       organizationId,
       prevStartDate.toISOString().split('T')[0],
-      prevEndDate.toISOString().split('T')[0]
+      prevEndDate.toISOString().split('T')[0],
+      siteId
     );
     previous = emissions.total;
   } else if (metricType === 'energy') {
     const energy = await getEnergyTotal(
       organizationId,
       prevStartDate.toISOString().split('T')[0],
-      prevEndDate.toISOString().split('T')[0]
+      prevEndDate.toISOString().split('T')[0],
+      siteId
     );
     previous = energy.value;
   } else if (metricType === 'water') {
     const water = await getWaterTotal(
       organizationId,
       prevStartDate.toISOString().split('T')[0],
-      prevEndDate.toISOString().split('T')[0]
+      prevEndDate.toISOString().split('T')[0],
+      siteId
     );
     previous = water.value;
   } else if (metricType === 'waste') {
     const waste = await getWasteTotal(
       organizationId,
       prevStartDate.toISOString().split('T')[0],
-      prevEndDate.toISOString().split('T')[0]
+      prevEndDate.toISOString().split('T')[0],
+      siteId
     );
     previous = waste.value;
   }
@@ -805,10 +873,11 @@ export async function getTopEmissionSources(
   organizationId: string,
   startDate: string,
   endDate: string,
-  limit: number = 5
+  limit: number = 5,
+  siteId?: string
 ): Promise<EmissionSource[]> {
   // Get category breakdown for current period
-  const categories = await getCategoryBreakdown(organizationId, startDate, endDate);
+  const categories = await getCategoryBreakdown(organizationId, startDate, endDate, siteId);
 
   // Get previous year same period for trends
   const startDateObj = new Date(startDate);
@@ -819,7 +888,8 @@ export async function getTopEmissionSources(
   const prevCategories = await getCategoryBreakdown(
     organizationId,
     prevStartDate.toISOString().split('T')[0],
-    prevEndDate.toISOString().split('T')[0]
+    prevEndDate.toISOString().split('T')[0],
+    siteId
   );
 
   // Create lookup map for previous year
@@ -1013,8 +1083,14 @@ export async function getScopeCategoryBreakdown(
   organizationId: string,
   scope: 'scope_1' | 'scope_2' | 'scope_3',
   startDate: string,
-  endDate: string
+  endDate: string,
+  siteId?: string
 ): Promise<CategoryEmissions[]> {
+  const additionalFilters: Record<string, any> = { 'metrics_catalog.scope': scope };
+  if (siteId) {
+    additionalFilters.site_id = siteId;
+  }
+
   const metricsData = await fetchAllMetricsData(
     organizationId,
     `
@@ -1023,7 +1099,7 @@ export async function getScopeCategoryBreakdown(
     `,
     startDate,
     endDate,
-    { 'metrics_catalog.scope': scope }
+    additionalFilters
   );
 
   if (!metricsData || metricsData.length === 0) {
@@ -1241,8 +1317,11 @@ export async function getTopMetrics(
   organizationId: string,
   startDate: string,
   endDate: string,
-  limit: number = 10
+  limit: number = 10,
+  siteId?: string
 ): Promise<MetricValue[]> {
+  const additionalFilters = siteId ? { site_id: siteId } : undefined;
+
   const metricsData = await fetchAllMetricsData(
     organizationId,
     `
@@ -1251,7 +1330,8 @@ export async function getTopMetrics(
       metrics_catalog!inner(name, unit, category, scope)
     `,
     startDate,
-    endDate
+    endDate,
+    additionalFilters
   );
 
   if (!metricsData || metricsData.length === 0) {

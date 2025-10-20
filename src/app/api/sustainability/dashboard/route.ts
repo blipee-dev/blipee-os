@@ -3,6 +3,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import { SCOPE_COLORS } from '@/lib/constants/sustainability-colors';
+
+export const dynamic = 'force-dynamic';
 import {
   getBaselineEmissions,
   getYearEmissions,
@@ -36,12 +38,19 @@ async function fetchAllMetricsData(
 
 
   while (hasMore) {
+    // Filter out future months - only include data through current month
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const maxHistoricalDate = new Date(currentYear, currentMonth, 0); // Last day of current month
+    const effectiveEndDate = endDate <= maxHistoricalDate ? endDate : maxHistoricalDate;
+
     let query = supabaseAdmin
       .from('metrics_data')
       .select(selectFields)
       .eq('organization_id', organizationId)
       .gte('period_start', startDate.toISOString())
-      .lte('period_end', endDate.toISOString())
+      .lte('period_end', effectiveEndDate.toISOString())
       .order('period_start', { ascending: true })
       .range(rangeStart, rangeStart + batchSize - 1);
 
@@ -245,7 +254,13 @@ export async function GET(request: NextRequest) {
       metricsDataLength: metricsData?.length
     });
 
-    return NextResponse.json(processedData);
+    return NextResponse.json(processedData, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
+    });
 
   } catch (error: any) {
     console.error('Dashboard API error:', error);
