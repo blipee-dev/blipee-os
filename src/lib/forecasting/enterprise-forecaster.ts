@@ -40,14 +40,8 @@ export class EnterpriseForecast {
     if (debug) {
     }
 
-    // For sparse data (< 36 months), use weighted exponential smoothing
-    if (n < 36) {
-      if (debug) {
-      }
-      return this.exponentialSmoothingWithTrend(values, monthsToForecast, debug);
-    }
-
-    // Use full seasonal decomposition for 36+ months (3 years of data)
+    // Always use seasonal decomposition (Facebook Prophet-style)
+    // This works well with 36 months of data and captures trend + seasonality
     if (debug) {
     }
     return this.seasonalDecompositionForecast(values, monthsToForecast, debug);
@@ -55,6 +49,7 @@ export class EnterpriseForecast {
 
   /**
    * Seasonal Decomposition: Trend + Seasonality + Residual
+   * WITH OUTLIER DETECTION AND ROBUST STATISTICS
    */
   private static seasonalDecompositionForecast(
     data: number[],
@@ -64,33 +59,48 @@ export class EnterpriseForecast {
     const n = data.length;
     const period = Math.min(36, n); // Use 36-month pattern if enough data, otherwise use available data length
 
+    // Step 0: Detect and cap outliers (values > 2.5 std dev from median)
+    const cleanedData = this.removeOutliers(data);
+    const outliersRemoved = data.length - cleanedData.filter((v, i) => v === data[i]).length;
+
+    if (debug && outliersRemoved > 0) {
+      console.log(`📊 Outlier detection: ${outliersRemoved} outliers capped/removed from ${n} data points`);
+    }
+
     // Step 1: Extract trend using robust moving average
-    const trend = this.extractTrend(data, period);
+    const trend = this.extractTrend(cleanedData, period);
 
     if (debug) {
     }
 
-    // Step 2: Detrend and extract seasonality
-    const detrended = data.map((v, i) => v - trend[i]);
+    // Step 2: Detrend and extract seasonality (using cleaned data)
+    const detrended = cleanedData.map((v, i) => v - trend[i]);
     const seasonal = this.extractSeasonality(detrended, period);
 
     if (debug) {
     }
 
-    // Step 3: Calculate residuals
-    const residuals = data.map((v, i) => v - trend[i] - seasonal[i % period]);
+    // Step 3: Calculate residuals (using cleaned data)
+    const residuals = cleanedData.map((v, i) => v - trend[i] - seasonal[i % period]);
     const residualStd = Math.sqrt(this.calculateVariance(residuals));
 
     if (debug) {
     }
 
-    // Step 4: Forecast trend
+    // Step 4: Forecast trend WITH DAMPENING
+    // Dampening prevents extreme trends from projecting too far
     const trendSlope = this.calculateRobustTrendSlope(trend);
     const lastTrend = trend[n - 1];
     const trendForecast: number[] = [];
 
+    // Dampening factor: reduces trend impact over time
+    // phi = 0.95 means trend effect reduces by 5% per step
+    const phi = 0.95; // Dampening factor (0.9-0.98 range is typical)
+
     for (let i = 1; i <= steps; i++) {
-      trendForecast.push(lastTrend + trendSlope * i);
+      // Apply dampening: trend effect = trendSlope * phi^i
+      const dampenedSlope = trendSlope * Math.pow(phi, i);
+      trendForecast.push(lastTrend + dampenedSlope * i);
     }
 
     if (debug) {
@@ -113,17 +123,17 @@ export class EnterpriseForecast {
       upper: forecasted.map(v => v + 1.96 * residualStd)
     };
 
-    // Calculate R² for model quality
-    const meanData = data.reduce((a, b) => a + b, 0) / n;
-    const ssTot = data.reduce((sum, v) => sum + Math.pow(v - meanData, 2), 0);
+    // Calculate R² for model quality (using cleaned data)
+    const meanData = cleanedData.reduce((a, b) => a + b, 0) / n;
+    const ssTot = cleanedData.reduce((sum, v) => sum + Math.pow(v - meanData, 2), 0);
     const ssRes = residuals.reduce((sum, v) => sum + Math.pow(v, 2), 0);
     const r2 = 1 - (ssRes / ssTot);
 
-    const seasonalStrength = Math.sqrt(this.calculateVariance(seasonal)) / Math.sqrt(this.calculateVariance(data));
+    const seasonalStrength = Math.sqrt(this.calculateVariance(seasonal)) / Math.sqrt(this.calculateVariance(cleanedData));
 
     return {
       forecasted,
-      actualMonthlyAvg: data.reduce((a, b) => a + b, 0) / n,
+      actualMonthlyAvg: cleanedData.reduce((a, b) => a + b, 0) / n,
       forecastMonthlyAvg: forecasted.reduce((a, b) => a + b, 0) / steps,
       confidence,
       method: 'seasonal-decomposition',
@@ -191,11 +201,42 @@ export class EnterpriseForecast {
   }
 
   /**
+   * Detect and cap outliers using robust statistics (MAD - Median Absolute Deviation)
+   * Caps values that are > 2.5 MAD from the median (roughly equivalent to 2.5 std dev)
+   */
+  private static removeOutliers(data: number[]): number[] {
+    const n = data.length;
+    if (n < 12) return [...data]; // Need at least 12 months for outlier detection
+
+    // Calculate median
+    const sorted = [...data].sort((a, b) => a - b);
+    const median = sorted[Math.floor(n / 2)];
+
+    // Calculate MAD (Median Absolute Deviation)
+    const deviations = data.map(v => Math.abs(v - median));
+    const sortedDevs = deviations.sort((a, b) => a - b);
+    const mad = sortedDevs[Math.floor(n / 2)];
+
+    // Cap outliers at 2.5 MAD from median (more robust than std dev)
+    const threshold = 2.5 * mad * 1.4826; // 1.4826 is scaling factor to match std dev
+    const upperBound = median + threshold;
+    const lowerBound = Math.max(0, median - threshold);
+
+    return data.map(v => {
+      if (v > upperBound) return upperBound; // Cap high outliers
+      if (v < lowerBound) return lowerBound; // Cap low outliers
+      return v;
+    });
+  }
+
+  /**
    * Calculate robust trend slope using weighted least squares
+   * NOW USES 24-36 MONTHS (not just 12) for more stable long-term trends
    */
   private static calculateRobustTrendSlope(trend: number[]): number {
     const n = trend.length;
-    const recentWindow = Math.min(12, n); // Use last 12 months
+    // Use longer window: 24 months if available, or at least 18 months, minimum 12
+    const recentWindow = n >= 24 ? 24 : n >= 18 ? 18 : Math.min(12, n);
     const recentTrend = trend.slice(-recentWindow);
 
     // Weighted least squares (more weight on recent data)

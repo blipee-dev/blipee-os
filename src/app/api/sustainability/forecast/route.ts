@@ -3,7 +3,6 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
-import { getMonthlyEmissions, getProjectedAnnualEmissions } from '@/lib/sustainability/baseline-calculator';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,24 +34,139 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'start_date and end_date required' }, { status: 400 });
     }
 
-    // ✅ USE CALCULATOR for monthly emissions (now with pagination support)
+    // Use ALL available historical data from 2022 onwards, including 2025 YTD
+    // This gives the ML model the most comprehensive dataset with recent patterns
+    const historicalStartDate = new Date('2022-01-01');
 
-    // Get all historical data using calculator (now handles pagination internally)
-    const historicalStartDate = '2020-01-01';
-    const monthlyEmissionsData = await getMonthlyEmissions(orgInfo.organizationId, historicalStartDate, endDate);
+    // Filter out future months from current year to avoid using forecast data as historical data
+    const now = new Date();
+    const filterYear = now.getFullYear();
+    const filterMonth = now.getMonth() + 1; // JavaScript months are 0-indexed
+    const maxHistoricalDate = new Date(filterYear, filterMonth, 0); // Last day of current month
 
-    if (!monthlyEmissionsData || monthlyEmissionsData.length === 0) {
+    // Fetch ALL data with pagination to avoid 1000-record limit
+    let allData: any[] = [];
+    let rangeStart = 0;
+    const batchSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+      let query = supabaseAdmin
+        .from('metrics_data')
+        .select('metric_id, site_id, co2e_emissions, period_start, metrics_catalog!inner(scope)')
+        .eq('organization_id', orgInfo.organizationId)
+        .gte('period_start', historicalStartDate.toISOString().split('T')[0])
+        .order('period_start', { ascending: true })
+        .range(rangeStart, rangeStart + batchSize - 1);
+
+      // ✅ CRITICAL FIX: Filter by site_id if provided
+      if (siteId) {
+        query = query.eq('site_id', siteId);
+      }
+
+      const { data: batchData, error } = await query;
+
+      if (error) {
+        console.error(`❌ Query error:`, error);
+        hasMore = false;
+        break;
+      }
+
+      if (!batchData || batchData.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      console.log(`📦 Fetched batch: ${batchData.length} records (range: ${rangeStart}-${rangeStart + batchSize - 1})${siteId ? ` for site ${siteId}` : ''}`);
+      allData = allData.concat(batchData);
+
+      if (batchData.length < batchSize) {
+        hasMore = false;
+      } else {
+        rangeStart += batchSize;
+      }
+    }
+
+    // DEDUPLICATION: Remove duplicate records before processing
+    // The database has duplicate records (same metric_id, period_start, site_id)
+    const seenRecords = new Set<string>();
+    const historicalData = allData.filter((record: any) => {
+      // Skip future months from current year (they might be forecasts stored in the database)
+      const recordDate = new Date(record.period_start);
+      if (recordDate > maxHistoricalDate) {
+        return false;
+      }
+
+      const key = `${record.metric_id}|${record.period_start}|${record.site_id || 'null'}`;
+      if (seenRecords.has(key)) {
+        return false; // Skip duplicate
+      }
+      seenRecords.add(key);
+      return true;
+    });
+
+    console.log(`📊 Emissions forecast data: ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)${siteId ? ` for site ${siteId}` : ''}`);
+
+    if (!historicalData || historicalData.length === 0) {
+      console.log(`⚠️ No historical data found${siteId ? ` for site ${siteId}` : ''}`);
       return NextResponse.json({ forecast: [] });
     }
 
-    // Convert calculator format to forecast format (kg CO2e for forecaster)
-    const historicalMonthly = monthlyEmissionsData.map(m => ({
-      monthKey: m.month,
-      total: m.emissions * 1000, // Convert tCO2e to kg for forecaster
-      scope1: m.scope_1 * 1000,
-      scope2: m.scope_2 * 1000,
-      scope3: m.scope_3 * 1000
-    }));
+    // Debug: Log sample records to understand structure
+    if (historicalData.length > 0) {
+      console.log(`📋 Sample record:`, JSON.stringify(historicalData[0], null, 2));
+    }
+
+    // Group by month and scope
+    const monthlyData: { [key: string]: { scope1: number; scope2: number; scope3: number } } = {};
+
+    historicalData.forEach((record: any) => {
+      const date = new Date(record.period_start);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = { scope1: 0, scope2: 0, scope3: 0 };
+      }
+
+      const emissions = parseFloat(record.co2e_emissions) || 0; // Already in kg CO2e
+
+      // Handle both possible structures for metrics_catalog
+      const scope = record.metrics_catalog?.scope || (record.metrics_catalog as any)?.scope;
+
+      if (!scope) {
+        console.warn(`⚠️ No scope found for record:`, record.metric_id, record.period_start);
+        return;
+      }
+
+      if (scope === 'scope_1') {
+        monthlyData[monthKey].scope1 += emissions;
+      } else if (scope === 'scope_2') {
+        monthlyData[monthKey].scope2 += emissions;
+      } else if (scope === 'scope_3') {
+        monthlyData[monthKey].scope3 += emissions;
+      }
+    });
+
+    console.log(`📅 Monthly data aggregated for ${Object.keys(monthlyData).length} months`);
+
+    // Convert to array format sorted chronologically
+    const historicalMonthly = Object.keys(monthlyData)
+      .sort()
+      .map(monthKey => ({
+        monthKey,
+        total: monthlyData[monthKey].scope1 + monthlyData[monthKey].scope2 + monthlyData[monthKey].scope3,
+        scope1: monthlyData[monthKey].scope1,
+        scope2: monthlyData[monthKey].scope2,
+        scope3: monthlyData[monthKey].scope3
+      }));
+
+    // Debug: Log sample monthly data
+    if (historicalMonthly.length > 0) {
+      console.log(`📊 Sample monthly data (first 3):`, historicalMonthly.slice(0, 3));
+      console.log(`📊 Sample monthly data (last 3):`, historicalMonthly.slice(-3));
+      const totalEmissions = historicalMonthly.reduce((sum, m) => sum + m.total, 0);
+      console.log(`📊 Total historical emissions: ${(totalEmissions / 1000).toFixed(1)} tCO2e across ${historicalMonthly.length} months`);
+    }
 
 
 

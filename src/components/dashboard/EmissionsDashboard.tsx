@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Cloud,
   TrendingUp,
@@ -50,7 +50,8 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  ReferenceLine
 } from 'recharts';
 import type { Building } from '@/types/auth';
 import type { TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
@@ -64,6 +65,36 @@ interface EmissionsDashboardProps {
   selectedSite: Building | null;
   selectedPeriod: TimePeriod;
 }
+
+// Helper function to translate month abbreviations
+const translateMonth = (monthAbbr: string, t: (key: string) => string): string => {
+  const monthLower = monthAbbr.toLowerCase().trim();
+
+  const monthMap: { [key: string]: string } = {
+    'jan': 'jan',
+    'feb': 'feb',
+    'mar': 'mar',
+    'apr': 'apr',
+    'may': 'may',
+    'jun': 'jun',
+    'jul': 'jul',
+    'aug': 'aug',
+    'sep': 'sep',
+    'oct': 'oct',
+    'nov': 'nov',
+    'dec': 'dec'
+  };
+
+  const key = monthMap[monthLower];
+  if (key) {
+    const translated = t(key);
+    if (translated && translated !== key) {
+      return translated;
+    }
+  }
+
+  return monthAbbr;
+};
 
 // Helper function to get action recommendation key for emission sources
 const getActionRecommendationKey = (categoryName: string): string => {
@@ -413,501 +444,355 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
     metricTargets: metricTargetsQuery,
     prevYearScopeAnalysis,
     fullPrevYearScopeAnalysis,
+    topMetrics: topMetricsQuery,
+    scope2Metrics: scope2MetricsQuery,
+    forecast: forecastQuery,
     isLoading
   } = useEmissionsDashboard(selectedPeriod, selectedSite, organizationId);
 
-  // Summary metrics
-  const [totalEmissions, setTotalEmissions] = useState(0);
-  const [totalEmissionsYoY, setTotalEmissionsYoY] = useState(0);
-  const [intensityMetric, setIntensityMetric] = useState(0);
-  const [intensityYoY, setIntensityYoY] = useState(0);
-
-  // Comprehensive intensity metrics for all standards
-  const [intensityMetrics, setIntensityMetrics] = useState<any>({
-    // GRI 305-4 & TCFD
-    perEmployee: 0,
-    perRevenue: 0,
-    perSqm: 0,
-    // SBTi GEVA
-    perValueAdded: 0,
-    // Additional
-    perOperatingHour: 0,
-    perCustomer: 0,
-    // Sector-specific (SBTi pathways & GRI production-based)
-    sectorSpecific: null,
-    // Scope-specific
-    scope1: { perEmployee: 0, perRevenue: 0, perSqm: 0 },
-    scope2: { perEmployee: 0, perRevenue: 0, perSqm: 0 },
-    scope3: { perEmployee: 0, perRevenue: 0, perSqm: 0 }
-  });
-
-  // Keep individual states for backward compatibility
-  const [intensityPerEmployee, setIntensityPerEmployee] = useState(0);
-  const [intensityPerRevenue, setIntensityPerRevenue] = useState(0);
-  const [intensityPerSqm, setIntensityPerSqm] = useState(0);
-
-  // Site comparison
-  const [siteComparison, setSiteComparison] = useState<any[]>([]);
-
-  // Scope breakdown
-  const [scope1Total, setScope1Total] = useState(0);
-  const [scope2Total, setScope2Total] = useState(0);
-  const [scope3Total, setScope3Total] = useState(0);
-  const [scopeYoY, setScopeYoY] = useState({ scope1: 0, scope2: 0, scope3: 0 });
-
-  // Scope 2 dual reporting
-  const [scope2LocationBased, setScope2LocationBased] = useState(0);
-  const [scope2MarketBased, setScope2MarketBased] = useState(0);
-  const [renewablePercentage, setRenewablePercentage] = useState(0);
-  const [scope2CategoriesData, setScope2CategoriesData] = useState<any>({});
-  const [scope2Metrics, setScope2Metrics] = useState<any[]>([]); // Individual metrics for Scope 2
-
-  // Scope 3 coverage
-  const [scope3Coverage, setScope3Coverage] = useState<any>(null);
-  const [scope3CategoriesData, setScope3CategoriesData] = useState<any>({});
-
-  // Trends
-  const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
-  const [prevYearMonthlyTrends, setPrevYearMonthlyTrends] = useState<any[]>([]);
-  const [replanningTrajectory, setReplanningTrajectory] = useState<any>(null);
-  // feasibility now comes from React Query hook (line 396)
-
-  // Top emission sources
-  const [topEmitters, setTopEmitters] = useState<Array<{ name: string; emissions: number; percentage: number }>>([]);
-
-  // Scope 1 detailed breakdown
-  const [scope1Sources, setScope1Sources] = useState<any[]>([]);
-  const [scope1ByGas, setScope1ByGas] = useState<any[]>([]);
-
-  // Geographic breakdown
-  const [geographicBreakdown, setGeographicBreakdown] = useState<any[]>([]);
-
-  // Targets
-  const [targetData, setTargetData] = useState<any>(null);
-
-  // Data quality
-  const [dataQuality, setDataQuality] = useState<any>(null);
-
-  // Projected emissions for SBTi tracker
-  const [projectedAnnualEmissions, setProjectedAnnualEmissions] = useState(0);
-  const [actualEmissionsYTD, setActualEmissionsYTD] = useState(0);
-  const [forecastedEmissions, setForecastedEmissions] = useState(0);
-  const [previousYearTotalEmissions, setPreviousYearTotalEmissions] = useState<number>(0);
-
-  // Metric-level targets for expandable view
-  const [metricTargets, setMetricTargets] = useState<any[]>([]);
+  // UI-only state (not derived from data)
+  const [activeEducationalModal, setActiveEducationalModal] = useState<string | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [selectedMetricForInitiative, setSelectedMetricForInitiative] = useState<string | null>(null);
 
-  // Processing useEffect - runs when cached data changes
-  useEffect(() => {
-    // Wait for all required data to be available
-    if (!scopeAnalysis.data || !dashboard.data) return;
-
-    const processEmissionsData = async () => {
-      try {
-        const scopeData = scopeAnalysis.data;
-        const dashboardData = dashboard.data;
-        const prevScopeData = prevYearScopeAnalysis.data;
-        const fullPrevYearData = fullPrevYearScopeAnalysis.data;
-
-        // Set target data from query
-        if (targets.data) {
-          setTargetData(targets.data);
-        }
-
-        // Set replanning trajectory from query
-        if (trajectory.data) {
-          setReplanningTrajectory(trajectory.data);
-        } else {
-          setReplanningTrajectory(null);
-        }
-
-        // feasibility.data is directly available from the hook
-
-        // Set metric targets from query
-        if (metricTargetsQuery.data) {
-          setMetricTargets(metricTargetsQuery.data);
-        }
-
-
-        // Extract scope totals
-        const extractedScopeData = scopeData.scopeData || scopeData;
-        const prevExtractedScopeData = prevScopeData ? (prevScopeData.scopeData || prevScopeData) : {};
-        const fullPrevYearExtractedScopeData = fullPrevYearData ? (fullPrevYearData.scopeData || fullPrevYearData) : {};
-
-        const s1Current = extractedScopeData.scope_1?.total || 0;
-        const s2Current = extractedScopeData.scope_2?.total || 0;
-        const s3Current = extractedScopeData.scope_3?.total || 0;
-
-        const s1Previous = prevExtractedScopeData.scope_1?.total || 0;
-        const s2Previous = prevExtractedScopeData.scope_2?.total || 0;
-        const s3Previous = prevExtractedScopeData.scope_3?.total || 0;
-
-        const s1FullPrevYear = fullPrevYearExtractedScopeData.scope_1?.total || 0;
-        const s2FullPrevYear = fullPrevYearExtractedScopeData.scope_2?.total || 0;
-        const s3FullPrevYear = fullPrevYearExtractedScopeData.scope_3?.total || 0;
-
-        const currentTotal = s1Current + s2Current + s3Current;
-        const previousTotal = s1Previous + s2Previous + s3Previous;
-        const fullPreviousYearTotal = s1FullPrevYear + s2FullPrevYear + s3FullPrevYear;
-
-        setScope1Total(s1Current);
-        setScope2Total(s2Current);
-        setScope3Total(s3Current);
-        setTotalEmissions(currentTotal);
-        setPreviousYearTotalEmissions(fullPreviousYearTotal);
-
-        // Calculate YoY changes
-        const totalYoY = previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
-        const s1YoY = s1Previous > 0 ? ((s1Current - s1Previous) / s1Previous) * 100 : 0;
-        const s2YoY = s2Previous > 0 ? ((s2Current - s2Previous) / s2Previous) * 100 : 0;
-        const s3YoY = s3Previous > 0 ? ((s3Current - s3Previous) / s3Previous) * 100 : 0;
-
-        setTotalEmissionsYoY(totalYoY);
-        setScopeYoY({ scope1: s1YoY, scope2: s2YoY, scope3: s3YoY });
-
-        // Multiple intensity metrics
-        const employees = scopeData.organizationEmployees || extractedScopeData.organizationEmployees || 200;
-        const revenue = scopeData.annualRevenue || extractedScopeData.annualRevenue || 0;
-        const totalArea = scopeData.totalAreaSqm || extractedScopeData.totalAreaSqm || 0;
-
-        // Per employee (tCO2e/FTE)
-        const intensityEmployee = employees > 0 ? currentTotal / employees : 0;
-        const prevIntensityEmployee = employees > 0 ? previousTotal / employees : 0;
-        const intensityYoYCalc = prevIntensityEmployee > 0 ? ((intensityEmployee - prevIntensityEmployee) / prevIntensityEmployee) * 100 : 0;
-
-        // Per revenue (tCO2e/M€ or tCO2e/M$)
-        const intensityRev = revenue > 0 ? (currentTotal * 1000000) / revenue : 0; // tCO2e per million revenue
-
-        // Per sqm (kgCO2e/m²)
-        const intensitySqm = totalArea > 0 ? (currentTotal * 1000) / totalArea : 0; // Convert tonnes to kg
-
-        // Use comprehensive intensity metrics from API if available
-        if (scopeData.intensityMetrics) {
-          setIntensityMetrics(scopeData.intensityMetrics);
-          setIntensityPerEmployee(scopeData.intensityMetrics.perEmployee);
-          setIntensityPerRevenue(scopeData.intensityMetrics.perRevenue);
-          setIntensityPerSqm(scopeData.intensityMetrics.perSqm);
-          setIntensityMetric(scopeData.intensityMetrics.perEmployee); // Keep for backwards compatibility
-        } else {
-          // Fallback to manual calculation
-          setIntensityMetric(intensityEmployee);
-          setIntensityPerEmployee(intensityEmployee);
-          setIntensityPerRevenue(intensityRev);
-          setIntensityPerSqm(intensitySqm);
-        }
-        setIntensityYoY(intensityYoYCalc);
-
-        // Scope 2 dual reporting and categories
-        setScope2LocationBased(extractedScopeData.scope_2?.locationBased || s2Current);
-        setScope2MarketBased(extractedScopeData.scope_2?.marketBased || s2Current);
-        setRenewablePercentage(extractedScopeData.scope_2?.renewablePercentage || 0);
-
-        // Extract Scope 2 categories
-        if (extractedScopeData.scope_2?.categories) {
-          console.log('🔍 Scope 2 Categories from API:', extractedScopeData.scope_2.categories);
-          console.log('🔍 Full Scope 2 data:', extractedScopeData.scope_2);
-          setScope2CategoriesData(extractedScopeData.scope_2.categories);
-        }
-
-        // Scope 3 coverage - categories is an object with nested data
-        const scope3Categories = extractedScopeData.scope_3?.categories || {};
-
-        // Extract emissions from nested objects or use direct values
-        const scope3CategoriesFlat: any = {};
-        Object.entries(scope3Categories).forEach(([key, value]) => {
-          if (typeof value === 'object' && value !== null) {
-            // Nested object - check for 'value' or 'emissions' property
-            if ('value' in value) {
-              const emissionsValue = (value as any).value; // Already in tonnes from API
-              scope3CategoriesFlat[key] = emissionsValue;
-            } else if ('emissions' in value) {
-              const emissionsValue = (value as any).emissions / 1000; // Convert kg to tonnes
-              scope3CategoriesFlat[key] = emissionsValue;
-            }
-          } else if (typeof value === 'number') {
-            // Direct number value (already in correct unit)
-            scope3CategoriesFlat[key] = value;
-          }
-        });
-
-        const trackedCategories = Object.values(scope3CategoriesFlat).filter((emissions: any) => emissions > 0).length;
-
-        setScope3Coverage({
-          tracked: trackedCategories,
-          missing: 15 - trackedCategories,
-          percentage: (trackedCategories / 15) * 100
-        });
-        setScope3CategoriesData(scope3CategoriesFlat);
-
-        // Monthly trends from dashboard API with enterprise forecasting
-        if (dashboardData.trendData && dashboardData.trendData.length > 0) {
-          // Transform trend data to include 'total' field
-          const trends = dashboardData.trendData.map((m: any) => ({
-            month: m.month,
-            total: m.emissions || 0,
-            scope1: m.scope1 || 0,
-            scope2: m.scope2 || 0,
-            scope3: m.scope3 || 0,
-            forecast: false
-          }));
-
-
-          // Fetch enterprise forecast for remaining months (same approach as Overview)
-          const forecastParams = new URLSearchParams({
-            start_date: selectedPeriod.start,
-            end_date: selectedPeriod.end,
-          });
-          if (selectedSite) {
-            forecastParams.append('site_id', selectedSite.id);
-          }
-          const forecastRes = await fetch(`/api/sustainability/forecast?${forecastParams}`);
-          if (forecastRes.ok) {
-            const forecastData = await forecastRes.json();
-
-            if (forecastData.forecast && forecastData.forecast.length > 0) {
-
-              // Add forecast months to trends with separate keys
-              const forecastMonths = forecastData.forecast.map((f: any) => ({
-                month: f.month,
-                totalForecast: f.total || 0,
-                scope1Forecast: f.scope1 || 0,
-                scope2Forecast: f.scope2 || 0,
-                scope3Forecast: f.scope3 || 0,
-                forecast: true
-              }));
-
-              // Calculate total projected emissions for the year (actual + forecast)
-              const actualEmissions = trends.reduce((sum: number, t: any) => sum + (t.total || 0), 0);
-              const forecastedEmissionsTotal = forecastMonths.reduce((sum: number, f: any) => sum + f.totalForecast, 0);
-              const projectedTotal = actualEmissions + forecastedEmissionsTotal;
-
-              console.log('📊 Projected annual emissions:', {
-                actual: actualEmissions.toFixed(1),
-                forecasted: forecastedEmissionsTotal.toFixed(1),
-                total: projectedTotal.toFixed(1)
-              });
-
-              // Store projected emissions in state for SBTi tracker
-              setProjectedAnnualEmissions(projectedTotal);
-              setActualEmissionsYTD(actualEmissions);
-              setForecastedEmissions(forecastedEmissionsTotal);
-
-              // Add forecast keys to the last actual data point to create smooth transition
-              const lastActual = trends[trends.length - 1];
-              const modifiedTrends = [...trends];
-              modifiedTrends[modifiedTrends.length - 1] = {
-                ...lastActual,
-                // Add forecast data keys with same values to create transition point
-                totalForecast: lastActual.total,
-                scope1Forecast: lastActual.scope1,
-                scope2Forecast: lastActual.scope2,
-                scope3Forecast: lastActual.scope3
-              };
-
-
-              // Add target reduction path to each data point
-              const combinedTrends = [...modifiedTrends, ...forecastMonths];
-              const trendsWithTarget = addTargetPath(combinedTrends, targetData, replanningTrajectory);
-              setMonthlyTrends(trendsWithTarget);
-            } else {
-              const trendsWithTarget = addTargetPath(trends, targetData, replanningTrajectory);
-              setMonthlyTrends(trendsWithTarget);
-            }
-          } else {
-            console.warn('⚠️ Forecast API not available, showing actual data only');
-            const trendsWithTarget = addTargetPath(trends, targetData, replanningTrajectory);
-            setMonthlyTrends(trendsWithTarget);
-          }
-        } else if (dashboardData.trends) {
-          const trendsWithTarget = addTargetPath(dashboardData.trends, targetData, replanningTrajectory);
-          setMonthlyTrends(trendsWithTarget);
-        }
-
-        // Fetch previous year data for YoY comparison (monthly trends)
-        // Find the last actual data point from the monthly trends we just fetched
-        let actualEndDate = new Date(selectedPeriod.end);
-
-        if (dashboardData.trendData && dashboardData.trendData.length > 0) {
-          // Get the last month with data
-          const lastDataPoint = dashboardData.trendData[dashboardData.trendData.length - 1];
-          const lastDataMonth = lastDataPoint.month; // Format: "Jan" or similar
-
-          // Find the month index and create proper end date
-          const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-          const monthIndex = monthNames.indexOf(lastDataMonth);
-          if (monthIndex !== -1) {
-            const currentYear = new Date(selectedPeriod.start).getFullYear();
-            actualEndDate = new Date(currentYear, monthIndex + 1, 0); // Last day of the month
-          }
-        }
-
-        const startDate = new Date(selectedPeriod.start);
-        const previousYearStart = new Date(startDate);
-        previousYearStart.setFullYear(startDate.getFullYear() - 1);
-        const previousYearEnd = new Date(actualEndDate);
-        previousYearEnd.setFullYear(actualEndDate.getFullYear() - 1);
-
-        const prevYearParams = new URLSearchParams({
-          start_date: previousYearStart.toISOString().split('T')[0],
-          end_date: previousYearEnd.toISOString().split('T')[0],
-        });
-
-        if (selectedSite) {
-          prevYearParams.append('site_id', selectedSite.id);
-        }
-
-        try {
-
-          const prevYearUrl = `/api/sustainability/dashboard?${prevYearParams}`;
-          const prevDashboardRes = await fetch(prevYearUrl);
-          const prevDashboardData = await prevDashboardRes.json();
-
-
-          // Extract monthly trends from previous year dashboard data
-          if (prevDashboardData.trendData && prevDashboardData.trendData.length > 0) {
-            const prevTrends = prevDashboardData.trendData.map((m: any) => ({
-              month: m.month,
-              total: m.emissions || 0,
-              scope1: m.scope1 || 0,
-              scope2: m.scope2 || 0,
-              scope3: m.scope3 || 0,
-              monthKey: m.monthKey || undefined // Try to preserve monthKey if available
-            }));
-
-            setPrevYearMonthlyTrends(prevTrends);
-          } else {
-            console.warn('⚠️ No previous year trend data available');
-            setPrevYearMonthlyTrends([]);
-          }
-        } catch (error) {
-          console.warn('⚠️ Could not fetch previous year data for YoY comparison:', error);
-          setPrevYearMonthlyTrends([]);
-        }
-
-        // Fetch Top Emitters at METRIC level (not category level)
-        // This shows individual metrics like "Grid Electricity", "EV Chargers", "District Heating"
-        // instead of aggregated categories like "Purchased Electricity"
-        const topMetricsParams = new URLSearchParams({
-          start_date: selectedPeriod.start,
-          end_date: selectedPeriod.end,
-        });
-        if (selectedSite) {
-          topMetricsParams.append('site_id', selectedSite.id);
-        }
-
-        try {
-          const topMetricsResponse = await fetch(`/api/sustainability/top-metrics?${topMetricsParams}`);
-          const topMetricsData = await topMetricsResponse.json();
-
-          if (topMetricsData.metrics && topMetricsData.metrics.length > 0) {
-            // Map the metric-level data to the format expected by the UI
-            const topFive = topMetricsData.metrics.slice(0, 5).map((metric: any) => ({
-              name: metric.name,
-              emissions: metric.emissions,
-              percentage: currentTotal > 0 ? (metric.emissions / currentTotal) * 100 : 0,
-              scope: metric.scope === 'scope_1' ? 'Scope 1' : metric.scope === 'scope_2' ? 'Scope 2' : 'Scope 3'
-            }));
-
-            setTopEmitters(topFive);
-          } else {
-            setTopEmitters([]);
-          }
-        } catch (error) {
-          console.error('❌ [Top Emitters] Error fetching top metrics:', error);
-          setTopEmitters([]);
-        }
-
-        // Fetch Scope 2 individual metrics (using s2Current for accurate percentages)
-        try {
-          const scope2MetricsParams = new URLSearchParams({
-            start_date: selectedPeriod.start,
-            end_date: selectedPeriod.end,
-            limit: '50' // Get up to 50 metrics to ensure we capture all Scope 2 sources
-          });
-          if (selectedSite) {
-            scope2MetricsParams.append('site_id', selectedSite.id);
-          }
-
-          const scope2MetricsResponse = await fetch(`/api/sustainability/top-metrics?${scope2MetricsParams}`);
-          const scope2MetricsData = await scope2MetricsResponse.json();
-
-          if (scope2MetricsData.metrics && scope2MetricsData.metrics.length > 0) {
-            // Filter for only Scope 2 metrics and calculate percentages using s2Current
-            const scope2Only = scope2MetricsData.metrics
-              .filter((metric: any) => metric.scope === 'scope_2')
-              .map((metric: any) => ({
-                name: metric.name,
-                emissions: metric.emissions,
-                percentage: s2Current > 0 ? (metric.emissions / s2Current) * 100 : 0
-              }));
-
-            setScope2Metrics(scope2Only);
-          } else {
-            setScope2Metrics([]);
-          }
-        } catch (error) {
-          console.error('❌ [Scope 2 Metrics] Error fetching scope 2 metrics:', error);
-          setScope2Metrics([]);
-        }
-
-        // Scope 1 detailed breakdown
-        if (extractedScopeData.scope_1?.categories) {
-          const scope1CategoriesArray: any[] = [];
-          Object.entries(extractedScopeData.scope_1.categories).forEach(([key, value]) => {
-            if ((value as number) > 0) {
-              scope1CategoriesArray.push({
-                name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                emissions: value as number
-              });
-            }
-          });
-          setScope1Sources(scope1CategoriesArray);
-        }
-
-        // Scope 1 by gas type (if available)
-        if (extractedScopeData.scope_1?.byGasType) {
-          const gasData = Object.entries(extractedScopeData.scope_1.byGasType)
-            .filter(([_, value]) => (value as number) > 0)
-            .map(([name, emissions]) => ({
-              name: name.toUpperCase(),
-              value: emissions as number
-            }));
-          setScope1ByGas(gasData);
-        }
-
-        // Geographic breakdown (if available)
-        if (scopeData.geographic) {
-          setGeographicBreakdown(scopeData.geographic);
-        }
-
-        // Site comparison (from dashboard API)
-        if (dashboardData.siteComparison && dashboardData.siteComparison.length > 1) {
-          // Use data directly from API - it already has intensity calculated
-          const siteComparisonData = dashboardData.siteComparison.map((site: any) => ({
-            name: site.site || 'Unknown Site',
-            emissions: site.total || site.totalEmissions || 0,
-            area: site.area || 0,
-            intensity: site.intensity || site.emissions || 0, // kgCO2e/m² - already calculated by API
-            performance: site.performanceStatus || site.performance || 'unknown',
-            employees: site.employees || 0
-          })).sort((a: any, b: any) => b.intensity - a.intensity); // Sort by highest intensity first
-
-          setSiteComparison(siteComparisonData);
-        }
-
-        // Data quality
-        if (scopeData.dataQuality) {
-          setDataQuality(scopeData.dataQuality);
-        }
-
-      } catch (error) {
-        console.error('Error processing emissions data:', error);
+  // Process all emissions data in a single useMemo (replaces useEffect)
+  const emissionsData = useMemo(() => {
+    // Return defaults if main data not loaded
+    if (!scopeAnalysis.data || !dashboard.data) {
+      // Process top emitters even if main data not loaded (they come from separate query)
+      let topEmittersResult: any[] = [];
+      if (topMetricsQuery.data?.metrics && topMetricsQuery.data.metrics.length > 0) {
+        topEmittersResult = topMetricsQuery.data.metrics.slice(0, 5).map((metric: any) => ({
+          name: metric.name,
+          emissions: metric.emissions,
+          percentage: 0, // Can't calculate without total
+          scope: metric.scope === 'scope_1' ? 'Scope 1' : metric.scope === 'scope_2' ? 'Scope 2' : 'Scope 3'
+        }));
       }
+
+      // Process Scope 2 metrics even if main data not loaded
+      let scope2MetricsResult: any[] = [];
+      if (scope2MetricsQuery.data?.metrics && scope2MetricsQuery.data.metrics.length > 0) {
+        scope2MetricsResult = scope2MetricsQuery.data.metrics
+          .filter((metric: any) => metric.scope === 'scope_2')
+          .map((metric: any) => ({
+            name: metric.name,
+            emissions: metric.emissions,
+            percentage: 0 // Can't calculate without s2Total
+          }));
+      }
+      return {
+        totalEmissions: 0,
+        totalEmissionsYoY: 0,
+        intensityMetric: 0,
+        intensityYoY: 0,
+        intensityMetrics: {
+          perEmployee: 0,
+          perRevenue: 0,
+          perSqm: 0,
+          perValueAdded: 0,
+          perOperatingHour: 0,
+          perCustomer: 0,
+          sectorSpecific: null,
+          scope1: { perEmployee: 0, perRevenue: 0, perSqm: 0 },
+          scope2: { perEmployee: 0, perRevenue: 0, perSqm: 0 },
+          scope3: { perEmployee: 0, perRevenue: 0, perSqm: 0 }
+        },
+        intensityPerEmployee: 0,
+        intensityPerRevenue: 0,
+        intensityPerSqm: 0,
+        siteComparison: [],
+        scope1Total: 0,
+        scope2Total: 0,
+        scope3Total: 0,
+        scopeYoY: { scope1: 0, scope2: 0, scope3: 0 },
+        scope2LocationBased: 0,
+        scope2MarketBased: 0,
+        renewablePercentage: 0,
+        scope2CategoriesData: {},
+        scope2Metrics: scope2MetricsResult,
+        scope3Coverage: null,
+        scope3CategoriesData: {},
+        monthlyTrends: [],
+        prevYearMonthlyTrends: [],
+        replanningTrajectory: null,
+        topEmitters: topEmittersResult,
+        scope1Sources: [],
+        scope1ByGas: [],
+        geographicBreakdown: [],
+        targetData: null,
+        dataQuality: null,
+        projectedAnnualEmissions: 0,
+        actualEmissionsYTD: 0,
+        forecastedEmissions: 0,
+        previousYearTotalEmissions: 0,
+        metricTargets: []
+      };
+    }
+
+    const scopeData = scopeAnalysis.data;
+    const dashboardData = dashboard.data;
+    const prevScopeData = prevYearScopeAnalysis.data;
+    const fullPrevYearData = fullPrevYearScopeAnalysis.data;
+
+    // Extract scope totals
+    const extractedScopeData = scopeData.scopeData || scopeData;
+    const prevExtractedScopeData = prevScopeData ? (prevScopeData.scopeData || prevScopeData) : {};
+    const fullPrevYearExtractedScopeData = fullPrevYearData ? (fullPrevYearData.scopeData || fullPrevYearData) : {};
+
+    const s1Current = extractedScopeData.scope_1?.total || 0;
+    const s2Current = extractedScopeData.scope_2?.total || 0;
+    const s3Current = extractedScopeData.scope_3?.total || 0;
+
+    const s1Previous = prevExtractedScopeData.scope_1?.total || 0;
+    const s2Previous = prevExtractedScopeData.scope_2?.total || 0;
+    const s3Previous = prevExtractedScopeData.scope_3?.total || 0;
+
+    const s1FullPrevYear = fullPrevYearExtractedScopeData.scope_1?.total || 0;
+    const s2FullPrevYear = fullPrevYearExtractedScopeData.scope_2?.total || 0;
+    const s3FullPrevYear = fullPrevYearExtractedScopeData.scope_3?.total || 0;
+
+    const currentTotal = s1Current + s2Current + s3Current;
+    const previousTotal = s1Previous + s2Previous + s3Previous;
+    const fullPreviousYearTotal = s1FullPrevYear + s2FullPrevYear + s3FullPrevYear;
+
+    // Calculate YoY changes
+    const totalYoY = previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
+    const s1YoY = s1Previous > 0 ? ((s1Current - s1Previous) / s1Previous) * 100 : 0;
+    const s2YoY = s2Previous > 0 ? ((s2Current - s2Previous) / s2Previous) * 100 : 0;
+    const s3YoY = s3Previous > 0 ? ((s3Current - s3Previous) / s3Previous) * 100 : 0;
+
+    // Multiple intensity metrics
+    const employees = scopeData.organizationEmployees || extractedScopeData.organizationEmployees || 200;
+    const revenue = scopeData.annualRevenue || extractedScopeData.annualRevenue || 0;
+    const totalArea = scopeData.totalAreaSqm || extractedScopeData.totalAreaSqm || 0;
+
+    // Per employee (tCO2e/FTE)
+    const intensityEmployee = employees > 0 ? currentTotal / employees : 0;
+    const prevIntensityEmployee = employees > 0 ? previousTotal / employees : 0;
+    const intensityYoYCalc = prevIntensityEmployee > 0 ? ((intensityEmployee - prevIntensityEmployee) / prevIntensityEmployee) * 100 : 0;
+
+    // Per revenue (tCO2e/M€ or tCO2e/M$)
+    const intensityRev = revenue > 0 ? (currentTotal * 1000000) / revenue : 0;
+
+    // Per sqm (kgCO2e/m²)
+    const intensitySqm = totalArea > 0 ? (currentTotal * 1000) / totalArea : 0;
+
+    let intensityMetricsResult: any;
+    let intensityPerEmployeeResult: number;
+    let intensityPerRevenueResult: number;
+    let intensityPerSqmResult: number;
+    let intensityMetricResult: number;
+
+    // Use comprehensive intensity metrics from API if available
+    if (scopeData.intensityMetrics) {
+      intensityMetricsResult = scopeData.intensityMetrics;
+      intensityPerEmployeeResult = scopeData.intensityMetrics.perEmployee;
+      intensityPerRevenueResult = scopeData.intensityMetrics.perRevenue;
+      intensityPerSqmResult = scopeData.intensityMetrics.perSqm;
+      intensityMetricResult = scopeData.intensityMetrics.perEmployee;
+    } else {
+      // Fallback to manual calculation
+      intensityMetricResult = intensityEmployee;
+      intensityPerEmployeeResult = intensityEmployee;
+      intensityPerRevenueResult = intensityRev;
+      intensityPerSqmResult = intensitySqm;
+      intensityMetricsResult = {
+        perEmployee: intensityEmployee,
+        perRevenue: intensityRev,
+        perSqm: intensitySqm,
+        perValueAdded: 0,
+        perOperatingHour: 0,
+        perCustomer: 0,
+        sectorSpecific: null,
+        scope1: { perEmployee: 0, perRevenue: 0, perSqm: 0 },
+        scope2: { perEmployee: 0, perRevenue: 0, perSqm: 0 },
+        scope3: { perEmployee: 0, perRevenue: 0, perSqm: 0 }
+      };
+    }
+
+    // Scope 2 dual reporting and categories
+    const scope2LocationBasedResult = extractedScopeData.scope_2?.locationBased || s2Current;
+    const scope2MarketBasedResult = extractedScopeData.scope_2?.marketBased || s2Current;
+    const renewablePercentageResult = extractedScopeData.scope_2?.renewablePercentage || 0;
+    const scope2CategoriesDataResult = extractedScopeData.scope_2?.categories || {};
+
+    if (extractedScopeData.scope_2?.categories) {
+      console.log('🔍 Scope 2 Categories from API:', extractedScopeData.scope_2.categories);
+      console.log('🔍 Full Scope 2 data:', extractedScopeData.scope_2);
+    }
+
+    // Scope 3 coverage
+    const scope3Categories = extractedScopeData.scope_3?.categories || {};
+    const scope3CategoriesFlat: any = {};
+    Object.entries(scope3Categories).forEach(([key, value]) => {
+      if (typeof value === 'object' && value !== null) {
+        if ('value' in value) {
+          const emissionsValue = (value as any).value;
+          scope3CategoriesFlat[key] = emissionsValue;
+        } else if ('emissions' in value) {
+          const emissionsValue = (value as any).emissions / 1000;
+          scope3CategoriesFlat[key] = emissionsValue;
+        }
+      } else if (typeof value === 'number') {
+        scope3CategoriesFlat[key] = value;
+      }
+    });
+
+    const trackedCategories = Object.values(scope3CategoriesFlat).filter((emissions: any) => emissions > 0).length;
+    const scope3CoverageResult = {
+      tracked: trackedCategories,
+      missing: 15 - trackedCategories,
+      percentage: (trackedCategories / 15) * 100
     };
 
-    processEmissionsData();
+    // Scope 1 detailed breakdown
+    const scope1SourcesResult: any[] = [];
+    if (extractedScopeData.scope_1?.categories) {
+      Object.entries(extractedScopeData.scope_1.categories).forEach(([key, value]) => {
+        if ((value as number) > 0) {
+          scope1SourcesResult.push({
+            name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            emissions: value as number
+          });
+        }
+      });
+    }
+
+    // Scope 1 by gas type
+    const scope1ByGasResult: any[] = [];
+    if (extractedScopeData.scope_1?.byGasType) {
+      const gasData = Object.entries(extractedScopeData.scope_1.byGasType)
+        .filter(([_, value]) => (value as number) > 0)
+        .map(([name, emissions]) => ({
+          name: name.toUpperCase(),
+          value: emissions as number
+        }));
+      scope1ByGasResult.push(...gasData);
+    }
+
+    // Geographic breakdown
+    const geographicBreakdownResult = scopeData.geographic || [];
+
+    // Site comparison
+    let siteComparisonResult: any[] = [];
+    if (dashboardData.siteComparison && dashboardData.siteComparison.length > 1) {
+      siteComparisonResult = dashboardData.siteComparison.map((site: any) => ({
+        name: site.site || 'Unknown Site',
+        emissions: site.total || site.totalEmissions || 0,
+        area: site.area || 0,
+        intensity: site.intensity || site.emissions || 0,
+        performance: site.performanceStatus || site.performance || 'unknown',
+        employees: site.employees || 0
+      })).sort((a: any, b: any) => b.intensity - a.intensity);
+    }
+
+    // Data quality
+    const dataQualityResult = scopeData.dataQuality || null;
+
+    // Monthly trends - use data from dashboard API
+    let monthlyTrendsResult: any[] = [];
+    if (dashboardData.trendData && dashboardData.trendData.length > 0) {
+      const trends = dashboardData.trendData.map((m: any) => ({
+        month: m.month,
+        total: m.emissions || 0,
+        scope1: m.scope1 || 0,
+        scope2: m.scope2 || 0,
+        scope3: m.scope3 || 0,
+        forecast: false
+      }));
+      monthlyTrendsResult = addTargetPath(trends, targets.data, trajectory.data);
+    } else if (dashboardData.trends) {
+      monthlyTrendsResult = addTargetPath(dashboardData.trends, targets.data, trajectory.data);
+    }
+
+    // Process top emitters from topMetrics query (with accurate percentages now that we have currentTotal)
+    let topEmittersResult: any[] = [];
+    if (topMetricsQuery.data?.metrics && topMetricsQuery.data.metrics.length > 0) {
+      topEmittersResult = topMetricsQuery.data.metrics.slice(0, 5).map((metric: any) => ({
+        name: metric.name,
+        emissions: metric.emissions,
+        percentage: currentTotal > 0 ? (metric.emissions / currentTotal) * 100 : 0,
+        scope: metric.scope === 'scope_1' ? 'Scope 1' : metric.scope === 'scope_2' ? 'Scope 2' : 'Scope 3'
+      }));
+    }
+
+    // Process Scope 2 metrics from scope2Metrics query (with accurate percentages)
+    let scope2MetricsResult: any[] = [];
+    if (scope2MetricsQuery.data?.metrics && scope2MetricsQuery.data.metrics.length > 0) {
+      scope2MetricsResult = scope2MetricsQuery.data.metrics
+        .filter((metric: any) => metric.scope === 'scope_2')
+        .map((metric: any) => ({
+          name: metric.name,
+          emissions: metric.emissions,
+          percentage: s2Current > 0 ? (metric.emissions / s2Current) * 100 : 0
+        }));
+    }
+
+    // Calculate projected annual emissions from actual + forecast
+    let projectedAnnualEmissionsResult = 0;
+    let actualEmissionsYTDResult = 0;
+    let forecastedEmissionsResult = 0;
+
+    if (monthlyTrendsResult.length > 0) {
+      // Calculate actual emissions from trends (only non-forecast months)
+      actualEmissionsYTDResult = monthlyTrendsResult
+        .filter((m: any) => !m.forecast)
+        .reduce((sum: number, t: any) => sum + (t.total || 0), 0);
+
+      // Calculate forecasted emissions if forecast data available
+      if (forecastQuery.data?.forecast && forecastQuery.data.forecast.length > 0) {
+        forecastedEmissionsResult = forecastQuery.data.forecast.reduce(
+          (sum: number, f: any) => sum + (f.total || 0),
+          0
+        );
+      }
+
+      projectedAnnualEmissionsResult = actualEmissionsYTDResult + forecastedEmissionsResult;
+
+      console.log('📊 Projected annual emissions:', {
+        actual: actualEmissionsYTDResult.toFixed(1),
+        forecasted: forecastedEmissionsResult.toFixed(1),
+        total: projectedAnnualEmissionsResult.toFixed(1)
+      });
+    }
+
+    return {
+      totalEmissions: currentTotal,
+      totalEmissionsYoY: totalYoY,
+      intensityMetric: intensityMetricResult,
+      intensityYoY: intensityYoYCalc,
+      intensityMetrics: intensityMetricsResult,
+      intensityPerEmployee: intensityPerEmployeeResult,
+      intensityPerRevenue: intensityPerRevenueResult,
+      intensityPerSqm: intensityPerSqmResult,
+      siteComparison: siteComparisonResult,
+      scope1Total: s1Current,
+      scope2Total: s2Current,
+      scope3Total: s3Current,
+      scopeYoY: { scope1: s1YoY, scope2: s2YoY, scope3: s3YoY },
+      scope2LocationBased: scope2LocationBasedResult,
+      scope2MarketBased: scope2MarketBasedResult,
+      renewablePercentage: renewablePercentageResult,
+      scope2CategoriesData: scope2CategoriesDataResult,
+      scope2Metrics: scope2MetricsResult,
+      scope3Coverage: scope3CoverageResult,
+      scope3CategoriesData: scope3CategoriesFlat,
+      monthlyTrends: monthlyTrendsResult,
+      prevYearMonthlyTrends: [], // Would need separate fetch
+      replanningTrajectory: trajectory.data || null,
+      topEmitters: topEmittersResult,
+      scope1Sources: scope1SourcesResult,
+      scope1ByGas: scope1ByGasResult,
+      geographicBreakdown: geographicBreakdownResult,
+      targetData: targets.data || null,
+      dataQuality: dataQualityResult,
+      projectedAnnualEmissions: projectedAnnualEmissionsResult,
+      actualEmissionsYTD: actualEmissionsYTDResult,
+      forecastedEmissions: forecastedEmissionsResult,
+      previousYearTotalEmissions: fullPreviousYearTotal,
+      metricTargets: metricTargetsQuery.data || []
+    };
   }, [
     scopeAnalysis.data,
     dashboard.data,
@@ -915,12 +800,101 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
     fullPrevYearScopeAnalysis.data,
     targets.data,
     trajectory.data,
-    feasibility.data,
     metricTargetsQuery.data,
-    selectedPeriod,
-    selectedSite,
-    organizationId
+    topMetricsQuery.data,
+    scope2MetricsQuery.data,
+    forecastQuery.data
   ]);
+
+  // Destructure all computed values
+  const {
+    totalEmissions,
+    totalEmissionsYoY,
+    intensityMetric,
+    intensityYoY,
+    intensityMetrics,
+    intensityPerEmployee,
+    intensityPerRevenue,
+    intensityPerSqm,
+    siteComparison,
+    scope1Total,
+    scope2Total,
+    scope3Total,
+    scopeYoY,
+    scope2LocationBased,
+    scope2MarketBased,
+    renewablePercentage,
+    scope2CategoriesData,
+    scope2Metrics,
+    scope3Coverage,
+    scope3CategoriesData,
+    monthlyTrends,
+    prevYearMonthlyTrends,
+    replanningTrajectory,
+    topEmitters,
+    scope1Sources,
+    scope1ByGas,
+    geographicBreakdown,
+    targetData,
+    dataQuality,
+    projectedAnnualEmissions,
+    actualEmissionsYTD,
+    forecastedEmissions,
+    previousYearTotalEmissions,
+    metricTargets
+  } = emissionsData;
+
+  // Transform topEmitters into pie chart data (top 5 + Others)
+  const pieChartData = useMemo(() => {
+    if (topEmitters.length === 0) return [];
+
+    // Take top 5 sources
+    const top5 = topEmitters.slice(0, 5);
+    const others = topEmitters.slice(5);
+
+    // Calculate "Others" total if there are more than 5 sources
+    const othersTotal = others.reduce((sum, source) => sum + source.emissions, 0);
+    const othersPercentage = others.reduce((sum, source) => sum + source.percentage, 0);
+
+    // Create pie chart data array
+    const chartData = top5.map(source => ({
+      name: source.name,
+      value: source.emissions,
+      percentage: source.percentage,
+      color: getCategoryColor(source.name)
+    }));
+
+    // Add "Others" category if needed
+    if (others.length > 0) {
+      chartData.push({
+        name: 'Others',
+        value: othersTotal,
+        percentage: othersPercentage,
+        color: '#6B7280' // Gray color for Others
+      });
+    }
+
+    // Custom sort: Electricity, EV Charging, Plane Travel, then others
+    chartData.sort((a, b) => {
+      const order = ['Electricity', 'EV Charging', 'Plane Travel'];
+      const aIndex = order.findIndex(item => a.name.includes(item));
+      const bIndex = order.findIndex(item => b.name.includes(item));
+
+      // If both are in the order list, sort by their order
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      // If only a is in the list, it comes first
+      if (aIndex !== -1) return -1;
+      // If only b is in the list, it comes first
+      if (bIndex !== -1) return 1;
+      // Keep "Others" at the end
+      if (a.name === 'Others') return 1;
+      if (b.name === 'Others') return -1;
+      // Otherwise maintain original order
+      return 0;
+    });
+
+    return chartData;
+  }, [topEmitters]);
 
   if (isLoading) {
     return (
@@ -949,6 +923,29 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
   // Check if selected period is current year
   const isCurrentYear = new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear();
 
+  // Smart kg CO2e/tCO2e unit selection based on total emissions magnitude
+  const threshold = 10000; // 10,000 kg CO2e = 10 tCO2e
+  const useTonnes = totalEmissions >= threshold;
+
+  // Helper function to format emissions with smart unit selection
+  const formatEmissions = (kgCO2e: number) => {
+    if (useTonnes) {
+      return {
+        value: (kgCO2e / 1000).toFixed(1),
+        unit: t('cards.totalEmissions.unit'), // 'tCO2e'
+        yAxisLabel: `${t('axisLabels.emissions')} (tCO2e)`,
+        fullLabel: `${(kgCO2e / 1000).toFixed(1)} tCO2e`
+      };
+    } else {
+      return {
+        value: kgCO2e.toFixed(0),
+        unit: 'kg CO2e',
+        yAxisLabel: `${t('axisLabels.emissions')} (kg CO2e)`,
+        fullLabel: `${kgCO2e.toFixed(0)} kg CO2e`
+      };
+    }
+  };
+
   return (
     <>
       {/* Executive Summary Cards */}
@@ -964,7 +961,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           <div>
             <div className="relative group inline-block">
               <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1 cursor-help">
-                {totalEmissions.toFixed(1)}
+                {formatEmissions(totalEmissions).value}
               </div>
               {/* Tooltip */}
               <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
@@ -975,7 +972,9 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.totalEmissions.unit')}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {formatEmissions(totalEmissions).unit}
+              </div>
               <div className="flex items-center gap-1">
                 {totalEmissionsYoY < 0 ? (
                   <TrendingDown className="w-3 h-3 text-green-500" />
@@ -992,7 +991,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
              new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
               <div className="flex items-center justify-between mt-4">
                 <span className="text-xs text-purple-500 dark:text-purple-400">
-                  {t('cards.totalEmissions.projected')}: {projectedAnnualEmissions.toFixed(1)} {t('cards.totalEmissions.unit')}
+                  {t('cards.totalEmissions.projected')}: {formatEmissions(projectedAnnualEmissions).value} {formatEmissions(projectedAnnualEmissions).unit}
                 </span>
                 {(() => {
                   // Calculate YoY for projected emissions: compare projected annual vs previous year's total
@@ -1137,50 +1136,145 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
       {/* Scope Breakdown & Trend */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Scope Breakdown */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 h-[420px] shadow-sm relative">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm relative">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative group">
               <PieChartIcon className="w-5 h-5 text-blue-500" />
-              <div className="relative group inline-block">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scopeBreakdown.title')}</h3>
-                {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
-                    {t('explanations.scopeBreakdown')}
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scopeBreakdown.title')}</h3>
+              {/* Scope Breakdown Explanation Tooltip */}
+              <div className="absolute left-0 top-full mt-1 w-96 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                {/* Explanation */}
+                <div className="mb-2">
+                  <p className="text-purple-200 text-[11px] font-medium mb-2">
+                    {t('scopeBreakdownExplanation')}
                   </p>
-                  <div className="flex gap-1 mt-3 flex-wrap">
-                    <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-400/30">
-                      GHG Protocol
+                  <div className="space-y-2">
+                    {/* Scope 1 */}
+                    <div className="bg-white/5 rounded p-2">
+                      <p className="text-gray-200 text-[10px] leading-relaxed mb-1">
+                        {t('scope1Explanation')}
+                      </p>
+                      <p className="text-white font-medium text-[10px]">
+                        {formatEmissions(scope1Total).value} {formatEmissions(scope1Total).unit} ({scopePercentages.scope1.toFixed(0)}%)
+                      </p>
+                    </div>
+
+                    {/* Scope 2 */}
+                    <div className="bg-white/5 rounded p-2">
+                      <p className="text-gray-200 text-[10px] leading-relaxed mb-1">
+                        {t('scope2Explanation')}
+                      </p>
+                      <div className="space-y-0.5 text-[10px] mb-1">
+                        <div className="text-gray-300">
+                          <span className="font-medium">{t('scopeBreakdown.scope2Tooltip.locationBased')}</span> {formatEmissions(scope2LocationBased).value} {formatEmissions(scope2LocationBased).unit}
+                        </div>
+                        <div className="text-gray-300">
+                          <span className="font-medium">{t('scopeBreakdown.scope2Tooltip.marketBased')}</span> {formatEmissions(scope2MarketBased).value} {formatEmissions(scope2MarketBased).unit}
+                        </div>
+                      </div>
+                      <p className="text-white font-medium text-[10px]">
+                        {formatEmissions(scope2Total).value} {formatEmissions(scope2Total).unit} ({scopePercentages.scope2.toFixed(0)}%)
+                      </p>
+                    </div>
+
+                    {/* Scope 3 */}
+                    <div className="bg-white/5 rounded p-2">
+                      <p className="text-gray-200 text-[10px] leading-relaxed mb-1">
+                        {t('scope3Explanation')}
+                      </p>
+                      <div className="pt-1 border-t border-white/10 mt-1 mb-1">
+                        <div className="text-[10px] mb-0.5">
+                          <span className="font-medium text-gray-200">{t('scopeBreakdown.scope3Tooltip.categoryCoverage')}:</span> {scope3Coverage?.tracked || 0}/15
+                        </div>
+                        <div className="flex items-center gap-2 text-[9px]">
+                          <span className="text-green-400">✓ {scope3Coverage?.tracked || 0} {t('scopeBreakdown.scope3Tooltip.tracked')}</span>
+                          <span className="text-orange-400">⚠ {scope3Coverage?.missing || 12} {t('scopeBreakdown.scope3Tooltip.missing')}</span>
+                        </div>
+                      </div>
+                      <p className="text-white font-medium text-[10px]">
+                        {formatEmissions(scope3Total).value} {formatEmissions(scope3Total).unit} ({scopePercentages.scope3.toFixed(0)}%)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Compliance Badges */}
+                <div className="mt-3 pt-2 border-t border-purple-500/30">
+                  <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                    {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                  </p>
+                  <div className="flex gap-1 flex-wrap">
+                    <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
+                      {tGlobal('carbonEquivalentTooltip.badges.ghgProtocol')}
                     </span>
-                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
-                      GRI 305-1/2/3
+                    <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                      {tGlobal('carbonEquivalentTooltip.badges.gri305')}
                     </span>
-                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
-                      ESRS E1
+                    <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                      {tGlobal('carbonEquivalentTooltip.badges.tcfd')}
+                    </span>
+                    <span className="px-1.5 py-0.5 bg-orange-100/20 text-orange-300 text-[9px] rounded border border-orange-500/30">
+                      {tGlobal('carbonEquivalentTooltip.badges.esrsE1')}
                     </span>
                   </div>
-                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
                 </div>
+
+                {/* Learn More Link */}
+                <div className="mt-4 text-right">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveEducationalModal('scopes-explained');
+                    }}
+                    className="text-blue-300 hover:text-blue-200 text-[10px] underline transition-colors"
+                  >
+                    {t('learnMore')} →
+                  </button>
+                </div>
+                <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-center mb-6">
-            <ResponsiveContainer width="100%" height={360}>
+          <div>
+            <ResponsiveContainer width="100%" height={420}>
               <PieChart>
                 <Pie
                   data={scopeBreakdown}
+                  dataKey="value"
+                  nameKey="name"
                   cx="50%"
                   cy="50%"
-                  innerRadius={0}
                   outerRadius={130}
-                  paddingAngle={2}
-                  dataKey="value"
-                  label={({ name, percent, value }) => `${name}: ${value.toFixed(1)} tCO2e (${(percent * 100).toFixed(0)}%)`}
+                  innerRadius={80}
+                  label={({ cx, cy, midAngle, outerRadius, name, percent, value }) => {
+                    const RADIAN = Math.PI / 180;
+                    const radius = outerRadius + 30;
+                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                    const percentage = (percent * 100).toFixed(0);
+                    const textAnchor = x > cx ? 'start' : 'end';
+                    const entry = scopeBreakdown.find(s => s.name === name);
+                    const color = entry?.color || '#6B7280';
+
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        fill={color}
+                        textAnchor={textAnchor}
+                        dominantBaseline="central"
+                        style={{ fontSize: '12px' }}
+                      >
+                        <tspan x={x} dy="-8">{name}</tspan>
+                        <tspan x={x} dy="14">{formatEmissions(value).value} {formatEmissions(value).unit} ({percentage}%)</tspan>
+                      </text>
+                    );
+                  }}
                   labelLine={true}
                 >
                   {scopeBreakdown.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                   ))}
                 </Pie>
                 <Tooltip
@@ -1196,7 +1290,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                             <div className="text-gray-300 mb-2">
                               Direct GHG emissions from owned/controlled sources (vehicles, facilities, equipment)
                             </div>
-                            <div className="font-medium">{scope1Total.toFixed(1)} tCO2e ({scopePercentages.scope1.toFixed(0)}%)</div>
+                            <div className="font-medium">{formatEmissions(scope1Total).value} {formatEmissions(scope1Total).unit} ({scopePercentages.scope1.toFixed(0)}%)</div>
                             <div className="text-gray-400 text-[10px] mt-1">GRI 305-1 • GHG Protocol Scope 1</div>
                           </div>
                         );
@@ -1205,8 +1299,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                           <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
                             <div className="font-semibold mb-2">Scope 2: Energy Indirect</div>
                             <div className="space-y-1 text-gray-300 mb-2">
-                              <div><span className="font-medium">Location-Based:</span> {scope2LocationBased.toFixed(1)} tCO2e</div>
-                              <div><span className="font-medium">Market-Based:</span> {scope2MarketBased.toFixed(1)} tCO2e</div>
+                              <div><span className="font-medium">Location-Based:</span> {formatEmissions(scope2LocationBased).value} {formatEmissions(scope2LocationBased).unit}</div>
+                              <div><span className="font-medium">Market-Based:</span> {formatEmissions(scope2MarketBased).value} {formatEmissions(scope2MarketBased).unit}</div>
                               {renewablePercentage > 0 && (
                                 <div><span className="font-medium">Renewable:</span> {renewablePercentage.toFixed(0)}%</div>
                               )}
@@ -1214,7 +1308,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                             <div className="text-gray-300 mb-2">
                               Purchased electricity, heat, steam, cooling. Dual reporting per GRI 305-2.
                             </div>
-                            <div className="font-medium">{scope2Total.toFixed(1)} tCO2e ({scopePercentages.scope2.toFixed(0)}%)</div>
+                            <div className="font-medium">{formatEmissions(scope2Total).value} {formatEmissions(scope2Total).unit} ({scopePercentages.scope2.toFixed(0)}%)</div>
                           </div>
                         );
                       } else if (scopeName === 'Scope 3') {
@@ -1222,7 +1316,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                           <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
                             <div className="font-semibold mb-2">Scope 3: Value Chain</div>
                             <div className="space-y-1 text-gray-300 mb-2">
-                              <div><span className="font-medium">Total:</span> {scope3Total.toFixed(1)} tCO2e</div>
+                              <div><span className="font-medium">Total:</span> {formatEmissions(scope3Total).value} {formatEmissions(scope3Total).unit}</div>
                               <div><span className="font-medium">Share:</span> {scopePercentages.scope3.toFixed(0)}%</div>
                               <div className="pt-1 border-t border-gray-700 mt-1">
                                 <div className="font-medium mb-1">Coverage: {scope3Coverage?.tracked || 0}/15 categories</div>
@@ -1249,69 +1343,59 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         </div>
 
         {/* Emissions Trend */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 h-[420px] shadow-sm relative">
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative group">
               <TrendingUpIcon className="w-5 h-5 text-purple-500" />
-              <div className="relative group inline-block">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('emissionsTrend.title')}</h3>
-                {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
-                    {t('explanations.emissionsTrend')}
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('emissionsTrend.title')}</h3>
+
+              {/* Hover Tooltip */}
+              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="mb-2">
+                  <p className="text-gray-200 text-[11px] leading-relaxed">
+                    {t('emissionsTrendExplanation')}
                   </p>
-                  <div className="flex gap-1 mt-3 flex-wrap">
-                    <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded border border-purple-400/30">
+                </div>
+
+                {/* Compliance Badges */}
+                <div className="mt-3 pt-2 border-t border-purple-500/30">
+                  <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                    {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                  </p>
+                  <div className="flex gap-1 flex-wrap">
+                    <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
                       TCFD
                     </span>
-                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
+                    <span className="px-1.5 py-0.5 bg-orange-100/20 text-orange-300 text-[9px] rounded border border-orange-500/30">
                       ESRS E1
                     </span>
                   </div>
-                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
                 </div>
+
+                {/* Arrow indicator */}
+                <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
               </div>
             </div>
-            {feasibility.data && (
-              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${
-                feasibility.data.status === 'on-track' ? 'bg-green-500/10 text-green-400' :
-                feasibility.data.status === 'challenging' ? 'bg-yellow-500/10 text-yellow-400' :
-                feasibility.data.status === 'at-risk' ? 'bg-orange-500/10 text-orange-400' :
-                'bg-red-500/10 text-red-400'
-              }`}>
-                <span className="text-sm font-medium">
-                  {feasibility.data.status === 'on-track' ? '✓' :
-                   feasibility.data.status === 'challenging' ? '⚡' :
-                   feasibility.data.status === 'at-risk' ? '⚠' : '✗'}
-                </span>
-                <span className="text-xs font-semibold">
-                  {feasibility.data.status === 'on-track' ? 'On Track' :
-                   feasibility.data.status === 'challenging' ? 'Challenging' :
-                   feasibility.data.status === 'at-risk' ? 'At Risk' : t('emissionsTrend.targetMissed')}
-                </span>
-                {feasibility.data.reductionRequiredPercent > 0 && feasibility.data.isAchievable && (
-                  <span className="text-xs opacity-75">
-                    ({feasibility.data.reductionRequiredPercent.toFixed(0)}% ↓)
-                  </span>
-                )}
-              </div>
-            )}
           </div>
 
           {monthlyTrends.length > 0 ? (
-            <>
-            <ResponsiveContainer width="100%" height={320}>
-              <LineChart data={monthlyTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={true} horizontal={true} />
-                <XAxis
-                  dataKey="month"
-                  stroke="#9CA3AF"
-                  style={{ fontSize: '10px' }}
+            <ResponsiveContainer width="100%" height={420}>
+              <LineChart data={monthlyTrends.map((trend: any) => ({ ...trend, month: translateMonth(trend.month, t) }))}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  className="stroke-gray-200 dark:stroke-white/10"
+                  vertical={true}
+                  horizontal={true}
                 />
+                <XAxis dataKey="month" tick={{ fill: "#888", fontSize: 12 }} />
                 <YAxis
-                  stroke="#9CA3AF"
-                  style={{ fontSize: '10px' }}
-                  label={{ value: 'tCO2e', angle: -90, position: 'insideLeft', style: { fill: '#9CA3AF', fontSize: '10px' } }}
+                  tick={{ fill: "#888", fontSize: 12 }}
+                  label={{
+                    value: 'tCO2e',
+                    angle: -90,
+                    position: "insideLeft",
+                    style: { fill: "#888", fontSize: 12 },
+                  }}
                 />
                 <Tooltip
                   contentStyle={{
@@ -1339,41 +1423,31 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                         <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
                           <p className="text-white font-semibold mb-2">
                             {data.month}
-                            {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
+                            {isForecast && <span className="ml-2 text-xs text-blue-400">({t('emissionsTrend.forecast')})</span>}
                           </p>
                           <div className="space-y-1">
                             {scope1 != null && (
                               <div className="flex items-center justify-between gap-3">
-                                <span className="text-orange-400 text-sm">Scope 1:</span>
+                                <span className="text-red-400 text-sm">{t('emissionsTrend.scope1')}:</span>
                                 <span className="text-white font-medium">{scope1.toFixed(1)} tCO2e</span>
                               </div>
                             )}
                             {scope2 != null && (
                               <div className="flex items-center justify-between gap-3">
-                                <span className="text-blue-400 text-sm">Scope 2:</span>
+                                <span className="text-blue-400 text-sm">{t('emissionsTrend.scope2')}:</span>
                                 <span className="text-white font-medium">{scope2.toFixed(1)} tCO2e</span>
                               </div>
                             )}
                             {scope3 != null && (
                               <div className="flex items-center justify-between gap-3">
-                                <span className="text-gray-400 text-sm">Scope 3:</span>
+                                <span className="text-gray-400 text-sm">{t('emissionsTrend.scope3')}:</span>
                                 <span className="text-white font-medium">{scope3.toFixed(1)} tCO2e</span>
                               </div>
                             )}
                             {total != null && (
                               <div className="flex items-center justify-between gap-3 pt-1 border-t border-gray-700">
-                                <span className="text-purple-400 text-sm font-semibold">Total:</span>
+                                <span className="text-purple-400 text-sm font-semibold">{t('emissionsTrend.total')}:</span>
                                 <span className="text-white font-semibold">{total.toFixed(1)} tCO2e</span>
-                              </div>
-                            )}
-                            {data.targetPath != null && (
-                              <div className="flex items-center justify-between gap-3 pt-1 border-t border-gray-700">
-                                <span className={`${data.isReplanned ? 'text-amber-400' : 'text-green-400'} text-sm font-semibold flex items-center gap-1`}>
-                                  {data.isReplanned ? '🎯 Replanned Target:' : 'Target Path:'}
-                                </span>
-                                <span className={`${data.isReplanned ? 'text-amber-400' : 'text-green-400'} font-semibold`}>
-                                  {data.targetPath.toFixed(1)} tCO2e
-                                </span>
                               </div>
                             )}
                           </div>
@@ -1390,17 +1464,17 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   dataKey="total"
                   stroke="#8B5CF6"
                   strokeWidth={2.5}
-                  name={t('emissionsTrend.legends.totalEmissions')}
+                  name={t('emissionsTrend.totalEmissions')}
                   dot={{ r: 4, fill: "#8B5CF6" }}
                   connectNulls
                 />
                 <Line
                   type="monotone"
                   dataKey="scope1"
-                  stroke="#F97316"
+                  stroke="#EF4444"
                   strokeWidth={2}
-                  name={t('emissionsTrend.legends.scope1')}
-                  dot={{ r: 3, fill: "#F97316" }}
+                  name={t('emissionsTrend.scope1')}
+                  dot={{ r: 3, fill: "#EF4444" }}
                   connectNulls
                 />
                 <Line
@@ -1408,7 +1482,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   dataKey="scope2"
                   stroke="#3B82F6"
                   strokeWidth={2}
-                  name={t('emissionsTrend.legends.scope2')}
+                  name={t('emissionsTrend.scope2')}
                   dot={{ r: 3, fill: "#3B82F6" }}
                   connectNulls
                 />
@@ -1417,7 +1491,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   dataKey="scope3"
                   stroke="#6B7280"
                   strokeWidth={2}
-                  name={t('emissionsTrend.legends.scope3')}
+                  name={t('emissionsTrend.scope3')}
                   dot={{ r: 3, fill: "#6B7280" }}
                   connectNulls
                 />
@@ -1428,7 +1502,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   stroke="#8B5CF6"
                   strokeWidth={2.5}
                   strokeDasharray="5 5"
-                  name={t('emissionsTrend.legends.totalEmissions')}
+                  name={t('emissionsTrend.totalEmissions')}
                   dot={{ fill: 'transparent', stroke: "#8B5CF6", strokeWidth: 2, r: 4 }}
                   connectNulls
                   legendType="none"
@@ -1436,11 +1510,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 <Line
                   type="monotone"
                   dataKey="scope1Forecast"
-                  stroke="#F97316"
+                  stroke="#EF4444"
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  name={t('emissionsTrend.legends.scope1')}
-                  dot={{ fill: 'transparent', stroke: "#F97316", strokeWidth: 2, r: 3 }}
+                  name={t('emissionsTrend.scope1')}
+                  dot={{ fill: 'transparent', stroke: "#EF4444", strokeWidth: 2, r: 3 }}
                   connectNulls
                   legendType="none"
                 />
@@ -1450,7 +1524,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   stroke="#3B82F6"
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  name="Scope 2"
+                  name={t('emissionsTrend.scope2')}
                   dot={{ fill: 'transparent', stroke: "#3B82F6", strokeWidth: 2, r: 3 }}
                   connectNulls
                   legendType="none"
@@ -1461,25 +1535,13 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   stroke="#6B7280"
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  name="Scope 3"
+                  name={t('emissionsTrend.scope3')}
                   dot={{ fill: 'transparent', stroke: "#6B7280", strokeWidth: 2, r: 3 }}
                   connectNulls
                   legendType="none"
                 />
-                {/* Target reduction path line - color changes based on replanning status */}
-                <Line
-                  type="monotone"
-                  dataKey="targetPath"
-                  stroke={replanningTrajectory ? "#F59E0B" : "#10B981"}
-                  strokeWidth={replanningTrajectory ? 2.5 : 2}
-                  strokeDasharray={replanningTrajectory ? "6 3" : "8 4"}
-                  name={replanningTrajectory ? "Replanned Target" : "Target Path"}
-                  dot={false}
-                  connectNulls
-                />
               </LineChart>
             </ResponsiveContainer>
-            </>
           ) : (
             <div className="flex items-center justify-center h-[250px]">
               <p className="text-gray-400 text-sm">{t('emissionsTrend.noData')}</p>
@@ -1765,14 +1827,15 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         </div>
       </div>
 
-      {/* Year-over-Year Comparison */}
-      {monthlyTrends.length > 0 && totalEmissionsYoY !== null && prevYearMonthlyTrends.length > 0 && (() => {
-        // Check if we have actual previous year data with values (not all zeros)
-        const hasPreviousData = prevYearMonthlyTrends.some((trend: any) => trend.total > 0);
-        return hasPreviousData;
-      })() && (
-        <div className="mb-6 grid grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm h-[420px]">
+      {/* Year-over-Year Comparison, Top Emitters, Site Performance, and Scope Breakdowns */}
+      <div className="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Year-over-Year Comparison */}
+        {monthlyTrends.length > 0 && totalEmissionsYoY !== null && prevYearMonthlyTrends.length > 0 && (() => {
+          // Check if we have actual previous year data with values (not all zeros)
+          const hasPreviousData = prevYearMonthlyTrends.some((trend: any) => trend.total > 0);
+          return hasPreviousData;
+        })() && (
+          <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <TrendingDown className="w-5 h-5 text-blue-500 flex-shrink-0" />
@@ -1799,8 +1862,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               </div>
             </div>
 
-            <div className="flex-1" style={{ height: 'calc(100% - 60px)' }}>
-              <ResponsiveContainer width="100%" height="100%">
+            <div>
+              <ResponsiveContainer width="100%" height={420}>
                 <BarChart
                   data={(() => {
                     // Filter out forecast months - only show actual data for YoY comparison
@@ -1843,25 +1906,21 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   })()}
                   margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={true} horizontal={true} />
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-white/10" vertical={true} horizontal={true} />
+                  <ReferenceLine y={0} stroke="rgba(156, 163, 175, 0.3)" strokeWidth={1} strokeDasharray="" />
                   <XAxis
                     dataKey="month"
-                    stroke="#9CA3AF"
-                    fontSize={12}
-                    tickLine={false}
+                    tick={{ fill: '#888', fontSize: 12 }}
                   />
                   <YAxis
-                    stroke="#9CA3AF"
-                    fontSize={12}
-                    tickLine={false}
-                    tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
+                    tick={{ fill: '#888', fontSize: 12 }}
+                    tickFormatter={(value) => `${value > 0 ? '+' : ''}${value}%`}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#1F2937',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '12px'
+                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '8px'
                     }}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
@@ -1874,20 +1933,20 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                         }
 
                         return (
-                          <div className="bg-gray-800 p-3 rounded-lg border border-gray-700">
-                            <p className="font-medium text-white mb-2">{data.month}</p>
-                            <div className="space-y-1">
-                              <p className="text-gray-300">
+                          <div className="bg-[#111111] border border-[#1A1A1A] rounded-lg p-3">
+                            <p className="text-white font-semibold mb-2">{data.month}</p>
+                            <div className="space-y-1 text-xs mb-2">
+                              <p className="text-[#A1A1AA]">
                                 {t('yoyComparison.tooltip.thisYear')}: <span className="font-medium text-white">{current.toFixed(1)} tCO2e</span>
                               </p>
-                              <p className="text-gray-300">
+                              <p className="text-[#A1A1AA]">
                                 {t('yoyComparison.tooltip.lastYear')}: <span className="font-medium text-white">{previous.toFixed(1)} tCO2e</span>
                               </p>
                             </div>
-                            <p className={`text-sm font-bold mt-2 ${change >= 0 ? 'text-red-400' : 'text-green-400'}`}>
+                            <p className={`text-sm font-bold ${change >= 0 ? 'text-red-400' : 'text-green-400'}`}>
                               {change > 0 ? '+' : ''}{change.toFixed(1)}% {t('yoyComparison.tooltip.yoy')}
                             </p>
-                            <p className="text-xs text-gray-400 mt-1">
+                            <p className="text-xs text-[#A1A1AA] mt-1">
                               {change >= 0 ? t('yoyComparison.tooltip.increase') : t('yoyComparison.tooltip.decrease')} {t('yoyComparison.tooltip.emissionsChange')}
                             </p>
                           </div>
@@ -1898,179 +1957,217 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   />
                   <Bar
                     dataKey="change"
-                    radius={[4, 4, 4, 4]}
                     fill="#8B5CF6"
+                    shape={(props: any) => {
+                      const { x, y, width, height, value } = props;
+                      const absHeight = Math.abs(height);
+
+                      if (value > 0) {
+                        // Positive bar - round top corners only
+                        return (
+                          <g>
+                            <rect x={x} y={y} width={width} height={absHeight} fill="#8B5CF6" rx={4} ry={4} />
+                            <rect x={x} y={y + absHeight - 4} width={width} height={4} fill="#8B5CF6" />
+                          </g>
+                        );
+                      } else if (value < 0) {
+                        // Negative bar - round bottom corners only, adjust y to start from zero line
+                        const adjustedY = y + height; // height is negative, so this moves up to zero line
+                        return (
+                          <g>
+                            <rect x={x} y={adjustedY} width={width} height={absHeight} fill="#8B5CF6" rx={4} ry={4} />
+                            <rect x={x} y={adjustedY} width={width} height={4} fill="#8B5CF6" />
+                          </g>
+                        );
+                      } else {
+                        return <rect x={x} y={y} width={width} height={absHeight} fill="#8B5CF6" />;
+                      }
+                    }}
                   />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
+        )}
 
-          {/* Top Emission Sources */}
-          {topEmitters.length > 0 && (
-          <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm h-[420px] overflow-y-auto">
+        {/* Top Emitters */}
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm relative">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 relative group">
                 <AlertTriangle className="w-5 h-5 text-orange-500" />
-                <div className="relative group inline-block">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('topEmitters.title')}</h3>
-                  {/* Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
-                      {t('explanations.topEmitters')}
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('topEmitters.title')}</h3>
+
+                {/* Hover Tooltip */}
+                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="mb-2">
+                    <p className="text-gray-200 text-[11px] leading-relaxed">
+                      {t('topEmittersExplanation')}
                     </p>
-                    <div className="flex gap-1 mt-3 flex-wrap">
-                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
-                        GRI 305-1/2/3
+                  </div>
+
+                  {/* Compliance Badges */}
+                  <div className="mt-3 pt-2 border-t border-purple-500/30">
+                    <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                      {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                    </p>
+                    <div className="flex gap-1 flex-wrap">
+                      <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                        GRI 305-5
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                        TCFD
                       </span>
                     </div>
-                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
                   </div>
+
+                  {/* Learn More Link */}
+                  <div className="mt-4 text-right">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveEducationalModal('reduction-strategies');
+                      }}
+                      className="text-purple-200 hover:text-white underline font-medium transition-colors text-[11px]"
+                    >
+                      {t('learnMore')} →
+                    </button>
+                  </div>
+
+                  {/* Arrow indicator */}
+                  <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              {topEmitters.map((source, index) => {
-                const sourceColor = getCategoryColor(source.name);
-                const sourceName = source.name.toLowerCase();
-                const categoryKey = sourceName.replace(/ /g, '_');
-                let SourceIcon = Factory;
+            {/* Pie Chart */}
+            <div>
+              <ResponsiveContainer width="100%" height={420}>
+                <PieChart>
+                  <Pie
+                    data={pieChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="47%"
+                    cy="50%"
+                    outerRadius={120}
+                    innerRadius={75}
+                    label={(() => {
+                      const labelPositions: Array<{ x: number; y: number; angle: number; name: string; value: number }> = [];
+                      const MIN_LABEL_SPACING = 45; // Minimum vertical spacing between labels
+                      const SMALL_SEGMENT_THRESHOLD = 5; // Segments < 5% are considered small
 
-                // Determine icon based on scope and category
-                if (source.scope === 'Scope 1') {
-                  if (sourceName.includes('stationary')) SourceIcon = Flame;
-                  else if (sourceName.includes('mobile')) SourceIcon = Car;
-                  else if (sourceName.includes('fugitive')) SourceIcon = Wind;
-                  else if (sourceName.includes('process')) SourceIcon = Factory;
-                } else if (source.scope === 'Scope 2') {
-                  SourceIcon = getScope2CategoryIcon(categoryKey);
-                } else if (source.scope === 'Scope 3') {
-                  SourceIcon = getScope3CategoryIcon(categoryKey);
-                }
+                      return ({ cx, cy, midAngle, outerRadius, name, percent, value, index }: any) => {
+                        const RADIAN = Math.PI / 180;
+                        const radius = outerRadius + 40;
+                        let x = cx + radius * Math.cos(-midAngle * RADIAN);
+                        let y = cy + radius * Math.sin(-midAngle * RADIAN);
+                        const percentage = (percent * 100).toFixed(0);
+                        const textAnchor = x > cx ? 'start' : 'end';
+                        const entry = pieChartData.find(s => s.name === name);
+                        const color = entry?.color || '#6B7280';
+                        const isSmallSegment = percent < (SMALL_SEGMENT_THRESHOLD / 100);
 
-                const carbonEquivalent = getCarbonEquivalent(source.emissions, 'portugal', tGlobal);
-                const recommendationKey = getActionRecommendationKey(source.name);
-                const recommendation = recommendationKey ? t(`topEmitters.recommendations.${recommendationKey}`) : '';
+                        // Check for overlap with existing labels on the same side
+                        const isRightSide = x > cx;
+                        const labelsOnSameSide = labelPositions.filter(pos =>
+                          (pos.x > cx) === isRightSide
+                        );
 
-                return (
-                  <div key={index} className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {index + 1}. {source.name}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-900 dark:text-white font-semibold">
-                          {source.emissions.toFixed(1)} tCO2e
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          ({source.percentage.toFixed(0)}%)
-                        </span>
-                      </div>
-                    </div>
+                        // Smart positioning for small segments
+                        if (isSmallSegment && labelsOnSameSide.length >= 2) {
+                          // Sort existing labels by y position
+                          const sortedLabels = [...labelsOnSameSide].sort((a, b) => a.y - b.y);
 
-                    {/* Progress bar with tooltip */}
-                    <div className="relative group">
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 cursor-help">
-                        <div
-                          className="h-1.5 rounded-full transition-all"
-                          style={{
-                            width: `${source.percentage}%`,
-                            backgroundColor: sourceColor
-                          }}
-                        />
-                      </div>
+                          // Find the largest gap between labels
+                          let largestGap = 0;
+                          let bestY = y;
 
-                      {/* Carbon Equivalent Tooltip */}
-                      {carbonEquivalent && (carbonEquivalent.educationalContext || carbonEquivalent.didYouKnow) && (
-                        <div className="absolute left-0 top-full mt-1 w-72 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                          {/* Intro */}
-                          <div className="mb-2">
-                            <p className="text-purple-200 text-[11px] font-medium mb-1.5">
-                              {tGlobal('carbonEquivalentTooltip.intro')}
-                            </p>
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-lg">{carbonEquivalent.icon}</span>
-                              <span className="font-semibold text-white text-[11px] break-words">{carbonEquivalent.description}</span>
+                          for (let i = 0; i < sortedLabels.length - 1; i++) {
+                            const gap = sortedLabels[i + 1].y - sortedLabels[i].y;
+                            const midpoint = (sortedLabels[i].y + sortedLabels[i + 1].y) / 2;
+
+                            if (gap > largestGap && gap > MIN_LABEL_SPACING) {
+                              largestGap = gap;
+                              bestY = midpoint;
+                            }
+                          }
+
+                          // If we found a good gap, use it
+                          if (largestGap > MIN_LABEL_SPACING * 1.5) {
+                            y = bestY;
+                          }
+                        }
+
+                        // Final overlap check and adjustment
+                        let needsAdjustment = true;
+                        let attempts = 0;
+                        const maxAttempts = 10;
+
+                        while (needsAdjustment && attempts < maxAttempts) {
+                          needsAdjustment = false;
+                          attempts++;
+
+                          for (const existingLabel of labelsOnSameSide) {
+                            const distance = Math.abs(y - existingLabel.y);
+                            if (distance < MIN_LABEL_SPACING) {
+                              needsAdjustment = true;
+                              // Move away from the existing label
+                              if (y < existingLabel.y) {
+                                y = existingLabel.y - MIN_LABEL_SPACING;
+                              } else {
+                                y = existingLabel.y + MIN_LABEL_SPACING;
+                              }
+                            }
+                          }
+                        }
+
+                        // Store this label's position for future collision checks
+                        labelPositions.push({ x, y, angle: midAngle, name, value });
+
+                        return (
+                          <text
+                            x={x}
+                            y={y}
+                            fill={color}
+                            textAnchor={textAnchor}
+                            dominantBaseline="central"
+                            style={{ fontSize: '10px', fontWeight: '500' }}
+                          >
+                            <tspan x={x} dy="-14">{name}</tspan>
+                            <tspan x={x} dy="11">{value.toFixed(1)} tCO2e</tspan>
+                            <tspan x={x} dy="11">({percentage}%)</tspan>
+                          </text>
+                        );
+                      };
+                    })()}
+                    labelLine={true}
+                  >
+                    {pieChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
+                            <div className="font-semibold mb-1">{data.name}</div>
+                            <div className="text-gray-300 mb-2">
+                              {data.value.toFixed(1)} tCO2e ({data.percentage.toFixed(1)}%)
                             </div>
                           </div>
-
-                          {carbonEquivalent.educationalContext && (
-                            <div className="mb-2 pt-2 border-t border-purple-500/30">
-                              <div className="flex items-center gap-1.5 mb-1">
-                                <span className="text-purple-300">ℹ️</span>
-                                <span className="font-semibold text-purple-200 text-[10px]">{tGlobal('carbonEquivalentTooltip.howThisWorks')}</span>
-                              </div>
-                              <p className="text-gray-200 text-[10px] leading-relaxed break-words">
-                                {carbonEquivalent.educationalContext}
-                              </p>
-                            </div>
-                          )}
-
-                          {carbonEquivalent.didYouKnow && (
-                            <div className="pt-2 border-t border-purple-500/30">
-                              <div className="flex items-center gap-1.5 mb-1">
-                                <span className="text-yellow-300">💡</span>
-                                <span className="font-semibold text-yellow-200 text-[10px]">{tGlobal('carbonEquivalentTooltip.didYouKnow')}</span>
-                              </div>
-                              <p className="text-gray-200 text-[10px] leading-relaxed break-words">
-                                {carbonEquivalent.didYouKnow}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Recommendation */}
-                          {recommendation && (
-                            <div className="pt-2 border-t border-purple-500/30">
-                              <div className="flex items-center gap-1.5 mb-1">
-                                <span className="text-green-300">✨</span>
-                                <span className="font-semibold text-green-200 text-[10px]">Recomendação</span>
-                              </div>
-                              <p className="text-gray-200 text-[10px] leading-relaxed break-words">
-                                {recommendation}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Compliance Badges */}
-                          <div className="mt-3 pt-2 border-t border-purple-500/30">
-                            <p className="text-purple-200 text-[10px] font-medium mb-1.5">
-                              {tGlobal('carbonEquivalentTooltip.compliantWith')}
-                            </p>
-                            <div className="flex gap-1 flex-wrap">
-                              <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
-                                {tGlobal('carbonEquivalentTooltip.badges.ghgProtocol')}
-                              </span>
-                              <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
-                                {tGlobal('carbonEquivalentTooltip.badges.gri305')}
-                              </span>
-                              <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
-                                {tGlobal('carbonEquivalentTooltip.badges.tcfd')}
-                              </span>
-                              <span className="px-1.5 py-0.5 bg-orange-100/20 text-orange-300 text-[9px] rounded border border-orange-500/30">
-                                {tGlobal('carbonEquivalentTooltip.badges.esrsE1')}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Pointer arrow */}
-                          <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
-          )}
-        </div>
-      )}
 
-      {/* All Detailed Breakdown Sections */}
-      {(siteComparison.length > 1 || topEmitters.length > 0 || scope1Sources.length > 0 || scope2Total > 0 || scope3Total > 0) && (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        {/* Site Comparison by Emissions Intensity */}
+        {/* Site Performance Ranking */}
         {siteComparison.length > 1 && (
         <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4">
@@ -2082,15 +2179,26 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   </h3>
                   {/* Tooltip */}
                   <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                    <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
-                      {t('explanations.sitePerformance')}
-                    </p>
-                    <div className="flex gap-1 mt-3 flex-wrap">
-                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
-                        GRI 305-4
-                      </span>
+                    <div className="mb-2">
+                      <p className="text-white text-[11px] leading-relaxed whitespace-pre-line">
+                        {t('explanations.sitePerformance')}
+                      </p>
                     </div>
-                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
+
+                    {/* Compliance Badges */}
+                    <div className="mt-3 pt-2 border-t border-purple-500/30">
+                      <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                        {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                      </p>
+                      <div className="flex gap-1 flex-wrap">
+                        <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                          GRI 305-4
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Arrow indicator */}
+                    <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
                   </div>
                 </div>
               </div>
@@ -2109,83 +2217,101 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 };
 
                 // Prepare chart data - reverse to show best performers at top
-                const chartData = [...siteComparison].reverse().map((site, index) => ({
-                  name: site.name,
-                  intensity: parseFloat(site.intensity.toFixed(1)),
-                  fill: getBarColor(site.intensity),
+                const chartData = [...siteComparison].reverse().map((siteData, index) => ({
+                  name: siteData.name,
+                  intensity: parseFloat(siteData.intensity.toFixed(1)),
+                  fill: getBarColor(siteData.intensity),
                   rank: siteComparison.length - index
                 }));
 
                 return (
-                  <div className="mt-4">
-                    <ResponsiveContainer width="100%" height={Math.max(300, siteComparison.length * 60)}>
-                      <BarChart
-                        data={chartData}
-                        layout="vertical"
-                        margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(156, 163, 175, 0.2)" />
-                        <XAxis
-                          type="number"
-                          stroke="rgba(156, 163, 175, 0.5)"
-                          tick={{ fill: 'rgba(156, 163, 175, 0.8)', fontSize: 12 }}
-                          label={{ value: 'kgCO2e/m²', position: 'insideBottom', offset: -5, fill: 'rgba(156, 163, 175, 0.8)', fontSize: 12 }}
-                        />
-                        <YAxis
-                          type="category"
-                          dataKey="name"
-                          stroke="rgba(156, 163, 175, 0.5)"
-                          tick={false}
-                          width={0}
-                        />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
-                            border: '1px solid rgba(75, 85, 99, 0.3)',
-                            borderRadius: '8px',
-                            padding: '8px 12px'
-                          }}
-                          labelStyle={{ color: '#f3f4f6', fontWeight: 600, marginBottom: '4px' }}
-                          formatter={(value: any) => [`${value} kgCO2e/m²`, 'Intensidade']}
-                        />
-                        <Bar
-                          dataKey="intensity"
-                          radius={[0, 4, 4, 0]}
-                          label={(props: any) => {
-                            const { x, y, width, height, value, index } = props;
-                            const site = chartData[index];
-                            return (
-                              <g>
-                                {/* Site name above the value */}
-                                <text
-                                  x={x + width + 5}
-                                  y={y + height / 2 - 8}
-                                  fill="rgba(156, 163, 175, 0.9)"
-                                  fontSize={11}
-                                  fontWeight={500}
-                                  textAnchor="start"
-                                >
-                                  {site.name}
-                                </text>
-                                {/* Value below the site name, on the right of the bar */}
-                                <text
-                                  x={x + width + 5}
-                                  y={y + height / 2 + 8}
-                                  fill="rgba(156, 163, 175, 0.9)"
-                                  fontSize={11}
-                                  textAnchor="start"
-                                >
-                                  {value} kgCO2e/m²
-                                </text>
-                              </g>
-                            );
-                          }}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <>
+                    <div className="mt-4">
+                      <ResponsiveContainer width="100%" height={420}>
+                        <BarChart
+                          data={chartData}
+                          layout="vertical"
+                          margin={{ top: 5, right: 20, left: 20, bottom: 60 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-white/10" vertical={true} horizontal={true} />
+                          <XAxis
+                            type="number"
+                            stroke="#9CA3AF"
+                            tick={{ fill: '#9CA3AF', fontSize: 11 }}
+                            tickLine={{ stroke: '#9CA3AF' }}
+                            axisLine={{ stroke: '#9CA3AF' }}
+                            label={{ value: 'kgCO2e/m²', position: 'bottom', offset: 10, fill: '#9CA3AF', fontSize: 11 }}
+                          />
+                          <YAxis
+                            type="category"
+                            dataKey="name"
+                            className="stroke-gray-400 dark:stroke-gray-500"
+                            tick={false}
+                            tickLine={false}
+                            width={0}
+                          />
+                          <Tooltip
+                            cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+                            content={({ active, payload }: any) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
+                                    <p className="text-white font-semibold mb-1">
+                                      {data.name}
+                                    </p>
+                                    <p className="text-white text-sm">
+                                      {data.intensity} kgCO2e/m²
+                                    </p>
+                                    <p className="text-gray-400 text-xs mt-1">
+                                      Rank #{data.rank} of {chartData.length}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Bar
+                            dataKey="intensity"
+                            radius={[0, 4, 4, 0]}
+                            label={(props: any) => {
+                              const { x, y, width, height, value, index } = props;
+                              const site = chartData[index];
+                              return (
+                                <g>
+                                  {/* Site name on top */}
+                                  <text
+                                    x={x + 10}
+                                    y={y + height / 2 - 8}
+                                    fill="white"
+                                    fontSize={11}
+                                    fontWeight={600}
+                                    textAnchor="start"
+                                  >
+                                    {site.name}
+                                  </text>
+                                  {/* Intensity value below site name */}
+                                  <text
+                                    x={x + 10}
+                                    y={y + height / 2 + 8}
+                                    fill="white"
+                                    fontSize={10}
+                                    fontWeight={400}
+                                    textAnchor="start"
+                                  >
+                                    {value} kgCO2e/m²
+                                  </text>
+                                </g>
+                              );
+                            }}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
 
                     {/* Legend for performance levels */}
-                    <div className="flex items-center justify-center gap-4 mt-4 text-xs flex-wrap">
+                    <div className="flex items-center justify-center gap-4 mt-6 text-xs flex-wrap">
                       <div className="flex items-center gap-1.5">
                         <div className="w-3 h-3 rounded bg-green-500"></div>
                         <span className="text-gray-600 dark:text-gray-400">
@@ -2205,7 +2331,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </>
                 );
               })()}
             </div>
@@ -2592,7 +2718,6 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
         </div>
         )}
       </div>
-      )}
 
       {/* SBTi Target Progress - Only show for current year */}
       {targetData?.targets && targetData.targets.length > 0 &&
@@ -2601,30 +2726,54 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
           <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 relative group">
                   <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  <div className="relative group inline-block">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
-                      {t('sbtiProgress.title')}
-                    </h3>
-                    {/* Tooltip */}
-                    <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                      <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
-                        {t('explanations.sbtiProgress')}
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('sbtiProgress.title')}</h3>
+
+                  {/* Hover Tooltip */}
+                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <div className="mb-2">
+                      <p className="text-gray-200 text-[11px] leading-relaxed">
+                        {t('sbtiProgressExplanation')}
                       </p>
-                      <div className="flex gap-1 mt-3 flex-wrap">
-                        <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
+                    </div>
+
+                    {/* Compliance Badges */}
+                    <div className="mt-3 pt-3 border-t border-purple-500/30">
+                      <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                        {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                      </p>
+                      <div className="flex gap-1 flex-wrap">
+                        <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
                           SBTi
                         </span>
-                        <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded border border-purple-400/30">
-                          TCFD
-                        </span>
-                        <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-400/30">
+                        <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
                           GRI 305-5
                         </span>
+                        <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                          TCFD
+                        </span>
+                        <span className="px-1.5 py-0.5 bg-orange-100/20 text-orange-300 text-[9px] rounded border border-orange-500/30">
+                          ESRS E1
+                        </span>
                       </div>
-                      <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
                     </div>
+
+                    {/* Learn More Link */}
+                    <div className="mt-4 text-right">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveEducationalModal('sbti-targets');
+                        }}
+                        className="text-purple-200 hover:text-white underline font-medium transition-colors text-[11px]"
+                      >
+                        {t('learnMore')} →
+                      </button>
+                    </div>
+
+                    {/* Arrow indicator */}
+                    <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -2633,7 +2782,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               </div>
               <div className="flex items-center gap-2">
                 <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
-                  {targetData.targets[0].target_reduction_percent?.toFixed(1) || '42.0'}% {t('sbtiProgress.reductionTarget')}
+                  {(targetData.targets[0].reduction_percentage || 0).toFixed(1)}% {t('sbtiProgress.reductionTarget')}
                 </div>
               </div>
             </div>
@@ -2664,18 +2813,15 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 </div>
                 <div className="text-xl font-bold text-gray-900 dark:text-white">
                   {projectedAnnualEmissions > 0 && forecastedEmissions > 0 ? (
-                    <span className="text-sm">
-                      {actualEmissionsYTD.toFixed(1)} + {forecastedEmissions.toFixed(1)}
-                    </span>
+                    <span>{projectedAnnualEmissions.toFixed(1)}</span>
                   ) : (
                     <span>{(targetData.targets[0].current_emissions || totalEmissions)?.toFixed(1)}</span>
                   )}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {projectedAnnualEmissions > 0 ? (
-                    <span className="text-purple-500">{t('sbtiProgress.actualMLForecast')}</span>
-                  ) : (
-                    <span>tCO2e</span>
+                  <span>tCO2e</span>
+                  {projectedAnnualEmissions > 0 && forecastedEmissions > 0 && (
+                    <span className="ml-1 text-purple-500">({t('sbtiProgress.projected')})</span>
                   )}
                 </div>
               </div>
@@ -2704,7 +2850,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                     return requiredEmissions.toFixed(1);
                   })()}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">tCO2e {t('sbtiProgress.onTrack')}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{t('sbtiProgress.onTrack')}</div>
               </div>
 
               {/* Target */}
@@ -2770,7 +2916,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                       return t('sbtiProgress.aboveBaseline');
                     } else {
                       const actualReduction = baseline > 0 ? ((baseline - current) / baseline) * 100 : 0;
-                      const status = actualReduction >= requiredReduction ? 'On Track' : 'At Risk';
+                      const status = actualReduction >= requiredReduction ? t('sbtiProgress.onTrackStatus') : t('sbtiProgress.atRisk');
                       return status;
                     }
                   })()}
@@ -2780,10 +2926,10 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
             {/* Waterfall Chart */}
             <div className="mt-6">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Emissions Trajectory</h4>
-              <ResponsiveContainer width="100%" height={320}>
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('waterfallChart.title')}</h4>
+              <ResponsiveContainer width="100%" height={420}>
                 <BarChart
-                  data={(() => {
+                    data={(() => {
                     const baseline = targetData.targets[0].baseline_emissions || 0;
                     // Use ML-forecasted annual projection instead of simple extrapolation
                     const current = projectedAnnualEmissions || targetData.targets[0].current_emissions || totalEmissions;
@@ -2806,14 +2952,14 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                     // Waterfall data with invisible base bars and visible change bars
                     return [
                       {
-                        name: `${baselineYear}\nBaseline`,
+                        name: `${baselineYear}\n${t('waterfallChart.baseline')}`,
                         base: 0,
                         value: baseline,
                         total: baseline,
                         label: baseline.toFixed(1)
                       },
                       {
-                        name: `Required\nReduction`,
+                        name: `${t('waterfallChart.required')}\n${t('waterfallChart.reduction')}`,
                         base: requiredEmissions, // Position at the bottom (where we should end up)
                         value: requiredReduction, // Height of the reduction bar
                         total: baseline, // Connects to baseline
@@ -2821,7 +2967,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                         isRequiredReduction: true
                       },
                       {
-                        name: `${currentYear}\nRequired`,
+                        name: `${currentYear}\n${t('waterfallChart.required')}`,
                         base: 0,
                         value: requiredEmissions,
                         total: requiredEmissions,
@@ -2829,7 +2975,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                         isRequired: true
                       },
                       {
-                        name: 'Gap from\nRequired',
+                        name: `${t('waterfallChart.gap')}\n${t('waterfallChart.required')}`,
                         base: requiredEmissions,
                         value: gapFromRequired,
                         total: current,
@@ -2837,7 +2983,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                         isGap: true
                       },
                       {
-                        name: `${currentYear}\nActual`,
+                        name: `${currentYear}\n${t('waterfallChart.actual')}`,
                         base: 0,
                         value: current,
                         total: current,
@@ -2845,7 +2991,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                         isCurrent: true
                       },
                       {
-                        name: `${targetYear}\nTarget`,
+                        name: `${targetYear}\n${t('waterfallChart.target')}`,
                         base: 0,
                         value: target,
                         total: target,
@@ -2856,18 +3002,24 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   })()}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-gray-200 dark:stroke-white/10"
+                    vertical={true}
+                    horizontal={true}
+                  />
                   <XAxis
                     dataKey="name"
-                    stroke="#6b7280"
-                    fontSize={11}
-                    tick={{ fill: '#6b7280' }}
+                    tick={{ fill: "#888", fontSize: 12 }}
                   />
                   <YAxis
-                    stroke="#6b7280"
-                    fontSize={11}
-                    tick={{ fill: '#6b7280' }}
-                    label={{ value: 'tCO2e', angle: -90, position: 'insideLeft', fill: '#6b7280', fontSize: 11 }}
+                    tick={{ fill: "#888", fontSize: 12 }}
+                    label={{
+                      value: 'tCO2e',
+                      angle: -90,
+                      position: 'insideLeft',
+                      style: { fill: "#888", fontSize: 12 }
+                    }}
                   />
                   <Tooltip
                     contentStyle={{
@@ -2889,15 +3041,15 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                             <div className="space-y-1 text-xs">
                               {data.label && data.label.includes('-') ? (
                                 <p className="text-green-400">
-                                  Reduction: <span className="font-medium">{value.toFixed(1)} tCO2e</span>
+                                  {t('waterfallChart.tooltip.reduction')}: <span className="font-medium">{value.toFixed(1)} tCO2e</span>
                                 </p>
                               ) : data.label && data.label.includes('+') ? (
                                 <p className="text-red-400">
-                                  Increase: <span className="font-medium">{value.toFixed(1)} tCO2e</span>
+                                  {t('waterfallChart.tooltip.increase')}: <span className="font-medium">{value.toFixed(1)} tCO2e</span>
                                 </p>
                               ) : (
                                 <p className="text-gray-300">
-                                  Total: <span className="font-medium text-white">{total.toFixed(1)} tCO2e</span>
+                                  {t('waterfallChart.tooltip.total')}: <span className="font-medium text-white">{total.toFixed(1)} tCO2e</span>
                                 </p>
                               )}
                             </div>

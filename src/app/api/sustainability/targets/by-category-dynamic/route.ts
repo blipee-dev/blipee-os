@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getEnergyForecast } from '@/lib/forecasting/get-energy-forecast';
+import { calculateProgress, getTrajectoryStatus } from '@/lib/utils/progress-calculation';
 
 export const dynamic = 'force-dynamic';
 
@@ -163,7 +165,7 @@ export async function GET(request: NextRequest) {
         const cumulativeReduction = (annualReductionRate / 100) * yearsToTarget;
 
         const baselineValue = baseline.totalValue;
-        const baselineEmissions = baseline.totalEmissions;
+        const baselineEmissions = baseline.totalEmissions / 1000; // Convert kg to tCO2e
         const targetValue = baselineValue * (1 - cumulativeReduction);
         const targetEmissions = baselineEmissions * (1 - cumulativeReduction);
 
@@ -178,60 +180,128 @@ export async function GET(request: NextRequest) {
           baselineYear,
           targetYear,
           baselineValue,
-          baselineEmissions: Math.round(baselineEmissions * 10) / 10, // Round to 1 decimal
+          baselineEmissions: Math.round(baselineEmissions * 10) / 10, // tCO2e, round to 1 decimal
           targetValue: Math.round(targetValue * 10) / 10,
-          targetEmissions: Math.round(targetEmissions * 10) / 10,
+          targetEmissions: Math.round(targetEmissions * 10) / 10, // tCO2e, round to 1 decimal
           annualReductionRate,
           cumulativeReductionPercent: Math.round(cumulativeReduction * 100 * 10) / 10
         };
       })
       .filter(target => target.baselineEmissions > 0); // Only metrics with actual emissions
 
-    // Step 6: Get current year data for progress tracking
+    // Step 6: Get current year data and calculate enterprise forecast projection
     const { data: currentYearData, error: currentError } = await supabaseAdmin
       .from('metrics_data')
-      .select('metric_id, value, co2e_emissions')
+      .select('metric_id, value, co2e_emissions, period_start')
       .eq('organization_id', organizationId)
       .in('metric_id', metricIds)
       .gte('period_start', `${currentYear}-01-01`)
       .lt('period_start', `${currentYear + 1}-01-01`);
 
     if (!currentError && currentYearData) {
-      // Aggregate current year by metric
+      // Aggregate current year by metric and count unique months
       const currentYearMap = new Map();
 
       currentYearData.forEach(record => {
         if (!currentYearMap.has(record.metric_id)) {
           currentYearMap.set(record.metric_id, {
             value: 0,
-            emissions: 0
+            emissions: 0,
+            months: new Set()
           });
         }
         const current = currentYearMap.get(record.metric_id);
         current.value += parseFloat(record.value || '0');
         current.emissions += parseFloat(record.co2e_emissions || '0');
+
+        // Track unique months for this metric
+        const monthKey = record.period_start?.substring(0, 7); // YYYY-MM
+        if (monthKey) {
+          current.months.add(monthKey);
+        }
       });
 
-      // Add current values and calculate progress
+      // Fetch enterprise forecast for remaining months if we're viewing current year
+      let forecastData: any = null;
+      const today = new Date();
+      const selectedYear = new Date().getFullYear();
+
+      if (selectedYear === currentYear) {
+        try {
+          console.log('📈 [by-category-dynamic] Fetching enterprise forecast for organization:', organizationId);
+          // Call shared forecast function to get ML-based projection for remaining months
+          forecastData = await getEnergyForecast(
+            organizationId,
+            `${currentYear}-01-01`,
+            `${currentYear}-12-31`
+          );
+          console.log('✅ [by-category-dynamic] Enterprise forecast received:', {
+            forecastMonths: forecastData?.forecast?.length,
+            hasData: !!forecastData?.forecast
+          });
+        } catch (error) {
+          console.error('❌ [by-category-dynamic] Error fetching forecast data:', error);
+          // Fall back to simple projection if forecast fails
+        }
+      }
+
+      // Add current values and calculate progress with enterprise forecast
       calculatedTargets.forEach(target => {
         const current = currentYearMap.get(target.metricId);
         if (current) {
-          target.currentValue = Math.round(current.value * 10) / 10;
-          target.currentEmissions = Math.round((current.emissions / 1000) * 10) / 10; // Convert to tCO2e
+          const ytdEmissions = current.emissions / 1000; // Convert to tCO2e
+          const monthsWithData = current.months.size;
 
-          // Calculate progress
-          const reductionNeeded = target.baselineEmissions - target.targetEmissions;
-          const reductionAchieved = target.baselineEmissions - target.currentEmissions;
-          const progressPercent = reductionNeeded > 0
-            ? (reductionAchieved / reductionNeeded) * 100
-            : 0;
+          // Calculate projected annual emissions using enterprise forecast
+          let projectedAnnualEmissions = ytdEmissions;
+
+          if (forecastData?.forecast && forecastData.forecast.length > 0) {
+            // Use enterprise forecast: YTD actual + ML forecast for remaining months
+            const RENEWABLE_EMISSION_FACTOR = 0.02; // kgCO2e/kWh
+            const FOSSIL_EMISSION_FACTOR = 0.4; // kgCO2e/kWh (IEA average)
+
+            const forecastRemaining = forecastData.forecast.reduce((sum: number, f: any) => {
+              const renewableKWh = f.renewable || 0;
+              const fossilKWh = f.fossil || 0;
+              const renewableEmissions = renewableKWh * RENEWABLE_EMISSION_FACTOR / 1000; // Convert to tCO2e
+              const fossilEmissions = fossilKWh * FOSSIL_EMISSION_FACTOR / 1000; // Convert to tCO2e
+              return sum + renewableEmissions + fossilEmissions;
+            }, 0);
+
+            projectedAnnualEmissions = ytdEmissions + forecastRemaining;
+          } else if (monthsWithData > 0 && monthsWithData < 12) {
+            // Fall back to simple projection if forecast not available
+            projectedAnnualEmissions = (ytdEmissions / monthsWithData) * 12;
+          }
+
+          target.currentValue = Math.round(current.value * 10) / 10;
+          target.currentEmissions = Math.round(ytdEmissions * 10) / 10; // YTD actual
+          target.projectedAnnualEmissions = Math.round(projectedAnnualEmissions * 10) / 10; // Projected full year
+          target.monthsWithData = monthsWithData;
+          target.forecastMethod = forecastData ? 'enterprise-ml' : 'simple-linear';
+
+          console.log(`📊 [${target.metricName}] Projection:`, {
+            ytdEmissions: Math.round(ytdEmissions * 10) / 10,
+            projected: Math.round(projectedAnnualEmissions * 10) / 10,
+            method: target.forecastMethod,
+            monthsWithData
+          });
+
+          // Calculate progress using shared utility
+          const progress = calculateProgress(
+            target.baselineEmissions,
+            target.targetEmissions,
+            projectedAnnualEmissions
+          );
 
           target.progress = {
-            reductionNeeded: Math.round(reductionNeeded * 10) / 10,
-            reductionAchieved: Math.round(reductionAchieved * 10) / 10,
-            progressPercent: Math.round(progressPercent * 10) / 10,
-            trajectoryStatus: progressPercent >= 90 ? 'on-track' :
-                            progressPercent >= 70 ? 'at-risk' : 'off-track'
+            reductionNeeded: progress.reductionNeeded,
+            reductionAchieved: progress.reductionAchieved,
+            progressPercent: progress.progressPercent,
+            exceedancePercent: progress.exceedancePercent,
+            trajectoryStatus: getTrajectoryStatus(progress.progressPercent),
+            ytdEmissions: Math.round(ytdEmissions * 10) / 10,
+            projectedAnnual: Math.round(projectedAnnualEmissions * 10) / 10
           };
         }
       });

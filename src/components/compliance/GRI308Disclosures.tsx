@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Truck, Shield, AlertTriangle, CheckCircle, Award } from 'lucide-react';
+import { useGRIDisclosures} from '@/hooks/useDashboardData';
 
 interface GRI308DisclosuresProps {
   organizationId: string;
@@ -61,39 +62,11 @@ export function GRI308Disclosures({
   selectedSite,
   selectedPeriod
 }: GRI308DisclosuresProps) {
-  const [data, setData] = useState<SupplierData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Fetch data using React Query hook
+  const { data, isLoading, error: queryError } = useGRIDisclosures('308', selectedYear, selectedSite);
 
-  useEffect(() => {
-    async function fetchSupplierData() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const params = new URLSearchParams({
-          year: selectedYear.toString(),
-          organizationId: organizationId
-        });
-
-        const response = await fetch(`/api/compliance/gri-308?${params}`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch supplier data');
-        }
-
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        console.error('Error fetching GRI 308 data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchSupplierData();
-  }, [organizationId, selectedYear]);
+  const loading = isLoading;
+  const error = queryError?.message || null;
 
   if (loading) {
     return (

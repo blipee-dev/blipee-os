@@ -28,18 +28,25 @@ export async function GET(request: NextRequest) {
 
     const organizationId = memberData.organization_id;
 
+    // Get site_id from query params for site-specific progress tracking
+    const { searchParams } = new URL(request.url);
+    const siteId = searchParams.get('site_id');
+
     // ⚡ PARALLEL QUERY: Fetch targets and baseline simultaneously
+    // Note: Target definitions remain organization-level (SBTi standard)
+    // But baseline and current emissions are site-specific when site is selected
     const [targetsResult, baselineData, scopeBreakdown] = await Promise.all([
       supabaseAdmin
         .from('sustainability_targets')
         .select('*')
         .eq('organization_id', organizationId)
         .order('created_at', { ascending: false }),
-      getBaselineEmissions(organizationId),
+      getBaselineEmissions(organizationId, undefined, siteId || undefined),
       getPeriodEmissions(
         organizationId,
         `${new Date().getFullYear()}-01-01`,
-        new Date().toISOString().split('T')[0]
+        new Date().toISOString().split('T')[0],
+        siteId || undefined
       )
     ]);
 
@@ -63,14 +70,23 @@ export async function GET(request: NextRequest) {
 
 
     // Transform data to match our component expectations
-    // IMPORTANT: Using actual database schema (not migration schema)
+    // IMPORTANT: Using calculated baseline/current when site is selected, not database values
     let transformedTargets = targets?.map(target => {
-      // Calculate target_reduction_percent from baseline_value and target_value
+      // Use calculated baseline (site-specific if site selected, org-level otherwise)
+      const calculatedBaseline = baselineData?.total || target.baseline_value;
+
+      // Use calculated current emissions (site-specific if site selected)
+      const calculatedCurrent = scopeBreakdown.total;
+
+      // Calculate target_reduction_percent from DATABASE (organization-level target definition)
       const reductionPercent = target.baseline_value > 0
         ? ((target.baseline_value - target.target_value) / target.baseline_value) * 100
         : 0;
 
-      // Calculate annual_reduction_rate
+      // Calculate site-specific target emissions using org reduction percentage
+      const calculatedTarget = calculatedBaseline * (1 - reductionPercent / 100);
+
+      // Calculate annual_reduction_rate (organization-level)
       const yearsToTarget = target.target_year - target.baseline_year;
       const annualRate = yearsToTarget > 0 ? reductionPercent / yearsToTarget : 0;
 
@@ -79,14 +95,12 @@ export async function GET(request: NextRequest) {
         ? target.scopes
         : activeScopes;
 
-      // Calculate progress percentage
+      // Calculate progress percentage using CALCULATED values
       const currentYear = new Date().getFullYear();
       const yearsElapsed = currentYear - target.baseline_year;
       const totalYears = target.target_year - target.baseline_year;
-      const targetReduction = target.baseline_value - target.target_value;
-      const actualReduction = target.current_emissions
-        ? target.baseline_value - target.current_emissions
-        : 0;
+      const targetReduction = calculatedBaseline - calculatedTarget;
+      const actualReduction = calculatedBaseline - calculatedCurrent;
       const progressPercentage = targetReduction > 0
         ? (actualReduction / targetReduction) * 100
         : 0;
@@ -98,10 +112,10 @@ export async function GET(request: NextRequest) {
         target_scope: scopeCoverage.join(','),
         scope_coverage: scopeCoverage,
         baseline_year: target.baseline_year,
-        baseline_emissions: target.baseline_value,
+        baseline_emissions: calculatedBaseline, // ✅ Use calculated (site-specific)
         target_year: target.target_year,
-        reduction_percentage: reductionPercent,
-        target_emissions: target.target_value,
+        reduction_percentage: reductionPercent, // Organization-level target
+        target_emissions: calculatedTarget, // ✅ Site-specific calculated target
         annual_reduction_rate: annualRate,
         sbti_validated: target.sbti_approved || false,
         status: determinePerformanceStatus(target) === 'exceeding' || determinePerformanceStatus(target) === 'on-track'
@@ -109,7 +123,7 @@ export async function GET(request: NextRequest) {
           : determinePerformanceStatus(target) === 'at-risk'
             ? 'at_risk'
             : 'off_track',
-        current_emissions: target.current_emissions,
+        current_emissions: calculatedCurrent, // ✅ Use calculated (site-specific)
         progress_percentage: Math.max(0, Math.min(100, progressPercentage)),
         performance_status: determinePerformanceStatus(target)
       };
@@ -125,7 +139,7 @@ export async function GET(request: NextRequest) {
     let hasMore = true;
 
     while (hasMore) {
-      const { data: batch } = await supabaseAdmin
+      let query = supabaseAdmin
         .from('metrics_data')
         .select('co2e_emissions, period_start, period_end')
         .eq('organization_id', organizationId)
@@ -133,6 +147,12 @@ export async function GET(request: NextRequest) {
         .lt('period_start', `${currentYear + 1}-01-01`)
         .order('period_start', { ascending: true })
         .range(rangeStart, rangeStart + batchSize - 1);
+
+      if (siteId) {
+        query = query.eq('site_id', siteId);
+      }
+
+      const { data: batch } = await query;
 
       if (!batch || batch.length === 0) {
         hasMore = false;

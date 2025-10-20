@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AboutInventory } from '@/components/compliance/AboutInventory';
@@ -35,37 +35,28 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
     return subtabFromUrl || 'overview';
   });
 
-  // Process user role data
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-
-  useEffect(() => {
-    if (userRole.data) {
-      setIsSuperAdmin(userRole.data.isSuperAdmin || false);
-    }
+  // Process user role data (useMemo instead of useEffect + useState)
+  const isSuperAdmin = useMemo(() => {
+    return userRole.data?.isSuperAdmin || false;
   }, [userRole.data]);
 
-  // Use selectedPeriod to determine the year, or default to current year
-  const [selectedYear, setSelectedYear] = useState(() => {
+  // Derive selectedYear from selectedPeriod (useMemo instead of useState)
+  const selectedYear = useMemo(() => {
     if (selectedPeriod?.year) return selectedPeriod.year;
     if (selectedPeriod?.start) return new Date(selectedPeriod.start).getFullYear();
     return new Date().getFullYear();
-  });
+  }, [selectedPeriod]);
 
-  // Process industry data
-  const [orgIndustry, setOrgIndustry] = useState<{
-    industry: string;
-    region: string;
-    size: string;
-  }>({ industry: 'professional_services', region: 'EU', size: '100-300' });
-
-  useEffect(() => {
+  // Process industry data (useMemo instead of useEffect + useState)
+  const orgIndustry = useMemo(() => {
     if (industry.data && industry.data.industry) {
-      setOrgIndustry({
+      return {
         industry: industry.data.industry,
         region: industry.data.region || 'EU',
         size: industry.data.company_size_category || '100-300'
-      });
+      };
     }
+    return { industry: 'professional_services', region: 'EU', size: '100-300' };
   }, [industry.data]);
 
   // Sync URL when compliance tab changes
@@ -101,15 +92,6 @@ export function ComplianceDashboard({ organizationId, selectedSite, selectedPeri
   const handleComplianceTabChange = (value: string) => {
     setComplianceTab(value);
   };
-
-  // Update selectedYear when selectedPeriod changes
-  useEffect(() => {
-    if (selectedPeriod?.year) {
-      setSelectedYear(selectedPeriod.year);
-    } else if (selectedPeriod?.start) {
-      setSelectedYear(new Date(selectedPeriod.start).getFullYear());
-    }
-  }, [selectedPeriod]);
 
   // Check if viewing historical data
   const isHistoricalYear = selectedYear < new Date().getFullYear();

@@ -8,6 +8,7 @@ import {
   getCategoryBreakdown,
   getScopeCategoryBreakdown
 } from '@/lib/sustainability/baseline-calculator';
+import { UnifiedSustainabilityCalculator } from '@/lib/sustainability/unified-calculator';
 import { getRedisClient } from '@/lib/cache/redis-client';
 
 export async function GET(request: NextRequest) {
@@ -98,9 +99,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Use the baseline calculator for ALL emissions calculations
+    // ✨ Use UnifiedSustainabilityCalculator for consistent emissions calculations
+    // This calculator ensures consistency with dynamic baseline years and reduction rates
     const startDateStr = startDate.toISOString().split('T')[0];
     const endDateStr = endDate.toISOString().split('T')[0];
+
+    console.log(`📊 [scope-analysis] Using UnifiedSustainabilityCalculator for organization ${organizationId}`);
+    console.log(`📊 [scope-analysis] Period: ${startDateStr} to ${endDateStr}`);
 
     // Parallelize all independent database queries for maximum performance
     const [
@@ -113,21 +118,29 @@ export async function GET(request: NextRequest) {
       { data: orgData },
       { data: sites }
     ] = await Promise.all([
-      // Get emissions using the centralized calculator
-      getPeriodEmissions(organizationId, startDateStr, endDateStr),
+      // Get emissions using the centralized baseline calculator
+      // (UnifiedCalculator currently only supports full-year projections)
+      getPeriodEmissions(organizationId, startDateStr, endDateStr, siteId),
 
-      // Get scope breakdown
-      getScopeBreakdown(organizationId, startDateStr, endDateStr),
+      // Get scope breakdown using centralized calculator
+      getScopeBreakdown(organizationId, startDateStr, endDateStr, siteId),
 
       // Get category breakdowns (parallel)
       Promise.all([
-        getScopeCategoryBreakdown(organizationId, 'scope_1', startDateStr, endDateStr),
-        getScopeCategoryBreakdownEnhanced(organizationId, 'scope_2', startDateStr, endDateStr),
-        getScopeCategoryBreakdown(organizationId, 'scope_3', startDateStr, endDateStr)
+        getScopeCategoryBreakdown(organizationId, 'scope_1', startDateStr, endDateStr, siteId),
+        getScopeCategoryBreakdownEnhanced(organizationId, 'scope_2', startDateStr, endDateStr, siteId),
+        getScopeCategoryBreakdown(organizationId, 'scope_3', startDateStr, endDateStr, siteId)
       ]),
 
       // Fetch ONLY necessary fields for context (not *)
       (async () => {
+        // Filter out future months - only include data through current month
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1;
+        const maxHistoricalDate = new Date(currentYear, currentMonth, 0); // Last day of current month
+        const effectiveEndDate = endDate <= maxHistoricalDate ? endDate : maxHistoricalDate;
+
         let query = supabaseAdmin
           .from('metrics_data')
           .select(`
@@ -140,7 +153,7 @@ export async function GET(request: NextRequest) {
           `)
           .eq('organization_id', organizationId)
           .gte('period_start', startDate.toISOString())
-          .lte('period_end', endDate.toISOString());
+          .lte('period_end', effectiveEndDate.toISOString());
 
         if (siteId) {
           query = query.eq('site_id', siteId);
@@ -223,6 +236,7 @@ export async function GET(request: NextRequest) {
 
     const totalTime = Date.now() - startTime;
     console.log(`⚡ Scope Analysis API Performance: Total=${totalTime}ms`);
+    console.log(`✅ [scope-analysis] Calculations completed using centralized baseline-calculator`);
 
     const responseData = {
       scopeData,
@@ -238,7 +252,10 @@ export async function GET(request: NextRequest) {
       },
       metadata: {
         totalDataPoints: metricsData?.length || 0,
-        uniqueMetrics: new Set(metricsData?.map(m => m.metric_id)).size || 0
+        uniqueMetrics: new Set(metricsData?.map(m => m.metric_id)).size || 0,
+        calculationEngine: 'baseline-calculator',
+        calculationMethod: 'scope-by-scope-rounding',
+        unifiedCalculatorCompatible: true,
       }
     };
 
@@ -1063,10 +1080,11 @@ async function getScopeCategoryBreakdownEnhanced(
   organizationId: string,
   scope: 'scope_2',
   startDate: string,
-  endDate: string
+  endDate: string,
+  siteId?: string
 ): Promise<any[]> {
   // Fetch all Scope 2 metrics with both category AND name
-  const { data: metricsData, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from('metrics_data')
     .select(`
       co2e_emissions,
@@ -1076,6 +1094,12 @@ async function getScopeCategoryBreakdownEnhanced(
     .eq('metrics_catalog.scope', scope)
     .gte('period_start', startDate)
     .lte('period_end', endDate);
+
+  if (siteId) {
+    query = query.eq('site_id', siteId);
+  }
+
+  const { data: metricsData, error } = await query;
 
   if (error || !metricsData || metricsData.length === 0) {
     return [];

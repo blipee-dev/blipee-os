@@ -149,13 +149,10 @@ export async function GET(request: NextRequest) {
     const startDate = `${baselineYear}-01-01`;
     const endDate = `${baselineYear}-12-31`;
 
-    const categoryBreakdown = await getCategoryBreakdown(organizationId, startDate, endDate);
+    const categoryBreakdown = await getCategoryBreakdown(organizationId, startDate, endDate, siteId || undefined);
 
-    // Note: siteId and categoriesParam filtering not yet supported by calculator
-    // TODO: Extend calculator to support these filters if needed
-    if (siteId) {
-      console.warn('⚠️ siteId filtering not yet supported by calculator');
-    }
+    // Note: categoriesParam filtering not yet supported by calculator
+    // TODO: Extend calculator to support category filtering if needed
     if (categoriesParam) {
       console.warn('⚠️ categoriesParam filtering not yet supported by calculator');
     }
@@ -239,6 +236,165 @@ export async function GET(request: NextRequest) {
     console.error('API Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user's organization
+    const { data: memberData, error: memberError } = await supabaseAdmin
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (memberError || !memberData?.organization_id) {
+      return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
+    }
+
+    const organizationId = memberData.organization_id;
+    const { searchParams } = new URL(request.url);
+    const overallTarget = parseFloat(searchParams.get('target') || '4.2');
+    const baselineYear = parseInt(searchParams.get('baseline_year') || '2023');
+    const targetYear = parseInt(searchParams.get('target_year') || '2025');
+
+    console.log(`📊 POST weighted allocation: target=${overallTarget}%, baseline=${baselineYear}, targetYear=${targetYear}`);
+
+    // Get category breakdown from baseline year
+    const startDate = `${baselineYear}-01-01`;
+    const endDate = `${baselineYear}-12-31`;
+    const categoryBreakdown = await getCategoryBreakdown(organizationId, startDate, endDate);
+
+    // Convert to map
+    const categoryEmissions = new Map<string, number>();
+    let totalEmissions = 0;
+
+    categoryBreakdown.forEach(cat => {
+      categoryEmissions.set(cat.category, cat.total * 1000); // kg
+      totalEmissions += cat.total * 1000;
+    });
+
+    // Calculate weighted allocation
+    const allocations: CategoryAllocation[] = [];
+
+    categoryEmissions.forEach((emissions, category) => {
+      const emissionPercent = totalEmissions > 0 ? (emissions / totalEmissions) * 100 : 0;
+      const categoryConfig = CATEGORY_EFFORT_FACTORS[category as keyof typeof CATEGORY_EFFORT_FACTORS] || CATEGORY_EFFORT_FACTORS['Other'];
+      const baselineTargetPercent = overallTarget * (emissionPercent / 100);
+      const adjustedTargetPercent = baselineTargetPercent * categoryConfig.effortFactor;
+      const absoluteTarget = emissions * (1 - adjustedTargetPercent / 100);
+
+      let feasibility: 'high' | 'medium' | 'low' = 'medium';
+      if (categoryConfig.effortFactor >= 1.3) feasibility = 'high';
+      else if (categoryConfig.effortFactor <= 0.9) feasibility = 'low';
+
+      allocations.push({
+        category,
+        currentEmissions: emissions / 1000,
+        emissionPercent,
+        baselineTargetPercent,
+        adjustedTargetPercent,
+        effortFactor: categoryConfig.effortFactor,
+        reason: categoryConfig.reason,
+        absoluteTarget: absoluteTarget / 1000,
+        feasibility
+      });
+    });
+
+    // Normalize
+    const weightedAverage = allocations.reduce((sum, alloc) =>
+      sum + (alloc.adjustedTargetPercent * alloc.emissionPercent / 100), 0
+    );
+    const normalizationFactor = overallTarget / weightedAverage;
+    allocations.forEach(alloc => {
+      alloc.adjustedTargetPercent *= normalizationFactor;
+      alloc.absoluteTarget = alloc.currentEmissions * (1 - alloc.adjustedTargetPercent / 100);
+    });
+
+    // Delete existing category targets for this org + baseline year
+    const { error: deleteError } = await supabaseAdmin
+      .from('category_targets')
+      .delete()
+      .eq('organization_id', organizationId)
+      .eq('baseline_year', baselineYear);
+
+    if (deleteError) {
+      console.error('Error deleting old category targets:', deleteError);
+    }
+
+    // Helper function to determine scope from category
+    const getCategoryScope = (category: string): string => {
+      // Scope 2 categories
+      if (['Electricity', 'Purchased Energy', 'Purchased Heating', 'Purchased Cooling', 'Purchased Steam',
+           'District Heating', 'District Cooling', 'Steam'].includes(category)) {
+        return 'scope_2';
+      }
+      // Scope 1 categories
+      if (['Natural Gas', 'Diesel', 'Gasoline', 'Propane', 'Heating Oil', 'LPG', 'Coal', 'Fuel Oil',
+           'Stationary Combustion', 'Mobile Combustion', 'Fugitive Emissions', 'Process Emissions',
+           'Refrigerants'].includes(category)) {
+        return 'scope_1';
+      }
+      // Everything else is Scope 3
+      return 'scope_3';
+    };
+
+    // Insert new category targets (matching actual schema)
+    const categoryTargetsToInsert = allocations.map(alloc => ({
+      organization_id: organizationId,
+      category: alloc.category,
+      scope: getCategoryScope(alloc.category),
+      baseline_year: baselineYear,
+      baseline_emissions: alloc.currentEmissions,
+      emission_percent: alloc.emissionPercent,
+      baseline_target_percent: alloc.baselineTargetPercent,
+      adjusted_target_percent: alloc.adjustedTargetPercent,
+      effort_factor: alloc.effortFactor,
+      target_emissions: alloc.absoluteTarget,
+      feasibility: alloc.feasibility,
+      allocation_reason: alloc.reason,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }));
+
+    const { error: insertError } = await supabaseAdmin
+      .from('category_targets')
+      .insert(categoryTargetsToInsert);
+
+    if (insertError) {
+      console.error('Error inserting category targets:', insertError);
+      return NextResponse.json(
+        { error: 'Failed to save category targets', details: insertError.message },
+        { status: 500 }
+      );
+    }
+
+    console.log(`✅ Saved ${allocations.length} category targets`);
+
+    return NextResponse.json({
+      success: true,
+      message: `Created ${allocations.length} category targets`,
+      overallTarget,
+      baselineYear,
+      targetYear,
+      totalEmissions: totalEmissions / 1000,
+      allocations
+    });
+
+  } catch (error: any) {
+    console.error('POST API Error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     );
   }

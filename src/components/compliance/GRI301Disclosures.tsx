@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Package, RefreshCw, Recycle, TrendingUp } from 'lucide-react';
+import { useGRIDisclosures } from '@/hooks/useDashboardData';
 
 interface GRI301DisclosuresProps {
   organizationId: string;
@@ -42,43 +43,11 @@ export function GRI301Disclosures({
   selectedSite,
   selectedPeriod
 }: GRI301DisclosuresProps) {
-  const [data, setData] = useState<MaterialsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Fetch data using React Query hook
+  const { data, isLoading, error: queryError } = useGRIDisclosures('301', selectedYear, selectedSite);
 
-  useEffect(() => {
-    async function fetchMaterialsData() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const params = new URLSearchParams({
-          year: selectedYear.toString(),
-          organizationId: organizationId
-        });
-
-        if (selectedSite) {
-          params.append('siteId', selectedSite);
-        }
-
-        const response = await fetch(`/api/compliance/gri-301?${params}`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch materials data');
-        }
-
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        console.error('Error fetching GRI 301 data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchMaterialsData();
-  }, [organizationId, selectedYear, selectedSite]);
+  const loading = isLoading;
+  const error = queryError?.message || null;
 
   if (loading) {
     return (

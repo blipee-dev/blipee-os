@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Droplets,
@@ -12,6 +12,7 @@ import {
   Loader2,
   Info
 } from 'lucide-react';
+import { useGRIDisclosures } from '@/hooks/useDashboardData';
 
 interface WaterData {
   total_withdrawal: number;
@@ -51,37 +52,11 @@ export function GRI303Disclosures({
   selectedSite,
   selectedPeriod
 }: GRI303DisclosuresProps) {
-  const [data, setData] = useState<WaterData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Fetch data using React Query hook
+  const { data, isLoading, error: queryError } = useGRIDisclosures('303', selectedYear, selectedSite);
 
-  useEffect(() => {
-    async function fetchWaterData() {
-      try {
-        const params = new URLSearchParams({
-          year: selectedYear.toString(),
-          organizationId: organizationId
-        });
-
-        if (selectedSite?.id) {
-          params.append('siteId', selectedSite.id);
-        }
-
-        const response = await fetch(`/api/compliance/gri-303?${params}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch GRI 303 data');
-        }
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchWaterData();
-  }, [organizationId, selectedYear, selectedSite]);
+  const loading = isLoading;
+  const error = queryError?.message || null;
 
   if (loading) {
     return (

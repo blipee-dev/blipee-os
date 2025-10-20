@@ -65,7 +65,17 @@ export async function GET(request: NextRequest) {
       query = query.gte('period_start', startDate);
     }
     if (endDate) {
-      query = query.lte('period_start', endDate);
+      // Filter out future months - only include data through current month
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      const maxHistoricalDate = new Date(currentYear, currentMonth, 0); // Last day of current month
+      const requestedEndDate = new Date(endDate);
+
+      // Use the earlier of: requested end date OR current month end
+      const effectiveEndDate = requestedEndDate <= maxHistoricalDate ? endDate : maxHistoricalDate.toISOString().split('T')[0];
+
+      query = query.lte('period_start', effectiveEndDate);
     }
 
     // Apply site filter if provided
@@ -212,6 +222,16 @@ export async function GET(request: NextRequest) {
       const gridMix = record.metadata?.grid_mix;
       const supplierMix = record.metadata?.supplier_mix;
       const mixInfo = gridMix || supplierMix;
+
+      // Debug logging
+      if (energyType === 'electricity' && !mixInfo) {
+        console.log('🔍 [API] Electricity record WITHOUT grid_mix:', {
+          period: record.period_start,
+          value: record.value,
+          hasMetadata: !!record.metadata,
+          metadataKeys: record.metadata ? Object.keys(record.metadata) : []
+        });
+      }
 
       if (mixInfo) {
         mixData.renewable_kwh += mixInfo.renewable_kwh || 0;
@@ -407,6 +427,21 @@ export async function GET(request: NextRequest) {
     const monthlyTrends = Object.values(monthlyData)
       .sort((a: any, b: any) => a.monthKey.localeCompare(b.monthKey));
 
+    // Debug logging for renewable percentage
+    console.log('🔍 [API /energy/sources] Response Data:', {
+      totalConsumption,
+      totalRenewableEnergy,
+      totalRenewableFromGrid,
+      totalNonRenewableFromGrid,
+      pureRenewableConsumption,
+      overallRenewablePercentage: Math.round(renewablePercentage * 10) / 10,
+      energyMixesCount: energyMixes.length,
+      electricityMix: energyMixes.find((m: any) => m.energy_type === 'electricity'),
+      gridMixRenewablePercentage: gridMixData?.renewable_percentage,
+      siteId: siteId || 'all',
+      dateRange: `${startDate} to ${endDate}`
+    });
+
     return NextResponse.json({
       sources,
       total_consumption: totalConsumption,
@@ -417,6 +452,12 @@ export async function GET(request: NextRequest) {
       monthly_trends: monthlyTrends,
       energy_mixes: energyMixes, // New multi-type energy mix array
       grid_mix: gridMixData // Legacy backward compatibility
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
     });
 
   } catch (error) {

@@ -2345,6 +2345,18 @@
     "dashboard": {
       "loading": "Cargando datos de visión general...",
       "learnMore": "Saber Más",
+      "jan": "Ene",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dic",
       "intensityExplanation": "La intensidad de emisiones mide la eficiencia de carbono de su organización, mostrando cuántas toneladas de CO2 se emiten por empleado equivalente a tiempo completo (ETC).",
       "targetProgressExplanation": "Esta tarjeta muestra cuántas de sus metas de sostenibilidad están en camino de ser alcanzadas. Las metas se consideran en el buen camino cuando las emisiones actuales están por debajo de la trayectoria lineal necesaria para alcanzar el objetivo definido.",
       "dataQualityExplanation": "Esta tarjeta muestra la calidad de sus datos de emisiones. Los datos primarios son mediciones directas y reales, mientras que los datos verificados han sido validados por terceros. Mayor porcentaje de datos primarios y verificados significa mayor precisión en su inventario de emisiones.",
@@ -2419,7 +2431,8 @@
         }
       },
       "emissionsTrend": {
-        "title": "Tendencia de Emisiones",
+        "title": "Tendencia y Pronóstico de Emisiones",
+        "subtitle": "Datos históricos con predicciones impulsadas por ML",
         "tooltip": "Evolución mensual de emisiones por alcance con previsión ML. Líneas sólidas: datos reales. Líneas discontinuas: previsión basada en patrones históricos. TCFD, ESRS E1.",
         "yAxisLabel": "tCO2e",
         "noData": "Sin datos disponibles",
@@ -2429,11 +2442,41 @@
         "scope3": "Alcance 3",
         "total": "Total",
         "totalEmissions": "Total",
+        "buttons": {
+          "absolute": "Absoluto",
+          "intensity": "Intensidad",
+          "breakdown": "Desglose"
+        },
+        "recentTrend": {
+          "title": "Tendencia Reciente",
+          "monthOverMonth": "Cambio mes a mes"
+        },
+        "sbtiTarget": {
+          "monthly": "Objetivo Mensual SBTi",
+          "onTrack": "En camino",
+          "behindTarget": "Por detrás del objetivo",
+          "seasonalAdjusted": "(ajustado estacionalmente)",
+          "vsMonthlyTarget": "vs objetivo mensual",
+          "annualProgress": "Progreso Anual",
+          "rolling12Months": "Rendimiento de 12 meses móviles",
+          "vsAnnualTarget": "vs objetivo anual"
+        },
+        "legend": {
+          "historical": "Histórico",
+          "forecast": "Pronóstico",
+          "sbtiTarget": "Objetivo SBTi",
+          "confidenceBand": "Banda de Confianza"
+        },
+        "now": "Ahora",
         "tooltipLabels": {
           "scope1": "Alcance 1:",
           "scope2": "Alcance 2:",
           "scope3": "Alcance 3:",
-          "total": "Total:"
+          "total": "Total:",
+          "forecast": "Pronóstico:",
+          "range": "Rango:",
+          "intensity": "Intensidad:",
+          "sbtiTarget": "Objetivo SBTi:"
         },
         "legendLabels": {
           "totalEmissions": "Total",
@@ -2446,6 +2489,9 @@
         "title": "Límites Organizacionales",
         "tooltip": "Perímetro de reporte de emisiones: consolidación, instalaciones, año base y empleados. GRI 2-1, GRI 2-6, Protocolo GEI.",
         "consolidationApproach": "Consolidación",
+        "operationalControl": "Control Operacional",
+        "financialControl": "Control Financiero",
+        "equityShare": "Participación Accionaria",
         "sitesIncluded": "Instalaciones",
         "baseYear": "Año Base",
         "employees": "Empleados",
@@ -2542,13 +2588,14 @@
         "baseline": "Baseline",
         "current": "Actual",
         "actualPlusForecast": "Real + Forecast",
+        "projected": "Proyectado",
         "required": "Target",
         "onTrack": "on track",
         "target": "Target",
         "progress": "Progreso",
         "aboveBaseline": "Por Encima del Baseline",
         "onTrackStatus": "On Track",
-        "atRisk": "At Risk"
+        "atRisk": "En Riesgo"
       },
       "waterfallChart": {
         "title": "Trayectoria de Emisiones",
@@ -2569,10 +2616,24 @@
       "title": "Agua & Efluentes",
       "subtitle": "GRI 303 • ESRS E3 • Captación, consumo, descarga y reciclaje de agua",
       "learnMore": "Saber Más",
+      "jan": "Ene",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dic",
       "cards": {
         "withdrawal": {
           "title": "Captación Total",
-          "unit": "ML"
+          "ytdTitle": "Captación Acum. Año",
+          "unit": "ML",
+          "projected": "Proyectado"
         },
         "consumption": {
           "title": "Consumo",
@@ -2600,7 +2661,7 @@
           "description": "Captación, descarga y consumo"
         },
         "yoyComparison": {
-          "title": "Comparación Mensual Interanual",
+          "title": "Variación Interanual",
           "description": "Consumo total vs año anterior"
         },
         "balanceSummary": {
@@ -2638,6 +2699,9 @@
           "target": "Meta",
           "projected": "Proyectado"
         },
+        "progress": "Progreso",
+        "exceedance": "Sobre el Objetivo",
+        "offTrackWarning": "El consumo proyectado excede la trayectoria objetivo",
         "initiativesSubtitle": "CDP Water Security • 2,5% de reducción anual • Línea Base 2023",
         "annualReductionTarget": "Meta de reducción anual del 2,5%"
       },
@@ -2688,7 +2752,47 @@
       "yoyComparisonExplanation": "La comparación interanual del consumo de agua muestra tendencias y la efectividad de las iniciativas de reducción de agua. La disminución del consumo indica una gestión hídrica exitosa, mientras que los aumentos pueden señalar la necesidad de nuevas medidas de conservación.",
       "waterBalanceSummaryExplanation": "El consumo de agua se calcula como captación total menos descarga total (C - D). Esto representa agua que no se devuelve a ecosistemas o comunidades locales, incluyendo evaporación, incorporación en productos o consumo humano. Según GRI 303-5, reducir el consumo es crítico en áreas con estrés hídrico.",
       "waterReductionTargetExplanation": "Las metas de reducción de agua ayudan a rastrear el progreso hacia los objetivos de conservación. El benchmark CDP Water Security recomienda una reducción anual del 2,5% en el consumo de agua. Las metas consideran el crecimiento empresarial y se miden en relación con un año base para garantizar una mejora continua.",
-      "waterInitiativesExplanation": "Las iniciativas de gestión hídrica son acciones específicas para reducir el consumo, mejorar la eficiencia o asegurar fuentes alternativas de agua. Pueden incluir actualizaciones de equipos, cambios de procesos, sistemas de reciclaje o programas de comportamiento. Cada iniciativa rastrea ahorros estimados, costos y estado de implementación."
+      "waterInitiativesExplanation": "Las iniciativas de gestión hídrica son acciones específicas para reducir el consumo, mejorar la eficiencia o asegurar fuentes alternativas de agua. Pueden incluir actualizaciones de equipos, cambios de procesos, sistemas de reciclaje o programas de comportamiento. Cada iniciativa rastrea ahorros estimados, costos y estado de implementación.",
+      "sitePerformance": {
+        "title": "Clasificación de Rendimiento por Sitio",
+        "subtitle": "Intensidad Hídrica por m²"
+      },
+      "explanations": {
+        "sitePerformance": "Compara la intensidad hídrica entre diferentes sitios o instalaciones.\n\nMedida en m³ por metro cuadrado.\n\nAyuda a identificar mejores prácticas y sitios que necesitan iniciativas de mejora."
+      },
+      "performanceLevels": {
+        "excellent": "Excelente",
+        "good": "Bueno",
+        "needsImprovement": "Necesita Mejora"
+      },
+      "cdpProgress": {
+        "title": "Progreso de Meta CDP Water Security",
+        "subtitle": "{baselineYear} → {targetYear}",
+        "reductionTarget": "Meta de Reducción",
+        "baseline": "Línea Base",
+        "current": "Actual",
+        "required": "Requerido",
+        "target": "Meta",
+        "progress": "Progreso",
+        "onTrack": "en camino",
+        "aboveBaseline": "Por Encima de Línea Base",
+        "onTrackStatus": "En Camino",
+        "atRisk": "En Riesgo",
+        "waterfallChart": {
+          "title": "Trayectoria de Consumo de Agua",
+          "baseline": "Línea Base",
+          "required": "Requerido",
+          "reduction": "Reducción",
+          "gap": "Brecha",
+          "actual": "Real",
+          "target": "Meta",
+          "tooltip": {
+            "reduction": "Reducción",
+            "increase": "Aumento",
+            "total": "Total"
+          }
+        }
+      }
     },
     "compliance": {
       "title": "Panel de Cumplimiento",
@@ -2771,10 +2875,24 @@
       "title": "Residuos & Economía Circular",
       "subtitle": "GRI 306 • ESRS E5 • Residuos generados, desviados de la eliminación y dirigidos a la eliminación",
       "learnMore": "Saber Más",
+      "jan": "Ene",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dic",
       "cards": {
         "generated": {
           "title": "Generado",
-          "unit": "toneladas"
+          "ytdTitle": "Generado Acum. Año",
+          "unit": "toneladas",
+          "projected": "Proyectado"
         },
         "diverted": {
           "title": "Desviado",
@@ -2822,7 +2940,7 @@
           }
         },
         "yoyComparison": {
-          "title": "Comparación Interanual",
+          "title": "Variación Interanual",
           "description": "Cambio mensual vs. año anterior",
           "tooltip": {
             "current": "Actual:",
@@ -2865,6 +2983,8 @@
         "materialBreakdown": {
           "title": "Desglose por Material Específico",
           "description": "Tasas de reciclaje y desvío por tipo de material de residuo",
+          "material": "Material",
+          "total": "Total",
           "recyclingRate": "Tasa de Reciclaje",
           "diversionRate": "Tasa de Desvío",
           "toDisposal": "Para Eliminación",
@@ -2926,7 +3046,45 @@
         "label": "Pronóstico"
       },
       "yoy": "Interanual",
-      "addInitiative": "Agregar Iniciativa"
+      "addInitiative": "Agregar Iniciativa",
+      "sitePerformance": {
+        "title": "Clasificación de Rendimiento por Sitio",
+        "subtitle": "Intensidad de Residuos por m²"
+      },
+      "explanations": {
+        "sitePerformance": "Compara la intensidad de generación de residuos entre diferentes sitios o instalaciones.\n\nMedida en kg por metro cuadrado.\n\nAyuda a identificar mejores prácticas y sitios que necesitan iniciativas de mejora."
+      },
+      "performanceLevels": {
+        "excellent": "Excelente",
+        "good": "Bueno",
+        "needsImprovement": "Necesita Mejora"
+      },
+      "wasteProgress": {
+        "title": "Progreso de Meta de Reducción de Residuos",
+        "reductionTarget": "Meta de Reducción",
+        "baseline": "Línea Base",
+        "current": "Actual",
+        "required": "Requerido",
+        "target": "Meta",
+        "progress": "Progreso",
+        "onTrackStatus": "En Camino",
+        "atRisk": "En Riesgo",
+        "aboveRequired": "por encima del requerido",
+        "waterfallChart": {
+          "title": "Trayectoria de Generación de Residuos",
+          "baseline": "Línea Base",
+          "required": "Requerido",
+          "reduction": "Reducción",
+          "gap": "Brecha",
+          "actual": "Real",
+          "target": "Meta",
+          "tooltip": {
+            "reduction": "Reducción",
+            "increase": "Aumento",
+            "total": "Total"
+          }
+        }
+      }
     },
     "dataInvestigation": {
       "title": "Investigación de Datos",
@@ -2969,6 +3127,18 @@
       "title": "Emisiones GEI",
       "subtitle": "Protocolo GEI • GRI 305 • ESRS E1 • TCFD",
       "loading": "Cargando datos de emisiones...",
+      "jan": "Ene",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dic",
       "cards": {
         "totalEmissions": {
           "title": "Emisiones Totales",
@@ -3006,6 +3176,12 @@
         "yAxisLabel": "tCO2e",
         "noData": "No hay datos de tendencia disponibles",
         "targetMissed": "Meta No Alcanzada",
+        "scope1": "Alcance 1",
+        "scope2": "Alcance 2",
+        "scope3": "Alcance 3",
+        "total": "Total",
+        "totalEmissions": "Emisiones Totales",
+        "forecast": "Previsión",
         "legends": {
           "totalEmissions": "Emisiones Totales",
           "scope1": "Alcance 1",
@@ -3056,7 +3232,7 @@
         }
       },
       "yoyComparison": {
-        "title": "Comparación Interanual",
+        "title": "Variación Interanual",
         "subtitle": "Cambio mensual vs año anterior",
         "tooltip": {
           "thisYear": "Este Año",
@@ -3068,7 +3244,7 @@
         }
       },
       "sitePerformance": {
-        "title": "Comparación de Rendimiento por Sitio",
+        "title": "Ranking de Rendimiento por Sitio",
         "subtitle": "Intensidad por m²",
         "tooltip": "Los sitios se clasifican por intensidad de emisiones (kgCO2e/m²). Menor intensidad indica mejor eficiencia energética y rendimiento de emisiones por área unitaria.",
         "badges": {
@@ -3184,6 +3360,20 @@
         },
         "explanation": "Desglose detallado de las emisiones de Alcance 3 de la cadena de valor en las 15 categorías del Protocolo GEI.\n\nIncluye emisiones upstream (proveedores, bienes adquiridos, viajes de negocios) y downstream (uso de productos, fin de vida).\n\nGRI 305-3 requiere reportar categorías significativas.\n\nObjetivo de 80%+ de cobertura para huella de carbono completa."
       },
+      "waterfallChart": {
+        "title": "Trayectoria de Emisiones",
+        "baseline": "Línea Base",
+        "required": "Requerido",
+        "reduction": "Reducción",
+        "gap": "Desviación",
+        "actual": "Real",
+        "target": "Meta",
+        "tooltip": {
+          "reduction": "Reducción",
+          "increase": "Aumento",
+          "total": "Total"
+        }
+      },
       "sbtiProgress": {
         "title": "Progreso Metas SBTi",
         "subtitle": "{baselineYear} → {targetYear}",
@@ -3191,19 +3381,27 @@
         "baseline": "Línea Base",
         "current": "Actual",
         "actualMLForecast": "Real + Previsión ML",
+        "projected": "Proyectado",
         "required": "Requerido",
         "target": "Meta",
         "progress": "Progreso",
         "onTrack": "en camino",
         "aboveBaseline": "Por Encima de la Línea Base",
+        "onTrackStatus": "On Track",
+        "atRisk": "En Riesgo",
         "waterfallChart": {
           "title": "Trayectoria de Emisiones",
-          "baselineYear": "Línea Base",
-          "requiredReduction": "Reducción\nRequerida",
-          "requiredYear": "Requerido",
-          "gapFromRequired": "Desviación del\nRequerido",
-          "actualYear": "Real",
-          "targetYear": "Meta"
+          "baseline": "Línea Base",
+          "required": "Requerido",
+          "reduction": "Reducción",
+          "gap": "Desviación",
+          "actual": "Real",
+          "target": "Meta",
+          "tooltip": {
+            "reduction": "Reducción",
+            "increase": "Aumento",
+            "total": "Total"
+          }
         }
       },
       "scopes": {
@@ -3224,7 +3422,32 @@
         "scope3Coverage": "Rastrea la cobertura de las 15 categorías de emisiones de la cadena de valor de Alcance 3 definidas por el Protocolo GEI.\n\nGRI 305-3 requiere reportar todas las categorías significativas.\n\nObjetivo: 80%+ de cobertura para contabilidad completa de huella de carbono.",
         "dataQuality": "Mide la proporción de datos de emisiones de fuentes primarias (mediciones reales) versus fuentes secundarias (estimaciones y factores).\n\nMayor porcentaje de datos primarios mejora precisión y credibilidad.\n\nLa verificación por terceros aumenta la confianza de las partes interesadas.",
         "yoyComparison": "Comparación mes a mes contra el mismo período del año pasado.\n\nAyuda a identificar patrones estacionales y rastrear progreso.\n\nCambios positivos indican aumentos, cambios negativos indican reducciones.",
-        "sitePerformance": "Compara intensidad de emisiones entre diferentes sitios o instalaciones.\n\nMedido en kgCO2e por metro cuadrado.\n\nAyuda a identificar mejores prácticas y sitios que necesitan iniciativas de mejora."
+        "sitePerformance": "Compara intensidad de emisiones entre diferentes sitios o instalaciones.\n\nMedido en kgCO2e por metro cuadrado.\n\nAyuda a identificar mejores prácticas y sitios que necesitan iniciativas de mejora.",
+        "organizationalBoundariesExplanation": "Define el perímetro de su inventario de emisiones, incluyendo el enfoque de consolidación (control operacional, control financiero o participación accionaria), instalaciones incluidas, año base para comparación y número de empleados."
+      },
+      "organizationalBoundaries": {
+        "title": "Límites Organizacionales",
+        "tooltip": "Perímetro de reporte de emisiones: consolidación, instalaciones, año base y empleados. GRI 2-1, GRI 2-6, Protocolo GEI.",
+        "consolidationApproach": "Consolidación",
+        "operationalControl": "Control Operacional",
+        "financialControl": "Control Financiero",
+        "equityShare": "Participación Accionaria",
+        "sitesIncluded": "Instalaciones",
+        "baseYear": "Año Base",
+        "employees": "Empleados",
+        "loading": "Cargando...",
+        "notSet": "No establecido"
+      },
+      "sbtiTargets": {
+        "title": "Objetivos SBTi",
+        "validated": "Validado SBTi ✓",
+        "ambition": "Ambición",
+        "ambition1_5C": "1,5°C",
+        "ambitionWellBelow2C": "<2°C",
+        "ambitionNetZero": "Net-Zero",
+        "nearTermTarget": "Corto plazo",
+        "netZeroTarget": "Net-Zero",
+        "by": "para"
       }
     },
     "months": {
@@ -3245,10 +3468,24 @@
       "title": "Gestión de Energía",
       "subtitle": "GRI 302 • ESRS E1-5 • Seguimiento de consumo e intensidad energética",
       "learnMore": "Más Información",
+      "jan": "Ene",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dic",
       "cards": {
         "totalEnergy": {
           "title": "Energía Total",
+          "ytdTitle": "Energía YTD",
           "unit": "MWh",
+          "projected": "Proyectado",
           "explanation": "Suma de toda la energía consumida en todas las fuentes en el período seleccionado. Medida en megavatios-hora (MWh). El cambio interanual muestra la tendencia de consumo en comparación con el período anterior."
         },
         "renewable": {
@@ -3269,7 +3506,7 @@
       },
       "charts": {
         "sourcesDistribution": {
-          "title": "Distribución de Fuentes de Energía",
+          "title": "Desglose de Fuentes de Energía",
           "explanation": "Desglose del consumo de energía por tipo de fuente. Muestra la proporción de cada fuente de energía en su mezcla energética total, ayudando a identificar oportunidades para la adopción de energía renovable.",
           "noData": "No hay datos de fuentes de energía disponibles"
         },
@@ -3281,7 +3518,7 @@
           "noData": "No hay datos de tendencias mensuales disponibles"
         },
         "yoyComparison": {
-          "title": "Comparación Interanual",
+          "title": "Variación Anual",
           "explanation": "Cambio porcentual mensual en el consumo de energía en comparación con el mismo mes del año anterior. Valores positivos indican aumento del consumo, valores negativos muestran reducción.",
           "description": "Cambio mensual comparado con el año anterior",
           "noData": "No hay datos de comparación interanual disponibles"
@@ -3367,6 +3604,8 @@
       },
       "gridMix": {
         "renewableEnergy": "Energía Renovable",
+        "renewableNote": "Se aplica a la electricidad de red. Factor de emisiones total considerado:",
+        "dataSource": "Datos de Electricity Maps API",
         "unknown": "Desconocido",
         "detailedBreakdownUnavailable": "Desglose detallado de fuentes aún no disponible",
         "applyMigrations": "Aplicar migraciones para ver desglose de Eólica, Solar, Hidráulica, Gas, Carbón",
@@ -3396,7 +3635,8 @@
         "baseline": "Línea de Base",
         "baseline2023": "Línea de Base 2023",
         "metrics": "métricas",
-        "addInitiative": "Agregar Iniciativa"
+        "addInitiative": "Agregar Iniciativa",
+        "offTrackWarning": "Fuera de camino: {gap} tCO2e por encima del objetivo"
       },
       "axisLabels": {
         "mwh": "MWh",
@@ -3457,6 +3697,44 @@
         "current": "Actual:",
         "yearLabel": "Año",
         "annual": "anual"
+      },
+      "sitePerformance": {
+        "title": "Clasificación de Rendimiento por Sitio",
+        "subtitle": "Intensidad Energética por m²"
+      },
+      "explanations": {
+        "sitePerformance": "Compara la intensidad energética entre diferentes sitios o instalaciones.\n\nMedida en kWh por metro cuadrado.\n\nAyuda a identificar mejores prácticas y sitios que necesitan iniciativas de mejora."
+      },
+      "performanceLevels": {
+        "excellent": "Excelente",
+        "good": "Bueno",
+        "needsImprovement": "Necesita Mejora"
+      },
+      "energyProgress": {
+        "title": "Progreso de Meta de Eficiencia Energética",
+        "reductionTarget": "Meta de Reducción",
+        "baseline": "Línea Base",
+        "current": "Actual",
+        "required": "Requerido",
+        "target": "Meta",
+        "progress": "Progreso",
+        "onTrackStatus": "En Camino",
+        "atRisk": "En Riesgo",
+        "aboveRequired": "por encima del requerido",
+        "waterfallChart": {
+          "title": "Trayectoria de Consumo Energético",
+          "baseline": "Línea Base",
+          "required": "Requerido",
+          "reduction": "Reducción",
+          "gap": "Brecha",
+          "actual": "Real",
+          "target": "Meta",
+          "tooltip": {
+            "reduction": "Reducción",
+            "increase": "Aumento",
+            "total": "Total"
+          }
+        }
       }
     }
   },
