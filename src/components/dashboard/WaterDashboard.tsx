@@ -586,7 +586,7 @@ export function WaterDashboard({
                     const MIN_LABEL_SPACING = 50; // Increased for multi-line labels
                     const SMALL_SEGMENT_THRESHOLD = 5; // Segments < 5% are considered small
 
-                    return ({ cx, cy, midAngle, outerRadius, name, value, percent, index }: any) => {
+                    const CustomPieLabel = ({ cx, cy, midAngle, outerRadius, name, value, percent, index }: any) => {
                       const RADIAN = Math.PI / 180;
                       const radius = outerRadius + 30;
                       let x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -673,6 +673,7 @@ export function WaterDashboard({
                         </text>
                       );
                     };
+                    return CustomPieLabel;
                   })()}
                   outerRadius={130}
                   innerRadius={80}

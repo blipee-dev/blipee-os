@@ -2056,7 +2056,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                       const MIN_LABEL_SPACING = 45; // Minimum vertical spacing between labels
                       const SMALL_SEGMENT_THRESHOLD = 5; // Segments < 5% are considered small
 
-                      return ({ cx, cy, midAngle, outerRadius, name, percent, value, index }: any) => {
+                      const CustomPieLabel = ({ cx, cy, midAngle, outerRadius, name, percent, value, index }: any) => {
                         const RADIAN = Math.PI / 180;
                         const radius = outerRadius + 40;
                         let x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -2139,6 +2139,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                           </text>
                         );
                       };
+                      return CustomPieLabel;
                     })()}
                     labelLine={true}
                   >
