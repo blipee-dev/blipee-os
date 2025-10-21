@@ -285,7 +285,7 @@ export class UnifiedSustainabilityCalculator {
         };
       }
     } catch (error) {
-      debug.log('ML forecast not available, using linear fallback');
+      console.log('ML forecast not available, using linear fallback');
     }
 
     // Method 2: Simple linear projection (fallback)
