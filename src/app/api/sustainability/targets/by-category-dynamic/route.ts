@@ -228,14 +228,14 @@ export async function GET(request: NextRequest) {
 
       if (selectedYear === currentYear) {
         try {
-          console.log('📈 [by-category-dynamic] Fetching enterprise forecast for organization:', organizationId);
+          debug.log('📈 [by-category-dynamic] Fetching enterprise forecast for organization:', organizationId);
           // Call shared forecast function to get ML-based projection for remaining months
           forecastData = await getEnergyForecast(
             organizationId,
             `${currentYear}-01-01`,
             `${currentYear}-12-31`
           );
-          console.log('✅ [by-category-dynamic] Enterprise forecast received:', {
+          debug.log('✅ [by-category-dynamic] Enterprise forecast received:', {
             forecastMonths: forecastData?.forecast?.length,
             hasData: !!forecastData?.forecast
           });
@@ -280,7 +280,7 @@ export async function GET(request: NextRequest) {
           target.monthsWithData = monthsWithData;
           target.forecastMethod = forecastData ? 'enterprise-ml' : 'simple-linear';
 
-          console.log(`📊 [${target.metricName}] Projection:`, {
+          debug.log(`📊 [${target.metricName}] Projection:`, {
             ytdEmissions: Math.round(ytdEmissions * 10) / 10,
             projected: Math.round(projectedAnnualEmissions * 10) / 10,
             method: target.forecastMethod,

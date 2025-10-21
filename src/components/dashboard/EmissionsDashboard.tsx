@@ -1,3 +1,4 @@
+import { debug } from '@/lib/utils/debug';
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -618,8 +619,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
     const scope2CategoriesDataResult = extractedScopeData.scope_2?.categories || {};
 
     if (extractedScopeData.scope_2?.categories) {
-      console.log('🔍 Scope 2 Categories from API:', extractedScopeData.scope_2.categories);
-      console.log('🔍 Full Scope 2 data:', extractedScopeData.scope_2);
+      debug.log('🔍 Scope 2 Categories from API:', extractedScopeData.scope_2.categories);
+      debug.log('🔍 Full Scope 2 data:', extractedScopeData.scope_2);
     }
 
     // Scope 3 coverage
@@ -750,7 +751,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
 
       projectedAnnualEmissionsResult = actualEmissionsYTDResult + forecastedEmissionsResult;
 
-      console.log('📊 Projected annual emissions:', {
+      debug.log('📊 Projected annual emissions:', {
         actual: actualEmissionsYTDResult.toFixed(1),
         forecasted: forecastedEmissionsResult.toFixed(1),
         total: projectedAnnualEmissionsResult.toFixed(1)

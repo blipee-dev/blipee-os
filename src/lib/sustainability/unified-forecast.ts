@@ -144,7 +144,7 @@ async function getHistoricalData(params: ForecastParams): Promise<Array<{ date: 
     return true;
   });
 
-  console.log(`📊 Unified forecast data for ${domain}: ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)`);
+  debug.log(`📊 Unified forecast data for ${domain}: ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)`);
 
   // Aggregate by month and domain
   const monthlyData = new Map<string, number>();
@@ -216,7 +216,7 @@ export async function getUnifiedForecast(params: ForecastParams): Promise<Foreca
   const historical = await getHistoricalData(params);
 
   if (historical.length < 12) {
-    console.log('Insufficient historical data for ML forecast, using linear fallback');
+    debug.log('Insufficient historical data for ML forecast, using linear fallback');
     return null; // Will trigger fallback in unified-calculator
   }
 
