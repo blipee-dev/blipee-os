@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BookOpen, X } from 'lucide-react';
 import { useLanguage } from '@/providers/LanguageProvider';
 
@@ -40,9 +40,24 @@ export function FloatingHelpButton({ onTopicSelect }: FloatingHelpButtonProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useLanguage();
 
+  useEffect(() => {
+    console.log('📚 FloatingHelpButton mounted');
+    return () => console.log('📚 FloatingHelpButton unmounted');
+  }, []);
+
+  useEffect(() => {
+    console.log('📚 Menu open state changed:', isMenuOpen);
+  }, [isMenuOpen]);
+
   const handleTopicClick = (topicId: string) => {
+    console.log('🎓 Topic clicked:', topicId);
     onTopicSelect(topicId);
     setIsMenuOpen(false);
+  };
+
+  const handleButtonClick = () => {
+    console.log('🔵 Help button clicked, menu open:', !isMenuOpen);
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
@@ -59,7 +74,7 @@ export function FloatingHelpButton({ onTopicSelect }: FloatingHelpButtonProps) {
 
         {/* Main Button */}
         <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          onClick={handleButtonClick}
           className="relative w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
           aria-label={t('education.modal.learnMore')}
         >
