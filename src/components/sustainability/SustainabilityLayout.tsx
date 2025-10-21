@@ -28,11 +28,11 @@ const getSustainabilityNavItems = (tDashboard: (key: string) => string, isSuperA
   const allItems = [
     // Main Dashboards
     { id: "overview", label: tDashboard('navigation.overview'), icon: BarChart3, href: "/sustainability", view: null, adminOnly: false },
-    { id: "compliance", label: "Compliance", icon: FileCheck, href: "/sustainability/compliance", view: null, adminOnly: false },
     { id: "emissions", label: tDashboard('navigation.emissions'), icon: Cloud, href: "/sustainability/ghg-emissions", view: null, adminOnly: false },
     { id: "energy", label: "Energy", icon: Zap, href: "/sustainability/energy", view: null, adminOnly: false },
     { id: "water", label: "Water & Effluents", icon: Droplets, href: "/sustainability/water", view: null, adminOnly: false },
     { id: "waste", label: "Waste", icon: Trash2, href: "/sustainability/waste", view: null, adminOnly: false },
+    { id: "compliance", label: "Compliance", icon: FileCheck, href: "/sustainability/compliance", view: null, adminOnly: false },
     { id: "targets", label: "Targets", icon: Target, href: "/sustainability/targets", view: null, adminOnly: true },
     { id: "data", label: "Data Management", icon: Database, href: "/sustainability/data", view: null, adminOnly: true },
     { id: "intelligence", label: "Intelligence", icon: Activity, href: "/sustainability/intelligence", view: null, adminOnly: true },
