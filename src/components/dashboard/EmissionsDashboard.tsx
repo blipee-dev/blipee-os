@@ -1,6 +1,6 @@
-import { debug } from '@/lib/utils/debug';
 'use client';
 
+import { debug } from '@/lib/utils/debug';
 import React, { useState, useMemo } from 'react';
 import {
   Cloud,
