@@ -64,7 +64,7 @@ export class EnterpriseForecast {
     const outliersRemoved = data.length - cleanedData.filter((v, i) => v === data[i]).length;
 
     if (debug && outliersRemoved > 0) {
-      debug.log(`📊 Outlier detection: ${outliersRemoved} outliers capped/removed from ${n} data points`);
+      console.log(`📊 Outlier detection: ${outliersRemoved} outliers capped/removed from ${n} data points`);
     }
 
     // Step 1: Extract trend using robust moving average
