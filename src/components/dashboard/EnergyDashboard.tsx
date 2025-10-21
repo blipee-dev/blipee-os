@@ -1033,7 +1033,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                     const MIN_LABEL_SPACING = 45;
                     const SMALL_SEGMENT_THRESHOLD = 5;
 
-                    return ({ cx, cy, midAngle, outerRadius, name, percent, value, index }: any) => {
+                    const CustomPieLabel = ({ cx, cy, midAngle, outerRadius, name, percent, value, index }: any) => {
                       const RADIAN = Math.PI / 180;
                       const radius = outerRadius + 30;
                       let x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -1111,6 +1111,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                         </text>
                       );
                     };
+                    return CustomPieLabel;
                   })()}
                   labelLine={true}
                 >
