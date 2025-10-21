@@ -56,13 +56,18 @@ export default function DashboardPage() {
   useEffect(() => {
     if (session?.current_organization) {
       fetch('/api/sustainability/metrics/realtime')
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('Metrics endpoint not available');
+          }
+          return res.json();
+        })
         .then(data => {
           setMetrics(data);
           setMetricsLoading(false);
         })
-        .catch(err => {
-          console.error('Failed to load metrics:', err);
+        .catch(() => {
+          // Silently fail - metrics are optional
           setMetricsLoading(false);
         });
     }

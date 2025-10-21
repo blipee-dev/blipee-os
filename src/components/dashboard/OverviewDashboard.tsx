@@ -307,14 +307,6 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
             const forecastedEmissionsTotal = forecastMonths.reduce((sum: number, f: any) => sum + f.totalForecast, 0);
             const projectedTotal = actualEmissions + forecastedEmissionsTotal;
 
-            console.log('📊 Projected annual emissions:', {
-              actual: actualEmissions.toFixed(1),
-              forecasted: forecastedEmissionsTotal.toFixed(1),
-              total: projectedTotal.toFixed(1),
-              previousYearFullTotal: fullPreviousYearTotal.toFixed(1),
-              projectedYoY: fullPreviousYearTotal > 0 ? (((projectedTotal - fullPreviousYearTotal) / fullPreviousYearTotal) * 100).toFixed(1) + '%' : '0%'
-            });
-
             // Store projected emissions for SBTi tracker and current card
             projectedAnnualEmissions = projectedTotal;
             actualEmissionsYTD = actualEmissions;

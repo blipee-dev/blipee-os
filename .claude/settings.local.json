@@ -5,7 +5,16 @@
       "Bash(npm run build:*)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_OmHpYK/**)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_HTEBFt/**)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(npm install:*)",
+      "Bash(vercel --prod)",
+      "Bash(vercel --prod --yes)",
+      "Bash(sed:*)",
+      "Bash(cat:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_omu2vd/**)",
+      "WebFetch(domain:arc.gbci.org)"
     ],
     "deny": [],
     "ask": []
