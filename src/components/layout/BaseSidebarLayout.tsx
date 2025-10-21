@@ -19,6 +19,7 @@ import { useAuth } from "@/lib/auth/context";
 import { getUserInitials, getUserDisplayName } from "@/lib/utils/user";
 import { useAppearance } from "@/providers/AppearanceProvider";
 import { useTranslations } from "@/providers/LanguageProvider";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 export interface NavItem {
   id: string;
@@ -138,7 +139,7 @@ export function BaseSidebarLayout({
               const Icon = item.icon;
               const isActive = selectedView ? (item.view === selectedView) : (pathname === item.href);
 
-              return (
+              const button = (
                 <button
                   key={item.id}
                   onClick={() => {
@@ -153,7 +154,6 @@ export function BaseSidebarLayout({
                       ? "bg-gray-100 dark:bg-[#757575]"
                       : "hover:bg-gray-50 dark:hover:bg-white/[0.05]"
                   }`}
-                  title={isCollapsed ? item.label : undefined}
                 >
                   <Icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'} ${
                     isActive
@@ -168,6 +168,14 @@ export function BaseSidebarLayout({
                     }`}>{item.label}</span>
                   )}
                 </button>
+              );
+
+              return isCollapsed ? (
+                <Tooltip key={item.id} content={item.label} side="right">
+                  {button}
+                </Tooltip>
+              ) : (
+                <React.Fragment key={item.id}>{button}</React.Fragment>
               );
             })}
           </div>
@@ -250,68 +258,75 @@ export function BaseSidebarLayout({
             ) : (
               <div className="space-y-1">
                 {/* User Avatar */}
-                <button
-                  onClick={() => router.push('/profile')}
-                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title={userDisplayName}
-                >
-                  <div className="w-8 h-8 accent-gradient-lr rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-medium">{userInitials}</span>
-                  </div>
-                </button>
+                <Tooltip content={userDisplayName} side="right">
+                  <button
+                    onClick={() => router.push('/profile')}
+                    className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  >
+                    <div className="w-8 h-8 accent-gradient-lr rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-medium">{userInitials}</span>
+                    </div>
+                  </button>
+                </Tooltip>
 
                 {/* Chat Button - Only for super admins */}
                 {isSuperAdmin && (
-                  <button
-                    onClick={() => router.push('/blipee-ai')}
-                    className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                    title="Chat"
-                  >
-                    <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  </button>
+                  <Tooltip content={t('buttons.chat') || 'Chat'} side="right">
+                    <button
+                      onClick={() => router.push('/blipee-ai')}
+                      className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                    >
+                      <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    </button>
+                  </Tooltip>
                 )}
 
                 {/* Sustainability Button */}
-                <button
-                  onClick={() => router.push('/sustainability')}
-                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title="Sustainability"
-                >
-                  <Leaf className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
+                <Tooltip content="Sustainability" side="right">
+                  <button
+                    onClick={() => router.push('/sustainability')}
+                    className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  >
+                    <Leaf className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  </button>
+                </Tooltip>
 
                 {/* Settings Button */}
-                <button
-                  onClick={() => router.push('/settings/organizations')}
-                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title="Settings"
-                >
-                  <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
+                <Tooltip content={t('buttons.settings') || 'Settings'} side="right">
+                  <button
+                    onClick={() => router.push('/settings/organizations')}
+                    className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  >
+                    <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  </button>
+                </Tooltip>
 
-                <button
-                  onClick={async () => {
-                    try {
-                      await signOut();
-                      router.push("/signin");
-                    } catch (error) {
-                      console.error("Error during logout:", error);
-                    }
-                  }}
-                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title={t('buttons.signOut')}
-                >
-                  <LogOut className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
+                {/* Sign Out Button */}
+                <Tooltip content={t('buttons.signOut')} side="right">
+                  <button
+                    onClick={async () => {
+                      try {
+                        await signOut();
+                        router.push("/signin");
+                      } catch (error) {
+                        console.error("Error during logout:", error);
+                      }
+                    }}
+                    className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  >
+                    <LogOut className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  </button>
+                </Tooltip>
 
                 {/* Expand Button */}
-                <button
-                  onClick={handleToggleCollapse}
-                  className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
-                  title={t('buttons.expandSidebar')}
-                >
-                  <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
+                <Tooltip content={t('buttons.expandSidebar')} side="right">
+                  <button
+                    onClick={handleToggleCollapse}
+                    className="w-full p-2 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all"
+                  >
+                    <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  </button>
+                </Tooltip>
               </div>
             )}
           </div>
