@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
         break;
       }
 
-      debug.log(`📦 Fetched batch: ${batchData.length} records (range: ${rangeStart}-${rangeStart + batchSize - 1})${siteId ? ` for site ${siteId}` : ''}`);
+      console.log(`📦 Fetched batch: ${batchData.length} records (range: ${rangeStart}-${rangeStart + batchSize - 1})${siteId ? ` for site ${siteId}` : ''}`);
       allData = allData.concat(batchData);
 
       if (batchData.length < batchSize) {
@@ -105,16 +105,16 @@ export async function GET(request: NextRequest) {
       return true;
     });
 
-    debug.log(`📊 Emissions forecast data: ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)${siteId ? ` for site ${siteId}` : ''}`);
+    console.log(`📊 Emissions forecast data: ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)${siteId ? ` for site ${siteId}` : ''}`);
 
     if (!historicalData || historicalData.length === 0) {
-      debug.log(`⚠️ No historical data found${siteId ? ` for site ${siteId}` : ''}`);
+      console.log(`⚠️ No historical data found${siteId ? ` for site ${siteId}` : ''}`);
       return NextResponse.json({ forecast: [] });
     }
 
     // Debug: Log sample records to understand structure
     if (historicalData.length > 0) {
-      debug.log(`📋 Sample record:`, JSON.stringify(historicalData[0], null, 2));
+      console.log(`📋 Sample record:`, JSON.stringify(historicalData[0], null, 2));
     }
 
     // Group by month and scope
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    debug.log(`📅 Monthly data aggregated for ${Object.keys(monthlyData).length} months`);
+    console.log(`📅 Monthly data aggregated for ${Object.keys(monthlyData).length} months`);
 
     // Convert to array format sorted chronologically
     const historicalMonthly = Object.keys(monthlyData)
@@ -162,10 +162,10 @@ export async function GET(request: NextRequest) {
 
     // Debug: Log sample monthly data
     if (historicalMonthly.length > 0) {
-      debug.log(`📊 Sample monthly data (first 3):`, historicalMonthly.slice(0, 3));
-      debug.log(`📊 Sample monthly data (last 3):`, historicalMonthly.slice(-3));
+      console.log(`📊 Sample monthly data (first 3):`, historicalMonthly.slice(0, 3));
+      console.log(`📊 Sample monthly data (last 3):`, historicalMonthly.slice(-3));
       const totalEmissions = historicalMonthly.reduce((sum, m) => sum + m.total, 0);
-      debug.log(`📊 Total historical emissions: ${(totalEmissions / 1000).toFixed(1)} tCO2e across ${historicalMonthly.length} months`);
+      console.log(`📊 Total historical emissions: ${(totalEmissions / 1000).toFixed(1)} tCO2e across ${historicalMonthly.length} months`);
     }
 
 
@@ -296,9 +296,15 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error generating emissions forecast:', error);
+    console.error('❌ [forecast] API Error:', error);
+    console.error('❌ [forecast] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('❌ [forecast] Error message:', error instanceof Error ? error.message : String(error));
     return NextResponse.json(
-      { error: 'Failed to generate forecast' },
+      {
+        error: 'Failed to generate forecast',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      },
       { status: 500 }
     );
   }
