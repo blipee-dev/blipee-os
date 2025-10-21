@@ -141,7 +141,6 @@ export function BaseSidebarLayout({
 
               const button = (
                 <button
-                  key={item.id}
                   onClick={() => {
                     if (item.view && onSelectView) {
                       onSelectView(item.view);
