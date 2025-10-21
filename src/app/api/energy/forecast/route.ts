@@ -108,8 +108,8 @@ export async function GET(request: NextRequest) {
       return true;
     });
 
-    debug.log(`📊 Energy forecast data (API): ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)`);
-    debug.log(`📅 Filtering dates - maxHistoricalDate: ${maxHistoricalDate.toISOString()}, filterYear: ${filterYear}, filterMonth: ${filterMonth}`);
+    console.log(`📊 Energy forecast data (API): ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)`);
+    console.log(`📅 Filtering dates - maxHistoricalDate: ${maxHistoricalDate.toISOString()}, filterYear: ${filterYear}, filterMonth: ${filterMonth}`);
 
     if (!historicalData || historicalData.length === 0) {
       return NextResponse.json({ forecast: [] });
@@ -159,12 +159,12 @@ export async function GET(request: NextRequest) {
       fossil: monthlyData[monthKey].fossil
     }));
 
-    debug.log(`📅 Monthly data keys found: ${months.join(', ')}`);
+    console.log(`📅 Monthly data keys found: ${months.join(', ')}`);
 
     // Find last month with actual data
     const lastDataMonth = historicalMonthly[historicalMonthly.length - 1];
     const [lastYear, lastMonth] = lastDataMonth.monthKey.split('-').map(Number);
-    debug.log(`📅 Last data month: ${lastDataMonth.monthKey} (lastYear: ${lastYear}, lastMonth: ${lastMonth})`);
+    console.log(`📅 Last data month: ${lastDataMonth.monthKey} (lastYear: ${lastYear}, lastMonth: ${lastMonth})`);
 
     // Calculate how many months to forecast
     const endYear = new Date(endDate).getFullYear();
@@ -255,9 +255,15 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error generating energy forecast:', error);
+    console.error('❌ [energy-forecast] API Error:', error);
+    console.error('❌ [energy-forecast] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('❌ [energy-forecast] Error message:', error instanceof Error ? error.message : String(error));
     return NextResponse.json(
-      { error: 'Failed to generate forecast' },
+      {
+        error: 'Failed to generate forecast',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      },
       { status: 500 }
     );
   }
