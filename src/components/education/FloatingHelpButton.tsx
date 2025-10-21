@@ -63,7 +63,7 @@ export function FloatingHelpButton({ onTopicSelect }: FloatingHelpButtonProps) {
   return (
     <>
       {/* Floating Button with Pulse Animation */}
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="fixed bottom-6 right-6 z-[9999]">
         {/* Pulse rings */}
         {!isMenuOpen && (
           <>
@@ -96,7 +96,7 @@ export function FloatingHelpButton({ onTopicSelect }: FloatingHelpButtonProps) {
 
       {/* Topics Menu */}
       {isMenuOpen && (
-        <div className="fixed bottom-24 right-6 z-40 w-80 bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="fixed bottom-24 right-6 z-[9999] w-80 bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in fade-in zoom-in duration-200">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4">
             <h3 className="text-white font-semibold flex items-center gap-2">
@@ -135,7 +135,7 @@ export function FloatingHelpButton({ onTopicSelect }: FloatingHelpButtonProps) {
       {/* Backdrop */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-[9998] bg-black/20 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setIsMenuOpen(false)}
         />
       )}
