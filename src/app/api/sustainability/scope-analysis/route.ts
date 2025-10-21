@@ -52,13 +52,13 @@ export async function GET(request: NextRequest) {
         const cached = await client.get(cacheKey);
         if (cached) {
           const cacheTime = Date.now() - startTime;
-          debug.log(`⚡ Scope Analysis API Performance (CACHED): Total=${cacheTime}ms`);
+          console.log(`⚡ Scope Analysis API Performance (CACHED): Total=${cacheTime}ms`);
           return NextResponse.json(JSON.parse(cached));
         }
       }
     } catch (error) {
       // Cache miss or error - continue to fetch data
-      debug.log('Cache miss for scope-analysis:', cacheKey);
+      console.log('Cache miss for scope-analysis:', cacheKey);
     }
 
     // Get current year and period boundaries
@@ -104,8 +104,8 @@ export async function GET(request: NextRequest) {
     const startDateStr = startDate.toISOString().split('T')[0];
     const endDateStr = endDate.toISOString().split('T')[0];
 
-    debug.log(`📊 [scope-analysis] Using UnifiedSustainabilityCalculator for organization ${organizationId}`);
-    debug.log(`📊 [scope-analysis] Period: ${startDateStr} to ${endDateStr}`);
+    console.log(`📊 [scope-analysis] Using UnifiedSustainabilityCalculator for organization ${organizationId}`);
+    console.log(`📊 [scope-analysis] Period: ${startDateStr} to ${endDateStr}`);
 
     // Parallelize all independent database queries for maximum performance
     const [
@@ -235,8 +235,8 @@ export async function GET(request: NextRequest) {
     const intensityMetrics = calculateIntensityMetrics(scopeData, enhancedOrgData, sites || []);
 
     const totalTime = Date.now() - startTime;
-    debug.log(`⚡ Scope Analysis API Performance: Total=${totalTime}ms`);
-    debug.log(`✅ [scope-analysis] Calculations completed using centralized baseline-calculator`);
+    console.log(`⚡ Scope Analysis API Performance: Total=${totalTime}ms`);
+    console.log(`✅ [scope-analysis] Calculations completed using centralized baseline-calculator`);
 
     const responseData = {
       scopeData,
@@ -268,15 +268,21 @@ export async function GET(request: NextRequest) {
       }
     } catch (error) {
       // Caching failed - not critical, just log
-      debug.log('Failed to cache scope-analysis result');
+      console.log('Failed to cache scope-analysis result');
     }
 
     return NextResponse.json(responseData);
 
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('❌ [scope-analysis] API Error:', error);
+    console.error('❌ [scope-analysis] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('❌ [scope-analysis] Error message:', error instanceof Error ? error.message : String(error));
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      },
       { status: 500 }
     );
   }
@@ -353,12 +359,12 @@ function buildScopeDataFromCalculator(
     purchased_cooling: 0
   };
   scope2Categories.forEach(cat => {
-    debug.log(`📊 Scope 2 Category found: "${cat.category}" with ${cat.emissions} tCO2e`);
+    console.log(`📊 Scope 2 Category found: "${cat.category}" with ${cat.emissions} tCO2e`);
     const key = scope2CategoryMap[cat.category];
     if (key) {
       scope2CategoriesObj[key] = cat.emissions;
     } else {
-      debug.log(`⚠️ Unmapped Scope 2 category: "${cat.category}"`);
+      console.log(`⚠️ Unmapped Scope 2 category: "${cat.category}"`);
     }
   });
 
