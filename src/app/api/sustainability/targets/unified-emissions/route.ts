@@ -164,11 +164,15 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Error in unified-emissions API:', error);
+    console.error('❌ [unified-emissions] API Error:', error);
+    console.error('❌ [unified-emissions] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('❌ [unified-emissions] Error message:', error instanceof Error ? error.message : String(error));
     return NextResponse.json(
       {
         error: error.message || 'Internal server error',
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
       },
       { status: 500 }
     );
