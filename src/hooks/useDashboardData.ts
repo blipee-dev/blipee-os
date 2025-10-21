@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import type { Building } from '@/types/auth';
 import { calculateProgress } from '@/lib/utils/progress-calculation';
+import { debug } from '@/lib/utils/debug';
 
 // Query keys for organized cache management
 export const dashboardKeys = {
@@ -166,7 +167,7 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
     prevParams.append('site_id', selectedSite.id);
   }
 
-  console.log('📅 Energy YoY Period Comparison:', {
+  debug.log('📅 Energy YoY Period Comparison:', {
     current: { start: period.start, end: period.end },
     previous: {
       start: previousYearStart.toISOString().split('T')[0],
@@ -283,7 +284,7 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
     'Heating', 'Cooling', 'Steam'
   ].join(',');
 
-  console.log('🔍 [useDashboardData] Metric targets enabled check:', {
+  debug.log('🔍 [useDashboardData] Metric targets enabled check:', {
     organizationId: !!organizationId,
     selectedYear,
     currentYear,
@@ -299,11 +300,11 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
     queryKey: [...dashboardKeys.energy(period, selectedSite?.id), 'metricTargets', 'unified', organizationId],
     queryFn: async () => {
       const url = `/api/sustainability/targets/unified-energy?organizationId=${organizationId}&categories=${encodeURIComponent(energyCategories)}`;
-      console.log('🔍 [useDashboardData] Fetching unified energy targets from:', url);
+      debug.log('🔍 [useDashboardData] Fetching unified energy targets from:', url);
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch unified energy targets');
       const data = await response.json();
-      console.log('📊 [useDashboardData] Unified energy targets API response:', data);
+      debug.log('📊 [useDashboardData] Unified energy targets API response:', data);
 
       return {
         data: data.data || [],
@@ -340,7 +341,7 @@ export function useEnergySiteComparison(period: TimePeriod, selectedSite?: Build
   const query = useQuery({
     queryKey: [...dashboardKeys.energy(period, selectedSite?.id), 'siteComparison', 'v4', organizationId],
     queryFn: async () => {
-      console.log('🔍 Energy Site Comparison Hook: Starting fetch', { period, organizationId });
+      debug.log('🔍 Energy Site Comparison Hook: Starting fetch', { period, organizationId });
 
       if (!organizationId) {
         return [];
@@ -378,7 +379,7 @@ export function useEnergySiteComparison(period: TimePeriod, selectedSite?: Build
           // Calculate intensity ourselves (kWh/m²)
           const intensity = totalEnergy / area;
 
-          console.log(`🔍 Energy site ${site.name}:`, {
+          debug.log(`🔍 Energy site ${site.name}:`, {
             totalEnergy,
             area,
             intensity,
@@ -399,7 +400,7 @@ export function useEnergySiteComparison(period: TimePeriod, selectedSite?: Build
 
       const siteData = (await Promise.all(siteDataPromises)).filter(Boolean);
 
-      console.log('🔍 Energy Site Comparison Final Data:', siteData);
+      debug.log('🔍 Energy Site Comparison Final Data:', siteData);
 
       // Sort by intensity (highest first)
       return siteData.sort((a: any, b: any) => b.intensity - a.intensity);
@@ -408,7 +409,7 @@ export function useEnergySiteComparison(period: TimePeriod, selectedSite?: Build
     staleTime: 10 * 60 * 1000,
   });
 
-  console.log('🔍 Energy Site Comparison Query Result:', {
+  debug.log('🔍 Energy Site Comparison Query Result:', {
     data: query.data,
     isLoading: query.isLoading,
     isFetching: query.isFetching,

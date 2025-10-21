@@ -1,3 +1,4 @@
+import { debug } from '@/lib/utils/debug';
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -299,7 +300,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
 
   const siteComparison = siteComparisonQuery.data || [];
 
-  console.log('🔍 Site Comparison Query Status:', {
+  debug.log('🔍 Site Comparison Query Status:', {
     isLoading: siteComparisonQuery.isLoading,
     isError: siteComparisonQuery.isError,
     error: siteComparisonQuery.error,
@@ -414,7 +415,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
         }];
       }
 
-      console.log('🔍 [EnergyDashboard] Grid Mix Debug:', {
+      debug.log('🔍 [EnergyDashboard] Grid Mix Debug:', {
         hasEnergyMixes: !!sourcesData.energy_mixes,
         energyMixesCount: sourcesData.energy_mixes?.length || 0,
         hasGridMix: !!sourcesData.grid_mix,
@@ -437,7 +438,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
       let prevYearMonthlyTrendsResult: any[] = [];
 
       if (prevSourcesData?.sources && prevSourcesData.total_consumption > 0) {
-        console.log('🔍 YoY Debug:', {
+        debug.log('🔍 YoY Debug:', {
           currentPeriod: { start: selectedPeriod.start, end: selectedPeriod.end },
           currentTotal: sourcesData.total_consumption,
           previousYearTotal: prevSourcesData.total_consumption,
@@ -467,7 +468,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
       let projectedAnnualEnergyResult: number = 0;
       let forecastedEnergyResult: number = 0;
 
-      console.log('🔍 [EnergyDashboard] Selected Period Debug:', {
+      debug.log('🔍 [EnergyDashboard] Selected Period Debug:', {
         startDate: selectedPeriod.start,
         endDate: selectedPeriod.end,
         selectedYear: new Date(selectedPeriod.start).getFullYear(),
@@ -476,7 +477,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
         isCurrentYear: new Date(selectedPeriod.start).getFullYear() === currentYear
       });
 
-      console.log('🔍 [EnergyDashboard] Forecast Hook Status:', {
+      debug.log('🔍 [EnergyDashboard] Forecast Hook Status:', {
         isLoading: forecast.isLoading,
         isError: forecast.isError,
         error: forecast.error,
@@ -484,7 +485,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
         dataKeys: forecast.data ? Object.keys(forecast.data) : []
       });
 
-      console.log('🔍 [EnergyDashboard] Forecast API Debug:', {
+      debug.log('🔍 [EnergyDashboard] Forecast API Debug:', {
         hasForecastData: !!forecastDataRes,
         forecastDataRes,
         hasForecastArray: !!forecastDataRes?.forecast,
@@ -509,7 +510,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
       // For Projected YoY: use FULL previous year (Jan-Dec)
       const previousYearTotalEnergyResult = fullPrevYearSources?.data?.total_consumption || prevSourcesData?.total_consumption || 0;
 
-      console.log('🔍 [EnergyDashboard] Projected Energy Debug:', {
+      debug.log('🔍 [EnergyDashboard] Projected Energy Debug:', {
         currentYear,
         currentMonth,
         totalEnergy: totalEnergyResult,
@@ -2065,7 +2066,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   cat.category?.includes(m.category)
                 );
 
-                console.log(`🔍 Category: "${cat.category}", Metrics found: ${categoryMetrics.length}`, {
+                debug.log(`🔍 Category: "${cat.category}", Metrics found: ${categoryMetrics.length}`, {
                   allMetricCategories: metricTargets.map(m => m.category),
                   matchedMetrics: categoryMetrics.map(m => ({ name: m.metricName, category: m.category }))
                 });

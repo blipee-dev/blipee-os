@@ -14,7 +14,8 @@
       "Bash(sed:*)",
       "Bash(cat:*)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_omu2vd/**)",
-      "WebFetch(domain:arc.gbci.org)"
+      "WebFetch(domain:arc.gbci.org)",
+      "Bash(find src/app/api -name \"*.ts\" -type f -exec sh -c '\\\n  if grep -q \"\"console\\.log\"\" \"\"$1\"\"; then \\\n    if ! grep -q \"\"import { debug }\"\" \"\"$1\"\"; then \\\n      echo \"\"import { debug } from \\\"\"@/lib/utils/debug\\\"\";\"\" > /tmp/newfile && cat \"\"$1\"\" >> /tmp/newfile && mv /tmp/newfile \"\"$1\"\"; \\\n    fi; \\\n    sed -i \"\"\"\" \"\"s/console\\.log(/debug.log(/g\"\" \"\"$1\"\"; \\\n    echo \"\"Updated: $1\"\"; \\\n  fi \\\n' _ {} ;)"
     ],
     "deny": [],
     "ask": []

@@ -52,13 +52,13 @@ export async function GET(request: NextRequest) {
         const cached = await client.get(cacheKey);
         if (cached) {
           const cacheTime = Date.now() - startTime;
-          console.log(`⚡ Scope Analysis API Performance (CACHED): Total=${cacheTime}ms`);
+          debug.log(`⚡ Scope Analysis API Performance (CACHED): Total=${cacheTime}ms`);
           return NextResponse.json(JSON.parse(cached));
         }
       }
     } catch (error) {
       // Cache miss or error - continue to fetch data
-      console.log('Cache miss for scope-analysis:', cacheKey);
+      debug.log('Cache miss for scope-analysis:', cacheKey);
     }
 
     // Get current year and period boundaries
@@ -104,8 +104,8 @@ export async function GET(request: NextRequest) {
     const startDateStr = startDate.toISOString().split('T')[0];
     const endDateStr = endDate.toISOString().split('T')[0];
 
-    console.log(`📊 [scope-analysis] Using UnifiedSustainabilityCalculator for organization ${organizationId}`);
-    console.log(`📊 [scope-analysis] Period: ${startDateStr} to ${endDateStr}`);
+    debug.log(`📊 [scope-analysis] Using UnifiedSustainabilityCalculator for organization ${organizationId}`);
+    debug.log(`📊 [scope-analysis] Period: ${startDateStr} to ${endDateStr}`);
 
     // Parallelize all independent database queries for maximum performance
     const [
@@ -235,8 +235,8 @@ export async function GET(request: NextRequest) {
     const intensityMetrics = calculateIntensityMetrics(scopeData, enhancedOrgData, sites || []);
 
     const totalTime = Date.now() - startTime;
-    console.log(`⚡ Scope Analysis API Performance: Total=${totalTime}ms`);
-    console.log(`✅ [scope-analysis] Calculations completed using centralized baseline-calculator`);
+    debug.log(`⚡ Scope Analysis API Performance: Total=${totalTime}ms`);
+    debug.log(`✅ [scope-analysis] Calculations completed using centralized baseline-calculator`);
 
     const responseData = {
       scopeData,
@@ -268,7 +268,7 @@ export async function GET(request: NextRequest) {
       }
     } catch (error) {
       // Caching failed - not critical, just log
-      console.log('Failed to cache scope-analysis result');
+      debug.log('Failed to cache scope-analysis result');
     }
 
     return NextResponse.json(responseData);
@@ -353,12 +353,12 @@ function buildScopeDataFromCalculator(
     purchased_cooling: 0
   };
   scope2Categories.forEach(cat => {
-    console.log(`📊 Scope 2 Category found: "${cat.category}" with ${cat.emissions} tCO2e`);
+    debug.log(`📊 Scope 2 Category found: "${cat.category}" with ${cat.emissions} tCO2e`);
     const key = scope2CategoryMap[cat.category];
     if (key) {
       scope2CategoriesObj[key] = cat.emissions;
     } else {
-      console.log(`⚠️ Unmapped Scope 2 category: "${cat.category}"`);
+      debug.log(`⚠️ Unmapped Scope 2 category: "${cat.category}"`);
     }
   });
 
