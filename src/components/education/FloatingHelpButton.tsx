@@ -52,15 +52,15 @@ export function FloatingHelpButton({ onTopicSelect }: FloatingHelpButtonProps) {
         {/* Pulse rings */}
         {!isMenuOpen && (
           <>
-            <div className="absolute inset-0 w-14 h-14 bg-blue-500 rounded-full animate-ping opacity-20" />
-            <div className="absolute inset-0 w-14 h-14 bg-purple-500 rounded-full animate-pulse opacity-20" />
+            <div className="absolute inset-0 w-14 h-14 accent-gradient rounded-full animate-ping opacity-20" />
+            <div className="absolute inset-0 w-14 h-14 accent-gradient rounded-full animate-pulse opacity-30" />
           </>
         )}
 
         {/* Main Button */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="relative w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+          className="relative w-14 h-14 accent-gradient-lr text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-105"
           aria-label={t('education.modal.learnMore')}
         >
           {isMenuOpen ? (
@@ -83,7 +83,7 @@ export function FloatingHelpButton({ onTopicSelect }: FloatingHelpButtonProps) {
       {isMenuOpen && (
         <div className="fixed bottom-24 right-6 z-[9999] w-80 bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in fade-in zoom-in duration-200">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4">
+          <div className="accent-gradient p-4">
             <h3 className="text-white font-semibold flex items-center gap-2">
               <BookOpen className="w-5 h-5" />
               {t('education.modal.learnMore')}
