@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { calculateFeasibility, type FeasibilityInput } from '@/lib/sustainability/feasibility-calculator';
 
+// Force dynamic rendering - don't prerender this API route
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/sustainability/targets/feasibility
  *

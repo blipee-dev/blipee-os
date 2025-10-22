@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
+
+// Force dynamic rendering - don't prerender this API route
+export const dynamic = 'force-dynamic';
 
 /**
  * API endpoint to manage baseline restatements.
@@ -8,18 +11,6 @@ import { createClient } from '@supabase/supabase-js';
  * POST   /api/sustainability/baseline/restatements (create new restatement)
  * PATCH  /api/sustainability/baseline/restatements (update status: approve, apply, reject)
  */
-
-// Helper to get Supabase admin client
-function getSupabaseAdmin() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Missing Supabase configuration');
-  }
-
-  return createClient(supabaseUrl, serviceRoleKey);
-}
 
 // GET: Fetch baseline restatements for a target
 export async function GET(request: NextRequest) {
