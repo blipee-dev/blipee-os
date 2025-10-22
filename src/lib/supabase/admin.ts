@@ -36,3 +36,6 @@ export const supabaseAdmin = new Proxy({} as any, {
     return client[prop];
   }
 });
+
+// Also export the function directly for use in route handlers
+export { getSupabaseAdmin };

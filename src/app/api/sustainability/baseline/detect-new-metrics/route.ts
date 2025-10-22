@@ -1,17 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
-
 /**
  * API endpoint to detect new metrics that were added after the baseline year.
  * These metrics need to be considered for baseline restatement (SBTi Approach 1).
  *
  * GET /api/sustainability/baseline/detect-new-metrics?organizationId=xxx&baselineYear=2023
  */
+
+// Helper to get Supabase admin client
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Missing Supabase configuration');
+  }
+
+  return createClient(supabaseUrl, serviceRoleKey);
+}
+
 export async function GET(request: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const { searchParams } = new URL(request.url);
     const organizationId = searchParams.get('organizationId');
