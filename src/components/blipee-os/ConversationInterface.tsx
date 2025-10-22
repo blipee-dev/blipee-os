@@ -11,6 +11,7 @@ import { ArtifactsPanel, Artifact } from "./ArtifactsPanel";
 import { ArtifactsLibrary } from "./ArtifactsLibrary";
 import { ChatsView } from "./ChatsView";
 import { MobileNavigation } from "./MobileNavigation";
+import { AgentInsightsContainer } from "./AgentInsightCard";
 import { Message, UIComponent } from "@/types/conversation";
 import { conversationService } from "@/lib/conversations/service";
 import { jsonToMessages } from "@/lib/conversations/utils";
@@ -38,6 +39,8 @@ interface BuildingContext {
 
 interface ConversationInterfaceProps {
   buildingContext?: BuildingContext;
+  buildingId?: string; // Alternative to buildingContext for simpler integration
+  onNewAgentInsights?: (count: number, isHighPriority: boolean) => void; // ✅ PHASE 4.1: Callback for new insights
 }
 
 interface StoredConversation {
@@ -51,6 +54,8 @@ interface StoredConversation {
 
 export function ConversationInterface({
   buildingContext,
+  buildingId,
+  onNewAgentInsights,
 }: ConversationInterfaceProps = {}) {
   const [conversations, setConversations] = useState<StoredConversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
@@ -391,8 +396,18 @@ export function ConversationInterface({
         content: aiResponse.content || t('defaultResponse'),
         components: aiResponse.components,
         suggestions: aiResponse.suggestions,
+        agentInsights: aiResponse.agentInsights, // ✅ PHASE 3: Include agent insights
         timestamp: new Date(),
       };
+
+      // ✅ PHASE 4.1: Notify parent of new agent insights for floating chat
+      if (aiResponse.agentInsights?.available && aiResponse.agentInsights?.insights?.length > 0 && onNewAgentInsights) {
+        const insights = aiResponse.agentInsights.insights;
+        const highPriorityInsights = insights.filter((insight: any) => insight.confidence >= 0.8);
+        const isHighPriority = highPriorityInsights.length > 0;
+
+        onNewAgentInsights(insights.length, isHighPriority);
+      }
 
       // Check if response contains code or structured content that should be shown as an artifact
       if (aiResponse.artifact || (aiResponse.content && aiResponse.content.includes("```"))) {
@@ -586,6 +601,14 @@ export function ConversationInterface({
                 transition={{ duration: 0.3 }}
               >
                 <MessageBubble message={message} />
+
+                {/* ✅ PHASE 3: Display AI Agent Insights */}
+                {message.role === 'assistant' && message.agentInsights?.available && (
+                  <div className="max-w-3xl mx-auto px-4">
+                    <AgentInsightsContainer insights={message.agentInsights.insights} />
+                  </div>
+                )}
+
                 {message.components && (
                   <DynamicUIRenderer components={message.components} />
                 )}

@@ -12,6 +12,7 @@ import { SiteSelector } from '@/components/zero-typing/SiteSelector';
 import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import { useTranslations } from '@/providers/LanguageProvider';
 import { useOrganizationContext } from '@/hooks/useOrganizationContext';
+import { FloatingChat } from '@/components/blipee-os/FloatingChat';
 import type { Building } from '@/types/auth';
 
 export default function OverviewPage() {
@@ -135,6 +136,11 @@ export default function OverviewPage() {
           />
         )}
       </div>
+
+      {/* ✅ PHASE 4.1: Floating AI Chat with Proactive Agent Alerts */}
+      {organizationData && (
+        <FloatingChat organizationId={organizationData.id} />
+      )}
     </SustainabilityLayout>
   );
 }
