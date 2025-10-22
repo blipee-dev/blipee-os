@@ -112,42 +112,123 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
 
     // Route to appropriate AI agents based on intent
     if (messageIntent.includes('emissions') || messageIntent.includes('carbon')) {
-      const carbonHunterResult = await agentOrchestrator.executeTask({
-        id: `chat_${Date.now()}`,
-        type: 'emissions_analysis',
-        priority: 'high',
-        payload: { message, organizationId },
-        createdBy: user.id,
-        context: { conversationId },
-        scheduledFor: new Date()
-      });
-      agentInsights = { ...agentInsights, carbonHunter: carbonHunterResult };
+      try {
+        const carbonHunterResult = await agentOrchestrator.executeTask({
+          id: `chat_${Date.now()}`,
+          type: 'emissions_analysis',
+          priority: 'high',
+          payload: { message, organizationId },
+          createdBy: user.id,
+          context: { conversationId },
+          scheduledFor: new Date()
+        });
+        agentInsights = { ...agentInsights, carbonHunter: carbonHunterResult };
+      } catch (agentError) {
+        console.error('Carbon Hunter agent error:', agentError);
+      }
     }
 
     if (messageIntent.includes('compliance') || messageIntent.includes('regulation')) {
-      const complianceResult = await agentOrchestrator.executeTask({
-        id: `chat_${Date.now()}_compliance`,
-        type: 'compliance_check',
-        priority: 'high',
-        payload: { message, organizationId },
-        createdBy: user.id,
-        context: { conversationId },
-        scheduledFor: new Date()
-      });
-      agentInsights = { ...agentInsights, compliance: complianceResult };
+      try {
+        const complianceResult = await agentOrchestrator.executeTask({
+          id: `chat_${Date.now()}_compliance`,
+          type: 'compliance_check',
+          priority: 'high',
+          payload: { message, organizationId },
+          createdBy: user.id,
+          context: { conversationId },
+          scheduledFor: new Date()
+        });
+        agentInsights = { ...agentInsights, compliance: complianceResult };
+      } catch (agentError) {
+        console.error('Compliance Guardian agent error:', agentError);
+      }
     }
 
     if (messageIntent.includes('cost') || messageIntent.includes('savings')) {
-      const costResult = await agentOrchestrator.executeTask({
-        id: `chat_${Date.now()}_cost`,
-        type: 'cost_analysis',
-        priority: 'medium',
-        payload: { message, organizationId },
-        createdBy: user.id,
-        context: { conversationId },
-        scheduledFor: new Date()
-      });
-      agentInsights = { ...agentInsights, costSavings: costResult };
+      try {
+        const costResult = await agentOrchestrator.executeTask({
+          id: `chat_${Date.now()}_cost`,
+          type: 'cost_analysis',
+          priority: 'medium',
+          payload: { message, organizationId },
+          createdBy: user.id,
+          context: { conversationId },
+          scheduledFor: new Date()
+        });
+        agentInsights = { ...agentInsights, costSavings: costResult };
+      } catch (agentError) {
+        console.error('Cost Saving Finder agent error:', agentError);
+      }
+    }
+
+    if (messageIntent.includes('supply_chain')) {
+      try {
+        const supplyChainResult = await agentOrchestrator.executeTask({
+          id: `chat_${Date.now()}_supply`,
+          type: 'supplier_risk_assessment',
+          priority: 'medium',
+          payload: { message, organizationId },
+          createdBy: user.id,
+          context: { conversationId },
+          scheduledFor: new Date()
+        });
+        agentInsights = { ...agentInsights, supplyChain: supplyChainResult };
+      } catch (agentError) {
+        console.error('Supply Chain Investigator agent error:', agentError);
+      }
+    }
+
+    if (messageIntent.includes('predictive')) {
+      try {
+        const predictiveResult = await agentOrchestrator.executeTask({
+          id: `chat_${Date.now()}_predictive`,
+          type: 'equipment_analysis',
+          priority: 'medium',
+          payload: { message, organizationId },
+          createdBy: user.id,
+          context: { conversationId },
+          scheduledFor: new Date()
+        });
+        agentInsights = { ...agentInsights, predictiveMaintenance: predictiveResult };
+      } catch (agentError) {
+        console.error('Predictive Maintenance agent error:', agentError);
+      }
+    }
+
+    if (messageIntent.includes('optimization')) {
+      try {
+        const optimizationResult = await agentOrchestrator.executeTask({
+          id: `chat_${Date.now()}_optimize`,
+          type: 'performance_optimization',
+          priority: 'medium',
+          payload: { message, organizationId },
+          createdBy: user.id,
+          context: { conversationId },
+          scheduledFor: new Date()
+        });
+        agentInsights = { ...agentInsights, optimizer: optimizationResult };
+      } catch (agentError) {
+        console.error('Autonomous Optimizer agent error:', agentError);
+      }
+    }
+
+    // Always include ESG Chief of Staff for strategic oversight if this is a complex query
+    if (messageIntent.length >= 2 || message.length > 100) {
+      try {
+        const esgChiefResult = await agentOrchestrator.executeTask({
+          id: `chat_${Date.now()}_esg`,
+          type: 'strategic_analysis',
+          priority: 'medium',
+          payload: { message, organizationId, intents: messageIntent },
+          createdBy: user.id,
+          context: { conversationId },
+          scheduledFor: new Date()
+        });
+        agentInsights = { ...agentInsights, esgChief: esgChiefResult };
+      } catch (agentError) {
+        console.error('ESG Chief of Staff agent error:', agentError);
+      }
     }
 
     // ===================================================================
@@ -175,9 +256,14 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
       const response = {
         content: intelligenceResult.systemResponse,
         suggestions: intelligenceResult.nextQuestionPredictions.slice(0, 4).map(pred => pred.question),
-        components: generateUIComponents(intelligenceResult),
+        components: generateUIComponents(intelligenceResult, agentInsights),
         timestamp: intelligenceResult.timestamp.toISOString(),
         cached: false,
+        // Include agent insights metadata
+        agentInsights: Object.keys(agentInsights).length > 0 ? {
+          agentsInvolved: Object.keys(agentInsights),
+          agentCount: Object.keys(agentInsights).length
+        } : null,
         // Enhanced metadata from conversation intelligence
         metadata: {
           conversationTurn: intelligenceResult.dialogueState.currentTurn,
@@ -273,10 +359,149 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
 // ===================================================================
 
 /**
+ * Convert agent insights into UI components
+ */
+function generateAgentInsightComponents(agentInsights: any): any[] {
+  const components = [];
+
+  // Carbon Hunter insights
+  if (agentInsights.carbonHunter) {
+    components.push({
+      type: 'agent-result',
+      agentId: 'carbon-hunter',
+      agentName: 'Carbon Hunter',
+      agentIcon: '🔍',
+      props: {
+        title: 'Emission Analysis',
+        status: agentInsights.carbonHunter.status,
+        result: agentInsights.carbonHunter.result,
+        recommendations: agentInsights.carbonHunter.recommendations,
+        data: agentInsights.carbonHunter.data,
+        confidence: agentInsights.carbonHunter.confidence
+      }
+    });
+  }
+
+  // Compliance Guardian insights
+  if (agentInsights.compliance) {
+    components.push({
+      type: 'agent-result',
+      agentId: 'compliance-guardian',
+      agentName: 'Compliance Guardian',
+      agentIcon: '🛡️',
+      props: {
+        title: 'Compliance Analysis',
+        status: agentInsights.compliance.status,
+        result: agentInsights.compliance.result,
+        recommendations: agentInsights.compliance.recommendations,
+        risks: agentInsights.compliance.risks,
+        confidence: agentInsights.compliance.confidence
+      }
+    });
+  }
+
+  // Cost Savings Finder insights
+  if (agentInsights.costSavings) {
+    components.push({
+      type: 'agent-result',
+      agentId: 'cost-finder',
+      agentName: 'Cost Savings Finder',
+      agentIcon: '💰',
+      props: {
+        title: 'Cost Optimization',
+        status: agentInsights.costSavings.status,
+        result: agentInsights.costSavings.result,
+        opportunities: agentInsights.costSavings.opportunities,
+        estimatedSavings: agentInsights.costSavings.estimatedSavings,
+        confidence: agentInsights.costSavings.confidence
+      }
+    });
+  }
+
+  // Supply Chain Investigator insights
+  if (agentInsights.supplyChain) {
+    components.push({
+      type: 'agent-result',
+      agentId: 'supply-chain',
+      agentName: 'Supply Chain Investigator',
+      agentIcon: '🚚',
+      props: {
+        title: 'Supply Chain Analysis',
+        status: agentInsights.supplyChain.status,
+        result: agentInsights.supplyChain.result,
+        risks: agentInsights.supplyChain.risks,
+        suppliers: agentInsights.supplyChain.suppliers,
+        confidence: agentInsights.supplyChain.confidence
+      }
+    });
+  }
+
+  // Predictive Maintenance insights
+  if (agentInsights.predictiveMaintenance) {
+    components.push({
+      type: 'agent-result',
+      agentId: 'predictive-maintenance',
+      agentName: 'Predictive Maintenance',
+      agentIcon: '🔧',
+      props: {
+        title: 'Equipment Analysis',
+        status: agentInsights.predictiveMaintenance.status,
+        result: agentInsights.predictiveMaintenance.result,
+        predictions: agentInsights.predictiveMaintenance.predictions,
+        recommendations: agentInsights.predictiveMaintenance.recommendations,
+        confidence: agentInsights.predictiveMaintenance.confidence
+      }
+    });
+  }
+
+  // Autonomous Optimizer insights
+  if (agentInsights.optimizer) {
+    components.push({
+      type: 'agent-result',
+      agentId: 'optimizer',
+      agentName: 'Autonomous Optimizer',
+      agentIcon: '⚡',
+      props: {
+        title: 'Performance Optimization',
+        status: agentInsights.optimizer.status,
+        result: agentInsights.optimizer.result,
+        optimizations: agentInsights.optimizer.optimizations,
+        impact: agentInsights.optimizer.impact,
+        confidence: agentInsights.optimizer.confidence
+      }
+    });
+  }
+
+  // ESG Chief of Staff insights
+  if (agentInsights.esgChief) {
+    components.push({
+      type: 'agent-result',
+      agentId: 'esg-chief',
+      agentName: 'ESG Chief of Staff',
+      agentIcon: '👔',
+      props: {
+        title: 'Strategic Analysis',
+        status: agentInsights.esgChief.status,
+        result: agentInsights.esgChief.result,
+        insights: agentInsights.esgChief.insights,
+        recommendations: agentInsights.esgChief.recommendations,
+        confidence: agentInsights.esgChief.confidence
+      }
+    });
+  }
+
+  return components;
+}
+
+/**
  * Generate UI components based on conversation intelligence results
  */
-function generateUIComponents(intelligenceResult: any): any[] {
+function generateUIComponents(intelligenceResult: any, agentInsights: any = {}): any[] {
   const components = [];
+
+  // Add agent insights first (highest priority)
+  const agentComponents = generateAgentInsightComponents(agentInsights);
+  components.push(...agentComponents);
 
   // Add conversation health dashboard if there are alerts
   if (intelligenceResult.conversationMetrics.conversationHealth.alerts.length > 0) {
