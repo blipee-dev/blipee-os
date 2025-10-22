@@ -250,6 +250,16 @@ export class AuthService {
         .single()
     ]);
 
+    // Log profile fetch error for debugging
+    if (profileResult.error) {
+      console.error('🔴 Profile fetch error:', {
+        message: profileResult.error.message,
+        details: profileResult.error.details,
+        hint: profileResult.error.hint,
+        code: profileResult.error.code
+      });
+    }
+
     const mfaConfig = mfaResult.data;
     const profile = profileResult.data;
 
