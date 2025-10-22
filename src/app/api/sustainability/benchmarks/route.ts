@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const supabase = createClient();
 
     // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

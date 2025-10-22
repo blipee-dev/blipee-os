@@ -141,21 +141,118 @@ const getScopeKey = (scope: string): string => {
 
 // Helper function to get category name translation key
 const getCategoryNameKey = (categoryName: string): string | null => {
-  const nameLower = categoryName.toLowerCase();
+  // Map English metric names to translation keys (comprehensive metrics_catalog mapping)
+  const nameMap: Record<string, string> = {
+    // Scope 1 - Stationary Combustion
+    'Natural Gas Consumption': 'naturalGasConsumption',
+    'Diesel for Generators': 'dieselGenerators',
+    'Heating Oil': 'heatingOil',
+    'Propane': 'propane',
+    'Coal': 'coal',
+    'Biomass': 'biomass',
+    // Scope 1 - Mobile Combustion
+    'Fleet Gasoline': 'fleetGasoline',
+    'Fleet Diesel': 'fleetDiesel',
+    'Fleet LPG': 'fleetLPG',
+    'Fleet CNG': 'fleetCNG',
+    'Fleet Biodiesel': 'fleetBiodiesel',
+    'Fleet Ethanol': 'fleetEthanol',
+    // Scope 1 - Fugitive Emissions
+    'Refrigerant R410A Leakage': 'refrigerantR410A',
+    'Refrigerant R134A Leakage': 'refrigerantR134A',
+    'Refrigerant R404A Leakage': 'refrigerantR404A',
+    'Fire Suppression Systems': 'fireSuppressionSystems',
+    // Scope 1 - Process Emissions
+    'Industrial Process Emissions': 'industrialProcessEmissions',
+    'Wastewater Treatment': 'wastewaterTreatment',
+    // Scope 2 - Electricity
+    'Electricity': 'electricity',
+    'Grid Electricity': 'electricity',
+    'Renewable Electricity': 'renewableElectricity',
+    'Solar Electricity Generated': 'solarElectricity',
+    'Wind Electricity Generated': 'windElectricity',
+    // Scope 2 - Purchased Energy
+    'Purchased Heating': 'purchasedHeating',
+    'Purchased Cooling': 'purchasedCooling',
+    'Purchased Steam': 'purchasedSteam',
+    'District Heating': 'districtHeating',
+    'District Cooling': 'districtCooling',
+    // Scope 3 - Purchased Goods & Services
+    'Purchased Goods': 'purchasedGoods',
+    'Purchased Services': 'purchasedServices',
+    'Cloud Computing Services': 'cloudComputing',
+    'Software Licenses': 'softwareLicenses',
+    // Scope 3 - Capital Goods
+    'Capital Goods': 'capitalGoods',
+    'Buildings Construction': 'buildingsConstruction',
+    'Machinery & Equipment': 'machineryEquipment',
+    'IT Equipment': 'itEquipment',
+    // Scope 3 - Fuel & Energy Related
+    'Upstream Fuel Emissions': 'upstreamFuelEmissions',
+    'T&D Losses': 'tdLosses',
+    // Scope 3 - Upstream Transportation
+    'Upstream Road Transport': 'upstreamRoadTransport',
+    'Upstream Air Transport': 'upstreamAirTransport',
+    'Upstream Sea Transport': 'upstreamSeaTransport',
+    'Upstream Rail Transport': 'upstreamRailTransport',
+    // Scope 3 - Waste
+    'Waste': 'waste',
+    'Waste to Landfill': 'wasteToLandfill',
+    'Waste Recycled': 'wasteRecycled',
+    'Waste Composted': 'wasteComposted',
+    'Waste Incinerated': 'wasteIncinerated',
+    'Wastewater': 'wastewater',
+    // Scope 3 - Business Travel
+    'Plane Travel': 'planeTravel',
+    'Air Travel': 'planeTravel',
+    'Train Travel': 'trainTravel',
+    'Rail Travel': 'trainTravel',
+    'Car Travel': 'carTravel',
+    'Road Travel': 'carTravel',
+    'Hotel Stays': 'hotelStays',
+    'Hotel Nights': 'hotelStays',
+    // Scope 3 - Employee Commuting
+    'Employee Car Commute': 'employeeCarCommute',
+    'Public Transport Commute': 'publicTransportCommute',
+    'Bicycle Commute': 'bicycleCommute',
+    'Remote Work Days': 'remoteWorkDays',
+    // Scope 3 - Upstream Leased Assets
+    'Leased Buildings Energy': 'leasedBuildingsEnergy',
+    'Leased Vehicles Fuel': 'leasedVehiclesFuel',
+    // Scope 3 - Downstream Transportation
+    'Downstream Transportation': 'downstreamTransportation',
+    'Product Distribution': 'productDistribution',
+    // Scope 3 - Processing of Sold Products
+    'Processing of Sold Products': 'processingSoldProducts',
+    // Scope 3 - Use of Sold Products
+    'Use of Sold Products': 'useSoldProducts',
+    'Product Energy Consumption': 'productEnergyConsumption',
+    // Scope 3 - End-of-Life
+    'Product End-of-Life': 'productEndOfLife',
+    'Product Recycling Rate': 'productRecyclingRate',
+    // Scope 3 - Downstream Leased Assets
+    'Downstream Leased Assets': 'downstreamLeasedAssets',
+    // Scope 3 - Franchises
+    'Franchise Operations': 'franchiseOperations',
+    // Scope 3 - Investments
+    'Investment Emissions': 'investmentEmissions',
+    'Financed Emissions': 'financedEmissions',
+    // Custom/Additional
+    'Water': 'water',
+    'Water Supply': 'water',
+    'EV Charging': 'evCharging',
+    'Business Travel': 'businessTravel',
+    'Purchased Electricity': 'electricity',
+    'Natural Gas': 'naturalGasConsumption',
+    'Stationary Combustion': 'stationaryCombustion',
+    'Mobile Combustion': 'mobileCombustion',
+    'Fleet': 'fleet',
+    'Commuting': 'commuting',
+    'Fugitive Emissions': 'fugitiveEmissions',
+    'Others': 'others'
+  };
 
-  if (nameLower.includes('business travel') || nameLower === 'business travel') return 'businessTravel';
-  if (nameLower.includes('purchased electricity') || nameLower === 'purchased electricity') return 'purchasedElectricity';
-  if (nameLower === 'electricity') return 'electricity';
-  if (nameLower === 'waste') return 'waste';
-  if (nameLower.includes('purchased goods') || nameLower === 'purchased goods') return 'purchasedGoods';
-  if (nameLower.includes('natural gas') || nameLower === 'natural gas') return 'naturalGas';
-  if (nameLower.includes('stationary combustion')) return 'stationaryCombustion';
-  if (nameLower.includes('mobile combustion')) return 'mobileCombustion';
-  if (nameLower.includes('fleet')) return 'fleet';
-  if (nameLower.includes('commuting')) return 'commuting';
-  if (nameLower.includes('fugitive')) return 'fugitiveEmissions';
-
-  return null; // Return null if no match, will use original name
+  return nameMap[categoryName] || null; // Return null if no match, will use original name
 };
 
 // Helper function to add target reduction path to monthly trends
@@ -845,56 +942,186 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
     metricTargets
   } = emissionsData;
 
+  // Function to translate category names
+  const translateCategoryName = (categoryName: string): string => {
+    // Map English metric names to translation keys (comprehensive metrics_catalog mapping)
+    const nameMap: Record<string, string> = {
+      // Scope 1 - Stationary Combustion
+      'Natural Gas Consumption': 'naturalGasConsumption',
+      'Diesel for Generators': 'dieselGenerators',
+      'Heating Oil': 'heatingOil',
+      'Propane': 'propane',
+      'Coal': 'coal',
+      'Biomass': 'biomass',
+      // Scope 1 - Mobile Combustion
+      'Fleet Gasoline': 'fleetGasoline',
+      'Fleet Diesel': 'fleetDiesel',
+      'Fleet LPG': 'fleetLPG',
+      'Fleet CNG': 'fleetCNG',
+      'Fleet Biodiesel': 'fleetBiodiesel',
+      'Fleet Ethanol': 'fleetEthanol',
+      // Scope 1 - Fugitive Emissions
+      'Refrigerant R410A Leakage': 'refrigerantR410A',
+      'Refrigerant R134A Leakage': 'refrigerantR134A',
+      'Refrigerant R404A Leakage': 'refrigerantR404A',
+      'Fire Suppression Systems': 'fireSuppressionSystems',
+      // Scope 1 - Process Emissions
+      'Industrial Process Emissions': 'industrialProcessEmissions',
+      'Wastewater Treatment': 'wastewaterTreatment',
+      // Scope 2 - Electricity
+      'Electricity': 'electricity',
+      'Grid Electricity': 'electricity',
+      'Renewable Electricity': 'renewableElectricity',
+      'Solar Electricity Generated': 'solarElectricity',
+      'Wind Electricity Generated': 'windElectricity',
+      // Scope 2 - Purchased Energy
+      'Purchased Heating': 'purchasedHeating',
+      'Purchased Cooling': 'purchasedCooling',
+      'Purchased Steam': 'purchasedSteam',
+      'District Heating': 'districtHeating',
+      'District Cooling': 'districtCooling',
+      // Scope 3 - Purchased Goods & Services
+      'Purchased Goods': 'purchasedGoods',
+      'Purchased Services': 'purchasedServices',
+      'Cloud Computing Services': 'cloudComputing',
+      'Software Licenses': 'softwareLicenses',
+      // Scope 3 - Capital Goods
+      'Capital Goods': 'capitalGoods',
+      'Buildings Construction': 'buildingsConstruction',
+      'Machinery & Equipment': 'machineryEquipment',
+      'IT Equipment': 'itEquipment',
+      // Scope 3 - Fuel & Energy Related
+      'Upstream Fuel Emissions': 'upstreamFuelEmissions',
+      'T&D Losses': 'tdLosses',
+      // Scope 3 - Upstream Transportation
+      'Upstream Road Transport': 'upstreamRoadTransport',
+      'Upstream Air Transport': 'upstreamAirTransport',
+      'Upstream Sea Transport': 'upstreamSeaTransport',
+      'Upstream Rail Transport': 'upstreamRailTransport',
+      // Scope 3 - Waste
+      'Waste': 'waste',
+      'Waste to Landfill': 'wasteToLandfill',
+      'Waste Recycled': 'wasteRecycled',
+      'Waste Composted': 'wasteComposted',
+      'Waste Incinerated': 'wasteIncinerated',
+      'Wastewater': 'wastewater',
+      // Scope 3 - Business Travel
+      'Plane Travel': 'planeTravel',
+      'Air Travel': 'planeTravel',
+      'Train Travel': 'trainTravel',
+      'Rail Travel': 'trainTravel',
+      'Car Travel': 'carTravel',
+      'Road Travel': 'carTravel',
+      'Hotel Stays': 'hotelStays',
+      'Hotel Nights': 'hotelStays',
+      // Scope 3 - Employee Commuting
+      'Employee Car Commute': 'employeeCarCommute',
+      'Public Transport Commute': 'publicTransportCommute',
+      'Bicycle Commute': 'bicycleCommute',
+      'Remote Work Days': 'remoteWorkDays',
+      // Scope 3 - Upstream Leased Assets
+      'Leased Buildings Energy': 'leasedBuildingsEnergy',
+      'Leased Vehicles Fuel': 'leasedVehiclesFuel',
+      // Scope 3 - Downstream Transportation
+      'Downstream Transportation': 'downstreamTransportation',
+      'Product Distribution': 'productDistribution',
+      // Scope 3 - Processing of Sold Products
+      'Processing of Sold Products': 'processingSoldProducts',
+      // Scope 3 - Use of Sold Products
+      'Use of Sold Products': 'useSoldProducts',
+      'Product Energy Consumption': 'productEnergyConsumption',
+      // Scope 3 - End-of-Life
+      'Product End-of-Life': 'productEndOfLife',
+      'Product Recycling Rate': 'productRecyclingRate',
+      // Scope 3 - Downstream Leased Assets
+      'Downstream Leased Assets': 'downstreamLeasedAssets',
+      // Scope 3 - Franchises
+      'Franchise Operations': 'franchiseOperations',
+      // Scope 3 - Investments
+      'Investment Emissions': 'investmentEmissions',
+      'Financed Emissions': 'financedEmissions',
+      // Custom/Additional
+      'Water': 'water',
+      'Water Supply': 'water',
+      'EV Charging': 'evCharging',
+      'Business Travel': 'businessTravel',
+      'Purchased Electricity': 'electricity',
+      'Natural Gas': 'naturalGasConsumption',
+      'Stationary Combustion': 'stationaryCombustion',
+      'Mobile Combustion': 'mobileCombustion',
+      'Fleet': 'fleet',
+      'Commuting': 'commuting',
+      'Fugitive Emissions': 'fugitiveEmissions',
+      'Others': 'others'
+    };
+
+    const key = nameMap[categoryName];
+    if (key === 'others') {
+      return t('topEmitters.others') || 'Outros';
+    }
+    if (key) {
+      return t(`topEmitters.categoryNames.${key}`) || categoryName;
+    }
+    return categoryName;
+  };
+
   // Transform topEmitters into pie chart data (top 5 + Others)
   const pieChartData = useMemo(() => {
     if (topEmitters.length === 0) return [];
 
-    // Take top 5 sources
-    const top5 = topEmitters.slice(0, 5);
-    const others = topEmitters.slice(5);
+    // Take top 5 sources and filter out zero values
+    const top5 = topEmitters.slice(0, 5).filter(source => source.emissions > 0);
+    const others = topEmitters.slice(5).filter(source => source.emissions > 0);
 
     // Calculate "Others" total if there are more than 5 sources
     const othersTotal = others.reduce((sum, source) => sum + source.emissions, 0);
     const othersPercentage = others.reduce((sum, source) => sum + source.percentage, 0);
 
-    // Create pie chart data array
+    // Create pie chart data array (only non-zero values)
     const chartData = top5.map(source => ({
-      name: source.name,
+      name: translateCategoryName(source.name),
       value: source.emissions,
       percentage: source.percentage,
       color: getCategoryColor(source.name)
     }));
 
-    // Add "Others" category if needed
-    if (others.length > 0) {
+    // Add "Others" category only if it has non-zero emissions
+    if (others.length > 0 && othersTotal > 0) {
       chartData.push({
-        name: 'Others',
+        name: translateCategoryName('Others'),
         value: othersTotal,
         percentage: othersPercentage,
         color: '#6B7280' // Gray color for Others
       });
     }
 
-    // Custom sort: Electricity, EV Charging, Plane Travel, then others
-    chartData.sort((a, b) => {
-      const order = ['Electricity', 'EV Charging', 'Plane Travel'];
-      const aIndex = order.findIndex(item => a.name.includes(item));
-      const bIndex = order.findIndex(item => b.name.includes(item));
+    // Smart sorting to prevent slice overlap:
+    // 1. Separate small (<5%) and large segments
+    // 2. Alternate them around the pie to prevent clustering
+    const SMALL_SEGMENT_THRESHOLD = 5;
+    const smallSegments = chartData.filter(item => item.percentage < SMALL_SEGMENT_THRESHOLD);
+    const largeSegments = chartData.filter(item => item.percentage >= SMALL_SEGMENT_THRESHOLD);
 
-      // If both are in the order list, sort by their order
-      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-      // If only a is in the list, it comes first
-      if (aIndex !== -1) return -1;
-      // If only b is in the list, it comes first
-      if (bIndex !== -1) return 1;
-      // Keep "Others" at the end
-      if (a.name === 'Others') return 1;
-      if (b.name === 'Others') return -1;
-      // Otherwise maintain original order
-      return 0;
-    });
+    // Sort each group by size (largest first)
+    smallSegments.sort((a, b) => b.percentage - a.percentage);
+    largeSegments.sort((a, b) => b.percentage - a.percentage);
 
-    return chartData;
+    // Interleave segments to spread small ones around the pie
+    const reorderedData: typeof chartData = [];
+    const maxLength = Math.max(smallSegments.length, largeSegments.length);
+
+    for (let i = 0; i < maxLength; i++) {
+      // Add large segment first
+      if (i < largeSegments.length) {
+        reorderedData.push(largeSegments[i]);
+      }
+      // Then add small segment to separate them
+      if (i < smallSegments.length) {
+        reorderedData.push(smallSegments[i]);
+      }
+    }
+
+    return reorderedData;
   }, [topEmitters]);
 
   if (isLoading) {
@@ -2132,7 +2359,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                             fill={color}
                             textAnchor={textAnchor}
                             dominantBaseline="central"
-                            style={{ fontSize: '10px', fontWeight: '500' }}
+                            style={{ fontSize: '12px', fontWeight: '500' }}
                           >
                             <tspan x={x} dy="-14">{name}</tspan>
                             <tspan x={x} dy="11">{value.toFixed(1)} tCO2e</tspan>
@@ -2520,7 +2747,12 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <MetricIcon className="w-4 h-4" style={{ color: metricColor }} />
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">{metric.name}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {(() => {
+                            const key = getCategoryNameKey(metric.name);
+                            return key ? t(`topEmitters.categoryNames.${key}`) : metric.name;
+                          })()}
+                        </span>
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-bold text-gray-900 dark:text-white">
@@ -2685,7 +2917,12 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <CategoryIcon className="w-4 h-4" style={{ color: categoryColor }} />
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">{categoryName}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            {(() => {
+                              const key = getCategoryNameKey(categoryName);
+                              return key ? t(`topEmitters.categoryNames.${key}`) : categoryName;
+                            })()}
+                          </span>
                         </div>
                         <div className="text-right">
                           <div className="text-sm font-bold text-gray-900 dark:text-white">

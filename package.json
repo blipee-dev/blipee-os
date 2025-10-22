@@ -97,6 +97,9 @@
     "websocket:demo": "GENERATE_DEMO_DATA=true tsx scripts/start-websocket.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.35",
+    "@ai-sdk/deepseek": "^1.0.23",
+    "@ai-sdk/openai": "^2.0.53",
     "@anthropic-ai/sdk": "^0.62.0",
     "@apollo/server": "^5.0.0",
     "@as-integrations/next": "^4.0.0",
@@ -141,6 +144,7 @@
     "@types/zxcvbn": "^4.4.5",
     "@upstash/redis": "^1.35.6",
     "@vercel/analytics": "^1.3.1",
+    "ai": "^5.0.76",
     "arima": "^0.2.5",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.0",

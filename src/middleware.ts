@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { csrfMiddleware, setCSRFCookie } from './lib/security/csrf';
 import { applySecurityHeaders } from './lib/security/headers';
-import { secureSessionManager } from './lib/session/secure-manager';
 import { securityAuditLogger, SecurityEventType } from './lib/security/audit-logger';
 import { loggingMiddleware } from './middleware/logging';
-import { tracingMiddleware } from './middleware/tracing';
+// tracingMiddleware removed - it creates new responses and breaks cookie forwarding
+import { updateSession } from './lib/supabase/middleware';
 // Locale middleware removed - using i18n directly
 import { logger } from './lib/logging';
 
@@ -32,6 +32,7 @@ const protectedRoutes = [
   '/api/profile',
   '/api/sustainability',
   '/api/monitoring',
+  '/api/scoring',
 ];
 
 // Public routes that don't require authentication
@@ -129,6 +130,17 @@ export async function middleware(request: NextRequest) {
              request.headers.get('x-real-ip') ||
              '127.0.0.1';
 
+  console.log('🌐 [Middleware] ENTRY POINT -', method, path);
+  const allCookies = request.cookies.getAll();
+  console.log('🍪 [Middleware] Request cookies at entry:', allCookies.map(c => c.name).join(', ') || 'none');
+  // Debug: Show session cookie
+  if (allCookies.length > 0 && process.env.NODE_ENV === 'development') {
+    const sessionCookie = request.cookies.get('blipee-session');
+    if (sessionCookie) {
+      console.log('🔑 [Middleware] Session cookie present');
+    }
+  }
+
   // Clean corrupted cookies from the request
   cleanCorruptedCookies(request);
 
@@ -143,41 +155,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(callbackUrl);
   }
 
-  // Apply tracing first (wraps everything in a trace context)
+  // IMPORTANT: Don't use tracingMiddleware here - it creates a new response and breaks auth cookies
+  // Apply structured logging
   try {
-    return await tracingMiddleware(request).then(async (tracingResponse) => {
-      // If tracing returned early, return that response
-      if (tracingResponse !== NextResponse.next()) {
-        return tracingResponse;
-      }
-
-      // Apply structured logging
-      try {
-        const loggingResponse = await loggingMiddleware(request);
-        if (loggingResponse.status !== 200 && loggingResponse !== NextResponse.next()) {
-          return loggingResponse;
-        }
-      } catch (error) {
-        logger.error('Logging middleware error', error as Error, {
-          path,
-          method
-        });
-        // Continue even if logging fails
-      }
-
-      // Locale routing removed - using i18n directly in components
-
-      // Continue with the rest of the middleware logic
-      return executeMiddleware(request, path, method, ip, startTime);
-    });
+    const loggingResponse = await loggingMiddleware(request);
+    if (loggingResponse.status !== 200 && loggingResponse !== NextResponse.next()) {
+      console.log('⚠️ [Middleware] Logging returned early, skipping executeMiddleware!');
+      return loggingResponse;
+    }
   } catch (error) {
-    logger.error('Tracing middleware error', error as Error, {
+    logger.error('Logging middleware error', error as Error, {
       path,
       method
     });
-    // Continue without tracing
-    return executeMiddleware(request, path, method, ip, startTime);
+    // Continue even if logging fails
   }
+
+  console.log('➡️ [Middleware] Calling executeMiddleware');
+  // Continue with the rest of the middleware logic
+  return executeMiddleware(request, path, method, ip, startTime);
 }
 
 async function executeMiddleware(
@@ -187,6 +183,16 @@ async function executeMiddleware(
   ip: string,
   startTime: number
 ): Promise<NextResponse> {
+
+  console.log('🚀 [Middleware] executeMiddleware called for:', path);
+  console.log('📦 [Middleware] Request cookies:', request.cookies.getAll().map(c => c.name).join(', ') || 'none');
+
+  // CRITICAL: Validate session cookie
+  // This MUST happen before any auth checks to ensure user is authenticated
+  const { response, user } = await updateSession(request);
+
+  console.log('✨ [Middleware] After updateSession, response has cookies:',
+    Array.from(response.cookies.getAll()).map(c => c.name).join(', ') || 'none');
 
   // Apply CSRF protection for API routes (except auth endpoints)
   // Auth endpoints need to work without CSRF tokens for initial authentication
@@ -201,7 +207,7 @@ async function executeMiddleware(
     '/api/version',
     '/api/debug'
   ];
-  
+
   if (path.startsWith('/api/') && !csrfExemptPaths.some(exempt => path.startsWith(exempt))) {
     const csrfResponse = await csrfMiddleware(request);
     if (csrfResponse) {
@@ -227,7 +233,7 @@ async function executeMiddleware(
     // Record rate limit exceeded
     recordMetric('httprequests_total', 1, { method, path, status: '429' });
     recordMetric('rate_limit_exceeded_total', 1, { method, path, ip });
-    
+
     // Log security event
     await securityAuditLogger.log({
       eventType: SecurityEventType.RATE_LIMIT_EXCEEDED,
@@ -241,10 +247,10 @@ async function executeMiddleware(
         windowMs: 60000,
       },
     });
-    
+
     return NextResponse.json(
       { error: 'Too many requests' },
-      { 
+      {
         status: 429,
         headers: {
           'Retry-After': '60',
@@ -255,50 +261,33 @@ async function executeMiddleware(
     );
   }
 
-  let response: NextResponse;
+  // Start with the response from session validation
+  let authResponse: NextResponse = response;
   let statusCode = 200;
 
   // Check if route is public
   const isPublicRoute = publicRoutes.some(route => path === route || path.startsWith(route + '/'));
   if (isPublicRoute) {
-    response = NextResponse.next();
-
-    // Clear invalid session cookies on signin/signup pages
-    // This handles the case where dev server restart clears in-memory sessions
-    if (path === '/signin' || path === '/signup') {
-      const blipeeSession = request.cookies.get('blipee-session');
-      if (blipeeSession) {
-        // Clear the invalid session cookie
-        response.cookies.delete('blipee-session');
-        if (process.env.NODE_ENV === 'development') {
-        }
-      }
-    }
+    // Public route - allow access (signin page will handle redirect if needed)
 
     // Set CSRF token for forms on public pages (signin, signup)
     if (path === '/signin' || path === '/signup' || path === '/forgot-password') {
-      setCSRFCookie(response);
+      await setCSRFCookie(authResponse);
     }
   } else {
     // Check if route requires authentication
     const requiresAuth = protectedRoutes.some(route => path.startsWith(route));
     if (!requiresAuth) {
-      response = NextResponse.next();
+      // Public route, no auth needed
     } else {
-      // Check for Supabase auth cookies
-      const authToken = request.cookies.get('sb-auth-token') || 
-                       request.cookies.get('sb-access-token') ||
-                       request.cookies.get('supabase-auth-token');
-      const hasSupabaseCookies = Array.from(request.cookies.getAll()).some(
-        cookie => cookie.name.includes('supabase') || cookie.name.includes('sb-')
-      );
-      
-      if (!authToken && !hasSupabaseCookies) {
+      // Protected route - check if user is authenticated via session
+      if (!user) {
+        // No valid session
         statusCode = 401;
-        
+
         // For API routes, return 401
         if (path.startsWith('/api/')) {
-          response = NextResponse.json(
+          authResponse = NextResponse.json(
             { error: 'Unauthorized' },
             { status: 401 }
           );
@@ -306,43 +295,16 @@ async function executeMiddleware(
           // For web routes, redirect to signin
           const url = new URL('/signin', request.url);
           url.searchParams.set('redirect', path);
-          response = NextResponse.redirect(url);
+          authResponse = NextResponse.redirect(url);
           statusCode = 302;
         }
       } else {
-        // Validate session security
-        const sessionValidation = await secureSessionManager.validateSession(request);
-        
-        if (!sessionValidation.session) {
-          // Invalid session, redirect to signin
-          statusCode = 401;
-          if (path.startsWith('/api/')) {
-            response = NextResponse.json(
-              { error: 'Session expired or invalid' },
-              { status: 401 }
-            );
-          } else {
-            const url = new URL('/signin', request.url);
-            url.searchParams.set('redirect', path);
-            url.searchParams.set('reason', 'session_invalid');
-            response = NextResponse.redirect(url);
-            statusCode = 302;
-          }
-        } else {
-          // Valid session, use rotated response if needed
-          response = sessionValidation.response || NextResponse.next();
-          response.headers.set('X-RateLimit-Limit', '100');
-          response.headers.set('X-RateLimit-Remaining', ddosCheck.remaining.toString());
-          
-          // Set session info headers for debugging (dev only)
-          if (process.env.NODE_ENV === 'development') {
-            response.headers.set('X-Session-ID', sessionValidation.session.id.substring(0, 8));
-            response.headers.set('X-Session-Rotated', sessionValidation.response ? 'true' : 'false');
-          }
-          
-          // Set CSRF token for authenticated sessions
-          setCSRFCookie(response);
-        }
+        // User authenticated via session, allow request through
+        authResponse.headers.set('X-RateLimit-Limit', '100');
+        authResponse.headers.set('X-RateLimit-Remaining', ddosCheck.remaining.toString());
+
+        // Set CSRF token for authenticated sessions
+        await setCSRFCookie(authResponse);
       }
     }
   }
@@ -355,15 +317,29 @@ async function executeMiddleware(
   // Record authentication events
   if (path.startsWith('/api/auth/')) {
     const authEvent = path.split('/').pop() || 'unknown';
-    recordMetric('auth_events_total', 1, { 
-      event: authEvent, 
-      method: 'session', 
-      success: (statusCode < 400).toString() 
+    recordMetric('auth_events_total', 1, {
+      event: authEvent,
+      method: 'session',
+      success: (statusCode < 400).toString()
     });
   }
 
+  console.log('🎯 [Middleware] Auth response cookies before security headers:',
+    Array.from(authResponse.cookies.getAll()).map(c => c.name).join(', ') || 'none');
+
   // Apply security headers to all responses
-  return applySecurityHeaders(response, request);
+  const finalResponse = applySecurityHeaders(authResponse, request);
+
+  console.log('🏁 [Middleware] Returning response with cookies:',
+    Array.from(finalResponse.cookies.getAll()).map(c => c.name).join(', ') || 'none');
+
+  // CRITICAL DEBUG: Check if applySecurityHeaders is removing cookies
+  if (process.env.NODE_ENV === 'development' && authResponse.cookies.getAll().length !== finalResponse.cookies.getAll().length) {
+    console.error('⚠️ [Middleware] WARNING: applySecurityHeaders changed cookie count!');
+    console.error('   Before:', authResponse.cookies.getAll().length, 'After:', finalResponse.cookies.getAll().length);
+  }
+
+  return finalResponse;
 }
 
 export const config = {
@@ -373,8 +349,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
+     * - Image files (svg, png, jpg, etc.)
+     * Recommended by Supabase for Next.js performance
      */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

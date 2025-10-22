@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { MFAService } from '@/lib/auth/mfa/service';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export async function POST(_request: NextRequest) {
   try {
     // Get authenticated user
-    const supabase = await createServerSupabaseClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },

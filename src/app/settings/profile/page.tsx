@@ -1,18 +1,12 @@
 import { redirect } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import ProfileClient from './ProfileClient';
 
 export default async function ProfilePage() {
-  const supabase = await createServerSupabaseClient();
-
-  // Check authentication
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/settings/profile');
-  }
+  // Check authentication using session-based auth
+  const user = await requireServerAuth('/signin?redirect=/settings/profile');
 
   // Check permissions - all authenticated users can access their profile
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
@@ -35,14 +29,10 @@ export default async function ProfilePage() {
   };
 
   try {
-    // Try to fetch additional profile data from API
+    // Try to fetch additional profile data from API (cookies are automatically included in server-side fetch)
     const profileResponse = await fetch(
       `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/profile`,
-      {
-        headers: {
-          'Cookie': `sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token=${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
-      }
+      { cache: 'no-store' }
     );
 
     if (profileResponse.ok) {

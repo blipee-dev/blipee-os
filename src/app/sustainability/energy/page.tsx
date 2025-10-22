@@ -1,16 +1,12 @@
 import { redirect } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import EnergyPage from './EnergyPage';
 
 export default async function EnergyRoute() {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/sustainability/energy');
-  }
+  // Check authentication using session-based auth
+  const user = await requireServerAuth('/signin?redirect=/sustainability/energy');
 
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
   const { organizationId, role } = await getUserOrganizationById(user.id);

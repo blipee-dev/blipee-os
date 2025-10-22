@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/lib/auth/context';
 import { createClient } from '@/lib/supabase/client';
 import { Loader2, Plus, Save, AlertCircle } from 'lucide-react';
 
@@ -42,6 +43,7 @@ interface Props {
 }
 
 export function EmissionsDataEntry({ organizationId, onSuccess }: Props) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<EmissionFormData>({
     facility_id: '',
     source_id: '',
@@ -148,15 +150,22 @@ export function EmissionsDataEntry({ organizationId, onSuccess }: Props) {
     setSubmitting(true);
 
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create emission records",
+          variant: "destructive",
+        });
+        setSubmitting(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('emissions')
         .insert([{
           ...formData,
           organization_id: organizationId,
-          created_by: user?.id,
+          created_by: user.id,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }])

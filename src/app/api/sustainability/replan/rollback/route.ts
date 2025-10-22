@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -9,11 +10,11 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(request: Request) {
   try {
-    const supabase = await createServerSupabaseClient();
 
     // Check authentication
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-    if (authError || !session) {
+    // IMPORTANT: Use getUser() not getSession() to validate JWT on server
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
       .from('organization_members')
       .select('role')
       .eq('organization_id', organizationId)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (!membership) {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { aiService } from "@/lib/ai/service";
 import { chatMessageSchema } from "@/lib/validation/schemas";
 import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
@@ -7,7 +8,6 @@ import { predictiveIntelligence } from "@/lib/ai/predictive-intelligence";
 import { MLPipeline } from "@/lib/ai/ml-models/ml-pipeline-client";
 import { DatabaseContextService } from "@/lib/ai/database-context";
 import { createDatabaseIntelligence } from "@/lib/ai/database-intelligence";
-import { createClient } from "@/lib/supabase/server";
 
 // Import the new Conversation Intelligence System
 import { conversationalIntelligenceOrchestrator } from "@/lib/ai/conversation-intelligence";
@@ -71,8 +71,8 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
     const { message, conversationId, buildingContext, attachments } = body;
 
     // Get authenticated user
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    // Get authenticated user using session-based auth
+    const user = await getAPIUser(request);
 
     if (!user) {
       return NextResponse.json(

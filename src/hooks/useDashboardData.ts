@@ -1172,7 +1172,7 @@ export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Buildin
     : period.end;
 
   const forecast = useQuery({
-    queryKey: [...dashboardKeys.emissions(period, selectedSite?.id), 'forecast'],
+    queryKey: [...dashboardKeys.emissions(period, selectedSite?.id), 'forecast', 'v2'], // Added v2 to force cache invalidation
     queryFn: async () => {
       const forecastParams = new URLSearchParams({
         organization_id: organizationId || '',
@@ -1183,7 +1183,10 @@ export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Buildin
         forecastParams.append('site_id', selectedSite.id);
       }
       const response = await fetch(`/api/sustainability/forecast?${forecastParams}`);
-      if (!response.ok) return null;
+      if (!response.ok) {
+        console.error('Emissions forecast API error:', response.status);
+        return null;
+      }
       return response.json();
     },
     enabled: !!organizationId,
@@ -1389,16 +1392,20 @@ export function useOverviewDashboard(period: TimePeriod, selectedSite?: Building
   }
 
   const forecast = useQuery({
-    queryKey: [...dashboardKeys.overview(period, selectedSite?.id), 'forecast'],
+    queryKey: [...dashboardKeys.overview(period, selectedSite?.id), 'forecast', 'v2'], // Added v2 to force cache invalidation
     queryFn: async () => {
-      const response = await fetch(`/api/sustainability/forecast?${forecastParamsOverview}`);
-      if (!response.ok) return null;
+      const url = `/api/sustainability/forecast?${forecastParamsOverview}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error('Forecast API error:', response.status);
+        return null;
+      }
       return response.json();
     },
     staleTime: 10 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true, // Changed to true to force refetch
   });
 
   // 7. Fetch top metrics (biggest emitters)
@@ -1653,7 +1660,35 @@ export function useTransportationDashboard(period: TimePeriod, selectedSite?: Bu
     refetchOnMount: false,
   });
 
-  // 3. Target allocation (conditional on baseline_year)
+  // 3. Commute data
+  const commute = useQuery({
+    queryKey: [...dashboardKeys.transportation(period, selectedSite?.id), 'commute'],
+    queryFn: async () => {
+      const response = await fetch('/api/transportation/commute');
+      if (!response.ok) throw new Error('Failed to fetch commute data');
+      return response.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+
+  // 4. Logistics data
+  const logistics = useQuery({
+    queryKey: [...dashboardKeys.transportation(period, selectedSite?.id), 'logistics'],
+    queryFn: async () => {
+      const response = await fetch('/api/transportation/logistics');
+      if (!response.ok) throw new Error('Failed to fetch logistics data');
+      return response.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+
+  // 5. Target allocation (conditional on baseline_year)
   const currentYear = new Date().getFullYear();
   const targetAllocation = useQuery({
     queryKey: [...dashboardKeys.transportation(period, selectedSite?.id), 'targetAllocation'],
@@ -1674,10 +1709,12 @@ export function useTransportationDashboard(period: TimePeriod, selectedSite?: Bu
   return {
     fleet,
     businessTravel,
+    commute,
+    logistics,
     targetAllocation,
-    isLoading: fleet.isLoading || businessTravel.isLoading,
-    isError: fleet.isError || businessTravel.isError,
-    error: fleet.error || businessTravel.error,
+    isLoading: fleet.isLoading || businessTravel.isLoading || commute.isLoading || logistics.isLoading,
+    isError: fleet.isError || businessTravel.isError || commute.isError || logistics.isError,
+    error: fleet.error || businessTravel.error || commute.error || logistics.error,
   };
 }
 

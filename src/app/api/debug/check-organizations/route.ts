@@ -1,14 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
     
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    
+    const user = await getAPIUser(request);
     // Query ALL organizations (using service role if available)
     const { data: allOrgs, error: allOrgsError, count: allCount } = await supabase
       .from('organizations')

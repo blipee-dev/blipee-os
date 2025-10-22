@@ -101,24 +101,26 @@ export default function AuthCallbackPage() {
         const isPasswordRecovery = type === "recovery";
         const isInvitation = type === "invite";
 
+        // Use window.location.href instead of router.push to ensure cookies are sent
+        // This forces a full page reload which properly includes the auth cookies
 
         // If it's a password recovery, redirect to reset password page
         if (isPasswordRecovery) {
-          router.push("/auth/reset-password");
+          window.location.href = "/auth/reset-password";
         } else if (isInvitation) {
           // If it's an invitation, check if password has been set
           const passwordSet = session.user.user_metadata?.password_set;
           if (!passwordSet) {
-            router.push("/auth/accept-invitation");
+            window.location.href = "/auth/accept-invitation";
           } else {
-            router.push("/sustainability");
+            window.location.href = "/sustainability";
           }
         } else {
           // Regular login, redirect to sustainability overview
-          router.push("/sustainability");
+          window.location.href = "/sustainability";
         }
       } else {
-        router.push("/signin");
+        window.location.href = "/signin";
       }
     };
 

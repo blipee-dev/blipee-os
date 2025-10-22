@@ -1,49 +1,51 @@
 'use client';
 
 import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { GradientButton } from '@/components/premium/GradientButton';
-import { Shield, Loader2 } from 'lucide-react';
+import { Shield, Loader2, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface MFAVerificationProps {
+  factorId: string;
   challengeId: string;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export function MFAVerification({ challengeId, onSuccess, onCancel }: MFAVerificationProps) {
+export function MFAVerification({ factorId, challengeId, onSuccess, onCancel }: MFAVerificationProps) {
   const [code, setCode] = useState('');
-  const [rememberDevice, setRememberDevice] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const supabase = createClient();
 
   const handleVerify = async () => {
     if (code.length !== 6) {
-      console.error('Invalid code: Please enter a 6-digit code');
+      setError('Please enter a 6-digit code');
       return;
     }
 
     setLoading(true);
+    setError('');
+
     try {
-      const response = await fetch('/api/auth/mfa/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          challengeId,
-          method: 'totp',
-          code,
-          rememberDevice,
-        }),
+      const { data, error: verifyError } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId,
+        code,
       });
 
-      if (!response.ok) {
-        throw new Error('Invalid verification code');
+      if (verifyError) throw verifyError;
+
+      if (data) {
+        // MFA verified successfully
+        onSuccess?.();
       }
-
-
-      onSuccess?.();
-    } catch (error) {
-      console.error('Verification failed: Please check your code and try again');
+    } catch (err: any) {
+      console.error('MFA verification error:', err);
+      setError(err.message || 'Invalid verification code. Please try again.');
       setCode('');
     } finally {
       setLoading(false);
@@ -89,22 +91,16 @@ export function MFAVerification({ challengeId, onSuccess, onCancel }: MFAVerific
           />
         </motion.div>
 
-        <div className="flex items-center space-x-2">
-          <input
-            id="remember"
-            type="checkbox"
-            checked={rememberDevice}
-            onChange={(e) => setRememberDevice(e.target.checked)}
-            disabled={loading}
-            className="h-4 w-4 text-purple-600 border-gray-300 rounded accent-purple-600"
-          />
-          <label
-            htmlFor="remember"
-            className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none"
+        {error && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20"
           >
-            Trust this device for 30 days
-          </label>
-        </div>
+            <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-red-200">{error}</p>
+          </motion.div>
+        )}
 
         <div className="flex gap-3">
           <button
@@ -125,15 +121,18 @@ export function MFAVerification({ challengeId, onSuccess, onCancel }: MFAVerific
         </div>
 
         <div className="text-center">
-          <button
-            type="button"
-            className="text-sm text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-            onClick={() => {
-              // TODO: Implement backup code entry
-            }}
-          >
-            Use a backup code instead
-          </button>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Lost access to your authenticator app?{' '}
+            <button
+              type="button"
+              className="text-purple-600 dark:text-purple-400 hover:underline"
+              onClick={() => {
+                alert('Contact support for account recovery');
+              }}
+            >
+              Contact Support
+            </button>
+          </p>
         </div>
       </div>
     </GlassCard>

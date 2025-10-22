@@ -1,4 +1,3 @@
-import * as crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
@@ -23,20 +22,53 @@ export interface CSRFToken {
 }
 
 /**
+ * Generate random bytes using Web Crypto API (Edge Runtime compatible)
+ */
+function generateRandomBytes(length: number): Uint8Array {
+  return crypto.getRandomValues(new Uint8Array(length));
+}
+
+/**
+ * Convert bytes to hex string
+ */
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+/**
+ * Generate HMAC signature using Web Crypto API (Edge Runtime compatible)
+ */
+async function generateHmacSignature(message: string, secret: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const messageData = encoder.encode(message);
+
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signature = await crypto.subtle.sign('HMAC', key, messageData);
+  return bytesToHex(new Uint8Array(signature));
+}
+
+/**
  * Generate a new CSRF token
  */
-export function generateCSRFToken(): CSRFToken {
-  const randomBytes = crypto.randomBytes(CSRF_TOKEN_LENGTH);
-  const token = randomBytes.toString('hex');
+export async function generateCSRFToken(): Promise<CSRFToken> {
+  const randomBytes = generateRandomBytes(CSRF_TOKEN_LENGTH);
+  const token = bytesToHex(randomBytes);
   const timestamp = Date.now();
-  
+
   // Create a signed token with timestamp
   const payload = `${token}.${timestamp}`;
-  const signature = crypto
-    .createHmac('sha256', CSRF_SECRET_KEY)
-    .update(payload)
-    .digest('hex');
-  
+  const signature = await generateHmacSignature(payload, CSRF_SECRET_KEY);
+
   return {
     token: `${payload}.${signature}`,
     timestamp
@@ -46,7 +78,7 @@ export function generateCSRFToken(): CSRFToken {
 /**
  * Verify a CSRF token
  */
-export function verifyCSRFToken(token: string): boolean {
+export async function verifyCSRFToken(token: string): Promise<boolean> {
   if (!token || typeof token !== 'string') {
     return false;
   }
@@ -57,21 +89,21 @@ export function verifyCSRFToken(token: string): boolean {
   }
 
   const [tokenValue, timestamp, signature] = parts;
-  
+
   // Verify signature
-  const expectedSignature = crypto
-    .createHmac('sha256', CSRF_SECRET_KEY)
-    .update(`${tokenValue}.${timestamp}`)
-    .digest('hex');
-  
+  const expectedSignature = await generateHmacSignature(
+    `${tokenValue}.${timestamp}`,
+    CSRF_SECRET_KEY
+  );
+
   if (signature !== expectedSignature) {
     return false;
   }
-  
+
   // Check token age (24 hours)
   const tokenAge = Date.now() - parseInt(timestamp);
   const maxAge = 24 * 60 * 60 * 1000; // 24 hours
-  
+
   return tokenAge <= maxAge;
 }
 
@@ -96,9 +128,9 @@ export async function csrfMiddleware(
 
   // Get CSRF token from header
   const headerToken = request.headers.get(CSRF_HEADER_NAME);
-  
+
   // Get CSRF token from cookie
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookieToken = cookieStore.get(CSRF_COOKIE_NAME)?.value;
 
   // Verify tokens match and are valid
@@ -109,7 +141,8 @@ export async function csrfMiddleware(
     );
   }
 
-  if (!verifyCSRFToken(headerToken)) {
+  const isValid = await verifyCSRFToken(headerToken);
+  if (!isValid) {
     return NextResponse.json(
       { error: 'CSRF token expired or invalid' },
       { status: 403 }
@@ -122,9 +155,9 @@ export async function csrfMiddleware(
 /**
  * Set CSRF token in response cookies
  */
-export function setCSRFCookie(response: NextResponse): void {
-  const { token } = generateCSRFToken();
-  
+export async function setCSRFCookie(response: NextResponse): Promise<void> {
+  const { token } = await generateCSRFToken();
+
   response.cookies.set(CSRF_COOKIE_NAME, token, {
     httpOnly: false, // Must be accessible by JavaScript
     secure: process.env.NODE_ENV === 'production',
@@ -138,13 +171,13 @@ export function setCSRFCookie(response: NextResponse): void {
  * Get CSRF token for the current session
  */
 export async function getCSRFToken(): Promise<string | null> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get(CSRF_COOKIE_NAME)?.value;
-  
-  if (token && verifyCSRFToken(token)) {
+
+  if (token && await verifyCSRFToken(token)) {
     return token;
   }
-  
+
   return null;
 }
 

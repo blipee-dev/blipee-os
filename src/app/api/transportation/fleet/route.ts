@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 
 export async function GET() {
   try {
-    const supabase = await createServerSupabaseClient();
 
     // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

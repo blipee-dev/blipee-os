@@ -1,29 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/context";
 import { ConversationalOnboarding } from "@/components/onboarding/ConversationalOnboarding";
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-
-const supabase = createClient();
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [userId, setUserId] = useState<string>("");
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/signin");
-        return;
-      }
-      setUserId(user.id);
-    };
-    checkUser();
-  }, [router]);
+  // Redirect to signin if not authenticated
+  if (!loading && !user) {
+    router.push("/signin");
+    return null;
+  }
+
+  // Show loading state
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
 
   const handleComplete = async (config: any) => {
     // Save onboarding configuration
@@ -32,9 +26,7 @@ export default function OnboardingPage() {
     router.push("/blipee-ai");
   };
 
-  if (!userId) return null;
-
   return (
-    <ConversationalOnboarding onComplete={handleComplete} userId={userId} />
+    <ConversationalOnboarding onComplete={handleComplete} userId={user.id} />
   );
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { sendInvitationEmailViaGmail } from '@/lib/email/send-invitation-gmail';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
@@ -6,9 +7,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const supabase = await createServerSupabaseClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

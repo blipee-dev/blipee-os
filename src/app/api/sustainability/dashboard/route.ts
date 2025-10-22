@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
@@ -84,11 +85,9 @@ async function fetchAllMetricsData(
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -104,7 +103,7 @@ export async function GET(request: NextRequest) {
     let organizationId: string | null = null;
 
     // Check if super admin
-    const { data: superAdmin } = await supabase
+    const { data: superAdmin } = await supabaseAdmin
       .from('super_admins')
       .select('id')
       .eq('user_id', user.id)
@@ -113,7 +112,7 @@ export async function GET(request: NextRequest) {
 
     if (superAdmin) {
       // Get PLMJ organization for super admin
-      const { data: org } = await supabase
+      const { data: org } = await supabaseAdmin
         .from('organizations')
         .select('id')
         .eq('name', 'PLMJ')
@@ -122,7 +121,7 @@ export async function GET(request: NextRequest) {
 
       if (!organizationId) {
         // Fallback to first organization
-        const { data: firstOrg } = await supabase
+        const { data: firstOrg } = await supabaseAdmin
           .from('organizations')
           .select('id')
           .limit(1)
@@ -137,7 +136,7 @@ export async function GET(request: NextRequest) {
         organizationId = userOrgId;
       } else {
         // If no user access, try to get PLMJ organization as fallback
-        const { data: plmjOrg } = await supabase
+        const { data: plmjOrg } = await supabaseAdmin
           .from('organizations')
           .select('id')
           .eq('name', 'PLMJ')

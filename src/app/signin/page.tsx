@@ -32,6 +32,7 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mfaRequired, setMfaRequired] = useState(false);
+  const [factorId, setFactorId] = useState("");
   const [challengeId, setChallengeId] = useState("");
   const [checkingSSO, setCheckingSSO] = useState(false);
   const [ssoChecked, setSsoChecked] = useState(false);
@@ -122,6 +123,7 @@ export default function SignInPage() {
       // Check if MFA is required
       if (result && result.requiresMFA) {
         setMfaRequired(true);
+        setFactorId(result.factorId);
         setChallengeId(result.challengeId);
         setLoading(false);
         return;
@@ -135,14 +137,15 @@ export default function SignInPage() {
         localStorage.removeItem("rememberMe");
         localStorage.removeItem("lastEmail");
       }
-      
-      // Check if there's a redirect parameter in the URL
-      if (redirectParam) {
-        router.push(redirectParam);
-      } else {
-        // Default redirect to sustainability overview if no redirect param
-        router.push('/sustainability');
-      }
+
+      // Wait a moment for cookies to be saved before redirecting
+      // This ensures the auth cookies from the API response are committed
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Use window.location.href instead of router.push to ensure cookies are sent
+      // This forces a full page reload which properly includes the auth cookies
+      const redirectTo = redirectParam || '/sustainability';
+      window.location.href = redirectTo;
     } catch (err: any) {
       setError(err.message || "Failed to sign in");
       setLoading(false);
@@ -220,17 +223,19 @@ export default function SignInPage() {
   }
 
   // Show MFA verification if required
-  if (mfaRequired && challengeId) {
+  if (mfaRequired && factorId && challengeId) {
     return (
       <AuthLayout
         title=""
         subtitle={t('mfaRequired')}
       >
         <MFAVerification
+          factorId={factorId}
           challengeId={challengeId}
           onSuccess={handleMFASuccess}
           onCancel={() => {
             setMfaRequired(false);
+            setFactorId("");
             setChallengeId("");
             setPassword("");
           }}

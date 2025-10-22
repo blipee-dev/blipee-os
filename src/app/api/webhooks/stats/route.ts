@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { webhookService } from '@/lib/webhooks/webhook-service';
 
 export async function GET(_request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (userError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },

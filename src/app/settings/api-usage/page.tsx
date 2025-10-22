@@ -1,18 +1,12 @@
 import { redirect } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import ApiUsageClient from './ApiUsageClient';
 
 export default async function ApiUsagePage() {
-  const supabase = await createServerSupabaseClient();
-
-  // Check authentication
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/settings/api-usage');
-  }
+  // Check authentication using session-based auth
+  const user = await requireServerAuth('/signin?redirect=/settings/api-usage');
 
   // Check permissions - only owners and managers can access API usage
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);

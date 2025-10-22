@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { apiKeyService } from '@/lib/api/gateway/api-key-service';
 import { APIKeyCreate } from '@/types/api-gateway';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (userError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -54,10 +54,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
     
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (userError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },

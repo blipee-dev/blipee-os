@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, FileCheck } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -10,6 +10,7 @@ import { ComplianceDashboard } from '@/components/dashboard/ComplianceDashboard'
 import { SiteSelector } from '@/components/zero-typing/SiteSelector';
 import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import { useTranslations } from '@/providers/LanguageProvider';
+import { useOrganizationContext } from '@/hooks/useOrganizationContext';
 import type { Building } from '@/types/auth';
 
 export default function CompliancePage() {
@@ -19,9 +20,8 @@ export default function CompliancePage() {
   const accentColorHex = accentGradientConfig.from;
   const t = useTranslations('sustainability.compliance');
 
-  const [organizationData, setOrganizationData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Use React Query hook instead of useEffect
+  const { data: organizationData, isLoading: loading, error: queryError } = useOrganizationContext(!!user);
 
   // Global filters
   const [selectedSite, setSelectedSite] = useState<Building | null>(null);
@@ -33,30 +33,8 @@ export default function CompliancePage() {
     type: 'year'
   });
 
-  useEffect(() => {
-    const fetchOrgData = async () => {
-      if (!user) return;
-
-      try {
-        setLoading(true);
-        const response = await fetch('/api/organization/context');
-        const data = await response.json();
-
-        if (response.ok && data.organization) {
-          setOrganizationData(data.organization);
-        } else {
-          setError(data.error || 'Failed to load organization');
-        }
-      } catch (error) {
-        console.error('Error fetching organization:', error);
-        setError('Failed to connect to server');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrgData();
-  }, [user]);
+  // Convert React Query error to string for display
+  const error = queryError ? (queryError instanceof Error ? queryError.message : 'Failed to connect to server') : null;
 
   if (loading) {
     return (

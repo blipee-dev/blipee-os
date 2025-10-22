@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ReplanningEngine, ReplanningRequest } from '@/lib/sustainability/replanning-engine';
 
@@ -10,11 +11,11 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(request: Request) {
   try {
-    const supabase = await createServerSupabaseClient();
 
     // Check authentication
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-    if (authError || !session) {
+    // IMPORTANT: Use getUser() not getSession() to validate JWT on server
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
       .from('organization_members')
       .select('role')
       .eq('organization_id', body.organizationId)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (!membership) {
@@ -54,10 +55,9 @@ export async function POST(request: Request) {
     }
 
     // Execute replanning
-
     const result = await ReplanningEngine.replanTargets({
       ...body,
-      userId: session.user.id
+      userId: user.id
     });
 
     if (!result.success) {
@@ -105,11 +105,11 @@ export async function POST(request: Request) {
  */
 export async function GET(request: Request) {
   try {
-    const supabase = await createServerSupabaseClient();
 
     // Check authentication
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-    if (authError || !session) {
+    // IMPORTANT: Use getUser() not getSession() to validate JWT on server
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { monitoringService } from '@/lib/monitoring';
 import { getDataCache } from '@/lib/cache/data-cache';
@@ -99,10 +100,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
     
     // Verify authentication
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (userError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },

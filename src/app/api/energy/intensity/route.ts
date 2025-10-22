@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
@@ -6,16 +7,20 @@ import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  try {
-    const supabase = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log('⚡ [ENERGY-INTENSITY] API called');
 
-    if (authError || !user) {
+  try {
+    const user = await getAPIUser(request);
+    console.log('⚡ [ENERGY-INTENSITY] User auth:', user ? `✅ ${user.id}` : '❌ No user');
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user's organization
     const orgInfo = await getUserOrganizationById(user.id);
+    console.log('⚡ [ENERGY-INTENSITY] Org info:', orgInfo.organizationId || '❌ No org');
+
     if (!orgInfo.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
@@ -28,13 +33,23 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const siteId = searchParams.get('site_id');
 
+    console.log('⚡ [ENERGY-INTENSITY] Filters:', {
+      organizationId,
+      startDate,
+      endDate,
+      siteId: siteId || 'all sites'
+    });
+
     // Get energy metrics from metrics_catalog
     const { data: energyMetrics } = await supabaseAdmin
       .from('metrics_catalog')
       .select('id')
       .in('category', ['Purchased Energy', 'Electricity']);
 
+    console.log('⚡ [ENERGY-INTENSITY] Metrics catalog:', energyMetrics ? `✅ ${energyMetrics.length} metrics` : '❌ No metrics');
+
     if (!energyMetrics || energyMetrics.length === 0) {
+      console.log('⚡ [ENERGY-INTENSITY] No energy metrics in catalog, returning empty result');
       return NextResponse.json({
         perEmployee: { value: 0, unit: 'kWh/FTE', trend: 0 },
         perSquareMeter: { value: 0, unit: 'kWh/m²', trend: 0 },
@@ -67,7 +82,11 @@ export async function GET(request: NextRequest) {
 
     const { data: energyData } = await query;
 
+    console.log('⚡ [ENERGY-INTENSITY] Metrics data:', energyData ? `✅ ${energyData.length} records` : '❌ No data');
+
     const totalConsumptionKwh = (energyData || []).reduce((sum, d) => sum + (parseFloat(d.value) || 0), 0);
+
+    console.log('⚡ [ENERGY-INTENSITY] Total consumption:', totalConsumptionKwh, 'kWh');
 
     // Get organization and sites data for intensity calculations
     const { data: org } = await supabaseAdmin

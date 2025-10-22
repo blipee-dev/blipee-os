@@ -1,18 +1,12 @@
 import { redirect } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import BillingClient from './BillingClient';
 
 export default async function SettingsBillingPage() {
-  const supabase = await createServerSupabaseClient();
-
-  // Check authentication
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/settings/billing');
-  }
+  // Check authentication using session-based auth
+  const user = await requireServerAuth('/signin?redirect=/settings/billing');
 
   // Check permissions
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);

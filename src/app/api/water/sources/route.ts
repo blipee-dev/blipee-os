@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
@@ -107,16 +108,20 @@ async function calculateEndUseYoY(
 }
 
 export async function GET(request: NextRequest) {
-  try {
-    const supabase = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log('💧 [WATER-SOURCES] API called');
 
-    if (authError || !user) {
+  try {
+    const user = await getAPIUser(request);
+    console.log('💧 [WATER-SOURCES] User auth:', user ? `✅ ${user.id}` : '❌ No user');
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user's organization
     const orgInfo = await getUserOrganizationById(user.id);
+    console.log('💧 [WATER-SOURCES] Org info:', orgInfo.organizationId || '❌ No org');
+
     if (!orgInfo.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
@@ -129,6 +134,13 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const siteId = searchParams.get('site_id');
 
+    console.log('💧 [WATER-SOURCES] Filters:', {
+      organizationId,
+      startDate,
+      endDate,
+      siteId: siteId || 'all sites'
+    });
+
     // Get water metrics from metrics_catalog - OPTIMIZED: only fetch needed fields
     // Water metrics are in "Purchased Goods & Services" category with "Water" subcategory
     // Also include wastewater treatment from Process Emissions
@@ -137,8 +149,10 @@ export async function GET(request: NextRequest) {
       .select('id, code, name, unit, consumption_rate')
       .or('subcategory.eq.Water,code.ilike.%water%');
 
+    console.log('💧 [WATER-SOURCES] Metrics catalog:', waterMetrics ? `✅ ${waterMetrics.length} metrics` : '❌ No metrics');
+
     if (metricsError) {
-      console.error('Error fetching water metrics:', metricsError);
+      console.error('❌ [WATER-SOURCES] Metrics error:', metricsError);
       return NextResponse.json(
         { error: 'Failed to fetch water metrics', details: metricsError.message },
         { status: 500 }
@@ -146,6 +160,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!waterMetrics || waterMetrics.length === 0) {
+      console.log('💧 [WATER-SOURCES] No water metrics in catalog');
       return NextResponse.json({
         sources: [],
         total_withdrawal: 0,
@@ -223,8 +238,17 @@ export async function GET(request: NextRequest) {
     const waterData = allWaterData;
     const dataError = null;
 
+    console.log('💧 [WATER-SOURCES] Metrics data:', waterData ? `✅ ${waterData.length} records` : '❌ No data');
+    if (waterData && waterData.length > 0) {
+      console.log('💧 [WATER-SOURCES] Sample record:', {
+        metric_id: waterData[0].metric_id,
+        value: waterData[0].value,
+        period: waterData[0].period_start
+      });
+    }
+
     if (dataError) {
-      console.error('Error fetching water data:', dataError);
+      console.error('❌ [WATER-SOURCES] Data error:', dataError);
       return NextResponse.json(
         { error: 'Failed to fetch water data', details: dataError.message },
         { status: 500 }
@@ -232,6 +256,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!waterData || waterData.length === 0) {
+      console.log('💧 [WATER-SOURCES] Returning empty result');
       return NextResponse.json({
         sources: [],
         total_withdrawal: 0,

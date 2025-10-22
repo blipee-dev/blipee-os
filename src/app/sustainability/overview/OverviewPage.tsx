@@ -1,15 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, Leaf } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
 import { useAppearance, useAccentGradient } from '@/providers/AppearanceProvider';
 import { OverviewDashboard } from '@/components/dashboard/OverviewDashboard';
+import { OverviewDashboardWithScore } from '@/components/dashboard/OverviewDashboardWithScore';
 import { SiteSelector } from '@/components/zero-typing/SiteSelector';
 import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import { useTranslations } from '@/providers/LanguageProvider';
+import { useOrganizationContext } from '@/hooks/useOrganizationContext';
 import type { Building } from '@/types/auth';
 
 export default function OverviewPage() {
@@ -20,9 +22,8 @@ export default function OverviewPage() {
   const t = useTranslations('sustainability.overview');
   const tDashboard = useTranslations('sustainability.dashboard');
 
-  const [organizationData, setOrganizationData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Use React Query hook instead of useEffect
+  const { data: organizationData, isLoading: loading, error: queryError } = useOrganizationContext(!!user);
 
   // Global filters
   const [selectedSite, setSelectedSite] = useState<Building | null>(null);
@@ -34,30 +35,8 @@ export default function OverviewPage() {
     type: 'year'
   });
 
-  useEffect(() => {
-    const fetchOrgData = async () => {
-      if (!user) return;
-
-      try {
-        setLoading(true);
-        const response = await fetch('/api/organization/context');
-        const data = await response.json();
-
-        if (response.ok && data.organization) {
-          setOrganizationData(data.organization);
-        } else {
-          setError(data.error || t('failedToLoadOrganization'));
-        }
-      } catch (error) {
-        console.error('Error fetching organization:', error);
-        setError(t('failedToConnectToServer'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrgData();
-  }, [user]);
+  // Convert React Query error to string for display
+  const error = queryError ? (queryError instanceof Error ? queryError.message : t('failedToConnectToServer')) : null;
 
   if (loading) {
     return (
@@ -149,7 +128,7 @@ export default function OverviewPage() {
 
         {/* Dashboard Content */}
         {organizationData && (
-          <OverviewDashboard
+          <OverviewDashboardWithScore
             organizationId={organizationData.id}
             selectedSite={selectedSite}
             selectedPeriod={selectedPeriod}

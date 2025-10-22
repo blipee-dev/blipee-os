@@ -1,19 +1,15 @@
 import { redirect } from 'next/navigation';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase/server';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import OrganizationsClient from './OrganizationsClient';
 
 export default async function OrganizationsPage() {
-  const supabase = await createServerSupabaseClient();
   const supabaseAdmin = createAdminClient();
 
   // Check authentication
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/settings/organizations');
-  }
+  const user = await requireServerAuth('/signin?redirect=/settings/organizations');
 
   // Check permissions
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);

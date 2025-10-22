@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Session, UserProfile, Organization } from "@/types/auth";
-import { auditLogger } from "@/lib/audit/client";
 
 interface AuthContextType {
   session: Session | null;
@@ -27,7 +26,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Only load session on client side
+    // Load session on client side using session-based auth
+    // This works because the session cookie is small and doesn't get chunked
     if (typeof window !== 'undefined') {
       loadSession();
     }
@@ -35,10 +35,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function loadSession() {
     try {
-      const response = await fetch("/api/auth/session");
+      // Call the new /api/auth/user endpoint that works with session cookies
+      const response = await fetch("/api/auth/user", {
+        credentials: 'include' // Ensure cookies are sent with request
+      });
+
       if (response.ok) {
         const data = await response.json();
-        setSession(data.data);
+        if (data.success && data.data) {
+          // Load organization data
+          let currentOrganization = null;
+          let organizations = [];
+
+          try {
+            const orgResponse = await fetch("/api/organization/context", {
+              credentials: 'include'
+            });
+
+            if (orgResponse.ok) {
+              const orgData = await orgResponse.json();
+              if (orgData.organization) {
+                currentOrganization = orgData.organization;
+              }
+            }
+          } catch (orgErr) {
+            console.error("Failed to load organization:", orgErr);
+          }
+
+          // Map the response to our session format
+          setSession({
+            user: data.data.user,
+            current_organization: currentOrganization,
+            organizations: organizations,
+            permissions: [],
+          });
+        }
       }
       // 401 is expected when not authenticated - no need to log
     } catch (err) {
@@ -56,42 +87,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include', // Ensure cookies are sent and received
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Sign in failed");
+        throw new Error(data._error || data.error || "Sign in failed");
       }
 
-      // Check if MFA is required
-      if (data.data.requiresMFA) {
-        // Return the MFA requirement info so the sign-in page can handle it
-        return { requiresMFA: true, challengeId: data.data.challengeId };
-      }
+      // Session cookie is set by the server, reload session data
+      await loadSession();
 
-      setSession(data.data.session);
-
-      // Log successful login
-      await auditLogger.logAuth('login', 'success', {
-        email,
-        userId: data.data.session?.user?.id,
-        metadata: {
-          onboarding_completed: data.data.session?.user?.onboarding_completed,
-        }
-      });
-
+      // Note: Authentication logging is handled server-side in /api/auth/signin
       // Don't redirect here - let the signin page handle redirects based on URL params
     } catch (err: any) {
       setError(err.message);
-
-      // Log failed login attempt
-      await auditLogger.logAuth('login_failed', 'failure', {
-        email,
-        error: err.message,
-      });
-
       throw err;
     } finally {
       setLoading(false);
@@ -106,16 +118,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include', // Ensure cookies are sent and received
         body: JSON.stringify({ email, password, ...metadata }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Sign up failed");
+        throw new Error(data._error || data.error || "Sign up failed");
       }
 
-      setSession(data.data.session);
+      // Session cookie is set by the server, reload session data
+      await loadSession();
+
       // Don't redirect here - let the component handle redirects
     } catch (err: any) {
       setError(err.message);
@@ -129,19 +144,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
 
     try {
-      // Log the logout event before signing out
-      if (session?.user) {
-        await auditLogger.logAuth('logout', 'success', {
-          email: session.user.email,
-          userId: session.user.id,
-        });
-      }
+      // Note: Logout logging is handled server-side in /api/auth/signout
+      // No need to log here to avoid CSRF issues and redundant logs
 
       const response = await fetch("/api/auth/signout", {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Ensure cookies are sent with request
       });
 
       if (!response.ok) {
