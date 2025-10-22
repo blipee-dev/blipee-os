@@ -125,6 +125,10 @@ export class CarbonHunterAgent extends AutonomousAgent {
     // Carbon hunter initialized successfully
   }
 
+  override async planAutonomousTasks(): Promise<AgentTask[]> {
+    return this.getScheduledTasks();
+  }
+
   async getScheduledTasks(): Promise<AgentTask[]> {
     const now = new Date();
     const tasks: AgentTask[] = [];
@@ -716,17 +720,21 @@ export class CarbonHunterAgent extends AutonomousAgent {
     };
   }
 
-  async learn(result: AgentResult): Promise<void> {
+  override async learn(result: AgentResult): Promise<import('./agent-framework').Learning[]> {
     // Store learning patterns specific to carbon hunting
-    const learningData = {
-      success_rate: result.success ? 1 : 0,
-      insights_count: result.insights.length,
-      actions_taken: result.actions.length,
-      timestamp: new Date().toISOString()
-    };
+    const learnings: import('./agent-framework').Learning[] = [];
 
-    
-    // Pattern stored
+    if (result.success && result.insights && result.insights.length > 0) {
+      learnings.push({
+        context: 'carbon_hunting',
+        insight: result.insights.join('. '),
+        impact: result.actions.length > 0 ? 0.7 : 0.5,
+        confidence: 0.8,
+        timestamp: new Date()
+      });
+    }
+
+    return learnings;
   }
 
   // Helper methods
@@ -785,25 +793,138 @@ export class CarbonHunterAgent extends AutonomousAgent {
     this.benchmarkData.set('waste_diversion_rate', 0.75); // 75% average
   }
 
-  // Mock implementations for demonstration
+  // ✅ REAL IMPLEMENTATION: Find energy opportunities from actual data
   private async findEnergyOpportunities(): Promise<CarbonOpportunity[]> {
-    return [
-      {
-        id: 'energy-opp-1',
-        type: 'energy_efficiency',
-        title: 'LED Lighting Retrofit',
-        description: 'Replace 200 fluorescent fixtures with LED',
-        location: 'Building A - Main Floor',
-        estimatedReduction: 12.5,
-        estimatedCost: 18000,
-        paybackPeriod: 24,
-        difficulty: 'low',
-        priority: 'medium',
-        status: 'identified',
-        roi: 15.2,
-        confidence: 0.9
+    const opportunities: CarbonOpportunity[] = [];
+
+    try {
+      // Get REAL energy consumption data from the last 90 days
+      const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const { data: energyMetrics, error } = await this.supabase
+        .from('metrics_data')
+        .select(`
+          id,
+          metric_id,
+          site_id,
+          value,
+          co2e_emissions,
+          period_start,
+          period_end,
+          sites!inner(name, location),
+          metrics_catalog!inner(name, unit, category, scope)
+        `)
+        .eq('organization_id', this.organizationId)
+        .eq('metrics_catalog.category', 'energy')
+        .gte('period_start', ninetyDaysAgo)
+        .order('period_start', { ascending: false });
+
+      if (error) {
+        console.error('[CarbonHunter] Error fetching energy data:', error);
+        return opportunities;
       }
-    ];
+
+      if (!energyMetrics || energyMetrics.length === 0) {
+        console.log('[CarbonHunter] No energy data found for opportunity analysis');
+        return opportunities;
+      }
+
+      // Group by site and analyze consumption patterns
+      const siteAnalysis = new Map<string, { totalEmissions: number; avgDaily: number; records: any[] }>();
+
+      energyMetrics.forEach((metric: any) => {
+        const siteId = metric.site_id || 'unknown';
+        const emissions = parseFloat(metric.co2e_emissions) || 0;
+
+        if (!siteAnalysis.has(siteId)) {
+          siteAnalysis.set(siteId, { totalEmissions: 0, avgDaily: 0, records: [] });
+        }
+
+        const siteData = siteAnalysis.get(siteId)!;
+        siteData.totalEmissions += emissions;
+        siteData.records.push(metric);
+      });
+
+      // Analyze each site for opportunities
+      // ✅ PHASE 4: Using for-of loop to properly handle async/await with learnings check
+      for (const [siteId, siteData] of siteAnalysis.entries()) {
+        const avgDaily = siteData.totalEmissions / Math.max(1, siteData.records.length);
+
+        // ✅ PHASE 4: Opportunity 1: If average daily emissions > 10 kg CO2e, suggest LED retrofit
+        // Check learnings first to avoid recommending if user previously rejected
+        if (avgDaily > 10) {
+          const canRecommendLED = await this.checkLearnings('led_retrofit');
+
+          if (canRecommendLED) {
+            const estimatedReduction = avgDaily * 0.25 * 365 / 1000; // 25% reduction, convert to tCO2e/year
+            const siteName = siteData.records[0]?.sites?.name || `Site ${siteId}`;
+            const location = siteData.records[0]?.sites?.location || 'Unknown location';
+
+            const estimatedCost = Math.round(estimatedReduction * 2000);
+            const annualSavings = estimatedReduction * 30; // Carbon price ~$30/tCO2e
+            const paybackMonths = Math.round((estimatedCost / annualSavings) * 12); // Deterministic payback
+
+            opportunities.push({
+              id: `energy-led-${siteId}-${Date.now()}`,
+              type: 'energy_efficiency',
+              title: 'LED Lighting Retrofit Opportunity',
+              description: `Potential 25% energy reduction through LED lighting upgrade based on current consumption of ${avgDaily.toFixed(1)} kg CO2e/day`,
+              location: `${siteName} - ${location}`,
+              estimatedReduction: parseFloat(estimatedReduction.toFixed(2)),
+              estimatedCost,
+              paybackPeriod: Math.min(60, Math.max(6, paybackMonths)), // Clamp between 6-60 months
+              difficulty: 'low',
+              priority: estimatedReduction > 10 ? 'high' : 'medium',
+              status: 'identified',
+              roi: parseFloat((annualSavings / estimatedCost * 100).toFixed(1)),
+              confidence: 0.75
+            });
+          }
+        }
+
+        // ✅ PHASE 4: Opportunity 2: If high variance in consumption, suggest automated controls
+        // Check learnings first to avoid recommending if user previously rejected
+        if (siteData.records.length > 5) {
+          const values = siteData.records.map(r => parseFloat(r.co2e_emissions) || 0);
+          const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+          const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+          const stdDev = Math.sqrt(variance);
+          const coefficientOfVariation = stdDev / mean;
+
+          if (coefficientOfVariation > 0.3) { // High variability
+            const canRecommendHVAC = await this.checkLearnings('hvac_optimization');
+
+            if (canRecommendHVAC) {
+              const estimatedReduction = mean * 0.15 * 365 / 1000; // 15% reduction through automation
+              const siteName = siteData.records[0]?.sites?.name || `Site ${siteId}`;
+
+              opportunities.push({
+                id: `energy-automation-${siteId}-${Date.now()}`,
+                type: 'energy_efficiency',
+                title: 'Automated Energy Management System',
+                description: `High consumption variability detected (CV: ${(coefficientOfVariation * 100).toFixed(0)}%). Automation could optimize usage patterns.`,
+                location: `${siteName}`,
+                estimatedReduction: parseFloat(estimatedReduction.toFixed(2)),
+                estimatedCost: Math.round(estimatedReduction * 3000),
+                paybackPeriod: 36,
+                difficulty: 'medium',
+                priority: estimatedReduction > 5 ? 'medium' : 'low',
+                status: 'identified',
+                roi: parseFloat((estimatedReduction * 30 / (estimatedReduction * 3000) * 100).toFixed(1)),
+                confidence: 0.65
+              });
+            }
+          }
+        }
+      }
+
+      console.log(`[CarbonHunter] Found ${opportunities.length} energy opportunities from ${energyMetrics.length} metrics`);
+
+    } catch (error) {
+      console.error('[CarbonHunter] Error analyzing energy opportunities:', error);
+    }
+
+    return opportunities;
   }
 
   private async findWasteOpportunities(): Promise<CarbonOpportunity[]> {
@@ -870,35 +991,183 @@ export class CarbonHunterAgent extends AutonomousAgent {
     return steps;
   }
 
+  // ✅ REAL IMPLEMENTATION: Get recent emission data from database
   private async getRecentEmissionData(timeWindow: string): Promise<any> {
-    // Mock emission data
-    return {
-      'electricity': [{ timestamp: new Date(), value: 150.2 }],
-      'natural_gas': [{ timestamp: new Date(), value: 45.8 }],
-      'fleet_vehicles': [{ timestamp: new Date(), value: 22.1 }]
-    };
+    try {
+      // Parse time window (e.g., "7d", "30d", "90d")
+      const daysMatch = timeWindow.match(/(\d+)d/);
+      const days = daysMatch ? parseInt(daysMatch[1]) : 30; // Default 30 days
+
+      const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const { data: emissionData, error } = await this.supabase
+        .from('metrics_data')
+        .select(`
+          id,
+          metric_id,
+          value,
+          co2e_emissions,
+          period_start,
+          metrics_catalog!inner(name, category, scope, data_source)
+        `)
+        .eq('organization_id', this.organizationId)
+        .gte('period_start', startDate)
+        .order('period_start', { ascending: true });
+
+      if (error) {
+        console.error('[CarbonHunter] Error fetching emission data:', error);
+        return {};
+      }
+
+      if (!emissionData || emissionData.length === 0) {
+        console.log('[CarbonHunter] No emission data found for time window:', timeWindow);
+        return {};
+      }
+
+      // Group by source/category
+      const groupedData: Record<string, any[]> = {};
+
+      emissionData.forEach((record: any) => {
+        const source = record.metrics_catalog?.data_source || record.metrics_catalog?.name || 'unknown';
+        const emissions = parseFloat(record.co2e_emissions) || 0;
+
+        if (!groupedData[source]) {
+          groupedData[source] = [];
+        }
+
+        groupedData[source].push({
+          timestamp: new Date(record.period_start),
+          value: emissions,
+          scope: record.metrics_catalog?.scope,
+          category: record.metrics_catalog?.category
+        });
+      });
+
+      console.log(`[CarbonHunter] Retrieved ${emissionData.length} emission records across ${Object.keys(groupedData).length} sources`);
+
+      return groupedData;
+
+    } catch (error) {
+      console.error('[CarbonHunter] Error in getRecentEmissionData:', error);
+      return {};
+    }
   }
 
+  // ✅ REAL IMPLEMENTATION: Statistical anomaly detection using Z-score method
   private async runAnomalyDetection(source: string, data: any[], sensitivity: string): Promise<EmissionAnomaly[]> {
-    // Mock anomaly detection
-    if (Math.random() > 0.8) {
-      return [
-        {
-          id: `anomaly-${source}-${Date.now()}`,
-          source,
-          location: 'Building A',
-          detected_at: new Date().toISOString(),
-          anomaly_type: 'spike',
-          severity: 'high',
-          current_value: 180.5,
-          expected_value: 150.2,
-          deviation_percentage: 20.1,
-          potential_causes: ['Equipment malfunction', 'Unusual operational activity'],
-          investigation_status: 'pending'
-        }
-      ];
+    const anomalies: EmissionAnomaly[] = [];
+
+    if (!data || data.length < 5) {
+      // Need at least 5 data points for meaningful statistical analysis
+      console.log(`[CarbonHunter] Insufficient data for anomaly detection (${data?.length || 0} points)`);
+      return anomalies;
     }
-    return [];
+
+    try {
+      // Extract values for statistical analysis
+      const values = data.map(d => d.value || 0).filter(v => v > 0);
+
+      if (values.length < 5) {
+        return anomalies;
+      }
+
+      // Calculate mean and standard deviation
+      const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+      const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+      const stdDev = Math.sqrt(variance);
+
+      // Set Z-score threshold based on sensitivity
+      const zThreshold = sensitivity === 'high' ? 2.0 : sensitivity === 'medium' ? 2.5 : 3.0;
+
+      // Check each recent data point for anomalies
+      data.forEach((dataPoint, index) => {
+        const value = dataPoint.value || 0;
+
+        if (value === 0) return;
+
+        // Calculate Z-score: how many standard deviations from mean
+        const zScore = Math.abs((value - mean) / (stdDev || 1));
+
+        // Anomaly detected if Z-score exceeds threshold
+        if (zScore > zThreshold) {
+          const deviationPercentage = ((value - mean) / mean) * 100;
+
+          // Determine anomaly type
+          let anomalyType: EmissionAnomaly['anomaly_type'] = 'spike';
+
+          // Check if it's a sustained increase (multiple consecutive high values)
+          if (index < data.length - 2) {
+            const nextValues = data.slice(index, index + 3).map(d => d.value || 0);
+            const allHigh = nextValues.every(v => v > mean + stdDev);
+            if (allHigh) {
+              anomalyType = 'sustained_increase';
+            }
+          }
+
+          // Check for baseline drift (gradual upward trend)
+          if (index >= 5) {
+            const recentAvg = data.slice(index - 5, index).reduce((sum, d) => sum + (d.value || 0), 0) / 5;
+            if (recentAvg > mean * 1.2) {
+              anomalyType = 'baseline_drift';
+            }
+          }
+
+          // Determine severity based on deviation
+          let severity: EmissionAnomaly['severity'];
+          if (zScore > 4 || Math.abs(deviationPercentage) > 50) {
+            severity = 'critical';
+          } else if (zScore > 3 || Math.abs(deviationPercentage) > 30) {
+            severity = 'high';
+          } else if (zScore > 2.5 || Math.abs(deviationPercentage) > 20) {
+            severity = 'medium';
+          } else {
+            severity = 'low';
+          }
+
+          // Generate potential causes based on anomaly characteristics
+          const potentialCauses: string[] = [];
+
+          if (anomalyType === 'spike') {
+            potentialCauses.push('Equipment malfunction or operational error');
+            potentialCauses.push('Unusual operational activity or one-time event');
+            if (deviationPercentage > 100) {
+              potentialCauses.push('Data entry error or meter malfunction');
+            }
+          } else if (anomalyType === 'sustained_increase') {
+            potentialCauses.push('New equipment or increased operations');
+            potentialCauses.push('Process efficiency degradation');
+            potentialCauses.push('HVAC or control system issues');
+          } else if (anomalyType === 'baseline_drift') {
+            potentialCauses.push('Gradual equipment degradation');
+            potentialCauses.push('Changing operational patterns');
+            potentialCauses.push('Seasonal effects not accounted for');
+          }
+
+          anomalies.push({
+            id: `anomaly-${source}-${dataPoint.timestamp?.getTime() || Date.now()}`,
+            source,
+            location: dataPoint.location || 'Organization-wide',
+            detected_at: dataPoint.timestamp?.toISOString() || new Date().toISOString(),
+            anomaly_type: anomalyType,
+            severity,
+            current_value: parseFloat(value.toFixed(2)),
+            expected_value: parseFloat(mean.toFixed(2)),
+            deviation_percentage: parseFloat(deviationPercentage.toFixed(1)),
+            potential_causes: potentialCauses,
+            investigation_status: 'pending'
+          });
+        }
+      });
+
+      if (anomalies.length > 0) {
+        console.log(`[CarbonHunter] Detected ${anomalies.length} anomalies for ${source} (threshold: ${zThreshold}σ)`);
+      }
+
+    } catch (error) {
+      console.error('[CarbonHunter] Error in anomaly detection:', error);
+    }
+
+    return anomalies;
   }
 
   private analyzeAnomalyPatterns(anomalies: EmissionAnomaly[]): string[] {

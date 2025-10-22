@@ -434,16 +434,55 @@ export abstract class AutonomousAgent {
       .select('learning')
       .eq('agent_id', this.agentId)
       .eq('organization_id', this.organizationId);
-      
+
     if (pattern) {
       query = query.ilike('learning->pattern', `%${pattern}%`);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error || !data) return [];
-    
+
     return data.map(d => d.learning as Learning);
+  }
+
+  /**
+   * ✅ PHASE 4: Check if user has rejected this recommendation before
+   *
+   * Queries agent_learnings table to see if users have provided negative feedback
+   * on this type of recommendation (e.g., "already have LED lights", "not relevant")
+   *
+   * @param recommendationType - The type of recommendation to check (e.g., 'led_retrofit', 'hvac_optimization')
+   * @returns true if safe to recommend, false if user has rejected it before
+   */
+  protected async checkLearnings(recommendationType: string): Promise<boolean> {
+    try {
+      const { data: learnings, error } = await this.supabase
+        .from('agent_learnings')
+        .select('*')
+        .eq('organization_id', this.organizationId)
+        .eq('agent_id', this.agentId)
+        .eq('recommendation_type', recommendationType)
+        .in('feedback', ['already_installed', 'not_relevant'])
+        .gte('confidence', 0.7);
+
+      if (error) {
+        console.error(`[${this.agentId}] Error checking learnings:`, error);
+        return true; // On error, allow recommendation (fail open)
+      }
+
+      // If we found learnings indicating user doesn't want this, skip it
+      if (learnings && learnings.length > 0) {
+        console.log(`[${this.agentId}] Skipping ${recommendationType} - user previously rejected (${learnings[0].feedback})`);
+        return false;
+      }
+
+      // Safe to recommend
+      return true;
+    } catch (error) {
+      console.error(`[${this.agentId}] Error in checkLearnings:`, error);
+      return true; // Fail open
+    }
   }
   
   // Enhanced health check with performance metrics
