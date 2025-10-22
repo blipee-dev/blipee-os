@@ -44,6 +44,7 @@ interface OverviewDashboardProps {
   organizationId: string;
   selectedSite?: any;
   selectedPeriod?: any;
+  externalLoading?: boolean; // Additional loading state to coordinate with parent
 }
 
 interface ScopeData {
@@ -54,7 +55,7 @@ interface ScopeData {
   categories: Array<{ name: string; value: number }>;
 }
 
-export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod }: OverviewDashboardProps) {
+export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod, externalLoading = false }: OverviewDashboardProps) {
   const t = useTranslations('sustainability.dashboard');
   const tEmissions = useTranslations('sustainability.ghgEmissions');
   const { t: tGlobal } = useLanguage(); // For carbon equivalents translations
@@ -68,8 +69,11 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
     dashboard: dashboardQuery,
     forecast: forecastQuery,
     topMetrics: topMetricsQuery,
-    isLoading
+    isLoading: internalLoading
   } = useOverviewDashboard(selectedPeriod, selectedSite, organizationId);
+
+  // Combine internal and external loading states
+  const isLoading = internalLoading || externalLoading;
 
   // Helper function to get action recommendations
   const getActionRecommendation = (categoryName: string): string => {
@@ -493,6 +497,129 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
     setActiveTooltip(activeTooltip === tooltipId ? null : tooltipId);
   };
 
+  // Function to translate category names
+  const translateCategoryName = (categoryName: string): string => {
+    // Map English metric names to translation keys (comprehensive metrics_catalog mapping)
+    const nameMap: Record<string, string> = {
+      // Scope 1 - Stationary Combustion
+      'Natural Gas Consumption': 'naturalGasConsumption',
+      'Diesel for Generators': 'dieselGenerators',
+      'Heating Oil': 'heatingOil',
+      'Propane': 'propane',
+      'Coal': 'coal',
+      'Biomass': 'biomass',
+      // Scope 1 - Mobile Combustion
+      'Fleet Gasoline': 'fleetGasoline',
+      'Fleet Diesel': 'fleetDiesel',
+      'Fleet LPG': 'fleetLPG',
+      'Fleet CNG': 'fleetCNG',
+      'Fleet Biodiesel': 'fleetBiodiesel',
+      'Fleet Ethanol': 'fleetEthanol',
+      // Scope 1 - Fugitive Emissions
+      'Refrigerant R410A Leakage': 'refrigerantR410A',
+      'Refrigerant R134A Leakage': 'refrigerantR134A',
+      'Refrigerant R404A Leakage': 'refrigerantR404A',
+      'Fire Suppression Systems': 'fireSuppressionSystems',
+      // Scope 1 - Process Emissions
+      'Industrial Process Emissions': 'industrialProcessEmissions',
+      'Wastewater Treatment': 'wastewaterTreatment',
+      // Scope 2 - Electricity
+      'Electricity': 'electricity',
+      'Grid Electricity': 'electricity',
+      'Renewable Electricity': 'renewableElectricity',
+      'Solar Electricity Generated': 'solarElectricity',
+      'Wind Electricity Generated': 'windElectricity',
+      // Scope 2 - Purchased Energy
+      'Purchased Heating': 'purchasedHeating',
+      'Purchased Cooling': 'purchasedCooling',
+      'Purchased Steam': 'purchasedSteam',
+      'District Heating': 'districtHeating',
+      'District Cooling': 'districtCooling',
+      // Scope 3 - Purchased Goods & Services
+      'Purchased Goods': 'purchasedGoods',
+      'Purchased Services': 'purchasedServices',
+      'Cloud Computing Services': 'cloudComputing',
+      'Software Licenses': 'softwareLicenses',
+      // Scope 3 - Capital Goods
+      'Capital Goods': 'capitalGoods',
+      'Buildings Construction': 'buildingsConstruction',
+      'Machinery & Equipment': 'machineryEquipment',
+      'IT Equipment': 'itEquipment',
+      // Scope 3 - Fuel & Energy Related
+      'Upstream Fuel Emissions': 'upstreamFuelEmissions',
+      'T&D Losses': 'tdLosses',
+      // Scope 3 - Upstream Transportation
+      'Upstream Road Transport': 'upstreamRoadTransport',
+      'Upstream Air Transport': 'upstreamAirTransport',
+      'Upstream Sea Transport': 'upstreamSeaTransport',
+      'Upstream Rail Transport': 'upstreamRailTransport',
+      // Scope 3 - Waste
+      'Waste': 'waste',
+      'Waste to Landfill': 'wasteToLandfill',
+      'Waste Recycled': 'wasteRecycled',
+      'Waste Composted': 'wasteComposted',
+      'Waste Incinerated': 'wasteIncinerated',
+      'Wastewater': 'wastewater',
+      // Scope 3 - Business Travel
+      'Plane Travel': 'planeTravel',
+      'Air Travel': 'planeTravel',
+      'Train Travel': 'trainTravel',
+      'Rail Travel': 'trainTravel',
+      'Car Travel': 'carTravel',
+      'Road Travel': 'carTravel',
+      'Hotel Stays': 'hotelStays',
+      'Hotel Nights': 'hotelStays',
+      // Scope 3 - Employee Commuting
+      'Employee Car Commute': 'employeeCarCommute',
+      'Public Transport Commute': 'publicTransportCommute',
+      'Bicycle Commute': 'bicycleCommute',
+      'Remote Work Days': 'remoteWorkDays',
+      // Scope 3 - Upstream Leased Assets
+      'Leased Buildings Energy': 'leasedBuildingsEnergy',
+      'Leased Vehicles Fuel': 'leasedVehiclesFuel',
+      // Scope 3 - Downstream Transportation
+      'Downstream Transportation': 'downstreamTransportation',
+      'Product Distribution': 'productDistribution',
+      // Scope 3 - Processing of Sold Products
+      'Processing of Sold Products': 'processingSoldProducts',
+      // Scope 3 - Use of Sold Products
+      'Use of Sold Products': 'useSoldProducts',
+      'Product Energy Consumption': 'productEnergyConsumption',
+      // Scope 3 - End-of-Life
+      'Product End-of-Life': 'productEndOfLife',
+      'Product Recycling Rate': 'productRecyclingRate',
+      // Scope 3 - Downstream Leased Assets
+      'Downstream Leased Assets': 'downstreamLeasedAssets',
+      // Scope 3 - Franchises
+      'Franchise Operations': 'franchiseOperations',
+      // Scope 3 - Investments
+      'Investment Emissions': 'investmentEmissions',
+      'Financed Emissions': 'financedEmissions',
+      // Custom/Additional
+      'Water': 'water',
+      'Water Supply': 'water',
+      'EV Charging': 'evCharging',
+      'Business Travel': 'businessTravel',
+      'Purchased Electricity': 'electricity',
+      'Natural Gas': 'naturalGasConsumption',
+      'Stationary Combustion': 'stationaryCombustion',
+      'Mobile Combustion': 'mobileCombustion',
+      'Fleet': 'fleet',
+      'Commuting': 'commuting',
+      'Fugitive Emissions': 'fugitiveEmissions',
+      'Others': 'others'
+    };
+
+    const key = nameMap[categoryName];
+    if (key === 'others') {
+      return tEmissions('topEmitters.others') || 'Outros';
+    }
+    if (key) {
+      return tEmissions(`topEmitters.categoryNames.${key}`) || categoryName;
+    }
+    return categoryName;
+  };
+
   // Function to get category-specific colors (must be before pieChartData useMemo)
   const getCategoryColor = (name: string): string => {
     const nameLower = name.toLowerCase();
@@ -545,52 +672,59 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
   const pieChartData = useMemo(() => {
     if (topEmitters.length === 0) return [];
 
-    // Take top 5 sources
-    const top5 = topEmitters.slice(0, 5);
-    const others = topEmitters.slice(5);
+    // Take top 5 sources and filter out zero values
+    const top5 = topEmitters.slice(0, 5).filter(source => source.emissions > 0);
+    const others = topEmitters.slice(5).filter(source => source.emissions > 0);
 
     // Calculate "Others" total if there are more than 5 sources
     const othersTotal = others.reduce((sum, source) => sum + source.emissions, 0);
     const othersPercentage = others.reduce((sum, source) => sum + source.percentage, 0);
 
-    // Create pie chart data array
+    // Create pie chart data array (only non-zero values)
     const chartData = top5.map(source => ({
-      name: source.name,
+      name: translateCategoryName(source.name),
       value: source.emissions,
       percentage: source.percentage,
       color: getCategoryColor(source.name)
     }));
 
-    // Add "Others" category if needed
-    if (others.length > 0) {
+    // Add "Others" category only if it has non-zero emissions
+    if (others.length > 0 && othersTotal > 0) {
       chartData.push({
-        name: 'Others',
+        name: translateCategoryName('Others'),
         value: othersTotal,
         percentage: othersPercentage,
         color: '#6B7280' // Gray color for Others
       });
     }
 
-    // Custom sort: Electricity, EV Charging, Plane Travel, then others
-    chartData.sort((a, b) => {
-      const order = ['Electricity', 'EV Charging', 'Plane Travel'];
-      const aIndex = order.findIndex(item => a.name.includes(item));
-      const bIndex = order.findIndex(item => b.name.includes(item));
+    // Smart sorting to prevent slice overlap:
+    // 1. Separate small (<5%) and large segments
+    // 2. Alternate them around the pie to prevent clustering
+    const SMALL_SEGMENT_THRESHOLD = 5;
+    const smallSegments = chartData.filter(item => item.percentage < SMALL_SEGMENT_THRESHOLD);
+    const largeSegments = chartData.filter(item => item.percentage >= SMALL_SEGMENT_THRESHOLD);
 
-      // If both are in the order list, sort by their order
-      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-      // If only a is in the list, it comes first
-      if (aIndex !== -1) return -1;
-      // If only b is in the list, it comes first
-      if (bIndex !== -1) return 1;
-      // Keep "Others" at the end
-      if (a.name === 'Others') return 1;
-      if (b.name === 'Others') return -1;
-      // Otherwise maintain original order
-      return 0;
-    });
+    // Sort each group by size (largest first)
+    smallSegments.sort((a, b) => b.percentage - a.percentage);
+    largeSegments.sort((a, b) => b.percentage - a.percentage);
 
-    return chartData;
+    // Interleave segments to spread small ones around the pie
+    const reorderedData: typeof chartData = [];
+    const maxLength = Math.max(smallSegments.length, largeSegments.length);
+
+    for (let i = 0; i < maxLength; i++) {
+      // Add large segment first
+      if (i < largeSegments.length) {
+        reorderedData.push(largeSegments[i]);
+      }
+      // Then add small segment to separate them
+      if (i < smallSegments.length) {
+        reorderedData.push(smallSegments[i]);
+      }
+    }
+
+    return reorderedData;
   }, [topEmitters]);
 
   if (isLoading) {
@@ -968,707 +1102,6 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                 style={{ width: `${dataQuality?.verifiedPercentage || 0}%` }}
               />
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Scope Breakdown & Trend */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        {/* Scope Breakdown */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm relative">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 relative group">
-              <PieChartIcon className="w-5 h-5 text-blue-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scopeBreakdown.title')}</h3>
-              {/* Scope Breakdown Explanation Tooltip */}
-              <div className="absolute left-0 top-full mt-1 w-96 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                {/* Explanation */}
-                <div className="mb-2">
-                  <p className="text-purple-200 text-[11px] font-medium mb-2">
-                    {t('scopeBreakdownExplanation')}
-                  </p>
-                  <div className="space-y-2">
-                    {/* Scope 1 */}
-                    <div className="bg-white/5 rounded p-2">
-                      <p className="text-gray-200 text-[10px] leading-relaxed mb-1">
-                        {t('scope1Explanation')}
-                      </p>
-                      <p className="text-white font-medium text-[10px]">
-                        {scope1Total.toFixed(1)} tCO2e ({scopePercentages.scope1.toFixed(0)}%)
-                      </p>
-                    </div>
-
-                    {/* Scope 2 */}
-                    <div className="bg-white/5 rounded p-2">
-                      <p className="text-gray-200 text-[10px] leading-relaxed mb-1">
-                        {t('scope2Explanation')}
-                      </p>
-                      <div className="space-y-0.5 text-[10px] mb-1">
-                        <div className="text-gray-300">
-                          <span className="font-medium">{t('scopeBreakdown.scope2Tooltip.locationBased')}</span> {scope2LocationBased.toFixed(1)} tCO2e
-                        </div>
-                        <div className="text-gray-300">
-                          <span className="font-medium">{t('scopeBreakdown.scope2Tooltip.marketBased')}</span> {scope2MarketBased.toFixed(1)} tCO2e
-                        </div>
-                      </div>
-                      <p className="text-white font-medium text-[10px]">
-                        {scope2Total.toFixed(1)} tCO2e ({scopePercentages.scope2.toFixed(0)}%)
-                      </p>
-                    </div>
-
-                    {/* Scope 3 */}
-                    <div className="bg-white/5 rounded p-2">
-                      <p className="text-gray-200 text-[10px] leading-relaxed mb-1">
-                        {t('scope3Explanation')}
-                      </p>
-                      <div className="pt-1 border-t border-white/10 mt-1 mb-1">
-                        <div className="text-[10px] mb-0.5">
-                          <span className="font-medium text-gray-200">{t('scopeBreakdown.scope3Tooltip.categoryCoverage')}:</span> {scope3Coverage?.tracked || 0}/15
-                        </div>
-                        <div className="flex items-center gap-2 text-[9px]">
-                          <span className="text-green-400">✓ {scope3Coverage?.tracked || 0} {t('scopeBreakdown.scope3Tooltip.tracked')}</span>
-                          <span className="text-orange-400">⚠ {scope3Coverage?.missing || 12} {t('scopeBreakdown.scope3Tooltip.missing')}</span>
-                        </div>
-                      </div>
-                      <p className="text-white font-medium text-[10px]">
-                        {scope3Total.toFixed(1)} tCO2e ({scopePercentages.scope3.toFixed(0)}%)
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Compliance Badges */}
-                <div className="mt-3 pt-2 border-t border-purple-500/30">
-                  <p className="text-purple-200 text-[10px] font-medium mb-1.5">
-                    {tGlobal('carbonEquivalentTooltip.compliantWith')}
-                  </p>
-                  <div className="flex gap-1 flex-wrap">
-                    <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
-                      {tGlobal('carbonEquivalentTooltip.badges.ghgProtocol')}
-                    </span>
-                    <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
-                      {tGlobal('carbonEquivalentTooltip.badges.gri305')}
-                    </span>
-                    <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
-                      {tGlobal('carbonEquivalentTooltip.badges.tcfd')}
-                    </span>
-                    <span className="px-1.5 py-0.5 bg-orange-100/20 text-orange-300 text-[9px] rounded border border-orange-500/30">
-                      {tGlobal('carbonEquivalentTooltip.badges.esrsE1')}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Learn More Link */}
-                <div className="mt-4 text-right">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveEducationalModal('scopes-explained');
-                    }}
-                    className="text-blue-300 hover:text-blue-200 text-[10px] underline transition-colors"
-                  >
-                    {t('learnMore')} →
-                  </button>
-                </div>
-                <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
-              </div>
-            </div>
-          </div>
-
-          <div className="h-[420px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={scopeBreakdown}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={130}
-                  innerRadius={80}
-                  label={({ cx, cy, midAngle, outerRadius, name, percent, value }) => {
-                    const RADIAN = Math.PI / 180;
-                    const radius = outerRadius + 30;
-                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                    const percentage = (percent * 100).toFixed(0);
-                    const textAnchor = x > cx ? 'start' : 'end';
-                    const entry = scopeBreakdown.find(s => s.name === name);
-                    const color = entry?.color || '#6B7280';
-
-                    return (
-                      <text
-                        x={x}
-                        y={y}
-                        fill={color}
-                        textAnchor={textAnchor}
-                        dominantBaseline="central"
-                        style={{ fontSize: '12px' }}
-                      >
-                        <tspan x={x} dy="-8">{name}</tspan>
-                        <tspan x={x} dy="14">{value.toFixed(1)} tCO2e ({percentage}%)</tspan>
-                      </text>
-                    );
-                  }}
-                  labelLine={true}
-                >
-                  {scopeBreakdown.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-                  ))}
-                </Pie>
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0];
-                      const scopeName = data.name;
-
-                      if (scopeName === 'Scope 1') {
-                        return (
-                          <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl">
-                            <div className="font-semibold mb-1">Scope 1: Direct Emissions</div>
-                            <div className="text-gray-300 mb-2">
-                              Direct GHG emissions from owned/controlled sources (vehicles, facilities, equipment)
-                            </div>
-                            <div className="font-medium">{scope1Total.toFixed(1)} tCO2e ({scopePercentages.scope1.toFixed(0)}%)</div>
-                            <div className="text-gray-400 text-[10px] mt-1">GRI 305-1 • GHG Protocol Scope 1</div>
-                          </div>
-                        );
-                      } else if (scopeName === 'Scope 2') {
-                        return (
-                          <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
-                            <div className="font-semibold mb-2">Scope 2: Energy Indirect</div>
-                            <div className="space-y-1 text-gray-300 mb-2">
-                              <div><span className="font-medium">Location-Based:</span> {scope2LocationBased.toFixed(1)} tCO2e</div>
-                              <div><span className="font-medium">Market-Based:</span> {scope2MarketBased.toFixed(1)} tCO2e</div>
-                              {renewablePercentage > 0 && (
-                                <div><span className="font-medium">Renewable:</span> {renewablePercentage.toFixed(0)}%</div>
-                              )}
-                            </div>
-                            <div className="text-gray-300 mb-2">
-                              Purchased electricity, heat, steam, cooling. Dual reporting per GRI 305-2.
-                            </div>
-                            <div className="font-medium">{scope2Total.toFixed(1)} tCO2e ({scopePercentages.scope2.toFixed(0)}%)</div>
-                          </div>
-                        );
-                      } else if (scopeName === 'Scope 3') {
-                        return (
-                          <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
-                            <div className="font-semibold mb-2">Scope 3: Value Chain</div>
-                            <div className="space-y-1 text-gray-300 mb-2">
-                              <div><span className="font-medium">Total:</span> {scope3Total.toFixed(1)} tCO2e</div>
-                              <div><span className="font-medium">Share:</span> {scopePercentages.scope3.toFixed(0)}%</div>
-                              <div className="pt-1 border-t border-gray-700 mt-1">
-                                <div className="font-medium mb-1">Coverage: {scope3Coverage?.tracked || 0}/15 categories</div>
-                                <div className="flex items-center justify-between text-[10px]">
-                                  <span className="text-green-400">✓ {scope3Coverage?.tracked || 0} Tracked</span>
-                                  <span className="text-orange-400">⚠ {scope3Coverage?.missing || 15} Missing</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="text-gray-400 text-[10px]">
-                              All upstream & downstream value chain emissions • GRI 305-3
-                            </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }
-                    return null;
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Emissions Trend */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 relative group">
-              <TrendingUpIcon className="w-5 h-5 text-purple-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('emissionsTrend.title')}</h3>
-
-              {/* Hover Tooltip */}
-              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                <div className="mb-2">
-                  <p className="text-gray-200 text-[11px] leading-relaxed">
-                    {t('emissionsTrendExplanation')}
-                  </p>
-                </div>
-
-                {/* Compliance Badges */}
-                <div className="mt-3 pt-2 border-t border-purple-500/30">
-                  <p className="text-purple-200 text-[10px] font-medium mb-1.5">
-                    {tGlobal('carbonEquivalentTooltip.compliantWith')}
-                  </p>
-                  <div className="flex gap-1 flex-wrap">
-                    <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
-                      TCFD
-                    </span>
-                    <span className="px-1.5 py-0.5 bg-orange-100/20 text-orange-300 text-[9px] rounded border border-orange-500/30">
-                      ESRS E1
-                    </span>
-                  </div>
-                </div>
-
-                {/* Arrow indicator */}
-                <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
-              </div>
-            </div>
-          </div>
-
-          {monthlyTrends.length > 0 ? (
-            <div className="h-[420px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthlyTrends.map((trend: any) => ({ ...trend, month: translateMonth(trend.month, t) }))}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-white/10" vertical={true} horizontal={true} />
-                <XAxis
-                  dataKey="month"
-                  stroke="#9CA3AF"
-                  style={{ fontSize: '10px' }}
-                />
-                <YAxis
-                  stroke="#9CA3AF"
-                  style={{ fontSize: '10px' }}
-                  label={{ value: 'tCO2e', angle: -90, position: 'insideLeft', offset: 10, style: { fill: '#9CA3AF', fontSize: '10px' } }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: 'white'
-                  }}
-                  content={({ active, payload }: any) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload;
-                      const isForecast = data.forecast;
-
-                      // Get values from either actual or forecast keys
-                      const scope1 = data.scope1 ?? data.scope1Forecast;
-                      const scope2 = data.scope2 ?? data.scope2Forecast;
-                      const scope3 = data.scope3 ?? data.scope3Forecast;
-                      const total = data.total ?? data.totalForecast;
-
-                      // Skip if all values are null
-                      if (!total && !scope1 && !scope2 && !scope3) {
-                        return null;
-                      }
-                      return (
-                        <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
-                          <p className="text-white font-semibold mb-2">
-                            {data.month}
-                            {isForecast && <span className="ml-2 text-xs text-blue-400">({t('emissionsTrend.forecast')})</span>}
-                          </p>
-                          <div className="space-y-1">
-                            {scope1 != null && (
-                              <div className="flex items-center justify-between gap-3">
-                                <span className="text-red-400 text-sm">{t('emissionsTrend.scope1')}:</span>
-                                <span className="text-white font-medium">{scope1.toFixed(1)} tCO2e</span>
-                              </div>
-                            )}
-                            {scope2 != null && (
-                              <div className="flex items-center justify-between gap-3">
-                                <span className="text-blue-400 text-sm">{t('emissionsTrend.scope2')}:</span>
-                                <span className="text-white font-medium">{scope2.toFixed(1)} tCO2e</span>
-                              </div>
-                            )}
-                            {scope3 != null && (
-                              <div className="flex items-center justify-between gap-3">
-                                <span className="text-gray-400 text-sm">{t('emissionsTrend.scope3')}:</span>
-                                <span className="text-white font-medium">{scope3.toFixed(1)} tCO2e</span>
-                              </div>
-                            )}
-                            {total != null && (
-                              <div className="flex items-center justify-between gap-3 pt-1 border-t border-gray-700">
-                                <span className="text-purple-400 text-sm font-semibold">{t('emissionsTrend.total')}:</span>
-                                <span className="text-white font-semibold">{total.toFixed(1)} tCO2e</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: '11px' }} />
-                {/* Actual data - solid lines */}
-                <Line
-                  type="monotone"
-                  dataKey="total"
-                  stroke="#8B5CF6"
-                  strokeWidth={2.5}
-                  name={t('emissionsTrend.totalEmissions')}
-                  dot={{ r: 4, fill: "#8B5CF6" }}
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="scope1"
-                  stroke="#EF4444"
-                  strokeWidth={2}
-                  name={t('emissionsTrend.scope1')}
-                  dot={{ r: 3, fill: "#EF4444" }}
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="scope2"
-                  stroke="#3B82F6"
-                  strokeWidth={2}
-                  name={t('emissionsTrend.scope2')}
-                  dot={{ r: 3, fill: "#3B82F6" }}
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="scope3"
-                  stroke="#6B7280"
-                  strokeWidth={2}
-                  name={t('emissionsTrend.scope3')}
-                  dot={{ r: 3, fill: "#6B7280" }}
-                  connectNulls
-                />
-                {/* Forecast data - dashed lines (hidden from legend) */}
-                <Line
-                  type="monotone"
-                  dataKey="totalForecast"
-                  stroke="#8B5CF6"
-                  strokeWidth={2.5}
-                  strokeDasharray="5 5"
-                  name={t('emissionsTrend.totalEmissions')}
-                  dot={{ fill: 'transparent', stroke: "#8B5CF6", strokeWidth: 2, r: 4 }}
-                  connectNulls
-                  legendType="none"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="scope1Forecast"
-                  stroke="#EF4444"
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  name={t('emissionsTrend.scope1')}
-                  dot={{ fill: 'transparent', stroke: "#EF4444", strokeWidth: 2, r: 3 }}
-                  connectNulls
-                  legendType="none"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="scope2Forecast"
-                  stroke="#3B82F6"
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  name={t('emissionsTrend.scope2')}
-                  dot={{ fill: 'transparent', stroke: "#3B82F6", strokeWidth: 2, r: 3 }}
-                  connectNulls
-                  legendType="none"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="scope3Forecast"
-                  stroke="#6B7280"
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  name={t('emissionsTrend.scope3')}
-                  dot={{ fill: 'transparent', stroke: "#6B7280", strokeWidth: 2, r: 3 }}
-                  connectNulls
-                  legendType="none"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-[250px]">
-              <p className="text-gray-400 text-sm">{t('emissionsTrend.noData')}</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Site Performance Ranking & Top Emitters */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        {/* Site Performance Ranking */}
-        {siteComparison.length > 1 && (
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-cyan-500" />
-                <div className="relative group inline-block">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
-                    {tEmissions('sitePerformance.title')}
-                  </h3>
-                  {/* Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                    <div className="mb-2">
-                      <p className="text-white text-[11px] leading-relaxed whitespace-pre-line">
-                        {tEmissions('explanations.sitePerformance')}
-                      </p>
-                    </div>
-
-                    {/* Compliance Badges */}
-                    <div className="mt-3 pt-2 border-t border-purple-500/30">
-                      <p className="text-purple-200 text-[10px] font-medium mb-1.5">
-                        {tGlobal('carbonEquivalentTooltip.compliantWith')}
-                      </p>
-                      <div className="flex gap-1 flex-wrap">
-                        <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
-                          GRI 305-4
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Arrow indicator */}
-                    <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              {/* Horizontal Bar Chart */}
-              {(() => {
-                // Benchmark from sector-intensity.ts for Professional Services: perArea
-                const benchmark = { low: 20.0, average: 35.0, high: 60.0 };
-
-                const getBarColor = (intensity: number) => {
-                  if (intensity <= benchmark.low) return '#10b981'; // green-500
-                  if (intensity <= benchmark.average) return '#f59e0b'; // amber-500
-                  return '#ef4444'; // red-500
-                };
-
-                // Prepare chart data - reverse to show best performers at top
-                const chartData = [...siteComparison].reverse().map((siteData, index) => ({
-                  name: siteData.name || siteData.site || 'Unknown Site',
-                  intensity: parseFloat(siteData.intensity.toFixed(1)),
-                  fill: getBarColor(siteData.intensity),
-                  rank: siteComparison.length - index
-                }));
-
-                return (
-                  <>
-                    <div className="mt-4 h-[420px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={chartData}
-                          layout="vertical"
-                          margin={{ top: 5, right: 20, left: 20, bottom: 60 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-white/10" vertical={true} horizontal={true} />
-                          <XAxis
-                            type="number"
-                            stroke="#9CA3AF"
-                            tick={{ fill: '#9CA3AF', fontSize: 11 }}
-                            tickLine={{ stroke: '#9CA3AF' }}
-                            axisLine={{ stroke: '#9CA3AF' }}
-                            label={{ value: 'kgCO2e/m²', position: 'bottom', offset: 10, fill: '#9CA3AF', fontSize: 11 }}
-                          />
-                          <YAxis
-                            type="category"
-                            dataKey="name"
-                            className="stroke-gray-400 dark:stroke-gray-500"
-                            tick={false}
-                            tickLine={false}
-                            width={0}
-                          />
-                          <Tooltip
-                            cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
-                            content={({ active, payload }: any) => {
-                              if (active && payload && payload.length) {
-                                const data = payload[0].payload;
-                                return (
-                                  <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
-                                    <p className="text-white font-semibold mb-1">
-                                      {data.name}
-                                    </p>
-                                    <p className="text-white text-sm">
-                                      {data.intensity} kgCO2e/m²
-                                    </p>
-                                    <p className="text-gray-400 text-xs mt-1">
-                                      Rank #{data.rank} of {chartData.length}
-                                    </p>
-                                  </div>
-                                );
-                              }
-                              return null;
-                            }}
-                          />
-                          <Bar
-                            dataKey="intensity"
-                            radius={[0, 4, 4, 0]}
-                            label={(props: any) => {
-                              const { x, y, width, height, value, index } = props;
-                              const site = chartData[index];
-                              return (
-                                <g>
-                                  {/* Site name on top */}
-                                  <text
-                                    x={x + 10}
-                                    y={y + height / 2 - 8}
-                                    fill="white"
-                                    fontSize={11}
-                                    fontWeight={600}
-                                    textAnchor="start"
-                                  >
-                                    {site.name}
-                                  </text>
-                                  {/* Intensity value below site name */}
-                                  <text
-                                    x={x + 10}
-                                    y={y + height / 2 + 8}
-                                    fill="white"
-                                    fontSize={10}
-                                    fontWeight={400}
-                                    textAnchor="start"
-                                  >
-                                    {value} kgCO2e/m²
-                                  </text>
-                                </g>
-                              );
-                            }}
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    {/* Legend for performance levels */}
-                    <div className="flex items-center justify-center gap-4 mt-6 text-xs flex-wrap">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded bg-green-500"></div>
-                        <span className="text-gray-600 dark:text-gray-400">
-                          Excelente (≤{benchmark.low})
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded bg-amber-500"></div>
-                        <span className="text-gray-600 dark:text-gray-400">
-                          Bom ({benchmark.low}-{benchmark.average})
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded bg-red-500"></div>
-                        <span className="text-gray-600 dark:text-gray-400">
-                          Precisa Melhorar (&gt;{benchmark.average})
-                        </span>
-                      </div>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-        </div>
-        )}
-
-        {/* Top Emitters */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm relative">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 relative group">
-              <AlertTriangle className="w-5 h-5 text-orange-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('topEmitters.title')}</h3>
-
-              {/* Hover Tooltip */}
-              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                <div className="mb-2">
-                  <p className="text-gray-200 text-[11px] leading-relaxed">
-                    {t('topEmittersExplanation')}
-                  </p>
-                </div>
-
-                {/* Compliance Badges */}
-                <div className="mt-3 pt-2 border-t border-purple-500/30">
-                  <p className="text-purple-200 text-[10px] font-medium mb-1.5">
-                    {tGlobal('carbonEquivalentTooltip.compliantWith')}
-                  </p>
-                  <div className="flex gap-1 flex-wrap">
-                    <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
-                      GRI 305-5
-                    </span>
-                    <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
-                      TCFD
-                    </span>
-                  </div>
-                </div>
-
-                {/* Learn More Link */}
-                <div className="mt-4 text-right">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveEducationalModal('reduction-strategies');
-                    }}
-                    className="text-purple-200 hover:text-white underline font-medium transition-colors text-[11px]"
-                  >
-                    {t('learnMore')} →
-                  </button>
-                </div>
-
-                {/* Arrow indicator */}
-                <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Pie Chart */}
-          <div className="h-[420px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieChartData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="47%"
-                  cy="50%"
-                  outerRadius={120}
-                  innerRadius={75}
-                  label={({ cx, cy, midAngle, outerRadius, name, percent, value }) => {
-                    const RADIAN = Math.PI / 180;
-                    const radius = outerRadius + 40;
-                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                    const percentage = (percent * 100).toFixed(0);
-                    const textAnchor = x > cx ? 'start' : 'end';
-                    const entry = pieChartData.find(s => s.name === name);
-                    const color = entry?.color || '#6B7280';
-
-                    return (
-                      <text
-                        x={x}
-                        y={y}
-                        fill={color}
-                        textAnchor={textAnchor}
-                        dominantBaseline="central"
-                        style={{ fontSize: '10px', fontWeight: '500' }}
-                      >
-                        <tspan x={x} dy="-14">{name}</tspan>
-                        <tspan x={x} dy="11">{value.toFixed(1)} tCO2e</tspan>
-                        <tspan x={x} dy="11">({percentage}%)</tspan>
-                      </text>
-                    );
-                  }}
-                  labelLine={true}
-                >
-                  {pieChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-                  ))}
-                </Pie>
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload;
-                      return (
-                        <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
-                          <div className="font-semibold mb-1">{data.name}</div>
-                          <div className="text-gray-300 mb-2">
-                            {data.value.toFixed(1)} tCO2e ({data.percentage.toFixed(1)}%)
-                          </div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
           </div>
         </div>
       </div>
@@ -2085,6 +1518,189 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
           </div>
         </div>
       )}
+
+
+      {/* Major Emission Sources */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        {/* Top Emitters */}
+        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm relative">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2 relative group">
+              <AlertTriangle className="w-5 h-5 text-orange-500" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('topEmitters.title')}</h3>
+
+              {/* Hover Tooltip */}
+              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="mb-2">
+                  <p className="text-gray-200 text-[11px] leading-relaxed">
+                    {t('topEmittersExplanation')}
+                  </p>
+                </div>
+
+                {/* Compliance Badges */}
+                <div className="mt-3 pt-2 border-t border-purple-500/30">
+                  <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                    {tGlobal('carbonEquivalentTooltip.compliantWith')}
+                  </p>
+                  <div className="flex gap-1 flex-wrap">
+                    <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                      GRI 305-5
+                    </span>
+                    <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                      TCFD
+                    </span>
+                  </div>
+                </div>
+
+                {/* Learn More Link */}
+                <div className="mt-4 text-right">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveEducationalModal('reduction-strategies');
+                    }}
+                    className="text-purple-200 hover:text-white underline font-medium transition-colors text-[11px]"
+                  >
+                    {t('learnMore')} →
+                  </button>
+                </div>
+
+                {/* Arrow indicator */}
+                <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Pie Chart */}
+          <div className="h-[420px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieChartData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="47%"
+                  cy="50%"
+                  outerRadius={120}
+                  innerRadius={75}
+                  label={(() => {
+                    const labelPositions: Array<{ x: number; y: number; angle: number; name: string; value: number }> = [];
+                    const MIN_LABEL_SPACING = 45; // Minimum vertical spacing between labels
+                    const SMALL_SEGMENT_THRESHOLD = 5; // Segments < 5% are considered small
+
+                    const CustomPieLabel = ({ cx, cy, midAngle, outerRadius, name, percent, value, index }: any) => {
+                      const RADIAN = Math.PI / 180;
+                      const radius = outerRadius + 40;
+                      let x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      let y = cy + radius * Math.sin(-midAngle * RADIAN);
+                      const percentage = (percent * 100).toFixed(0);
+                      const textAnchor = x > cx ? 'start' : 'end';
+                      const entry = pieChartData.find(s => s.name === name);
+                      const color = entry?.color || '#6B7280';
+                      const isSmallSegment = percent < (SMALL_SEGMENT_THRESHOLD / 100);
+
+                      // Check for overlap with existing labels on the same side
+                      const isRightSide = x > cx;
+                      const labelsOnSameSide = labelPositions.filter(pos =>
+                        (pos.x > cx) === isRightSide
+                      );
+
+                      // Smart positioning for small segments
+                      if (isSmallSegment && labelsOnSameSide.length >= 2) {
+                        // Sort existing labels by y position
+                        const sortedLabels = [...labelsOnSameSide].sort((a, b) => a.y - b.y);
+
+                        // Find the largest gap between labels
+                        let largestGap = 0;
+                        let bestY = y;
+
+                        for (let i = 0; i < sortedLabels.length - 1; i++) {
+                          const gap = sortedLabels[i + 1].y - sortedLabels[i].y;
+                          const midpoint = (sortedLabels[i].y + sortedLabels[i + 1].y) / 2;
+
+                          if (gap > largestGap && gap > MIN_LABEL_SPACING) {
+                            largestGap = gap;
+                            bestY = midpoint;
+                          }
+                        }
+
+                        // If we found a good gap, use it
+                        if (largestGap > MIN_LABEL_SPACING * 1.5) {
+                          y = bestY;
+                        }
+                      }
+
+                      // Final overlap check and adjustment
+                      let needsAdjustment = true;
+                      let attempts = 0;
+                      const maxAttempts = 10;
+
+                      while (needsAdjustment && attempts < maxAttempts) {
+                        needsAdjustment = false;
+                        attempts++;
+
+                        for (const existingLabel of labelsOnSameSide) {
+                          const distance = Math.abs(y - existingLabel.y);
+                          if (distance < MIN_LABEL_SPACING) {
+                            needsAdjustment = true;
+                            // Move away from the existing label
+                            if (y < existingLabel.y) {
+                              y = existingLabel.y - MIN_LABEL_SPACING;
+                            } else {
+                              y = existingLabel.y + MIN_LABEL_SPACING;
+                            }
+                          }
+                        }
+                      }
+
+                      // Store this label's position for future collision checks
+                      labelPositions.push({ x, y, angle: midAngle, name, value });
+
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          fill={color}
+                          textAnchor={textAnchor}
+                          dominantBaseline="central"
+                          style={{ fontSize: '12px', fontWeight: '500' }}
+                        >
+                          <tspan x={x} dy="-14">{name}</tspan>
+                          <tspan x={x} dy="11">{value.toFixed(1)} tCO2e</tspan>
+                          <tspan x={x} dy="11">({percentage}%)</tspan>
+                        </text>
+                      );
+                    };
+                    return CustomPieLabel;
+                  })()}
+                  labelLine={true}
+                >
+                  {pieChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                  ))}
+                </Pie>
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl max-w-xs">
+                          <div className="font-semibold mb-1">{data.name}</div>
+                          <div className="text-gray-300 mb-2">
+                            {data.value.toFixed(1)} tCO2e ({data.percentage.toFixed(1)}%)
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
 
       {/* Educational System */}
       <FloatingHelpButton onTopicSelect={(topicId) => setActiveEducationalModal(topicId)} />

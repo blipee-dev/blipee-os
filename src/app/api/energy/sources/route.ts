@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
@@ -6,16 +7,20 @@ import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  try {
-    const supabase = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log('⚡ [ENERGY-SOURCES] API called');
 
-    if (authError || !user) {
+  try {
+    const user = await getAPIUser(request);
+    console.log('⚡ [ENERGY-SOURCES] User auth:', user ? `✅ ${user.id}` : '❌ No user');
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user's organization
     const orgInfo = await getUserOrganizationById(user.id);
+    console.log('⚡ [ENERGY-SOURCES] Org info:', orgInfo.organizationId || '❌ No org');
+
     if (!orgInfo.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
@@ -28,14 +33,23 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const siteId = searchParams.get('site_id');
 
+    console.log('⚡ [ENERGY-SOURCES] Filters:', {
+      organizationId,
+      startDate,
+      endDate,
+      siteId: siteId || 'all sites'
+    });
+
     // Get energy metrics from metrics_catalog - OPTIMIZED: only fetch needed fields
     const { data: energyMetrics, error: metricsError } = await supabaseAdmin
       .from('metrics_catalog')
       .select('id, code, name, unit, is_renewable, energy_type, cost_per_ton')
       .in('category', ['Purchased Energy', 'Electricity']);
 
+    console.log('⚡ [ENERGY-SOURCES] Metrics catalog:', energyMetrics ? `✅ ${energyMetrics.length} metrics` : '❌ No metrics');
+
     if (metricsError) {
-      console.error('Error fetching energy metrics:', metricsError);
+      console.error('❌ [ENERGY-SOURCES] Metrics error:', metricsError);
       return NextResponse.json(
         { error: 'Failed to fetch energy metrics', details: metricsError.message },
         { status: 500 }
@@ -43,6 +57,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!energyMetrics || energyMetrics.length === 0) {
+      console.log('⚡ [ENERGY-SOURCES] No energy metrics in catalog');
       return NextResponse.json({
         sources: [],
         total_consumption: 0,
@@ -54,6 +69,8 @@ export async function GET(request: NextRequest) {
 
     // Get energy data from metrics_data (using admin to bypass RLS) - OPTIMIZED: only fetch needed fields
     const metricIds = energyMetrics.map(m => m.id);
+    console.log('⚡ [ENERGY-SOURCES] Querying metrics_data for', metricIds.length, 'metric IDs');
+
     let query = supabaseAdmin
       .from('metrics_data')
       .select('metric_id, value, co2e_emissions, period_start, unit, metadata')
@@ -75,6 +92,7 @@ export async function GET(request: NextRequest) {
       // Use the earlier of: requested end date OR current month end
       const effectiveEndDate = requestedEndDate <= maxHistoricalDate ? endDate : maxHistoricalDate.toISOString().split('T')[0];
 
+      console.log('⚡ [ENERGY-SOURCES] Effective end date:', effectiveEndDate, '(requested:', endDate, ')');
       query = query.lte('period_start', effectiveEndDate);
     }
 
@@ -85,8 +103,17 @@ export async function GET(request: NextRequest) {
 
     const { data: energyData, error: dataError } = await query.order('period_start', { ascending: false });
 
+    console.log('⚡ [ENERGY-SOURCES] Metrics data:', energyData ? `✅ ${energyData.length} records` : '❌ No data');
+    if (energyData && energyData.length > 0) {
+      console.log('⚡ [ENERGY-SOURCES] Sample record:', {
+        metric_id: energyData[0].metric_id,
+        value: energyData[0].value,
+        period: energyData[0].period_start
+      });
+    }
+
     if (dataError) {
-      console.error('Error fetching energy data:', dataError);
+      console.error('❌ [ENERGY-SOURCES] Data error:', dataError);
       return NextResponse.json(
         { error: 'Failed to fetch energy data', details: dataError.message },
         { status: 500 }
@@ -94,6 +121,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!energyData || energyData.length === 0) {
+      console.log('⚡ [ENERGY-SOURCES] Returning empty result');
       return NextResponse.json({
         sources: [],
         total_consumption: 0,

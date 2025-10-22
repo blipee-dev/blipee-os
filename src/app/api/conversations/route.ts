@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { withMiddleware, middlewareConfigs } from "@/lib/middleware";
@@ -8,10 +9,8 @@ import { conversationCreateSchema } from "@/lib/validation/schemas";
 async function GET(request: NextRequest) {
   try {
     // Get authenticated user
-    const supabase = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -36,10 +35,8 @@ async function GET(request: NextRequest) {
 async function POST(request: NextRequest) {
   try {
     // Get authenticated user
-    const supabase = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -79,10 +76,8 @@ async function POST(request: NextRequest) {
 async function PATCH(request: NextRequest) {
   try {
     // Get authenticated user
-    const supabase = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

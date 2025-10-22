@@ -2516,7 +2516,7 @@
         "reductionBy": "para"
       },
       "topEmitters": {
-        "title": "Top Fuentes de Emisión",
+        "title": "Principales Fuentes de Emisión",
         "tooltip": "Sus cinco fuentes de emisión más grandes en Scope 1, 2 y 3. Enfoque sus esfuerzos de reducción en estas categorías para máximo impacto. Pase el cursor sobre cada categoría para ver recomendaciones personalizadas.",
         "recommendation": "Recomendación:",
         "recommendations": {
@@ -3244,7 +3244,7 @@
         }
       },
       "sitePerformance": {
-        "title": "Ranking de Rendimiento por Sitio",
+        "title": "Ranking de Emisiones por Sitio",
         "subtitle": "Intensidad por m²",
         "tooltip": "Los sitios se clasifican por intensidad de emisiones (kgCO2e/m²). Menor intensidad indica mejor eficiencia energética y rendimiento de emisiones por área unitaria.",
         "badges": {
@@ -3262,12 +3262,80 @@
         "badges": {
           "gri": "GRI 305-1/2/3"
         },
+        "others": "Otros",
         "categoryNames": {
+          "naturalGasConsumption": "Gas Natural",
+          "dieselGenerators": "Generadores Diésel",
+          "heatingOil": "Aceite de Calefacción",
+          "propane": "Propano",
+          "coal": "Carbón",
+          "biomass": "Biomasa",
+          "fleetGasoline": "Gasolina de Flota",
+          "fleetDiesel": "Diésel de Flota",
+          "fleetLPG": "GLP de Flota",
+          "fleetCNG": "GNC de Flota",
+          "fleetBiodiesel": "Biodiésel de Flota",
+          "fleetEthanol": "Etanol de Flota",
+          "refrigerantR410A": "Refrigerante R410A",
+          "refrigerantR134A": "Refrigerante R134A",
+          "refrigerantR404A": "Refrigerante R404A",
+          "fireSuppressionSystems": "Supresión de Incendios",
+          "industrialProcessEmissions": "Proceso Industrial",
+          "wastewaterTreatment": "Tratamiento de Aguas Residuales",
+          "electricity": "Electricidad",
+          "renewableElectricity": "Electricidad Renovable",
+          "solarElectricity": "Energía Solar",
+          "windElectricity": "Energía Eólica",
+          "purchasedHeating": "Calefacción Adquirida",
+          "purchasedCooling": "Refrigeración Adquirida",
+          "purchasedSteam": "Vapor Adquirido",
+          "districtHeating": "Calefacción Urbana",
+          "districtCooling": "Refrigeración Urbana",
+          "purchasedGoods": "Bienes Adquiridos",
+          "purchasedServices": "Servicios Adquiridos",
+          "cloudComputing": "Computación en la Nube",
+          "softwareLicenses": "Licencias de Software",
+          "capitalGoods": "Bienes de Capital",
+          "buildingsConstruction": "Construcción de Edificios",
+          "machineryEquipment": "Maquinaria y Equipos",
+          "itEquipment": "Equipos de TI",
+          "upstreamFuelEmissions": "Combustible Upstream",
+          "tdLosses": "Pérdidas T&D",
+          "upstreamRoadTransport": "Transporte Terrestre Upstream",
+          "upstreamAirTransport": "Transporte Aéreo Upstream",
+          "upstreamSeaTransport": "Transporte Marítimo Upstream",
+          "upstreamRailTransport": "Transporte Ferroviario Upstream",
+          "waste": "Residuos",
+          "wasteToLandfill": "Residuos a Vertedero",
+          "wasteRecycled": "Residuos Reciclados",
+          "wasteComposted": "Residuos Compostados",
+          "wasteIncinerated": "Residuos Incinerados",
+          "wastewater": "Aguas Residuales",
+          "planeTravel": "Viajes en Avión",
+          "trainTravel": "Viajes en Tren",
+          "carTravel": "Viajes en Coche",
+          "hotelStays": "Estancias en Hotel",
+          "employeeCarCommute": "Desplazamientos de Empleados",
+          "publicTransportCommute": "Transporte Público",
+          "bicycleCommute": "Desplazamientos en Bicicleta",
+          "remoteWorkDays": "Trabajo Remoto",
+          "leasedBuildingsEnergy": "Edificios Arrendados",
+          "leasedVehiclesFuel": "Vehículos Arrendados",
+          "downstreamTransportation": "Transporte Downstream",
+          "productDistribution": "Distribución de Productos",
+          "processingSoldProducts": "Procesamiento de Productos",
+          "useSoldProducts": "Uso de Productos",
+          "productEnergyConsumption": "Energía de Productos",
+          "productEndOfLife": "Fin de Vida de Productos",
+          "productRecyclingRate": "Reciclaje de Productos",
+          "downstreamLeasedAssets": "Activos Arrendados Downstream",
+          "franchiseOperations": "Operaciones de Franquicia",
+          "investmentEmissions": "Emisiones de Inversión",
+          "financedEmissions": "Emisiones Financiadas",
+          "water": "Agua",
+          "evCharging": "Carga de VE",
           "businessTravel": "Viajes de Negocios",
           "purchasedElectricity": "Electricidad Adquirida",
-          "electricity": "Electricidad",
-          "waste": "Residuos",
-          "purchasedGoods": "Bienes Adquiridos",
           "naturalGas": "Gas Natural",
           "stationaryCombustion": "Combustión Estacionaria",
           "mobileCombustion": "Combustión Móvil",
@@ -3463,6 +3531,112 @@
       "oct": "Oct",
       "nov": "Nov",
       "dec": "Dic"
+    },
+    "performanceIndex": {
+      "title": "blipee Performance Index™",
+      "subtitle": "Rendimiento de sostenibilidad en toda la cartera en todos los sitios",
+      "siteSubtitle": "Puntuación de rendimiento de sostenibilidad de {siteName}",
+      "detailedMetrics": "Métricas Detalladas",
+      "loading": "Cargando índice de rendimiento...",
+      "tooltip": {
+        "title": "Acerca del Índice de Rendimiento",
+        "description": "Una puntuación integral de sostenibilidad (0-100) que mide su rendimiento ambiental en múltiples categorías. Combina métricas de energía, agua, residuos, transporte y cumplimiento en un único indicador accionable.",
+        "howCalculated": {
+          "title": "Cómo se Calcula",
+          "description": "El índice agrega categorías ponderadas según la materialidad de la industria, la calidad de los datos y la comparación con pares. Puntuaciones más altas indican mejor rendimiento de sostenibilidad."
+        },
+        "whatScoresMean": {
+          "title": "Qué significan las puntuaciones",
+          "gradeA": "Rendimiento excelente",
+          "gradeB": "Buen rendimiento",
+          "gradeC": "Rendimiento promedio",
+          "gradeD": "Necesita mejoras"
+        },
+        "improvingScore": {
+          "title": "Mejorar su puntuación",
+          "description": "Concéntrese primero en las categorías de mayor peso. Use las métricas detalladas a continuación para identificar áreas de mejora y rastrear su progreso a lo largo del tiempo."
+        },
+        "whyMatters": {
+          "title": "Por qué Importa",
+          "description": "Permite el seguimiento del progreso a lo largo del tiempo, la comparación entre sitios y la identificación de áreas de mejora prioritarias. La tendencia muestra si el rendimiento está mejorando o disminuyendo."
+        },
+        "footer": "Alineado con GRI, ESRS y marcos de sostenibilidad líderes"
+      },
+      "overallScore": {
+        "title": "Puntuación General",
+        "outOf": "de 100",
+        "grade": "Nota {grade}",
+        "stable": "Estable",
+        "improving": "Mejorando",
+        "percentile": "{value}º percentil"
+      },
+      "grades": {
+        "APlus": "A+",
+        "A": "A",
+        "B": "B",
+        "C": "C",
+        "D": "D",
+        "F": "F"
+      },
+      "metrics": {
+        "dataCompleteness": "datos",
+        "confidence": "confianza",
+        "high": "alta",
+        "medium": "media",
+        "low": "baja"
+      },
+      "categoryScores": {
+        "title": "Puntuaciones por Categoría",
+        "noData": "-",
+        "tooltip": {
+          "title": "Comprender las Puntuaciones por Categoría",
+          "description": "Cada categoría contribuye a su puntuación general según su peso y relevancia para su organización. Las categorías están ordenadas por impacto, mostrando primero las más importantes.",
+          "columns": {
+            "title": "Qué significan las columnas:",
+            "score": "Puntuación de rendimiento de la categoría (0-100)",
+            "trend": "Dirección del cambio a lo largo del tiempo (mejorar ↑ / estable → / disminuir ↓)",
+            "percentile": "Clasificación comparada con organizaciones similares"
+          },
+          "percentileColors": {
+            "title": "Colores del Percentil:",
+            "top": "Top 25% - Rendimiento excelente",
+            "good": "Por encima del promedio - Buen rendimiento",
+            "average": "Por debajo del promedio - Espacio para mejoras",
+            "needsWork": "Bottom 25% - Requiere atención"
+          },
+          "improving": {
+            "title": "Cómo Mejorar:",
+            "description": "Concéntrese primero en las categorías de mayor peso. Use las tendencias para rastrear el progreso. Los percentiles ayudan a comparar con pares y establecer metas realistas."
+          }
+        },
+        "categories": {
+          "energy": "Energía",
+          "water": "Agua",
+          "waste": "Residuos",
+          "transportation": "Transporte",
+          "scope3": "Alcance 3",
+          "humanExperience": "Experiencia Humana",
+          "supplyChain": "Cadena de Suministro",
+          "compliance": "Cumplimiento"
+        },
+        "trends": {
+          "improving": "Mejorando",
+          "stable": "Estable",
+          "declining": "Disminuyendo"
+        }
+      },
+      "recalculate": "Recalcular Puntuación",
+      "recalculating": "Recalculando...",
+      "noData": "No hay datos de puntuación disponibles",
+      "error": "Error al cargar la puntuación de rendimiento",
+      "siteRankings": {
+        "title": "Clasificación de Rendimiento por Sitio",
+        "noData": "No hay datos de sitios disponibles",
+        "tooltip": {
+          "title": "Clasificación de Rendimiento por Sitio",
+          "description": "Sitios clasificados por su puntuación blipee Performance Index™ (0-100), donde puntuaciones más altas indican mejor rendimiento general de sostenibilidad. Los 3 mejores sitios son destacados con medallas. Use esta clasificación para identificar mejores prácticas y compartir conocimientos entre sitios."
+        }
+      }
     },
     "energy": {
       "title": "Gestión de Energía",

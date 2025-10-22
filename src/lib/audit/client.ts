@@ -16,6 +16,21 @@ export interface AuditEventDetails {
 }
 
 class ClientAuditLogger {
+  /**
+   * Get CSRF token from cookie
+   */
+  private getCSRFToken(): string | null {
+    if (typeof document === 'undefined') {
+      return null;
+    }
+
+    const cookie = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('_csrf='));
+
+    return cookie ? cookie.split('=')[1] : null;
+  }
+
   private async sendAuditEvent(
     action: ActionType,
     category: ActionCategory,
@@ -24,11 +39,21 @@ class ClientAuditLogger {
     details?: AuditEventDetails
   ) {
     try {
+      // Get CSRF token from cookie
+      const csrfToken = this.getCSRFToken();
+
+      // Build headers with CSRF token
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
+
       const response = await fetch('/api/audit', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           event: {
             actor: {

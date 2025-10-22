@@ -41,6 +41,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 // Import all our new dashboard components
 import { OverviewDashboard } from '@/components/dashboard/OverviewDashboard';
+import { OverviewDashboardWithScore } from '@/components/dashboard/OverviewDashboardWithScore';
 import { ComplianceDashboard } from '@/components/dashboard/ComplianceDashboard';
 import { EmissionsDashboard } from '@/components/dashboard/EmissionsDashboard';
 import { EnergyDashboard } from '@/components/dashboard/EnergyDashboard';
@@ -60,6 +61,10 @@ import { SiteSelector } from '@/components/zero-typing/SiteSelector';
 import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import type { Building } from '@/types/auth';
 
+// Import React Query hooks
+import { useOrganizationContext } from '@/hooks/useOrganizationContext';
+import { useGRISectorTopics } from '@/hooks/useGRISectorTopics';
+
 type DashboardView = 'overview' | 'compliance' | 'emissions' | 'energy' | 'water' | 'waste' | 'transportation' | 'targets' | 'data' | 'monthly' | 'ai';
 
 export default function DashboardClient() {
@@ -77,13 +82,26 @@ export default function DashboardClient() {
 
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [showProactiveCoach, setShowProactiveCoach] = useState(true);
-  const [organizationData, setOrganizationData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // GRI sector-specific dashboards
-  const [sectorTopics, setSectorTopics] = useState<any>(null);
-  const [dynamicDashboards, setDynamicDashboards] = useState<any[]>([]);
+  // Use React Query hooks instead of useState + useEffect
+  const { data: organizationData, isLoading: loading, error: queryError } = useOrganizationContext(!!user);
+  const { data: sectorTopicsData } = useGRISectorTopics(!!organizationData);
+
+  // Convert error for display
+  const error = queryError ? (queryError instanceof Error ? queryError.message : 'Failed to connect to server') : null;
+
+  // Derive dynamic dashboards from sector topics
+  const dynamicDashboards = React.useMemo(() => {
+    if (sectorTopicsData?.recommended_dashboards && sectorTopicsData.recommended_dashboards.length > 0) {
+      return sectorTopicsData.recommended_dashboards;
+    }
+    // Fallback to standard GRI 300 series
+    return [
+      { type: 'energy', name: 'Energy', gri: 'GRI 302' },
+      { type: 'water_management', name: 'Water & Effluents', gri: 'GRI 303' },
+      { type: 'waste_management', name: 'Waste', gri: 'GRI 306' }
+    ];
+  }, [sectorTopicsData]);
 
   // Global filters for all dashboards
   const [selectedSite, setSelectedSite] = useState<Building | null>(null);
@@ -118,78 +136,8 @@ export default function DashboardClient() {
     setCurrentView(value as DashboardView);
   };
 
-  useEffect(() => {
-    // Fetch organization data for context
-    const fetchOrgData = async () => {
-      if (!user) {
-        return;
-      }
-
-      try {
-        setLoading(true);
-
-        const response = await fetch('/api/organization/context');
-        const data = await response.json();
-
-
-        if (response.ok) {
-          // API returns { organization: {...}, sites: [...], ... }
-          if (data.organization) {
-            setOrganizationData(data.organization);
-          } else {
-            console.error('No organization in response:', data);
-            setError('No organization found for user');
-          }
-        } else {
-          console.error('Failed to fetch organization context:', response.status, data);
-          setError(data.error || 'Failed to load organization');
-        }
-      } catch (error) {
-        console.error('Error fetching organization:', error);
-        setError('Failed to connect to server');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrgData();
-  }, [user]);
-
-  // Fetch GRI sector-specific material topics
-  useEffect(() => {
-    const fetchSectorTopics = async () => {
-      if (!organizationData) return;
-
-      try {
-        const response = await fetch('/api/sustainability/gri-sector-topics');
-        const data = await response.json();
-
-        setSectorTopics(data);
-
-        // Use recommended dashboards whether sector-specific or generic
-        if (data.recommended_dashboards && data.recommended_dashboards.length > 0) {
-          setDynamicDashboards(data.recommended_dashboards);
-        } else {
-          // Fallback to standard GRI 300 series
-          setDynamicDashboards([
-            { type: 'energy', name: 'Energy', gri: 'GRI 302' },
-            { type: 'water_management', name: 'Water & Effluents', gri: 'GRI 303' },
-            { type: 'waste_management', name: 'Waste', gri: 'GRI 306' }
-          ]);
-        }
-      } catch (error) {
-        console.error('Error fetching GRI sector topics:', error);
-        // Fallback to standard GRI 300 series dashboards
-        setDynamicDashboards([
-          { type: 'energy', name: 'Energy', gri: 'GRI 302' },
-          { type: 'water_management', name: 'Water & Effluents', gri: 'GRI 303' },
-          { type: 'waste_management', name: 'Waste', gri: 'GRI 306' }
-        ]);
-      }
-    };
-
-    fetchSectorTopics();
-  }, [organizationData]);
+  // Note: Data fetching previously done with useEffect is now handled by React Query hooks above
+  // The organization context and GRI sector topics are automatically fetched and cached
 
   // Dashboard navigation items (using user's accent color from appearance settings)
   const accentGradient = accentGradientConfig.gradient;
@@ -372,7 +320,7 @@ export default function DashboardClient() {
     }
 
     if (currentView === 'overview') {
-      return <OverviewDashboard organizationId={orgId} selectedSite={selectedSite} selectedPeriod={selectedPeriod} />;
+      return <OverviewDashboardWithScore organizationId={orgId} selectedSite={selectedSite} selectedPeriod={selectedPeriod} />;
     }
 
     if (currentView === 'data') {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
@@ -11,15 +12,19 @@ export const dynamic = 'force-dynamic';
  * Uses Prophet-style additive model: Trend + Seasonality + Residuals
  */
 export async function GET(request: NextRequest) {
-  try {
-    const supabase = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log('⚡ [ENERGY-FORECAST] API called');
 
-    if (authError || !user) {
+  try {
+    const user = await getAPIUser(request);
+    console.log('⚡ [ENERGY-FORECAST] User auth:', user ? `✅ ${user.id}` : '❌ No user');
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const orgInfo = await getUserOrganizationById(user.id);
+    console.log('⚡ [ENERGY-FORECAST] Org info:', orgInfo.organizationId || '❌ No org');
+
     if (!orgInfo.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
@@ -29,7 +34,15 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const siteId = searchParams.get('site_id');
 
+    console.log('⚡ [ENERGY-FORECAST] Filters:', {
+      organizationId: orgInfo.organizationId,
+      startDate,
+      endDate,
+      siteId: siteId || 'all sites'
+    });
+
     if (!startDate || !endDate) {
+      console.log('⚡ [ENERGY-FORECAST] Missing date parameters');
       return NextResponse.json({ error: 'start_date and end_date required' }, { status: 400 });
     }
 
@@ -48,7 +61,10 @@ export async function GET(request: NextRequest) {
       .select('*')
       .in('category', ['Purchased Energy', 'Electricity']);
 
+    console.log('⚡ [ENERGY-FORECAST] Metrics catalog:', energyMetrics ? `✅ ${energyMetrics.length} metrics` : '❌ No metrics');
+
     if (!energyMetrics || energyMetrics.length === 0) {
+      console.log('⚡ [ENERGY-FORECAST] No energy metrics in catalog, returning empty forecast');
       return NextResponse.json({ forecast: [] });
     }
 
@@ -108,10 +124,11 @@ export async function GET(request: NextRequest) {
       return true;
     });
 
-    console.log(`📊 Energy forecast data (API): ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)`);
-    console.log(`📅 Filtering dates - maxHistoricalDate: ${maxHistoricalDate.toISOString()}, filterYear: ${filterYear}, filterMonth: ${filterMonth}`);
+    console.log('⚡ [ENERGY-FORECAST] Fetched data:', allData.length, 'total,', historicalData.length, 'historical records');
+    console.log('⚡ [ENERGY-FORECAST] Max historical date:', maxHistoricalDate.toISOString().split('T')[0]);
 
     if (!historicalData || historicalData.length === 0) {
+      console.log('⚡ [ENERGY-FORECAST] No historical data, returning empty forecast');
       return NextResponse.json({ forecast: [] });
     }
 

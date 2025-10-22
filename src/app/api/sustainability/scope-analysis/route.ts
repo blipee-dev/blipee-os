@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { calculateSectorIntensity, getProductionUnitLabel, getSBTiPathway, getGRISectorStandard, calculateBenchmarkForMetric } from '@/lib/sustainability/sector-intensity';
@@ -14,16 +15,15 @@ import { getRedisClient } from '@/lib/cache/redis-client';
 export async function GET(request: NextRequest) {
   try {
     const startTime = Date.now();
-    const supabase = await createServerSupabaseClient();
 
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user's organization from organization_members table
-    const { data: memberData, error: memberError } = await supabase
+    const { data: memberData, error: memberError } = await supabaseAdmin
       .from('organization_members')
       .select('organization_id')
       .eq('user_id', user.id)

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sessionAuth } from "@/lib/auth/session-auth";
-import { sessionManager } from "@/lib/session/manager";
 import { withAuthSecurity } from "@/lib/security/api/wrapper";
 import { auditLogger } from "@/lib/audit/server";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
+import { createSession } from "@/lib/auth/sessions";
 import { z } from "zod";
 
 export const dynamic = 'force-dynamic';
@@ -15,175 +14,115 @@ const signInSchema = z.object({
 
 async function signInHandler(request: NextRequest) {
   const startTime = Date.now();
-  
+
   let body: any;
   try {
-    const parseStart = Date.now();
     body = await request.json();
 
     // Validate input
-    const validateStart = Date.now();
     const validated = signInSchema.parse(body);
 
-    // Sign in user with session creation
-    const authStart = Date.now();
-    const result = await sessionAuth.signIn(
-      validated.email,
-      validated.password,
-      request
-    );
+    // Use admin client to verify credentials
+    // We don't need to set cookies here anymore - we'll use sessions instead
+    const supabase = createAdminClient();
 
-    // Update last_login and status for successful authentication
-    if (result.user && !result.requiresMFA) {
-      const loginUpdateStart = Date.now();
-      
-      try {
-        // Use admin client to bypass RLS
-        const { createClient: createAdminClient } = await import("@supabase/supabase-js");
-        const supabaseAdmin = createAdminClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY!,
-          {
-            auth: {
-              persistSession: false,
-              autoRefreshToken: false,
-            },
-          }
-        );
+    // Verify credentials with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: validated.email,
+      password: validated.password,
+    });
 
-        // Get current user status - first check by auth_user_id
-        let { data: currentUser, error: selectError } = await supabaseAdmin
-          .from('app_users')
-          .select('id, status, auth_user_id')
-          .eq('auth_user_id', result.user.id)
-          .single();
-
-        // If not found by auth_user_id, check by email (for legacy records)
-        if (selectError && selectError.code === 'PGRST116' && result.user.email) {
-          const { data: userByEmail, error: emailError } = await supabaseAdmin
-            .from('app_users')
-            .select('id, status, auth_user_id')
-            .eq('email', result.user.email)
-            .single();
-
-          if (userByEmail && !userByEmail.auth_user_id) {
-            // User exists but missing auth_user_id, update it
-            const { error: updateError } = await supabaseAdmin
-              .from('app_users')
-              .update({
-                auth_user_id: result.user.id,
-                status: 'active',
-                last_login: new Date().toISOString(),
-              })
-              .eq('id', userByEmail.id);
-
-            if (updateError) {
-              console.error('❌ Error updating user auth_user_id:', updateError);
-            } else {
-              currentUser = { ...userByEmail, auth_user_id: result.user.id, status: 'active' };
-              selectError = null;
-            }
-          } else if (userByEmail) {
-            // User exists with different auth_user_id
-            currentUser = userByEmail;
-            selectError = null;
-          }
-        }
-
-        if (selectError && selectError.code === 'PGRST116') {
-          // User doesn't exist in app_users table, create them
-
-          const { error: insertError } = await supabaseAdmin
-            .from('app_users')
-            .insert({
-              auth_user_id: result.user.id,
-              name: result.user.user_metadata?.full_name || result.user.email?.split('@')[0] || 'User',
-              email: result.user.email || '',
-              role: 'viewer', // Default role
-              status: 'active', // Set as active since they're logging in
-              last_login: new Date().toISOString(),
-            });
-
-          if (insertError) {
-            console.error('❌ Error creating user record:', insertError);
-          } else {
-          }
-        } else if (selectError) {
-          console.error('❌ Error fetching current user:', selectError);
-        } else {
-
-          // Update last_login and change status from pending to active
-          const updateData: { last_login: string; status?: string } = {
-            last_login: new Date().toISOString()
-          };
-
-          // If user status is pending, change to active on first login
-          if (currentUser?.status === 'pending') {
-            updateData.status = 'active';
-          }
-
-
-          const { error: updateError } = await supabaseAdmin
-            .from('app_users')
-            .update(updateData)
-            .eq('auth_user_id', result.user.id);
-
-          if (updateError) {
-            console.error('❌ Error updating user login status:', updateError);
-          } else {
-          }
-        }
-      } catch (error) {
-        console.error('🔥 DIRECT LOGIN TRACKING ERROR:', error);
-      }
-      
+    if (authError) {
+      throw authError;
     }
+
+    if (!authData.user) {
+      throw new Error("Authentication failed");
+    }
+
+    // Update last_login in app_users table
+    try {
+      // Update or create app_users record
+      const { data: existingUser } = await supabase
+        .from('app_users')
+        .select('id')
+        .eq('auth_user_id', authData.user.id)
+        .single();
+
+      if (existingUser) {
+        // Update existing user
+        await supabase
+          .from('app_users')
+          .update({
+            last_login: new Date().toISOString(),
+            status: 'active',
+          })
+          .eq('auth_user_id', authData.user.id);
+      } else {
+        // Create new app_users record if doesn't exist
+        await supabase
+          .from('app_users')
+          .insert({
+            auth_user_id: authData.user.id,
+            name: authData.user.user_metadata?.full_name || authData.user.email?.split('@')[0] || 'User',
+            email: authData.user.email || '',
+            role: 'viewer',
+            status: 'active',
+            last_login: new Date().toISOString(),
+          });
+      }
+    } catch (error) {
+      console.error('Error updating login status:', error);
+      // Don't fail signin if this fails
+    }
+
+    // TODO: Handle MFA in future - for now skipping
+    // MFA will need to be re-implemented with session-based auth
+
+    // Create session in database
+    const userAgent = request.headers.get('user-agent') || undefined;
+    const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0] ||
+                     request.headers.get('x-real-ip') ||
+                     undefined;
+
+    const session = await createSession(authData.user.id, {
+      userAgent,
+      ipAddress,
+      expiresInDays: 30, // 30 days
+    });
 
     // Log successful authentication
-    if (result.user) {
-      const auditStart = Date.now();
-      await auditLogger.logAuth('login', 'success', {
-        email: validated.email,
-        userId: result.user.id,
-        metadata: {
-          requiresMFA: result.requiresMFA
-        }
-      });
-    }
+    await auditLogger.logAuth('login', 'success', {
+      email: validated.email,
+      userId: authData.user.id,
+    });
 
-    // Check if MFA is required
-    if (result.requiresMFA) {
-      const totalDuration = Date.now() - startTime;
-      
-      return NextResponse.json({
-        success: true,
-        data: {
-          requiresMFA: true,
-          challengeId: result.challengeId,
-          user: result.user,
-        },
-      });
-    }
-
-    // Create response with session cookie
-    const responseStart = Date.now();
+    // Create response with session ID cookie (small, no chunking needed!)
     const response = NextResponse.json({
       success: true,
       data: {
-        user: result.user,
-        session: result.session,
+        user: {
+          id: authData.user.id,
+          email: authData.user.email,
+          user_metadata: authData.user.user_metadata,
+        },
       },
     });
 
-    // Set session cookie - use the sessionService directly since SessionManager doesn't expose this method
-    if (result.sessionId) {
-      // Access the sessionService directly to generate the cookie header
-      const cookieHeader = sessionManager['sessionService'].generateCookieHeader(result.sessionId);
-      response.headers.set('Set-Cookie', cookieHeader);
+    // Set session ID cookie (tiny cookie, no chunking issues!)
+    response.cookies.set('blipee-session', session.session_token, {
+      httpOnly: true, // Secure: JavaScript can't access it
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    });
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ [Session Auth] Created session:', session.id);
+      console.log('🍪 [Session Auth] Session cookie set (httpOnly=true, size=', session.session_token.length, 'bytes)');
     }
 
-    const totalDuration = Date.now() - startTime;
-    
     return response;
   } catch (error: any) {
     console.error('Error:', error);

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getEnergyForecast } from '@/lib/forecasting/get-energy-forecast';
@@ -24,11 +25,10 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -228,14 +228,14 @@ export async function GET(request: NextRequest) {
 
       if (selectedYear === currentYear) {
         try {
-          debug.log('📈 [by-category-dynamic] Fetching enterprise forecast for organization:', organizationId);
+          console.log('📈 [by-category-dynamic] Fetching enterprise forecast for organization:', organizationId);
           // Call shared forecast function to get ML-based projection for remaining months
           forecastData = await getEnergyForecast(
             organizationId,
             `${currentYear}-01-01`,
             `${currentYear}-12-31`
           );
-          debug.log('✅ [by-category-dynamic] Enterprise forecast received:', {
+          console.log('✅ [by-category-dynamic] Enterprise forecast received:', {
             forecastMonths: forecastData?.forecast?.length,
             hasData: !!forecastData?.forecast
           });
@@ -280,7 +280,7 @@ export async function GET(request: NextRequest) {
           target.monthsWithData = monthsWithData;
           target.forecastMethod = forecastData ? 'enterprise-ml' : 'simple-linear';
 
-          debug.log(`📊 [${target.metricName}] Projection:`, {
+          console.log(`📊 [${target.metricName}] Projection:`, {
             ytdEmissions: Math.round(ytdEmissions * 10) / 10,
             projected: Math.round(projectedAnnualEmissions * 10) / 10,
             method: target.forecastMethod,

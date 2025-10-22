@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp",
+      "metadata": {
+        "description": "Supabase remote MCP server for database development, RLS debugging, and documentation search",
+        "features": [
+          "Database schema exploration",
+          "RLS policy testing and debugging",
+          "Migration validation",
+          "Performance and security advisors",
+          "Real-time documentation search",
+          "Storage management"
+        ]
+      }
+    }
+  }
+}

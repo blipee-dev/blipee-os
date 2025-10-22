@@ -1,16 +1,12 @@
 import { redirect } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import WaterPage from './WaterPage';
 
 export default async function WaterRoute() {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/sustainability/water');
-  }
+  // Check authentication using session-based auth
+  const user = await requireServerAuth('/signin?redirect=/sustainability/water');
 
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
   const { organizationId, role } = await getUserOrganizationById(user.id);

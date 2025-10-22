@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/lib/auth/context';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,24 +11,27 @@ import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 export default function AcceptInvitationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user, loading: authLoading } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
     const acceptInvitation = async () => {
       try {
+        // Wait for auth to load
+        if (authLoading) return;
+
+        // Check if user is authenticated
+        if (!user) {
+          throw new Error('Please sign in to accept the invitation');
+        }
+
         const orgId = searchParams.get('org');
         if (!orgId) {
           throw new Error('No organization ID provided');
         }
 
         const supabase = createClient();
-        
-        // Get current user
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          throw new Error('Please sign in to accept the invitation');
-        }
 
         // Update invitation status
         const { error: updateError } = await supabase
@@ -59,7 +63,7 @@ export default function AcceptInvitationPage() {
     };
 
     acceptInvitation();
-  }, [searchParams, router]);
+  }, [searchParams, router, user, authLoading]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">

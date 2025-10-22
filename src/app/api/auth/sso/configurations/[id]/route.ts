@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { ssoService } from "@/lib/auth/sso/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 // import { UserRole } from "@/types/auth"; // Unused after fixing role checks
@@ -8,10 +9,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = await createServerSupabaseClient();
     
     // Check authentication
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -60,10 +60,9 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = await createServerSupabaseClient();
     
     // Check authentication
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -117,10 +116,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = await createServerSupabaseClient();
     
     // Check authentication
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json(
         { error: "Unauthorized" },

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { PermissionService } from '@/lib/auth/permission-service';
@@ -7,13 +8,12 @@ import { getUserOrganization } from '@/lib/auth/get-user-org';
 // GET /api/sustainability/metrics/sites - Get metrics by site or all sites
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
     const { searchParams } = new URL(request.url);
     const siteId = searchParams.get('site_id');
     const organizationId = searchParams.get('organization_id');
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -166,11 +166,10 @@ export async function GET(request: NextRequest) {
 // POST /api/sustainability/metrics/sites - Add metrics to site
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
     const { siteId, metricIds, organizationId } = await request.json();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -283,11 +282,10 @@ export async function POST(request: NextRequest) {
 // DELETE /api/sustainability/metrics/sites - Remove metric from site
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
     const { siteId, metricId } = await request.json();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

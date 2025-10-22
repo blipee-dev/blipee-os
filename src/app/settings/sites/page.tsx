@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase/server';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
@@ -9,11 +10,7 @@ export default async function SitesPage() {
   const supabaseAdmin = createAdminClient();
 
   // Check authentication
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/settings/sites');
-  }
+  const user = await requireServerAuth('/signin?redirect=/settings/sites');
 
   // Check permissions
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);

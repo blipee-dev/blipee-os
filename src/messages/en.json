@@ -2501,7 +2501,7 @@
         "reductionBy": "by"
       },
       "topEmitters": {
-        "title": "Top Emission Sources",
+        "title": "Major Emission Sources",
         "tooltip": "Your five largest emission sources across Scope 1, 2, and 3. Focus your reduction efforts on these categories for maximum impact. Hover over each category to see tailored recommendations.",
         "recommendation": "Recommendation:",
         "recommendations": {
@@ -3215,7 +3215,7 @@
         }
       },
       "sitePerformance": {
-        "title": "Site Performance Ranking",
+        "title": "Site Emissions Ranking",
         "subtitle": "Intensity per m²",
         "tooltip": "Sites are ranked by emissions intensity (kgCO2e/m²). Lower intensity indicates better energy efficiency and emissions performance per unit area.",
         "badges": {
@@ -3229,16 +3229,84 @@
         }
       },
       "topEmitters": {
-        "title": "Top Emission Sources",
+        "title": "Major Emission Sources",
         "badges": {
           "gri": "GRI 305-1/2/3"
         },
+        "others": "Others",
         "categoryNames": {
+          "naturalGasConsumption": "Natural Gas",
+          "dieselGenerators": "Diesel Generators",
+          "heatingOil": "Heating Oil",
+          "propane": "Propane",
+          "coal": "Coal",
+          "biomass": "Biomass",
+          "fleetGasoline": "Fleet Gasoline",
+          "fleetDiesel": "Fleet Diesel",
+          "fleetLPG": "Fleet LPG",
+          "fleetCNG": "Fleet CNG",
+          "fleetBiodiesel": "Fleet Biodiesel",
+          "fleetEthanol": "Fleet Ethanol",
+          "refrigerantR410A": "Refrigerant R410A",
+          "refrigerantR134A": "Refrigerant R134A",
+          "refrigerantR404A": "Refrigerant R404A",
+          "fireSuppressionSystems": "Fire Suppression",
+          "industrialProcessEmissions": "Industrial Process",
+          "wastewaterTreatment": "Wastewater Treatment",
+          "electricity": "Electricity",
+          "renewableElectricity": "Renewable Electricity",
+          "solarElectricity": "Solar Energy",
+          "windElectricity": "Wind Energy",
+          "purchasedHeating": "Purchased Heating",
+          "purchasedCooling": "Purchased Cooling",
+          "purchasedSteam": "Purchased Steam",
+          "districtHeating": "District Heating",
+          "districtCooling": "District Cooling",
+          "purchasedGoods": "Purchased Goods",
+          "purchasedServices": "Purchased Services",
+          "cloudComputing": "Cloud Computing",
+          "softwareLicenses": "Software Licenses",
+          "capitalGoods": "Capital Goods",
+          "buildingsConstruction": "Building Construction",
+          "machineryEquipment": "Machinery & Equipment",
+          "itEquipment": "IT Equipment",
+          "upstreamFuelEmissions": "Upstream Fuel",
+          "tdLosses": "T&D Losses",
+          "upstreamRoadTransport": "Upstream Road Transport",
+          "upstreamAirTransport": "Upstream Air Transport",
+          "upstreamSeaTransport": "Upstream Sea Transport",
+          "upstreamRailTransport": "Upstream Rail Transport",
+          "waste": "Waste",
+          "wasteToLandfill": "Waste to Landfill",
+          "wasteRecycled": "Waste Recycled",
+          "wasteComposted": "Waste Composted",
+          "wasteIncinerated": "Waste Incinerated",
+          "wastewater": "Wastewater",
+          "planeTravel": "Plane Travel",
+          "trainTravel": "Train Travel",
+          "carTravel": "Car Travel",
+          "hotelStays": "Hotel Stays",
+          "employeeCarCommute": "Employee Commuting",
+          "publicTransportCommute": "Public Transport",
+          "bicycleCommute": "Bicycle Commute",
+          "remoteWorkDays": "Remote Work",
+          "leasedBuildingsEnergy": "Leased Buildings",
+          "leasedVehiclesFuel": "Leased Vehicles",
+          "downstreamTransportation": "Downstream Transport",
+          "productDistribution": "Product Distribution",
+          "processingSoldProducts": "Product Processing",
+          "useSoldProducts": "Product Use",
+          "productEnergyConsumption": "Product Energy",
+          "productEndOfLife": "Product End-of-Life",
+          "productRecyclingRate": "Product Recycling",
+          "downstreamLeasedAssets": "Downstream Leased Assets",
+          "franchiseOperations": "Franchise Operations",
+          "investmentEmissions": "Investment Emissions",
+          "financedEmissions": "Financed Emissions",
+          "water": "Water",
+          "evCharging": "EV Charging",
           "businessTravel": "Business Travel",
           "purchasedElectricity": "Purchased Electricity",
-          "electricity": "Electricity",
-          "waste": "Waste",
-          "purchasedGoods": "Purchased Goods",
           "naturalGas": "Natural Gas",
           "stationaryCombustion": "Stationary Combustion",
           "mobileCombustion": "Mobile Combustion",
@@ -3434,6 +3502,125 @@
       "oct": "Oct",
       "nov": "Nov",
       "dec": "Dec"
+    },
+    "performanceIndex": {
+      "title": "blipee Performance Index™",
+      "subtitle": "Portfolio-wide sustainability performance across all sites",
+      "siteSubtitle": "{siteName} sustainability performance score",
+      "detailedMetrics": "Detailed Metrics",
+      "loading": "Loading performance index...",
+      "tooltip": {
+        "title": "About the Performance Index",
+        "description": "A comprehensive sustainability score (0-100) that measures your environmental performance across multiple categories. Combines energy, water, waste, transportation, and compliance metrics into a single actionable indicator.",
+        "howCalculated": {
+          "title": "How It's Calculated",
+          "description": "The index aggregates weighted categories based on industry materiality, data quality, and peer benchmarking. Higher scores indicate better sustainability performance."
+        },
+        "whatScoresMean": {
+          "title": "What the scores mean",
+          "gradeA": "Excellent performance",
+          "gradeB": "Good performance",
+          "gradeC": "Average performance",
+          "gradeD": "Needs improvement"
+        },
+        "improvingScore": {
+          "title": "Improving your score",
+          "description": "Focus on high-weight categories first. Use the detailed metrics below to identify areas for improvement and track your progress over time."
+        },
+        "whyMatters": {
+          "title": "Why It Matters",
+          "description": "Enables tracking progress over time, comparing across sites, and identifying priority improvement areas. The trend shows whether performance is improving or declining."
+        },
+        "footer": "Aligned with GRI, ESRS, and leading sustainability frameworks"
+      },
+      "overallScore": {
+        "title": "Overall Score",
+        "outOf": "out of 100",
+        "grade": "Grade {grade}",
+        "stable": "Stable",
+        "improving": "Improving",
+        "percentile": "{value}th percentile"
+      },
+      "grades": {
+        "APlus": "A+",
+        "A": "A",
+        "B": "B",
+        "C": "C",
+        "D": "D",
+        "F": "F"
+      },
+      "metrics": {
+        "dataCompleteness": "data",
+        "confidence": "confidence",
+        "high": "high",
+        "medium": "medium",
+        "low": "low"
+      },
+      "categoryScores": {
+        "title": "Category Scores",
+        "noData": "-",
+        "tooltip": {
+          "title": "Understanding Category Scores",
+          "description": "Each category contributes to your overall score based on its weight and relevance to your organization. Categories are ordered by impact, showing the most important ones first.",
+          "columns": {
+            "title": "What the columns mean:",
+            "score": "Category performance score (0-100)",
+            "trend": "Direction of change over time (improving ↑ / stable → / declining ↓)",
+            "percentile": "Ranking compared to similar organizations"
+          },
+          "percentileColors": {
+            "title": "Percentile Colors:",
+            "top": "Top 25% - Excellent performance",
+            "good": "Above average - Good performance",
+            "average": "Below average - Room for improvement",
+            "needsWork": "Bottom 25% - Needs attention"
+          },
+          "improving": {
+            "title": "How to Improve:",
+            "description": "Focus on the highest-weighted categories first. Use trends to track progress. Percentiles help you benchmark against peers and set realistic goals."
+          }
+        },
+        "categories": {
+          "energy": "Energy",
+          "water": "Water",
+          "waste": "Waste",
+          "transportation": "Transportation",
+          "humanExperience": "Human Experience",
+          "scopeThree": "Scope 3",
+          "supplyChain": "Supply Chain",
+          "compliance": "Compliance"
+        }
+      },
+      "siteRankings": {
+        "title": "Site Performance Ranking",
+        "noData": "No site data available",
+        "tooltip": {
+          "title": "Site Performance Ranking",
+          "description": "Sites ranked by their blipee Performance Index™ score (0-100), where higher scores indicate better overall sustainability performance. Top 3 performers are highlighted with medals. Use this ranking to identify best practices and share learnings across sites."
+        }
+      },
+      "trends": {
+        "improving": "Improving",
+        "stable": "Stable",
+        "declining": "Declining"
+      },
+      "emptyState": {
+        "title": "Ready to Calculate Your Performance Score",
+        "portfolioDescription": "Calculate your portfolio-wide blipee Performance Index. The system will analyze all available data across your sites and provide a comprehensive sustainability score.",
+        "siteDescription": "Calculate your blipee Performance Index to see your sustainability score. The system will work with whatever data you have available.",
+        "whatGetsScored": "What gets scored:",
+        "categories": {
+          "energy": "Energy consumption (electricity, gas, heating)",
+          "water": "Water usage and wastewater",
+          "waste": "Waste generation and recycling rates",
+          "transportation": "Transportation and fleet emissions",
+          "scope3": "Scope 3 supply chain impacts",
+          "circularity": "Material circularity and compliance"
+        },
+        "adaptiveNote": "Don't worry if you don't have all data - the score adapts to what's available",
+        "calculateButton": "Calculate Score Now",
+        "worksWith": "Works with any amount of data • Instant calculation"
+      }
     },
     "energy": {
       "title": "Energy Management",

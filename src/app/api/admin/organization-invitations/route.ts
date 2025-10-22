@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { isSuperAdmin } from '@/lib/auth/super-admin';
 import { adminInvitationCreateSchema, validateAndSanitize } from '@/lib/validation/schemas';
 
@@ -13,12 +13,10 @@ interface CreateInvitationRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
     
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'User not authenticated' },
         { status: 401 }
@@ -190,12 +188,10 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
     
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'User not authenticated' },
         { status: 401 }

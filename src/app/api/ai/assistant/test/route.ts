@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { BlipeeAssistant } from '@/lib/ai/blipee-assistant';
 import { ContextEngine } from '@/lib/ai/blipee-assistant/context-engine';
 import { PromptBuilder } from '@/lib/ai/blipee-assistant/prompt-builder';
@@ -109,10 +109,10 @@ export async function GET(request: NextRequest) {
 async function testAuthentication(): Promise<TestResult> {
   const start = Date.now();
   try {
+    // IMPORTANT: Use getUser() not getSession() to validate JWT on server
     const supabase = createClient();
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
+    const user = await getAPIUser(request);
+    if (userError || !user) {
       return {
         name: 'Authentication',
         status: 'failed',
@@ -121,13 +121,13 @@ async function testAuthentication(): Promise<TestResult> {
       };
     }
 
-    const { data: user, error: userError } = await supabase
+    const { data: userData, error: userDataError } = await supabase
       .from('users')
       .select('*, organizations!users_organization_id_fkey(*)')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single();
 
-    if (userError || !user) {
+    if (userDataError || !userData) {
       return {
         name: 'Authentication',
         status: 'failed',
@@ -141,7 +141,7 @@ async function testAuthentication(): Promise<TestResult> {
       status: 'passed',
       message: `User ${user.email} authenticated`,
       duration: Date.now() - start,
-      details: { session: { ...session, current_organization: user.organization_id }, user }
+      details: { session: { user, current_organization: userData.organization_id }, user }
     };
   } catch (error) {
     return {

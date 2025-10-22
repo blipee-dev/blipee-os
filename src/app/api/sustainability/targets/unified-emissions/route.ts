@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { UnifiedSustainabilityCalculator } from '@/lib/sustainability/unified-calculator';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
@@ -40,11 +41,10 @@ import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -96,27 +96,33 @@ export async function GET(request: NextRequest) {
     ];
 
     // Create unified calculator
+    console.log(`[unified-emissions] Creating calculator for org: ${organizationId}`);
     const calculator = new UnifiedSustainabilityCalculator(organizationId);
 
     // Get configuration
+    console.log(`[unified-emissions] Getting sustainability target...`);
     const targetConfig = await calculator.getSustainabilityTarget();
     if (!targetConfig) {
+      console.log(`[unified-emissions] No target found for org: ${organizationId}`);
       return NextResponse.json({
         error: 'No sustainability target found',
         hint: 'Create a sustainability target for this organization first'
       }, { status: 404 });
     }
+    console.log(`[unified-emissions] Target found: baseline=${targetConfig.baseline_year}, reduction=${targetConfig.emission_reduction_percent}%`);
 
     const currentYear = new Date().getFullYear();
     const baselineYear = targetConfig.baseline_year;
     const reductionPercent = targetConfig.emission_reduction_percent;
 
     // Get overall metrics using unified calculator
+    console.log(`[unified-emissions] Fetching baseline, target, projected...`);
     const [baseline, target, projected] = await Promise.all([
       calculator.getBaseline('emissions', baselineYear),
       calculator.getTarget('emissions'),
       calculator.getProjected('emissions'),
     ]);
+    console.log(`[unified-emissions] Metrics fetched: baseline=${baseline?.value}, target=${target?.value}, projected=${projected?.value}`);
 
     if (!baseline || !target || !projected) {
       return NextResponse.json({
@@ -126,6 +132,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get category-level breakdown
+    console.log(`[unified-emissions] Getting category breakdown for ${categories.length} categories...`);
     const categoryData = await getCategoryBreakdown(
       organizationId,
       categories,
@@ -133,9 +140,12 @@ export async function GET(request: NextRequest) {
       currentYear,
       reductionPercent
     );
+    console.log(`[unified-emissions] Category breakdown completed: ${categoryData.length} categories with data`);
 
     // Calculate overall progress
+    console.log(`[unified-emissions] Calculating progress to target...`);
     const progress = await calculator.calculateProgressToTarget('emissions');
+    console.log(`[unified-emissions] Progress calculated: ${progress?.progressPercent}%`);
 
     return NextResponse.json({
       success: true,

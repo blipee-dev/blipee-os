@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createClient } from '@/lib/supabase/server';
 import fs from 'fs';
 import path from 'path';
@@ -8,8 +9,8 @@ export async function POST(request: NextRequest) {
     const supabase = createClient();
     
     // Check if user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

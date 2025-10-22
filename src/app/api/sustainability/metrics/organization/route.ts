@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganization } from '@/lib/auth/get-user-org';
 
 // GET organization's selected metrics
 export async function GET(request: NextRequest) {
-  const supabase = await createServerSupabaseClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const user = await getAPIUser(request);
+    if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -69,10 +69,9 @@ export async function GET(request: NextRequest) {
 
 // POST select metrics for organization
 export async function POST(request: NextRequest) {
-  const supabase = await createServerSupabaseClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const user = await getAPIUser(request);
+    if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -184,10 +183,9 @@ export async function POST(request: NextRequest) {
 
 // DELETE remove metric from organization
 export async function DELETE(request: NextRequest) {
-  const supabase = await createServerSupabaseClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const user = await getAPIUser(request);
+    if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

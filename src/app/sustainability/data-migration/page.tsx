@@ -1,18 +1,12 @@
 import { redirect } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import DataMigrationClient from './DataMigrationClient';
 
 export default async function SustainabilityDataMigrationPage() {
-  const supabase = await createServerSupabaseClient();
-
-  // Check authentication
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/sustainability/data-migration');
-  }
+  // Check authentication using session-based auth
+  const user = await requireServerAuth('/signin?redirect=/sustainability/data-migration');
 
   // Check permissions
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);

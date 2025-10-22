@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { conversationMemoryManager as conversationMemory } from '@/lib/ai/conversation-memory';
 import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-logger';
 
@@ -20,8 +20,8 @@ export async function GET(
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -139,8 +139,8 @@ export async function DELETE(
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

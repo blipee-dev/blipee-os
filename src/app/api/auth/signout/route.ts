@@ -1,25 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
+import { deleteSession, validateSession } from "@/lib/auth/sessions";
+import { createAdminClient } from "@/lib/supabase/server";
+import { auditLogger } from "@/lib/audit/server";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
+    // Get session token from cookie
+    const sessionToken = request.cookies.get('blipee-session')?.value;
 
-    // Sign out from Supabase
-    const { error } = await supabase.auth.signOut();
+    if (sessionToken) {
+      // Validate session to get user info for audit logging
+      const session = await validateSession(sessionToken);
 
-    if (error) {
-      console.error('Supabase signout error:', error);
-      return NextResponse.json(
-        {
-          success: false,
-          error: error.message || "Failed to sign out",
-        },
-        { status: 500 }
-      );
+      if (session) {
+        // Get user data for audit log
+        const supabase = createAdminClient();
+        const { data: user } = await supabase.auth.admin.getUserById(session.user_id);
+
+        // Delete session from database
+        await deleteSession(sessionToken);
+
+        // Log successful logout
+        if (user?.user) {
+          await auditLogger.logAuth('logout', 'success', {
+            email: user.user.email,
+            userId: user.user.id,
+          });
+        }
+      }
     }
 
     // Create response
@@ -28,19 +38,18 @@ export async function POST(request: NextRequest) {
       message: "Signed out successfully",
     });
 
-    // Clear Supabase auth cookies manually
-    const cookieStore = await cookies();
-    const allCookies = cookieStore.getAll();
-
-    // Delete all Supabase-related cookies
-    allCookies.forEach(cookie => {
-      if (cookie.name.includes('sb-') || cookie.name.includes('auth')) {
-        response.cookies.set(cookie.name, '', {
-          maxAge: 0,
-          path: '/',
-        });
-      }
+    // Clear session cookie
+    response.cookies.set('blipee-session', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 0, // Expire immediately
     });
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ [Session Auth] Session deleted and cookie cleared');
+    }
 
     return response;
   } catch (error: any) {

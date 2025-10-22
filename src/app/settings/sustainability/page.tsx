@@ -1,18 +1,12 @@
 import { redirect } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import SustainabilityClient from './SustainabilityClient';
 
 export default async function SustainabilityPage() {
-  const supabase = await createServerSupabaseClient();
-
-  // Check authentication
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/settings/sustainability');
-  }
+  // Check authentication using session-based auth
+  const user = await requireServerAuth('/signin?redirect=/settings/sustainability');
 
   // Check permissions - Only super admin can access this page
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);
@@ -29,14 +23,10 @@ export default async function SustainabilityPage() {
   let initialSites: any[] = [];
 
   try {
-    // Fetch catalog
+    // Fetch catalog (cookies are automatically included in server-side fetch)
     const catalogResponse = await fetch(
       `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/sustainability/metrics/catalog`,
-      {
-        headers: {
-          'Cookie': `sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token=${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
-      }
+      { cache: 'no-store' }
     );
 
     if (catalogResponse.ok) {
@@ -47,11 +37,7 @@ export default async function SustainabilityPage() {
     // Fetch organization's selected metrics
     const orgResponse = await fetch(
       `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/sustainability/metrics/organization`,
-      {
-        headers: {
-          'Cookie': `sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token=${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
-      }
+      { cache: 'no-store' }
     );
 
     if (orgResponse.ok) {
@@ -62,11 +48,7 @@ export default async function SustainabilityPage() {
     // Fetch sites
     const sitesResponse = await fetch(
       `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/sites`,
-      {
-        headers: {
-          'Cookie': `sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token=${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
-      }
+      { cache: 'no-store' }
     );
 
     if (sitesResponse.ok) {

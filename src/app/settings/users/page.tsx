@@ -1,18 +1,15 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { redirect } from 'next/navigation';
 import UsersClient from './UsersClient';
 import { PermissionService } from '@/lib/auth/permission-service';
 
 export default async function UsersPage() {
-  const supabase = await createClient();
+  const supabase = createClient();
   const supabaseAdmin = createAdminClient();
 
   // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/signin');
-  }
+  const user = await requireServerAuth('/signin');
 
   // Check if user is super admin using centralized service
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);

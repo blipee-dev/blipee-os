@@ -32,7 +32,9 @@ export default function SecuritySettingsPage() {
 
   const loadSessions = async () => {
     try {
-      const response = await fetch('/api/auth/sessions');
+      const response = await fetch('/api/auth/sessions', {
+        credentials: 'include' // Ensure cookies are sent with request
+      });
       if (response.ok) {
         const data = await response.json();
         setSessions(data.data.sessions);
@@ -46,12 +48,13 @@ export default function SecuritySettingsPage() {
 
   const terminateSession = async (sessionId: string) => {
     if (!confirm('Are you sure you want to terminate this session?')) return;
-    
+
     try {
       const response = await fetch(`/api/auth/sessions?sessionId=${sessionId}`, {
         method: 'DELETE',
+        credentials: 'include', // Ensure cookies are sent with request
       });
-      
+
       if (response.ok) {
         loadSessions();
       }
@@ -62,12 +65,13 @@ export default function SecuritySettingsPage() {
 
   const terminateAllSessions = async () => {
     if (!confirm('This will sign you out from all other devices. Continue?')) return;
-    
+
     try {
       const response = await fetch('/api/auth/sessions?all=true', {
         method: 'DELETE',
+        credentials: 'include', // Ensure cookies are sent with request
       });
-      
+
       if (response.ok) {
         loadSessions();
       }

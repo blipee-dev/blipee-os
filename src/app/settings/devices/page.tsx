@@ -1,19 +1,16 @@
 import { redirect } from 'next/navigation';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase/server';
 import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import DevicesClient from './DevicesClient';
 
 export default async function DevicesPage() {
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServerSupabaseClient();
   const supabaseAdmin = createAdminClient();
 
   // Check authentication
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/settings/devices');
-  }
+  const user = await requireServerAuth('/signin?redirect=/settings/devices');
 
   // Check permissions - Only super admin can access this page
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);

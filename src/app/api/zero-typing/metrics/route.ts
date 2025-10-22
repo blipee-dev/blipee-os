@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase/server';
 import { startOfMonth, endOfMonth, subMonths } from 'date-fns';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -183,10 +183,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
     const supabaseAdmin = createAdminClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

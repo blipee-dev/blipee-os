@@ -1,19 +1,15 @@
 import { redirect } from 'next/navigation';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase/server';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import { PermissionService } from '@/lib/auth/permission-service';
 import ZeroTypingClient from './ZeroTypingClient';
 
 export default async function ZeroTypingPage() {
-  const supabase = await createServerSupabaseClient();
   const supabaseAdmin = createAdminClient();
 
   // Check authentication
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect('/signin?redirect=/zero-typing');
-  }
+  const user = await requireServerAuth('/signin?redirect=/zero-typing');
 
   // Check if user is super admin
   const isSuperAdmin = await PermissionService.isSuperAdmin(user.id);

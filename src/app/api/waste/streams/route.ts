@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
@@ -6,16 +7,20 @@ import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  try {
-    const supabase = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log('🗑️ [WASTE-STREAMS] API called');
 
-    if (authError || !user) {
+  try {
+    const user = await getAPIUser(request);
+    console.log('🗑️ [WASTE-STREAMS] User auth:', user ? `✅ ${user.id}` : '❌ No user');
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user's organization
     const orgInfo = await getUserOrganizationById(user.id);
+    console.log('🗑️ [WASTE-STREAMS] Org info:', orgInfo.organizationId || '❌ No org');
+
     if (!orgInfo.organizationId) {
       return NextResponse.json({ error: 'No organization found' }, { status: 404 });
     }
@@ -28,6 +33,13 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const siteId = searchParams.get('site_id');
 
+    console.log('🗑️ [WASTE-STREAMS] Filters:', {
+      organizationId,
+      startDate,
+      endDate,
+      siteId: siteId || 'all sites'
+    });
+
     // Get waste metrics from metrics_catalog with new metadata - OPTIMIZED: only fetch needed fields
     // Exclude wastewater metrics (they have waste in the code but are in "Purchased Goods & Services")
     const { data: wasteMetrics, error: metricsError } = await supabaseAdmin
@@ -35,8 +47,10 @@ export async function GET(request: NextRequest) {
       .select('id, code, name, unit, waste_material_type, disposal_method, is_diverted, is_recycling, has_energy_recovery, cost_per_ton')
       .eq('category', 'Waste');
 
+    console.log('🗑️ [WASTE-STREAMS] Metrics catalog:', wasteMetrics ? `✅ ${wasteMetrics.length} metrics` : '❌ No metrics');
+
     if (metricsError) {
-      console.error('Error fetching waste metrics:', metricsError);
+      console.error('❌ [WASTE-STREAMS] Metrics error:', metricsError);
       return NextResponse.json(
         { error: 'Failed to fetch waste metrics', details: metricsError.message },
         { status: 500 }
@@ -44,6 +58,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!wasteMetrics || wasteMetrics.length === 0) {
+      console.log('🗑️ [WASTE-STREAMS] No waste metrics in catalog');
       return NextResponse.json({
         streams: [],
         total_generated: 0,
@@ -116,7 +131,7 @@ export async function GET(request: NextRequest) {
       const { data: batchData, error: batchError } = await query;
 
       if (batchError) {
-        console.error('Error fetching waste data batch:', batchError);
+        console.error('❌ [WASTE-STREAMS] Data error:', batchError);
         return NextResponse.json(
           { error: 'Failed to fetch waste data', details: batchError.message },
           { status: 500 }
@@ -139,7 +154,17 @@ export async function GET(request: NextRequest) {
 
     const wasteData = allData;
 
+    console.log('🗑️ [WASTE-STREAMS] Metrics data:', wasteData ? `✅ ${wasteData.length} records` : '❌ No data');
+    if (wasteData && wasteData.length > 0) {
+      console.log('🗑️ [WASTE-STREAMS] Sample record:', {
+        metric_id: wasteData[0].metric_id,
+        value: wasteData[0].value,
+        period: wasteData[0].period_start
+      });
+    }
+
     if (!wasteData || wasteData.length === 0) {
+      console.log('🗑️ [WASTE-STREAMS] Returning empty result');
       return NextResponse.json({
         streams: [],
         total_generated: 0,

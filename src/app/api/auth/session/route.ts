@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { SessionTracker } from '@/lib/session/tracker';
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     // Get user details from Supabase auth using the userId from session
     const { data: { user }, error: authError } = await supabaseAdmin.auth.admin.getUserById(sessionData.userId);
 
-    if (authError || !user) {
+    if (!user) {
       console.error('Auth error in session endpoint:', authError?.message);
       return NextResponse.json(
         {
@@ -164,9 +165,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

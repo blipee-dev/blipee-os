@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { requireServerAuth } from '@/lib/auth/server-auth';
 import { useCardStore } from '@/lib/state/card-store';
 import { cardRegistry } from '@/lib/cards/card-registry';
 import { masterContext } from '@/lib/context/master-context-engine';

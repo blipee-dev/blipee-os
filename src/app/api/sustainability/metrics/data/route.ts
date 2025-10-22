@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import {
   metricsDataQuerySchema,
@@ -11,10 +12,9 @@ import { getPeriodEmissions, getScopeBreakdown } from '@/lib/sustainability/base
 
 // Internal GET handler
 async function getMetricsData(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createServerSupabaseClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const user = await getAPIUser(request);
+    if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -139,10 +139,9 @@ export const GET = withMiddleware(getMetricsData, {
 
 // POST add metrics data
 export async function POST(request: NextRequest) {
-  const supabase = await createServerSupabaseClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const user = await getAPIUser(request);
+    if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -231,10 +230,9 @@ export async function POST(request: NextRequest) {
 
 // PUT update metrics data
 export async function PUT(request: NextRequest) {
-  const supabase = await createServerSupabaseClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const user = await getAPIUser(request);
+    if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

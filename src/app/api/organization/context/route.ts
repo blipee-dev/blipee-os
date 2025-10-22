@@ -1,21 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { DatabaseContextService } from '@/lib/ai/database-context';
 
 export async function GET(request: NextRequest) {
-  try {
-    // Get authenticated user
-    const supabase = await createClient();
-    const { data: { user }, error } = await supabase.auth.getUser();
+  console.log('🔍 [ORG-CONTEXT] API called');
 
-    if (error || !user) {
+  try {
+    // Get authenticated user using session-based auth
+    const user = await getAPIUser(request);
+    console.log('🔍 [ORG-CONTEXT] User auth result:', user ? `✅ ${user.id} (${user.email})` : '❌ No user');
+
+    if (!user) {
+      console.log('🔍 [ORG-CONTEXT] Returning 401 - Unauthorized');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user's organization context
+    console.log('🔍 [ORG-CONTEXT] Fetching organization context for user:', user.id);
     const context = await DatabaseContextService.getUserOrganizationContext(user.id);
+    console.log('🔍 [ORG-CONTEXT] Context result:', context ? `✅ Org: ${context.organization?.name}` : '❌ No context');
 
     if (!context) {
+      console.log('🔍 [ORG-CONTEXT] No organization found for user');
       return NextResponse.json({
         organization: null,
         sites: [],
@@ -26,8 +32,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Return summary data
-    return NextResponse.json({
+    const response = {
       organization: {
         id: context.organization?.id,
         name: context.organization?.name,
@@ -52,10 +57,20 @@ export async function GET(request: NextRequest) {
       },
       targets: context.targets?.length || 0,
       reports: context.reports?.length || 0
+    };
+
+    console.log('🔍 [ORG-CONTEXT] Returning:', {
+      org: response.organization?.name,
+      sites: response.sites.length,
+      devices: response.devices.length,
+      users: response.users
     });
 
+    // Return summary data
+    return NextResponse.json(response);
+
   } catch (error) {
-    console.error('Error getting organization context:', error);
+    console.error('❌ [ORG-CONTEXT] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

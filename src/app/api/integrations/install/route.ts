@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { marketplaceManager } from '@/lib/integrations/marketplace-manager';
 import { withAPIVersioning } from '@/middleware/api-versioning';
 import { withRateLimit } from '@/middleware/rate-limit';
@@ -24,9 +24,8 @@ async function installIntegration(req: NextRequest, context: any) {
     }
 
     const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'UNAUTHORIZED', message: 'Authentication required' },
         { status: 401 }
@@ -158,9 +157,8 @@ async function uninstallIntegration(req: NextRequest, context: any) {
     }
 
     const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'UNAUTHORIZED', message: 'Authentication required' },
         { status: 401 }
@@ -237,9 +235,8 @@ async function updateIntegrationConfig(req: NextRequest, context: any) {
     }
 
     const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'UNAUTHORIZED', message: 'Authentication required' },
         { status: 401 }

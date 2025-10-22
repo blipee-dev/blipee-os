@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { PermissionService } from '@/lib/auth/permission-service';
@@ -7,10 +8,9 @@ import { calculateEmissionsFromActivity } from '@/lib/sustainability/emissions-c
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -161,10 +161,9 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const user = await getAPIUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

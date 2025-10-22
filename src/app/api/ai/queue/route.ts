@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { createAIRequestQueue } from '@/lib/ai/queue/ai-request-queue';
 import { createSemanticCache } from '@/lib/ai/cache/semantic-cache';
 import { createCostOptimizer } from '@/lib/ai/cost/cost-optimizer';
@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
     const supabase = createClient();
     
     // Check authentication and permissions
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -112,8 +112,8 @@ export async function POST(request: NextRequest) {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -257,8 +257,8 @@ export async function PUT(request: NextRequest) {
     const supabase = createClient();
     
     // Check authentication and admin permissions
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -300,8 +300,8 @@ export async function DELETE(request: NextRequest) {
     const supabase = createClient();
     
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

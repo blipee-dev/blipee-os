@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import * as crypto from 'crypto';
+// Using Web Crypto API (Edge Runtime compatible) instead of Node.js crypto
 
 /**
  * Security event types for audit logging

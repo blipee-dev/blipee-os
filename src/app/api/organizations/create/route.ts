@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { getAPIUser } from '@/lib/auth/server-auth';
 
 // Helper function to map industry_primary to standardized industry + GRI code
 function mapIndustryToStandardized(industryPrimary: string) {
@@ -33,12 +33,10 @@ function mapCompanySizeToCategory(companySize: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
 
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    const user = await getAPIUser(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'User not authenticated' },
         { status: 401 }

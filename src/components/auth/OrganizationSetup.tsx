@@ -86,6 +86,7 @@ export function OrganizationSetup() {
       const response = await fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include', // Ensure cookies are sent with request
         body: JSON.stringify({
           action: "start",
           organizationId: orgId,
