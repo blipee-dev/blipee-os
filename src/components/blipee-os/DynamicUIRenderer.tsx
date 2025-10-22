@@ -114,6 +114,17 @@ const MaterialityMatrix = dynamic(
   },
 );
 
+const AgentResultCard = dynamic(
+  () =>
+    import("@/components/ai/AgentResultCard").then(
+      (mod) => mod.AgentResultCard,
+    ),
+  {
+    ssr: false,
+    loading: () => <div className="h-64 bg-surface rounded-lg animate-pulse" />,
+  },
+);
+
 interface DynamicUIRendererProps {
   components: UIComponent[];
 }
@@ -166,6 +177,17 @@ export function DynamicUIRenderer({ components }: DynamicUIRendererProps) {
 
       case "materiality-matrix":
         return <MaterialityMatrix key={key} topics={component.props.topics || []} {...component.props} />;
+
+      case "agent-result":
+        return (
+          <AgentResultCard
+            key={key}
+            agentId={(component as any).agentId || 'unknown'}
+            agentName={(component as any).agentName || 'AI Agent'}
+            agentIcon={(component as any).agentIcon || '🤖'}
+            {...component.props}
+          />
+        );
 
       case "optimization-dashboard":
         return (

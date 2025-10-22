@@ -38,6 +38,7 @@ interface BuildingContext {
 
 interface ConversationInterfaceProps {
   buildingContext?: BuildingContext;
+  fullscreen?: boolean;
 }
 
 interface StoredConversation {
@@ -51,6 +52,7 @@ interface StoredConversation {
 
 export function ConversationInterface({
   buildingContext,
+  fullscreen = false,
 }: ConversationInterfaceProps = {}) {
   const [conversations, setConversations] = useState<StoredConversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
@@ -448,10 +450,11 @@ export function ConversationInterface({
     .pop();
 
   return (
-    <div className="flex h-screen bg-white dark:bg-[#212121] pb-16 md:pb-0">
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:block">
-        <ConversationSidebar
+    <div className={`flex h-screen bg-white dark:bg-[#212121] ${fullscreen ? '' : 'pb-16 md:pb-0'}`}>
+      {/* Desktop Sidebar - hidden in fullscreen mode */}
+      {!fullscreen && (
+        <div className="hidden lg:block">
+          <ConversationSidebar
           currentConversationId={currentConversationId}
           onNewConversation={createNewConversation}
           onSelectConversation={selectConversation}
@@ -470,8 +473,8 @@ export function ConversationInterface({
           }}
           showChats={showChats}
         />
-      </div>
-
+        </div>
+      )}
 
       {/* Main content */}
       <div className="flex-1 flex">
@@ -647,9 +650,9 @@ export function ConversationInterface({
           />
         )}
       </div>
-      
-      {/* Mobile Navigation */}
-      <MobileNavigation onNewChat={createNewConversation} />
+
+      {/* Mobile Navigation - hidden in fullscreen mode */}
+      {!fullscreen && <MobileNavigation onNewChat={createNewConversation} />}
     </div>
   );
 }
