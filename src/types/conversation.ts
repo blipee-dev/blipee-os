@@ -18,6 +18,26 @@ export interface Message {
     language?: string;
     content: string;
   };
+  // ✅ PHASE 3: Agent insights from autonomous AI agents
+  agentInsights?: {
+    available: boolean;
+    agents: string[];
+    insights: AgentInsight[];
+  };
+}
+
+export interface AgentInsight {
+  agent: string;
+  summary: string;
+  actions: AgentAction[];
+  nextSteps: string[];
+  confidence: number;
+}
+
+export interface AgentAction {
+  type: string;
+  description: string;
+  impact?: number;
 }
 
 export interface UIComponent {

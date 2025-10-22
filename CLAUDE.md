@@ -173,6 +173,50 @@ We are executing a 24-week sprint plan with 4 parallel streams to achieve market
 
 **See `/docs/BLIPEE_DOMINATION_ROADMAP.md` for the complete implementation plan**
 
+## 🚨 CRITICAL: Current Implementation Priority
+
+**Active Plan:** `/docs/PRODUCTION_READY_PLAN.md` (3-4 week sprint to production)
+
+### The Mission
+Connect our 25+ working sustainability dashboards with our 8 autonomous AI agents. Currently they're isolated - dashboards show data, agents analyze in the background but users never see their insights.
+
+### 3 Critical Bugs to Fix
+1. **Agent Results Not Displayed** - `/src/app/api/ai/chat/route.ts:114-216`
+   - Agent insights collected but never returned to users
+   - Fix: Include `agentInsights` in API response
+
+2. **Mock Data Throughout Agents** - 90% of agent methods use `Math.random()` or hardcoded values
+   - Carbon Hunter, Compliance Guardian, ESG Chief all affected
+   - Fix: Replace with real database queries (detailed in plan)
+
+3. **Missing Intelligence Layer** - No orchestration connecting dashboards to AI
+   - Fix: Build `/src/lib/sustainability-intelligence/` service
+
+### Implementation Phases (20 days)
+- **Phase 1** (3d): Fix agent mock data → Real database queries
+- **Phase 2** (2d): Build Intelligence Layer → Orchestrate AI systems
+- **Phase 3** (2d): Fix Chat API → Display agent insights
+- **Phase 4** (3d): Dashboard Integration → Enrich with AI
+- **Phase 5** (3d): Mobile Strategy → Conversational on mobile, dashboards on desktop
+- **Phase 6** (2d): Testing & QA → 80%+ coverage
+- **Phase 7** (5d): Production Deploy → Staged rollout with monitoring
+
+### Success Criteria
+- ✅ Zero `Math.random()` or hardcoded values - ALL data from database
+- ✅ Agent insights visible in conversations AND dashboards
+- ✅ Mobile: 100% conversational (< 768px), Desktop: Dashboards + AI (> 1024px)
+- ✅ Performance: Dashboard < 2s, Intelligence < 3s, Chat < 1s
+
+### When Working on This
+**Always reference** `/docs/PRODUCTION_READY_PLAN.md` for:
+- Complete code examples for every fix
+- Database schema requirements
+- API contracts and response formats
+- Testing checklists
+- Deployment procedures
+
+**The goal:** Transform from "fragmented AI + working dashboards" to "unified AI-powered sustainability intelligence platform" with ZERO mock data.
+
 ## Design System
 
 - **Glass Morphism**: `backdrop-blur-xl bg-white/[0.03] border border-white/[0.05]`
@@ -188,3 +232,54 @@ Remember: We're building autonomous AI employees, not just software. Every featu
 - Get us closer to the 20-point market lead
 
 **This is not an incremental improvement - this is a paradigm shift in how organizations manage sustainability.**
+- remember to use the MCP integrations for Supabase and Vercel operations.
+
+  My Available MCP Tools:
+
+  Supabase MCP (mcp__supabase__*):
+  - Project management (list, get, create, pause, restore)
+  - Database operations (list tables, execute SQL, apply migrations)
+  - Edge Functions (list, get, deploy)
+  - Logs and monitoring (get logs, advisors)
+  - Branch management (create, merge, reset, rebase)
+  - TypeScript types generation
+  - API keys and URLs
+
+  Vercel MCP (mcp__vercel__*):
+  - General Vercel operations
+  - Project-specific operations for blipee-os
+  - Deployment management
+  - Log analysis
+  - Documentation search
+
+  Current Setup:
+  - ✓ Supabase MCP connected to blipee-os (quovvwrwyfkzhgqdeham)
+  - ✓ Vercel MCP connected (general)
+  - ✓ Vercel MCP connected (blipee-os specific)
+- remember 6 MCP Servers Running:
+
+  1. ✓ Supabase - Full database management
+    - List/manage tables, execute SQL, apply migrations
+    - Edge Functions deployment
+    - Logs, security advisors, performance monitoring
+    - Branch management for dev workflows
+  2. ✓ Vercel (General) - Platform operations
+    - Manage all Vercel projects
+    - Deployment monitoring
+    - Documentation search
+  3. ✓ Vercel-blipee-os (Project-specific) - Enhanced context
+    - Quick access to blipee-os deployments
+    - Project-specific logs and analytics
+    - Direct integration with http://www.blipee.io
+  4. ✓ Boikot - ESG/Sustainability Intelligence 🌱
+    - Lookup ethical/unethical company actions
+    - Perfect for your sustainability platform!
+    - Tool: lookup_company_information
+  5. ✓ Filesystem - Secure file operations
+    - Read/write files in your project
+    - Sandboxed to /Users/pedro/Documents/blipee/blipee-os/blipee-os
+    - Useful for document processing workflows
+  6. ✓ Memory - Knowledge graph persistence
+    - Maintains context across conversations
+    - Tracks project knowledge, patterns, and decisions
+    - Improves with every interaction

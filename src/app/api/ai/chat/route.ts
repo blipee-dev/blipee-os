@@ -8,6 +8,7 @@ import { predictiveIntelligence } from "@/lib/ai/predictive-intelligence";
 import { MLPipeline } from "@/lib/ai/ml-models/ml-pipeline-client";
 import { DatabaseContextService } from "@/lib/ai/database-context";
 import { createDatabaseIntelligence } from "@/lib/ai/database-intelligence";
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 // Import the new Conversation Intelligence System
 import { conversationalIntelligenceOrchestrator } from "@/lib/ai/conversation-intelligence";
@@ -91,6 +92,9 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
       await initializeAutonomousAgents(organizationId);
     }
 
+    // Create Supabase client for database queries
+    const supabase = createServerSupabaseClient();
+
     // Get conversation history for context
     const { data: conversationHistory } = await supabase
       .from('conversation_intelligence_results')
@@ -166,7 +170,8 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
           sessionMetadata: {
             buildingContext,
             attachments,
-            requestTimestamp: new Date().toISOString()
+            requestTimestamp: new Date().toISOString(),
+            agentInsights // ✅ PHASE 3: Pass agent insights to conversation intelligence
           }
         }
       );
@@ -175,9 +180,16 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
       const response = {
         content: intelligenceResult.systemResponse,
         suggestions: intelligenceResult.nextQuestionPredictions.slice(0, 4).map(pred => pred.question),
-        components: generateUIComponents(intelligenceResult),
+        components: generateUIComponents(intelligenceResult, agentInsights),
         timestamp: intelligenceResult.timestamp.toISOString(),
         cached: false,
+
+        // ✅ PHASE 3: Include agent insights in response
+        agentInsights: {
+          available: Object.keys(agentInsights).length > 0,
+          agents: Object.keys(agentInsights),
+          insights: formatAgentInsights(agentInsights)
+        },
         // Enhanced metadata from conversation intelligence
         metadata: {
           conversationTurn: intelligenceResult.dialogueState.currentTurn,
@@ -273,10 +285,47 @@ async function handleChatMessage(request: NextRequest): Promise<NextResponse> {
 // ===================================================================
 
 /**
+ * Format agent insights for frontend display
+ * ✅ PHASE 3: New helper function to structure agent results
+ */
+function formatAgentInsights(agentInsights: Record<string, any>): any[] {
+  const formatted = [];
+
+  for (const [agentName, result] of Object.entries(agentInsights)) {
+    if (!result || !result.success) continue;
+
+    formatted.push({
+      agent: agentName,
+      summary: result.insights?.slice(0, 3).join('. ') || 'Analysis complete',
+      actions: result.actions?.map((a: any) => ({
+        type: a.type,
+        description: a.description,
+        impact: a.impact
+      })) || [],
+      nextSteps: result.nextSteps || [],
+      confidence: result.learnings?.[0]?.confidence || 0.8
+    });
+  }
+
+  return formatted;
+}
+
+/**
  * Generate UI components based on conversation intelligence results
  */
-function generateUIComponents(intelligenceResult: any): any[] {
+function generateUIComponents(intelligenceResult: any, agentInsights?: Record<string, any>): any[] {
   const components = [];
+
+  // ✅ PHASE 3: Add agent insight components if available
+  if (agentInsights && Object.keys(agentInsights).length > 0) {
+    components.push({
+      type: 'agent-insights',
+      props: {
+        title: 'AI Agent Analysis',
+        insights: formatAgentInsights(agentInsights)
+      }
+    });
+  }
 
   // Add conversation health dashboard if there are alerts
   if (intelligenceResult.conversationMetrics.conversationHealth.alerts.length > 0) {

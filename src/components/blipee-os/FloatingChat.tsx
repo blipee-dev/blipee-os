@@ -90,6 +90,7 @@ export function FloatingChat({ organizationId, onNewInsights }: FloatingChatProp
             whileTap={{ scale: 0.95 }}
             onClick={toggleChat}
             className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center text-white group"
+            data-testid="floating-chat-button"
           >
             <MessageSquare className="w-6 h-6" />
 

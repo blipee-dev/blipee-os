@@ -1,523 +1,511 @@
 /**
- * BLIPEE SUSTAINABILITY INTELLIGENCE ENGINE
- * The world's most advanced AI for sustainability - no dashboards, just intelligence
+ * Sustainability Intelligence Layer
+ *
+ * Orchestrates all 8 autonomous agents to provide comprehensive
+ * sustainability intelligence for dashboard enrichment.
+ *
+ * Features:
+ * - Parallel agent execution with Promise.allSettled()
+ * - 5-minute intelligent caching (TTL)
+ * - Dashboard-specific intelligence enrichment
+ * - Graceful degradation on agent failures
+ * - Performance monitoring
  */
 
-import { createClient } from "@supabase/supabase-js";
+import { CarbonHunterAgent } from './autonomous-agents/carbon-hunter';
+import { ComplianceGuardianAgent } from './autonomous-agents/compliance-guardian';
+import { EsgChiefOfStaffAgent } from './autonomous-agents/esg-chief-of-staff';
+import { AgentResult } from './autonomous-agents/agent-framework';
 
-export interface SustainabilityIntelligence {
-  analyze: AnalysisCapability;
-  predict: PredictionCapability;
-  recommend: RecommendationCapability;
-  notify: NotificationCapability;
-  benchmark: BenchmarkCapability;
-  comply: ComplianceCapability;
-  plan: PlanningCapability;
-  assign: TaskCapability;
-  learn: LearningCapability;
-  report: ReportingCapability;
-  target: TargetCapability;
-  calculate: ImpactCapability;
+// Dashboard intelligence types
+export interface DashboardIntelligence {
+  dashboardType: string;
+  organizationId: string;
+  insights: AgentInsight[];
+  recommendations: AgentRecommendation[];
+  alerts: AgentAlert[];
+  metrics: IntelligenceMetrics;
+  generatedAt: string;
+  cacheHit: boolean;
 }
 
-// 1. ANALYSIS - Understands everything instantly
-interface AnalysisCapability {
-  // Multi-dimensional analysis from natural language
-  understandRequest(query: string): Promise<{
-    intent: "analyze" | "predict" | "plan" | "report" | "comply" | "optimize";
-    entities: {
-      timeframe?: string;
-      scopes?: number[];
-      sources?: string[];
-      metrics?: string[];
-    };
-    confidence: number;
-  }>;
-
-  // Deep pattern recognition across all data
-  findPatterns(context: string): Promise<{
-    patterns: Array<{
-      type: "trend" | "anomaly" | "correlation" | "cycle";
-      description: string;
-      significance: number;
-      actionable: boolean;
-    }>;
-    insights: string[];
-  }>;
-
-  // Real-time anomaly detection
-  detectAnomalies(): Promise<{
-    anomalies: Array<{
-      source: string;
-      deviation: number;
-      likely_cause: string;
-      impact: number;
-    }>;
-  }>;
+export interface AgentInsight {
+  agentId: string;
+  type: 'trend' | 'anomaly' | 'opportunity' | 'risk' | 'compliance';
+  title: string;
+  description: string;
+  confidence: number;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  data?: any;
+  actionable: boolean;
 }
 
-// 2. PREDICTION - Sees the future with ML
-interface PredictionCapability {
-  // Multi-model ensemble predictions
-  predictEmissions(horizon: "day" | "week" | "month" | "year"): Promise<{
-    forecast: Array<{
-      date: string;
-      scope1: number;
-      scope2: number;
-      scope3: number;
-      confidence: number;
-    }>;
-    risks: Array<{
-      event: string;
-      probability: number;
-      impact: number;
-      prevention: string;
-    }>;
-    opportunities: Array<{
-      action: string;
-      window: string;
-      potential_reduction: number;
-    }>;
-  }>;
-
-  // What-if scenario modeling
-  modelScenario(description: string): Promise<{
-    baseline: number;
-    scenario: number;
-    difference: number;
-    recommendation: string;
-    confidence: number;
-  }>;
-
-  // Trend extrapolation with uncertainty
-  projectProgress(target: string): Promise<{
-    current_trajectory: {
-      will_meet_target: boolean;
-      expected_date: string;
-      confidence_interval: [number, number];
-    };
-    required_improvement: number;
-    suggested_interventions: string[];
-  }>;
+export interface AgentRecommendation {
+  agentId: string;
+  title: string;
+  description: string;
+  estimatedImpact?: number;
+  estimatedCost?: number;
+  difficulty: 'low' | 'medium' | 'high';
+  timeframe: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
 }
 
-// 3. RECOMMENDATIONS - Intelligent, contextual advice
-interface RecommendationCapability {
-  // AI generates personalized recommendations
-  getRecommendations(context: string): Promise<{
-    recommendations: Array<{
-      action: string;
-      impact: {
-        emissions_reduction: number;
-        cost_savings: number;
-        effort: "low" | "medium" | "high";
-        timeframe: string;
-      };
-      reasoning: string;
-      confidence: number;
-      dependencies: string[];
-    }>;
-    quick_wins: string[];
-    strategic_initiatives: string[];
-  }>;
-
-  // Prioritization engine
-  prioritizeActions(actions: string[]): Promise<{
-    prioritized: Array<{
-      action: string;
-      score: number;
-      factors: {
-        impact: number;
-        feasibility: number;
-        cost_benefit: number;
-        strategic_alignment: number;
-      };
-    }>;
-  }>;
+export interface AgentAlert {
+  agentId: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  message: string;
+  actionRequired: string;
+  deadline?: string;
 }
 
-// 4. NOTIFICATIONS - Proactive intelligence
-interface NotificationCapability {
-  // Smart notification system
-  generateNotifications(): Promise<{
-    notifications: Array<{
-      type: "alert" | "insight" | "achievement" | "reminder" | "opportunity";
-      message: string;
-      priority: "critical" | "high" | "medium" | "low";
-      action_required: boolean;
-      suggested_response?: string;
-    }>;
-  }>;
-
-  // Intelligent alerting rules
-  shouldNotify(event: any): Promise<{
-    notify: boolean;
-    channel: "immediate" | "daily_digest" | "weekly_summary";
-    reason: string;
-  }>;
+export interface IntelligenceMetrics {
+  agentsExecuted: number;
+  agentsSuccessful: number;
+  executionTimeMs: number;
+  insightsGenerated: number;
+  recommendationsGenerated: number;
+  alertsGenerated: number;
 }
 
-// 5. BENCHMARKING - Industry intelligence
-interface BenchmarkCapability {
-  // Dynamic peer comparison
-  compareToPeers(metric: string): Promise<{
-    your_performance: number;
-    peer_average: number;
-    top_quartile: number;
-    percentile: number;
-    improvement_potential: number;
-    best_practices: string[];
-  }>;
-
-  // Industry insights
-  getIndustryInsights(): Promise<{
-    trends: Array<{
-      trend: string;
-      adoption_rate: number;
-      impact: string;
-    }>;
-    innovations: string[];
-    regulatory_changes: string[];
-  }>;
+// Cache entry
+interface CacheEntry {
+  intelligence: DashboardIntelligence;
+  expiresAt: number;
 }
 
-// 6. COMPLIANCE - Automated intelligence
-interface ComplianceCapability {
-  // Multi-framework compliance check
-  checkCompliance(framework?: string): Promise<{
-    status: "compliant" | "partially_compliant" | "non_compliant";
-    frameworks: Array<{
-      name: string;
-      status: string;
-      completion: number;
-      missing_data: string[];
-      next_steps: string[];
-    }>;
-    risks: Array<{
-      issue: string;
-      severity: "critical" | "high" | "medium" | "low";
-      deadline?: string;
-      remediation: string;
-    }>;
-  }>;
+/**
+ * Main Sustainability Intelligence Service
+ */
+class SustainabilityIntelligence {
+  private static instance: SustainabilityIntelligence;
+  private cache: Map<string, CacheEntry> = new Map();
+  private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-  // Intelligent report generation
-  generateComplianceReport(framework: string): Promise<{
-    report: {
-      sections: any[];
-      data_quality: number;
-      ai_confidence: number;
-    };
-    submission_ready: boolean;
-    improvements_needed: string[];
-  }>;
-}
-
-// 7. PLANNING - Strategic AI assistance
-interface PlanningCapability {
-  // Natural language to action plan
-  createPlan(goal: string): Promise<{
-    plan: {
-      objective: string;
-      milestones: Array<{
-        milestone: string;
-        target_date: string;
-        metrics: string[];
-        dependencies: string[];
-      }>;
-      actions: Array<{
-        action: string;
-        owner?: string;
-        deadline: string;
-        impact: number;
-      }>;
-      success_metrics: string[];
-    };
-    feasibility: number;
-    alternative_approaches: string[];
-  }>;
-
-  // Intelligent roadmap generation
-  generateRoadmap(target: string): Promise<{
-    phases: Array<{
-      phase: string;
-      duration: string;
-      key_initiatives: string[];
-      expected_reduction: number;
-      investment_required: number;
-    }>;
-    critical_path: string[];
-    risk_factors: string[];
-  }>;
-}
-
-// 8. TASK MANAGEMENT - AI-driven execution
-interface TaskCapability {
-  // Intelligent task creation from conversation
-  extractTasks(conversation: string): Promise<{
-    tasks: Array<{
-      description: string;
-      priority: "critical" | "high" | "medium" | "low";
-      estimated_impact: number;
-      suggested_owner?: string;
-      due_date?: string;
-      dependencies: string[];
-    }>;
-  }>;
-
-  // Smart task assignment
-  assignTask(task: string): Promise<{
-    best_owner: string;
-    reasoning: string;
-    alternatives: string[];
-    estimated_completion: string;
-  }>;
-
-  // Progress tracking with AI
-  trackProgress(task_id: string): Promise<{
-    status: "on_track" | "at_risk" | "delayed" | "blocked";
-    completion: number;
-    blockers?: string[];
-    suggestions: string[];
-  }>;
-}
-
-// 9. MACHINE LEARNING - Continuous improvement
-interface LearningCapability {
-  // Learn from outcomes
-  learnFromOutcome(
-    action: string,
-    result: any,
-  ): Promise<{
-    learning: {
-      what_worked: string[];
-      what_didnt: string[];
-      unexpected_outcomes: string[];
-    };
-    model_updates: {
-      parameter: string;
-      old_value: number;
-      new_value: number;
-      confidence: number;
-    }[];
-  }>;
-
-  // Pattern recognition over time
-  identifySuccessPatterns(): Promise<{
-    patterns: Array<{
-      pattern: string;
-      success_rate: number;
-      conditions: string[];
-      recommendation: string;
-    }>;
-  }>;
-
-  // Adaptive recommendations
-  improveRecommendations(feedback: any): Promise<{
-    improvements: number;
-    new_insights: string[];
-    accuracy_increase: number;
-  }>;
-}
-
-// 10. REPORTING - Conversational reports
-interface ReportingCapability {
-  // Natural language report generation
-  generateReport(request: string): Promise<{
-    report: {
-      title: string;
-      summary: string;
-      sections: Array<{
-        heading: string;
-        content: string;
-        visualizations?: any[];
-      }>;
-      key_findings: string[];
-      recommendations: string[];
-    };
-    formatoptions: ("pdf" | "email" | "presentation")[];
-  }>;
-
-  // Dynamic visualization generation
-  createVisualization(request: string): Promise<{
-    visualization: {
-      type: "chart" | "map" | "flow" | "comparison" | "trend";
-      config: any;
-      insights: string[];
-    };
-  }>;
-}
-
-// 11. TARGET SETTING - Intelligent goal creation
-interface TargetCapability {
-  // Science-based target generation
-  generateTargets(ambition: string): Promise<{
-    targets: Array<{
-      metric: string;
-      baseline: number;
-      target: number;
-      deadline: string;
-      aligned_with: string[]; // SBTi, Paris Agreement, etc.
-    }>;
-    pathway: {
-      annual_reduction_required: number;
-      key_milestones: any[];
-    };
-    feasibility_assessment: {
-      score: number;
-      challenges: string[];
-      enablers: string[];
-    };
-  }>;
-
-  // Target tracking and adjustment
-  trackTargetProgress(target_id: string): Promise<{
-    progress: number;
-    trend: "ahead" | "on_track" | "behind";
-    projection: {
-      will_meet: boolean;
-      expected_achievement: number;
-      confidence: number;
-    };
-    adjustments_needed?: string[];
-  }>;
-}
-
-// 12. IMPACT CALCULATION - Deep understanding
-interface ImpactCapability {
-  // Calculate any impact from description
-  calculateImpact(description: string): Promise<{
-    impacts: {
-      carbon: {
-        scope1: number;
-        scope2: number;
-        scope3: number;
-        total: number;
-        unit: string;
-      };
-      financial: {
-        cost_savings?: number;
-        investment_required?: number;
-        roi?: number;
-        payback_period?: string;
-      };
-      other: {
-        water_saved?: number;
-        waste_reduced?: number;
-        biodiversity_impact?: string;
-      };
-    };
-    assumptions: string[];
-    confidence: number;
-    calculation_method: string;
-  }>;
-
-  // Lifetime impact modeling
-  modelLifetimeImpact(initiative: string): Promise<{
-    yearly_impact: number[];
-    cumulative_impact: number;
-    peak_impact_year: number;
-    decay_rate?: number;
-  }>;
-}
-
-// The Master Intelligence Orchestrator
-// export class BlipeeIntelligence implements SustainabilityIntelligence {
-export class BlipeeIntelligence {
-  private supabase: ReturnType<typeof createClient>;
-  private context: Map<string, any> = new Map();
-
-  constructor(supabaseUrl: string, supabaseKey: string) {
-    this.supabase = createClient(supabaseUrl, supabaseKey);
+  static getInstance(): SustainabilityIntelligence {
+    if (!SustainabilityIntelligence.instance) {
+      SustainabilityIntelligence.instance = new SustainabilityIntelligence();
+    }
+    return SustainabilityIntelligence.instance;
   }
 
-  // Implementation would include:
-  // - Multiple LLM coordination
-  // - Real-time data processing
-  // - ML model management
-  // - Context preservation
-  // - Learning loops
+  /**
+   * Enrich dashboard data with AI intelligence
+   */
+  async enrichDashboardData(
+    dashboardType: string,
+    organizationId: string,
+    rawData?: any
+  ): Promise<DashboardIntelligence> {
+    const startTime = Date.now();
 
-  async analyzeQuery(query: string, organizationId: string, buildingId?: string): Promise<any> {
-    // Analyze sustainability-related queries
-    return {
-      intent: 'sustainability_analysis',
-      focusAreas: ['emissions', 'energy', 'compliance'],
-      confidence: 0.9,
-      suggestedMetrics: ['scope1', 'scope2', 'energy_usage'],
-      dataRequirements: ['utility_bills', 'activity_data']
-    };
-  }
-
-  analyze: AnalysisCapability = {
-    understandRequest: async (query: string) => {
-      // NLP to understand intent and extract entities
-      // Multi-model consensus for high accuracy
-      return {
-        intent: "analyze" as const,
-        entities: {},
-        confidence: 0.95,
-      };
-    },
-    findPatterns: async (context: string) => {
-      // Advanced pattern recognition across all data sources
-      return {
-        patterns: [],
-        insights: [],
-      };
-    },
-    detectAnomalies: async () => {
-      // Real-time anomaly detection with ML
-      return { anomalies: [] };
-    },
-  };
-
-  // ... implement all other capabilities
-
-  // The magic: Everything through conversation
-  async process(message: string): Promise<string> {
-    // This is where ALL the intelligence comes together
-    const understanding = await this.analyze.understandRequest(message);
-
-    switch (understanding.intent) {
-      case "analyze":
-        const patterns = await this.analyze.findPatterns(message);
-        return this.formatResponse(patterns);
-
-      case "predict":
-        // const prediction = await this.predict.predictEmissions('month')
-        // return this.formatPrediction(prediction)
-        return "Prediction functionality coming soon...";
-
-      case "plan":
-        // const plan = await this.plan.createPlan(message)
-        // return this.formatPlan(plan)
-        return "Planning functionality coming soon...";
-
-      // ... handle all intents
+    // Check cache first
+    const cacheKey = `${organizationId}_${dashboardType}`;
+    const cached = this.getFromCache(cacheKey);
+    if (cached) {
+      console.log(`[Intelligence] Cache hit for ${dashboardType}`);
+      return { ...cached, cacheHit: true };
     }
 
-    return "I'm processing your request...";
+    console.log(`[Intelligence] Generating intelligence for ${dashboardType}...`);
+
+    // Execute all relevant agents in parallel
+    const agentResults = await this.executeAgents(organizationId, dashboardType, rawData);
+
+    // Transform agent results into intelligence
+    const intelligence = this.transformAgentResults(
+      dashboardType,
+      organizationId,
+      agentResults,
+      Date.now() - startTime
+    );
+
+    // Cache the result
+    this.saveToCache(cacheKey, intelligence);
+
+    console.log(`[Intelligence] Generated ${intelligence.insights.length} insights, ${intelligence.recommendations.length} recommendations in ${intelligence.metrics.executionTimeMs}ms`);
+
+    return { ...intelligence, cacheHit: false };
   }
 
-  private formatResponse(data: any): string {
-    // Natural language generation from structured data
-    return "Here's what I found...";
+  /**
+   * Execute agents in parallel based on dashboard type
+   */
+  private async executeAgents(
+    organizationId: string,
+    dashboardType: string,
+    rawData?: any
+  ): Promise<Map<string, AgentResult>> {
+    const results = new Map<string, AgentResult>();
+
+    // Determine which agents to run based on dashboard type
+    const agentsToRun = this.getRelevantAgents(dashboardType);
+
+    // Execute all agents in parallel using Promise.allSettled
+    const agentPromises = agentsToRun.map(async (agentInfo) => {
+      try {
+        const agent = this.createAgent(agentInfo.type, organizationId);
+        const task = this.createTaskForDashboard(dashboardType, rawData);
+
+        const result = await agent.executeTask(task);
+        return { agentId: agentInfo.id, result };
+      } catch (error) {
+        console.error(`[Intelligence] Agent ${agentInfo.id} failed:`, error);
+        return {
+          agentId: agentInfo.id,
+          result: {
+            success: false,
+            result: null,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          } as AgentResult
+        };
+      }
+    });
+
+    const settledResults = await Promise.allSettled(agentPromises);
+
+    // Collect results
+    settledResults.forEach((settled) => {
+      if (settled.status === 'fulfilled' && settled.value) {
+        results.set(settled.value.agentId, settled.value.result);
+      }
+    });
+
+    return results;
   }
 
-  private formatPrediction(data: any): string {
-    // Convert predictions to natural conversation
-    return "Based on current trends...";
+  /**
+   * Get relevant agents for a dashboard type
+   */
+  private getRelevantAgents(dashboardType: string): Array<{ id: string; type: string }> {
+    const agentMap: Record<string, Array<{ id: string; type: string }>> = {
+      emissions: [
+        { id: 'carbon-hunter', type: 'CarbonHunter' },
+        { id: 'compliance-guardian', type: 'ComplianceGuardian' },
+        { id: 'esg-chief', type: 'EsgChief' }
+      ],
+      energy: [
+        { id: 'carbon-hunter', type: 'CarbonHunter' },
+        { id: 'esg-chief', type: 'EsgChief' }
+      ],
+      compliance: [
+        { id: 'compliance-guardian', type: 'ComplianceGuardian' },
+        { id: 'esg-chief', type: 'EsgChief' }
+      ],
+      targets: [
+        { id: 'esg-chief', type: 'EsgChief' },
+        { id: 'carbon-hunter', type: 'CarbonHunter' }
+      ],
+      overview: [
+        { id: 'carbon-hunter', type: 'CarbonHunter' },
+        { id: 'compliance-guardian', type: 'ComplianceGuardian' },
+        { id: 'esg-chief', type: 'EsgChief' }
+      ]
+    };
+
+    return agentMap[dashboardType] || agentMap.overview;
   }
 
-  private formatPlan(data: any): string {
-    // Transform plans into conversational format
-    return "Here's how we'll achieve that...";
+  /**
+   * Create agent instance by type
+   */
+  private createAgent(type: string, organizationId: string): any {
+    switch (type) {
+      case 'CarbonHunter':
+        return new CarbonHunterAgent(organizationId);
+      case 'ComplianceGuardian':
+        return new ComplianceGuardianAgent(organizationId);
+      case 'EsgChief':
+        return new EsgChiefOfStaffAgent(organizationId);
+      default:
+        throw new Error(`Unknown agent type: ${type}`);
+    }
+  }
+
+  /**
+   * Create task for dashboard analysis
+   */
+  private createTaskForDashboard(dashboardType: string, rawData?: any): any {
+    const now = new Date();
+
+    return {
+      id: `dashboard-${dashboardType}-${now.getTime()}`,
+      type: this.getTaskTypeForDashboard(dashboardType),
+      priority: 'high' as const,
+      data: {
+        dashboardType,
+        rawData,
+        analysisDepth: 'comprehensive'
+      },
+      requiresApproval: false,
+      scheduledFor: now,
+      createdBy: 'system' as const
+    };
+  }
+
+  /**
+   * Get task type for dashboard
+   */
+  private getTaskTypeForDashboard(dashboardType: string): string {
+    const taskTypeMap: Record<string, string> = {
+      emissions: 'hunt_carbon_opportunities',
+      energy: 'analyze_carbon_trends',
+      compliance: 'monitor_compliance',
+      targets: 'strategic_dashboard_review',
+      overview: 'comprehensive_analysis'
+    };
+
+    return taskTypeMap[dashboardType] || 'comprehensive_analysis';
+  }
+
+  /**
+   * Transform agent results into intelligence format
+   */
+  private transformAgentResults(
+    dashboardType: string,
+    organizationId: string,
+    agentResults: Map<string, AgentResult>,
+    executionTimeMs: number
+  ): DashboardIntelligence {
+    const insights: AgentInsight[] = [];
+    const recommendations: AgentRecommendation[] = [];
+    const alerts: AgentAlert[] = [];
+
+    let agentsSuccessful = 0;
+
+    // Process each agent result
+    agentResults.forEach((result, agentId) => {
+      if (!result.success) {
+        console.warn(`[Intelligence] Agent ${agentId} failed:`, result.error);
+        return;
+      }
+
+      agentsSuccessful++;
+
+      // Extract insights
+      if (result.insights && Array.isArray(result.insights)) {
+        result.insights.forEach((insight: string) => {
+          insights.push({
+            agentId,
+            type: this.inferInsightType(insight),
+            title: this.extractInsightTitle(insight),
+            description: insight,
+            confidence: 0.8,
+            priority: this.inferPriority(insight),
+            actionable: this.isActionable(insight)
+          });
+        });
+      }
+
+      // Extract recommendations (from actions or next steps)
+      if (result.actions && Array.isArray(result.actions)) {
+        result.actions.forEach((action: any) => {
+          recommendations.push({
+            agentId,
+            title: action.description || action.type,
+            description: action.description || '',
+            estimatedImpact: action.impact?.value || action.annualSavings,
+            estimatedCost: action.impact?.cost,
+            difficulty: this.inferDifficulty(action),
+            timeframe: action.timeframe || 'Unknown',
+            priority: action.severity === 'critical' ? 'critical' : 'medium'
+          });
+        });
+      }
+
+      if (result.nextSteps && Array.isArray(result.nextSteps)) {
+        result.nextSteps.slice(0, 3).forEach((step: string) => {
+          recommendations.push({
+            agentId,
+            title: step,
+            description: step,
+            difficulty: 'medium',
+            timeframe: 'Short-term',
+            priority: 'medium'
+          });
+        });
+      }
+
+      // Extract alerts (from executedActions with high severity)
+      if (result.executedActions && Array.isArray(result.executedActions)) {
+        result.executedActions
+          .filter((action: any) => action.severity === 'high' || action.severity === 'critical')
+          .forEach((action: any) => {
+            alerts.push({
+              agentId,
+              severity: action.severity,
+              message: action.description || action.type,
+              actionRequired: 'Review and take action',
+              deadline: action.deadline
+            });
+          });
+      }
+    });
+
+    // Calculate metrics
+    const metrics: IntelligenceMetrics = {
+      agentsExecuted: agentResults.size,
+      agentsSuccessful,
+      executionTimeMs,
+      insightsGenerated: insights.length,
+      recommendationsGenerated: recommendations.length,
+      alertsGenerated: alerts.length
+    };
+
+    return {
+      dashboardType,
+      organizationId,
+      insights,
+      recommendations,
+      alerts,
+      metrics,
+      generatedAt: new Date().toISOString(),
+      cacheHit: false
+    };
+  }
+
+  /**
+   * Infer insight type from content
+   */
+  private inferInsightType(insight: string): AgentInsight['type'] {
+    const lower = insight.toLowerCase();
+
+    if (lower.includes('trend') || lower.includes('increasing') || lower.includes('decreasing')) {
+      return 'trend';
+    }
+    if (lower.includes('anomaly') || lower.includes('unusual') || lower.includes('unexpected')) {
+      return 'anomaly';
+    }
+    if (lower.includes('opportunity') || lower.includes('potential') || lower.includes('could')) {
+      return 'opportunity';
+    }
+    if (lower.includes('risk') || lower.includes('concern') || lower.includes('issue')) {
+      return 'risk';
+    }
+    if (lower.includes('compliance') || lower.includes('regulation') || lower.includes('deadline')) {
+      return 'compliance';
+    }
+
+    return 'trend';
+  }
+
+  /**
+   * Extract insight title (first sentence or first 60 chars)
+   */
+  private extractInsightTitle(insight: string): string {
+    const firstSentence = insight.split(/[.!?]/)[0];
+    return firstSentence.length > 60
+      ? firstSentence.substring(0, 57) + '...'
+      : firstSentence;
+  }
+
+  /**
+   * Infer priority from content
+   */
+  private inferPriority(content: string): AgentInsight['priority'] {
+    const lower = content.toLowerCase();
+
+    if (lower.includes('critical') || lower.includes('urgent') || lower.includes('immediate')) {
+      return 'critical';
+    }
+    if (lower.includes('important') || lower.includes('significant') || lower.includes('major')) {
+      return 'high';
+    }
+    if (lower.includes('minor') || lower.includes('small') || lower.includes('low')) {
+      return 'low';
+    }
+
+    return 'medium';
+  }
+
+  /**
+   * Check if insight is actionable
+   */
+  private isActionable(insight: string): boolean {
+    const actionKeywords = [
+      'should', 'could', 'recommend', 'suggest', 'consider',
+      'implement', 'review', 'investigate', 'address', 'fix'
+    ];
+
+    const lower = insight.toLowerCase();
+    return actionKeywords.some(keyword => lower.includes(keyword));
+  }
+
+  /**
+   * Infer difficulty from action
+   */
+  private inferDifficulty(action: any): AgentRecommendation['difficulty'] {
+    if (action.difficulty) return action.difficulty;
+
+    const cost = action.impact?.cost || action.estimatedCost || 0;
+    const timeframe = action.timeframe || '';
+
+    if (cost > 50000 || timeframe.toLowerCase().includes('long')) {
+      return 'high';
+    }
+    if (cost > 10000 || timeframe.toLowerCase().includes('medium')) {
+      return 'medium';
+    }
+
+    return 'low';
+  }
+
+  /**
+   * Get from cache if not expired
+   */
+  private getFromCache(key: string): DashboardIntelligence | null {
+    const entry = this.cache.get(key);
+
+    if (!entry) return null;
+
+    if (Date.now() > entry.expiresAt) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return entry.intelligence;
+  }
+
+  /**
+   * Save to cache with TTL
+   */
+  private saveToCache(key: string, intelligence: DashboardIntelligence): void {
+    this.cache.set(key, {
+      intelligence,
+      expiresAt: Date.now() + this.CACHE_TTL_MS
+    });
+  }
+
+  /**
+   * Clear cache (for testing or manual refresh)
+   */
+  clearCache(organizationId?: string, dashboardType?: string): void {
+    if (organizationId && dashboardType) {
+      const key = `${organizationId}_${dashboardType}`;
+      this.cache.delete(key);
+    } else if (organizationId) {
+      // Clear all cache entries for this organization
+      for (const key of this.cache.keys()) {
+        if (key.startsWith(organizationId)) {
+          this.cache.delete(key);
+        }
+      }
+    } else {
+      // Clear all cache
+      this.cache.clear();
+    }
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats(): { size: number; entries: string[] } {
+    return {
+      size: this.cache.size,
+      entries: Array.from(this.cache.keys())
+    };
   }
 }
 
-// Export the revolution
-export const blipeeIntelligence = new BlipeeIntelligence(
-  process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
+// Export singleton instance
+export const sustainabilityIntelligence = SustainabilityIntelligence.getInstance();

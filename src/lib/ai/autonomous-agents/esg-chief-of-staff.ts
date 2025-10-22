@@ -806,16 +806,96 @@ export class ESGChiefOfStaffAgent extends AutonomousAgent {
     return 1 + daysUntilMonday;
   }
   
+  // ✅ REAL IMPLEMENTATION: Get current metric value from database with trend calculation
   private async getCurrentMetricValue(metric: string): Promise<any> {
-    // This would fetch real metric data from database
-    // For now, returning mock data
-    return {
-      metric,
-      value: Math.random() * 100,
-      unit: metric === 'emissions' ? 'tCO2e' : metric === 'energy' ? 'MWh' : 'units',
-      change: (Math.random() - 0.5) * 20,
-      timestamp: new Date()
-    };
+    try {
+      // Map metric names to database categories
+      const metricCategoryMap: Record<string, string> = {
+        'emissions': 'emissions',
+        'energy': 'energy',
+        'water': 'water',
+        'waste': 'waste',
+        'scope1': 'emissions',
+        'scope2': 'emissions',
+        'scope3': 'emissions'
+      };
+
+      const category = metricCategoryMap[metric.toLowerCase()] || metric;
+
+      // Get the last 90 days of data for this metric
+      const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      let query = this.supabase
+        .from('metrics_data')
+        .select(`
+          id,
+          value,
+          co2e_emissions,
+          period_start,
+          metrics_catalog!inner(name, unit, category, scope)
+        `)
+        .eq('organization_id', this.organizationId)
+        .gte('period_start', ninetyDaysAgo)
+        .order('period_start', { ascending: false });
+
+      // Filter by category or scope
+      if (metric.toLowerCase().includes('scope')) {
+        const scope = `scope_${metric.toLowerCase().replace('scope', '')}`;
+        query = query.eq('metrics_catalog.scope', scope);
+      } else {
+        query = query.eq('metrics_catalog.category', category);
+      }
+
+      const { data: metricsData, error } = await query.limit(100);
+
+      if (error) {
+        console.error(`[ESGChief] Error fetching metric ${metric}:`, error);
+        return null;
+      }
+
+      if (!metricsData || metricsData.length === 0) {
+        console.log(`[ESGChief] No data found for metric: ${metric}`);
+        return null;
+      }
+
+      // Get latest value
+      const latest = metricsData[0];
+      const latestValue = parseFloat(latest.co2e_emissions) || parseFloat(latest.value) || 0;
+      const unit = latest.metrics_catalog?.unit || 'units';
+
+      // Calculate trend (change from previous period)
+      let change = 0;
+      if (metricsData.length >= 2) {
+        const previous = metricsData[1];
+        const previousValue = parseFloat(previous.co2e_emissions) || parseFloat(previous.value) || 0;
+
+        if (previousValue > 0) {
+          change = ((latestValue - previousValue) / previousValue) * 100;
+        }
+      }
+
+      // Calculate average over the period for context
+      const avgValue = metricsData.reduce((sum, d) => {
+        const val = parseFloat(d.co2e_emissions) || parseFloat(d.value) || 0;
+        return sum + val;
+      }, 0) / metricsData.length;
+
+      console.log(`[ESGChief] Metric ${metric}: current=${latestValue.toFixed(2)}, change=${change.toFixed(1)}%, avg=${avgValue.toFixed(2)}`);
+
+      return {
+        metric,
+        value: parseFloat(latestValue.toFixed(2)),
+        unit,
+        change: parseFloat(change.toFixed(1)),
+        average: parseFloat(avgValue.toFixed(2)),
+        timestamp: new Date(latest.period_start),
+        dataPoints: metricsData.length
+      };
+
+    } catch (error) {
+      console.error(`[ESGChief] Error in getCurrentMetricValue for ${metric}:`, error);
+      return null;
+    }
   }
   
   private async getDynamicThreshold(metric: string, current: any, knowledge: Learning[]): Promise<any> {

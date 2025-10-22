@@ -137,10 +137,8 @@ export default function OverviewPage() {
         )}
       </div>
 
-      {/* ✅ PHASE 4.1: Floating AI Chat with Proactive Agent Alerts */}
-      {organizationData && (
-        <FloatingChat organizationId={organizationData.id} />
-      )}
+      {/* Floating AI Chat */}
+      <FloatingChat organizationId={organizationData?.id || ''} />
     </SustainabilityLayout>
   );
 }

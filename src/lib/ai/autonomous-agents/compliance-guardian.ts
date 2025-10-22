@@ -659,16 +659,239 @@ export class ComplianceGuardianAgent extends AutonomousAgent {
     this.validationRules.set('GRI', griRules);
   }
 
+  // ✅ REAL IMPLEMENTATION: Check which required fields are missing from actual data
   private async checkDataCompleteness(framework: ComplianceFramework): Promise<string[]> {
-    // Mock implementation - in real version, check actual data
-    return Math.random() > 0.7 ? ['scope3_emissions', 'water_consumption'] : [] as string[];
+    const missingFields: string[] = [];
+
+    try {
+      // Get all required data points for this framework
+      const requiredFields = new Set<string>();
+      framework.requirements.forEach(req => {
+        req.dataPoints.forEach(dp => requiredFields.add(dp));
+      });
+
+      if (requiredFields.size === 0) {
+        return missingFields;
+      }
+
+      // Query metrics_catalog to see which metrics exist for this organization
+      const { data: availableMetrics, error } = await this.supabase
+        .from('metrics_data')
+        .select('metrics_catalog!inner(name, category, scope)')
+        .eq('organization_id', this.organizationId)
+        .gte('period_start', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+
+      if (error) {
+        console.error('[ComplianceGuardian] Error checking data completeness:', error);
+        return missingFields;
+      }
+
+      // Create set of available field names
+      const availableFields = new Set<string>();
+
+      if (availableMetrics) {
+        availableMetrics.forEach((record: any) => {
+          const catalog = record.metrics_catalog;
+          if (catalog) {
+            // Add both the full name and category_scope combinations
+            availableFields.add(catalog.name);
+            availableFields.add(catalog.category);
+            if (catalog.scope) {
+              availableFields.add(`${catalog.scope}_emissions`);
+              availableFields.add(catalog.scope);
+            }
+          }
+        });
+      }
+
+      // Check each required field
+      requiredFields.forEach(field => {
+        const fieldLower = field.toLowerCase().replace(/_/g, '');
+        let found = false;
+
+        // Check if field exists in any form
+        for (const available of availableFields) {
+          const availableLower = available.toLowerCase().replace(/_/g, '');
+          if (availableLower.includes(fieldLower) || fieldLower.includes(availableLower)) {
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          missingFields.push(field);
+        }
+      });
+
+      if (missingFields.length > 0) {
+        console.log(`[ComplianceGuardian] Missing ${missingFields.length} required fields for ${framework.name}:`, missingFields);
+      }
+
+    } catch (error) {
+      console.error('[ComplianceGuardian] Error in checkDataCompleteness:', error);
+    }
+
+    return missingFields;
   }
 
+  // ✅ REAL IMPLEMENTATION: Apply validation rules to actual data
   private async runValidationChecks(framework: ComplianceFramework): Promise<any[]> {
-    // Mock validation errors
-    return Math.random() > 0.8 ? [
-      { field: 'scope1_emissions', error: 'Value must be positive' }
-    ] : [] as any[];
+    const validationErrors: any[] = [];
+
+    try {
+      // Get validation rules for this framework
+      const rules = this.validationRules.get(framework.name) || [];
+
+      if (rules.length === 0) {
+        return validationErrors;
+      }
+
+      // Query recent metrics data for validation
+      const { data: metricsData, error } = await this.supabase
+        .from('metrics_data')
+        .select(`
+          id,
+          metric_id,
+          value,
+          co2e_emissions,
+          period_start,
+          period_end,
+          metrics_catalog!inner(name, category, scope, unit)
+        `)
+        .eq('organization_id', this.organizationId)
+        .gte('period_start', new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .order('period_start', { ascending: false })
+        .limit(1000);
+
+      if (error) {
+        console.error('[ComplianceGuardian] Error fetching metrics for validation:', error);
+        return validationErrors;
+      }
+
+      if (!metricsData || metricsData.length === 0) {
+        // No data to validate
+        return validationErrors;
+      }
+
+      // Create a map of field names to their data
+      const fieldDataMap = new Map<string, any[]>();
+
+      metricsData.forEach((record: any) => {
+        const catalog = record.metrics_catalog;
+        if (!catalog) return;
+
+        const fieldKeys = [
+          catalog.name,
+          catalog.category,
+          catalog.scope ? `${catalog.scope}_emissions` : null,
+          catalog.scope
+        ].filter(Boolean);
+
+        fieldKeys.forEach(key => {
+          if (!fieldDataMap.has(key!)) {
+            fieldDataMap.set(key!, []);
+          }
+          fieldDataMap.get(key!)!.push(record);
+        });
+      });
+
+      // Apply each validation rule
+      rules.forEach(rule => {
+        const fieldName = rule.field;
+        const fieldData = fieldDataMap.get(fieldName) || [];
+
+        // Check 'required' rule
+        if (rule.rule === 'required' && fieldData.length === 0) {
+          validationErrors.push({
+            field: fieldName,
+            rule: 'required',
+            error: rule.errorMessage || `${fieldName} is required but no data found`,
+            severity: 'high'
+          });
+          return;
+        }
+
+        // Apply validation to each data record
+        fieldData.forEach(record => {
+          const value = parseFloat(record.value) || parseFloat(record.co2e_emissions) || 0;
+
+          switch (rule.rule) {
+            case 'numeric':
+              if (isNaN(value)) {
+                validationErrors.push({
+                  field: fieldName,
+                  rule: 'numeric',
+                  error: rule.errorMessage || `${fieldName} must be numeric`,
+                  recordId: record.id,
+                  period: record.period_start,
+                  severity: 'medium'
+                });
+              }
+              break;
+
+            case 'positive':
+              if (value <= 0) {
+                validationErrors.push({
+                  field: fieldName,
+                  rule: 'positive',
+                  error: rule.errorMessage || `${fieldName} must be positive`,
+                  recordId: record.id,
+                  period: record.period_start,
+                  value,
+                  severity: 'medium'
+                });
+              }
+              break;
+
+            case 'percentage':
+              if (value < 0 || value > 100) {
+                validationErrors.push({
+                  field: fieldName,
+                  rule: 'percentage',
+                  error: rule.errorMessage || `${fieldName} must be between 0 and 100`,
+                  recordId: record.id,
+                  period: record.period_start,
+                  value,
+                  severity: 'medium'
+                });
+              }
+              break;
+
+            case 'date':
+              const periodStart = new Date(record.period_start);
+              const periodEnd = new Date(record.period_end);
+
+              if (isNaN(periodStart.getTime()) || isNaN(periodEnd.getTime())) {
+                validationErrors.push({
+                  field: fieldName,
+                  rule: 'date',
+                  error: rule.errorMessage || `${fieldName} has invalid date`,
+                  recordId: record.id,
+                  severity: 'high'
+                });
+              } else if (periodEnd < periodStart) {
+                validationErrors.push({
+                  field: fieldName,
+                  rule: 'date',
+                  error: `Period end cannot be before period start`,
+                  recordId: record.id,
+                  severity: 'high'
+                });
+              }
+              break;
+          }
+        });
+      });
+
+      if (validationErrors.length > 0) {
+        console.log(`[ComplianceGuardian] Found ${validationErrors.length} validation errors for ${framework.name}`);
+      }
+
+    } catch (error) {
+      console.error('[ComplianceGuardian] Error in runValidationChecks:', error);
+    }
+
+    return validationErrors;
   }
 
   private calculateComplianceScore(frameworkCount: number, alertCount: number): number {
