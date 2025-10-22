@@ -5,6 +5,8 @@ import { PermissionService } from '@/lib/auth/permission-service';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import DevicesClient from './DevicesClient';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DevicesPage() {
   const supabase = createServerSupabaseClient();
   const supabaseAdmin = createAdminClient();
