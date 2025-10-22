@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { getSupabaseAdmin as getSharedSupabaseAdmin } from "@/lib/supabase/admin";
 import { UserRole } from "@/types/auth";
 // Removed auth-fix import - trigger now handles profile creation properly
 import type {
@@ -25,7 +24,17 @@ export class AuthService {
   private async getSupabaseAdmin() {
     if (typeof window === 'undefined' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       // Server-side with service role key - bypasses RLS
-      return getSharedSupabaseAdmin();
+      const { createClient: createAdminClient } = await import("@supabase/supabase-js");
+      return createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+          },
+        }
+      );
     } else {
       // Fall back to regular client
       return this.getSupabase();
@@ -249,16 +258,6 @@ export class AuthService {
         .eq("auth_user_id", authData.user.id)
         .single()
     ]);
-
-    // Log profile fetch error for debugging
-    if (profileResult.error) {
-      console.error('🔴 Profile fetch error:', {
-        message: profileResult.error.message,
-        details: profileResult.error.details,
-        hint: profileResult.error.hint,
-        code: profileResult.error.code
-      });
-    }
 
     const mfaConfig = mfaResult.data;
     const profile = profileResult.data;

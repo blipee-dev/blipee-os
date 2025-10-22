@@ -4,7 +4,6 @@ import { sessionManager } from "@/lib/session/manager";
 import { withAuthSecurity } from "@/lib/security/api/wrapper";
 import { auditLogger } from "@/lib/audit/server";
 import { createClient } from "@/lib/supabase/server";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { z } from "zod";
 
 export const dynamic = 'force-dynamic';
@@ -37,10 +36,20 @@ async function signInHandler(request: NextRequest) {
     // Update last_login and status for successful authentication
     if (result.user && !result.requiresMFA) {
       const loginUpdateStart = Date.now();
-
+      
       try {
         // Use admin client to bypass RLS
-        const supabaseAdmin = getSupabaseAdmin();
+        const { createClient: createAdminClient } = await import("@supabase/supabase-js");
+        const supabaseAdmin = createAdminClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          {
+            auth: {
+              persistSession: false,
+              autoRefreshToken: false,
+            },
+          }
+        );
 
         // Get current user status - first check by auth_user_id
         let { data: currentUser, error: selectError } = await supabaseAdmin
