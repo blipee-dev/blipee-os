@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin as getSharedSupabaseAdmin } from "@/lib/supabase/admin";
 import { UserRole } from "@/types/auth";
 // Removed auth-fix import - trigger now handles profile creation properly
 import type {
@@ -24,17 +25,7 @@ export class AuthService {
   private async getSupabaseAdmin() {
     if (typeof window === 'undefined' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       // Server-side with service role key - bypasses RLS
-      const { createClient: createAdminClient } = await import("@supabase/supabase-js");
-      return createAdminClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        {
-          auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-          },
-        }
-      );
+      return getSharedSupabaseAdmin();
     } else {
       // Fall back to regular client
       return this.getSupabase();
