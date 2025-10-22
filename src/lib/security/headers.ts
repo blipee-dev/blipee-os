@@ -37,12 +37,14 @@ export function getCSPHeader(nonce?: string): string {
     'default-src': ["'self'"],
     'script-src': [
       "'self'",
-      "'unsafe-eval'", // Required for Next.js in development
-      process.env.NODE_ENV === 'development' ? "'unsafe-inline'" : '',
+      "'unsafe-eval'", // Required for Next.js
+      "'unsafe-inline'", // Required for inline scripts (TODO: implement nonces)
       nonce ? `'nonce-${nonce}'` : '',
       'https://www.googletagmanager.com',
       'https://www.google-analytics.com',
       'https://vercel.live',
+      'https://cdn.vercel-insights.com',
+      'https://va.vercel-scripts.com',
     ].filter(Boolean),
     'style-src': [
       "'self'",
