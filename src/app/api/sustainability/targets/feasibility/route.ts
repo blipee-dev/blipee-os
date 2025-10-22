@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { calculateFeasibility, type FeasibilityInput } from '@/lib/sustainability/feasibility-calculator';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
 /**
  * GET /api/sustainability/targets/feasibility
@@ -17,6 +13,7 @@ const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
  * - year: number (optional - defaults to current year)
  */
 export async function GET(request: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const { searchParams } = new URL(request.url);
     const organizationId = searchParams.get('organizationId');
