@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "created_at": "2025-10-23T17:36:38.332Z",
+    "source": "Official ESRS-GRI mapping spreadsheet",
+    "method": "excel_column_extraction",
+    "description": "Complete GRI and ESRS code dictionary from official EU mapping"
+  },
+  "gri_codes": [
+    {
+      "code": "GRI 3-3",
+      "category": "general",
+      "source": "ESRS-GRI official mapping"
+    }
+  ],
+  "esrs_codes": [],
+  "search_keywords": [
+    "GRI 3-3",
+    "Scope 1 emissions",
+    "Scope 2 emissions",
+    "Scope 3 emissions",
+    "Total employees",
+    "Female employees",
+    "Male employees",
+    "Energy consumption",
+    "Water consumption",
+    "Waste generated",
+    "LTIF",
+    "TRIR",
+    "Fatalities",
+    "Training hours",
+    "Board composition"
+  ],
+  "stats": {
+    "total_gri_codes": 1,
+    "total_esrs_codes": 0,
+    "total_keywords": 13
+  }
+}

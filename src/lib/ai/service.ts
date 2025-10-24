@@ -3,6 +3,7 @@ import { AnthropicProvider } from "./providers/anthropic";
 import { DeepSeekProvider } from "./providers/deepseek";
 import { AIProvider, CompletionOptions, StreamOptions } from "./types";
 import { aiCache } from "@/lib/cache";
+import { parseAIJSON } from "./utils/json-parser";
 
 export class AIService {
   private providers: AIProvider[] = [];
@@ -35,7 +36,7 @@ Organization ID: ${organizationId}
 
 Please respond with a helpful message about target setting and if appropriate, provide structured target data.
 
-Response format:
+Return as JSON format:
 {
   "message": "Your helpful response to the user",
   "suggestions": ["suggestion1", "suggestion2", "suggestion3"],
@@ -62,7 +63,15 @@ Only include targetData if the user is clearly ready to create a specific target
         jsonMode: true
       });
 
-      return typeof response === 'string' ? JSON.parse(response) : response;
+      if (typeof response === 'string') {
+        const parseResult = parseAIJSON(response);
+        if (!parseResult.success) {
+          console.error('Error parsing target setting response:', parseResult.error);
+          throw new Error('Failed to parse target setting response');
+        }
+        return parseResult.data;
+      }
+      return response;
     } catch (error) {
       console.error('Error in target setting query:', error);
       return {

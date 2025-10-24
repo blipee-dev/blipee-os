@@ -143,7 +143,7 @@ export class ComplianceGuardian extends AutonomousAgent {
   
   constructor() {
     super(
-      'Compliance Guardian',
+      'blipee-compliance',
       '1.0.0',
       {
         canMakeDecisions: true,
@@ -612,7 +612,7 @@ Focus on regulatory accuracy, compliance risks, and actionable guidance.`;
     frameworks: string[]
   ): Promise<ComplianceAssessment> {
     const assessment: ComplianceAssessment = {
-      id: `assessment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `assessment_${Date.now()}_${process.hrtime.bigint().toString(36)}`,
       assessmentType: assessmentType as any,
       scope: Array.isArray(scope) ? scope : [scope],
       frameworks: frameworks || Array.from(this.regulatoryFrameworks.keys()),

@@ -460,26 +460,25 @@ export class ConversationMemorySystem {
       let episodic: EpisodicMemory;
 
       if (existingData) {
-        episodic = JSON.parse(existingData);
+        // Handle case where Redis returns an object instead of string
+        if (typeof existingData === 'string') {
+          try {
+            episodic = JSON.parse(existingData);
+          } catch (parseError) {
+            console.error('Error parsing episodic memory from Redis, creating new:', parseError);
+            // If parsing fails, create new episodic memory
+            episodic = this.createEmptyEpisodicMemory(conversationId, userId);
+          }
+        } else if (typeof existingData === 'object' && existingData !== null) {
+          // Redis client might return parsed object
+          episodic = existingData as EpisodicMemory;
+        } else {
+          // Invalid data type, create new
+          console.warn('Invalid data type from Redis for episodic memory, creating new');
+          episodic = this.createEmptyEpisodicMemory(conversationId, userId);
+        }
       } else {
-        episodic = {
-          id: `episodic_${conversationId}`,
-          conversationId,
-          userId,
-          timeframe: 'session',
-          events: [],
-          contextWindow: [],
-          activeTopics: [],
-          currentFocus: '',
-          emotionalState: {
-            valence: 0,
-            arousal: 0,
-            dominance: 0,
-            emotions: [],
-            emotionalTrend: []
-          },
-          workingMemorySize: 0
-        };
+        episodic = this.createEmptyEpisodicMemory(conversationId, userId);
       }
 
       // Add new event
@@ -522,11 +521,38 @@ export class ConversationMemorySystem {
   }
 
   /**
+   * Create empty episodic memory structure
+   */
+  private createEmptyEpisodicMemory(
+    conversationId: string,
+    userId: string
+  ): EpisodicMemory {
+    return {
+      id: `episodic_${conversationId}`,
+      conversationId,
+      userId,
+      timeframe: 'session',
+      events: [],
+      contextWindow: [],
+      activeTopics: [],
+      currentFocus: '',
+      emotionalState: {
+        valence: 0,
+        arousal: 0,
+        dominance: 0,
+        emotions: [],
+        emotionalTrend: []
+      },
+      workingMemorySize: 0
+    };
+  }
+
+  /**
    * Extract entities from text
    */
   private async extractEntities(text: string): Promise<string[]> {
     try {
-      const prompt = `Extract key entities from this text. Focus on sustainability, business, and technical entities. Return as JSON array of strings:
+      const prompt = `Extract key entities from this text. Focus on sustainability, business, and technical entities. Return ONLY a valid JSON array of strings, nothing else:
 
 Text: "${text}"
 
@@ -538,10 +564,26 @@ Return format: ["entity1", "entity2", "entity3"]`;
         jsonMode: true
       });
 
-      const parsed = JSON.parse(response);
-      return Array.isArray(parsed) ? parsed : [];
+      // Try to extract JSON from response (handle markdown code blocks)
+      let jsonStr = response.trim();
+
+      // Remove markdown code blocks if present
+      const codeBlockMatch = jsonStr.match(/```(?:json)?\s*(\[[\s\S]*?\])\s*```/);
+      if (codeBlockMatch) {
+        jsonStr = codeBlockMatch[1];
+      }
+
+      // Try to extract JSON array if wrapped in text
+      const arrayMatch = jsonStr.match(/\[[\s\S]*?\]/);
+      if (arrayMatch) {
+        jsonStr = arrayMatch[0];
+      }
+
+      const parsed = JSON.parse(jsonStr);
+      return Array.isArray(parsed) ? parsed.filter(e => typeof e === 'string') : [];
     } catch (error) {
       console.error('Error extracting entities:', error);
+      // Return empty array as fallback - memory still works without entities
       return [];
     }
   }
@@ -876,5 +918,9 @@ Focus on the most important information that would be relevant for continuing th
   }
 }
 
-// Export singleton instance
+// Direct singleton instantiation after class definition
+// This ensures class methods are attached to prototype before instance creation
 export const conversationMemorySystem = new ConversationMemorySystem();
+
+// Export alias for backwards compatibility
+export const conversationMemoryManager = conversationMemorySystem;

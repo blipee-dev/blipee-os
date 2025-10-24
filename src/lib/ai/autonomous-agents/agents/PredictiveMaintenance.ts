@@ -17,7 +17,7 @@ export class PredictiveMaintenance extends AutonomousAgent {
 
   constructor() {
     super(
-      'Predictive Maintenance',
+      'blipee-maintenance',
       '1.0.0',
       {
         canMakeDecisions: true,
@@ -77,13 +77,39 @@ export class PredictiveMaintenance extends AutonomousAgent {
   }
 
   private async analyzeDeviceHealth(task: Task): Promise<TaskResult> {
-    const healthAnalysis = await aiStub(TaskType.ANALYZE, {
-      prompt: `Analyze device health metrics and sensor data. Identify potential issues and degradation patterns.`,
-      context: task.context
-    });
+    // Query REAL devices from database
+    const { data: devices, error } = await this.supabase
+      .from('devices')
+      .select('id, name, type, status, last_seen_at')
+      .eq('site_id', task.context.buildingId || task.context.organizationId);
 
-    const devicesAnalyzed = Math.floor(Math.random() * 50) + 20;
-    const criticalDevices = Math.floor(devicesAnalyzed * 0.1);
+    const devicesAnalyzed = devices?.length || 0;
+
+    if (error || devicesAnalyzed === 0) {
+      return {
+        taskId: task.id,
+        status: 'success',
+        result: {
+          healthAnalysis: 'No devices found for analysis',
+          devicesAnalyzed: 0,
+          recommendations: ['Add devices to enable predictive maintenance']
+        },
+        confidence: 0.3,
+        reasoning: ['No device data available'],
+        completedAt: new Date()
+      };
+    }
+
+    // Calculate health based on last_seen_at
+    const now = Date.now();
+    const criticalDevices = devices.filter(d => !d.last_seen_at || (now - new Date(d.last_seen_at).getTime()) > 24 * 60 * 60 * 1000).length;
+    const warningDevices = devices.filter(d => d.last_seen_at && (now - new Date(d.last_seen_at).getTime()) > 6 * 60 * 60 * 1000 && (now - new Date(d.last_seen_at).getTime()) <= 24 * 60 * 60 * 1000).length;
+
+    const healthAnalysis = await aiStub.complete(
+      `Analyze health for ${devicesAnalyzed} devices. ${criticalDevices} critical (offline >24h), ${warningDevices} warning (offline 6-24h). Identify potential issues and degradation patterns.`,
+      TaskType.ANALYSIS,
+      { jsonMode: true }
+    );
 
     return {
       taskId: task.id,
@@ -92,35 +118,65 @@ export class PredictiveMaintenance extends AutonomousAgent {
         healthAnalysis,
         devicesAnalyzed,
         criticalDevices,
+        warningDevices,
         healthScores: {
-          excellent: devicesAnalyzed * 0.6,
-          good: devicesAnalyzed * 0.25,
-          warning: devicesAnalyzed * 0.1,
+          excellent: devicesAnalyzed - criticalDevices - warningDevices,
+          good: warningDevices,
+          warning: 0,
           critical: criticalDevices
         },
         recommendations: [
-          'Schedule immediate maintenance for critical devices',
+          criticalDevices > 0 ? 'Schedule immediate maintenance for critical devices' : 'All devices healthy',
           'Monitor warning-level devices closely',
           'Implement predictive maintenance schedules'
         ]
       },
       confidence: 0.9,
-      reasoning: ['Device health analysis completed successfully'],
+      reasoning: ['Device health analysis completed with real device data'],
       completedAt: new Date()
     };
   }
 
   private async predictFailures(task: Task): Promise<TaskResult> {
-    const predictions = await aiStub(TaskType.PREDICT, {
-      prompt: `Predict equipment failures using historical data and current sensor readings. Calculate failure probabilities and timelines.`,
-      context: task.context
-    });
+    // Query REAL devices to predict failures
+    const { data: devices } = await this.supabase
+      .from('devices')
+      .select('id, name, type, installed_at, last_seen_at, status')
+      .eq('site_id', task.context.buildingId || task.context.organizationId);
 
-    const predictionsCount = Math.floor(Math.random() * 10) + 5;
+    const predictionsCount = devices?.length || 0;
+
+    if (predictionsCount === 0) {
+      return {
+        taskId: task.id,
+        status: 'success',
+        result: {
+          predictions: 'No devices to analyze for failure prediction',
+          totalPredictions: 0,
+          highRiskPredictions: 0
+        },
+        confidence: 0.3,
+        reasoning: ['No device data for predictions'],
+        completedAt: new Date()
+      };
+    }
+
+    // Calculate risk based on age and offline status
+    const now = Date.now();
+    const highRiskDevices = devices.filter(d => {
+      const ageMonths = d.installed_at ? (now - new Date(d.installed_at).getTime()) / (30 * 24 * 60 * 60 * 1000) : 0;
+      const offline = !d.last_seen_at || (now - new Date(d.last_seen_at).getTime()) > 24 * 60 * 60 * 1000;
+      return ageMonths > 36 || offline; // >3 years old or offline
+    }).length;
+
     this.maintenanceMetrics.predictionsGenerated += predictionsCount;
+    this.maintenanceMetrics.failuresPrevented += highRiskDevices;
 
-    const highRiskPredictions = Math.floor(predictionsCount * 0.3);
-    this.maintenanceMetrics.failuresPrevented += highRiskPredictions;
+    const predictions = await aiStub.complete(
+      `Predict equipment failures for ${predictionsCount} devices. ${highRiskDevices} are high-risk (>3 years old or offline). Calculate failure probabilities and timelines.`,
+      TaskType.ANALYSIS,
+      { jsonMode: true }
+    );
 
     return {
       taskId: task.id,
@@ -128,24 +184,46 @@ export class PredictiveMaintenance extends AutonomousAgent {
       result: {
         predictions,
         totalPredictions: predictionsCount,
-        highRiskPredictions,
-        averageTimeToFailure: '45-60 days',
-        preventionOpportunities: highRiskPredictions * 5000 // Cost savings per prevented failure
+        highRiskPredictions: highRiskDevices,
+        averageTimeToFailure: highRiskDevices > 0 ? '30-45 days' : '90+ days',
+        preventionOpportunities: highRiskDevices * 5000 // Cost savings per prevented failure
       },
       confidence: 0.85,
-      reasoning: ['Failure predictions generated with high accuracy'],
+      reasoning: ['Failure predictions generated based on real device data'],
       completedAt: new Date()
     };
   }
 
   private async scheduleMaintenance(task: Task): Promise<TaskResult> {
-    const schedule = await aiStub(TaskType.PLAN, {
-      prompt: `Create optimal maintenance schedules based on device health and predictions. Balance costs and operational impact.`,
-      context: task.context
-    });
+    // Query devices and calculate REAL maintenance needs
+    const { data: devices } = await this.supabase
+      .from('devices')
+      .select('id, name, type, installed_at, last_seen_at, status')
+      .eq('site_id', task.context.buildingId || task.context.organizationId);
 
-    const maintenanceEvents = Math.floor(Math.random() * 20) + 10;
+    // Calculate maintenance events based on device age and status
+    const now = Date.now();
+    const maintenanceNeeded = devices?.filter(d => {
+      if (!d.installed_at) return false;
+      const ageMonths = (now - new Date(d.installed_at).getTime()) / (30 * 24 * 60 * 60 * 1000);
+      return ageMonths > 12; // Devices older than 1 year need annual maintenance
+    }) || [];
+
+    const maintenanceEvents = maintenanceNeeded.length;
     this.maintenanceMetrics.maintenanceScheduled += maintenanceEvents;
+
+    // Categorize by urgency
+    const critical = maintenanceNeeded.filter(d => !d.last_seen_at || (now - new Date(d.last_seen_at).getTime()) > 7 * 24 * 60 * 60 * 1000).length;
+    const high = maintenanceNeeded.filter(d => {
+      const ageMonths = (now - new Date(d.installed_at!).getTime()) / (30 * 24 * 60 * 60 * 1000);
+      return ageMonths > 36;
+    }).length - critical;
+
+    const schedule = await aiStub.complete(
+      `Create optimal maintenance schedule for ${maintenanceEvents} devices. ${critical} critical (offline >7 days), ${high} high priority (>3 years old). Balance costs and operational impact.`,
+      TaskType.ANALYSIS,
+      { jsonMode: true }
+    );
 
     return {
       taskId: task.id,
@@ -156,26 +234,38 @@ export class PredictiveMaintenance extends AutonomousAgent {
         estimatedCost: maintenanceEvents * 1500,
         estimatedDowntime: maintenanceEvents * 4, // hours
         priorityLevels: {
-          critical: Math.floor(maintenanceEvents * 0.2),
-          high: Math.floor(maintenanceEvents * 0.3),
-          medium: Math.floor(maintenanceEvents * 0.4),
-          low: Math.floor(maintenanceEvents * 0.1)
+          critical,
+          high,
+          medium: maintenanceEvents - critical - high,
+          low: 0
         }
       },
       confidence: 0.88,
-      reasoning: ['Maintenance schedule optimized successfully'],
+      reasoning: ['Maintenance schedule based on real device age and status'],
       completedAt: new Date()
     };
   }
 
   private async detectAnomalies(task: Task): Promise<TaskResult> {
-    const anomalies = await aiStub(TaskType.DETECT, {
-      prompt: `Detect anomalies in real-time sensor data. Identify unusual patterns that could indicate problems.`,
-      context: task.context
-    });
+    // Query REAL device status for anomaly detection
+    const { data: devices } = await this.supabase
+      .from('devices')
+      .select('id, name, type, status, last_seen_at')
+      .eq('site_id', task.context.buildingId || task.context.organizationId);
 
-    const anomaliesFound = Math.floor(Math.random() * 8) + 2;
-    const criticalAnomalies = Math.floor(anomaliesFound * 0.25);
+    // Detect anomalies: offline devices, status changes
+    const now = Date.now();
+    const offlineDevices = devices?.filter(d => !d.last_seen_at || (now - new Date(d.last_seen_at).getTime()) > 6 * 60 * 60 * 1000) || [];
+    const errorDevices = devices?.filter(d => d.status && d.status.toLowerCase().includes('error')) || [];
+
+    const anomaliesFound = offlineDevices.length + errorDevices.length;
+    const criticalAnomalies = offlineDevices.filter(d => !d.last_seen_at || (now - new Date(d.last_seen_at).getTime()) > 24 * 60 * 60 * 1000).length;
+
+    const anomalies = await aiStub.complete(
+      `Detect anomalies in ${devices?.length || 0} devices. Found ${anomaliesFound} anomalies (${offlineDevices.length} offline, ${errorDevices.length} errors). Identify unusual patterns that could indicate problems.`,
+      TaskType.ANALYSIS,
+      { jsonMode: true }
+    );
 
     return {
       taskId: task.id,
@@ -203,10 +293,11 @@ export class PredictiveMaintenance extends AutonomousAgent {
   }
 
   private async handleGenericTask(task: Task): Promise<TaskResult> {
-    const result = await aiStub(TaskType.ANALYZE, {
-      prompt: `Handle maintenance-related task: ${task.type}. Provide technical analysis and recommendations.`,
-      context: task.context
-    });
+    const result = await aiStub.complete(
+      `Handle maintenance-related task: ${task.type}. Provide technical analysis and recommendations.`,
+      TaskType.ANALYSIS,
+      { jsonMode: true }
+    );
 
     return {
       taskId: task.id,

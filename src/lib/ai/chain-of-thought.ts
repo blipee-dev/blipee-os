@@ -1,5 +1,6 @@
 import { AIService } from "./service";
 import { esgContextEngine } from "./esg-context-engine";
+import { parseAIJSON } from "./utils/json-parser";
 
 interface ChainOfThoughtStep {
   step: number;
@@ -185,7 +186,9 @@ Always structure your thinking to show:
 2. Analysis of relevant data
 3. Consideration of impacts and risks
 4. Clear recommendations
-5. Confidence levels and limitations`;
+5. Confidence levels and limitations
+
+IMPORTANT: Always respond in valid JSON format as specified in the user prompt.`;
   }
 
   /**
@@ -193,7 +196,17 @@ Always structure your thinking to show:
    */
   private parseResponse(response: any): ChainOfThoughtResponse {
     try {
-      const parsed = typeof response === 'string' ? JSON.parse(response) : response;
+      let parsed: any;
+      if (typeof response === 'string') {
+        const parseResult = parseAIJSON(response);
+        if (!parseResult.success) {
+          console.error('Error parsing chain-of-thought response:', parseResult.error);
+          throw new Error('Failed to parse chain-of-thought response');
+        }
+        parsed = parseResult.data;
+      } else {
+        parsed = response;
+      }
       
       // Validate structure
       if (!parsed.reasoning || !Array.isArray(parsed.reasoning)) {

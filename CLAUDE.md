@@ -23,6 +23,7 @@ blipee OS is the world's first Autonomous Sustainability Intelligence platform t
 - **AI Providers**: DeepSeek (primary), OpenAI, Anthropic with streaming support
 - **Deployment**: Vercel with automatic CI/CD
 - **External APIs**: Weather, carbon markets, regulatory compliance, electricity grid data
+- **Web Automation**: Puppeteer MCP for autonomous data collection and verification
 
 ## Commands
 
@@ -70,6 +71,84 @@ The AI system (`/src/lib/ai/`) follows a multi-provider pattern with intelligent
 - **Weather**: OpenWeatherMap API for real-time conditions
 - **Carbon Data**: Electricity Maps, Climatiq, Carbon Interface
 - **Document Processing**: Automatic emission extraction from invoices, utility bills, travel documents
+
+### Web Automation System
+
+The automation system (`/src/lib/automation/`) uses Puppeteer MCP (and enhanced MCPs) to autonomously collect data from websites without APIs:
+
+**📚 Documentation:**
+- **Quick Start**: `/docs/QUICK_START_SECTOR_INTELLIGENCE.md` ⭐ START HERE
+- **Company Mapping**: `/docs/COMPANY_MAPPING_GUIDE.md` 🗺️ (40 pre-mapped companies + seed script)
+- **MCP Enhancement Guide**: `/docs/MCP_ENHANCED_SECTOR_INTELLIGENCE.md` (Firecrawl, Docling, Exa)
+- **Full Implementation**: `/docs/SECTOR_INTELLIGENCE_GUIDE.md`
+- **Base Automation**: `/docs/PUPPETEER_AUTOMATION_GUIDE.md`
+- **Complete Summary**: `/docs/COMPLETE_AUTOMATION_SUMMARY.md`
+
+**6 Automation Features:**
+
+1. **Utility Bill Automation** (`utility-providers/`)
+   - Automatically logs into utility portals (PG&E, Con Edison, etc.)
+   - Downloads monthly bills and extracts energy usage data
+   - Auto-calculates Scope 2 emissions from electricity/gas usage
+   - Stores bills in Supabase Storage with audit trails
+   - **Value**: Eliminates 2 hours/month of manual data entry
+
+2. **Regulatory Intelligence** (`regulatory/`)
+   - Scrapes EPA, EU Taxonomy, SEC climate disclosure sites daily
+   - Auto-detects new regulations affecting customer industries
+   - Maps regulations to GRI sector standards (GRI 11-17)
+   - Alerts Compliance Guardian agent of critical changes
+   - **Value**: Real-time compliance monitoring vs. manual quarterly checks
+
+3. **Carbon Market Tracking** (`carbon-markets/`)
+   - Tracks carbon credit prices from ICAP, EU ETS, CBEx
+   - Monitors Renewable Energy Certificate (REC) pricing
+   - Calculates cost optimization opportunities
+   - Feeds data to autonomous agents for financial recommendations
+   - **Value**: Enables dynamic carbon offset purchasing strategies
+
+4. **Supplier Verification** (`supplier-verification/`)
+   - Verifies supplier sustainability certifications (B Corp, ISO 14001, LEED)
+   - Scrapes supplier websites for sustainability reports
+   - Screenshots proof for audit trails
+   - Validates Scope 3 supply chain claims
+   - **Value**: Automated supplier due diligence for ESG reporting
+
+5. **Competitor Benchmarking** (`competitor-intelligence/`)
+   - Tracks competitor sustainability initiatives and ESG claims
+   - Monitors carbon neutral commitments and renewable energy targets
+   - Finds published sustainability reports
+   - Generates comparative insights for strategic positioning
+   - **Value**: Stay ahead of industry sustainability trends
+
+6. **Sector Intelligence & Benchmarking** (`sector-intelligence/`) 🌟 **GAME CHANGER**
+   - Discovers 50+ companies per sector automatically
+   - Parses sustainability reports with AI (Scope 1/2/3, targets, renewable %)
+   - Creates industry benchmarks (median, percentiles, leaders, laggards)
+   - Shows company competitive position vs. sector
+   - **Value**: Builds "The Bloomberg Terminal of Sustainability" database
+   - **Enhanced MCPs**: Use Firecrawl (web scraping), Docling (PDF parsing), Exa (AI search) for 5x faster & 2x more accurate results
+   - **Network Effects**: More customers → Better benchmarks → Higher value → More customers
+
+   **Company Mapping System**:
+   - Pre-mapped **40 priority companies** across 7 GRI sectors (`company-targets.json`)
+   - Direct links to sustainability report pages for all companies
+   - Seed script to load companies: `npx tsx src/lib/automation/sector-intelligence/seed-companies.ts`
+   - All data is **public** - sustainability reports published on corporate websites
+   - Discovery sources documented for finding 1,000+ more companies per sector
+   - See `/docs/COMPANY_MAPPING_GUIDE.md` for complete guide
+
+**Architecture:**
+- `BaseScraper` class: Common functionality (navigation, screenshots, retry logic, error handling)
+- `AutomationManager`: Orchestrates all scraping jobs with scheduling
+- Database tables: `automation_jobs`, `utility_bills`, `regulatory_updates`, `carbon_market_prices`, etc.
+- Integration with autonomous agents: Carbon Hunter uses utility data, Compliance Guardian uses regulatory data
+
+**Security & Compliance:**
+- Utility credentials encrypted with Supabase Vault
+- Screenshots stored for audit trails (RLS protected)
+- Rate limiting to respect website terms of service
+- Activity logging for all automation jobs
 
 ## Key Architectural Decisions
 
@@ -232,54 +311,113 @@ Remember: We're building autonomous AI employees, not just software. Every featu
 - Get us closer to the 20-point market lead
 
 **This is not an incremental improvement - this is a paradigm shift in how organizations manage sustainability.**
-- remember to use the MCP integrations for Supabase and Vercel operations.
 
-  My Available MCP Tools:
+## MCP Integration (Model Context Protocol)
 
-  Supabase MCP (mcp__supabase__*):
-  - Project management (list, get, create, pause, restore)
-  - Database operations (list tables, execute SQL, apply migrations)
-  - Edge Functions (list, get, deploy)
-  - Logs and monitoring (get logs, advisors)
-  - Branch management (create, merge, reset, rebase)
-  - TypeScript types generation
-  - API keys and URLs
+**IMPORTANT**: Always use MCP tools for operations instead of manual commands when available. The project has **11 MCP servers installed** (8 core + 3 enhanced for Sector Intelligence).
 
-  Vercel MCP (mcp__vercel__*):
-  - General Vercel operations
-  - Project-specific operations for blipee-os
-  - Deployment management
-  - Log analysis
-  - Documentation search
+### Available MCP Servers
 
-  Current Setup:
-  - ✓ Supabase MCP connected to blipee-os (quovvwrwyfkzhgqdeham)
-  - ✓ Vercel MCP connected (general)
-  - ✓ Vercel MCP connected (blipee-os specific)
-- remember 6 MCP Servers Running:
+1. **Supabase MCP** (`mcp__supabase__*`)
+   - Project management (list, get, create, pause, restore)
+   - Database operations (list tables, execute SQL, apply migrations)
+   - Edge Functions (list, get, deploy)
+   - Logs and monitoring (get logs, advisors)
+   - Branch management (create, merge, reset, rebase)
+   - TypeScript types generation
+   - API keys and URLs
+   - **Connected to**: blipee-os project (quovvwrwyfkzhgqdeham)
 
-  1. ✓ Supabase - Full database management
-    - List/manage tables, execute SQL, apply migrations
-    - Edge Functions deployment
-    - Logs, security advisors, performance monitoring
-    - Branch management for dev workflows
-  2. ✓ Vercel (General) - Platform operations
-    - Manage all Vercel projects
-    - Deployment monitoring
-    - Documentation search
-  3. ✓ Vercel-blipee-os (Project-specific) - Enhanced context
-    - Quick access to blipee-os deployments
-    - Project-specific logs and analytics
-    - Direct integration with http://www.blipee.io
-  4. ✓ Boikot - ESG/Sustainability Intelligence 🌱
-    - Lookup ethical/unethical company actions
-    - Perfect for your sustainability platform!
-    - Tool: lookup_company_information
-  5. ✓ Filesystem - Secure file operations
-    - Read/write files in your project
-    - Sandboxed to /Users/pedro/Documents/blipee/blipee-os/blipee-os
-    - Useful for document processing workflows
-  6. ✓ Memory - Knowledge graph persistence
-    - Maintains context across conversations
-    - Tracks project knowledge, patterns, and decisions
-    - Improves with every interaction
+2. **Vercel MCP - General** (`mcp__vercel__*`)
+   - Manage all Vercel projects
+   - Deployment monitoring and management
+   - Build logs and error analysis
+   - Documentation search
+   - Team and domain management
+
+3. **Vercel MCP - blipee-os** (`mcp__vercel-blipee-os__*`)
+   - Project-specific operations for blipee-os
+   - Quick access to deployments
+   - Project-specific logs and analytics
+   - **Connected to**: http://www.blipee.io
+
+4. **GitHub MCP** (`mcp__github__*`)
+   - Repository management and operations
+   - File operations in GitHub repositories
+   - Pull requests, issues, and discussions
+   - Code reviews and comments
+   - Branch management
+   - GitHub Actions workflows
+   - Organization and team management
+
+5. **Puppeteer MCP** (`mcp__puppeteer__*`) 🤖
+   - **Browser automation for web scraping**
+   - Navigate to URLs and interact with pages
+   - Fill forms, click elements, execute JavaScript
+   - Take screenshots for audit trails
+   - Extract data from websites without APIs
+   - **Powers**: Utility bill automation, regulatory scraping, carbon market tracking, supplier verification, competitor intelligence
+
+### Enhanced MCPs (Recommended for Sector Intelligence) ⭐
+
+6. **Firecrawl MCP** (`mcp__firecrawl__*`) - ✅ INSTALLED
+   - Advanced web scraping with structured output
+   - Replaces 90% of Puppeteer scraping with cleaner code
+   - Returns clean markdown + structured JSON automatically
+   - Built-in rate limiting and retries
+   - **Use for**: Company website scraping, sustainability page discovery
+   - **Cost**: $50-200/mo | **ROI**: 12x faster than Puppeteer
+   - **Status**: Installed with API key (may need restart to connect)
+
+7. **Docling MCP** (`mcp__docling__*`) - ✅ INSTALLED
+   - IBM's enterprise-grade PDF parsing with 97.9% table accuracy
+   - Extracts tables, charts, formulas, and multi-column layouts
+   - Exports to Markdown, HTML, JSON with structure preserved
+   - 80%+ of sustainability reports are PDFs
+   - **Use for**: Parsing sustainability reports, extracting emissions tables
+   - **Cost**: FREE (open source) | **ROI**: 97.9% accuracy on complex tables
+   - **Status**: Installed and connected ✓
+
+8. **Exa MCP** (`mcp__exa__*`) - ✅ INSTALLED
+   - AI-powered search engine designed for AI agents
+   - Finds companies + sustainability reports in one query
+   - Semantic search (understands meaning, not just keywords)
+   - **Use for**: Company discovery, report finding
+   - **Cost**: $25-100/mo | **ROI**: 10x faster company discovery
+   - **Status**: Installed with API key (may need restart to connect)
+
+9. **Boikot MCP** (`mcp__boikot__*`)
+   - ESG/Sustainability intelligence 🌱
+   - Lookup ethical/unethical company actions
+   - Tool: `lookup_company_information`
+   - Perfect for sustainability research and reporting
+
+10. **Filesystem MCP** (`mcp__filesystem__*`)
+   - Secure file operations
+   - Read/write files in project
+   - **Sandboxed to**: /Users/pedro/Documents/blipee/blipee-os/blipee-os
+   - Useful for document processing workflows
+
+11. **Memory MCP** (`mcp__memory__*`)
+   - Knowledge graph persistence
+   - Maintains context across conversations
+   - Tracks project knowledge, patterns, and decisions
+   - Improves with every interaction
+
+### Usage Guidelines
+
+- **Database operations**: Use Supabase MCP instead of `npx supabase` commands
+- **Deployments**: Use Vercel MCP instead of `vercel` CLI
+- **GitHub operations**: Use GitHub MCP for repository management
+- **File operations**: Use Filesystem MCP for project file access
+- **Company research**: Use Boikot MCP for ESG/sustainability data
+- **Context persistence**: Use Memory MCP to store important project information
+
+### Enhanced MCP Usage (Sector Intelligence)
+
+- **Web scraping**: Use Firecrawl MCP instead of Puppeteer (12x faster, cleaner code)
+- **PDF parsing**: Use Docling MCP for sustainability reports (97.9% table accuracy)
+- **Company discovery**: Use Exa MCP for AI-powered search (10x faster than manual scraping)
+- **Fallback**: Keep Puppeteer MCP as fallback if enhanced MCPs are unavailable
+- **Cost optimization**: Use enhanced MCPs for sector intelligence, Puppeteer for utility bills/regulatory monitoring
+- remember to use supabase mcp server to look for the table scheemas not the documentation

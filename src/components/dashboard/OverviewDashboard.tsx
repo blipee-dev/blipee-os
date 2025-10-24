@@ -35,7 +35,6 @@ import {
   Cell
 } from 'recharts';
 import { useTranslations, useLanguage } from '@/providers/LanguageProvider';
-import { FloatingHelpButton } from '@/components/education/FloatingHelpButton';
 import { EducationalModal } from '@/components/education/EducationalModal';
 import { getCarbonEquivalent } from '@/lib/education/carbon-equivalents';
 import { useOverviewDashboard } from '@/hooks/useDashboardData';
@@ -729,9 +728,14 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-[400px]">
+      <div
+        className="flex items-center justify-center h-[400px]"
+        role="status"
+        aria-live="polite"
+        aria-label="Loading dashboard data"
+      >
         <div className="text-center space-y-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto" aria-hidden="true" />
           <p className="text-gray-400">{t('loading')}</p>
         </div>
       </div>
@@ -754,12 +758,20 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
   return (
     <>
       {/* Executive Summary Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <section
+        aria-labelledby="executive-summary-heading"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+      >
+        <h2 id="executive-summary-heading" className="sr-only">Executive Summary</h2>
+
         {/* Total Emissions */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+        <article
+          className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm"
+          aria-labelledby="total-emissions-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Cloud className="w-5 h-5 text-purple-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <Cloud className="w-5 h-5 text-purple-600 dark:text-purple-400" aria-hidden="true" />
+            <span id="total-emissions-title" className="text-sm text-gray-500 dark:text-gray-400">
               {new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear()
                 ? t('cards.totalEmissions.ytdTitle')
                 : t('cards.totalEmissions.title')}
@@ -767,14 +779,18 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
           </div>
           <div>
             <div className="relative group">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1 cursor-help">
+              <div
+                className="text-2xl font-bold text-gray-900 dark:text-white mb-1 cursor-help"
+                role="text"
+                aria-label={`${totalEmissions.toFixed(1)} tonnes of CO2 equivalent. ${totalEmissionsYoY < 0 ? 'Decreased' : 'Increased'} by ${Math.abs(totalEmissionsYoY).toFixed(1)} percent year over year`}
+              >
                 {totalEmissions.toFixed(1)}
               </div>
               {/* Carbon Equivalent Tooltip on Emissions Value */}
               {(() => {
                 const carbonEquiv = getCarbonEquivalent(totalEmissions, orgBoundaries?.country || 'portugal', tGlobal);
                 return carbonEquiv && (
-                  <div className="absolute left-0 top-full mt-1 w-72 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-64 sm:w-72 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     {/* Intro */}
                     <div className="mb-2">
                       <p className="text-purple-200 text-[11px] font-medium mb-1.5">
@@ -837,7 +853,8 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                           e.stopPropagation();
                           setActiveEducationalModal('carbon-basics');
                         }}
-                        className="text-blue-300 hover:text-blue-200 text-[10px] underline transition-colors"
+                        className="text-blue-300 hover:text-blue-200 text-[10px] underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-900 rounded"
+                        aria-label="Learn more about carbon emissions basics"
                       >
                         {t('learnMore')} →
                       </button>
@@ -889,13 +906,16 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </div>
             )}
           </div>
-        </div>
+        </article>
 
         {/* Emissions Intensity */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+        <article
+          className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm"
+          aria-labelledby="emissions-intensity-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Leaf className="w-5 h-5 text-green-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
+            <Leaf className="w-5 h-5 text-green-600 dark:text-green-400" aria-hidden="true" />
+            <span id="emissions-intensity-title" className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div className="relative group">
@@ -907,7 +927,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               {(() => {
                 const carbonEquiv = getCarbonEquivalent(intensityMetric, orgBoundaries?.country || 'portugal', tGlobal);
                 return carbonEquiv && (
-                  <div className="absolute left-0 top-full mt-1 w-72 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-64 sm:w-72 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     {/* Intensity Explanation */}
                     <div className="mb-2 pb-2 border-b border-purple-500/30">
                       <p className="text-gray-200 text-[11px] leading-relaxed">
@@ -977,7 +997,8 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                           e.stopPropagation();
                           setActiveEducationalModal('carbon-basics');
                         }}
-                        className="text-blue-300 hover:text-blue-200 text-[10px] underline transition-colors"
+                        className="text-blue-300 hover:text-blue-200 text-[10px] underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-900 rounded"
+                        aria-label="Learn more about carbon emissions basics"
                       >
                         {t('learnMore')} →
                       </button>
@@ -998,13 +1019,16 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </span>
             </div>
           </div>
-        </div>
+        </article>
 
         {/* Target Progress */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+        <article
+          className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm"
+          aria-labelledby="target-progress-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Target className="w-5 h-5 text-blue-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.targetProgress.title')}</span>
+            <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+            <span id="target-progress-title" className="text-sm text-gray-500 dark:text-gray-400">{t('cards.targetProgress.title')}</span>
           </div>
           <div className="flex items-end justify-between mb-3">
             <div className="relative group">
@@ -1027,7 +1051,8 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                       e.stopPropagation();
                       setActiveEducationalModal('sbti-targets');
                     }}
-                    className="text-blue-300 hover:text-blue-200 text-[10px] underline transition-colors"
+                    className="text-blue-300 hover:text-blue-200 text-[10px] underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-900 rounded"
+                    aria-label="Learn more about SBTi targets"
                   >
                     {t('learnMore')} →
                   </button>
@@ -1063,13 +1088,16 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </div>
             </div>
           )}
-        </div>
+        </article>
 
         {/* Data Quality */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+        <article
+          className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm"
+          aria-labelledby="data-quality-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Zap className="w-5 h-5 text-yellow-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.dataQuality.title')}</span>
+            <Zap className="w-5 h-5 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
+            <span id="data-quality-title" className="text-sm text-gray-500 dark:text-gray-400">{t('cards.dataQuality.title')}</span>
           </div>
           <div className="flex items-end justify-between mb-3">
             <div className="relative group">
@@ -1103,22 +1131,22 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               />
             </div>
           </div>
-        </div>
-      </div>
+        </article>
+      </section>
 
       {/* SBTi Target Progress - Only show for current year */}
       {targetData?.targets && targetData.targets.length > 0 &&
        new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear() && (
-        <div className="mb-6">
-          <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
+        <section aria-labelledby="sbti-progress-heading" className="mb-6">
+          <article className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 sm:p-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
               <div>
                 <div className="flex items-center gap-2 relative group">
-                  <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('sbtiProgress.title')}</h3>
+                  <Target className="w-5 h-5 text-green-600 dark:text-green-400" aria-hidden="true" />
+                  <h3 id="sbti-progress-heading" className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('sbtiProgress.title')}</h3>
 
                   {/* Hover Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <div className="mb-2">
                       <p className="text-gray-200 text-[11px] leading-relaxed">
                         {t('sbtiProgressExplanation')}
@@ -1194,7 +1222,8 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                           e.stopPropagation();
                           setActiveEducationalModal('sbti-targets');
                         }}
-                        className="text-purple-200 hover:text-white underline font-medium transition-colors text-[11px]"
+                        className="text-purple-200 hover:text-white underline font-medium transition-colors text-[11px] focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-900 rounded"
+                        aria-label="Learn more about SBTi targets"
                       >
                         {t('learnMore')} →
                       </button>
@@ -1204,18 +1233,18 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                     <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                   {targetData.targets[0].target_name} • {targetData.targets[0].baseline_year} → {targetData.targets[0].target_year}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium whitespace-nowrap">
                   {(targetData.targets[0].reduction_percentage || 0).toFixed(1)}% {t('sbtiProgress.reductionTarget')}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               {/* Baseline */}
               <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
@@ -1355,7 +1384,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
             {/* Waterfall Chart */}
             <div className="mt-6">
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('waterfallChart.title')}</h4>
-              <div className="h-[420px]">
+              <div className="h-[300px] sm:h-[360px] lg:h-[420px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={(() => {
@@ -1429,20 +1458,22 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                       }
                     ];
                   })()}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 20, right: 10, left: 10, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-white/10" vertical={true} horizontal={true} />
                   <XAxis
                     dataKey="name"
                     stroke="#6b7280"
-                    fontSize={11}
+                    fontSize={9}
                     tick={{ fill: '#6b7280' }}
+                    className="text-[9px] sm:text-[10px]"
                   />
                   <YAxis
                     stroke="#6b7280"
-                    fontSize={11}
+                    fontSize={9}
                     tick={{ fill: '#6b7280' }}
-                    label={{ value: 'tCO2e', angle: -90, position: 'insideLeft', fill: '#6b7280', fontSize: 11 }}
+                    label={{ value: 'tCO2e', angle: -90, position: 'insideLeft', fill: '#6b7280', fontSize: 9 }}
+                    className="text-[9px] sm:text-[10px]"
                   />
                   <Tooltip
                     contentStyle={{
@@ -1497,13 +1528,14 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                       const requiredReduction = (totalReduction * yearsElapsed) / totalYears;
                       const requiredEmissions = baseline - requiredReduction;
 
+                      // Waterfall chart colors - colorful version
                       const colors = [
-                        '#6b7280', // baseline - gray
-                        '#10b981', // required reduction - green (downward)
-                        '#3b82f6', // required target - blue
-                        '#ef4444', // gap from required - red (upward, showing we're off track)
-                        '#f97316', // current actual - orange
-                        '#10b981' // final target - green
+                        '#3b82f6', // baseline - blue-500 (starting point)
+                        '#22c55e', // required reduction - green-500 (positive action)
+                        '#f59e0b', // required target - amber-500 (milestone)
+                        '#ef4444', // gap from required - red-500 (shortfall/problem)
+                        '#a855f7', // current actual - purple-500 (current state)
+                        '#10b981'  // final target - emerald-500 (goal)
                       ];
 
                       return colors.map((color, index) => (
@@ -1515,22 +1547,27 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </ResponsiveContainer>
               </div>
             </div>
-          </div>
-        </div>
+          </article>
+        </section>
       )}
 
 
       {/* Major Emission Sources */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <section aria-labelledby="emission-sources-heading" className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <h2 id="emission-sources-heading" className="sr-only">Major Emission Sources</h2>
+
         {/* Top Emitters */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm relative">
+        <article
+          className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 sm:p-6 shadow-sm relative"
+          aria-labelledby="top-emitters-heading"
+        >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 relative group">
-              <AlertTriangle className="w-5 h-5 text-orange-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('topEmitters.title')}</h3>
+              <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" aria-hidden="true" />
+              <h3 id="top-emitters-heading" className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('topEmitters.title')}</h3>
 
               {/* Hover Tooltip */}
-              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                 <div className="mb-2">
                   <p className="text-gray-200 text-[11px] leading-relaxed">
                     {t('topEmittersExplanation')}
@@ -1559,7 +1596,8 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                       e.stopPropagation();
                       setActiveEducationalModal('reduction-strategies');
                     }}
-                    className="text-purple-200 hover:text-white underline font-medium transition-colors text-[11px]"
+                    className="text-purple-200 hover:text-white underline font-medium transition-colors text-[11px] focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-900 rounded"
+                    aria-label="Learn more about reduction strategies"
                   >
                     {t('learnMore')} →
                   </button>
@@ -1572,17 +1610,21 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
           </div>
 
           {/* Pie Chart */}
-          <div className="h-[420px]">
+          <div
+            className="h-[320px] sm:h-[380px] lg:h-[420px]"
+            role="img"
+            aria-label={`Pie chart showing top emission sources. ${pieChartData.map((item, i) => `${item.name}: ${item.value.toFixed(1)} tonnes CO2e, ${item.percentage.toFixed(1)} percent`).join('. ')}`}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={pieChartData}
                   dataKey="value"
                   nameKey="name"
-                  cx="47%"
+                  cx="50%"
                   cy="50%"
-                  outerRadius={120}
-                  innerRadius={75}
+                  outerRadius="45%"
+                  innerRadius="28%"
                   label={(() => {
                     const labelPositions: Array<{ x: number; y: number; angle: number; name: string; value: number }> = [];
                     const MIN_LABEL_SPACING = 45; // Minimum vertical spacing between labels
@@ -1590,7 +1632,7 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
 
                     const CustomPieLabel = ({ cx, cy, midAngle, outerRadius, name, percent, value, index }: any) => {
                       const RADIAN = Math.PI / 180;
-                      const radius = outerRadius + 40;
+                      const radius = outerRadius * 1.35; // 35% beyond outer radius for labels
                       let x = cx + radius * Math.cos(-midAngle * RADIAN);
                       let y = cy + radius * Math.sin(-midAngle * RADIAN);
                       const percentage = (percent * 100).toFixed(0);
@@ -1663,7 +1705,8 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
                           fill={color}
                           textAnchor={textAnchor}
                           dominantBaseline="central"
-                          style={{ fontSize: '12px', fontWeight: '500' }}
+                          className="text-[10px] sm:text-xs"
+                          style={{ fontWeight: '500' }}
                         >
                           <tspan x={x} dy="-14">{name}</tspan>
                           <tspan x={x} dy="11">{value.toFixed(1)} tCO2e</tspan>
@@ -1698,12 +1741,11 @@ export function OverviewDashboard({ organizationId, selectedSite, selectedPeriod
               </PieChart>
             </ResponsiveContainer>
           </div>
-        </div>
-      </div>
+        </article>
+      </section>
 
 
-      {/* Educational System */}
-      <FloatingHelpButton onTopicSelect={(topicId) => setActiveEducationalModal(topicId)} />
+      {/* Educational Modal - Keep for "Learn More" links in tooltips */}
       <EducationalModal
         activeModal={activeEducationalModal}
         onClose={() => setActiveEducationalModal(null)}

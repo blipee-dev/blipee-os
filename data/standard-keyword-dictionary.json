@@ -1,0 +1,285 @@
+{
+  "metadata": {
+    "created_at": "2025-10-23T17:19:52.613Z",
+    "method": "regex_extraction",
+    "source_documents": [
+      "Galp Standards",
+      "Ageas GRI",
+      "PLMJ GRI"
+    ],
+    "total_codes": 25,
+    "description": "Universal keyword dictionary for ESG metric extraction - GRI/ESRS/SASB codes"
+  },
+  "codes": [
+    {
+      "code": "GRI 2-21",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 2-26",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 2-27",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 2-7",
+      "category": "employees",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 201-1",
+      "category": "economic",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 201-4",
+      "category": "economic",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 202-1",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 205-2",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 205-3",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 206-1",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 207-4",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 303-3",
+      "category": "water",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 303-4",
+      "category": "water",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 304-1",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 305-1",
+      "category": "emissions",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 306-3",
+      "category": "waste",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 401-1",
+      "category": "employees",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 403-10",
+      "category": "safety",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 403-5",
+      "category": "safety",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 403-6",
+      "category": "safety",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 403-9",
+      "category": "safety",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 404-1",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 405-1",
+      "category": "diversity",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 405-2",
+      "category": "diversity",
+      "found_in": [
+        "Galp Standards"
+      ]
+    },
+    {
+      "code": "GRI 408-1",
+      "category": "other",
+      "found_in": [
+        "Galp Standards"
+      ]
+    }
+  ],
+  "categories": {
+    "waste": [
+      "GRI 306-3"
+    ],
+    "employees": [
+      "GRI 2-7",
+      "GRI 401-1"
+    ],
+    "safety": [
+      "GRI 403-9",
+      "GRI 403-10",
+      "GRI 403-5",
+      "GRI 403-6"
+    ],
+    "other": [
+      "GRI 404-1",
+      "GRI 2-27",
+      "GRI 206-1",
+      "GRI 205-2",
+      "GRI 205-3",
+      "GRI 2-26",
+      "GRI 304-1",
+      "GRI 202-1",
+      "GRI 2-21",
+      "GRI 408-1",
+      "GRI 207-4"
+    ],
+    "diversity": [
+      "GRI 405-1",
+      "GRI 405-2"
+    ],
+    "water": [
+      "GRI 303-3",
+      "GRI 303-4"
+    ],
+    "emissions": [
+      "GRI 305-1"
+    ],
+    "economic": [
+      "GRI 201-1",
+      "GRI 201-4"
+    ]
+  },
+  "search_keywords": [
+    "Board composition",
+    "Community investment",
+    "Diversity ratio",
+    "Economic value",
+    "Energy consumption",
+    "Fatalities",
+    "Female employees",
+    "GRI 2-21",
+    "GRI 2-26",
+    "GRI 2-27",
+    "GRI 2-7",
+    "GRI 201-1",
+    "GRI 201-4",
+    "GRI 202-1",
+    "GRI 205-2",
+    "GRI 205-3",
+    "GRI 206-1",
+    "GRI 207-4",
+    "GRI 303-3",
+    "GRI 303-4",
+    "GRI 304-1",
+    "GRI 305-1",
+    "GRI 306-3",
+    "GRI 401-1",
+    "GRI 403-10",
+    "GRI 403-5",
+    "GRI 403-6",
+    "GRI 403-9",
+    "GRI 404-1",
+    "GRI 405-1",
+    "GRI 405-2",
+    "GRI 408-1",
+    "Independent directors",
+    "LTIF",
+    "Lost time injury",
+    "Male employees",
+    "Pay equity",
+    "Recycling rate",
+    "Renewable energy",
+    "Revenue",
+    "Scope 1 emissions",
+    "Scope 2 emissions",
+    "Scope 3 emissions",
+    "TRIR",
+    "Total employees",
+    "Training hours",
+    "Waste generated",
+    "Waste recycled",
+    "Water consumption",
+    "Women on board"
+  ]
+}

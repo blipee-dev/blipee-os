@@ -27,6 +27,7 @@ export interface NavItem {
   icon: LucideIcon;
   href: string;
   view?: string | null;
+  onClick?: () => void;
 }
 
 interface BaseSidebarLayoutProps {
@@ -36,6 +37,7 @@ interface BaseSidebarLayoutProps {
   sectionTitle?: string;
   selectedView?: string;
   onSelectView?: (view: string) => void;
+  hideFloatingButton?: boolean;
 }
 
 export function BaseSidebarLayout({
@@ -45,6 +47,7 @@ export function BaseSidebarLayout({
   sectionTitle = "blipee",
   selectedView,
   onSelectView,
+  hideFloatingButton = false,
 }: BaseSidebarLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -142,7 +145,9 @@ export function BaseSidebarLayout({
               const button = (
                 <button
                   onClick={() => {
-                    if (item.view && onSelectView) {
+                    if (item.onClick) {
+                      item.onClick();
+                    } else if (item.view && onSelectView) {
                       onSelectView(item.view);
                     } else {
                       router.push(item.href);
@@ -374,7 +379,9 @@ export function BaseSidebarLayout({
                         <button
                           key={item.id}
                           onClick={() => {
-                            if (item.view && onSelectView) {
+                            if (item.onClick) {
+                              item.onClick();
+                            } else if (item.view && onSelectView) {
                               onSelectView(item.view);
                             } else {
                               router.push(item.href);
@@ -466,8 +473,8 @@ export function BaseSidebarLayout({
         </div>
       </div>
 
-      {/* Mobile Navigation */}
-      <MobileNavigation onNewChat={() => router.push("/blipee-ai")} />
+      {/* Mobile Navigation - Hidden when page has its own floating button */}
+      {!hideFloatingButton && <MobileNavigation onNewChat={() => router.push("/blipee-ai")} />}
     </div>
   );
 }

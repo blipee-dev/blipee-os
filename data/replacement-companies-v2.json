@@ -1,0 +1,67 @@
+{
+  "companies": [
+    {
+      "company": "Coca-Cola Company",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.coca-colacompany.com",
+      "pdf_url": "https://www.coca-colacompany.com/content/dam/company/us/en/reports/2024-environmental-update/2024-environmental-update.pdf",
+      "notes": "Verified via Exa search - Environmental Update 2024"
+    },
+    {
+      "company": "PepsiCo",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.pepsico.com",
+      "pdf_url": "https://www.pepsico.com/docs/default-source/sustainability-and-esg-topics/2024-esg-summary/2024-esg-summary-esg-performance-metrics.pdf",
+      "notes": "Verified via Exa search - 2024 ESG Summary"
+    },
+    {
+      "company": "Newmont Corporation",
+      "industry": "GRI 14: Mining",
+      "website": "https://www.newmont.com",
+      "pdf_url": "https://s24.q4cdn.com/382246808/files/doc_downloads/sustainability/2025/newmont-2024-sustainability-report.pdf",
+      "notes": "Verified via Exa search - 2024 Sustainability Report"
+    },
+    {
+      "company": "Kraft Heinz",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.kraftheinzcompany.com",
+      "pdf_url": "https://www.kraftheinzcompany.com/content/dam/kraftheinz/global/sustainability/pdf/KraftHeinz-2024-ESG-Report.pdf",
+      "notes": "Replaces Mondelez - Alternative food company"
+    },
+    {
+      "company": "Vornado Realty Trust",
+      "industry": "GRI 16: Construction and Real Estate",
+      "website": "https://www.vno.com",
+      "pdf_url": "https://www.vno.com/docs/2024-esg-report.pdf",
+      "notes": "Replaces Lendlease - Major REIT"
+    },
+    {
+      "company": "Boston Properties",
+      "industry": "GRI 16: Construction and Real Estate",
+      "website": "https://www.bxp.com",
+      "pdf_url": "https://www.bxp.com/sustainability/reports/BXP-2024-Sustainability-Report.pdf",
+      "notes": "Replaces Kiewit - Real estate with ESG focus"
+    },
+    {
+      "company": "Equity Residential",
+      "industry": "GRI 16: Construction and Real Estate",
+      "website": "https://www.equityapartments.com",
+      "pdf_url": "https://s25.q4cdn.com/238268518/files/doc_downloads/2024/09/EQR-2024-ESG-Report.pdf",
+      "notes": "Replaces AvalonBay - Residential REIT"
+    },
+    {
+      "company": "Dell Technologies",
+      "industry": "GRI 17: Technology Hardware",
+      "website": "https://www.dell.com",
+      "pdf_url": "https://www.dell.com/en-us/dt/corporate/social-impact/reporting/download-fy24-esg-report.htm",
+      "notes": "Replaces HP Inc - Tech hardware leader"
+    },
+    {
+      "company": "Wells Fargo",
+      "industry": "GRI 12: Financial Services",
+      "website": "https://www.wellsfargo.com",
+      "pdf_url": "https://www08.wellsfargomedia.com/assets/pdf/about/corporate-responsibility/environmental-social-governance-report.pdf",
+      "notes": "Replaces Citigroup - Major bank with ESG reporting"
+    }
+  ]
+}

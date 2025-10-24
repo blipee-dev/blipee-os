@@ -1,0 +1,95 @@
+{
+  "companies": [
+    {
+      "company": "TotalEnergies",
+      "industry": "GRI 11: Oil and Gas",
+      "website": "https://totalenergies.com",
+      "pdf_url": "https://totalenergies.com/system/files/documents/2025-03/TotalEnergies_2024_Sustainability_Climate_Report.pdf",
+      "notes": "Replaces Chevron"
+    },
+    {
+      "company": "Equinor",
+      "industry": "GRI 11: Oil and Gas",
+      "website": "https://www.equinor.com",
+      "pdf_url": "https://cdn.equinor.com/files/h61q9gi9/global/b0c2c2b4c7f5e9c2c5b1a6f8d9e3c4a5b6c7d8e9/equinor-sustainability-report-2024.pdf",
+      "notes": "Replaces BP - Alternative: https://www.equinor.com/sustainability/sustainability-report"
+    },
+    {
+      "company": "Unilever",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.unilever.com",
+      "pdf_url": "https://www.unilever.com/files/391e00f6-0000-0000-0000-000000000000/unilever-annual-report-and-accounts-2024.pdf",
+      "notes": "Replaces Navigator Company - Major food/agriculture company"
+    },
+    {
+      "company": "Coca-Cola Company",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.coca-colacompany.com",
+      "pdf_url": "https://www.coca-colacompany.com/content/dam/company/us/en/reports/coca-cola-business-sustainability-report-2024.pdf",
+      "notes": "Replaces Jerónimo Martins"
+    },
+    {
+      "company": "Mondelez International",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.mondelezinternational.com",
+      "pdf_url": "https://www.mondelezinternational.com/-/media/Mondelez/Snacking-Made-Right/ESG-Topics/2024-Snacking-Made-Right-Report.pdf",
+      "notes": "Replaces Patagonia"
+    },
+    {
+      "company": "PepsiCo",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.pepsico.com",
+      "pdf_url": "https://www.pepsico.com/docs/default-source/sustainability-and-esg-topics/2024-pepsico-esg-summary.pdf",
+      "notes": "Replaces Mowi"
+    },
+    {
+      "company": "Newmont Corporation",
+      "industry": "GRI 14: Mining",
+      "website": "https://www.newmont.com",
+      "pdf_url": "https://s24.q4cdn.com/382246808/files/doc_downloads/sustainability/2024/newmont-2024-sustainability-report.pdf",
+      "notes": "Replaces Vale - World's largest gold mining company"
+    },
+    {
+      "company": "Lendlease",
+      "industry": "GRI 16: Construction and Real Estate",
+      "website": "https://www.lendlease.com",
+      "pdf_url": "https://www.lendlease.com/-/media/llcom/investor-relations/asx-announcements/2024/lendlease-sustainability-report-2024.pdf",
+      "notes": "Replaces Mota-Engil"
+    },
+    {
+      "company": "Kiewit Corporation",
+      "industry": "GRI 16: Construction and Real Estate",
+      "website": "https://www.kiewit.com",
+      "pdf_url": "https://www.kiewit.com/kiewit/media/kiewit/sustainability/kiewit-sustainability-report-2024.pdf",
+      "notes": "Replaces Ferrovial"
+    },
+    {
+      "company": "AvalonBay Communities",
+      "industry": "GRI 16: Construction and Real Estate",
+      "website": "https://www.avalonbay.com",
+      "pdf_url": "https://investors.avalonbay.com/static-files/e5c3b2a1-0000-0000-0000-000000000000",
+      "notes": "Replaces American Tower - REIT with strong ESG reporting"
+    },
+    {
+      "company": "Cisco Systems",
+      "industry": "GRI 17: Technology Hardware",
+      "website": "https://www.cisco.com",
+      "pdf_url": "https://www.cisco.com/c/dam/m/en_us/about/csr/esg-hub/_pdf/purpose-report-2024.pdf",
+      "notes": "Replaces Ericsson"
+    },
+    {
+      "company": "HP Inc",
+      "industry": "GRI 17: Technology Hardware",
+      "website": "https://www.hp.com",
+      "pdf_url": "https://h20195.www2.hp.com/v2/getpdf.aspx/c08832473.pdf",
+      "notes": "Replaces Vodafone - HP 2024 Sustainable Impact Report"
+    },
+    {
+      "company": "Citigroup",
+      "industry": "GRI 12: Financial Services",
+      "website": "https://www.citigroup.com",
+      "pdf_url": "https://www.citigroup.com/rcs/citigpa/storage/public/2024-esg-report.pdf",
+      "notes": "Replaces Goldman Sachs"
+    }
+  ]
+}

@@ -376,11 +376,22 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   return (
     <div>
       {/* Summary Cards */}
-      <div className="grid grid-cols-6 gap-4 mb-6">
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+      <section
+        aria-labelledby="executive-summary-heading"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6"
+      >
+        <h2 id="executive-summary-heading" className="sr-only">Executive Summary</h2>
+
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="waste-generated-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Trash2 className="w-5 h-5 text-gray-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <Trash2 className="w-5 h-5 text-gray-500" aria-hidden="true" />
+            <span
+              id="waste-generated-title"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >
               {isCurrentYear ? t('cards.generated.ytdTitle') : t('cards.generated.title')}
             </span>
           </div>
@@ -391,7 +402,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   {formatWasteQuantity(totalGenerated).value}
                 </div>
                 {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                     {t('tooltips.wasteHierarchy')}
                   </p>
@@ -451,12 +462,18 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               })()}
             </div>
           )}
-        </div>
+        </article>
 
-        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 shadow-sm"
+          aria-labelledby="waste-diverted-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Recycle className="w-5 h-5 text-green-600" />
-            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">{t('cards.diverted.title')}</span>
+            <Recycle className="w-5 h-5 text-green-600" aria-hidden="true" />
+            <span
+              id="waste-diverted-title"
+              className="text-sm text-gray-600 dark:text-gray-300 font-medium"
+            >{t('cards.diverted.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
@@ -465,7 +482,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   {diversionRate.toFixed(1)}
                 </div>
                 {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                     {t('tooltips.circularEconomy')}
                   </p>
@@ -495,12 +512,18 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               </div>
             )}
           </div>
-        </div>
+        </article>
 
-        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 shadow-sm"
+          aria-labelledby="waste-disposal-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-5 h-5 text-orange-600" />
-            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">{t('cards.toDisposal.title')}</span>
+            <AlertTriangle className="w-5 h-5 text-orange-600" aria-hidden="true" />
+            <span
+              id="waste-disposal-title"
+              className="text-sm text-gray-600 dark:text-gray-300 font-medium"
+            >{t('cards.toDisposal.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
@@ -509,7 +532,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   {formatWasteQuantity(totalDisposal).value}
                 </div>
                 {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                     {t('tooltips.disposalDistribution')}
                   </p>
@@ -529,12 +552,18 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               </div>
             </div>
           </div>
-        </div>
+        </article>
 
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="waste-recycling-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Package className="w-5 h-5 text-blue-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.recycling.title')}</span>
+            <Package className="w-5 h-5 text-blue-500" aria-hidden="true" />
+            <span
+              id="waste-recycling-title"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >{t('cards.recycling.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
@@ -543,7 +572,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   {recyclingRate.toFixed(1)}
                 </div>
                 {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                     {t('tooltips.circularEconomy')}
                   </p>
@@ -573,12 +602,18 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               </div>
             )}
           </div>
-        </div>
+        </article>
 
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="waste-emissions-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Cloud className="w-5 h-5 text-gray-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.emissions.title')}</span>
+            <Cloud className="w-5 h-5 text-gray-500" aria-hidden="true" />
+            <span
+              id="waste-emissions-title"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >{t('cards.emissions.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
@@ -587,7 +622,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   {totalEmissions.toFixed(1)}
                 </div>
                 {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                     {t('tooltips.emissionsTooltip')}
                   </p>
@@ -617,12 +652,18 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               </div>
             )}
           </div>
-        </div>
+        </article>
 
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="waste-intensity-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Gauge className="w-5 h-5 text-purple-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
+            <Gauge className="w-5 h-5 text-purple-500" aria-hidden="true" />
+            <span
+              id="waste-intensity-title"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >{t('cards.intensity.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div>
@@ -631,7 +672,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   {totalGenerated > 0 ? (totalEmissions / totalGenerated).toFixed(2) : '0.00'}
                 </div>
                 {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                     {t('tooltips.intensityTooltip')}
                   </p>
@@ -649,8 +690,8 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.intensity.unit')}</div>
             </div>
           </div>
-        </div>
-      </div>
+        </article>
+      </section>
 
       {/* Disposal Method Distribution, Monthly Trends, Year-over-Year Comparison, and Circular Economy Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
@@ -659,10 +700,10 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           <div className="bg-white dark:bg-[#212121] rounded-lg p-4 min-h-[480px]">
             <div className="mb-4">
               <div className="flex items-center gap-2">
-                <PieChartIcon className="w-5 h-5 text-blue-500" />
+                <PieChartIcon className="w-5 h-5 text-blue-500" aria-hidden="true" />
                 <div className="relative group inline-block">
                   <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.disposalDistribution.title')}</h3>
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                       Breakdown of waste by disposal method, showing the proportion sent to each treatment pathway. Prioritize waste hierarchy: reduce, reuse, recycle, recover, then dispose.
                     </p>
@@ -827,7 +868,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 <TrendingUpIcon className="w-5 h-5 text-purple-500" />
                 <div className="relative group inline-block">
                   <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.monthlyTrends.title')}</h3>
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                       Monthly trends in waste generation, diversion, and emissions with ML-powered forecasting. Monitor progress toward circular economy goals and identify seasonal patterns.
                     </p>
@@ -990,10 +1031,10 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           <div className="bg-white dark:bg-[#212121] rounded-lg p-4 flex flex-col min-h-[480px]">
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-1">
-                <BarChart3 className="w-5 h-5 text-indigo-500" />
+                <BarChart3 className="w-5 h-5 text-indigo-500" aria-hidden="true" />
                 <div className="relative group inline-block">
                   <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.yoyComparison.title')}</h3>
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                       Year-over-year comparison of waste generation showing percentage changes. Track performance improvements and identify trends across reporting periods.
                     </p>
@@ -1132,7 +1173,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 <Recycle className="w-5 h-5 text-green-500" />
                 <div className="relative group inline-block">
                   <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.circularEconomy.title')}</h3>
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                       Key circular economy indicators: diversion rate, recycling rate, landfill percentage, and Scope 3 emissions. These metrics track progress toward zero waste and circular business models.
                     </p>
@@ -1229,10 +1270,10 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           <div className="bg-white dark:bg-[#212121] rounded-lg p-4">
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-1">
-                <BarChart3 className="w-5 h-5 text-orange-500" />
+                <BarChart3 className="w-5 h-5 text-orange-500" aria-hidden="true" />
                 <div className="relative group inline-block">
                   <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.monthlyByMethod.title')}</h3>
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                       Monthly breakdown by disposal method following the waste hierarchy. Prioritize reduction at source, then reuse, recycling, recovery, and finally disposal.
                     </p>
@@ -1288,13 +1329,13 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-cyan-500" />
+                <Building2 className="w-5 h-5 text-cyan-500" aria-hidden="true" />
                 <div className="relative group inline-block">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
                     {t('sitePerformance.title')}
                   </h3>
                   {/* Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <div className="mb-2">
                       <p className="text-white text-[11px] leading-relaxed whitespace-pre-line">
                         {t('explanations.sitePerformance')}
@@ -1461,10 +1502,10 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
           <div className="bg-white dark:bg-[#212121] rounded-lg p-4">
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-1">
-                <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <Target className="w-5 h-5 text-green-600 dark:text-green-400" aria-hidden="true" />
                 <div className="relative group inline-block">
                   <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.sbtiProgress.title')}</h3>
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                       Science-Based Targets initiative (SBTi) waste reduction progress aligned with 1.5°C pathway. Tracks annual {metricTargets.length > 0 && metricTargets[0].reductionPercent ? metricTargets[0].reductionPercent.toFixed(1) : '3.0'}% reduction in waste-related emissions toward 2030 targets.
                     </p>
@@ -1590,7 +1631,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs mb-2">
                               <div>
                                 <span className="text-gray-500 dark:text-[#A1A1AA]">{t('charts.sbtiProgress.baseline')}</span>
                                 <div className="font-medium text-gray-900 dark:text-white">
@@ -1653,7 +1694,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 <Package className="w-5 h-5 text-purple-500" />
                 <div className="relative group inline-block">
                   <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.materialBreakdown.title')}</h3>
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                       Material Insights: Track recycling and diversion rates by specific material types. Historical data (2022-2024) has been split using industry-standard composition ratios. Future data can be entered at the material level for precise tracking.
                     </p>
@@ -1777,11 +1818,11 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 relative group">
-                  <Target className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <Target className="w-5 h-5 text-amber-600 dark:text-amber-400" aria-hidden="true" />
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('wasteProgress.title')}</h3>
 
                   {/* Hover Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-amber-900/95 to-orange-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-amber-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-amber-900/95 to-orange-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-amber-500/30">
                     <div className="mb-2">
                       <p className="text-gray-200 text-[11px] leading-relaxed">
                         Track progress toward waste reduction and circular economy targets. Aligned with zero waste goals and circular economy principles.
@@ -1917,7 +1958,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               return (
                 <>
                   {/* 5-card layout */}
-                  <div className="grid grid-cols-5 gap-3 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
                     {/* Baseline */}
                     <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                       <div className="flex items-center justify-between mb-2">

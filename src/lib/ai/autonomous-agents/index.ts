@@ -12,6 +12,9 @@ export { DecisionEngine } from './base/DecisionEngine';
 export { ApprovalWorkflow } from './base/ApprovalWorkflow';
 export { AgentOrchestrator, agentOrchestrator } from './base/AgentOrchestrator';
 
+// Blipee - The friendly AI orchestrator
+export { BlipeeOrchestrator, blipeeOrchestrator } from './BlipeeOrchestrator';
+
 // AI Employees - All 8 specialized autonomous agents from FULL_IMPLEMENTATION_PLAN.md
 export { EsgChiefOfStaff as ESGChiefOfStaff } from './agents/EsgChiefOfStaff';
 export { ComplianceGuardian } from './agents/ComplianceGuardian';
@@ -167,16 +170,28 @@ export async function initializeAutonomousAgents(organizationId: string) {
 
 // Additional workforce management functions
 export async function getAIWorkforceStatus() {
-  const status = await agentOrchestrator.getSystemStatus();
+  try {
+    const workload = await agentOrchestrator.getWorkloadDistribution();
+    const activeAgents = await AgentRegistry.getActiveAgents();
 
-  return {
-    operational: status.activeAgents > 0,
-    employeeCount: status.activeAgents,
-    activeAgents: status.agentNames,
-    systemHealth: status.activeAgents === 8 ? 'excellent' :
-                  status.activeAgents >= 6 ? 'good' :
-                  status.activeAgents >= 3 ? 'degraded' : 'offline'
-  };
+    return {
+      operational: workload.activeAgents > 0,
+      employeeCount: workload.activeAgents,
+      activeAgents: activeAgents.map(a => a.agentName),
+      systemHealth: workload.activeAgents === 8 ? 'excellent' :
+                    workload.activeAgents >= 6 ? 'good' :
+                    workload.activeAgents >= 3 ? 'degraded' : 'offline'
+    };
+  } catch (error) {
+    console.error('Error getting AI workforce status:', error);
+    // Return safe defaults
+    return {
+      operational: false,
+      employeeCount: 0,
+      activeAgents: [],
+      systemHealth: 'offline'
+    };
+  }
 }
 
 export function getAIEmployeeByName(name: string) {

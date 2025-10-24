@@ -509,7 +509,7 @@ export class ResponsePersonalizationEngine {
       // Try to get existing profile from cache
       const cached = await redisClient.get(`profile:${userId}`);
       if (cached) {
-        return JSON.parse(cached);
+        return typeof cached === 'string' ? JSON.parse(cached) : cached;
       }
 
       // Try to get from database

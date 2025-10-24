@@ -1,9 +1,10 @@
 /**
- * AI Stub for Autonomous Agents
- * 
- * Simplified AI interface for autonomous agents to avoid complex dependencies.
- * In production, this would use the full AI orchestrator.
+ * AI Service for Autonomous Agents
+ *
+ * Real AI interface that connects to OpenAI/DeepSeek/Anthropic
  */
+
+import { aiService } from '../../service';
 
 export enum TaskType {
   GENERAL_CHAT = 'general_chat',
@@ -25,18 +26,30 @@ class AIStub {
     taskType: TaskType = TaskType.GENERAL_CHAT,
     options: CompletionOptions = {}
   ): Promise<string> {
-    // This is a stub implementation for development
-    // In production, this would call the actual AI service
-    
-    if (options.jsonMode) {
-      return JSON.stringify({
-        analysis: "AI analysis completed",
-        recommendations: ["Recommendation 1", "Recommendation 2"],
-        confidence: 0.8
+    try {
+      // Call the REAL AI service (OpenAI/DeepSeek/Anthropic)
+      const response = await aiService.complete(prompt, {
+        temperature: options.temperature || 0.7,
+        maxTokens: options.maxTokens || 2000,
+        jsonMode: options.jsonMode || false
       });
+
+      return response;
+    } catch (error) {
+      console.error('AI service error:', error);
+
+      // Fallback response if AI fails
+      if (options.jsonMode) {
+        return JSON.stringify({
+          error: "AI service unavailable",
+          analysis: "Unable to complete analysis at this time",
+          recommendations: ["Please try again later"],
+          confidence: 0
+        });
+      }
+
+      return "I apologize, but I'm having trouble processing your request right now. Please try again.";
     }
-    
-    return "AI response generated successfully";
   }
 }
 

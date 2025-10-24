@@ -335,11 +335,22 @@ export function WaterDashboard({
   return (
     <div>
       {/* Summary Cards */}
-      <div className="grid grid-cols-5 gap-4 mb-6">
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+      <section
+        aria-labelledby="executive-summary-heading"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6"
+      >
+        <h2 id="executive-summary-heading" className="sr-only">Executive Summary</h2>
+
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="water-withdrawal-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Droplet className="w-5 h-5 text-blue-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <Droplet className="w-5 h-5 text-blue-500" aria-hidden="true" />
+            <span
+              id="water-withdrawal-title"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >
               {isCurrentYear ? t('cards.withdrawal.ytdTitle') : t('cards.withdrawal.title')}
             </span>
           </div>
@@ -398,12 +409,18 @@ export function WaterDashboard({
               })()}
             </div>
           )}
-        </div>
+        </article>
 
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="water-consumption-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Activity className="w-5 h-5 text-cyan-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <Activity className="w-5 h-5 text-cyan-500" aria-hidden="true" />
+            <span
+              id="water-consumption-title"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >
               {t('cards.consumption.title')}
             </span>
           </div>
@@ -434,12 +451,18 @@ export function WaterDashboard({
               </div>
             )}
           </div>
-        </div>
+        </article>
 
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="water-discharge-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Waves className="w-5 h-5 text-blue-400" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <Waves className="w-5 h-5 text-blue-400" aria-hidden="true" />
+            <span
+              id="water-discharge-title"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >
               {t('cards.discharge.title')}
             </span>
           </div>
@@ -470,12 +493,18 @@ export function WaterDashboard({
               </div>
             )}
           </div>
-        </div>
+        </article>
 
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="water-recycling-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Recycle className="w-5 h-5 text-green-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <Recycle className="w-5 h-5 text-green-500" aria-hidden="true" />
+            <span
+              id="water-recycling-title"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >
               {t('cards.recycling.title')}
             </span>
           </div>
@@ -502,12 +531,18 @@ export function WaterDashboard({
               </div>
             )}
           </div>
-        </div>
+        </article>
 
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="water-intensity-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Gauge className="w-5 h-5 text-purple-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <Gauge className="w-5 h-5 text-purple-500" aria-hidden="true" />
+            <span
+              id="water-intensity-title"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >
               {t('cards.intensity.title')}
             </span>
           </div>
@@ -517,23 +552,23 @@ export function WaterDashboard({
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             {useKL ? t('cards.intensity.unit').replace('ML', 'kL') : t('cards.intensity.unit')}
           </div>
-        </div>
-      </div>
+        </article>
+      </section>
 
       {/* Water Sources Distribution and Monthly Trends */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Water Sources Distribution Pie Chart */}
         {sourceBreakdown.length > 0 && (
           <div className="bg-white dark:bg-[#212121] rounded-lg p-4">
             <div className="mb-4">
               <div className="flex items-center gap-2 relative group">
-                <PieChartIcon className="w-5 h-5 text-blue-500" />
+                <PieChartIcon className="w-5 h-5 text-blue-500" aria-hidden="true" />
                 <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">
                   {t('charts.sourcesDistribution.title')}
                 </h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <div className="mb-2">
                     <p className="text-gray-200 text-[11px] leading-relaxed">
                       {t('waterSourcesExplanation')}
@@ -745,7 +780,7 @@ export function WaterDashboard({
                 </h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <div className="mb-2">
                     <p className="text-gray-200 text-[11px] leading-relaxed">
                       {t('waterBalanceExplanation')}
@@ -959,19 +994,19 @@ export function WaterDashboard({
 
       {/* Year-over-Year Comparison and Water Balance */}
       {monthlyTrends.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           {/* Monthly YoY Comparison - only show when we have previous year data */}
           {yoyWithdrawalChange !== null && prevYearMonthlyTrends.length > 0 && (
             <div className="bg-white dark:bg-[#212121] rounded-lg p-4 flex flex-col">
               <div className="mb-4">
                 <div className="flex items-center gap-2 relative group mb-1">
-                  <BarChart3 className="w-5 h-5 text-indigo-500" />
+                  <BarChart3 className="w-5 h-5 text-indigo-500" aria-hidden="true" />
                   <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">
                     {t('charts.yoyComparison.title')}
                   </h3>
 
                   {/* Hover Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <div className="mb-2">
                       <p className="text-gray-200 text-[11px] leading-relaxed">
                         {t('yoyComparisonExplanation')}
@@ -1160,7 +1195,7 @@ export function WaterDashboard({
                   </h3>
 
                   {/* Hover Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <div className="mb-2">
                       <p className="text-gray-200 text-[11px] leading-relaxed">
                         {t('waterBalanceSummaryExplanation')}
@@ -1300,17 +1335,17 @@ export function WaterDashboard({
 
       {/* Site Performance Ranking - Moved here, one column only */}
       {siteComparison.length > 1 && (
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-cyan-500" />
+                <Building2 className="w-5 h-5 text-cyan-500" aria-hidden="true" />
                 <div className="relative group inline-block">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
                     {t('sitePerformance.title')}
                   </h3>
                   {/* Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <div className="mb-2">
                       <p className="text-white text-[11px] leading-relaxed whitespace-pre-line">
                         {t('explanations.sitePerformance')}
@@ -1485,11 +1520,11 @@ export function WaterDashboard({
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 relative group">
-                  <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('cdpProgress.title')}</h3>
 
                   {/* Hover Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <div className="mb-2">
                       <p className="text-gray-200 text-[11px] leading-relaxed">
                         {t('waterReductionTargetExplanation')}
@@ -1542,7 +1577,7 @@ export function WaterDashboard({
               </div>
             </div>
 
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               {/* Baseline */}
               <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
@@ -1877,7 +1912,7 @@ export function WaterDashboard({
                 <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts.initiatives.title')}</h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <div className="mb-2">
                     <p className="text-gray-200 text-[11px] leading-relaxed">
                       {t('waterInitiativesExplanation')}
@@ -2062,7 +2097,7 @@ export function WaterDashboard({
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs mb-2">
                               <div>
                                 <span className="text-gray-500 dark:text-gray-400">{t('tooltips.baseline')}</span>
                                 <div className="font-medium text-gray-900 dark:text-white">

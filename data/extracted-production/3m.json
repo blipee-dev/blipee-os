@@ -1,0 +1,17 @@
+{
+  "company_name": "3M",
+  "industry": "Unknown",
+  "website": "https://www.3m.com/sustainability",
+  "extraction_method": "merged_ultimate_dictionary_141_codes",
+  "dictionary_version": "merged ultimate (141 GRI codes + ESRS)",
+  "report_metadata": {
+    "pdf_url": "https://multimedia.3m.com/mws/media/2414270O/3m-2024-nordic-impact-report.pdf",
+    "pages": 62,
+    "characters": 124,
+    "analysis_coverage_percent": 100
+  },
+  "extraction_time_seconds": "1.8",
+  "extracted_at": "2025-10-23T21:49:31.059Z",
+  "metric_count": 0,
+  "metrics": {}
+}

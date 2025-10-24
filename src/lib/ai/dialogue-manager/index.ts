@@ -1254,7 +1254,7 @@ Return only the clarification question.`;
       // Try Redis first
       const cached = await redisClient.get(`dialogue:${conversationId}`);
       if (cached) {
-        return JSON.parse(cached);
+        return typeof cached === 'string' ? JSON.parse(cached) : cached;
       }
 
       // Fall back to database

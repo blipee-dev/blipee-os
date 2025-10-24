@@ -1,0 +1,425 @@
+{
+  "companies": {
+    "Galp Energia": {
+      "sustainability_page": "https://www.galp.com/corp/en/sustainability",
+      "report_url": "https://www.galp.com/corp/Portals/0/Recursos/Sustentabilidade/SharedResources/Documents/2024/SustainabilityStatement2024.pdf",
+      "verified": true,
+      "note": "2024 Sustainability Statement - user provided correct URL"
+    },
+    "Equinor": {
+      "sustainability_page": "https://www.equinor.com/sustainability",
+      "report_url": "https://cdn.equinor.com/files/h61q9gi9/global/16ccbc5a098c3b971979118420c4f83ddee18fb4.pdf?annual-report-2024-equinor.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Navigator Company": {
+      "sustainability_page": "https://www.thenavigatorcompany.com/sustainability",
+      "report_url": "https://www.thenavigatorcompany.com/var/ezdemo_site/storage/original/application/sustainability-report-2023.pdf",
+      "verified": true
+    },
+    "Jerónimo Martins": {
+      "sustainability_page": "https://www.jeronimomartins.com/en/sustainability/",
+      "report_url": "https://www.jeronimomartins.com/media/sustainability-report-2023.pdf",
+      "verified": true
+    },
+    "Mota-Engil": {
+      "sustainability_page": "https://www.mota-engil.com/en/sustainability/",
+      "report_url": "https://www.mota-engil.com/wp-content/uploads/2024/Mota-Engil-Sustainability-Report-2023.pdf",
+      "verified": true
+    },
+    "Unilever": {
+      "sustainability_page": "https://www.unilever.com/planet-and-society/",
+      "report_url": "https://www.unilever.com/files/our-sustainability-goals.pdf",
+      "verified": true
+    },
+    "Carrefour": {
+      "sustainability_page": "https://www.carrefour.com/en/csr",
+      "report_url": "https://www.carrefour.com/sites/default/files/2025-05/CFR_URD_2024_EN_250328_MEL.pdf",
+      "verified": true
+    },
+    "Patagonia": {
+      "sustainability_page": "https://www.patagonia.com/our-footprint/",
+      "report_url": "https://www.patagonia.com/our-footprint/",
+      "verified": true,
+      "note": "HTML page with comprehensive data, not PDF"
+    },
+    "SAP": {
+      "sustainability_page": "https://www.sap.com/sustainability",
+      "report_url": "https://db.srnav.com/storage/v1/object/public/document-pdfs/44f05cfd-12af-4e22-b9e3-34cffdf3faf1.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Tesla": {
+      "sustainability_page": "https://www.tesla.com/sustainability",
+      "report_url": "https://www.tesla.com/ns_videos/2024-tesla-impact-report-highlights.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Eni": {
+      "sustainability_page": "https://www.eni.com/sustainability",
+      "report_url": "https://www.eni.com/content/dam/enicom/documents/eng/sustainability/2024/eni-for-2024-just-transition-eng/intro-just-transition-2024-eng.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Repsol": {
+      "sustainability_page": "https://www.repsol.com/sustainability",
+      "report_url": "https://www.repsol.com/content/dam/repsol-corporate/en_gb/sostenibilidad/reports/2024/2024-sustainability-plan-for-united-states-canada.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "OMV": {
+      "sustainability_page": "https://www.omv.com/sustainability",
+      "report_url": "https://reports.omv.com/en/annual-report/2024/_assets/downloads/dir-directors-report-sr-omv-ar24.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Chevron": {
+      "sustainability_page": "https://www.chevron.com/sustainability",
+      "report_url": "https://www.chevron.com/-/media/shared-media/documents/chevron-sustainability-highlights-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "BP": {
+      "sustainability_page": "https://www.bp.com/sustainability",
+      "report_url": "https://www.bp.com/content/dam/bp/business-sites/en/global/corporate/pdfs/sustainability/group-reports/bp-sustainability-report-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Shell": {
+      "sustainability_page": "https://www.shell.com/sustainability",
+      "report_url": "https://www.shell.com/investors/results-and-reporting/annual-report/_jcr_content/root/main/section_2113846431/link_list/links/item0.stream/1752580693041/6c20b8111738b9a590ba145f0d1c4fa0e530dae0/shell-annual-report-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "TotalEnergies": {
+      "sustainability_page": "https://totalenergies.com/sustainability",
+      "report_url": "https://totalenergies.com/system/files/documents/2024-03/totalenergies_sustainability-climate-2024-progress-report_2024_en_pdf.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "ExxonMobil": {
+      "sustainability_page": "https://corporate.exxonmobil.com/sustainability",
+      "report_url": "https://corporate.exxonmobil.com/-/media/global/files/sustainability-report/2024/sustainability-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Anglo American": {
+      "sustainability_page": "https://www.angloamerican.com/sustainability",
+      "report_url": "https://www.angloamerican.com/~/media/Files/A/Anglo-American-Group-v9/PLC/investors/annual-reporting/2025/sustainability-report-plc-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Freeport-McMoRan": {
+      "sustainability_page": "https://www.fcx.com/sustainability",
+      "report_url": "https://www.fcx.com/sites/fcx/files/documents/sustainability/2024-annual-report-on-sustainability.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Fortescue Metals": {
+      "sustainability_page": "https://www.fmgl.com.au/sustainability",
+      "report_url": "https://cdn.fortescue.com/docs/default-source/announcements-and-reports/fy24-sustainability-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Norsk Hydro": {
+      "sustainability_page": "https://www.hydro.com/sustainability",
+      "report_url": "https://nelhydrogen.com/wp-content/uploads/2025/02/Nel-Annual-Report-2024_for-publication.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Boliden": {
+      "sustainability_page": "https://www.boliden.com/sustainability",
+      "report_url": "https://investors.boliden.com/sites/boliden-ir/files/pr/202503192744-1.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "LKAB": {
+      "sustainability_page": "https://www.lkab.com/sustainability",
+      "report_url": "https://lkab.com/wp-content/uploads/2025/05/LKAB_2024_Annual-and-Sustainability-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Rio Tinto": {
+      "sustainability_page": "https://www.riotinto.com/sustainability",
+      "report_url": "https://company-announcements.afr.com/asx/rio/368b5372-ef01-11ef-bad1-e21e95c6ff03.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "BHP": {
+      "sustainability_page": "https://www.bhp.com/sustainability",
+      "report_url": "https://bhp.co.uk/wp-content/uploads/2024/09/Final-sustainability-report-2023-24.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Glencore": {
+      "sustainability_page": "https://www.glencore.com/sustainability",
+      "report_url": "https://www.glencore.com/.rest/api/v1/documents/static/72cdaa4f-71c1-4901-bb31-8819f38dbfcb/GLEN-2024-Sustainability-Report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Vale": {
+      "sustainability_page": "https://www.vale.com/sustainability",
+      "report_url": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202504/12ed5b11c0_98bad69754.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Royal DSM": {
+      "sustainability_page": "https://www.dsm.com/sustainability",
+      "report_url": "https://www.dsm-firmenich.com/content/dam/dsm-firmenich/investors/documents/corporate-governance/general-shareholder-meetings/annual-general-meetings/2025/dsm-firmenich-2024-sustainability-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Bunge": {
+      "sustainability_page": "https://www.bunge.com/sustainability",
+      "report_url": "https://investors.bunge.com/~/media/Files/B/Bunge-IR/documents/financial-information/annual-reports/2024-bunge-annual-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Cargill": {
+      "sustainability_page": "https://www.cargill.com/sustainability",
+      "report_url": "https://www.cargill.com/sustainability/doc/1432270798723/2024-impact-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Tyson Foods": {
+      "sustainability_page": "https://www.tysonfoods.com/sustainability",
+      "report_url": "https://s203.q4cdn.com/483587180/files/doc_financials/2024/ar/TSN-FY2024-10K.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Hormel Foods": {
+      "sustainability_page": "https://www.hormelfoods.com/sustainability",
+      "report_url": "https://www.hormelfoods.com/wp-content/uploads/Hormel-Foods-2024-Global-Impact-Report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Mowi": {
+      "sustainability_page": "https://www.mowi.com/sustainability",
+      "report_url": "https://mowi.com/wp-content/uploads/2025/03/Mowi-Integrated-Annual-Report-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Nestlé": {
+      "sustainability_page": "https://www.nestle.com/sustainability",
+      "report_url": "https://www.nestle.com/sites/default/files/2025-02/creating-shared-value-nestle-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Archer Daniels Midland": {
+      "sustainability_page": "https://www.adm.com/sustainability",
+      "report_url": "https://www.adm.com/globalassets/sustainability/sustainability-reports/archer_daniels_2024_corporate_sustainability_report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Danone": {
+      "sustainability_page": "https://www.danone.com/sustainability",
+      "report_url": "https://www.danone.com/content/dam/corp/global/danonecom/investors/en-sustainability/reports-and-data/cross-topic/danoneiar2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Caterpillar": {
+      "sustainability_page": "https://www.caterpillar.com/sustainability",
+      "report_url": "https://m.cat-cn.com/pdf/2024-sustainability-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Schneider Electric": {
+      "sustainability_page": "https://www.se.com/sustainability",
+      "report_url": "https://www.se.com/ww/en/assets/564/document/466143/schneider-sustainability-impact-q1-2024-results.pdf.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "ABB": {
+      "sustainability_page": "https://global.abb/sustainability",
+      "report_url": "https://abb-bank.az/storage/uploads/files/1747209953_abb-sustainability-report-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "General Electric": {
+      "sustainability_page": "https://www.ge.com/sustainability",
+      "report_url": "https://www.gevernova.com/sustainability/documents/Sustainability/ge-vernova-sustainability-report-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Siemens": {
+      "sustainability_page": "https://www.siemens.com/sustainability",
+      "report_url": "https://assets.new.siemens.com/siemens/assets/api/uuid:32a7154d-edba-47bc-8e9b-9761617ba774/sustainability-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "3M": {
+      "sustainability_page": "https://www.3m.com/sustainability",
+      "report_url": "https://multimedia.3m.com/mws/media/2414270O/3m-2024-nordic-impact-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Honeywell": {
+      "sustainability_page": "https://www.honeywell.com/sustainability",
+      "report_url": "https://www.honeywell.com/content/dam/honeywellbt/en/documents/downloads/hon-2024-impact-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "United Airlines": {
+      "sustainability_page": "https://www.united.com/sustainability",
+      "report_url": "https://corporateimpact.united.com/pdfs/united-environment-data.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "UPS": {
+      "sustainability_page": "https://www.ups.com/sustainability",
+      "report_url": "https://about.ups.com/content/dam/upsstories/images/our-impact/reporting/2024-UPS-GRI-Report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "FedEx": {
+      "sustainability_page": "https://www.fedex.com/sustainability",
+      "report_url": "https://www.fedex.com/content/dam/fedex/us-united-states/sustainability/gcrs/FedEx_2024_ESG_Report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Maersk": {
+      "sustainability_page": "https://www.maersk.com/sustainability",
+      "report_url": "https://www.maersk.com/~/media_sc9/maersk/corporate/sustainability/files/resources/2024/maersk-annual-report-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Delta Air Lines": {
+      "sustainability_page": "https://www.delta.com/sustainability",
+      "report_url": "https://esghub.delta.com/content/dam/esg/2024/pdf/Delta-Difference-2024-Report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Vinci": {
+      "sustainability_page": "https://www.vinci.com/sustainability",
+      "report_url": "https://www.vinci.com/publi/vinci/extract/2024_workforce_related_environmental_and_social_information.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Bouygues": {
+      "sustainability_page": "https://www.bouygues.com/sustainability",
+      "report_url": "https://www.bouygues.com/wp-content/uploads/2025/04/20250402-ri-va-tds.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Ferrovial": {
+      "sustainability_page": "https://www.ferrovial.com/sustainability",
+      "report_url": "https://static-iai.ferrovial.com/wp-content/uploads/sites/13/2025/03/03192626/ferrovial-integrated-annual-report-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Skanska": {
+      "sustainability_page": "https://www.skanska.com/sustainability",
+      "report_url": "https://group.skanska.com/49490b/siteassets/investors/reports-publications/annual-reports/2024/annual-and-sustainability-report-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "American Tower": {
+      "sustainability_page": "https://www.americantower.com/sustainability",
+      "report_url": "https://www.ihstowers.com/content/dam/ihs/corporate/documents/sustainability/Sustainability-reports/2024-Sustainability-Report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Prologis": {
+      "sustainability_page": "https://www.prologis.com/sustainability",
+      "report_url": "https://prologis.getbynder.com/m/4e832274a5346909/original/Prologis-2024-25-Global-Impact-Sustainability-Report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Simon Property Group": {
+      "sustainability_page": "https://www.simon.com/sustainability",
+      "report_url": "https://www.responsibilityreports.com/HostedData/ResponsibilityReportArchive/s/NYSE_SPG_2022.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Brookfield Asset Management": {
+      "sustainability_page": "https://www.brookfield.com/sustainability",
+      "report_url": "https://bam.brookfield.com/sites/brookfield-bam/files/BAM-IR-Master/Responsibility/2025/BAM%20Ltd.%202024%20Sustainability%20Report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "CBRE Group": {
+      "sustainability_page": "https://www.cbre.com/sustainability",
+      "report_url": "https://mediaassets.cbre.com/-/media/cbre/countryspain/memoria-de-sostenibilidad/sustainability-report-cbre-2024.pdf?rev=f58661353e1b4ce6965a886c7b12593a",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Nokia": {
+      "sustainability_page": "https://www.nokia.com/sustainability",
+      "report_url": "https://www.nokia.com/sites/default/files/2025-03/nokia-2024-sustainability-report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Ericsson": {
+      "sustainability_page": "https://www.ericsson.com/sustainability",
+      "report_url": "https://ericssonnikolatesla.com/wp-content/uploads/2025/06/GI_2024_ENG.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Vodafone": {
+      "sustainability_page": "https://www.vodafone.com/sustainability",
+      "report_url": "https://www.vf.qa/en/media/document/1551518243440/vfqa-sustainability_report_2024_en-compressed.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Deutsche Telekom": {
+      "sustainability_page": "https://www.telekom.com/sustainability",
+      "report_url": "https://report.telekom.com/cr-report/2024/_assets/downloads/entire-dtag-cr24.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "BlackRock": {
+      "sustainability_page": "https://www.blackrock.com/sustainability",
+      "report_url": "https://www.blackrock.com/corporate/literature/continuous-disclosure-and-important-information/blackrock-sustainability-disclosure.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Morgan Stanley": {
+      "sustainability_page": "https://www.morganstanley.com/sustainability",
+      "report_url": "https://www.morganstanley.com/content/dam/msdotcom/en/assets/pdfs/RO3865603-Sustainable_Reality_1H_2024_Report-FINAL.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Goldman Sachs": {
+      "sustainability_page": "https://www.goldmansachs.com/sustainability",
+      "report_url": "https://www.goldmansachs.com/disclosures/pdfs/GSBE-FY24-Non-Financial-Report-EN.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Bank of America": {
+      "sustainability_page": "https://www.bankofamerica.com/sustainability",
+      "report_url": "https://about.bankofamerica.com/content/dam/about/report-center/esg/2024/Sustainability_at_Bank_of_America_2024_Report.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "JPMorgan Chase": {
+      "sustainability_page": "https://www.jpmorganchase.com/sustainability",
+      "report_url": "https://www.jpmorganchase.com/content/dam/jpmorganchase/documents/about/jpmc-sustainability-report-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "Tesco": {
+      "sustainability_page": "https://www.tescoplc.com/sustainability",
+      "report_url": "https://www.tescoplc.com/media/wvkj1yic/tesco-sustainability-report-2025.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "IKEA": {
+      "sustainability_page": "https://www.ikea.com/sustainability",
+      "report_url": "https://www.ikea.com/global/en/images/IKEA_Sustainability_Report_FY_24_2025_01_27_2c35989733.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    },
+    "H&M Group": {
+      "sustainability_page": "https://hmgroup.com/sustainability",
+      "report_url": "https://hmgroup.com/wp-content/uploads/2025/03/HM-Group-Annual-and-sustainability-report-2024.pdf",
+      "verified": false,
+      "note": "Found via automated search - needs verification"
+    }
+  },
+  "metadata": {
+    "last_updated": "2025-10-23",
+    "total_companies": 70,
+    "verified_urls": 7,
+    "notes": "This file contains curated sustainability report URLs. Verified=true means tested and working. Add more companies as needed."
+  }
+}

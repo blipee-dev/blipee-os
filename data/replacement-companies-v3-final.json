@@ -1,0 +1,109 @@
+{
+  "companies": [
+    {
+      "company": "Chevron",
+      "industry": "GRI 11: Oil and Gas",
+      "website": "https://www.chevron.com",
+      "pdf_url": "https://www.chevron.com/-/media/shared-media/documents/chevron-sustainability-highlights-2024.pdf",
+      "notes": "Verified via Exa - Sustainability Highlights 2024"
+    },
+    {
+      "company": "BP",
+      "industry": "GRI 11: Oil and Gas",
+      "website": "https://www.bp.com",
+      "pdf_url": "https://www.bp.com/content/dam/bp/business-sites/en/global/corporate/pdfs/sustainability/group-reports/bp-sustainability-report-2024.pdf",
+      "notes": "Verified via Exa - Sustainability Report 2024"
+    },
+    {
+      "company": "Coca-Cola Company",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.coca-colacompany.com",
+      "pdf_url": "https://www.coca-colacompany.com/content/dam/company/us/en/reports/2024-environmental-update/2024-environmental-update.pdf",
+      "notes": "Verified via Exa - Environmental Update 2024 - EXTRACTED 107 metrics"
+    },
+    {
+      "company": "PepsiCo",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.pepsico.com",
+      "pdf_url": "https://www.pepsico.com/docs/default-source/sustainability-and-esg-topics/2024-esg-summary/2024-esg-summary-esg-performance-metrics.pdf",
+      "notes": "Verified via Exa - 2024 ESG Summary - EXTRACTED 145 metrics"
+    },
+    {
+      "company": "Navigator Company",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://thenavigatorcompany.com",
+      "pdf_url": "https://thenavigatorcompany.com/wp-content/uploads/2025/04/RA2024-NVG-en.pdf",
+      "notes": "Verified via Exa - Annual Report 2024 (Portugal pulp/paper)"
+    },
+    {
+      "company": "Jerónimo Martins",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.jeronimomartins.com",
+      "pdf_url": "https://reports.jeronimomartins.com/_assets/downloads/entire-jeronimomartins-ar24.pdf",
+      "notes": "Verified via Exa - Annual Report 2024 (Portugal retail)"
+    },
+    {
+      "company": "Patagonia",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://www.patagonia.com",
+      "pdf_url": "https://www.patagonia.com/on/demandware.static/-/Library-Sites-PatagoniaShared/default/dw2f8292a3/PDF-US/Patagonia-2023-2024-BCorp-Report.pdf",
+      "notes": "Verified via Exa - B Corp Report 2023-2024"
+    },
+    {
+      "company": "Mowi",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "website": "https://mowi.com",
+      "pdf_url": "https://www.calameo.com/books/006652081dc562bfce8b7",
+      "notes": "Verified via Exa - Integrated Annual Report 2024 (salmon aquaculture)"
+    },
+    {
+      "company": "Vale",
+      "industry": "GRI 14: Mining",
+      "website": "https://vale.com",
+      "pdf_url": "https://www.latibex.com/docs/Documentos/esp/hechosrelev/2025/Vale's%20Performance%20in%204Q24%20and%202024.pdf",
+      "notes": "Verified via Exa - Performance Report 2024"
+    },
+    {
+      "company": "Newmont Corporation",
+      "industry": "GRI 14: Mining",
+      "website": "https://www.newmont.com",
+      "pdf_url": "https://s24.q4cdn.com/382246808/files/doc_downloads/sustainability/2025/newmont-2024-sustainability-report.pdf",
+      "notes": "Verified via Exa - 2024 Sustainability Report - EXTRACTED 154 metrics"
+    },
+    {
+      "company": "Mota-Engil",
+      "industry": "GRI 16: Construction and Real Estate",
+      "website": "https://www.mota-engil.com",
+      "pdf_url": "https://www.mota-engil.com/app/uploads/2025/04/Integrated-Report-2024_ING-1.pdf",
+      "notes": "Verified via Exa - Integrated Report 2024"
+    },
+    {
+      "company": "Ferrovial",
+      "industry": "GRI 16: Construction and Real Estate",
+      "website": "https://www.ferrovial.com",
+      "pdf_url": "https://static-iai.ferrovial.com/wp-content/uploads/sites/13/2025/03/03192626/ferrovial-integrated-annual-report-2024.pdf",
+      "notes": "Verified via Exa - Integrated Annual Report 2024"
+    },
+    {
+      "company": "Ericsson",
+      "industry": "GRI 17: Technology Hardware",
+      "website": "https://www.ericsson.com",
+      "pdf_url": "https://www.ericsson.com/492c74/assets/local/investors/documents/2024/sustainability-and-corporate-responsibility-report-2024-en.pdf",
+      "notes": "Verified via Exa - Sustainability and Corporate Responsibility Report 2024"
+    },
+    {
+      "company": "Vodafone",
+      "industry": "GRI 17: Technology Hardware",
+      "website": "https://www.vodafone.com",
+      "pdf_url": "https://assets.ctfassets.net/q7ob9vms4z5k/24lVoGkJfJ2Hygncid32w5/371613ae505aa6254e89a1688eec3faf/vodafone-group-cdp-climate-change-questionnaire-2024.pdf",
+      "notes": "Verified via Exa - CDP Climate Change Questionnaire 2024"
+    },
+    {
+      "company": "Goldman Sachs",
+      "industry": "GRI 12: Financial Services",
+      "website": "https://www.goldmansachs.com",
+      "pdf_url": "https://www.goldmansachs.com/investor-relations/financials/current/annual-reports/2024-annual-report/multimedia/2024-annual-report.pdf",
+      "notes": "Verified via Exa - Annual Report 2024"
+    }
+  ]
+}

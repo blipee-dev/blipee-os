@@ -1177,22 +1177,34 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
   return (
     <>
       {/* Executive Summary Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <section
+        aria-labelledby="executive-summary-heading"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+      >
+        <h2 id="executive-summary-heading" className="sr-only">Executive Summary</h2>
+
         {/* Total Emissions / YTD Emissions */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+        <article
+          className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm"
+          aria-labelledby="total-emissions-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Cloud className="w-5 h-5 text-purple-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <Cloud className="w-5 h-5 text-purple-500" aria-hidden="true" />
+            <span id="total-emissions-title" className="text-sm text-gray-500 dark:text-gray-400">
               {isCurrentYear ? t('cards.totalEmissions.ytdTitle') : t('cards.totalEmissions.title')}
             </span>
           </div>
           <div>
             <div className="relative group inline-block">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1 cursor-help">
+              <div
+                className="text-2xl font-bold text-gray-900 dark:text-white mb-1 cursor-help"
+                role="text"
+                aria-label={`${formatEmissions(totalEmissions).value} ${formatEmissions(totalEmissions).unit}. ${totalEmissionsYoY < 0 ? 'Decreased' : 'Increased'} by ${Math.abs(totalEmissionsYoY).toFixed(1)} percent year over year`}
+              >
                 {formatEmissions(totalEmissions).value}
               </div>
               {/* Tooltip */}
-              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                 <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                   {t('explanations.totalEmissions')}
                 </p>
@@ -1243,13 +1255,16 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               </div>
             )}
           </div>
-        </div>
+        </article>
 
         {/* Emissions Intensity - Summary Card */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+        <article
+          className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm"
+          aria-labelledby="emissions-intensity-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Leaf className="w-5 h-5 text-green-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
+            <Leaf className="w-5 h-5 text-green-500" aria-hidden="true" />
+            <span id="emissions-intensity-title" className="text-sm text-gray-500 dark:text-gray-400">{t('cards.intensity.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div className="relative group">
@@ -1257,7 +1272,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 {intensityMetrics.perEmployee.toFixed(2)}
               </div>
               {/* Tooltip */}
-              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                 <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                   {t('explanations.intensity')}
                 </p>
@@ -1267,22 +1282,25 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
             </div>
             <div className="flex items-center gap-1">
               {intensityYoY < 0 ? (
-                <TrendingDown className="w-3 h-3 text-green-500" />
+                <TrendingDown className="w-3 h-3 text-green-500" aria-hidden="true" />
               ) : (
-                <TrendingUp className={`w-3 h-3 ${intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                <TrendingUp className={`w-3 h-3 ${intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`} aria-hidden="true" />
               )}
               <span className={`text-xs ${intensityYoY < 0 ? 'text-green-500' : intensityYoY > 0 ? 'text-red-500' : 'text-gray-400'}`}>
                 {intensityYoY > 0 ? '+' : ''}{intensityYoY.toFixed(1)}% {t('cards.intensity.yoy')}
               </span>
             </div>
           </div>
-        </div>
+        </article>
 
         {/* Scope 3 Coverage */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+        <article
+          className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm"
+          aria-labelledby="scope3-coverage-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Target className="w-5 h-5 text-blue-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.scope3Coverage.title')}</span>
+            <Target className="w-5 h-5 text-blue-500" aria-hidden="true" />
+            <span id="scope3-coverage-title" className="text-sm text-gray-500 dark:text-gray-400">{t('cards.scope3Coverage.title')}</span>
           </div>
           <div className="flex items-end justify-between">
             <div className="relative group">
@@ -1290,7 +1308,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 {scope3Coverage?.tracked || 0}/15
               </div>
               {/* Tooltip */}
-              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                 <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                   {t('explanations.scope3Coverage')}
                 </p>
@@ -1310,16 +1328,24 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <div
                 className="bg-blue-500 h-1.5 rounded-full transition-all"
                 style={{ width: `${scope3Coverage?.percentage || 0}%` }}
+                role="progressbar"
+                aria-valuenow={scope3Coverage?.percentage || 0}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`Scope 3 coverage: ${scope3Coverage?.percentage?.toFixed(0) || 0} percent`}
               />
             </div>
           </div>
-        </div>
+        </article>
 
         {/* Data Quality */}
-        <div className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm">
+        <article
+          className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 relative shadow-sm"
+          aria-labelledby="data-quality-title"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Zap className="w-5 h-5 text-yellow-500" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">{t('cards.dataQuality.title')}</span>
+            <Zap className="w-5 h-5 text-yellow-500" aria-hidden="true" />
+            <span id="data-quality-title" className="text-sm text-gray-500 dark:text-gray-400">{t('cards.dataQuality.title')}</span>
           </div>
           {dataQuality ? (
             <>
@@ -1329,7 +1355,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                     {dataQuality.primaryDataPercentage}%
                   </div>
                   {/* Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                       {t('explanations.dataQuality')}
                     </p>
@@ -1349,6 +1375,11 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   <div
                     className="bg-green-500 h-1.5 rounded-full transition-all"
                     style={{ width: `${dataQuality.verifiedPercentage}%` }}
+                    role="progressbar"
+                    aria-valuenow={dataQuality.verifiedPercentage}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`Data quality verified: ${dataQuality.verifiedPercentage} percent`}
                   />
                 </div>
               </div>
@@ -1358,8 +1389,8 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <span className="text-sm text-gray-400 dark:text-gray-500">{t('common.noData')}</span>
             </div>
           )}
-        </div>
-      </div>
+        </article>
+      </section>
 
       {/* Scope Breakdown & Trend */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
@@ -1370,7 +1401,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <PieChartIcon className="w-5 h-5 text-blue-500" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scopeBreakdown.title')}</h3>
               {/* Scope Breakdown Explanation Tooltip */}
-              <div className="absolute left-0 top-full mt-1 w-96 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="absolute left-0 top-full mt-1 w-80 sm:w-96 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                 {/* Explanation */}
                 <div className="mb-2">
                   <p className="text-purple-200 text-[11px] font-medium mb-2">
@@ -1578,7 +1609,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('emissionsTrend.title')}</h3>
 
               {/* Hover Tooltip */}
-              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                 <div className="mb-2">
                   <p className="text-gray-200 text-[11px] leading-relaxed">
                     {t('emissionsTrendExplanation')}
@@ -1787,7 +1818,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <div className="relative group inline-block">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('intensityMetrics.title')}</h3>
                 {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                     {t('intensityMetrics.tooltip')}
                   </p>
@@ -2071,7 +2102,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   <div className="relative group inline-block">
                     <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('yoyComparison.title')}</h3>
                     {/* Tooltip */}
-                    <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                       <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                         {t('explanations.yoyComparison')}
                       </p>
@@ -2226,7 +2257,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('topEmitters.title')}</h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <div className="mb-2">
                     <p className="text-gray-200 text-[11px] leading-relaxed">
                       {t('topEmittersExplanation')}
@@ -2407,7 +2438,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                     {t('sitePerformance.title')}
                   </h3>
                   {/* Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <div className="mb-2">
                       <p className="text-white text-[11px] leading-relaxed whitespace-pre-line">
                         {t('explanations.sitePerformance')}
@@ -2576,7 +2607,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <div className="relative group inline-block">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scope1Breakdown.title')}</h3>
                 {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                     {t('explanations.scope1')}
                   </p>
@@ -2656,7 +2687,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <div className="relative group inline-block">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scope2Breakdown.title')}</h3>
                 {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                     {t('explanations.scope2')}
                   </p>
@@ -2681,7 +2712,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <span className="text-sm font-semibold text-gray-900 dark:text-white">{t('scope2Breakdown.dualReporting.title')}</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('scope2Breakdown.dualReporting.locationBased')}</div>
                 <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
@@ -2794,7 +2825,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               <div className="relative group inline-block">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('scope3Breakdown.title')}</h3>
                 {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
                     {t('explanations.scope3')}
                   </p>
@@ -2845,7 +2876,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                   {scope3Coverage?.tracked || 0}
@@ -2970,7 +3001,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('sbtiProgress.title')}</h3>
 
                   {/* Hover Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <div className="mb-2">
                       <p className="text-gray-200 text-[11px] leading-relaxed">
                         {t('sbtiProgressExplanation')}
@@ -3026,7 +3057,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
               </div>
             </div>
 
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               {/* Baseline */}
               <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
@@ -3412,7 +3443,7 @@ export function EmissionsDashboard({ organizationId, selectedSite, selectedPerio
                                   </div>
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs mb-2">
                                   <div>
                                     <span className="text-gray-500 dark:text-gray-400">Baseline:</span>
                                     <div className="font-medium text-gray-900 dark:text-white">

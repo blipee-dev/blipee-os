@@ -1,0 +1,39 @@
+{
+  "company_name": "Unilever",
+  "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+  "website": "https://www.unilever.com",
+  "extraction_method": "merged_ultimate_dictionary_141_codes_REPLACEMENT",
+  "replacement": true,
+  "report_metadata": {
+    "pages": 1,
+    "characters": 2291,
+    "pdf_url": "https://www.unilever.com/files/391e00f6-0000-0000-0000-000000000000/unilever-annual-report-and-accounts-2024.pdf"
+  },
+  "extraction_time_seconds": "13.8",
+  "extracted_at": "2025-10-23T23:43:42.609Z",
+  "metric_count": 22,
+  "metrics": {
+    "scope1_emissions_tco2e_target_2030": 100,
+    "scope2_emissions_tco2e_target_2030": 100,
+    "scope3_energy_industrial_emissions_reduction_target_2030": 42,
+    "scope3_flag_emissions_reduction_target_2030": 30.3,
+    "sustainably_sourced_crops_percent_target_2030": 95,
+    "regenerative_agriculture_hectares_target_2030": 1000000,
+    "natural_ecosystems_hectares_target_2030": 1000000,
+    "water_stewardship_locations_target_2030": 100,
+    "virgin_plastic_reduction_target_2026": 30,
+    "virgin_plastic_reduction_target_2028": 40,
+    "recyclable_packaging_percent_target_2030": 100,
+    "recycled_plastic_percent_target_2025": 25,
+    "plastic_collection_processing_target_2025": 100,
+    "smallholder_farmers_target_2026": 250000,
+    "living_wage_suppliers_percent_target_2026": 50,
+    "sme_support_target_2026": 2500000,
+    "climate_nature_fund_eur": 1000000000,
+    "baseline_year_scope1_scope2": 2015,
+    "baseline_year_scope3_energy_industrial": 2021,
+    "baseline_year_scope3_flag": 2021,
+    "baseline_year_virgin_plastic": 2019,
+    "net_zero_target_year": 2039
+  }
+}

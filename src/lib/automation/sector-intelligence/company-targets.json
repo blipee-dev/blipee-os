@@ -1,0 +1,429 @@
+{
+  "sectors": {
+    "GRI-11": {
+      "name": "Oil & Gas",
+      "priority_companies": [
+        {
+          "name": "ExxonMobil",
+          "website": "https://corporate.exxonmobil.com",
+          "ticker": "XOM",
+          "sustainability_report_url": "https://corporate.exxonmobil.com/sustainability-and-reports/sustainability-report",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Chevron",
+          "website": "https://www.chevron.com",
+          "ticker": "CVX",
+          "sustainability_report_url": "https://www.chevron.com/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "BP",
+          "website": "https://www.bp.com",
+          "ticker": "BP",
+          "sustainability_report_url": "https://www.bp.com/en/global/corporate/sustainability.html",
+          "country": "UK",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Shell",
+          "website": "https://www.shell.com",
+          "ticker": "SHEL",
+          "sustainability_report_url": "https://reports.shell.com/sustainability-report",
+          "country": "Netherlands",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "TotalEnergies",
+          "website": "https://totalenergies.com",
+          "ticker": "TTE",
+          "sustainability_report_url": "https://totalenergies.com/sustainability",
+          "country": "France",
+          "size": "enterprise",
+          "priority": "high"
+        }
+      ],
+      "discovery_sources": [
+        "https://finance.yahoo.com/sector/energy",
+        "https://www.ipieca.org/our-members/",
+        "https://www.api.org/about"
+      ]
+    },
+    "GRI-12": {
+      "name": "Mining",
+      "priority_companies": [
+        {
+          "name": "Rio Tinto",
+          "website": "https://www.riotinto.com",
+          "ticker": "RIO",
+          "sustainability_report_url": "https://www.riotinto.com/sustainability",
+          "country": "UK/Australia",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "BHP",
+          "website": "https://www.bhp.com",
+          "ticker": "BHP",
+          "sustainability_report_url": "https://www.bhp.com/sustainability",
+          "country": "Australia",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Glencore",
+          "website": "https://www.glencore.com",
+          "ticker": "GLEN",
+          "sustainability_report_url": "https://www.glencore.com/sustainability",
+          "country": "Switzerland",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Vale",
+          "website": "https://www.vale.com",
+          "ticker": "VALE",
+          "sustainability_report_url": "https://www.vale.com/sustainability",
+          "country": "Brazil",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Anglo American",
+          "website": "https://www.angloamerican.com",
+          "ticker": "AAL",
+          "sustainability_report_url": "https://www.angloamerican.com/sustainability",
+          "country": "UK",
+          "size": "enterprise",
+          "priority": "high"
+        }
+      ],
+      "discovery_sources": [
+        "https://www.icmm.com/en-gb/members",
+        "https://finance.yahoo.com/sector/basic-materials"
+      ]
+    },
+    "GRI-13": {
+      "name": "Agriculture, Aquaculture & Fishing",
+      "priority_companies": [
+        {
+          "name": "Archer Daniels Midland",
+          "website": "https://www.adm.com",
+          "ticker": "ADM",
+          "sustainability_report_url": "https://www.adm.com/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Bunge",
+          "website": "https://www.bunge.com",
+          "ticker": "BG",
+          "sustainability_report_url": "https://www.bunge.com/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Cargill",
+          "website": "https://www.cargill.com",
+          "ticker": null,
+          "sustainability_report_url": "https://www.cargill.com/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Tyson Foods",
+          "website": "https://www.tysonfoods.com",
+          "ticker": "TSN",
+          "sustainability_report_url": "https://www.tysonfoods.com/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Hormel Foods",
+          "website": "https://www.hormelfoods.com",
+          "ticker": "HRL",
+          "sustainability_report_url": "https://www.hormelfoods.com/responsibility/",
+          "country": "USA",
+          "size": "large",
+          "priority": "medium"
+        }
+      ],
+      "discovery_sources": [
+        "https://wbcsd.org/Sector-Projects/Food-Agriculture",
+        "https://finance.yahoo.com/sector/consumer-staples"
+      ]
+    },
+    "GRI-14": {
+      "name": "Manufacturing",
+      "priority_companies": [
+        {
+          "name": "Tesla",
+          "website": "https://www.tesla.com",
+          "ticker": "TSLA",
+          "sustainability_report_url": "https://www.tesla.com/impact-report",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "General Electric",
+          "website": "https://www.ge.com",
+          "ticker": "GE",
+          "sustainability_report_url": "https://www.ge.com/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Siemens",
+          "website": "https://www.siemens.com",
+          "ticker": "SIE",
+          "sustainability_report_url": "https://www.siemens.com/global/en/company/sustainability.html",
+          "country": "Germany",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "3M",
+          "website": "https://www.3m.com",
+          "ticker": "MMM",
+          "sustainability_report_url": "https://www.3m.com/3M/en_US/sustainability-us/",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Caterpillar",
+          "website": "https://www.caterpillar.com",
+          "ticker": "CAT",
+          "sustainability_report_url": "https://www.caterpillar.com/en/company/sustainability.html",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Honeywell",
+          "website": "https://www.honeywell.com",
+          "ticker": "HON",
+          "sustainability_report_url": "https://www.honeywell.com/us/en/company/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Schneider Electric",
+          "website": "https://www.se.com",
+          "ticker": "SU",
+          "sustainability_report_url": "https://www.se.com/ww/en/about-us/sustainability/",
+          "country": "France",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Patagonia",
+          "website": "https://www.patagonia.com",
+          "ticker": null,
+          "sustainability_report_url": "https://www.patagonia.com/actionworks/",
+          "country": "USA",
+          "size": "medium",
+          "priority": "high"
+        }
+      ],
+      "discovery_sources": [
+        "https://finance.yahoo.com/sector/industrials",
+        "https://www.nam.org/",
+        "https://www.sustainablebrands.com/directory"
+      ]
+    },
+    "GRI-15": {
+      "name": "Transportation Services",
+      "priority_companies": [
+        {
+          "name": "UPS",
+          "website": "https://www.ups.com",
+          "ticker": "UPS",
+          "sustainability_report_url": "https://about.ups.com/us/en/social-impact/environment.html",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "FedEx",
+          "website": "https://www.fedex.com",
+          "ticker": "FDX",
+          "sustainability_report_url": "https://www.fedex.com/en-us/sustainability.html",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Maersk",
+          "website": "https://www.maersk.com",
+          "ticker": "MAERSK.B",
+          "sustainability_report_url": "https://www.maersk.com/sustainability",
+          "country": "Denmark",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Delta Air Lines",
+          "website": "https://www.delta.com",
+          "ticker": "DAL",
+          "sustainability_report_url": "https://www.delta.com/us/en/about-delta/corporate-responsibility/environment",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "United Airlines",
+          "website": "https://www.united.com",
+          "ticker": "UAL",
+          "sustainability_report_url": "https://www.united.com/en/us/fly/company/global-citizenship/environment.html",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        }
+      ],
+      "discovery_sources": [
+        "https://www.iata.org/",
+        "https://finance.yahoo.com/sector/transportation"
+      ]
+    },
+    "GRI-16": {
+      "name": "Real Estate",
+      "priority_companies": [
+        {
+          "name": "CBRE Group",
+          "website": "https://www.cbre.com",
+          "ticker": "CBRE",
+          "sustainability_report_url": "https://www.cbre.com/about/corporate-responsibility/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Brookfield Asset Management",
+          "website": "https://www.brookfield.com",
+          "ticker": "BAM",
+          "sustainability_report_url": "https://www.brookfield.com/sustainability",
+          "country": "Canada",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Simon Property Group",
+          "website": "https://www.simon.com",
+          "ticker": "SPG",
+          "sustainability_report_url": "https://www.simon.com/corporate-responsibility",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Prologis",
+          "website": "https://www.prologis.com",
+          "ticker": "PLD",
+          "sustainability_report_url": "https://www.prologis.com/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "American Tower",
+          "website": "https://www.americantower.com",
+          "ticker": "AMT",
+          "sustainability_report_url": "https://www.americantower.com/corporate-responsibility.html",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        }
+      ],
+      "discovery_sources": [
+        "https://www.reit.com/",
+        "https://www.uli.org/"
+      ]
+    },
+    "GRI-17": {
+      "name": "Financial Services",
+      "priority_companies": [
+        {
+          "name": "JPMorgan Chase",
+          "website": "https://www.jpmorganchase.com",
+          "ticker": "JPM",
+          "sustainability_report_url": "https://www.jpmorganchase.com/impact/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Bank of America",
+          "website": "https://www.bankofamerica.com",
+          "ticker": "BAC",
+          "sustainability_report_url": "https://about.bankofamerica.com/en/making-an-impact/environmental-sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Goldman Sachs",
+          "website": "https://www.goldmansachs.com",
+          "ticker": "GS",
+          "sustainability_report_url": "https://www.goldmansachs.com/our-commitments/sustainability/",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "Morgan Stanley",
+          "website": "https://www.morganstanley.com",
+          "ticker": "MS",
+          "sustainability_report_url": "https://www.morganstanley.com/about-us/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        },
+        {
+          "name": "BlackRock",
+          "website": "https://www.blackrock.com",
+          "ticker": "BLK",
+          "sustainability_report_url": "https://www.blackrock.com/corporate/sustainability",
+          "country": "USA",
+          "size": "enterprise",
+          "priority": "high"
+        }
+      ],
+      "discovery_sources": [
+        "https://www.iif.com/",
+        "https://www.gfma.org/",
+        "https://finance.yahoo.com/sector/financial-services"
+      ]
+    }
+  },
+  "metadata": {
+    "total_priority_companies": 40,
+    "last_updated": "2025-01-23",
+    "data_sources": [
+      "Company investor relations pages",
+      "CDP (Carbon Disclosure Project) database",
+      "GRI database",
+      "SASB database",
+      "Public sustainability report repositories"
+    ],
+    "notes": [
+      "All sustainability reports listed are publicly available",
+      "Companies selected based on market cap, industry influence, and reporting quality",
+      "Priority: high = must have, medium = should have, low = nice to have",
+      "Size categories: enterprise (>10k employees), large (1k-10k), medium (100-1k), small (<100)"
+    ]
+  }
+}

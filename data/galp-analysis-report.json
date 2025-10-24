@@ -1,0 +1,96 @@
+{
+  "document": "Galp Sustainability Statement 2024",
+  "pages": 48,
+  "characters": 198817,
+  "metrics_extracted": 61,
+  "keyword_frequencies": {
+    "emissions": 115,
+    "scope 1": 15,
+    "scope 2": 5,
+    "scope 3": 8,
+    "tonCO2e": 0,
+    "energy consumption": 19,
+    "renewable": 52,
+    "water": 87,
+    "waste": 8,
+    "recycled": 9,
+    "employees": 72,
+    "workforce": 25,
+    "diversity": 69,
+    "women": 4,
+    "training": 15,
+    "safety": 99,
+    "fatalities": 13,
+    "LTIF": 4,
+    "TRIR": 12,
+    "GRI": 16,
+    "ESRS": 104,
+    "SASB": 0,
+    "TCFD": 3,
+    "revenue": 18,
+    "financial": 47,
+    "governance": 21
+  },
+  "numeric_patterns": {
+    "Percentages": 177,
+    "Large numbers (with commas)": 153,
+    "Decimal numbers": 433,
+    "Numbers with units (t, kg, m3)": 140,
+    "Year patterns (2023, 2024)": 143
+  },
+  "gri_standards": [
+    "GRI 305-1",
+    "GRI 305-2",
+    "GRI 305-3",
+    "GRI 305-7",
+    "GRI 303-3",
+    "GRI 303-4",
+    "GRI 303-5",
+    "GRI 304-1",
+    "GRI 304-4",
+    "GRI 2-7",
+    "GRI 2-21",
+    "GRI 205-2",
+    "GRI 205-3"
+  ],
+  "esrs_standards": [
+    "ESRS E1",
+    "ESRS E2",
+    "ESRS E3",
+    "ESRS E4",
+    "ESRS S1",
+    "ESRS S2",
+    "ESRS S3",
+    "ESRS G1",
+    "ESRS \nE1",
+    "ESRS E5",
+    "ESRS S4"
+  ],
+  "high_density_sections": [
+    {
+      "position": 62000,
+      "numbers": 116,
+      "preview": "1 %\nCommercial\n 7,597  8,168  -7 %\nRenewables & New Businesses\n 738  1,101  -33 %\nOther\n 35  8  338 %\nSignificant scope 3 GHG emissions\n3\nGross indirect (Scope 3) GHG emissions \n    42,717,945     39,"
+    },
+    {
+      "position": 61000,
+      "numbers": 90,
+      "preview": "                                                       ≡\nIntegrated Management Report 20244. Sustainability Statement66\n\nGalp’s carbon footprint\nGross Scopes 1, 2, 3 and Total GHG emissions (tonCO\n2\ne"
+    },
+    {
+      "position": 188000,
+      "numbers": 68,
+      "preview": "ment Report 20244. Sustainability Statement95\n\nESRS E3-4 Total water consumption in m3 per net \nrevenue on own operations paragraph 29\nIndicator number 6.1 Table #2 of Annex 1\n4.3.2.2. Water and \nMari"
+    },
+    {
+      "position": 141000,
+      "numbers": 61,
+      "preview": "pe 1  1 \nSpain    2,613     2,591 \nRest of the World 6 10\nTotal employees    7,086     7,054 \n1 \nGRI 2-7.\nEmployees by contract type, broken down by gender\n1\n20242023\nFemaleMaleTotalFemaleMaleTotal\nNu"
+    },
+    {
+      "position": 191000,
+      "numbers": 57,
+      "preview": "r \nillness paragraph 88 (e)\nIndicator number 3 Table #3 of Annex I\n4.4.1.2. Metrics and \nTargets\n86\nESRS S1-16\nUnadjusted gender pay gap paragraph 97 (a)\nIndicator number 12 Table #1 of Annex I\nDelega"
+    }
+  ]
+}

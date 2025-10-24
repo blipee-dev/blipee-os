@@ -1,0 +1,289 @@
+{
+  "metadata": {
+    "created_at": "2025-10-23T19:00:04.777Z",
+    "source": "Official ESRS-GRI mapping spreadsheet",
+    "total_codes": 35,
+    "categories": 4
+  },
+  "codes": [
+    {
+      "code": "GRI 2-12",
+      "category": "general",
+      "topic": "Involvement of administrative, management and supervisory bodies and senior executives in sustainabi",
+      "esrs_reference": "ESRS 2 IRO-1"
+    },
+    {
+      "code": "GRI 2-19",
+      "category": "general",
+      "topic": "Integration of sustainability performance in incentive schemes",
+      "esrs_reference": "ESRS 2 IRO-1"
+    },
+    {
+      "code": "GRI 2-20",
+      "category": "general",
+      "topic": "Integration of sustainability performance in incentive schemes",
+      "esrs_reference": "ESRS 2 IRO-1"
+    },
+    {
+      "code": "GRI 2-21",
+      "category": "general",
+      "topic": "Ratio of the annual total compensation for the organization's highest-paid individual to the median ",
+      "esrs_reference": "ESRS S1 S1-17"
+    },
+    {
+      "code": "GRI 2-27",
+      "category": "general",
+      "topic": "Fines for violation of anti-corruption and anti-bribery laws",
+      "esrs_reference": "ESRS G1 G1-6"
+    },
+    {
+      "code": "GRI 2-29",
+      "category": "general",
+      "topic": "Interests and views of stakeholders",
+      "esrs_reference": "ESRS 2 SBM-1"
+    },
+    {
+      "code": "GRI 2-30",
+      "category": "general",
+      "topic": "Percentage of own employees covered by social dialogue",
+      "esrs_reference": "ESRS S1 S1-11"
+    },
+    {
+      "code": "GRI 2-6",
+      "category": "general",
+      "topic": "Total revenue",
+      "esrs_reference": "ESRS 2 BP-2"
+    },
+    {
+      "code": "GRI 2-7",
+      "category": "general",
+      "topic": "Number of employees (head count) at the end of the reporting period",
+      "esrs_reference": "ESRS S1 S1-6"
+    },
+    {
+      "code": "GRI 2-9",
+      "category": "general",
+      "topic": "Composition of administrative, management and supervisory bodies",
+      "esrs_reference": "ESRS 2 GOV-1"
+    },
+    {
+      "code": "GRI 201-2",
+      "category": "economic",
+      "topic": "Anticipated financial effects of material physical risks",
+      "esrs_reference": "ESRS E1 E1-9"
+    },
+    {
+      "code": "GRI 205-3",
+      "category": "economic",
+      "topic": "Confirmed incidents of corruption or bribery",
+      "esrs_reference": "ESRS G1 G1-4"
+    },
+    {
+      "code": "GRI 302-1",
+      "category": "environmental",
+      "topic": "Total energy consumption",
+      "esrs_reference": "ESRS E1 E1-6"
+    },
+    {
+      "code": "GRI 303-3",
+      "category": "environmental",
+      "topic": "Total water withdrawal",
+      "esrs_reference": "ESRS E3 E3-4"
+    },
+    {
+      "code": "GRI 303-4",
+      "category": "environmental",
+      "topic": "Total water discharge",
+      "esrs_reference": "ESRS E3 E3-4"
+    },
+    {
+      "code": "GRI 303-5",
+      "category": "environmental",
+      "topic": "Total amount of water consumed",
+      "esrs_reference": "ESRS E3 E3-4"
+    },
+    {
+      "code": "GRI 304-1",
+      "category": "environmental",
+      "topic": "Species at risk in own operations",
+      "esrs_reference": "ESRS E4 E4-2"
+    },
+    {
+      "code": "GRI 305-1",
+      "category": "environmental",
+      "topic": "Gross Scope 1 greenhouse gas emissions in tonnes of CO2",
+      "esrs_reference": "ESRS E1 E1-6"
+    },
+    {
+      "code": "GRI 305-2",
+      "category": "environmental",
+      "topic": "Gross location-based Scope 2 greenhouse gas emissions in tonnes of CO2",
+      "esrs_reference": "ESRS E1 E1-6"
+    },
+    {
+      "code": "GRI 305-3",
+      "category": "environmental",
+      "topic": "Gross Scope 3 greenhouse gas emissions",
+      "esrs_reference": "ESRS E1 E1-6"
+    },
+    {
+      "code": "GRI 305-4",
+      "category": "environmental",
+      "topic": "GHG emissions intensity per net revenue",
+      "esrs_reference": "ESRS E1 E1-4"
+    },
+    {
+      "code": "GRI 306-3",
+      "category": "environmental",
+      "topic": "Total amount of waste generated",
+      "esrs_reference": "ESRS E2 E2-4"
+    },
+    {
+      "code": "GRI 306-4",
+      "category": "environmental",
+      "topic": "Total amount of waste diverted from disposal",
+      "esrs_reference": "ESRS E2 E2-4"
+    },
+    {
+      "code": "GRI 306-5",
+      "category": "environmental",
+      "topic": "Total amount of waste directed to disposal",
+      "esrs_reference": "ESRS E2 E2-4"
+    },
+    {
+      "code": "GRI 401-1",
+      "category": "social",
+      "topic": "Employee turnover rate",
+      "esrs_reference": "ESRS S1 S1-7"
+    },
+    {
+      "code": "GRI 401-3",
+      "category": "social",
+      "topic": "Average annual parental leave taken per employee by gender",
+      "esrs_reference": "ESRS S1 S1-8"
+    },
+    {
+      "code": "GRI 403-8",
+      "category": "social",
+      "topic": "Coverage of own workers - Percentage of own workers covered by health and safety management system b",
+      "esrs_reference": "ESRS S1 S1-9"
+    },
+    {
+      "code": "GRI 403-9",
+      "category": "social",
+      "topic": "Number of fatalities as a result of work-related injuries and work-related ill health in own workfor",
+      "esrs_reference": "ESRS S1 S1-14"
+    },
+    {
+      "code": "GRI 404-1",
+      "category": "social",
+      "topic": "Average number of hours of training per employee",
+      "esrs_reference": "ESRS S1 S1-16"
+    },
+    {
+      "code": "GRI 404-3",
+      "category": "social",
+      "topic": "Percentage of own employees receiving regular performance and career development reviews",
+      "esrs_reference": "ESRS S1 S1-16"
+    },
+    {
+      "code": "GRI 405-1",
+      "category": "social",
+      "topic": "Percentage of employees by gender in each employee category",
+      "esrs_reference": "ESRS S1 S1-17"
+    },
+    {
+      "code": "GRI 405-2",
+      "category": "social",
+      "topic": "Gender pay gap",
+      "esrs_reference": "ESRS S1 S1-17"
+    },
+    {
+      "code": "GRI 408-1",
+      "category": "social",
+      "topic": "Number of incidents of forced labour, human trafficking or child labour in value chain",
+      "esrs_reference": "ESRS S2 S2-4"
+    },
+    {
+      "code": "GRI 409-1",
+      "category": "social",
+      "topic": "Number of incidents of forced labour, human trafficking or child labour in value chain",
+      "esrs_reference": "ESRS S2 S2-4"
+    },
+    {
+      "code": "GRI 412-2",
+      "category": "social",
+      "topic": "Number and percentage of employees trained on human rights issues",
+      "esrs_reference": "ESRS S3 S3-4"
+    }
+  ],
+  "search_keywords": [
+    "GRI 2-12",
+    "GRI 2-19",
+    "GRI 2-20",
+    "GRI 2-21",
+    "GRI 2-27",
+    "GRI 2-29",
+    "GRI 2-30",
+    "GRI 2-6",
+    "GRI 2-7",
+    "GRI 2-9",
+    "GRI 201-2",
+    "GRI 205-3",
+    "GRI 302-1",
+    "GRI 303-3",
+    "GRI 303-4",
+    "GRI 303-5",
+    "GRI 304-1",
+    "GRI 305-1",
+    "GRI 305-2",
+    "GRI 305-3",
+    "GRI 305-4",
+    "GRI 306-3",
+    "GRI 306-4",
+    "GRI 306-5",
+    "GRI 401-1",
+    "GRI 401-3",
+    "GRI 403-8",
+    "GRI 403-9",
+    "GRI 404-1",
+    "GRI 404-3",
+    "GRI 405-1",
+    "GRI 405-2",
+    "GRI 408-1",
+    "GRI 409-1",
+    "GRI 412-2",
+    "Scope 1 emissions",
+    "Scope 2 emissions",
+    "Scope 3 emissions",
+    "Total employees",
+    "Employee count",
+    "Number of employees",
+    "Water consumption",
+    "Water withdrawal",
+    "Water discharge",
+    "Waste generated",
+    "Waste disposed",
+    "Hazardous waste",
+    "LTIF",
+    "TRIR",
+    "Fatalities",
+    "Lost time injury frequency",
+    "Recordable injuries",
+    "Work-related injuries",
+    "Energy consumption",
+    "Renewable energy",
+    "Gender pay gap",
+    "Women in management",
+    "Training hours",
+    "Employee training",
+    "Collective bargaining",
+    "Union representation",
+    "Turnover rate",
+    "Employee departures",
+    "GHG intensity",
+    "Carbon intensity",
+    "Board composition",
+    "Board diversity"
+  ]
+}

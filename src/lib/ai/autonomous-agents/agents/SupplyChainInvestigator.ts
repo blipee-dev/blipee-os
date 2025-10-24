@@ -194,7 +194,7 @@ export class SupplyChainInvestigator extends AutonomousAgent {
   
   constructor() {
     super(
-      'Supply Chain Investigator',
+      'blipee-supply',
       '1.0.0',
       {
         canMakeDecisions: true,
@@ -758,7 +758,7 @@ Focus on supply chain visibility, risk identification, and actionable intelligen
     target: string
   ): Promise<SupplyChainInvestigation> {
     const investigation: SupplyChainInvestigation = {
-      id: `investigation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `investigation_${Date.now()}_${process.hrtime.bigint().toString(36)}`,
       investigationType: investigationType as any,
       scope: scope as any,
       target,

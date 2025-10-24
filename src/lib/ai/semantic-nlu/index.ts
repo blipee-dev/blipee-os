@@ -17,6 +17,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { aiService } from '../service';
 import { redisClient } from '@/lib/cache/redis-client';
+import { parseAIJSON, parseAIJSONOrDefault } from '../utils/json-parser';
 import OpenAI from 'openai';
 
 // Types for NLU system
@@ -387,7 +388,13 @@ Return: {
         jsonMode: true
       });
 
-      return JSON.parse(response);
+      const parseResult = parseAIJSON(response);
+      if (!parseResult.success) {
+        console.error('Error parsing language detection response:', parseResult.error);
+        throw new Error('Failed to parse language detection');
+      }
+
+      return parseResult.data;
     } catch (error) {
       console.error('Error detecting language:', error);
       return {
@@ -463,7 +470,13 @@ Return entities with this structure:
         jsonMode: true
       });
 
-      const parsed = JSON.parse(response);
+      const parseResult = parseAIJSON(response);
+      if (!parseResult.success) {
+        console.error('Error parsing entity extraction response:', parseResult.error);
+        return [];
+      }
+
+      const parsed = parseResult.data || {};
       const extractedEntities = parsed.entities || [];
 
       // Process each entity
@@ -657,7 +670,13 @@ Return JSON:
         jsonMode: true
       });
 
-      const parsed = JSON.parse(response);
+      const parseResult = parseAIJSON(response);
+      if (!parseResult.success) {
+        console.error('Error parsing intent classification response:', parseResult.error);
+        return [];
+      }
+
+      const parsed = parseResult.data || {};
       const classifiedIntents = parsed.intents || [];
 
       return classifiedIntents.map((intent: any) => ({
@@ -692,7 +711,7 @@ Return JSON:
 
 Text: "${text}"
 
-Return comprehensive analysis:
+Return comprehensive analysis as JSON:
 {
   "overall": {
     "polarity": 0.5,
@@ -726,7 +745,13 @@ Return comprehensive analysis:
         jsonMode: true
       });
 
-      const parsed = JSON.parse(response);
+      const parseResult = parseAIJSON(response);
+      if (!parseResult.success) {
+        console.error('Error parsing sentiment analysis response:', parseResult.error);
+        throw new Error('Failed to parse sentiment analysis');
+      }
+
+      const parsed = parseResult.data || {};
 
       return {
         overall: parsed.overall,
@@ -761,7 +786,7 @@ Return comprehensive analysis:
 
 Text: "${text}"
 
-Return semantic role analysis:
+Return semantic role analysis as JSON:
 {
   "roles": [
     {
@@ -783,7 +808,13 @@ Return semantic role analysis:
         jsonMode: true
       });
 
-      const parsed = JSON.parse(response);
+      const parseResult = parseAIJSON(response);
+      if (!parseResult.success) {
+        console.error('Error parsing semantic roles response:', parseResult.error);
+        return [];
+      }
+
+      const parsed = parseResult.data || {};
       return parsed.roles || [];
     } catch (error) {
       console.error('Error extracting semantic roles:', error);
@@ -805,7 +836,7 @@ Return semantic role analysis:
 Current text: "${text}"
 Previous context: "${context}"
 
-Return coreference chains:
+Return coreference chains as JSON:
 {
   "chains": [
     {
@@ -827,7 +858,13 @@ Return coreference chains:
         jsonMode: true
       });
 
-      const parsed = JSON.parse(response);
+      const parseResult = parseAIJSON(response);
+      if (!parseResult.success) {
+        console.error('Error parsing coreferences response:', parseResult.error);
+        return [];
+      }
+
+      const parsed = parseResult.data || {};
       return parsed.chains || [];
     } catch (error) {
       console.error('Error resolving coreferences:', error);
@@ -1063,7 +1100,11 @@ Return coreference chains:
     try {
       const cacheKey = `nlu:${Buffer.from(text).toString('base64')}`;
       const cached = await redisClient.get(cacheKey);
-      return cached ? JSON.parse(cached) : null;
+
+      if (!cached) return null;
+
+      const parseResult = parseAIJSON(cached);
+      return parseResult.success ? parseResult.data : null;
     } catch (error) {
       console.error('Error getting cached NLU result:', error);
       return null;

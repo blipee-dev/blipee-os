@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Minimize2, Brain } from "lucide-react";
-import { ConversationInterface } from "./ConversationInterface";
+import { X, Minimize2, Bot } from "lucide-react";
+import { SimpleChatInterface } from "./SimpleChatInterface";
 
 interface FloatingChatProps {
   organizationId?: string;
@@ -27,11 +27,22 @@ export function FloatingChat({ organizationId, onNewInsights }: FloatingChatProp
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('🎯 FloatingChat mounted');
+    console.log('  - organizationId:', organizationId);
+    console.log('  - isOpen:', isOpen);
+    console.log('  - isMinimized:', isMinimized);
+    console.log('  - Should show button:', (!isOpen || isMinimized));
+  }, [organizationId, isOpen, isMinimized]);
+
   // Check localStorage to see if we should restore chat state
   useEffect(() => {
     const savedState = localStorage.getItem('blipee-chat-state');
+    console.log('💾 localStorage state:', savedState);
     if (savedState) {
       const state = JSON.parse(savedState);
+      console.log('📖 Restoring state:', state);
       setIsOpen(state.isOpen || false);
       setIsMinimized(state.isMinimized || false);
     }
@@ -80,69 +91,38 @@ export function FloatingChat({ organizationId, onNewInsights }: FloatingChatProp
   return (
     <>
       {/* Floating Chat Button */}
-      <AnimatePresence>
-        {(!isOpen || isMinimized) && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={toggleChat}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center text-white group"
-            data-testid="floating-chat-button"
-          >
-            <MessageSquare className="w-6 h-6" />
+      {(!isOpen || isMinimized) && (
+        <button
+          onClick={toggleChat}
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center text-white group"
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 9999,
+          }}
+          data-testid="floating-chat-button"
+        >
+          <Bot className="w-6 h-6" />
 
-            {/* Notification Badge */}
-            {unreadCount > 0 && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold shadow-lg"
-              >
-                <motion.div
-                  animate={{
-                    scale: [1, 1.2, 1],
-                  }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    repeatType: "reverse"
-                  }}
-                >
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </motion.div>
-              </motion.div>
-            )}
-
-            {/* Pulse Effect for New Insights */}
-            {unreadCount > 0 && (
-              <motion.div
-                className="absolute inset-0 rounded-full bg-purple-500"
-                animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [0.5, 0, 0.5]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                }}
-              />
-            )}
-
-            {/* Tooltip */}
-            <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-              AI Assistant
-              {unreadCount > 0 && (
-                <span className="ml-2 text-purple-300">
-                  {unreadCount} new insight{unreadCount !== 1 ? 's' : ''}
-                </span>
-              )}
+          {/* Notification Badge */}
+          {unreadCount > 0 && (
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+              {unreadCount > 9 ? '9+' : unreadCount}
             </div>
-          </motion.button>
-        )}
-      </AnimatePresence>
+          )}
+
+          {/* Tooltip */}
+          <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            blipee
+            {unreadCount > 0 && (
+              <span className="ml-2 text-purple-300">
+                {unreadCount} new insight{unreadCount !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+        </button>
+      )}
 
       {/* Floating Chat Window */}
       <AnimatePresence>
@@ -152,39 +132,41 @@ export function FloatingChat({ organizationId, onNewInsights }: FloatingChatProp
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.8 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-[420px] h-[600px] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-3rem)] rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl bg-white/[0.03] border border-white/[0.05]"
+            className="fixed bottom-6 right-6 z-50 w-[400px] h-[650px] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-3rem)] rounded-2xl shadow-2xl overflow-hidden bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700"
           >
             {/* Chat Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-b border-white/[0.05]">
+            <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2">
-                <Brain className="w-5 h-5 text-purple-400" />
-                <h3 className="font-semibold text-white">AI Assistant</h3>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">blipee</h3>
               </div>
               <div className="flex items-center gap-1">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={minimizeChat}
-                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
-                  <Minimize2 className="w-4 h-4 text-gray-400 hover:text-white" />
+                  <Minimize2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={closeChat}
-                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
-                  <X className="w-4 h-4 text-gray-400 hover:text-white" />
+                  <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                 </motion.button>
               </div>
             </div>
 
             {/* Chat Content */}
             <div className="h-[calc(100%-56px)] overflow-hidden">
-              <ConversationInterface
-                buildingId={organizationId || ''}
-                onNewAgentInsights={handleNewInsights}
+              <SimpleChatInterface
+                organizationId={organizationId || ''}
+                onNewInsights={handleNewInsights}
               />
             </div>
           </motion.div>

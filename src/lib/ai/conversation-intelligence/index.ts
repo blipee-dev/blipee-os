@@ -23,10 +23,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { aiService } from '../service';
 import { redisClient } from '@/lib/cache/redis-client';
+import { parseAIJSON } from '../utils/json-parser';
 
 // Import all subsystems
-import { conversationMemoryManager as conversationMemorySystem } from '../conversation-memory';
-import { VectorMemory } from '../conversation-memory/index';
+import { VectorMemory } from '../conversation-memory';
+import * as memoryActions from '../conversation-memory/actions';
 import { semanticNLUEngine, NLUResult } from '../semantic-nlu/index';
 import { dialogueStateManager, DialogueState, SystemResponse } from '../dialogue-manager';
 import { responsePersonalizationEngine, PersonalizedResponse, UserPersonalizationProfile } from '../response-personalization';
@@ -453,8 +454,31 @@ export class ConversationalIntelligenceOrchestrator {
       );
 
       // Step 6: Generate personalized response
+      // 🆕 CRITICAL FIX: Use BlipeeBrain response if available from agentInsights
+      const agentInsights = context.sessionMetadata?.agentInsights || {};
+      const blipeeBrainResponse = agentInsights['blipee-brain'];
+
+      let responseContent = dialogueResult.systemResponse.content;
+
+      // If BlipeeBrain provided an intelligent response, use that instead of the generic dialogue manager response
+      if (blipeeBrainResponse?.success && blipeeBrainResponse.data) {
+        const brainData = blipeeBrainResponse.data;
+        // Build a comprehensive response from BlipeeBrain's analysis
+        responseContent = brainData.greeting || responseContent;
+
+        // If there are insights, include them
+        if (brainData.insights && brainData.insights.length > 0) {
+          responseContent += '\n\n' + brainData.insights.join('\n');
+        }
+
+        // If there are recommendations, include them
+        if (brainData.recommendations && brainData.recommendations.length > 0) {
+          responseContent += '\n\nRecommendations:\n' + brainData.recommendations.map((r: string) => `• ${r}`).join('\n');
+        }
+      }
+
       const personalizedResponse = await responsePersonalizationEngine.personalizeResponse(
-        dialogueResult.systemResponse.content,
+        responseContent,
         userId,
         organizationId,
         {
@@ -691,7 +715,13 @@ Return JSON format:
         jsonMode: true
       });
 
-      const parsed = JSON.parse(response);
+      const parseResult = parseAIJSON(response);
+      if (!parseResult.success) {
+        console.error('Error parsing question predictions:', parseResult.error);
+        return [];
+      }
+
+      const parsed = parseResult.data || {};
       const predictions = parsed.predictions || [];
 
       return predictions.map((pred: any) => ({
@@ -879,8 +909,8 @@ Return JSON format:
     const updates: MemoryUpdate[] = [];
 
     try {
-      // Store new memory
-      const newMemory = await conversationMemorySystem.storeMemory(
+      // Store new memory using server action
+      const newMemory = await memoryActions.storeMemory(
         userMessage,
         conversationId,
         userId,
@@ -908,8 +938,8 @@ Return JSON format:
         }
       });
 
-      // Retrieve relevant memories
-      const relevantMemories = await conversationMemorySystem.retrieveMemories(
+      // Retrieve relevant memories using server action
+      const relevantMemories = await memoryActions.retrieveMemories(
         userMessage,
         userId,
         organizationId,
@@ -934,8 +964,8 @@ Return JSON format:
         });
       }
 
-      // Check for memory consolidation opportunities
-      const consolidations = await conversationMemorySystem.consolidateMemories(
+      // Check for memory consolidation opportunities using server action
+      const consolidations = await memoryActions.consolidateMemories(
         conversationId,
         userId
       );
@@ -1492,10 +1522,10 @@ Return JSON format:
   }
 
   private async scheduleBackgroundTasks(conversationId: string, userId: string): Promise<void> {
-    // Schedule memory consolidation
+    // Schedule memory consolidation using server action
     setTimeout(async () => {
       try {
-        await conversationMemorySystem.consolidateMemories(conversationId, userId);
+        await memoryActions.consolidateMemories(conversationId, userId);
       } catch (error) {
         console.error('Error in background memory consolidation:', error);
       }

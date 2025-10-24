@@ -145,9 +145,7 @@ const OverviewDashboardWithScoreComponent = ({
                 transition={{ duration: 0.5 }}
                 className="bg-white dark:bg-[#2A2A2A] rounded-lg p-6 shadow-sm overflow-visible"
               >
-                {isScoreLoading ? (
-                  <ScoreCardSkeleton />
-                ) : scoreData ? (
+                {scoreData ? (
                   <SimpleScoreDisplay
                     data={scoreData}
                     animated={true}
@@ -169,11 +167,7 @@ const OverviewDashboardWithScoreComponent = ({
                 transition={{ delay: 0.1, duration: 0.5 }}
                 className="bg-white dark:bg-[#2A2A2A] rounded-lg p-4 shadow-sm"
               >
-                {isScoreLoading ? (
-                  <CategoryScoresSkeleton />
-                ) : scoreData ? (
-                  <CategoryScoresDisplay data={scoreData} animated={true} />
-                ) : null}
+                {scoreData && <CategoryScoresDisplay data={scoreData} animated={true} />}
               </motion.div>
 
               {/* Column 3 - Site Rankings */}
@@ -249,7 +243,7 @@ function SimpleScoreDisplay({
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="flex items-center gap-2 relative group">
-            <Award className="w-5 h-5 text-purple-500" />
+            <Award className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
               {tIndex('title')}
             </h3>
@@ -367,24 +361,24 @@ function CategoryScoresDisplay({
 
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
-      case 'scope1': return <Flame className="w-4 h-4 text-orange-500" />;
-      case 'scope2': return <Zap className="w-4 h-4 text-yellow-500" />;
-      case 'scope3': return <Globe className="w-4 h-4 text-blue-500" />;
-      case 'waste': return <Recycle className="w-4 h-4 text-green-500" />;
-      case 'water': return <Droplet className="w-4 h-4 text-cyan-500" />;
-      case 'energy': return <Zap className="w-4 h-4 text-purple-500" />;
-      case 'transportation': return <Truck className="w-4 h-4 text-indigo-500" />;
-      case 'supplychain': return <Link className="w-4 h-4 text-teal-500" />;
-      case 'humanexperience': return <Users className="w-4 h-4 text-pink-500" />;
-      case 'compliance': return <FileCheck className="w-4 h-4 text-amber-500" />;
-      default: return <Layers className="w-4 h-4 text-gray-500" />;
+      case 'scope1': return <Flame className="w-4 h-4 text-red-600 dark:text-red-400" />;
+      case 'scope2': return <Zap className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />;
+      case 'scope3': return <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
+      case 'waste': return <Recycle className="w-4 h-4 text-orange-600 dark:text-orange-400" />;
+      case 'water': return <Droplet className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />;
+      case 'energy': return <Zap className="w-4 h-4 text-green-600 dark:text-green-400" />;
+      case 'transportation': return <Truck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />;
+      case 'supplychain': return <Link className="w-4 h-4 text-purple-600 dark:text-purple-400" />;
+      case 'humanexperience': return <Users className="w-4 h-4 text-pink-600 dark:text-pink-400" />;
+      case 'compliance': return <FileCheck className="w-4 h-4 text-teal-600 dark:text-teal-400" />;
+      default: return <Layers className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
   return (
     <div>
       <div className="flex items-center gap-2 mb-4 relative group">
-        <Layers className="w-5 h-5 text-blue-500" />
+        <Layers className="w-5 h-5 text-purple-600 dark:text-purple-400" />
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
           {tIndex('categoryScores.title')}
         </h3>
@@ -436,25 +430,25 @@ function CategoryScoresDisplay({
             initial={animated ? { opacity: 0, x: -20 } : undefined}
             animate={animated ? { opacity: 1, x: 0 } : undefined}
             transition={{ duration: 0.3, delay: index * 0.05 }}
-            className="grid grid-cols-[220px_auto_auto] gap-3 items-center pl-4"
+            className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[220px_auto_auto] gap-3 items-center pl-2 sm:pl-4"
           >
             {/* Column 1: Icon and name */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               {getCategoryIcon(category)}
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
+              <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
                 {tIndex(`categoryScores.categories.${category}`) || formatCategoryName(category)}
               </span>
             </div>
 
             {/* Column 2: Score */}
-            <div className={`text-sm font-semibold ${score.dataPoints > 0 ? getScoreTextColor(score.rawScore) : 'text-gray-400 dark:text-gray-500'}`}>
+            <div className={`text-sm font-semibold whitespace-nowrap ${score.dataPoints > 0 ? getScoreTextColor(score.rawScore) : 'text-gray-400 dark:text-gray-500'}`}>
               {score.dataPoints > 0 && (
                 <>{score.rawScore}<span className="text-gray-400 dark:text-gray-500">/100</span></>
               )}
             </div>
 
             {/* Column 3: Tendency */}
-            <div className="w-8 flex justify-center">
+            <div className="w-8 flex justify-center flex-shrink-0">
               {score.dataPoints > 0 && <TrendIcon trend={score.trend} size="md" />}
             </div>
           </motion.div>
@@ -479,20 +473,17 @@ function CircularScoreLarge({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
-  const getScoreColor = (score: number): string => {
-    if (score >= 85) return 'text-green-500';
-    if (score >= 70) return 'text-blue-500';
-    if (score >= 50) return 'text-yellow-500';
-    return 'text-red-500';
+  // Score circle color based on performance
+  const getScoreColor = (score: number) => {
+    if (score >= 85) return 'text-green-600'; // Excellent - green
+    if (score >= 70) return 'text-blue-600';  // Good - blue
+    if (score >= 50) return 'text-yellow-600'; // Fair - yellow
+    if (score >= 30) return 'text-orange-600'; // Poor - orange
+    return 'text-red-600'; // Critical - red
   };
 
-  const getGradeColor = (grade: string): string => {
-    if (grade === 'A+' || grade === 'A') return 'text-green-400';
-    if (grade === 'B') return 'text-blue-400';
-    if (grade === 'C') return 'text-yellow-400';
-    if (grade === 'D') return 'text-orange-400';
-    return 'text-red-400';
-  };
+  const scoreColorClass = getScoreColor(score);
+  const gradeColorClass = getScoreColor(score);
 
   return (
     <div className="relative w-[180px] h-[180px]">
@@ -518,7 +509,7 @@ function CircularScoreLarge({
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className={getScoreColor(score)}
+          className={scoreColorClass}
           initial={animated ? { strokeDashoffset: circumference } : undefined}
           animate={animated ? { strokeDashoffset } : undefined}
           transition={{ duration: 1.5, ease: 'easeOut' }}
@@ -536,7 +527,7 @@ function CircularScoreLarge({
           {score}
         </motion.div>
         <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{tIndex('overallScore.outOf')}</div>
-        <div className={`text-3xl font-bold mt-1 ${getGradeColor(grade)}`}>
+        <div className={`text-3xl font-bold mt-1 ${gradeColorClass}`}>
           {grade}
         </div>
       </div>
@@ -584,66 +575,8 @@ function getDataCoverageMessage(category: string, score: any): string {
 }
 
 // ============================================================================
-// LOADING & EMPTY STATES
+// EMPTY STATE
 // ============================================================================
-
-function ScoreCardSkeleton() {
-  return (
-    <div className="animate-pulse">
-      <div className="flex items-center space-x-6">
-        {/* Circle skeleton */}
-        <div className="w-48 h-48 rounded-full bg-gray-700/50" />
-
-        <div className="flex-1 space-y-4">
-          <div className="h-8 bg-gray-700/50 rounded w-3/4" />
-          <div className="h-4 bg-gray-700/50 rounded w-1/2" />
-          <div className="h-4 bg-gray-700/50 rounded w-2/3" />
-        </div>
-      </div>
-
-      {/* Category bars skeleton */}
-      <div className="mt-8 space-y-3">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-20 bg-gray-700/50 rounded-lg" />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function CategoryScoresSkeleton() {
-  return (
-    <div className="animate-pulse">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-5 h-5 bg-gray-300 dark:bg-gray-700 rounded" />
-        <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-48" />
-      </div>
-
-      {/* Category rows skeleton */}
-      <div className="space-y-4">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="grid grid-cols-[300px_auto_auto_auto] gap-3 items-center pl-4">
-            {/* Column 1: Icon and name */}
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gray-300 dark:bg-gray-700 rounded" />
-              <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-32" />
-            </div>
-
-            {/* Column 2: Score */}
-            <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-12" />
-
-            {/* Column 3: Trend */}
-            <div className="w-4 h-4 bg-gray-300 dark:bg-gray-700 rounded" />
-
-            {/* Column 4: Percentile */}
-            <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-20" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function ScoreCardEmpty({
   isPortfolio,
@@ -731,10 +664,25 @@ function SiteRankingsDisplay({
   }
 
   const getRankColor = (index: number) => {
-    if (index === 0) return 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'; // Best
-    if (index === 1) return 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'; // Second
-    if (index === 2) return 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white'; // Third
-    return 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'; // Others
+    if (index === 0) {
+      return 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-lg shadow-yellow-500/50'; // Gold - vibrant
+    }
+    if (index === 1) {
+      return 'bg-gradient-to-r from-slate-300 to-gray-400 text-white shadow-lg shadow-gray-400/50'; // Silver - vibrant
+    }
+    if (index === 2) {
+      return 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/50'; // Bronze - vibrant
+    }
+    if (index === 3) {
+      return 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'; // 4th - blue
+    }
+    if (index === 4) {
+      return 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'; // 5th - purple
+    }
+    if (index === 5) {
+      return 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'; // 6th - green
+    }
+    return 'bg-gradient-to-r from-gray-400 to-slate-500 text-white'; // Others - gray gradient
   };
 
   const getRankIcon = (index: number) => {
@@ -747,7 +695,7 @@ function SiteRankingsDisplay({
   return (
     <div>
       <div className="flex items-center gap-2 mb-4 relative group">
-        <TrendingUp className="w-5 h-5 text-cyan-500" />
+        <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
           {tIndex('siteRankings.title')}
         </h3>
@@ -768,6 +716,7 @@ function SiteRankingsDisplay({
       <div className="space-y-2 max-h-[280px] overflow-y-auto overflow-x-hidden pr-1">
         {rankings.map((site: any, index: number) => {
           const isSelected = selectedSite && site.id === selectedSite.id;
+
           return (
             <motion.div
               key={site.id}
@@ -777,7 +726,7 @@ function SiteRankingsDisplay({
               className={`
                 p-3 rounded-lg transition-all
                 ${isSelected
-                  ? 'border-2 border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20'
+                  ? 'border-2 border-green-500 bg-green-50 dark:bg-green-900/20'
                   : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
                 }
               `}

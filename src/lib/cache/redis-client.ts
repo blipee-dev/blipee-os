@@ -224,9 +224,37 @@ export const getRedisClient = (): RedisClient => {
   return _redisClient;
 };
 
-// Export for backward compatibility (but now returns the lazy-initialized instance)
-export const redisClient = new Proxy({} as RedisClient, {
+// Export for backward compatibility with proper method delegation
+export const redisClient = new Proxy({} as RedisClient & RedisWrapper, {
   get(_target, prop) {
-    return getRedisClient()[prop as keyof RedisClient];
+    const client = getRedisClient();
+    const clientProp = client[prop as keyof RedisClient];
+
+    // If it's a RedisClient method, return it
+    if (typeof clientProp === 'function') {
+      return clientProp.bind(client);
+    }
+
+    // If it's a RedisClient property, return it
+    if (clientProp !== undefined) {
+      return clientProp;
+    }
+
+    // Otherwise, delegate to RedisWrapper methods (get, set, setex, del, etc.)
+    return async function(...args: any[]) {
+      try {
+        const wrapper = await client.getClient();
+        const wrapperMethod = wrapper[prop as keyof RedisWrapper];
+
+        if (typeof wrapperMethod === 'function') {
+          return await (wrapperMethod as any).apply(wrapper, args);
+        }
+
+        throw new Error(`Method ${String(prop)} not found on RedisClient or RedisWrapper`);
+      } catch (error) {
+        console.warn(`Redis method ${String(prop)} failed:`, error);
+        return null;
+      }
+    };
   }
 });

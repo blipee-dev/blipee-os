@@ -1,0 +1,298 @@
+{
+  "total": 58,
+  "successful": 33,
+  "failed": 25,
+  "totalMetrics": 4699,
+  "companies": [
+    {
+      "name": "Galp Energia",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Navigator Company",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Jerónimo Martins",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Mota-Engil",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Patagonia",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Chevron",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "BP",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Anglo American",
+      "metrics": 150,
+      "status": "success"
+    },
+    {
+      "name": "Freeport-McMoRan",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Fortescue Metals",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Boliden",
+      "metrics": 152,
+      "status": "success"
+    },
+    {
+      "name": "LKAB",
+      "metrics": 157,
+      "status": "success"
+    },
+    {
+      "name": "Rio Tinto",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "BHP",
+      "metrics": 56,
+      "status": "success"
+    },
+    {
+      "name": "Glencore",
+      "metrics": 146,
+      "status": "success"
+    },
+    {
+      "name": "Vale",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Royal DSM",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Bunge",
+      "metrics": 168,
+      "status": "success"
+    },
+    {
+      "name": "Cargill",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Tyson Foods",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Hormel Foods",
+      "metrics": 179,
+      "status": "success"
+    },
+    {
+      "name": "Mowi",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Nestlé",
+      "metrics": 84,
+      "status": "success"
+    },
+    {
+      "name": "Archer Daniels Midland",
+      "metrics": 156,
+      "status": "success"
+    },
+    {
+      "name": "Danone",
+      "metrics": 152,
+      "status": "success"
+    },
+    {
+      "name": "Caterpillar",
+      "metrics": 85,
+      "status": "success"
+    },
+    {
+      "name": "Schneider Electric",
+      "metrics": 143,
+      "status": "success"
+    },
+    {
+      "name": "ABB",
+      "metrics": 176,
+      "status": "success"
+    },
+    {
+      "name": "General Electric",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Siemens",
+      "metrics": 202,
+      "status": "success"
+    },
+    {
+      "name": "3M",
+      "metrics": 0,
+      "status": "success"
+    },
+    {
+      "name": "Honeywell",
+      "metrics": 159,
+      "status": "success"
+    },
+    {
+      "name": "United Airlines",
+      "metrics": 140,
+      "status": "success"
+    },
+    {
+      "name": "UPS",
+      "metrics": 121,
+      "status": "success"
+    },
+    {
+      "name": "FedEx",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Maersk",
+      "metrics": 151,
+      "status": "success"
+    },
+    {
+      "name": "Delta Air Lines",
+      "metrics": 66,
+      "status": "success"
+    },
+    {
+      "name": "Vinci",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Bouygues",
+      "metrics": 197,
+      "status": "success"
+    },
+    {
+      "name": "Ferrovial",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Skanska",
+      "metrics": 120,
+      "status": "success"
+    },
+    {
+      "name": "American Tower",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Prologis",
+      "metrics": 191,
+      "status": "success"
+    },
+    {
+      "name": "Simon Property Group",
+      "metrics": 166,
+      "status": "success"
+    },
+    {
+      "name": "Brookfield Asset Management",
+      "metrics": 143,
+      "status": "success"
+    },
+    {
+      "name": "CBRE Group",
+      "metrics": 146,
+      "status": "success"
+    },
+    {
+      "name": "Nokia",
+      "metrics": 176,
+      "status": "success"
+    },
+    {
+      "name": "Ericsson",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Vodafone",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Deutsche Telekom",
+      "metrics": 121,
+      "status": "success"
+    },
+    {
+      "name": "BlackRock",
+      "metrics": 127,
+      "status": "success"
+    },
+    {
+      "name": "Morgan Stanley",
+      "metrics": 180,
+      "status": "success"
+    },
+    {
+      "name": "Goldman Sachs",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Bank of America",
+      "metrics": 172,
+      "status": "success"
+    },
+    {
+      "name": "JPMorgan Chase",
+      "metrics": 0,
+      "status": "failed"
+    },
+    {
+      "name": "Tesco",
+      "metrics": 164,
+      "status": "success"
+    },
+    {
+      "name": "IKEA",
+      "metrics": 153,
+      "status": "success"
+    },
+    {
+      "name": "H&M Group",
+      "metrics": 0,
+      "status": "failed"
+    }
+  ]
+}

@@ -721,17 +721,28 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
   return (
     <div>
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <section
+        aria-labelledby="executive-summary-heading"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+      >
+        <h2 id="executive-summary-heading" className="sr-only">Executive Summary</h2>
+
         {/* Total Energy / YTD Energy */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="total-energy-title"
+        >
           <div className="flex items-center gap-2 mb-2 relative group">
-            <Zap className="w-5 h-5 text-amber-500" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+            <Zap className="w-5 h-5 text-amber-500" aria-hidden="true" />
+            <h3
+              id="total-energy-title"
+              className="text-lg font-semibold text-gray-900 dark:text-white cursor-help"
+            >
               {isCurrentYear ? t('cards.totalEnergy.ytdTitle') : t('cards.totalEnergy.title')}
             </h3>
 
             {/* Hover Tooltip */}
-            <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+            <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
               <div className="mb-2">
                 <p className="text-gray-200 text-[11px] leading-relaxed">
                   {t('cards.totalEnergy.explanation')}
@@ -810,18 +821,24 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               })()}
             </div>
           )}
-        </div>
+        </article>
 
         {/* Renewable Percentage */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="renewable-percentage-title"
+        >
           <div className="flex items-center gap-2 mb-2 relative group">
-            <Leaf className="w-5 h-5 text-green-500" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+            <Leaf className="w-5 h-5 text-green-500" aria-hidden="true" />
+            <h3
+              id="renewable-percentage-title"
+              className="text-lg font-semibold text-gray-900 dark:text-white cursor-help"
+            >
               {t('cards.renewable.title')}
             </h3>
 
             {/* Hover Tooltip */}
-            <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+            <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
               <div className="mb-2">
                 <p className="text-gray-200 text-[11px] leading-relaxed">
                   {t('cards.renewable.explanation')}
@@ -870,18 +887,24 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               </div>
             )}
           </div>
-        </div>
+        </article>
 
         {/* Emissions */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="emissions-title"
+        >
           <div className="flex items-center gap-2 mb-2 relative group">
-            <Cloud className="w-5 h-5 text-gray-500" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+            <Cloud className="w-5 h-5 text-gray-500" aria-hidden="true" />
+            <h3
+              id="emissions-title"
+              className="text-lg font-semibold text-gray-900 dark:text-white cursor-help"
+            >
               {t('cards.emissions.title')}
             </h3>
 
             {/* Hover Tooltip */}
-            <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+            <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
               <div className="mb-2">
                 <p className="text-gray-200 text-[11px] leading-relaxed">
                   {t('cards.emissions.explanation')}
@@ -930,18 +953,24 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               </div>
             )}
           </div>
-        </div>
+        </article>
 
         {/* Intensity */}
-        <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
+        <article
+          className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm"
+          aria-labelledby="intensity-title"
+        >
           <div className="flex items-center gap-2 mb-2 relative group">
-            <Gauge className="w-5 h-5 text-purple-500" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
+            <Gauge className="w-5 h-5 text-purple-500" aria-hidden="true" />
+            <h3
+              id="intensity-title"
+              className="text-lg font-semibold text-gray-900 dark:text-white cursor-help"
+            >
               {t('cards.intensity.title')}
             </h3>
 
             {/* Hover Tooltip */}
-            <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+            <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
               <div className="mb-2">
                 <p className="text-gray-200 text-[11px] leading-relaxed">
                   {t('cards.intensity.explanation')}
@@ -974,8 +1003,8 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
             {energyIntensity.toFixed(1)}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.intensity.unit')}</div>
-        </div>
-      </div>
+        </article>
+      </section>
 
       {/* Unified Grid for All Chart Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -984,13 +1013,13 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm min-h-[480px]">
             <div className="mb-4">
               <div className="flex items-center gap-2 relative group">
-                <PieChartIcon className="w-5 h-5 text-blue-500" />
+                <PieChartIcon className="w-5 h-5 text-blue-500" aria-hidden="true" />
                 <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">
                   {t('charts.sourcesDistribution.title')}
                 </h3>
 
               {/* Hover Tooltip */}
-              <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+              <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                 <div className="mb-2">
                   <p className="text-gray-200 text-[11px] leading-relaxed">
                     {t('charts.sourcesDistribution.explanation')}
@@ -1183,7 +1212,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                 </h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <div className="mb-2">
                     <p className="text-gray-200 text-[11px] leading-relaxed">
                       {t('charts.monthlyEvolution.explanation')}
@@ -1369,13 +1398,13 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm flex flex-col min-h-[360px]">
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-1 relative group">
-                <BarChart3 className="w-5 h-5 text-indigo-500" />
+                <BarChart3 className="w-5 h-5 text-indigo-500" aria-hidden="true" />
                 <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">
                   {t('charts.yoyComparison.title')}
                 </h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <div className="mb-2">
                     <p className="text-gray-200 text-[11px] leading-relaxed">
                       {t('charts.yoyComparison.explanation')}
@@ -1560,7 +1589,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                   </h3>
 
                   {/* Hover Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <div className="mb-2">
                       <p className="text-gray-200 text-[11px] leading-relaxed">
                         {t('charts.gridMix.explanation')}
@@ -1609,8 +1638,8 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                       </div>
                     </div>
                     {mix.emission_factors && (
-                      <div className="cursor-help">
-                        <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" />
+                      <div className="cursor-help" role="button" aria-label="Show emission factors information">
+                        <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" aria-hidden="true" />
                       </div>
                     )}
                   </div>
@@ -1626,7 +1655,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                       <div className="text-xs font-semibold text-gray-300 mb-2 text-center">
                         {t('emissionFactors.title')}
                       </div>
-                      <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                         {mix.emission_factors.carbon_intensity_scope2 && (
                           <div className="text-center">
                             <div className="text-[#A1A1AA] mb-1">{t('emissionFactors.scope2')}</div>
@@ -1663,7 +1692,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               {/* Energy Sources Grid */}
               {mix.sources.length > 0 ? (
                 <div className="p-3">
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {mix.sources.map((source, sourceIdx) => {
                       const percentage = source.percentage !== null && source.percentage !== undefined ? source.percentage : 0;
                       const color = getGridMixColor(source.name);
@@ -1751,11 +1780,11 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm min-h-[480px]">
             <div className="mb-4">
               <div className="flex items-center gap-2 relative group">
-                <BarChart3 className="w-5 h-5 text-orange-500" />
+                <BarChart3 className="w-5 h-5 text-orange-500" aria-hidden="true" />
                 <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('charts2.monthlyConsumptionBySource')}</h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <div className="mb-2">
                     <p className="text-gray-200 text-[11px] leading-relaxed">
                       {t('charts2.stackedBreakdownDescription')}
@@ -1874,7 +1903,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                     {t('sitePerformance.title')}
                   </h3>
                   {/* Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                     <div className="mb-2">
                       <p className="text-white text-[11px] leading-relaxed whitespace-pre-line">
                         {t('explanations.sitePerformance')}
@@ -2021,11 +2050,11 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
           <div className="bg-white dark:bg-[#212121] rounded-lg p-4 shadow-sm">
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-1 relative group">
-                <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <Target className="w-5 h-5 text-green-600 dark:text-green-400" aria-hidden="true" />
                 <h3 className="font-semibold text-gray-900 dark:text-white cursor-help">{t('sbti.title')}</h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
                   <div className="mb-2">
                     <p className="text-gray-200 text-[11px] leading-relaxed">
                       {t('sbti.description')}
@@ -2203,7 +2232,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs mb-2">
                               <div>
                                 <span className="text-gray-500 dark:text-[#A1A1AA]">{t('targetSection.baseline')}</span>
                                 <div className="font-medium text-gray-900 dark:text-white">
@@ -2265,11 +2294,11 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 relative group">
-                  <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">{t('energyProgress.title')}</h3>
 
                   {/* Hover Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-80 p-3 bg-gradient-to-br from-blue-900/95 to-cyan-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-blue-500/30">
+                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-blue-900/95 to-cyan-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-blue-500/30">
                     <div className="mb-2">
                       <p className="text-gray-200 text-[11px] leading-relaxed">
                         Track progress toward energy efficiency targets and renewable energy adoption goals. Based on ISO 50001 Energy Management System standards.
@@ -2405,7 +2434,7 @@ export function EnergyDashboard({ organizationId, selectedSite, selectedPeriod }
               return (
                 <>
                   {/* 5-card layout */}
-                  <div className="grid grid-cols-5 gap-3 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
                     {/* Baseline */}
                     <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-lg p-3 border border-gray-200/50 dark:border-gray-700/50">
                       <div className="flex items-center justify-between mb-2">

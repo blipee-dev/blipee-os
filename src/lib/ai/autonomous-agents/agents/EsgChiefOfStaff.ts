@@ -75,7 +75,7 @@ export class EsgChiefOfStaff extends AutonomousAgent {
   
   constructor() {
     super(
-      'ESG Chief of Staff',
+      'blipee-esg',
       '1.0.0',
       {
         canMakeDecisions: true,

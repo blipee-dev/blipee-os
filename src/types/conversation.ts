@@ -24,6 +24,15 @@ export interface Message {
     agents: string[];
     insights: AgentInsight[];
   };
+  // ✅ LLM-generated charts and insights
+  charts?: Array<{
+    type: 'line' | 'bar' | 'pie' | 'area' | 'scatter';
+    title: string;
+    data: any;
+    insights?: string;
+  }>;
+  insights?: string[];
+  recommendations?: string[];
 }
 
 export interface AgentInsight {
