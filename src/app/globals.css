@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Required for AI Elements Response component (Streamdown) */
+@source "../node_modules/streamdown/dist/index.js";
+
 @layer utilities {
   /* Safe area padding for iOS devices */
   .safe-bottom {

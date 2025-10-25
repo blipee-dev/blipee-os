@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useTheme } from "@/providers/ThemeProvider";
-import { Tooltip } from "@/components/ui/Tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   Home,
   Sparkles,

@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getAPIUser } from '@/lib/auth/server-auth';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserOrganizationById } from '@/lib/auth/get-user-org';
+import { getAPIUser } from '@/lib/auth/server-auth';
 import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,7 +51,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ forecast: [] });
     }
 
-    const metricIds = wasteMetrics.map(m => m.id);
+    const metricIds = wasteMetrics.map((m) => m.id);
 
     // Fetch waste data from metrics_data with pagination
     let allData: any[] = [];
@@ -108,17 +107,23 @@ export async function GET(request: NextRequest) {
       return true;
     });
 
-    console.log(`📊 Waste forecast data: ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)`);
-
     if (!historicalData || historicalData.length === 0) {
       return NextResponse.json({ forecast: [] });
     }
 
     // Group by month
-    const monthlyData: { [key: string]: { generated: number; diverted: number; disposal: number; emissions: number; count: number } } = {};
+    const monthlyData: {
+      [key: string]: {
+        generated: number;
+        diverted: number;
+        disposal: number;
+        emissions: number;
+        count: number;
+      };
+    } = {};
 
     historicalData.forEach((record: any) => {
-      const metric = wasteMetrics.find(m => m.id === record.metric_id);
+      const metric = wasteMetrics.find((m) => m.id === record.metric_id);
       if (!metric) return;
 
       const date = new Date(record.period_start);
@@ -153,12 +158,12 @@ export async function GET(request: NextRequest) {
 
     // Convert to array
     const months = Object.keys(monthlyData).sort();
-    const historicalMonthly = months.map(monthKey => ({
+    const historicalMonthly = months.map((monthKey) => ({
       monthKey,
       generated: monthlyData[monthKey].generated,
       diverted: monthlyData[monthKey].diverted,
       disposal: monthlyData[monthKey].disposal,
-      emissions: monthlyData[monthKey].emissions
+      emissions: monthlyData[monthKey].emissions,
     }));
 
     // Find last month with actual data
@@ -182,27 +187,26 @@ export async function GET(request: NextRequest) {
       }
     }
 
-
     // Use enterprise forecaster for generated waste
-    const generatedData = historicalMonthly.map(m => ({
+    const generatedData = historicalMonthly.map((m) => ({
       month: m.monthKey,
-      emissions: m.generated
+      emissions: m.generated,
     }));
 
     const generatedForecast = EnterpriseForecast.forecast(generatedData, monthsToForecast, false);
 
     // Use enterprise forecaster for diverted waste
-    const divertedData = historicalMonthly.map(m => ({
+    const divertedData = historicalMonthly.map((m) => ({
       month: m.monthKey,
-      emissions: m.diverted
+      emissions: m.diverted,
     }));
 
     const divertedForecast = EnterpriseForecast.forecast(divertedData, monthsToForecast, false);
 
     // Use enterprise forecaster for emissions
-    const emissionsData = historicalMonthly.map(m => ({
+    const emissionsData = historicalMonthly.map((m) => ({
       month: m.monthKey,
-      emissions: m.emissions
+      emissions: m.emissions,
     }));
 
     const emissionsForecast = EnterpriseForecast.forecast(emissionsData, monthsToForecast, false);
@@ -226,7 +230,9 @@ export async function GET(request: NextRequest) {
 
       forecastMonths.push({
         monthKey,
-        month: new Date(currentYear, currentMonth - 1).toLocaleString('default', { month: 'short' }),
+        month: new Date(currentYear, currentMonth - 1).toLocaleString('default', {
+          month: 'short',
+        }),
         generated,
         diverted,
         disposal: generated - diverted, // Calculate disposal as generated - diverted
@@ -238,13 +244,12 @@ export async function GET(request: NextRequest) {
           divertedLower: divertedForecast.confidence.lower[i] || 0,
           divertedUpper: divertedForecast.confidence.upper[i] || 0,
           emissionsLower: emissionsForecast.confidence.lower[i] || 0,
-          emissionsUpper: emissionsForecast.confidence.upper[i] || 0
-        }
+          emissionsUpper: emissionsForecast.confidence.upper[i] || 0,
+        },
       });
 
       currentMonth++;
     }
-
 
     return NextResponse.json({
       forecast: forecastMonths,
@@ -256,15 +261,11 @@ export async function GET(request: NextRequest) {
         divertedTrend: divertedForecast.metadata.trendSlope,
         emissionsTrend: emissionsForecast.metadata.trendSlope,
         r2: generatedForecast.metadata.r2,
-        volatility: generatedForecast.metadata.volatility
-      }
+        volatility: generatedForecast.metadata.volatility,
+      },
     });
-
   } catch (error) {
     console.error('Error generating waste forecast:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate forecast' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to generate forecast' }, { status: 500 });
   }
 }

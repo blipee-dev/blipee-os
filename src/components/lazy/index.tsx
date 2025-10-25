@@ -11,14 +11,6 @@ const Loading = () => {
 };
 
 // Lazy load heavy components
-export const LazyConversationInterface = dynamic(
-  () => import('@/components/blipee-os/ConversationInterface').then(mod => mod.ConversationInterface),
-  { 
-    loading: Loading,
-    ssr: true,
-  }
-);
-
 export const LazyDynamicUIRenderer = dynamic(
   () => import('@/components/blipee-os/DynamicUIRenderer').then(mod => mod.DynamicUIRenderer),
   { 
@@ -27,22 +19,62 @@ export const LazyDynamicUIRenderer = dynamic(
   }
 );
 
-// These components can be added when they exist
-// export const LazyBuildingDashboard = dynamic(
-//   () => import('@/components/dynamic/BuildingDashboard').then(mod => mod.default),
-//   { 
-//     loading: Loading,
-//     ssr: false,
-//   }
-// );
+// Lazy load large dashboard components (80KB+ each)
+export const LazyOverviewDashboard = dynamic(
+  () => import('@/components/dashboard/OverviewDashboard').then(mod => mod.OverviewDashboard),
+  {
+    loading: Loading,
+    ssr: false,
+  }
+);
 
-// export const LazyEnergyChart = dynamic(
-//   () => import('@/components/dynamic/EnergyChart').then(mod => mod.default),
-//   { 
-//     loading: Loading,
-//     ssr: false,
-//   }
-// );
+export const LazyOverviewDashboardWithScore = dynamic(
+  () => import('@/components/dashboard/OverviewDashboardWithScore').then(mod => mod.OverviewDashboardWithScore),
+  {
+    loading: Loading,
+    ssr: false,
+  }
+);
+
+export const LazyOverviewDashboardMinimal = dynamic(
+  () => import('@/components/dashboard/OverviewDashboardMinimal').then(mod => mod.OverviewDashboardMinimal),
+  {
+    loading: Loading,
+    ssr: false,
+  }
+);
+
+export const LazyEnergyDashboard = dynamic(
+  () => import('@/components/dashboard/EnergyDashboard').then(mod => mod.default),
+  {
+    loading: Loading,
+    ssr: false,
+  }
+);
+
+export const LazyWaterDashboard = dynamic(
+  () => import('@/components/dashboard/WaterDashboard').then(mod => mod.default),
+  {
+    loading: Loading,
+    ssr: false,
+  }
+);
+
+export const LazyWasteDashboard = dynamic(
+  () => import('@/components/dashboard/WasteDashboard').then(mod => mod.default),
+  {
+    loading: Loading,
+    ssr: false,
+  }
+);
+
+export const LazyEmissionsDashboard = dynamic(
+  () => import('@/components/dashboard/EmissionsDashboard').then(mod => mod.default),
+  {
+    loading: Loading,
+    ssr: false,
+  }
+);
 
 export const LazyMonitoringDashboard = dynamic(
   () => import('@/app/settings/monitoring/MonitoringClient').then(mod => mod.default),

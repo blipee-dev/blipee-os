@@ -19,7 +19,7 @@ import { useAuth } from "@/lib/auth/context";
 import { getUserInitials, getUserDisplayName } from "@/lib/utils/user";
 import { useAppearance } from "@/providers/AppearanceProvider";
 import { useTranslations } from "@/providers/LanguageProvider";
-import { Tooltip } from "@/components/ui/Tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export interface NavItem {
   id: string;

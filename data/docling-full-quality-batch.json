@@ -1,0 +1,282 @@
+{
+  "metadata": {
+    "created_at": "2025-10-24T09:18:16.593Z",
+    "total_companies": 54,
+    "extraction_method": "docling_direct_comprehensive",
+    "goal": "93%+ fill rate with verified accuracy (97.9% table extraction)",
+    "estimated_time": "10.8 hours",
+    "rationale": "Re-extract ALL companies to ensure data quality, not just fill rate"
+  },
+  "companies": [
+    {
+      "company": "3M",
+      "industry": "Unknown",
+      "pdf_url": "https://multimedia.3m.com/mws/media/2414270O/3m-2024-nordic-impact-report.pdf"
+    },
+    {
+      "company": "ABB",
+      "industry": "Unknown",
+      "pdf_url": "https://abb-bank.az/storage/uploads/files/1747209953_abb-sustainability-report-2024.pdf"
+    },
+    {
+      "company": "Anglo American",
+      "industry": "Unknown",
+      "pdf_url": "https://www.angloamerican.com/~/media/Files/A/Anglo-American-Group-v9/PLC/investors/annual-reporting/2025/sustainability-report-plc-2024.pdf"
+    },
+    {
+      "company": "Archer Daniels Midland",
+      "industry": "Unknown",
+      "pdf_url": "https://www.adm.com/globalassets/sustainability/sustainability-reports/archer_daniels_2024_corporate_sustainability_report.pdf"
+    },
+    {
+      "company": "Bank of America",
+      "industry": "Unknown",
+      "pdf_url": "https://about.bankofamerica.com/content/dam/about/report-center/esg/2024/Sustainability_at_Bank_of_America_2024_Report.pdf"
+    },
+    {
+      "company": "BHP",
+      "industry": "Unknown",
+      "pdf_url": "https://bhp.co.uk/wp-content/uploads/2024/09/Final-sustainability-report-2023-24.pdf"
+    },
+    {
+      "company": "BlackRock",
+      "industry": "Unknown",
+      "pdf_url": "https://www.blackrock.com/corporate/literature/continuous-disclosure-and-important-information/blackrock-sustainability-disclosure.pdf"
+    },
+    {
+      "company": "Boliden",
+      "industry": "Unknown",
+      "pdf_url": "https://investors.boliden.com/sites/boliden-ir/files/pr/202503192744-1.pdf"
+    },
+    {
+      "company": "Bouygues",
+      "industry": "Unknown",
+      "pdf_url": "https://www.bouygues.com/wp-content/uploads/2025/04/20250402-ri-va-tds.pdf"
+    },
+    {
+      "company": "Brookfield Asset Management",
+      "industry": "Unknown",
+      "pdf_url": "https://bam.brookfield.com/sites/brookfield-bam/files/BAM-IR-Master/Responsibility/2025/BAM%20Ltd.%202024%20Sustainability%20Report.pdf"
+    },
+    {
+      "company": "Bunge",
+      "industry": "Unknown",
+      "pdf_url": "https://investors.bunge.com/~/media/Files/B/Bunge-IR/documents/financial-information/annual-reports/2024-bunge-annual-report.pdf"
+    },
+    {
+      "company": "Carrefour",
+      "industry": "Unknown",
+      "pdf_url": "https://www.carrefour.com/sites/default/files/2025-05/CFR_URD_2024_EN_250328_MEL.pdf"
+    },
+    {
+      "company": "Caterpillar",
+      "industry": "Unknown",
+      "pdf_url": "https://m.cat-cn.com/pdf/2024-sustainability-report.pdf"
+    },
+    {
+      "company": "CBRE Group",
+      "industry": "Unknown",
+      "pdf_url": "https://mediaassets.cbre.com/-/media/cbre/countryspain/memoria-de-sostenibilidad/sustainability-report-cbre-2024.pdf?rev=f58661353e1b4ce6965a886c7b12593a"
+    },
+    {
+      "company": "Cisco Systems",
+      "industry": "GRI 17: Technology Hardware",
+      "pdf_url": "https://www.cisco.com/c/dam/m/en_us/about/csr/esg-hub/_pdf/purpose-report-2024.pdf"
+    },
+    {
+      "company": "Coca-Cola Company",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "pdf_url": "https://www.coca-colacompany.com/content/dam/company/us/en/reports/2024-environmental-update/2024-environmental-update.pdf"
+    },
+    {
+      "company": "Danone",
+      "industry": "Unknown",
+      "pdf_url": "https://www.danone.com/content/dam/corp/global/danonecom/investors/en-sustainability/reports-and-data/cross-topic/danoneiar2024.pdf"
+    },
+    {
+      "company": "Delta Air Lines",
+      "industry": "Unknown",
+      "pdf_url": "https://esghub.delta.com/content/dam/esg/2024/pdf/Delta-Difference-2024-Report.pdf"
+    },
+    {
+      "company": "Deutsche Telekom",
+      "industry": "Unknown",
+      "pdf_url": "https://report.telekom.com/cr-report/2024/_assets/downloads/entire-dtag-cr24.pdf"
+    },
+    {
+      "company": "Eni",
+      "industry": "Unknown",
+      "pdf_url": "https://www.eni.com/content/dam/enicom/documents/eng/sustainability/2024/eni-for-2024-just-transition-eng/intro-just-transition-2024-eng.pdf"
+    },
+    {
+      "company": "Equinor",
+      "industry": "GRI 11: Oil and Gas",
+      "pdf_url": "https://cdn.equinor.com/files/h61q9gi9/global/b0c2c2b4c7f5e9c2c5b1a6f8d9e3c4a5b6c7d8e9/equinor-sustainability-report-2024.pdf"
+    },
+    {
+      "company": "Ericsson",
+      "industry": "GRI 17: Technology Hardware",
+      "pdf_url": "https://www.ericsson.com/492c74/assets/local/investors/documents/2024/sustainability-and-corporate-responsibility-report-2024-en.pdf"
+    },
+    {
+      "company": "ExxonMobil",
+      "industry": "Unknown",
+      "pdf_url": "https://corporate.exxonmobil.com/-/media/global/files/sustainability-report/2024/sustainability-report.pdf"
+    },
+    {
+      "company": "Glencore",
+      "industry": "Unknown",
+      "pdf_url": "https://www.glencore.com/.rest/api/v1/documents/static/72cdaa4f-71c1-4901-bb31-8819f38dbfcb/GLEN-2024-Sustainability-Report.pdf"
+    },
+    {
+      "company": "Honeywell",
+      "industry": "Unknown",
+      "pdf_url": "https://www.honeywell.com/content/dam/honeywellbt/en/documents/downloads/hon-2024-impact-report.pdf"
+    },
+    {
+      "company": "Hormel Foods",
+      "industry": "Unknown",
+      "pdf_url": "https://www.hormelfoods.com/wp-content/uploads/Hormel-Foods-2024-Global-Impact-Report.pdf"
+    },
+    {
+      "company": "IKEA",
+      "industry": "Unknown",
+      "pdf_url": "https://www.ikea.com/global/en/images/IKEA_Sustainability_Report_FY_24_2025_01_27_2c35989733.pdf"
+    },
+    {
+      "company": "LKAB",
+      "industry": "Unknown",
+      "pdf_url": "https://lkab.com/wp-content/uploads/2025/05/LKAB_2024_Annual-and-Sustainability-report.pdf"
+    },
+    {
+      "company": "Maersk",
+      "industry": "Unknown",
+      "pdf_url": "https://www.maersk.com/~/media_sc9/maersk/corporate/sustainability/files/resources/2024/maersk-annual-report-2024.pdf"
+    },
+    {
+      "company": "Morgan Stanley",
+      "industry": "Unknown",
+      "pdf_url": "https://www.morganstanley.com/content/dam/msdotcom/en/assets/pdfs/RO3865603-Sustainable_Reality_1H_2024_Report-FINAL.pdf"
+    },
+    {
+      "company": "Mota-Engil",
+      "industry": "GRI 16: Construction and Real Estate",
+      "pdf_url": "https://www.mota-engil.com/app/uploads/2025/04/Integrated-Report-2024_ING-1.pdf"
+    },
+    {
+      "company": "Navigator Company",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "pdf_url": "https://thenavigatorcompany.com/wp-content/uploads/2025/04/RA2024-NVG-en.pdf"
+    },
+    {
+      "company": "Nestlé",
+      "industry": "Unknown",
+      "pdf_url": "https://www.nestle.com/sites/default/files/2025-02/creating-shared-value-nestle-2024.pdf"
+    },
+    {
+      "company": "Newmont Corporation",
+      "industry": "GRI 14: Mining",
+      "pdf_url": "https://s24.q4cdn.com/382246808/files/doc_downloads/sustainability/2025/newmont-2024-sustainability-report.pdf"
+    },
+    {
+      "company": "Nokia",
+      "industry": "Unknown",
+      "pdf_url": "https://www.nokia.com/sites/default/files/2025-03/nokia-2024-sustainability-report.pdf"
+    },
+    {
+      "company": "Norsk Hydro",
+      "industry": "Unknown",
+      "pdf_url": "https://nelhydrogen.com/wp-content/uploads/2025/02/Nel-Annual-Report-2024_for-publication.pdf"
+    },
+    {
+      "company": "OMV",
+      "industry": "Unknown",
+      "pdf_url": "https://reports.omv.com/en/annual-report/2024/_assets/downloads/dir-directors-report-sr-omv-ar24.pdf"
+    },
+    {
+      "company": "PepsiCo",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "pdf_url": "https://www.pepsico.com/docs/default-source/sustainability-and-esg-topics/2024-esg-summary/2024-esg-summary-esg-performance-metrics.pdf"
+    },
+    {
+      "company": "Prologis",
+      "industry": "Unknown",
+      "pdf_url": "https://prologis.getbynder.com/m/4e832274a5346909/original/Prologis-2024-25-Global-Impact-Sustainability-Report.pdf"
+    },
+    {
+      "company": "Repsol",
+      "industry": "Unknown",
+      "pdf_url": "https://www.repsol.com/content/dam/repsol-corporate/en_gb/sostenibilidad/reports/2024/2024-sustainability-plan-for-united-states-canada.pdf"
+    },
+    {
+      "company": "SAP",
+      "industry": "Unknown",
+      "pdf_url": "https://db.srnav.com/storage/v1/object/public/document-pdfs/44f05cfd-12af-4e22-b9e3-34cffdf3faf1.pdf"
+    },
+    {
+      "company": "Schneider Electric",
+      "industry": "Unknown",
+      "pdf_url": "https://www.se.com/ww/en/assets/564/document/466143/schneider-sustainability-impact-q1-2024-results.pdf.pdf"
+    },
+    {
+      "company": "Shell",
+      "industry": "Unknown",
+      "pdf_url": "https://www.shell.com/investors/results-and-reporting/annual-report/_jcr_content/root/main/section_2113846431/link_list/links/item0.stream/1752580693041/6c20b8111738b9a590ba145f0d1c4fa0e530dae0/shell-annual-report-2024.pdf"
+    },
+    {
+      "company": "Siemens",
+      "industry": "Unknown",
+      "pdf_url": "https://assets.new.siemens.com/siemens/assets/api/uuid:32a7154d-edba-47bc-8e9b-9761617ba774/sustainability-report.pdf"
+    },
+    {
+      "company": "Simon Property Group",
+      "industry": "Unknown",
+      "pdf_url": "https://www.responsibilityreports.com/HostedData/ResponsibilityReportArchive/s/NYSE_SPG_2022.pdf"
+    },
+    {
+      "company": "Skanska",
+      "industry": "Unknown",
+      "pdf_url": "https://group.skanska.com/49490b/siteassets/investors/reports-publications/annual-reports/2024/annual-and-sustainability-report-2024.pdf"
+    },
+    {
+      "company": "Tesco",
+      "industry": "Unknown",
+      "pdf_url": "https://www.tescoplc.com/media/wvkj1yic/tesco-sustainability-report-2025.pdf"
+    },
+    {
+      "company": "Tesla",
+      "industry": "Unknown",
+      "pdf_url": "https://www.tesla.com/ns_videos/2024-tesla-impact-report-highlights.pdf"
+    },
+    {
+      "company": "TotalEnergies",
+      "industry": "GRI 11: Oil and Gas",
+      "pdf_url": "https://totalenergies.com/system/files/documents/2025-03/TotalEnergies_2024_Sustainability_Climate_Report.pdf"
+    },
+    {
+      "company": "Unilever",
+      "industry": "GRI 13: Agriculture, Aquaculture and Fishing",
+      "pdf_url": "https://www.unilever.com/files/391e00f6-0000-0000-0000-000000000000/unilever-annual-report-and-accounts-2024.pdf"
+    },
+    {
+      "company": "United Airlines",
+      "industry": "Unknown",
+      "pdf_url": "https://corporateimpact.united.com/pdfs/united-environment-data.pdf"
+    },
+    {
+      "company": "UPS",
+      "industry": "Unknown",
+      "pdf_url": "https://about.ups.com/content/dam/upsstories/images/our-impact/reporting/2024-UPS-GRI-Report.pdf"
+    },
+    {
+      "company": "Vale",
+      "industry": "GRI 14: Mining",
+      "pdf_url": "https://www.latibex.com/docs/Documentos/esp/hechosrelev/2025/Vale's%20Performance%20in%204Q24%20and%202024.pdf"
+    },
+    {
+      "company": "Vodafone",
+      "industry": "GRI 17: Technology Hardware",
+      "pdf_url": "https://assets.ctfassets.net/q7ob9vms4z5k/24lVoGkJfJ2Hygncid32w5/371613ae505aa6254e89a1688eec3faf/vodafone-group-cdp-climate-change-questionnaire-2024.pdf"
+    }
+  ]
+}

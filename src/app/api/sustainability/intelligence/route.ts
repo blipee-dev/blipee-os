@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getAPIUser } from '@/lib/auth/server-auth';
-import { getUserOrganizationById } from '@/lib/auth/get-user-org';
 import { sustainabilityIntelligence } from '@/lib/ai/sustainability-intelligence';
+import { getUserOrganizationById } from '@/lib/auth/get-user-org';
+import { getAPIUser } from '@/lib/auth/server-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,19 +40,13 @@ export async function POST(request: NextRequest) {
     // 1. Authenticate user
     const user = await getAPIUser(request);
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // 2. Get user's organization
     const orgInfo = await getUserOrganizationById(user.id);
     if (!orgInfo.organizationId) {
-      return NextResponse.json(
-        { error: 'No organization found for user' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'No organization found for user' }, { status: 404 });
     }
 
     // 3. Parse request body
@@ -65,13 +59,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Invalid dashboard type',
-          validTypes: validDashboardTypes
+          validTypes: validDashboardTypes,
         },
         { status: 400 }
       );
     }
-
-    console.log(`[Intelligence API] Enriching ${dashboardType} dashboard for org ${orgInfo.organizationId}`);
 
     // 5. Get intelligence from orchestration layer
     const intelligence = await sustainabilityIntelligence.enrichDashboardData(
@@ -80,18 +72,15 @@ export async function POST(request: NextRequest) {
       rawData
     );
 
-    console.log(`[Intelligence API] Generated ${intelligence.insights.length} insights, ${intelligence.recommendations.length} recommendations (cache hit: ${intelligence.cacheHit})`);
-
     // 6. Return intelligence with cache control headers
     return NextResponse.json(intelligence, {
       headers: {
         'Cache-Control': 'private, max-age=300', // 5 minutes client-side cache
         'X-Cache-Hit': intelligence.cacheHit ? 'true' : 'false',
         'X-Agents-Executed': String(intelligence.metrics.agentsExecuted),
-        'X-Execution-Time-Ms': String(intelligence.metrics.executionTimeMs)
-      }
+        'X-Execution-Time-Ms': String(intelligence.metrics.executionTimeMs),
+      },
     });
-
   } catch (error: any) {
     console.error('[Intelligence API] Error:', error);
 
@@ -99,7 +88,7 @@ export async function POST(request: NextRequest) {
       {
         error: 'Failed to generate intelligence',
         details: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
       { status: 500 }
     );
@@ -116,10 +105,7 @@ export async function GET(request: NextRequest) {
     // Authenticate user
     const user = await getAPIUser(request);
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get cache stats
@@ -128,9 +114,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       cacheSize: stats.size,
       cachedOrganizations: stats.entries.length,
-      entries: stats.entries
+      entries: stats.entries,
     });
-
   } catch (error: any) {
     console.error('[Intelligence API] Error getting cache stats:', error);
     return NextResponse.json(
@@ -154,10 +139,7 @@ export async function DELETE(request: NextRequest) {
     // Authenticate user
     const user = await getAPIUser(request);
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -171,9 +153,8 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: organizationId
         ? `Cache cleared for organization ${organizationId}${dashboardType ? ` dashboard ${dashboardType}` : ''}`
-        : 'All cache cleared'
+        : 'All cache cleared',
     });
-
   } catch (error: any) {
     console.error('[Intelligence API] Error clearing cache:', error);
     return NextResponse.json(

@@ -10,6 +10,7 @@ import { streamingService } from '@/lib/ai/streaming-service';
 import { ConversationContext } from '@/lib/ai/enhanced-service';
 import { securityAuditLogger, SecurityEventType } from '@/lib/security/audit-logger';
 import { metrics } from '@/lib/monitoring/metrics';
+import { createClient } from '@/lib/supabase/server';
 
 /**
  * POST /api/ai/stream - Start a new streaming session

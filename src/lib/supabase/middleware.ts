@@ -19,9 +19,6 @@ export async function updateSession(request: NextRequest) {
   const sessionToken = request.cookies.get('blipee-session')?.value;
 
   if (!sessionToken) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('👤 [Middleware] No session cookie found');
-    }
     return { response, user: null };
   }
 
@@ -30,9 +27,6 @@ export async function updateSession(request: NextRequest) {
     const session = await validateSession(sessionToken);
 
     if (!session) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('👤 [Middleware] Session invalid or expired');
-      }
       return { response, user: null };
     }
 
@@ -41,14 +35,7 @@ export async function updateSession(request: NextRequest) {
     const { data: userData, error } = await supabase.auth.admin.getUserById(session.user_id);
 
     if (error || !userData?.user) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('👤 [Middleware] User not found:', error?.message);
-      }
       return { response, user: null };
-    }
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log('👤 [Middleware] Session valid:', userData.user.email);
     }
 
     // Return user data (matching the old interface for compatibility)

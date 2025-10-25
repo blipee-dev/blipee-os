@@ -6,13 +6,11 @@ import { AlertCircle, Leaf } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
 import { useAppearance, useAccentGradient } from '@/providers/AppearanceProvider';
-import { OverviewDashboard } from '@/components/dashboard/OverviewDashboard';
-import { OverviewDashboardWithScore } from '@/components/dashboard/OverviewDashboardWithScore';
+import { LazyOverviewDashboardWithScore } from '@/components/lazy';
 import { SiteSelector } from '@/components/zero-typing/SiteSelector';
 import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
 import { useTranslations } from '@/providers/LanguageProvider';
 import { useOrganizationContext } from '@/hooks/useOrganizationContext';
-import { FloatingChat } from '@/components/blipee-os/FloatingChat';
 import type { Building } from '@/types/auth';
 
 export default function OverviewPage() {
@@ -129,7 +127,7 @@ export default function OverviewPage() {
 
         {/* Dashboard Content */}
         {organizationData && (
-          <OverviewDashboardWithScore
+          <LazyOverviewDashboardWithScore
             organizationId={organizationData.id}
             selectedSite={selectedSite}
             selectedPeriod={selectedPeriod}
@@ -137,8 +135,6 @@ export default function OverviewPage() {
         )}
       </div>
 
-      {/* Floating AI Chat */}
-      <FloatingChat organizationId={organizationData?.id || ''} />
     </SustainabilityLayout>
   );
 }

@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { getAPIUser } from '@/lib/auth/server-auth';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getEnergyForecast } from '@/lib/forecasting/get-energy-forecast';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { calculateProgress, getTrajectoryStatus } from '@/lib/utils/progress-calculation';
+import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +24,6 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   try {
-
     // Check authentication
     const user = await getAPIUser(request);
     if (!user) {
@@ -46,7 +44,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const categories = categoriesParam.split(',').map(c => c.trim());
+    const categories = categoriesParam.split(',').map((c) => c.trim());
 
     // Verify user has access
     const { data: membership } = await supabase
@@ -73,10 +71,7 @@ export async function GET(request: NextRequest) {
 
     if (ctError) {
       console.error('Error fetching category targets:', ctError);
-      return NextResponse.json(
-        { error: 'Failed to fetch category targets' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch category targets' }, { status: 500 });
     }
 
     // If no category targets exist, return empty (user needs to run weighted allocation first)
@@ -84,15 +79,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         data: [],
-        message: 'No category targets found. Run weighted allocation first.'
+        message: 'No category targets found. Run weighted allocation first.',
       });
     }
 
     // Create a map of category -> reduction rate
     const categoryReductionMap = new Map(
-      categoryTargets.map(ct => [
+      categoryTargets.map((ct) => [
         ct.category,
-        ct.baseline_target_percent || ct.adjusted_target_percent || 4.2 // Fallback to 4.2%
+        ct.baseline_target_percent || ct.adjusted_target_percent || 4.2, // Fallback to 4.2%
       ])
     );
 
@@ -105,22 +100,19 @@ export async function GET(request: NextRequest) {
 
     if (metricsError) {
       console.error('Error fetching metrics:', metricsError);
-      return NextResponse.json(
-        { error: 'Failed to fetch metrics' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch metrics' }, { status: 500 });
     }
 
     if (!metrics || metrics.length === 0) {
       return NextResponse.json({
         success: true,
         data: [],
-        message: 'No metrics found for these categories'
+        message: 'No metrics found for these categories',
       });
     }
 
     // Step 3: Get baseline data for each metric
-    const metricIds = metrics.map(m => m.id);
+    const metricIds = metrics.map((m) => m.id);
 
     const { data: baselineData, error: baselineError } = await supabaseAdmin
       .from('metrics_data')
@@ -132,20 +124,17 @@ export async function GET(request: NextRequest) {
 
     if (baselineError) {
       console.error('Error fetching baseline data:', baselineError);
-      return NextResponse.json(
-        { error: 'Failed to fetch baseline data' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch baseline data' }, { status: 500 });
     }
 
     // Step 4: Aggregate baseline by metric
     const metricBaselines = new Map();
 
-    baselineData?.forEach(record => {
+    baselineData?.forEach((record) => {
       if (!metricBaselines.has(record.metric_id)) {
         metricBaselines.set(record.metric_id, {
           totalValue: 0,
-          totalEmissions: 0
+          totalEmissions: 0,
         });
       }
       const current = metricBaselines.get(record.metric_id);
@@ -158,8 +147,8 @@ export async function GET(request: NextRequest) {
     const yearsToTarget = targetYear - baselineYear;
 
     const calculatedTargets = metrics
-      .filter(metric => metricBaselines.has(metric.id))
-      .map(metric => {
+      .filter((metric) => metricBaselines.has(metric.id))
+      .map((metric) => {
         const baseline = metricBaselines.get(metric.id);
         const annualReductionRate = categoryReductionMap.get(metric.category) || 4.2;
         const cumulativeReduction = (annualReductionRate / 100) * yearsToTarget;
@@ -184,10 +173,10 @@ export async function GET(request: NextRequest) {
           targetValue: Math.round(targetValue * 10) / 10,
           targetEmissions: Math.round(targetEmissions * 10) / 10, // tCO2e, round to 1 decimal
           annualReductionRate,
-          cumulativeReductionPercent: Math.round(cumulativeReduction * 100 * 10) / 10
+          cumulativeReductionPercent: Math.round(cumulativeReduction * 100 * 10) / 10,
         };
       })
-      .filter(target => target.baselineEmissions > 0); // Only metrics with actual emissions
+      .filter((target) => target.baselineEmissions > 0); // Only metrics with actual emissions
 
     // Step 6: Get current year data and calculate enterprise forecast projection
     const { data: currentYearData, error: currentError } = await supabaseAdmin
@@ -202,12 +191,12 @@ export async function GET(request: NextRequest) {
       // Aggregate current year by metric and count unique months
       const currentYearMap = new Map();
 
-      currentYearData.forEach(record => {
+      currentYearData.forEach((record) => {
         if (!currentYearMap.has(record.metric_id)) {
           currentYearMap.set(record.metric_id, {
             value: 0,
             emissions: 0,
-            months: new Set()
+            months: new Set(),
           });
         }
         const current = currentYearMap.get(record.metric_id);
@@ -228,17 +217,12 @@ export async function GET(request: NextRequest) {
 
       if (selectedYear === currentYear) {
         try {
-          console.log('📈 [by-category-dynamic] Fetching enterprise forecast for organization:', organizationId);
           // Call shared forecast function to get ML-based projection for remaining months
           forecastData = await getEnergyForecast(
             organizationId,
             `${currentYear}-01-01`,
             `${currentYear}-12-31`
           );
-          console.log('✅ [by-category-dynamic] Enterprise forecast received:', {
-            forecastMonths: forecastData?.forecast?.length,
-            hasData: !!forecastData?.forecast
-          });
         } catch (error) {
           console.error('❌ [by-category-dynamic] Error fetching forecast data:', error);
           // Fall back to simple projection if forecast fails
@@ -246,7 +230,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Add current values and calculate progress with enterprise forecast
-      calculatedTargets.forEach(target => {
+      calculatedTargets.forEach((target) => {
         const current = currentYearMap.get(target.metricId);
         if (current) {
           const ytdEmissions = current.emissions / 1000; // Convert to tCO2e
@@ -263,8 +247,8 @@ export async function GET(request: NextRequest) {
             const forecastRemaining = forecastData.forecast.reduce((sum: number, f: any) => {
               const renewableKWh = f.renewable || 0;
               const fossilKWh = f.fossil || 0;
-              const renewableEmissions = renewableKWh * RENEWABLE_EMISSION_FACTOR / 1000; // Convert to tCO2e
-              const fossilEmissions = fossilKWh * FOSSIL_EMISSION_FACTOR / 1000; // Convert to tCO2e
+              const renewableEmissions = (renewableKWh * RENEWABLE_EMISSION_FACTOR) / 1000; // Convert to tCO2e
+              const fossilEmissions = (fossilKWh * FOSSIL_EMISSION_FACTOR) / 1000; // Convert to tCO2e
               return sum + renewableEmissions + fossilEmissions;
             }, 0);
 
@@ -280,13 +264,6 @@ export async function GET(request: NextRequest) {
           target.monthsWithData = monthsWithData;
           target.forecastMethod = forecastData ? 'enterprise-ml' : 'simple-linear';
 
-          console.log(`📊 [${target.metricName}] Projection:`, {
-            ytdEmissions: Math.round(ytdEmissions * 10) / 10,
-            projected: Math.round(projectedAnnualEmissions * 10) / 10,
-            method: target.forecastMethod,
-            monthsWithData
-          });
-
           // Calculate progress using shared utility
           const progress = calculateProgress(
             target.baselineEmissions,
@@ -301,7 +278,7 @@ export async function GET(request: NextRequest) {
             exceedancePercent: progress.exceedancePercent,
             trajectoryStatus: getTrajectoryStatus(progress.progressPercent),
             ytdEmissions: Math.round(ytdEmissions * 10) / 10,
-            projectedAnnual: Math.round(projectedAnnualEmissions * 10) / 10
+            projectedAnnual: Math.round(projectedAnnualEmissions * 10) / 10,
           };
         }
       });
@@ -315,15 +292,11 @@ export async function GET(request: NextRequest) {
         targetYear,
         categoriesQueried: categories,
         metricsFound: calculatedTargets.length,
-        calculatedDynamically: true
-      }
+        calculatedDynamically: true,
+      },
     });
-
   } catch (error: any) {
     console.error('Error in dynamic by-category API:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }

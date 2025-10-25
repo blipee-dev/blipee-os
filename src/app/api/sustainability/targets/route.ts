@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { getAPIUser } from '@/lib/auth/server-auth';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { supabaseAdmin } from '@/lib/supabase/admin';
 import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getBaselineEmissions, getPeriodEmissions } from '@/lib/sustainability/baseline-calculator';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -47,7 +46,7 @@ export async function GET(request: NextRequest) {
         `${new Date().getFullYear()}-01-01`,
         new Date().toISOString().split('T')[0],
         siteId || undefined
-      )
+      ),
     ]);
 
     const targets = targetsResult.data;
@@ -68,66 +67,67 @@ export async function GET(request: NextRequest) {
     if (scopeBreakdown.scope_2 > 0) activeScopes.push('scope_2');
     if (scopeBreakdown.scope_3 > 0) activeScopes.push('scope_3');
 
-
     // Transform data to match our component expectations
     // IMPORTANT: Using calculated baseline/current when site is selected, not database values
-    let transformedTargets = targets?.map(target => {
-      // Use calculated baseline (site-specific if site selected, org-level otherwise)
-      const calculatedBaseline = baselineData?.total || target.baseline_value;
+    let transformedTargets =
+      targets?.map((target) => {
+        // Use calculated baseline (site-specific if site selected, org-level otherwise)
+        const calculatedBaseline = baselineData?.total || target.baseline_value;
 
-      // Use calculated current emissions (site-specific if site selected)
-      const calculatedCurrent = scopeBreakdown.total;
+        // Use calculated current emissions (site-specific if site selected)
+        const calculatedCurrent = scopeBreakdown.total;
 
-      // Calculate target_reduction_percent from DATABASE (organization-level target definition)
-      const reductionPercent = target.baseline_value > 0
-        ? ((target.baseline_value - target.target_value) / target.baseline_value) * 100
-        : 0;
+        // Calculate target_reduction_percent from DATABASE (organization-level target definition)
+        const reductionPercent =
+          target.baseline_value > 0
+            ? ((target.baseline_value - target.target_value) / target.baseline_value) * 100
+            : 0;
 
-      // Calculate site-specific target emissions using org reduction percentage
-      const calculatedTarget = calculatedBaseline * (1 - reductionPercent / 100);
+        // Calculate site-specific target emissions using org reduction percentage
+        const calculatedTarget = calculatedBaseline * (1 - reductionPercent / 100);
 
-      // Calculate annual_reduction_rate (organization-level)
-      const yearsToTarget = target.target_year - target.baseline_year;
-      const annualRate = yearsToTarget > 0 ? reductionPercent / yearsToTarget : 0;
+        // Calculate annual_reduction_rate (organization-level)
+        const yearsToTarget = target.target_year - target.baseline_year;
+        const annualRate = yearsToTarget > 0 ? reductionPercent / yearsToTarget : 0;
 
-      // Use database scopes if available, otherwise use detected active scopes
-      const scopeCoverage = Array.isArray(target.scopes) && target.scopes.length > 0
-        ? target.scopes
-        : activeScopes;
+        // Use database scopes if available, otherwise use detected active scopes
+        const scopeCoverage =
+          Array.isArray(target.scopes) && target.scopes.length > 0 ? target.scopes : activeScopes;
 
-      // Calculate progress percentage using CALCULATED values
-      const currentYear = new Date().getFullYear();
-      const yearsElapsed = currentYear - target.baseline_year;
-      const totalYears = target.target_year - target.baseline_year;
-      const targetReduction = calculatedBaseline - calculatedTarget;
-      const actualReduction = calculatedBaseline - calculatedCurrent;
-      const progressPercentage = targetReduction > 0
-        ? (actualReduction / targetReduction) * 100
-        : 0;
+        // Calculate progress percentage using CALCULATED values
+        const currentYear = new Date().getFullYear();
+        const yearsElapsed = currentYear - target.baseline_year;
+        const totalYears = target.target_year - target.baseline_year;
+        const targetReduction = calculatedBaseline - calculatedTarget;
+        const actualReduction = calculatedBaseline - calculatedCurrent;
+        const progressPercentage =
+          targetReduction > 0 ? (actualReduction / targetReduction) * 100 : 0;
 
-      return {
-        id: target.id,
-        name: target.name, // Frontend expects 'name'
-        target_type: target.target_type || 'near-term',
-        target_scope: scopeCoverage.join(','),
-        scope_coverage: scopeCoverage,
-        baseline_year: target.baseline_year,
-        baseline_emissions: calculatedBaseline, // ✅ Use calculated (site-specific)
-        target_year: target.target_year,
-        reduction_percentage: reductionPercent, // Organization-level target
-        target_emissions: calculatedTarget, // ✅ Site-specific calculated target
-        annual_reduction_rate: annualRate,
-        sbti_validated: target.sbti_approved || false,
-        status: determinePerformanceStatus(target) === 'exceeding' || determinePerformanceStatus(target) === 'on-track'
-          ? 'on_track'
-          : determinePerformanceStatus(target) === 'at-risk'
-            ? 'at_risk'
-            : 'off_track',
-        current_emissions: calculatedCurrent, // ✅ Use calculated (site-specific)
-        progress_percentage: Math.max(0, Math.min(100, progressPercentage)),
-        performance_status: determinePerformanceStatus(target)
-      };
-    }) || [];
+        return {
+          id: target.id,
+          name: target.name, // Frontend expects 'name'
+          target_type: target.target_type || 'near-term',
+          target_scope: scopeCoverage.join(','),
+          scope_coverage: scopeCoverage,
+          baseline_year: target.baseline_year,
+          baseline_emissions: calculatedBaseline, // ✅ Use calculated (site-specific)
+          target_year: target.target_year,
+          reduction_percentage: reductionPercent, // Organization-level target
+          target_emissions: calculatedTarget, // ✅ Site-specific calculated target
+          annual_reduction_rate: annualRate,
+          sbti_validated: target.sbti_approved || false,
+          status:
+            determinePerformanceStatus(target) === 'exceeding' ||
+            determinePerformanceStatus(target) === 'on-track'
+              ? 'on_track'
+              : determinePerformanceStatus(target) === 'at-risk'
+                ? 'at_risk'
+                : 'off_track',
+          current_emissions: calculatedCurrent, // ✅ Use calculated (site-specific)
+          progress_percentage: Math.max(0, Math.min(100, progressPercentage)),
+          performance_status: determinePerformanceStatus(target),
+        };
+      }) || [];
 
     // Fetch emissions data with ML-powered forecasting for incomplete years
 
@@ -186,9 +186,8 @@ export async function GET(request: NextRequest) {
       actualYearToDate = actualEmissions;
 
       // Count unique months (not total records, as there may be multiple records per month)
-      const uniqueMonths = new Set(currentYearMetrics.map(m => m.period_start?.substring(0, 7)));
+      const uniqueMonths = new Set(currentYearMetrics.map((m) => m.period_start?.substring(0, 7)));
       const monthsCovered = uniqueMonths.size;
-
 
       // If we have less than 12 months, use enterprise forecasting
       if (monthsCovered < 12) {
@@ -228,7 +227,7 @@ export async function GET(request: NextRequest) {
             // Group by month to get monthly totals
             const monthlyData: { [key: string]: number } = {};
 
-            historicalMetrics.forEach(m => {
+            historicalMetrics.forEach((m) => {
               const month = m.period_start?.substring(0, 7);
               if (month) {
                 monthlyData[month] = (monthlyData[month] || 0) + (m.co2e_emissions || 0);
@@ -240,9 +239,8 @@ export async function GET(request: NextRequest) {
               .sort(([a], [b]) => a.localeCompare(b))
               .map(([month, emissions]) => ({
                 month,
-                emissions: emissions / 1000 // Convert kg to tCO2e
+                emissions: emissions / 1000, // Convert kg to tCO2e
               }));
-
 
             // Use enterprise-grade forecasting
             const remainingMonths = 12 - monthsCovered;
@@ -251,7 +249,6 @@ export async function GET(request: NextRequest) {
             forecastedRemaining = forecast.forecasted.reduce((a, b) => a + b, 0);
             currentYearEmissions = actualEmissions + forecastedRemaining;
             currentYearIsForecast = true;
-
           } else {
             // Fallback: use current year average
             const monthlyAverage = actualEmissions / monthsCovered;
@@ -286,12 +283,12 @@ export async function GET(request: NextRequest) {
         const baselineEmissions = transformedTargets[0]?.baseline_emissions || currentYearEmissions;
 
         // Calculate annual growth/decline rate
-        const annualChangeRate = (currentYearEmissions - baselineEmissions) / baselineEmissions / yearsElapsed;
+        const annualChangeRate =
+          (currentYearEmissions - baselineEmissions) / baselineEmissions / yearsElapsed;
 
         // Project to 2030 using compound growth
         const yearsTo2030 = 2030 - currentYear;
         bauProjection2030 = currentYearEmissions * Math.pow(1 + annualChangeRate, yearsTo2030);
-
       }
     }
 
@@ -300,13 +297,15 @@ export async function GET(request: NextRequest) {
     const { data: metricTargetsExist } = await supabaseAdmin
       .from('metric_targets')
       .select('target_id, baseline_value, baseline_emissions')
-      .in('target_id', transformedTargets.map(t => t.id))
+      .in(
+        'target_id',
+        transformedTargets.map((t) => t.id)
+      )
       .limit(1);
 
     const hasMetricTargets = metricTargetsExist && metricTargetsExist.length > 0;
 
     if (hasMetricTargets) {
-
       // For each target, aggregate from metric targets
       for (const target of transformedTargets) {
         const { data: metricTargets } = await supabaseAdmin
@@ -317,30 +316,31 @@ export async function GET(request: NextRequest) {
 
         if (metricTargets && metricTargets.length > 0) {
           // Sum up baseline emissions (which represent current state after replanning)
-          const aggregatedCurrent = metricTargets.reduce((sum, mt) => sum + (mt.baseline_emissions || 0), 0);
+          const aggregatedCurrent = metricTargets.reduce(
+            (sum, mt) => sum + (mt.baseline_emissions || 0),
+            0
+          );
 
           target.current_emissions = aggregatedCurrent;
           target.is_forecast = false; // This is from metric targets, not forecast
           target.actual_ytd = aggregatedCurrent; // All is "actual" from metric breakdown
           target.forecasted_remaining = 0;
-
         }
       }
     } else if (currentYearEmissions > 0) {
-
       // Original logic: Persist current emissions to database for all targets
       for (const target of transformedTargets) {
         await supabaseAdmin
           .from('sustainability_targets')
           .update({
             current_emissions: currentYearEmissions,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
           .eq('id', target.id);
       }
 
       // Update in-memory objects for response
-      transformedTargets.forEach(target => {
+      transformedTargets.forEach((target) => {
         target.current_emissions = currentYearEmissions;
         target.is_forecast = currentYearIsForecast;
         target.actual_ytd = actualYearToDate;
@@ -359,21 +359,20 @@ export async function GET(request: NextRequest) {
         target.performance_status = newPerformanceStatus;
 
         // Update status based on performance_status
-        target.status = newPerformanceStatus === 'exceeding' || newPerformanceStatus === 'on-track'
-          ? 'on_track'
-          : newPerformanceStatus === 'at-risk'
-            ? 'at_risk'
-            : 'off_track';
+        target.status =
+          newPerformanceStatus === 'exceeding' || newPerformanceStatus === 'on-track'
+            ? 'on_track'
+            : newPerformanceStatus === 'at-risk'
+              ? 'at_risk'
+              : 'off_track';
 
         // Recalculate progress_percentage
         const targetReduction = target.baseline_emissions - target.target_emissions;
         const actualReduction = target.baseline_emissions - currentYearEmissions;
-        const progressPercentage = targetReduction > 0
-          ? (actualReduction / targetReduction) * 100
-          : 0;
+        const progressPercentage =
+          targetReduction > 0 ? (actualReduction / targetReduction) * 100 : 0;
         target.progress_percentage = Math.max(0, Math.min(100, progressPercentage));
       });
-
     }
 
     // Merge calculated targets with existing targets
@@ -382,7 +381,7 @@ export async function GET(request: NextRequest) {
       const targetTypeMap = new Map<string, any>();
 
       // First, add all existing targets
-      transformedTargets.forEach(target => {
+      transformedTargets.forEach((target) => {
         if (target.target_type) {
           targetTypeMap.set(target.target_type, target);
         }
@@ -390,7 +389,7 @@ export async function GET(request: NextRequest) {
 
       // Then, add calculated targets for types that don't exist
       const targetTypes = ['near-term', 'long-term', 'net-zero'];
-      targetTypes.forEach(type => {
+      targetTypes.forEach((type) => {
         if (!targetTypeMap.has(type) && calculatedTargets[type as keyof typeof calculatedTargets]) {
           const calculatedTarget = calculatedTargets[type as keyof typeof calculatedTargets];
 
@@ -413,18 +412,19 @@ export async function GET(request: NextRequest) {
             calculatedTarget.performance_status = newPerformanceStatus;
 
             // Set status based on performance_status
-            calculatedTarget.status = newPerformanceStatus === 'exceeding' || newPerformanceStatus === 'on-track'
-              ? 'on_track'
-              : newPerformanceStatus === 'at-risk'
-                ? 'at_risk'
-                : 'off_track';
+            calculatedTarget.status =
+              newPerformanceStatus === 'exceeding' || newPerformanceStatus === 'on-track'
+                ? 'on_track'
+                : newPerformanceStatus === 'at-risk'
+                  ? 'at_risk'
+                  : 'off_track';
 
             // Calculate progress_percentage
-            const targetReduction = calculatedTarget.baseline_emissions - calculatedTarget.target_emissions;
+            const targetReduction =
+              calculatedTarget.baseline_emissions - calculatedTarget.target_emissions;
             const actualReduction = calculatedTarget.baseline_emissions - currentYearEmissions;
-            const progressPercentage = targetReduction > 0
-              ? (actualReduction / targetReduction) * 100
-              : 0;
+            const progressPercentage =
+              targetReduction > 0 ? (actualReduction / targetReduction) * 100 : 0;
             calculatedTarget.progress_percentage = Math.max(0, Math.min(100, progressPercentage));
           }
 
@@ -434,38 +434,33 @@ export async function GET(request: NextRequest) {
 
       // Convert map back to array, maintaining order: near-term, long-term, net-zero
       transformedTargets = targetTypes
-        .map(type => targetTypeMap.get(type))
-        .filter(t => t !== undefined);
-
+        .map((type) => targetTypeMap.get(type))
+        .filter((t) => t !== undefined);
     }
 
     const totalTime = Date.now() - startTime;
-    console.log(`⚡ Targets API Performance: Total=${totalTime}ms`);
 
     return NextResponse.json({
       targets: transformedTargets,
       summary: {
         total: transformedTargets.length,
-        validated: transformedTargets.filter(t => t.sbti_validated).length,
-        onTrack: transformedTargets.filter(t => t.performance_status === 'on-track' || t.performance_status === 'exceeding').length,
-        atRisk: transformedTargets.filter(t => t.performance_status === 'at-risk').length,
-        offTrack: transformedTargets.filter(t => t.performance_status === 'off-track').length
+        validated: transformedTargets.filter((t) => t.sbti_validated).length,
+        onTrack: transformedTargets.filter(
+          (t) => t.performance_status === 'on-track' || t.performance_status === 'exceeding'
+        ).length,
+        atRisk: transformedTargets.filter((t) => t.performance_status === 'at-risk').length,
+        offTrack: transformedTargets.filter((t) => t.performance_status === 'off-track').length,
       },
-      baselineData // Include baseline data for UI display
+      baselineData, // Include baseline data for UI display
     });
-
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-
     // Get current user
     const user = await getAPIUser(request);
     if (!user) {
@@ -505,7 +500,7 @@ export async function POST(request: NextRequest) {
       sbti_validated: body.sbti_validated || false,
       sbti_ambition: body.sbti_ambition || null,
       is_active: true,
-      created_by: user.id
+      created_by: user.id,
     };
 
     const { data: newTarget, error: insertError } = await supabaseAdmin
@@ -523,7 +518,7 @@ export async function POST(request: NextRequest) {
     try {
       const weightedParams = new URLSearchParams({
         target: (body.target_reduction_percent || 4.2).toString(),
-        baseline_year: body.baseline_year.toString()
+        baseline_year: body.baseline_year.toString(),
       });
 
       const weightedResponse = await fetch(
@@ -546,21 +541,16 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      target: newTarget
+      target: newTarget,
     });
-
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PATCH(request: NextRequest) {
   try {
-
     // Get current user
     const user = await getAPIUser(request);
     if (!user) {
@@ -585,7 +575,7 @@ export async function PATCH(request: NextRequest) {
         current_emissions: body.current_emissions,
         target_status: body.target_status,
         updated_at: new Date().toISOString(),
-        updated_by: user.id
+        updated_by: user.id,
       })
       .eq('id', targetId)
       .select()
@@ -598,15 +588,11 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      target: updatedTarget
+      target: updatedTarget,
     });
-
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -683,13 +669,13 @@ function calculateSBTiTargets(baselineData: any) {
       target_year: 2030,
       target_reduction_percent: 42, // SBTi minimum for 1.5°C
       target_emissions: Math.round(baselineData.total * 0.58 * 10) / 10, // 42% reduction
-      annual_reduction_rate: Math.round(42 / (2030 - baselineData.year) * 10) / 10,
+      annual_reduction_rate: Math.round((42 / (2030 - baselineData.year)) * 10) / 10,
       sbti_validated: false,
       progress_status: 'not_started',
       scope_coverage: scopeCoverage, // Add scope coverage array
       scope_1_2_coverage_percent: 95, // SBTi requirement
       scope_3_coverage_percent: baselineData.scope_3_percentage > 40 ? 67 : null, // Only required if >40%
-      description: `Reduce emissions by 42% by 2030 from ${baselineData.year} baseline (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.58).toFixed(1)} tCO2e)`
+      description: `Reduce emissions by 42% by 2030 from ${baselineData.year} baseline (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.58).toFixed(1)} tCO2e)`,
     },
     'long-term': {
       id: 'calculated-long-term',
@@ -702,14 +688,14 @@ function calculateSBTiTargets(baselineData: any) {
       baseline_scope_3: baselineData.scope_3,
       target_year: 2050,
       target_reduction_percent: 90, // SBTi requirement
-      target_emissions: Math.round(baselineData.total * 0.10 * 10) / 10, // 90% reduction
-      annual_reduction_rate: Math.round(90 / (2050 - baselineData.year) * 10) / 10,
+      target_emissions: Math.round(baselineData.total * 0.1 * 10) / 10, // 90% reduction
+      annual_reduction_rate: Math.round((90 / (2050 - baselineData.year)) * 10) / 10,
       sbti_validated: false,
       progress_status: 'not_started',
       scope_coverage: scopeCoverage, // Add scope coverage array
       scope_1_2_coverage_percent: 95,
       scope_3_coverage_percent: 90, // SBTi requires 90% for long-term
-      description: `Reduce emissions by 90% by 2050 from ${baselineData.year} baseline (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.10).toFixed(1)} tCO2e)`
+      description: `Reduce emissions by 90% by 2050 from ${baselineData.year} baseline (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.1).toFixed(1)} tCO2e)`,
     },
     'net-zero': {
       id: 'calculated-net-zero',
@@ -723,15 +709,15 @@ function calculateSBTiTargets(baselineData: any) {
       target_year: 2050,
       target_reduction_percent: 90, // 90% reduction + 10% neutralization
       target_emissions: 0, // Net-zero means zero
-      annual_reduction_rate: Math.round(90 / (2050 - baselineData.year) * 10) / 10,
+      annual_reduction_rate: Math.round((90 / (2050 - baselineData.year)) * 10) / 10,
       sbti_validated: false,
       progress_status: 'not_started',
       scope_coverage: scopeCoverage, // Add scope coverage array
       scope_1_2_coverage_percent: 95,
       scope_3_coverage_percent: 90,
-      neutralization_plan: `Neutralize residual ${(baselineData.total * 0.10).toFixed(1)} tCO2e through permanent carbon removal`,
+      neutralization_plan: `Neutralize residual ${(baselineData.total * 0.1).toFixed(1)} tCO2e through permanent carbon removal`,
       bvcm_commitment: 'Beyond Value Chain Mitigation to support global net-zero',
-      description: `Achieve net-zero emissions by 2050 through 90% reduction (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.10).toFixed(1)} tCO2e) + neutralization of residual emissions`
-    }
+      description: `Achieve net-zero emissions by 2050 through 90% reduction (${baselineData.total.toFixed(1)} tCO2e → ${(baselineData.total * 0.1).toFixed(1)} tCO2e) + neutralization of residual emissions`,
+    },
   };
 }

@@ -14,39 +14,22 @@ describe('Performance Tests', () => {
       expect(loadTime).to.be.lessThan(3000); // 3 seconds max
     });
 
-    it('should load conversation interface quickly', () => {
-      cy.visit('/dashboard');
-      
-      const startTime = Date.now();
-      cy.get('[data-testid="conversation-interface"]').should('be.visible');
-      
-      const loadTime = Date.now() - startTime;
-      expect(loadTime).to.be.lessThan(1000); // 1 second max
-    });
   });
 
   describe('API Response Times', () => {
-    it('should respond to chat messages quickly', () => {
-      cy.visit('/dashboard');
-      
-      // Measure API response time
-      cy.intercept('POST', '/api/ai/chat', (req) => {
-        req.reply((res) => {
-          res.send({
-            response: 'Test response',
-            conversationId: 'test-123',
-          });
-        });
-      }).as('chatRequest');
-      
+    it('should respond to sustainability intelligence queries quickly', () => {
       const startTime = Date.now();
-      
-      cy.get('[data-testid="chat-input"]').type('Test message');
-      cy.get('[data-testid="send-button"]').click();
-      
-      cy.wait('@chatRequest').then(() => {
+
+      cy.request({
+        method: 'POST',
+        url: '/api/sustainability/intelligence',
+        body: {
+          dashboardType: 'overview'
+        }
+      }).then((response) => {
+        expect(response.status).to.eq(200);
         const responseTime = Date.now() - startTime;
-        expect(responseTime).to.be.lessThan(500); // 500ms max
+        expect(responseTime).to.be.lessThan(2000); // 2 seconds max
       });
     });
 
@@ -80,35 +63,6 @@ describe('Performance Tests', () => {
     });
   });
 
-  describe('Memory Usage', () => {
-    it('should not have memory leaks during conversation', () => {
-      cy.visit('/dashboard');
-      
-      // Get initial memory usage
-      cy.window().then((win) => {
-        if ('performance' in win && 'memory' in (win.performance as any)) {
-          const initialMemory = (win.performance as any).memory.usedJSHeapSize;
-          
-          // Send multiple messages
-          for (let i = 0; i < 10; i++) {
-            cy.get('[data-testid="chat-input"]').type(`Message ${i}`);
-            cy.get('[data-testid="send-button"]').click();
-            cy.wait(100);
-          }
-          
-          // Check memory after operations
-          cy.window().then((win2) => {
-            const finalMemory = (win2.performance as any).memory.usedJSHeapSize;
-            const memoryIncrease = finalMemory - initialMemory;
-            
-            // Memory increase should be reasonable (less than 50MB)
-            expect(memoryIncrease).to.be.lessThan(50 * 1024 * 1024);
-          });
-        }
-      });
-    });
-  });
-
   describe('Bundle Size', () => {
     it('should have optimized JavaScript bundles', () => {
       cy.request('/').then((response) => {
@@ -136,66 +90,6 @@ describe('Performance Tests', () => {
           }
         });
       });
-    });
-  });
-
-  describe('Cache Performance', () => {
-    it('should cache static assets', () => {
-      // First visit
-      cy.visit('/dashboard');
-      
-      // Check that static assets are cached
-      cy.intercept('GET', '/_next/static/**', (req) => {
-        req.reply((res) => {
-          expect(res.headers['cache-control']).to.include('max-age');
-        });
-      });
-      
-      // Second visit should use cache
-      cy.visit('/dashboard');
-    });
-
-    it('should demonstrate AI response caching', () => {
-      cy.visit('/dashboard');
-      
-      const message = 'What is our energy usage?';
-      
-      // First request - not cached
-      cy.get('[data-testid="chat-input"]').type(message);
-      cy.get('[data-testid="send-button"]').click();
-      
-      cy.wait('@aiChat').then((interception) => {
-        expect(interception.response?.body.cached).to.be.false;
-      });
-      
-      // Clear messages
-      cy.reload();
-      
-      // Same request - should be cached
-      cy.get('[data-testid="chat-input"]').type(message);
-      cy.get('[data-testid="send-button"]').click();
-      
-      cy.wait('@aiChat').then((interception) => {
-        expect(interception.response?.body.cached).to.be.true;
-      });
-    });
-  });
-
-  describe('Lazy Loading', () => {
-    it('should lazy load heavy components', () => {
-      cy.visit('/dashboard');
-      
-      // Chart components should not be loaded initially
-      cy.get('script[src*="recharts"]').should('not.exist');
-      
-      // Trigger chart rendering
-      cy.get('[data-testid="chat-input"]').type('Show me energy trends');
-      cy.get('[data-testid="send-button"]').click();
-      
-      cy.waitForAIResponse();
-      
-      // Now chart library should be loaded
-      cy.get('script[src*="recharts"]').should('exist');
     });
   });
 

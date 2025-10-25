@@ -1,8 +1,7 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
-import type { Building } from '@/types/auth';
 import { calculateProgress } from '@/lib/utils/progress-calculation';
-import { debug } from '@/lib/utils/debug';
+import type { Building } from '@/types/auth';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // Query keys for organized cache management
 export const dashboardKeys = {
@@ -32,8 +31,7 @@ export const dashboardKeys = {
     [...dashboardKeys.all, 'emissions', period, siteId] as const,
   transportation: (period: TimePeriod, siteId?: string) =>
     [...dashboardKeys.all, 'transportation', period, siteId] as const,
-  compliance: () =>
-    [...dashboardKeys.all, 'compliance'] as const,
+  compliance: () => [...dashboardKeys.all, 'compliance'] as const,
 };
 
 // Energy Dashboard Hooks
@@ -98,7 +96,11 @@ export function useEnergyForecast(period: TimePeriod, selectedSite?: Building | 
 }
 
 // Comprehensive Energy Dashboard Hook (fetches all data in parallel)
-export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building | null, organizationId?: string) {
+export function useEnergyDashboard(
+  period: TimePeriod,
+  selectedSite?: Building | null,
+  organizationId?: string
+) {
   const params = new URLSearchParams({
     start_date: period.start,
     end_date: period.end,
@@ -129,9 +131,7 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
   // For forecast, always use end of year if viewing current year
   const currentYear = new Date().getFullYear();
   const selectedYear = new Date(period.start).getFullYear();
-  const forecastEndDate = selectedYear === currentYear
-    ? `${currentYear}-12-31`
-    : period.end;
+  const forecastEndDate = selectedYear === currentYear ? `${currentYear}-12-31` : period.end;
 
   const forecastParams = new URLSearchParams({
     start_date: period.start,
@@ -167,14 +167,6 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
     prevParams.append('site_id', selectedSite.id);
   }
 
-  debug.log('📅 Energy YoY Period Comparison:', {
-    current: { start: period.start, end: period.end },
-    previous: {
-      start: previousYearStart.toISOString().split('T')[0],
-      end: previousYearEnd.toISOString().split('T')[0]
-    }
-  });
-
   const prevYearSources = useQuery({
     queryKey: [...dashboardKeys.energySources(period, selectedSite?.id), 'prevYear'],
     queryFn: async () => {
@@ -209,7 +201,11 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
 
   // Fetch sustainability targets (contains baseline_year and target_year)
   const sustainabilityTargets = useQuery({
-    queryKey: [...dashboardKeys.energy(period, selectedSite?.id), 'sustainabilityTargets', organizationId],
+    queryKey: [
+      ...dashboardKeys.energy(period, selectedSite?.id),
+      'sustainabilityTargets',
+      organizationId,
+    ],
     queryFn: async () => {
       const response = await fetch('/api/sustainability/targets');
       if (!response.ok) throw new Error('Failed to fetch sustainability targets');
@@ -225,11 +221,16 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
 
   // Fetch targets data if organizationId is provided
   const targets = useQuery({
-    queryKey: [...dashboardKeys.energy(period, selectedSite?.id), 'targets', organizationId, baselineYear],
+    queryKey: [
+      ...dashboardKeys.energy(period, selectedSite?.id),
+      'targets',
+      organizationId,
+      baselineYear,
+    ],
     queryFn: async () => {
       const categoryParams = new URLSearchParams({
         baseline_year: baselineYear.toString(),
-        categories: 'Electricity,Purchased Energy'
+        categories: 'Electricity,Purchased Energy',
       });
       const response = await fetch(`/api/sustainability/targets/category?${categoryParams}`);
       if (!response.ok) throw new Error('Failed to fetch targets');
@@ -261,7 +262,11 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
 
   // Fetch weighted allocation (fallback when targets are empty)
   const weightedAllocation = useQuery({
-    queryKey: [...dashboardKeys.energy(period, selectedSite?.id), 'weightedAllocation', baselineYear],
+    queryKey: [
+      ...dashboardKeys.energy(period, selectedSite?.id),
+      'weightedAllocation',
+      baselineYear,
+    ],
     queryFn: async () => {
       const allocParams = new URLSearchParams({
         baseline_year: baselineYear.toString(),
@@ -269,7 +274,9 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
       if (selectedSite) {
         allocParams.append('site_id', selectedSite.id);
       }
-      const response = await fetch(`/api/sustainability/targets/weighted-allocation?${allocParams}`);
+      const response = await fetch(
+        `/api/sustainability/targets/weighted-allocation?${allocParams}`
+      );
       if (!response.ok) throw new Error('Failed to fetch weighted allocation');
       return response.json();
     },
@@ -279,32 +286,34 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
 
   // Fetch metric-level targets
   const energyCategories = [
-    'Electricity', 'Purchased Energy', 'Purchased Heating', 'Purchased Cooling', 'Purchased Steam',
-    'Natural Gas', 'Heating Oil', 'Diesel', 'Gasoline', 'Propane',
-    'Heating', 'Cooling', 'Steam'
+    'Electricity',
+    'Purchased Energy',
+    'Purchased Heating',
+    'Purchased Cooling',
+    'Purchased Steam',
+    'Natural Gas',
+    'Heating Oil',
+    'Diesel',
+    'Gasoline',
+    'Propane',
+    'Heating',
+    'Cooling',
+    'Steam',
   ].join(',');
 
-  debug.log('🔍 [useDashboardData] Metric targets enabled check:', {
-    organizationId: !!organizationId,
-    selectedYear,
-    currentYear,
-    yearMatch: selectedYear === currentYear,
-    baselineYear,
-    targetYear,
-    baselineData: !!baselineData.data,
-    baselineLoading: baselineData.isLoading,
-    willEnable: !!organizationId && selectedYear === currentYear && !!baselineData.data
-  });
-
   const metricTargets = useQuery({
-    queryKey: [...dashboardKeys.energy(period, selectedSite?.id), 'metricTargets', 'unified', organizationId],
+    queryKey: [
+      ...dashboardKeys.energy(period, selectedSite?.id),
+      'metricTargets',
+      'unified',
+      organizationId,
+    ],
     queryFn: async () => {
       const url = `/api/sustainability/targets/unified-energy?organizationId=${organizationId}&categories=${encodeURIComponent(energyCategories)}`;
-      debug.log('🔍 [useDashboardData] Fetching unified energy targets from:', url);
+
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch unified energy targets');
       const data = await response.json();
-      debug.log('📊 [useDashboardData] Unified energy targets API response:', data);
 
       return {
         data: data.data || [],
@@ -337,12 +346,19 @@ export function useEnergyDashboard(period: TimePeriod, selectedSite?: Building |
 }
 
 // Energy Site Comparison Hook
-export function useEnergySiteComparison(period: TimePeriod, selectedSite?: Building | null, organizationId?: string) {
+export function useEnergySiteComparison(
+  period: TimePeriod,
+  selectedSite?: Building | null,
+  organizationId?: string
+) {
   const query = useQuery({
-    queryKey: [...dashboardKeys.energy(period, selectedSite?.id), 'siteComparison', 'v4', organizationId],
+    queryKey: [
+      ...dashboardKeys.energy(period, selectedSite?.id),
+      'siteComparison',
+      'v4',
+      organizationId,
+    ],
     queryFn: async () => {
-      debug.log('🔍 Energy Site Comparison Hook: Starting fetch', { period, organizationId });
-
       if (!organizationId) {
         return [];
       }
@@ -379,13 +395,6 @@ export function useEnergySiteComparison(period: TimePeriod, selectedSite?: Build
           // Calculate intensity ourselves (kWh/m²)
           const intensity = totalEnergy / area;
 
-          debug.log(`🔍 Energy site ${site.name}:`, {
-            totalEnergy,
-            area,
-            intensity,
-            fullData: sourcesData
-          });
-
           return {
             id: site.id,
             name: site.name,
@@ -400,8 +409,6 @@ export function useEnergySiteComparison(period: TimePeriod, selectedSite?: Build
 
       const siteData = (await Promise.all(siteDataPromises)).filter(Boolean);
 
-      debug.log('🔍 Energy Site Comparison Final Data:', siteData);
-
       // Sort by intensity (highest first)
       return siteData.sort((a: any, b: any) => b.intensity - a.intensity);
     },
@@ -409,20 +416,22 @@ export function useEnergySiteComparison(period: TimePeriod, selectedSite?: Build
     staleTime: 10 * 60 * 1000,
   });
 
-  debug.log('🔍 Energy Site Comparison Query Result:', {
-    data: query.data,
-    isLoading: query.isLoading,
-    isFetching: query.isFetching,
-    dataUpdatedAt: new Date(query.dataUpdatedAt).toLocaleTimeString()
-  });
-
   return query;
 }
 
 // Water Site Comparison Hook
-export function useWaterSiteComparison(period: TimePeriod, selectedSite?: Building | null, organizationId?: string) {
+export function useWaterSiteComparison(
+  period: TimePeriod,
+  selectedSite?: Building | null,
+  organizationId?: string
+) {
   return useQuery({
-    queryKey: [...dashboardKeys.water(period, selectedSite?.id), 'siteComparison', 'v2', organizationId],
+    queryKey: [
+      ...dashboardKeys.water(period, selectedSite?.id),
+      'siteComparison',
+      'v2',
+      organizationId,
+    ],
     queryFn: async () => {
       if (!organizationId) {
         return [];
@@ -482,9 +491,18 @@ export function useWaterSiteComparison(period: TimePeriod, selectedSite?: Buildi
 }
 
 // Waste Site Comparison Hook
-export function useWasteSiteComparison(period: TimePeriod, selectedSite?: Building | null, organizationId?: string) {
+export function useWasteSiteComparison(
+  period: TimePeriod,
+  selectedSite?: Building | null,
+  organizationId?: string
+) {
   return useQuery({
-    queryKey: [...dashboardKeys.waste(period, selectedSite?.id), 'siteComparison', 'v2', organizationId],
+    queryKey: [
+      ...dashboardKeys.waste(period, selectedSite?.id),
+      'siteComparison',
+      'v2',
+      organizationId,
+    ],
     queryFn: async () => {
       if (!organizationId) {
         return [];
@@ -567,7 +585,11 @@ export function useWaterSources(period: TimePeriod, selectedSite?: Building | nu
 }
 
 // Comprehensive Water Dashboard Hook (fetches all data in parallel)
-export function useWaterDashboard(period: TimePeriod, selectedSite?: Building | null, organizationId?: string) {
+export function useWaterDashboard(
+  period: TimePeriod,
+  selectedSite?: Building | null,
+  organizationId?: string
+) {
   const params = new URLSearchParams({
     start_date: period.start,
     end_date: period.end,
@@ -637,9 +659,8 @@ export function useWaterDashboard(period: TimePeriod, selectedSite?: Building | 
   });
 
   // Fetch forecast data - always use end of year if viewing current year
-  const forecastEndDateWater = selectedYearWater === currentYearWater
-    ? `${currentYearWater}-12-31`
-    : period.end;
+  const forecastEndDateWater =
+    selectedYearWater === currentYearWater ? `${currentYearWater}-12-31` : period.end;
 
   const forecastParamsWater = new URLSearchParams({
     start_date: period.start,
@@ -664,7 +685,11 @@ export function useWaterDashboard(period: TimePeriod, selectedSite?: Building | 
   const selectedYear = new Date(period.start).getFullYear();
 
   const sustainabilityTargets = useQuery({
-    queryKey: [...dashboardKeys.water(period, selectedSite?.id), 'sustainabilityTargets', organizationId],
+    queryKey: [
+      ...dashboardKeys.water(period, selectedSite?.id),
+      'sustainabilityTargets',
+      organizationId,
+    ],
     queryFn: async () => {
       const response = await fetch('/api/sustainability/targets');
       if (!response.ok) throw new Error('Failed to fetch sustainability targets');
@@ -699,7 +724,13 @@ export function useWaterDashboard(period: TimePeriod, selectedSite?: Building | 
 
   // Calculate water target using shared utility
   const waterTarget = useQuery({
-    queryKey: [...dashboardKeys.water(period, selectedSite?.id), 'target', organizationId, baselineYear, targetYear],
+    queryKey: [
+      ...dashboardKeys.water(period, selectedSite?.id),
+      'target',
+      organizationId,
+      baselineYear,
+      targetYear,
+    ],
     queryFn: async () => {
       const defaultTargetPercent = 2.5; // CDP Water Security benchmark
       const yearsSinceBaseline = currentYear - baselineYear;
@@ -713,7 +744,8 @@ export function useWaterDashboard(period: TimePeriod, selectedSite?: Building | 
 
       // Calculate target using compound reduction
       const annualReductionRate = defaultTargetPercent / 100;
-      const targetConsumption = baselineConsumption * Math.pow(1 - annualReductionRate, yearsSinceBaseline);
+      const targetConsumption =
+        baselineConsumption * Math.pow(1 - annualReductionRate, yearsSinceBaseline);
 
       // Project full year consumption
       let projectedFullYear = 0;
@@ -730,11 +762,7 @@ export function useWaterDashboard(period: TimePeriod, selectedSite?: Building | 
       }
 
       // Calculate progress using shared utility
-      const progress = calculateProgress(
-        baselineConsumption,
-        targetConsumption,
-        projectedFullYear
-      );
+      const progress = calculateProgress(baselineConsumption, targetConsumption, projectedFullYear);
 
       return {
         baseline: baselineConsumption,
@@ -749,19 +777,32 @@ export function useWaterDashboard(period: TimePeriod, selectedSite?: Building | 
         baselineYear,
       };
     },
-    enabled: selectedYear === currentYear && !!sources.data && !!baselineData.data && !!forecast.data,
+    enabled:
+      selectedYear === currentYear && !!sources.data && !!baselineData.data && !!forecast.data,
     staleTime: 5 * 60 * 1000,
   });
 
   // Fetch metric-level targets
   const waterCategories = [
-    'Water Consumption', 'Water Withdrawal', 'Water Discharge',
-    'Water Recycling', 'Water Reuse', 'Rainwater Harvesting',
-    'Groundwater', 'Surface Water', 'Municipal Water', 'Wastewater'
+    'Water Consumption',
+    'Water Withdrawal',
+    'Water Discharge',
+    'Water Recycling',
+    'Water Reuse',
+    'Rainwater Harvesting',
+    'Groundwater',
+    'Surface Water',
+    'Municipal Water',
+    'Wastewater',
   ].join(',');
 
   const metricTargets = useQuery({
-    queryKey: [...dashboardKeys.water(period, selectedSite?.id), 'metricTargets', 'unified', organizationId],
+    queryKey: [
+      ...dashboardKeys.water(period, selectedSite?.id),
+      'metricTargets',
+      'unified',
+      organizationId,
+    ],
     queryFn: async () => {
       const url = `/api/sustainability/targets/unified-water?organizationId=${organizationId}&categories=${encodeURIComponent(waterCategories)}`;
       const response = await fetch(url);
@@ -818,7 +859,11 @@ export function useWasteStreams(period: TimePeriod, selectedSite?: Building | nu
 }
 
 // Comprehensive Waste Dashboard Hook (fetches all data in parallel)
-export function useWasteDashboard(period: TimePeriod, selectedSite?: Building | null, organizationId?: string) {
+export function useWasteDashboard(
+  period: TimePeriod,
+  selectedSite?: Building | null,
+  organizationId?: string
+) {
   const params = new URLSearchParams({
     start_date: period.start,
     end_date: period.end,
@@ -888,9 +933,8 @@ export function useWasteDashboard(period: TimePeriod, selectedSite?: Building | 
   });
 
   // Fetch forecast data - always use end of year if viewing current year
-  const forecastEndDateWaste = selectedYearWaste === currentYearWaste
-    ? `${currentYearWaste}-12-31`
-    : period.end;
+  const forecastEndDateWaste =
+    selectedYearWaste === currentYearWaste ? `${currentYearWaste}-12-31` : period.end;
 
   const forecastParamsWaste = new URLSearchParams({
     start_date: period.start,
@@ -915,7 +959,11 @@ export function useWasteDashboard(period: TimePeriod, selectedSite?: Building | 
   const selectedYear = new Date(period.start).getFullYear();
 
   const sustainabilityTargets = useQuery({
-    queryKey: [...dashboardKeys.waste(period, selectedSite?.id), 'sustainabilityTargets', organizationId],
+    queryKey: [
+      ...dashboardKeys.waste(period, selectedSite?.id),
+      'sustainabilityTargets',
+      organizationId,
+    ],
     queryFn: async () => {
       const response = await fetch('/api/sustainability/targets');
       if (!response.ok) throw new Error('Failed to fetch sustainability targets');
@@ -950,15 +998,27 @@ export function useWasteDashboard(period: TimePeriod, selectedSite?: Building | 
 
   // Fetch metric-level targets for current year
   const wasteCategories = [
-    'Waste', 'Waste to Landfill', 'Waste Incinerated',
-    'Paper & Cardboard Recycling', 'Plastic Recycling', 'Metal Recycling',
-    'Glass Recycling', 'Mixed Materials Recycling',
-    'Food Waste Composting', 'Garden Waste Composting',
-    'E-Waste', 'Hazardous Waste'
+    'Waste',
+    'Waste to Landfill',
+    'Waste Incinerated',
+    'Paper & Cardboard Recycling',
+    'Plastic Recycling',
+    'Metal Recycling',
+    'Glass Recycling',
+    'Mixed Materials Recycling',
+    'Food Waste Composting',
+    'Garden Waste Composting',
+    'E-Waste',
+    'Hazardous Waste',
   ].join(',');
 
   const metricTargets = useQuery({
-    queryKey: [...dashboardKeys.waste(period, selectedSite?.id), 'metricTargets', 'unified', organizationId],
+    queryKey: [
+      ...dashboardKeys.waste(period, selectedSite?.id),
+      'metricTargets',
+      'unified',
+      organizationId,
+    ],
     queryFn: async () => {
       const url = `/api/sustainability/targets/unified-waste?organizationId=${organizationId}&categories=${encodeURIComponent(wasteCategories)}`;
       const response = await fetch(url);
@@ -993,7 +1053,11 @@ export function useWasteDashboard(period: TimePeriod, selectedSite?: Building | 
 }
 
 // Comprehensive Emissions Dashboard Hook (fetches all data in parallel)
-export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Building | null, organizationId?: string) {
+export function useEmissionsDashboard(
+  period: TimePeriod,
+  selectedSite?: Building | null,
+  organizationId?: string
+) {
   const params = new URLSearchParams({
     start_date: period.start,
     end_date: period.end,
@@ -1046,7 +1110,9 @@ export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Buildin
   const trajectory = useQuery({
     queryKey: [...dashboardKeys.emissions(period, selectedSite?.id), 'trajectory', organizationId],
     queryFn: async () => {
-      const response = await fetch(`/api/sustainability/targets/trajectory?organizationId=${organizationId}`);
+      const response = await fetch(
+        `/api/sustainability/targets/trajectory?organizationId=${organizationId}`
+      );
       if (!response.ok) throw new Error('Failed to fetch trajectory');
       const data = await response.json();
       return data.success && data.hasReplanning ? data : null;
@@ -1059,7 +1125,9 @@ export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Buildin
   const feasibility = useQuery({
     queryKey: [...dashboardKeys.emissions(period, selectedSite?.id), 'feasibility', organizationId],
     queryFn: async () => {
-      const response = await fetch(`/api/sustainability/targets/feasibility?organizationId=${organizationId}`);
+      const response = await fetch(
+        `/api/sustainability/targets/feasibility?organizationId=${organizationId}`
+      );
       if (!response.ok) throw new Error('Failed to fetch feasibility');
       const data = await response.json();
       return data.success ? data.feasibility : null;
@@ -1073,7 +1141,11 @@ export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Buildin
   const selectedYearForEmissions = new Date(period.start).getFullYear();
 
   const sustainabilityTargets = useQuery({
-    queryKey: [...dashboardKeys.emissions(period, selectedSite?.id), 'sustainabilityTargets', organizationId],
+    queryKey: [
+      ...dashboardKeys.emissions(period, selectedSite?.id),
+      'sustainabilityTargets',
+      organizationId,
+    ],
     queryFn: async () => {
       const response = await fetch('/api/sustainability/targets');
       if (!response.ok) throw new Error('Failed to fetch sustainability targets');
@@ -1085,21 +1157,47 @@ export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Buildin
 
   // 7. Fetch metric-level targets using unified API
   const emissionCategories = [
-    'Natural Gas', 'Heating Oil', 'Diesel', 'Gasoline', 'Propane',
-    'Refrigerants', 'Fugitive Emissions', 'Heating', 'Cooling',
-    'Stationary Combustion', 'Mobile Combustion',
-    'Electricity', 'Purchased Energy', 'Purchased Heating', 'Purchased Cooling', 'Purchased Steam',
-    'Transportation', 'Business Travel', 'Employee Commuting',
-    'Upstream Transportation', 'Downstream Transportation',
-    'Waste', 'Purchased Goods', 'Capital Goods',
-    'Fuel and Energy Related', 'Upstream Leased Assets',
-    'Processing of Sold Products', 'Use of Sold Products',
-    'End of Life', 'Downstream Leased Assets',
-    'Franchises', 'Investments'
+    'Natural Gas',
+    'Heating Oil',
+    'Diesel',
+    'Gasoline',
+    'Propane',
+    'Refrigerants',
+    'Fugitive Emissions',
+    'Heating',
+    'Cooling',
+    'Stationary Combustion',
+    'Mobile Combustion',
+    'Electricity',
+    'Purchased Energy',
+    'Purchased Heating',
+    'Purchased Cooling',
+    'Purchased Steam',
+    'Transportation',
+    'Business Travel',
+    'Employee Commuting',
+    'Upstream Transportation',
+    'Downstream Transportation',
+    'Waste',
+    'Purchased Goods',
+    'Capital Goods',
+    'Fuel and Energy Related',
+    'Upstream Leased Assets',
+    'Processing of Sold Products',
+    'Use of Sold Products',
+    'End of Life',
+    'Downstream Leased Assets',
+    'Franchises',
+    'Investments',
   ].join(',');
 
   const metricTargets = useQuery({
-    queryKey: [...dashboardKeys.emissions(period, selectedSite?.id), 'metricTargets', 'unified', organizationId],
+    queryKey: [
+      ...dashboardKeys.emissions(period, selectedSite?.id),
+      'metricTargets',
+      'unified',
+      organizationId,
+    ],
     queryFn: async () => {
       const url = `/api/sustainability/targets/unified-emissions?organizationId=${organizationId}&categories=${encodeURIComponent(emissionCategories)}`;
       const response = await fetch(url);
@@ -1112,7 +1210,10 @@ export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Buildin
         configuration: data.configuration,
       };
     },
-    enabled: !!organizationId && selectedYearForEmissions === currentYearForEmissions && !!sustainabilityTargets.data,
+    enabled:
+      !!organizationId &&
+      selectedYearForEmissions === currentYearForEmissions &&
+      !!sustainabilityTargets.data,
     staleTime: 5 * 60 * 1000,
     refetchOnMount: false,
   });
@@ -1155,7 +1256,11 @@ export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Buildin
   }
 
   const fullPrevYearScopeAnalysis = useQuery({
-    queryKey: [...dashboardKeys.emissions(period, selectedSite?.id), 'scopeAnalysis', 'fullPrevYear'],
+    queryKey: [
+      ...dashboardKeys.emissions(period, selectedSite?.id),
+      'scopeAnalysis',
+      'fullPrevYear',
+    ],
     queryFn: async () => {
       const response = await fetch(`/api/sustainability/scope-analysis?${fullPrevYearParams}`);
       if (!response.ok) throw new Error('Failed to fetch full previous year scope analysis');
@@ -1167,9 +1272,8 @@ export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Buildin
   // 9. Fetch forecast data - always use end of year if viewing current year
   const currentYearEmissions = new Date().getFullYear();
   const selectedYearEmissions = new Date(period.start).getFullYear();
-  const forecastEndDateEmissions = selectedYearEmissions === currentYearEmissions
-    ? `${currentYearEmissions}-12-31`
-    : period.end;
+  const forecastEndDateEmissions =
+    selectedYearEmissions === currentYearEmissions ? `${currentYearEmissions}-12-31` : period.end;
 
   const forecast = useQuery({
     queryKey: [...dashboardKeys.emissions(period, selectedSite?.id), 'forecast', 'v2'], // Added v2 to force cache invalidation
@@ -1263,7 +1367,11 @@ export function useEmissionsDashboard(period: TimePeriod, selectedSite?: Buildin
 }
 
 // Comprehensive Overview Dashboard Hook (fetches all data in parallel)
-export function useOverviewDashboard(period: TimePeriod, selectedSite?: Building | null, organizationId?: string) {
+export function useOverviewDashboard(
+  period: TimePeriod,
+  selectedSite?: Building | null,
+  organizationId?: string
+) {
   const params = new URLSearchParams({
     start_date: period.start,
     end_date: period.end,
@@ -1349,7 +1457,11 @@ export function useOverviewDashboard(period: TimePeriod, selectedSite?: Building
 
   // 4. Fetch full previous year scope analysis (for YoY projection)
   const fullPrevYearScopeAnalysis = useQuery({
-    queryKey: [...dashboardKeys.overview(period, selectedSite?.id), 'scopeAnalysis', 'fullPrevYear'],
+    queryKey: [
+      ...dashboardKeys.overview(period, selectedSite?.id),
+      'scopeAnalysis',
+      'fullPrevYear',
+    ],
     queryFn: async () => {
       const response = await fetch(`/api/sustainability/scope-analysis?${fullPrevYearParams}`);
       if (!response.ok) throw new Error('Failed to fetch full previous year scope analysis');
@@ -1379,9 +1491,8 @@ export function useOverviewDashboard(period: TimePeriod, selectedSite?: Building
   // 6. Fetch forecast data - always use end of year if viewing current year
   const currentYearOverview = new Date().getFullYear();
   const selectedYearOverview = new Date(period.start).getFullYear();
-  const forecastEndDateOverview = selectedYearOverview === currentYearOverview
-    ? `${currentYearOverview}-12-31`
-    : period.end;
+  const forecastEndDateOverview =
+    selectedYearOverview === currentYearOverview ? `${currentYearOverview}-12-31` : period.end;
 
   const forecastParamsOverview = new URLSearchParams({
     start_date: period.start,
@@ -1631,7 +1742,11 @@ export function usePrefetchDashboard() {
 }
 
 // Comprehensive Transportation Dashboard Hook (fetches all data in parallel)
-export function useTransportationDashboard(period: TimePeriod, selectedSite?: Building | null, organizationId?: string) {
+export function useTransportationDashboard(
+  period: TimePeriod,
+  selectedSite?: Building | null,
+  organizationId?: string
+) {
   // 1. Fleet data
   const fleet = useQuery({
     queryKey: [...dashboardKeys.transportation(period, selectedSite?.id), 'fleet'],
@@ -1696,7 +1811,9 @@ export function useTransportationDashboard(period: TimePeriod, selectedSite?: Bu
       const allocParams = new URLSearchParams({
         baseline_year: (currentYear - 1).toString(),
       });
-      const response = await fetch(`/api/sustainability/targets/weighted-allocation?${allocParams}`);
+      const response = await fetch(
+        `/api/sustainability/targets/weighted-allocation?${allocParams}`
+      );
       if (!response.ok) throw new Error('Failed to fetch target allocation');
       return response.json();
     },
@@ -1712,7 +1829,8 @@ export function useTransportationDashboard(period: TimePeriod, selectedSite?: Bu
     commute,
     logistics,
     targetAllocation,
-    isLoading: fleet.isLoading || businessTravel.isLoading || commute.isLoading || logistics.isLoading,
+    isLoading:
+      fleet.isLoading || businessTravel.isLoading || commute.isLoading || logistics.isLoading,
     isError: fleet.isError || businessTravel.isError || commute.isError || logistics.isError,
     error: fleet.error || businessTravel.error || commute.error || logistics.error,
   };

@@ -1,0 +1,45 @@
+name: Codex Plan Check
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *' # Daily at 06:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  codex-plan:
+    runs-on: ubuntu-latest
+    env:
+      EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+      FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+      VERCEL_API_KEY: ${{ secrets.VERCEL_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare Codex output directory
+        run: mkdir -p codex-outputs
+
+      - name: Agent configuration audit (read-only)
+        uses: openai/codex-action@v1
+        with:
+          command: >
+            exec --profile blipee-os --sandbox read-only --plan --json
+            --output-last-message codex-outputs/agent-audit.json
+            "Review the autonomous agent configuration and produce a status report highlighting missing migrations, failing MCP servers, or follow-up tasks."
+
+      - name: Outstanding TODO synthesis (read-only)
+        uses: openai/codex-action@v1
+        with:
+          command: >
+            exec --profile blipee-os --sandbox read-only --plan --json
+            --output-last-message codex-outputs/todo-plan.json
+            "Scan the repository for TODO or FIXME notes related to autonomous agents and outline concrete next steps."
+
+      - name: Upload Codex summaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: codex-plan-summaries
+          path: codex-outputs

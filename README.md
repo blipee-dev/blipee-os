@@ -1,6 +1,6 @@
-# blipee OS - AI-Powered Sustainability Platform
+# blipee OS – AI-Powered Sustainability Platform
 
-> Transform how humans interact with buildings and sustainability data through conversational AI. No dashboards. No complex forms. Just intelligent dialogue that creates dynamic visualizations and actionable insights.
+> Transform how organizations understand and act on sustainability data through autonomous intelligence layered on top of production-ready dashboards.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fblipee-dev%2Fblipee-os)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-blue?style=flat-square&logo=vercel)](https://blipee-os.vercel.app)
@@ -10,50 +10,31 @@
 
 ## 🚀 Overview
 
-blipee OS is a comprehensive sustainability and building management platform that revolutionizes how organizations interact with their environmental data. Originally conceived as a building management system, it has evolved into a sustainability-first platform where building management is just one of many modules.
+blipee OS is a sustainability-first platform that unifies emissions, energy, water, waste, and compliance data into a single operating system. The latest architecture centres on autonomous intelligence that enriches dashboards with proactive insights, forecasts, and recommendations tailored to each organization and site.
 
-**Key Differentiator:** Everything is conversational. Users interact through natural language, and the AI dynamically generates visualizations, insights, and actions based on context.
+**Key Differentiator:** The Sustainability Intelligence Layer coordinates eight autonomous agents that run continuously, augmenting every dashboard with context-aware alerts, targets, and optimisation paths.
 
 ## ✨ Core Capabilities
 
-### 🤖 Conversational AI Engine
-- **Natural Language Processing** - Understand complex sustainability queries and building management requests
-- **Multi-Provider Intelligence** - Seamlessly switches between DeepSeek, OpenAI, and Anthropic
-- **Context-Aware Responses** - Maintains conversation history and understands user intent
-- **Dynamic UI Generation** - Creates charts, reports, and controls on-the-fly
-- **Voice Control** - Hands-free operation with speech recognition
-- **Document Intelligence** - Upload and analyze invoices, reports, and sustainability documents
+### ♻️ Sustainability Intelligence Layer
+- **Autonomous Agents** – Carbon Hunter, Compliance Guardian, ESG Chief of Staff, and more operate 24/7.
+- **Dashboard Enrichment** – `/api/sustainability/intelligence` returns insights, recommendations, and alerts tuned to each dashboard.
+- **Five-Minute Caching** – Intelligent cache avoids redundant agent work while keeping outputs fresh.
+- **Graceful Degradation** – Individual agent failures do not break the intelligence pipeline.
 
-### 🤖 Autonomous AI Employees
-Revolutionary 24/7 AI agents that work independently to manage sustainability operations:
+### 📈 Sustainability Dashboards
+- **Energy, Water, Waste** – Rich time-series analysis, YoY comparisons, and forecast overlays.
+- **Emissions & Targets** – Site-aware baselines, SBTi-aligned projections, and unified emissions tracking.
+- **Transportation & Compliance** – Fleet, travel, commuting, and regulatory KPIs with automated status checks.
+- **Portfolio Views** – Roll-up scoring, performance index, and cross-site benchmarking.
 
-- **👔 ESG Chief of Staff** - Strategic sustainability leadership and stakeholder coordination
-- **🔍 Carbon Hunter** - Autonomous emissions tracking, detection, and optimization
-- **🛡️ Compliance Guardian** - Regulatory monitoring, filing, and deadline management
-- **🕵️ Supply Chain Investigator** - Deep supplier analysis and risk assessment
-
-**Framework Features:**
-- **Autonomous Decision Making** - AI agents make decisions within approved parameters
-- **Human-AI Collaboration** - Smart approval workflows for critical actions
-- **Continuous Learning** - Agents improve performance based on feedback
-- **Task Orchestration** - Intelligent workload distribution and scheduling
-- **Risk Assessment** - Built-in risk evaluation for all autonomous actions
-
-### 📊 Sustainability Intelligence Suite
-Our AI provides 12 comprehensive sustainability capabilities:
-
-1. **Emissions Tracking** - Automated Scope 1/2/3 calculations with 15 categories
-2. **Energy Management** - Real-time monitoring, predictions, and optimization
-3. **Water Conservation** - Usage tracking, leak detection, and reduction strategies
-4. **Waste Analytics** - Diversion rates, circular economy metrics
-5. **Supply Chain Analysis** - Vendor sustainability scores and emissions
-6. **Regulatory Compliance** - Multi-jurisdiction tracking and reporting
-7. **ESG Reporting** - Automated generation for all major frameworks
-8. **Carbon Markets** - Offset recommendations and trading insights
-9. **Climate Risk Assessment** - Weather integration and risk modeling
-10. **Benchmarking** - Industry and peer performance comparisons
-11. **Goal Management** - Science-based targets with progress tracking
-12. **Document Parsing** - Extract emissions data from any document format
+### 📊 Analytics & Forecasting Suite
+1. **Emissions Tracking** – Automated Scope 1/2/3 calculations across 15+ categories.
+2. **Energy Management** – Real-time monitoring, anomaly detection, and demand forecasting.
+3. **Water & Waste Analytics** – Withdrawal vs discharge tracking, diversion rates, circular economy metrics.
+4. **Supply Chain Analysis** – Vendor sustainability scoring and scope three attribution.
+5. **Compliance Automation** – Multi-framework coverage (GHG, GRI, ESRS, etc.) with status dashboards.
+6. **ESG Reporting** – Science-based target validation, yearly progress, and unified emissions summaries.
 
 ### 🏢 Enterprise Architecture
 
@@ -88,11 +69,10 @@ Our AI provides 12 comprehensive sustainability capabilities:
 - Consistent styling throughout the platform
 
 #### Key User Interfaces
-- **Conversation Interface** - Primary interaction method with file upload support
-- **Performance Dashboard** - Real-time system metrics and monitoring
-- **Settings Center** - Comprehensive configuration for all platform features
-- **API Management** - Developer portal for API keys and webhooks
-- **Security Center** - MFA setup, SSO configuration, audit logs
+- **Sustainability Dashboards** – Energy, emissions, compliance, transportation, waste, and water hubs.
+- **Targets & Forecasting Workspace** – Weighted allocations, dynamic metric targets, unified emissions tracking.
+- **Settings & Security Centers** – Tenant management, MFA/SSO controls, and audit logs.
+- **Developer Portal** – API documentation, SDK guides, and integration workflows.
 
 ## 🛠️ Technical Architecture
 
@@ -100,9 +80,9 @@ Our AI provides 12 comprehensive sustainability capabilities:
 - **Framework:** Next.js 14 with App Router
 - **Language:** TypeScript 5.0 with strict mode
 - **Styling:** Tailwind CSS with custom glass morphism utilities
-- **State Management:** React Context + SWR for data fetching
+- **State Management:** React Context + @tanstack/react-query (with persistent cache)
 - **UI Components:** Custom component library with Radix UI primitives
-- **Charts & Visualization:** Recharts for dynamic data visualization
+- **Charts & Visualization:** Recharts and custom SVG components
 - **Animation:** Framer Motion for smooth transitions
 
 ### Backend Infrastructure
@@ -116,9 +96,10 @@ Our AI provides 12 comprehensive sustainability capabilities:
 ### AI & Machine Learning
 - **Primary Provider:** DeepSeek R1 for cost-effective inference
 - **Fallback Providers:** OpenAI GPT-4, Anthropic Claude
-- **Caching Strategy:** Semantic similarity matching for responses
-- **Context Building:** Intelligent context aggregation from multiple sources
-- **Document Processing:** OCR + AI for data extraction
+- **Autonomous Agents:** 8 domain-specific agents orchestrated by the Sustainability Intelligence layer
+- **Forecasting:** Enterprise forecaster with seasonal decomposition and Prophet-style additive models
+- **Caching Strategy:** Semantic similarity and domain-specific TTL caches
+- **Context Building:** Dashboard-driven context plus sector intelligence lookups
 
 ### DevOps & Monitoring
 - **Hosting:** Vercel with automatic scaling
@@ -197,6 +178,11 @@ ELECTRICITY_MAPS_API_KEY=carbon_key
 - **Role Permissions** - Account Owner, Sustainability Manager, Facility Manager, Analyst, Viewer
 - **Team Management** - Invitation system with email verification
 - **Usage Tracking** - Per-organization metrics and billing
+
+### Sustainability Intelligence Roadmap
+- **Current** – Agent-driven intelligence rendered within dashboards via `/api/sustainability/intelligence`.
+- **Upcoming** – Conversational UX returns as an overlay to the dashboard experience, reusing the intelligence layer for responses and actions.
+- **Future** – Deeper workflow automation (ticketing, approvals) and expanded sector materiality models.
 
 ### Comprehensive Monitoring
 - **Performance Dashboard** (`/settings/performance`)

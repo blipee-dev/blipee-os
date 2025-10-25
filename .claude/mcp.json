@@ -1,0 +1,61 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-supabase"],
+      "env": {
+        "SUPABASE_URL": "https://quovvwrwyfkzhgqdeham.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgyOTIyMiwiZXhwIjoyMDY3NDA1MjIyfQ.3Tua91dJQ9obteac_y9aSD6IEGMO04rkg7Z8sM88yOI"
+      }
+    },
+    "exa": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-exa"],
+      "env": {
+        "EXA_API_KEY": "cf6be639-60b8-42e5-be8e-c039566582bd"
+      }
+    },
+    "firecrawl": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "fc-1d70f13a214d4c7ab6d8e0d03caed6c4"
+      }
+    },
+    "docling": {
+      "command": "uvx",
+      "args": ["mcp-server-docling"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"]
+    },
+    "vercel": {
+      "command": "npx",
+      "args": ["-y", "vercel-mcp", "VERCEL_API_KEY=5B4fXGNEvj7mtjlH9WKj5JEE"]
+    },
+    "boikot": {
+      "url": "https://mcp.boikot.xyz/mcp",
+      "transport": "streamableHttp"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"
+      }
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "puppeteer-mcp-server"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/pedro/Documents/blipee/blipee-os/blipee-os"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    }
+  }
+}

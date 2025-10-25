@@ -19,12 +19,10 @@ const recordMetric = (name: string, value: number, labels?: Record<string, strin
 
 // Routes that require authentication
 const protectedRoutes = [
-  '/blipee-ai',
   '/settings',
   '/sustainability',
   '/profile',
   '/api/ai',
-  '/api/conversations',
   '/api/organizations',
   '/api/documents',
   '/api/files',
@@ -116,7 +114,7 @@ if (typeof setInterval !== 'undefined') {
  * Clean corrupted cookies from the request
  * Note: "base64-" prefix is valid for Supabase SSR cookies
  */
-function cleanCorruptedCookies(request: NextRequest): void {
+function cleanCorruptedCookies(_request: NextRequest): void {
   // Currently disabled - "base64-" prefix is valid for Supabase cookies
   // Keeping function for future use if needed
   return;
@@ -130,16 +128,6 @@ export async function middleware(request: NextRequest) {
              request.headers.get('x-real-ip') ||
              '127.0.0.1';
 
-  console.log('🌐 [Middleware] ENTRY POINT -', method, path);
-  const allCookies = request.cookies.getAll();
-  console.log('🍪 [Middleware] Request cookies at entry:', allCookies.map(c => c.name).join(', ') || 'none');
-  // Debug: Show session cookie
-  if (allCookies.length > 0 && process.env.NODE_ENV === 'development') {
-    const sessionCookie = request.cookies.get('blipee-session');
-    if (sessionCookie) {
-      console.log('🔑 [Middleware] Session cookie present');
-    }
-  }
 
   // Clean corrupted cookies from the request
   cleanCorruptedCookies(request);
@@ -160,7 +148,6 @@ export async function middleware(request: NextRequest) {
   try {
     const loggingResponse = await loggingMiddleware(request);
     if (loggingResponse.status !== 200 && loggingResponse !== NextResponse.next()) {
-      console.log('⚠️ [Middleware] Logging returned early, skipping executeMiddleware!');
       return loggingResponse;
     }
   } catch (error) {
@@ -171,7 +158,6 @@ export async function middleware(request: NextRequest) {
     // Continue even if logging fails
   }
 
-  console.log('➡️ [Middleware] Calling executeMiddleware');
   // Continue with the rest of the middleware logic
   return executeMiddleware(request, path, method, ip, startTime);
 }
@@ -183,16 +169,9 @@ async function executeMiddleware(
   ip: string,
   startTime: number
 ): Promise<NextResponse> {
-
-  console.log('🚀 [Middleware] executeMiddleware called for:', path);
-  console.log('📦 [Middleware] Request cookies:', request.cookies.getAll().map(c => c.name).join(', ') || 'none');
-
   // CRITICAL: Validate session cookie
   // This MUST happen before any auth checks to ensure user is authenticated
   const { response, user } = await updateSession(request);
-
-  console.log('✨ [Middleware] After updateSession, response has cookies:',
-    Array.from(response.cookies.getAll()).map(c => c.name).join(', ') || 'none');
 
   // Apply CSRF protection for API routes (except auth endpoints)
   // Auth endpoints need to work without CSRF tokens for initial authentication
@@ -309,6 +288,7 @@ async function executeMiddleware(
     }
   }
 
+
   // Record metrics for this request
   const duration = Date.now() - startTime;
   recordMetric('httprequests_total', 1, { method, path, status: statusCode.toString() });
@@ -324,20 +304,8 @@ async function executeMiddleware(
     });
   }
 
-  console.log('🎯 [Middleware] Auth response cookies before security headers:',
-    Array.from(authResponse.cookies.getAll()).map(c => c.name).join(', ') || 'none');
-
   // Apply security headers to all responses
   const finalResponse = applySecurityHeaders(authResponse, request);
-
-  console.log('🏁 [Middleware] Returning response with cookies:',
-    Array.from(finalResponse.cookies.getAll()).map(c => c.name).join(', ') || 'none');
-
-  // CRITICAL DEBUG: Check if applySecurityHeaders is removing cookies
-  if (process.env.NODE_ENV === 'development' && authResponse.cookies.getAll().length !== finalResponse.cookies.getAll().length) {
-    console.error('⚠️ [Middleware] WARNING: applySecurityHeaders changed cookie count!');
-    console.error('   Before:', authResponse.cookies.getAll().length, 'After:', finalResponse.cookies.getAll().length);
-  }
 
   return finalResponse;
 }

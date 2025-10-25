@@ -82,3 +82,8 @@ temp/
 scripts/set-password-*.js
 scripts/set-password-*.ts
 scripts/set-user-password.*
+
+# Build artifacts and generated files
+.playwright-mcp/
+codex-outputs/
+data/temp-docling/

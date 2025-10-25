@@ -5,7 +5,6 @@
 
 import { createAuthenticatedRequest } from '@/test/utils/api-test-helpers';
 import { POST as signInHandler } from '@/app/api/auth/signin/route';
-import { POST as chatHandler } from '@/app/api/ai/chat/route';
 import { POST as uploadHandler } from '@/app/api/files/upload/route';
 import { jest } from '@jest/globals';
 

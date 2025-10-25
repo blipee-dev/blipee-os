@@ -12,10 +12,10 @@
  * - Development: Set CACHE_TTL_MINUTES to 0 to disable caching
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { performanceScorer } from '@/lib/ai/performance-scoring/blipee-performance-index';
 import { getAPIUser } from '@/lib/auth/server-auth';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { performanceScorer } from '@/lib/ai/performance-scoring/blipee-performance-index';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Cache configuration
 const CACHE_TTL_MINUTES = 5; // Set to 0 to disable caching, or increase for production
@@ -25,16 +25,12 @@ export async function GET(
   { params }: { params: { organizationId: string } }
 ) {
   try {
-    console.log('🎯 Portfolio scoring API called for org:', params.organizationId);
-
     // Verify user has access to this organization
     const user = await getAPIUser(request);
     if (!user) {
-      console.log('❌ No user found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('✅ User authenticated:', user.id);
     const { organizationId } = params;
 
     // Check user access
@@ -46,28 +42,22 @@ export async function GET(
       .single();
 
     if (!userOrg) {
-      console.log('❌ User does not have access to org');
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-
-    console.log('✅ User has access to organization');
 
     // Check for force refresh parameter
     const searchParams = request.nextUrl.searchParams;
     const forceRefresh = searchParams.get('force') === 'true';
 
-    if (forceRefresh) {
-      console.log('🔄 Force refresh requested, skipping cache');
-    }
-
     // Get latest portfolio score from database
-    console.log('🔍 Looking for existing portfolio score...');
     const { data: latestScore } = await supabaseAdmin
       .from('performance_scores')
-      .select(`
+      .select(
+        `
         *,
         category_scores (*)
-      `)
+      `
+      )
       .eq('organization_id', organizationId)
       .eq('is_portfolio_score', true)
       .order('calculated_at', { ascending: false })
@@ -77,23 +67,16 @@ export async function GET(
     // Check if we should recalculate based on cache TTL
     const CACHE_TTL_MS = CACHE_TTL_MINUTES * 60 * 1000;
     const now = new Date();
-    const shouldRecalculate = !latestScore
-      || forceRefresh
-      || (CACHE_TTL_MINUTES > 0 && new Date(now.getTime() - new Date(latestScore.calculated_at).getTime()).getTime() > CACHE_TTL_MS);
+    const shouldRecalculate =
+      !latestScore ||
+      forceRefresh ||
+      (CACHE_TTL_MINUTES > 0 &&
+        new Date(now.getTime() - new Date(latestScore.calculated_at).getTime()).getTime() >
+          CACHE_TTL_MS);
 
     if (shouldRecalculate) {
-      if (!latestScore) {
-        console.log('📊 No existing score found, calculating new portfolio score...');
-      } else if (forceRefresh) {
-        console.log('📊 Force refresh requested, recalculating portfolio score...');
-      } else {
-        const ageMinutes = Math.floor((now.getTime() - new Date(latestScore.calculated_at).getTime()) / 60000);
-        console.log(`📊 Score is ${ageMinutes} minutes old (TTL: ${CACHE_TTL_MINUTES} min), recalculating...`);
-      }
-
       // Calculate new score
       const score = await performanceScorer.calculatePortfolioScore(organizationId);
-      console.log('✅ Portfolio score calculated:', score.overallScore);
 
       // Save to database
       const { data: savedScore } = await supabaseAdmin
@@ -142,8 +125,9 @@ export async function GET(
     }
 
     // Return cached score
-    const ageMinutes = Math.floor((now.getTime() - new Date(latestScore.calculated_at).getTime()) / 60000);
-    console.log(`✅ Returning cached portfolio score: ${latestScore.overall_score}/100 (age: ${ageMinutes} min, TTL: ${CACHE_TTL_MINUTES} min)`);
+    const ageMinutes = Math.floor(
+      (now.getTime() - new Date(latestScore.calculated_at).getTime()) / 60000
+    );
 
     // Transform database format to API format
     const response = transformDatabaseScore(latestScore);

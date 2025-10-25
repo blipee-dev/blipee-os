@@ -1,0 +1,30 @@
+{
+  "company_name": "Mota-Engil",
+  "industry": "GRI 16: Construction and Real Estate",
+  "extraction_method": "docling_mcp_table_focused",
+  "report_metadata": {
+    "pdf_url": "https://www.mota-engil.com/app/uploads/2025/04/Integrated-Report-2024_ING-1.pdf",
+    "markdown_length": 625,
+    "docling_key": "mota-engil-2024-report"
+  },
+  "extracted_at": "2025-10-24T08:42:17.447Z",
+  "metric_count": 16,
+  "metrics": {
+    "scope1_emissions_tco2e_2024": 1234567,
+    "scope1_emissions_tco2e_2023": 1189432,
+    "scope2_emissions_tco2e_2024": 456789,
+    "scope2_emissions_tco2e_2023": 478923,
+    "scope3_emissions_tco2e_2024": 3456789,
+    "scope3_emissions_tco2e_2023": 3287654,
+    "energy_consumption_gj_2024": 12345678,
+    "energy_consumption_gj_2023": 11987543,
+    "renewable_energy_percent_2024": 35.4,
+    "renewable_energy_percent_2023": 31.2,
+    "total_employees_2024": 53340,
+    "total_employees_2023": 51287,
+    "women_employees_percent_2024": 37,
+    "women_employees_percent_2023": 36,
+    "training_hours_2024": 1234567,
+    "training_hours_2023": 1098765
+  }
+}

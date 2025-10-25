@@ -376,7 +376,7 @@ function CategoryScoresDisplay({
   };
 
   return (
-    <div>
+    <div className="overflow-hidden">
       <div className="flex items-center gap-2 mb-4 relative group">
         <Layers className="w-5 h-5 text-purple-600 dark:text-purple-400" />
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white cursor-help">
@@ -384,7 +384,7 @@ function CategoryScoresDisplay({
         </h3>
 
         {/* Tooltip */}
-        <div className="absolute left-0 top-full mt-1 w-96 p-3 bg-gradient-to-br from-blue-900/95 to-purple-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-blue-500/30">
+        <div className="absolute left-0 top-full mt-1 w-80 sm:w-96 max-w-[90vw] p-3 bg-gradient-to-br from-blue-900/95 to-purple-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-blue-500/30">
           <p className="font-semibold text-white text-sm mb-2">
             {tIndex('categoryScores.tooltip.title')}
           </p>
@@ -423,17 +423,17 @@ function CategoryScoresDisplay({
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 overflow-hidden">
         {categories.map(([category, score]: [string, any], index) => (
           <motion.div
             key={category}
             initial={animated ? { opacity: 0, x: -20 } : undefined}
             animate={animated ? { opacity: 1, x: 0 } : undefined}
             transition={{ duration: 0.3, delay: index * 0.05 }}
-            className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[220px_auto_auto] gap-3 items-center pl-2 sm:pl-4"
+            className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[220px_auto_auto] gap-3 items-center pl-2 sm:pl-4 overflow-hidden"
           >
             {/* Column 1: Icon and name */}
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2 min-w-0 overflow-hidden">
               {getCategoryIcon(category)}
               <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
                 {tIndex(`categoryScores.categories.${category}`) || formatCategoryName(category)}

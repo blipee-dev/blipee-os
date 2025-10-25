@@ -1,0 +1,27 @@
+{
+  "name": "Agent Audit Workflow",
+  "description": "Runs lightweight read-only prompts to check agent configuration health and summarize outstanding TODOs.",
+  "profile": "blipee-os",
+  "target": "blipee-os",
+  "plan": true,
+  "steps": [
+    {
+      "id": "agent-config-audit",
+      "prompt": "In 150 words or less, summarize the current autonomous-agent setup (MCP servers, migrations, orchestrators) using quick repository inspection. Focus on whether any required MCP configs or migrations are missing.",
+      "sandbox": "read-only",
+      "approval": "on-request",
+      "outputFile": "codex-outputs/agent-config-audit.json",
+      "tags": ["audit", "agents"],
+      "timeoutMs": 180000
+    },
+    {
+      "id": "agent-todo-review",
+      "prompt": "List the top three TODO or FIXME items related to autonomous agents found in the repository. Return a short bullet list with file references.",
+      "sandbox": "read-only",
+      "approval": "on-request",
+      "outputFile": "codex-outputs/agent-todo-review.json",
+      "tags": ["todo", "agents"],
+      "timeoutMs": 120000
+    }
+  ]
+}

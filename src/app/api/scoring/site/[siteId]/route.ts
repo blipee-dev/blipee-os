@@ -5,10 +5,10 @@
  * POST /api/scoring/site/[siteId] - Recalculate score
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { performanceScorer } from '@/lib/ai/performance-scoring/blipee-performance-index';
 import { getAPIUser } from '@/lib/auth/server-auth';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { performanceScorer } from '@/lib/ai/performance-scoring/blipee-performance-index';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
@@ -49,23 +49,21 @@ export async function GET(
     // Get latest score from database
     const { data: latestScores } = await supabaseAdmin
       .from('performance_scores')
-      .select(`
+      .select(
+        `
         *,
         category_scores (*)
-      `)
+      `
+      )
       .eq('site_id', siteId)
       .order('calculated_at', { ascending: false })
       .limit(1);
 
     const latestScore = latestScores?.[0];
 
-    console.log('📊 Latest score query result:', { found: !!latestScore, count: latestScores?.length });
-
     if (!latestScore) {
-      console.log('📊 No existing score found, calculating new site score...');
       // No score exists, calculate one
       const score = await performanceScorer.calculateSiteScore(siteId);
-      console.log('✅ Site score calculated:', score.overallScore);
 
       // Save to database
       const { data: savedScore } = await supabaseAdmin
@@ -111,7 +109,7 @@ export async function GET(
 
         // Save opportunities
         if (score.topOpportunities && score.topOpportunities.length > 0) {
-          const opportunityInserts = score.topOpportunities.map(opp => ({
+          const opportunityInserts = score.topOpportunities.map((opp) => ({
             performance_score_id: savedScore.id,
             category: opp.category,
             action: opp.action,
@@ -138,7 +136,7 @@ export async function GET(
     console.error('Error details:', {
       message: error.message,
       code: error.code,
-      stack: error.stack?.split('\n').slice(0, 3).join('\n')
+      stack: error.stack?.split('\n').slice(0, 3).join('\n'),
     });
     return NextResponse.json(
       { error: 'Failed to fetch performance score', details: error.message },
@@ -237,7 +235,7 @@ export async function POST(
 
       // Save opportunities
       if (score.topOpportunities && score.topOpportunities.length > 0) {
-        const opportunityInserts = score.topOpportunities.map(opp => ({
+        const opportunityInserts = score.topOpportunities.map((opp) => ({
           performance_score_id: savedScore.id,
           category: opp.category,
           action: opp.action,

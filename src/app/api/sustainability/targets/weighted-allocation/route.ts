@@ -1,109 +1,216 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { getAPIUser } from '@/lib/auth/server-auth';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getCategoryBreakdown } from '@/lib/sustainability/baseline-calculator';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Effort factors based on abatement potential and technology readiness
 // Comprehensive mapping for ALL possible metrics_catalog categories
 const CATEGORY_EFFORT_FACTORS = {
   // ===== SCOPE 1: Direct Emissions =====
-  'Stationary Combustion': { effortFactor: 1.2, reason: 'Medium-high: fuel switching, efficiency gains, heat recovery' },
-  'Mobile Combustion': { effortFactor: 1.0, reason: 'Medium: fleet electrification, route optimization, alternative fuels' },
-  'Fugitive Emissions': { effortFactor: 0.8, reason: 'Low-medium: leak detection, equipment upgrades, refrigerant management' },
-  'Process Emissions': { effortFactor: 0.7, reason: 'Low-medium: process redesign, carbon capture, material substitution' },
-  'Natural Gas': { effortFactor: 1.2, reason: 'Medium-high: electrification, biogas, efficiency improvements' },
-  'Diesel': { effortFactor: 1.1, reason: 'Medium-high: biodiesel, electrification, fuel efficiency' },
-  'Gasoline': { effortFactor: 1.1, reason: 'Medium-high: EV transition, ethanol blends, efficiency' },
-  'LPG': { effortFactor: 1.1, reason: 'Medium-high: electrification, bioLPG, efficiency' },
-  'Coal': { effortFactor: 1.3, reason: 'High: phase-out feasible, renewable alternatives available' },
+  'Stationary Combustion': {
+    effortFactor: 1.2,
+    reason: 'Medium-high: fuel switching, efficiency gains, heat recovery',
+  },
+  'Mobile Combustion': {
+    effortFactor: 1.0,
+    reason: 'Medium: fleet electrification, route optimization, alternative fuels',
+  },
+  'Fugitive Emissions': {
+    effortFactor: 0.8,
+    reason: 'Low-medium: leak detection, equipment upgrades, refrigerant management',
+  },
+  'Process Emissions': {
+    effortFactor: 0.7,
+    reason: 'Low-medium: process redesign, carbon capture, material substitution',
+  },
+  'Natural Gas': {
+    effortFactor: 1.2,
+    reason: 'Medium-high: electrification, biogas, efficiency improvements',
+  },
+  Diesel: { effortFactor: 1.1, reason: 'Medium-high: biodiesel, electrification, fuel efficiency' },
+  Gasoline: { effortFactor: 1.1, reason: 'Medium-high: EV transition, ethanol blends, efficiency' },
+  LPG: { effortFactor: 1.1, reason: 'Medium-high: electrification, bioLPG, efficiency' },
+  Coal: { effortFactor: 1.3, reason: 'High: phase-out feasible, renewable alternatives available' },
   'Fuel Oil': { effortFactor: 1.2, reason: 'Medium-high: fuel switching, electrification' },
 
   // ===== SCOPE 2: Indirect Energy Emissions =====
-  'Purchased Energy': { effortFactor: 1.4, reason: 'High: renewable procurement, grid mix improvement, PPAs' },
-  'Electricity': { effortFactor: 1.4, reason: 'High: renewable energy, efficiency, on-site generation' },
-  'District Heating': { effortFactor: 1.1, reason: 'Medium-high: renewable district heating, building efficiency' },
-  'District Cooling': { effortFactor: 1.1, reason: 'Medium-high: efficient systems, renewable cooling' },
-  'Steam': { effortFactor: 1.0, reason: 'Medium: efficiency, waste heat recovery, renewable sources' },
+  'Purchased Energy': {
+    effortFactor: 1.4,
+    reason: 'High: renewable procurement, grid mix improvement, PPAs',
+  },
+  Electricity: {
+    effortFactor: 1.4,
+    reason: 'High: renewable energy, efficiency, on-site generation',
+  },
+  'District Heating': {
+    effortFactor: 1.1,
+    reason: 'Medium-high: renewable district heating, building efficiency',
+  },
+  'District Cooling': {
+    effortFactor: 1.1,
+    reason: 'Medium-high: efficient systems, renewable cooling',
+  },
+  Steam: {
+    effortFactor: 1.0,
+    reason: 'Medium: efficiency, waste heat recovery, renewable sources',
+  },
 
   // ===== SCOPE 3: Value Chain Emissions =====
   // Category 1: Purchased Goods & Services
-  'Purchased Goods': { effortFactor: 0.7, reason: 'Low-medium: supplier engagement, material substitution, circularity' },
-  'Purchased Goods & Services': { effortFactor: 0.7, reason: 'Low-medium: supplier standards, procurement policies' },
-  'Services': { effortFactor: 0.8, reason: 'Low-medium: vendor selection, service optimization' },
+  'Purchased Goods': {
+    effortFactor: 0.7,
+    reason: 'Low-medium: supplier engagement, material substitution, circularity',
+  },
+  'Purchased Goods & Services': {
+    effortFactor: 0.7,
+    reason: 'Low-medium: supplier standards, procurement policies',
+  },
+  Services: { effortFactor: 0.8, reason: 'Low-medium: vendor selection, service optimization' },
 
   // Category 2: Capital Goods
-  'Capital Goods': { effortFactor: 0.6, reason: 'Low: long lifecycle, limited control, supplier collaboration' },
+  'Capital Goods': {
+    effortFactor: 0.6,
+    reason: 'Low: long lifecycle, limited control, supplier collaboration',
+  },
 
   // Category 3: Fuel & Energy Related Activities
   'Fuel Production': { effortFactor: 0.9, reason: 'Medium: renewable fuel selection, efficiency' },
-  'Transmission & Distribution Losses': { effortFactor: 1.2, reason: 'Medium-high: renewable energy reduces T&D emissions' },
+  'Transmission & Distribution Losses': {
+    effortFactor: 1.2,
+    reason: 'Medium-high: renewable energy reduces T&D emissions',
+  },
 
   // Category 4: Upstream Transportation
-  'Upstream Transport': { effortFactor: 0.8, reason: 'Low-medium: logistics optimization, supplier proximity' },
-  'Inbound Logistics': { effortFactor: 0.8, reason: 'Low-medium: route optimization, mode shifting' },
+  'Upstream Transport': {
+    effortFactor: 0.8,
+    reason: 'Low-medium: logistics optimization, supplier proximity',
+  },
+  'Inbound Logistics': {
+    effortFactor: 0.8,
+    reason: 'Low-medium: route optimization, mode shifting',
+  },
 
   // Category 5: Waste Generated in Operations
-  'Waste': { effortFactor: 1.3, reason: 'High: waste reduction, recycling, composting, circular economy' },
+  Waste: {
+    effortFactor: 1.3,
+    reason: 'High: waste reduction, recycling, composting, circular economy',
+  },
   'Solid Waste': { effortFactor: 1.3, reason: 'High: reduction, diversion, recycling programs' },
-  'Hazardous Waste': { effortFactor: 0.9, reason: 'Medium: reduction, proper disposal, material substitution' },
-  'Wastewater': { effortFactor: 1.0, reason: 'Medium: treatment efficiency, water conservation' },
+  'Hazardous Waste': {
+    effortFactor: 0.9,
+    reason: 'Medium: reduction, proper disposal, material substitution',
+  },
+  Wastewater: { effortFactor: 1.0, reason: 'Medium: treatment efficiency, water conservation' },
 
   // Category 6: Business Travel
-  'Business Travel': { effortFactor: 1.1, reason: 'Medium-high: virtual meetings, policy changes, sustainable modes' },
+  'Business Travel': {
+    effortFactor: 1.1,
+    reason: 'Medium-high: virtual meetings, policy changes, sustainable modes',
+  },
   'Air Travel': { effortFactor: 1.0, reason: 'Medium: video conferencing, travel policy, SAF' },
-  'Rail Travel': { effortFactor: 1.2, reason: 'Medium-high: already low-carbon, modal shift opportunity' },
-  'Road Travel': { effortFactor: 1.1, reason: 'Medium-high: EV rentals, carpooling, public transport' },
+  'Rail Travel': {
+    effortFactor: 1.2,
+    reason: 'Medium-high: already low-carbon, modal shift opportunity',
+  },
+  'Road Travel': {
+    effortFactor: 1.1,
+    reason: 'Medium-high: EV rentals, carpooling, public transport',
+  },
   'Hotel Stays': { effortFactor: 0.9, reason: 'Medium: sustainable accommodation policies' },
 
   // Category 7: Employee Commuting
-  'Employee Commuting': { effortFactor: 0.9, reason: 'Medium: remote work, public transport, EV incentives' },
-  'Commuting': { effortFactor: 0.9, reason: 'Medium: flexible work, transit benefits, bike programs' },
+  'Employee Commuting': {
+    effortFactor: 0.9,
+    reason: 'Medium: remote work, public transport, EV incentives',
+  },
+  Commuting: {
+    effortFactor: 0.9,
+    reason: 'Medium: flexible work, transit benefits, bike programs',
+  },
 
   // Category 8: Upstream Leased Assets
-  'Upstream Leased Assets': { effortFactor: 0.7, reason: 'Low-medium: green lease clauses, energy efficiency' },
+  'Upstream Leased Assets': {
+    effortFactor: 0.7,
+    reason: 'Low-medium: green lease clauses, energy efficiency',
+  },
 
   // Category 9: Downstream Transportation
-  'Downstream Transport': { effortFactor: 0.8, reason: 'Low-medium: logistics optimization, low-carbon shipping' },
-  'Distribution': { effortFactor: 0.8, reason: 'Low-medium: route optimization, efficient vehicles' },
-  'Transport': { effortFactor: 0.9, reason: 'Medium: logistics optimization, mode shifting, efficient fleet' },
+  'Downstream Transport': {
+    effortFactor: 0.8,
+    reason: 'Low-medium: logistics optimization, low-carbon shipping',
+  },
+  Distribution: { effortFactor: 0.8, reason: 'Low-medium: route optimization, efficient vehicles' },
+  Transport: {
+    effortFactor: 0.9,
+    reason: 'Medium: logistics optimization, mode shifting, efficient fleet',
+  },
 
   // Category 10: Processing of Sold Products
-  'Processing Sold Products': { effortFactor: 0.6, reason: 'Low: limited control, customer engagement' },
+  'Processing Sold Products': {
+    effortFactor: 0.6,
+    reason: 'Low: limited control, customer engagement',
+  },
 
   // Category 11: Use of Sold Products
-  'Product Use': { effortFactor: 0.6, reason: 'Low: product design, energy efficiency, customer education' },
+  'Product Use': {
+    effortFactor: 0.6,
+    reason: 'Low: product design, energy efficiency, customer education',
+  },
 
   // Category 12: End-of-Life Treatment
-  'End-of-Life': { effortFactor: 0.8, reason: 'Low-medium: design for circularity, take-back programs' },
+  'End-of-Life': {
+    effortFactor: 0.8,
+    reason: 'Low-medium: design for circularity, take-back programs',
+  },
 
   // Category 13: Downstream Leased Assets
-  'Downstream Leased Assets': { effortFactor: 0.7, reason: 'Low-medium: tenant engagement, green leases' },
+  'Downstream Leased Assets': {
+    effortFactor: 0.7,
+    reason: 'Low-medium: tenant engagement, green leases',
+  },
 
   // Category 14: Franchises
-  'Franchises': { effortFactor: 0.7, reason: 'Low-medium: franchise standards, support programs' },
+  Franchises: { effortFactor: 0.7, reason: 'Low-medium: franchise standards, support programs' },
 
   // Category 15: Investments
-  'Investments': { effortFactor: 0.6, reason: 'Low: portfolio decarbonization, engagement' },
+  Investments: { effortFactor: 0.6, reason: 'Low: portfolio decarbonization, engagement' },
 
   // ===== RESOURCE CONSUMPTION =====
-  'Water': { effortFactor: 1.0, reason: 'Medium: efficiency improvements, recycling, local sourcing' },
-  'Water Consumption': { effortFactor: 1.0, reason: 'Medium: conservation, recycling, smart meters' },
+  Water: {
+    effortFactor: 1.0,
+    reason: 'Medium: efficiency improvements, recycling, local sourcing',
+  },
+  'Water Consumption': {
+    effortFactor: 1.0,
+    reason: 'Medium: conservation, recycling, smart meters',
+  },
   'Water Withdrawal': { effortFactor: 1.0, reason: 'Medium: efficiency, treatment, reuse systems' },
-  'Paper': { effortFactor: 1.2, reason: 'Medium-high: digitalization, recycled content, reduction' },
-  'Materials': { effortFactor: 0.8, reason: 'Low-medium: material efficiency, recycled content' },
+  Paper: { effortFactor: 1.2, reason: 'Medium-high: digitalization, recycled content, reduction' },
+  Materials: { effortFactor: 0.8, reason: 'Low-medium: material efficiency, recycled content' },
 
   // ===== REFRIGERANTS & CHEMICALS =====
-  'Refrigerants': { effortFactor: 1.1, reason: 'Medium-high: natural refrigerants, leak prevention, recovery' },
-  'Chemicals': { effortFactor: 0.8, reason: 'Low-medium: green chemistry, substitution, efficiency' },
+  Refrigerants: {
+    effortFactor: 1.1,
+    reason: 'Medium-high: natural refrigerants, leak prevention, recovery',
+  },
+  Chemicals: { effortFactor: 0.8, reason: 'Low-medium: green chemistry, substitution, efficiency' },
 
   // ===== OTHER CATEGORIES =====
-  'Renewable Energy': { effortFactor: 1.5, reason: 'Very high: scaling renewable generation, storage' },
-  'Carbon Offsets': { effortFactor: 0.5, reason: 'Low: supplementary to direct reductions, verification needed' },
-  'Land Use': { effortFactor: 0.7, reason: 'Low-medium: reforestation, sustainable land management' },
+  'Renewable Energy': {
+    effortFactor: 1.5,
+    reason: 'Very high: scaling renewable generation, storage',
+  },
+  'Carbon Offsets': {
+    effortFactor: 0.5,
+    reason: 'Low: supplementary to direct reductions, verification needed',
+  },
+  'Land Use': {
+    effortFactor: 0.7,
+    reason: 'Low-medium: reforestation, sustainable land management',
+  },
 
   // Default for any uncategorized metrics
-  'Other': { effortFactor: 1.0, reason: 'Default: requires specific analysis based on context' }
+  Other: { effortFactor: 1.0, reason: 'Default: requires specific analysis based on context' },
 };
 
 interface CategoryAllocation {
@@ -120,7 +227,6 @@ interface CategoryAllocation {
 
 export async function GET(request: NextRequest) {
   try {
-
     // Get current user
     const user = await getAPIUser(request);
     if (!user) {
@@ -141,7 +247,8 @@ export async function GET(request: NextRequest) {
     const organizationId = memberData.organization_id;
     const { searchParams } = new URL(request.url);
     const overallTarget = parseFloat(searchParams.get('target') || '4.2'); // Default SBTi 1.5°C
-    const baselineYear = parseInt(searchParams.get('baseline_year') || new Date().getFullYear().toString()) - 1;
+    const baselineYear =
+      parseInt(searchParams.get('baseline_year') || new Date().getFullYear().toString()) - 1;
     const siteId = searchParams.get('site_id');
     const categoriesParam = searchParams.get('categories'); // Optional: filter by specific categories
 
@@ -149,7 +256,12 @@ export async function GET(request: NextRequest) {
     const startDate = `${baselineYear}-01-01`;
     const endDate = `${baselineYear}-12-31`;
 
-    const categoryBreakdown = await getCategoryBreakdown(organizationId, startDate, endDate, siteId || undefined);
+    const categoryBreakdown = await getCategoryBreakdown(
+      organizationId,
+      startDate,
+      endDate,
+      siteId || undefined
+    );
 
     // Note: categoriesParam filtering not yet supported by calculator
     // TODO: Extend calculator to support category filtering if needed
@@ -161,7 +273,7 @@ export async function GET(request: NextRequest) {
     const categoryEmissions = new Map<string, number>();
     let totalEmissions = 0;
 
-    categoryBreakdown.forEach(cat => {
+    categoryBreakdown.forEach((cat) => {
       categoryEmissions.set(cat.category, cat.total * 1000); // Convert back to kg for consistency with old code
       totalEmissions += cat.total * 1000;
     });
@@ -197,7 +309,7 @@ export async function GET(request: NextRequest) {
         effortFactor: categoryConfig.effortFactor,
         reason: categoryConfig.reason,
         absoluteTarget: absoluteTarget / 1000, // Convert to tons
-        feasibility
+        feasibility,
       });
     });
 
@@ -205,13 +317,14 @@ export async function GET(request: NextRequest) {
     allocations.sort((a, b) => b.emissionPercent - a.emissionPercent);
 
     // Calculate weighted average to verify it matches overall target
-    const weightedAverage = allocations.reduce((sum, alloc) =>
-      sum + (alloc.adjustedTargetPercent * alloc.emissionPercent / 100), 0
+    const weightedAverage = allocations.reduce(
+      (sum, alloc) => sum + (alloc.adjustedTargetPercent * alloc.emissionPercent) / 100,
+      0
     );
 
     // Normalize if needed to match overall target exactly
     const normalizationFactor = overallTarget / weightedAverage;
-    allocations.forEach(alloc => {
+    allocations.forEach((alloc) => {
       alloc.adjustedTargetPercent *= normalizationFactor;
       // Recalculate absolute target with normalized percentage
       alloc.absoluteTarget = alloc.currentEmissions * (1 - alloc.adjustedTargetPercent / 100);
@@ -223,27 +336,23 @@ export async function GET(request: NextRequest) {
       totalEmissions: totalEmissions / 1000, // tons
       allocations,
       summary: {
-        highFeasibility: allocations.filter(a => a.feasibility === 'high').length,
-        mediumFeasibility: allocations.filter(a => a.feasibility === 'medium').length,
-        lowFeasibility: allocations.filter(a => a.feasibility === 'low').length,
-        weightedAverage: allocations.reduce((sum, alloc) =>
-          sum + (alloc.adjustedTargetPercent * alloc.emissionPercent / 100), 0
-        )
-      }
+        highFeasibility: allocations.filter((a) => a.feasibility === 'high').length,
+        mediumFeasibility: allocations.filter((a) => a.feasibility === 'medium').length,
+        lowFeasibility: allocations.filter((a) => a.feasibility === 'low').length,
+        weightedAverage: allocations.reduce(
+          (sum, alloc) => sum + (alloc.adjustedTargetPercent * alloc.emissionPercent) / 100,
+          0
+        ),
+      },
     });
-
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-
     // Get current user
     const user = await getAPIUser(request);
     if (!user) {
@@ -267,8 +376,6 @@ export async function POST(request: NextRequest) {
     const baselineYear = parseInt(searchParams.get('baseline_year') || '2023');
     const targetYear = parseInt(searchParams.get('target_year') || '2025');
 
-    console.log(`📊 POST weighted allocation: target=${overallTarget}%, baseline=${baselineYear}, targetYear=${targetYear}`);
-
     // Get category breakdown from baseline year
     const startDate = `${baselineYear}-01-01`;
     const endDate = `${baselineYear}-12-31`;
@@ -278,7 +385,7 @@ export async function POST(request: NextRequest) {
     const categoryEmissions = new Map<string, number>();
     let totalEmissions = 0;
 
-    categoryBreakdown.forEach(cat => {
+    categoryBreakdown.forEach((cat) => {
       categoryEmissions.set(cat.category, cat.total * 1000); // kg
       totalEmissions += cat.total * 1000;
     });
@@ -288,7 +395,9 @@ export async function POST(request: NextRequest) {
 
     categoryEmissions.forEach((emissions, category) => {
       const emissionPercent = totalEmissions > 0 ? (emissions / totalEmissions) * 100 : 0;
-      const categoryConfig = CATEGORY_EFFORT_FACTORS[category as keyof typeof CATEGORY_EFFORT_FACTORS] || CATEGORY_EFFORT_FACTORS['Other'];
+      const categoryConfig =
+        CATEGORY_EFFORT_FACTORS[category as keyof typeof CATEGORY_EFFORT_FACTORS] ||
+        CATEGORY_EFFORT_FACTORS['Other'];
       const baselineTargetPercent = overallTarget * (emissionPercent / 100);
       const adjustedTargetPercent = baselineTargetPercent * categoryConfig.effortFactor;
       const absoluteTarget = emissions * (1 - adjustedTargetPercent / 100);
@@ -306,16 +415,17 @@ export async function POST(request: NextRequest) {
         effortFactor: categoryConfig.effortFactor,
         reason: categoryConfig.reason,
         absoluteTarget: absoluteTarget / 1000,
-        feasibility
+        feasibility,
       });
     });
 
     // Normalize
-    const weightedAverage = allocations.reduce((sum, alloc) =>
-      sum + (alloc.adjustedTargetPercent * alloc.emissionPercent / 100), 0
+    const weightedAverage = allocations.reduce(
+      (sum, alloc) => sum + (alloc.adjustedTargetPercent * alloc.emissionPercent) / 100,
+      0
     );
     const normalizationFactor = overallTarget / weightedAverage;
-    allocations.forEach(alloc => {
+    allocations.forEach((alloc) => {
       alloc.adjustedTargetPercent *= normalizationFactor;
       alloc.absoluteTarget = alloc.currentEmissions * (1 - alloc.adjustedTargetPercent / 100);
     });
@@ -334,14 +444,38 @@ export async function POST(request: NextRequest) {
     // Helper function to determine scope from category
     const getCategoryScope = (category: string): string => {
       // Scope 2 categories
-      if (['Electricity', 'Purchased Energy', 'Purchased Heating', 'Purchased Cooling', 'Purchased Steam',
-           'District Heating', 'District Cooling', 'Steam'].includes(category)) {
+      if (
+        [
+          'Electricity',
+          'Purchased Energy',
+          'Purchased Heating',
+          'Purchased Cooling',
+          'Purchased Steam',
+          'District Heating',
+          'District Cooling',
+          'Steam',
+        ].includes(category)
+      ) {
         return 'scope_2';
       }
       // Scope 1 categories
-      if (['Natural Gas', 'Diesel', 'Gasoline', 'Propane', 'Heating Oil', 'LPG', 'Coal', 'Fuel Oil',
-           'Stationary Combustion', 'Mobile Combustion', 'Fugitive Emissions', 'Process Emissions',
-           'Refrigerants'].includes(category)) {
+      if (
+        [
+          'Natural Gas',
+          'Diesel',
+          'Gasoline',
+          'Propane',
+          'Heating Oil',
+          'LPG',
+          'Coal',
+          'Fuel Oil',
+          'Stationary Combustion',
+          'Mobile Combustion',
+          'Fugitive Emissions',
+          'Process Emissions',
+          'Refrigerants',
+        ].includes(category)
+      ) {
         return 'scope_1';
       }
       // Everything else is Scope 3
@@ -349,7 +483,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Insert new category targets (matching actual schema)
-    const categoryTargetsToInsert = allocations.map(alloc => ({
+    const categoryTargetsToInsert = allocations.map((alloc) => ({
       organization_id: organizationId,
       category: alloc.category,
       scope: getCategoryScope(alloc.category),
@@ -363,7 +497,7 @@ export async function POST(request: NextRequest) {
       feasibility: alloc.feasibility,
       allocation_reason: alloc.reason,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }));
 
     const { error: insertError } = await supabaseAdmin
@@ -378,8 +512,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`✅ Saved ${allocations.length} category targets`);
-
     return NextResponse.json({
       success: true,
       message: `Created ${allocations.length} category targets`,
@@ -387,9 +519,8 @@ export async function POST(request: NextRequest) {
       baselineYear,
       targetYear,
       totalEmissions: totalEmissions / 1000,
-      allocations
+      allocations,
     });
-
   } catch (error: any) {
     console.error('POST API Error:', error);
     return NextResponse.json(

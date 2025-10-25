@@ -1,0 +1,553 @@
+{
+  "summary": {
+    "total_companies": 72,
+    "total_fields_defined": 10091,
+    "total_fields_filled": 9545,
+    "total_empty_fields": 546,
+    "average_fill_rate": 94.58923793479337,
+    "user_requirement": 93,
+    "gap_to_requirement": -1.589237934793374,
+    "companies_meeting_requirement": 64
+  },
+  "by_company": [
+    {
+      "company": "ABB",
+      "defined": 176,
+      "filled": 176,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Anglo American",
+      "defined": 150,
+      "filled": 150,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Archer Daniels Midland",
+      "defined": 156,
+      "filled": 156,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Bank of America",
+      "defined": 172,
+      "filled": 172,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "BHP",
+      "defined": 56,
+      "filled": 56,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "BlackRock",
+      "defined": 127,
+      "filled": 127,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Boliden",
+      "defined": 152,
+      "filled": 152,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Brookfield Asset Management",
+      "defined": 143,
+      "filled": 143,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Bunge",
+      "defined": 168,
+      "filled": 168,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Cargill",
+      "defined": 112,
+      "filled": 112,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Carrefour",
+      "defined": 152,
+      "filled": 152,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Caterpillar",
+      "defined": 85,
+      "filled": 85,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "CBRE Group",
+      "defined": 146,
+      "filled": 146,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Cisco Systems",
+      "defined": 82,
+      "filled": 82,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Coca-Cola Company",
+      "defined": 107,
+      "filled": 107,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Danone",
+      "defined": 152,
+      "filled": 152,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Delta Air Lines",
+      "defined": 66,
+      "filled": 66,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Deutsche Telekom",
+      "defined": 121,
+      "filled": 121,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Eni",
+      "defined": 52,
+      "filled": 52,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Equinor",
+      "defined": 81,
+      "filled": 81,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Ericsson",
+      "defined": 207,
+      "filled": 207,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "ExxonMobil",
+      "defined": 176,
+      "filled": 176,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "FedEx",
+      "defined": 237,
+      "filled": 237,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Fortescue Metals",
+      "defined": 113,
+      "filled": 113,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Freeport-McMoRan",
+      "defined": 101,
+      "filled": 101,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Galp Energia",
+      "defined": 163,
+      "filled": 163,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "General Electric",
+      "defined": 189,
+      "filled": 189,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Glencore",
+      "defined": 146,
+      "filled": 146,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "H&M Group",
+      "defined": 156,
+      "filled": 156,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Honeywell",
+      "defined": 159,
+      "filled": 159,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Hormel Foods",
+      "defined": 179,
+      "filled": 179,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "IKEA",
+      "defined": 153,
+      "filled": 153,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "JPMorgan Chase",
+      "defined": 171,
+      "filled": 171,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "LKAB",
+      "defined": 157,
+      "filled": 157,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Maersk",
+      "defined": 151,
+      "filled": 151,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Shell",
+      "defined": 167,
+      "filled": 167,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Morgan Stanley",
+      "defined": 180,
+      "filled": 180,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Navigator Company",
+      "defined": 128,
+      "filled": 128,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Newmont Corporation",
+      "defined": 154,
+      "filled": 154,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Nokia",
+      "defined": 176,
+      "filled": 176,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Norsk Hydro",
+      "defined": 105,
+      "filled": 105,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "OMV",
+      "defined": 96,
+      "filled": 96,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "PepsiCo",
+      "defined": 145,
+      "filled": 145,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Prologis",
+      "defined": 191,
+      "filled": 191,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Repsol",
+      "defined": 50,
+      "filled": 50,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Rio Tinto",
+      "defined": 110,
+      "filled": 110,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Royal DSM",
+      "defined": 110,
+      "filled": 110,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "SAP",
+      "defined": 207,
+      "filled": 207,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Schneider Electric",
+      "defined": 143,
+      "filled": 143,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Shell",
+      "defined": 173,
+      "filled": 173,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Siemens",
+      "defined": 202,
+      "filled": 202,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Simon Property Group",
+      "defined": 166,
+      "filled": 166,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Skanska",
+      "defined": 120,
+      "filled": 120,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Carrefour",
+      "defined": 108,
+      "filled": 108,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Shell",
+      "defined": 180,
+      "filled": 180,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Tesco",
+      "defined": 164,
+      "filled": 164,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Tesla",
+      "defined": 95,
+      "filled": 95,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "TotalEnergies",
+      "defined": 185,
+      "filled": 185,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Unilever",
+      "defined": 22,
+      "filled": 22,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "United Airlines",
+      "defined": 140,
+      "filled": 140,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "UPS",
+      "defined": 121,
+      "filled": 121,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Vinci",
+      "defined": 169,
+      "filled": 169,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Vodafone",
+      "defined": 231,
+      "filled": 231,
+      "empty": 0,
+      "fillRate": 100
+    },
+    {
+      "company": "Bouygues",
+      "defined": 208,
+      "filled": 197,
+      "empty": 11,
+      "fillRate": 94.71153846153845
+    },
+    {
+      "company": "Carrefour",
+      "defined": 173,
+      "filled": 156,
+      "empty": 17,
+      "fillRate": 90.17341040462428
+    },
+    {
+      "company": "Nestlé",
+      "defined": 140,
+      "filled": 84,
+      "empty": 56,
+      "fillRate": 60
+    },
+    {
+      "company": "SAP",
+      "defined": 109,
+      "filled": 58,
+      "empty": 51,
+      "fillRate": 53.21100917431193
+    },
+    {
+      "company": "Vale",
+      "defined": 197,
+      "filled": 60,
+      "empty": 137,
+      "fillRate": 30.456852791878177
+    },
+    {
+      "company": "Mota-Engil",
+      "defined": 166,
+      "filled": 25,
+      "empty": 141,
+      "fillRate": 15.060240963855422
+    },
+    {
+      "company": "Tyson Foods",
+      "defined": 146,
+      "filled": 13,
+      "empty": 133,
+      "fillRate": 8.904109589041095
+    },
+    {
+      "company": "3M",
+      "defined": 0,
+      "filled": 0,
+      "empty": 0,
+      "fillRate": 0
+    }
+  ],
+  "distribution": [
+    {
+      "name": "90-100%",
+      "count": 65
+    },
+    {
+      "name": "80-90%",
+      "count": 0
+    },
+    {
+      "name": "70-80%",
+      "count": 0
+    },
+    {
+      "name": "60-70%",
+      "count": 1
+    },
+    {
+      "name": "50-60%",
+      "count": 1
+    },
+    {
+      "name": "40-50%",
+      "count": 0
+    },
+    {
+      "name": "30-40%",
+      "count": 1
+    },
+    {
+      "name": "20-30%",
+      "count": 0
+    },
+    {
+      "name": "10-20%",
+      "count": 1
+    },
+    {
+      "name": "0-10%",
+      "count": 2
+    }
+  ]
+}

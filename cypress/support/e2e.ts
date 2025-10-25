@@ -40,15 +40,6 @@ beforeEach(() => {
     statusCode: 200, 
     body: { status: 'healthy' } 
   }).as('healthCheck');
-  
-  cy.intercept('POST', '/api/ai/chat', {
-    statusCode: 200,
-    body: {
-      response: 'Test AI response',
-      conversationId: 'test-conv-123',
-      cached: false
-    }
-  }).as('aiChat');
 });
 
 // After each test

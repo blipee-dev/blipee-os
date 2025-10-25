@@ -1,16 +1,71 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { getAPIUser } from '@/lib/auth/server-auth';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getRedisClient } from '@/lib/cache/redis-client';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { calculateSectorIntensity, getProductionUnitLabel, getSBTiPathway, getGRISectorStandard, calculateBenchmarkForMetric } from '@/lib/sustainability/sector-intensity';
 import {
   getPeriodEmissions,
   getScopeBreakdown,
-  getCategoryBreakdown,
-  getScopeCategoryBreakdown
+  getScopeCategoryBreakdown,
 } from '@/lib/sustainability/baseline-calculator';
-import { UnifiedSustainabilityCalculator } from '@/lib/sustainability/unified-calculator';
-import { getRedisClient } from '@/lib/cache/redis-client';
+import {
+  calculateBenchmarkForMetric,
+  calculateSectorIntensity,
+  getGRISectorStandard,
+  getProductionUnitLabel,
+  getSBTiPathway,
+} from '@/lib/sustainability/sector-intensity';
+import { NextRequest, NextResponse } from 'next/server';
+
+type ScopeBreakdownResult = {
+  scope_1: number;
+  scope_2: number;
+  scope_3: number;
+  total: number;
+};
+
+interface ScopeCategoryResult {
+  category: string;
+  emissions: number;
+}
+
+interface MetricsCatalogInfo {
+  scope?: string | null;
+  category?: string | null;
+  subcategory?: string | null;
+  name?: string | null;
+}
+
+interface MetricsDataRecord {
+  metric_id?: string | null;
+  data_quality?: string | null;
+  verification_status?: string | null;
+  co2e_emissions?: number | null;
+  period_start?: string | null;
+  period_end?: string | null;
+  metadata?: {
+    is_renewable?: boolean;
+    renewable_percentage?: number | null;
+  } | null;
+  metrics_catalog?: MetricsCatalogInfo | null;
+}
+
+interface SiteSummary {
+  id: string;
+  name?: string | null;
+  total_area_sqm?: number | string | null;
+  total_employees?: number | null;
+  status?: string | null;
+}
+
+interface SBTiTargetRow {
+  sbti_validated?: boolean | null;
+  target_type?: string | null;
+  sbti_validation_date?: string | null;
+  sbti_ambition?: string | null;
+  target_year?: number | null;
+  target_reduction_percent?: number | null;
+  baseline_year?: number | null;
+  target_scope?: string | null;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,6 +92,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'year';
     const siteId = searchParams.get('site_id');
+  const normalizedSiteId = siteId ?? undefined;
 
     // Support custom date ranges
     const startDateParam = searchParams.get('start_date');
@@ -52,13 +108,12 @@ export async function GET(request: NextRequest) {
         const cached = await client.get(cacheKey);
         if (cached) {
           const cacheTime = Date.now() - startTime;
-          console.log(`⚡ Scope Analysis API Performance (CACHED): Total=${cacheTime}ms`);
+
           return NextResponse.json(JSON.parse(cached));
         }
       }
     } catch (error) {
       // Cache miss or error - continue to fetch data
-      console.log('Cache miss for scope-analysis:', cacheKey);
     }
 
     // Get current year and period boundaries
@@ -104,9 +159,6 @@ export async function GET(request: NextRequest) {
     const startDateStr = startDate.toISOString().split('T')[0];
     const endDateStr = endDate.toISOString().split('T')[0];
 
-    console.log(`📊 [scope-analysis] Using UnifiedSustainabilityCalculator for organization ${organizationId}`);
-    console.log(`📊 [scope-analysis] Period: ${startDateStr} to ${endDateStr}`);
-
     // Parallelize all independent database queries for maximum performance
     const [
       emissions,
@@ -116,20 +168,38 @@ export async function GET(request: NextRequest) {
       orgContext,
       sbtiInfo,
       { data: orgData },
-      { data: sites }
+      { data: sites },
     ] = await Promise.all([
       // Get emissions using the centralized baseline calculator
       // (UnifiedCalculator currently only supports full-year projections)
-      getPeriodEmissions(organizationId, startDateStr, endDateStr, siteId),
+      getPeriodEmissions(organizationId, startDateStr, endDateStr, normalizedSiteId),
 
       // Get scope breakdown using centralized calculator
-      getScopeBreakdown(organizationId, startDateStr, endDateStr, siteId),
+      getScopeBreakdown(organizationId, startDateStr, endDateStr, normalizedSiteId),
 
       // Get category breakdowns (parallel)
       Promise.all([
-        getScopeCategoryBreakdown(organizationId, 'scope_1', startDateStr, endDateStr, siteId),
-        getScopeCategoryBreakdownEnhanced(organizationId, 'scope_2', startDateStr, endDateStr, siteId),
-        getScopeCategoryBreakdown(organizationId, 'scope_3', startDateStr, endDateStr, siteId)
+        getScopeCategoryBreakdown(
+          organizationId,
+          'scope_1',
+          startDateStr,
+          endDateStr,
+          normalizedSiteId
+        ),
+        getScopeCategoryBreakdownEnhanced(
+          organizationId,
+          'scope_2',
+          startDateStr,
+          endDateStr,
+          normalizedSiteId
+        ),
+        getScopeCategoryBreakdown(
+          organizationId,
+          'scope_3',
+          startDateStr,
+          endDateStr,
+          normalizedSiteId
+        ),
       ]),
 
       // Fetch ONLY necessary fields for context (not *)
@@ -143,14 +213,16 @@ export async function GET(request: NextRequest) {
 
         let query = supabaseAdmin
           .from('metrics_data')
-          .select(`
+          .select(
+            `
             data_quality,
             verification_status,
             metrics_catalog!inner(
               name,
               scope
             )
-          `)
+          `
+          )
           .eq('organization_id', organizationId)
           .gte('period_start', startDate.toISOString())
           .lte('period_end', effectiveEndDate.toISOString());
@@ -171,7 +243,8 @@ export async function GET(request: NextRequest) {
       // Get organization data
       supabaseAdmin
         .from('organizations')
-        .select(`
+        .select(
+          `
           employees,
           annual_revenue,
           value_added,
@@ -181,7 +254,8 @@ export async function GET(request: NextRequest) {
           sector_category,
           annual_production_volume,
           production_unit
-        `)
+        `
+        )
         .eq('id', organizationId)
         .single(),
 
@@ -197,7 +271,7 @@ export async function GET(request: NextRequest) {
         }
 
         return await sitesQuery;
-      })()
+      })(),
     ]);
 
     if (metricsError) {
@@ -205,38 +279,40 @@ export async function GET(request: NextRequest) {
     }
 
     // Build scope data structure using calculator results
+    const metricsRows: MetricsDataRecord[] = (metricsData ?? []) as MetricsDataRecord[];
+    const siteRows: SiteSummary[] = (sites ?? []) as SiteSummary[];
+
     const scopeData = buildScopeDataFromCalculator(
-      scopes,
-      scope1Categories,
-      scope2Categories,
-      scope3Categories,
-      metricsData || []
+      scopes as ScopeBreakdownResult,
+      (scope1Categories ?? []) as ScopeCategoryResult[],
+      (scope2Categories ?? []) as ScopeCategoryResult[],
+      (scope3Categories ?? []) as ScopeCategoryResult[],
+      metricsRows
     );
 
     // Calculate GHG Protocol compliance score
     const complianceScore = calculateComplianceScore(scopeData);
 
     // Calculate data quality metrics
-    const dataQuality = calculateDataQuality(metricsData || []);
+  const dataQuality = calculateDataQuality(metricsRows);
 
     // Calculate Scope 3 coverage
     const scope3Coverage = calculateScope3Coverage(scopeData.scope_3.categories);
 
     // Aggregate employee count from sites (more accurate than org-level field)
-    const totalEmployeesFromSites = sites?.reduce((sum, site) => sum + (site.total_employees || 0), 0) || 0;
+    const totalEmployeesFromSites =
+  siteRows.reduce((sum, site) => sum + (site.total_employees ?? 0), 0);
 
     // Enhanced orgData with aggregated employees
     const enhancedOrgData = {
       ...orgData,
-      employee_count: totalEmployeesFromSites || orgData?.employees || 0
+      employee_count: totalEmployeesFromSites || orgData?.employees || 0,
     };
 
     // Calculate comprehensive intensity metrics
-    const intensityMetrics = calculateIntensityMetrics(scopeData, enhancedOrgData, sites || []);
+  const intensityMetrics = calculateIntensityMetrics(scopeData, enhancedOrgData, siteRows);
 
     const totalTime = Date.now() - startTime;
-    console.log(`⚡ Scope Analysis API Performance: Total=${totalTime}ms`);
-    console.log(`✅ [scope-analysis] Calculations completed using centralized baseline-calculator`);
 
     const responseData = {
       scopeData,
@@ -248,15 +324,17 @@ export async function GET(request: NextRequest) {
       intensityMetrics, // Add comprehensive intensity metrics
       period: {
         start: startDate.toISOString(),
-        end: endDate.toISOString()
+        end: endDate.toISOString(),
       },
       metadata: {
-        totalDataPoints: metricsData?.length || 0,
-        uniqueMetrics: new Set(metricsData?.map(m => m.metric_id)).size || 0,
+        totalDataPoints: metricsRows.length,
+        uniqueMetrics: metricsRows.length
+          ? new Set(metricsRows.map((metric) => metric.metric_id)).size
+          : 0,
         calculationEngine: 'baseline-calculator',
         calculationMethod: 'scope-by-scope-rounding',
         unifiedCalculatorCompatible: true,
-      }
+      },
     };
 
     // ⚡ PERFORMANCE: Cache the result for 5 minutes (scope data doesn't change frequently)
@@ -268,20 +346,24 @@ export async function GET(request: NextRequest) {
       }
     } catch (error) {
       // Caching failed - not critical, just log
-      console.log('Failed to cache scope-analysis result');
     }
 
     return NextResponse.json(responseData);
-
   } catch (error) {
     console.error('❌ [scope-analysis] API Error:', error);
-    console.error('❌ [scope-analysis] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    console.error('❌ [scope-analysis] Error message:', error instanceof Error ? error.message : String(error));
+    console.error(
+      '❌ [scope-analysis] Error stack:',
+      error instanceof Error ? error.stack : 'No stack trace'
+    );
+    console.error(
+      '❌ [scope-analysis] Error message:',
+      error instanceof Error ? error.message : String(error)
+    );
     return NextResponse.json(
       {
         error: 'Internal server error',
         message: error instanceof Error ? error.message : 'Unknown error',
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined,
       },
       { status: 500 }
     );
@@ -293,32 +375,32 @@ export async function GET(request: NextRequest) {
  * This replaces manual calculations with calculator values for consistency
  */
 function buildScopeDataFromCalculator(
-  scopes: any,
-  scope1Categories: any[],
-  scope2Categories: any[],
-  scope3Categories: any[],
-  metricsData: any[]
+  scopes: ScopeBreakdownResult,
+  scope1Categories: ScopeCategoryResult[],
+  scope2Categories: ScopeCategoryResult[],
+  scope3Categories: ScopeCategoryResult[],
+  metricsData: MetricsDataRecord[]
 ) {
   // Map category names to keys
   const scope1CategoryMap: { [key: string]: string } = {
     'Stationary Combustion': 'stationary_combustion',
     'Mobile Combustion': 'mobile_combustion',
     'Process Emissions': 'process_emissions',
-    'Fugitive Emissions': 'fugitive_emissions'
+    'Fugitive Emissions': 'fugitive_emissions',
   };
 
   const scope2CategoryMap: { [key: string]: string } = {
-    'Electricity': 'purchased_electricity',
+    Electricity: 'purchased_electricity',
     'Purchased Energy': 'purchased_electricity',
     'Purchased Electricity': 'purchased_electricity',
-    'Heat': 'purchased_heat',
+    Heat: 'purchased_heat',
     'Purchased Heat': 'purchased_heat',
-    'Purchased Heating': 'purchased_heat',  // Now properly handled by enhanced function
-    'Heating': 'purchased_heat',
-    'Steam': 'purchased_steam',
+    'Purchased Heating': 'purchased_heat', // Now properly handled by enhanced function
+    Heating: 'purchased_heat',
+    Steam: 'purchased_steam',
     'Purchased Steam': 'purchased_steam',
-    'Cooling': 'purchased_cooling',
-    'Purchased Cooling': 'purchased_cooling'  // Now properly handled by enhanced function
+    Cooling: 'purchased_cooling',
+    'Purchased Cooling': 'purchased_cooling', // Now properly handled by enhanced function
   };
 
   const scope3CategoryMap: { [key: string]: string } = {
@@ -326,7 +408,7 @@ function buildScopeDataFromCalculator(
     'Capital Goods': 'capital_goods',
     'Fuel & Energy Related': 'fuel_energy',
     'Upstream Transportation': 'upstream_transportation',
-    'Waste': 'waste',
+    Waste: 'waste',
     'Business Travel': 'business_travel',
     'Employee Commuting': 'employee_commuting',
     'Upstream Leased Assets': 'upstream_leased',
@@ -335,8 +417,8 @@ function buildScopeDataFromCalculator(
     'Use of Sold Products': 'use_of_products',
     'End-of-Life': 'end_of_life',
     'Downstream Leased Assets': 'downstream_leased',
-    'Franchises': 'franchises',
-    'Investments': 'investments'
+    Franchises: 'franchises',
+    Investments: 'investments',
   };
 
   // Build Scope 1 categories
@@ -344,9 +426,9 @@ function buildScopeDataFromCalculator(
     stationary_combustion: 0,
     mobile_combustion: 0,
     process_emissions: 0,
-    fugitive_emissions: 0
+    fugitive_emissions: 0,
   };
-  scope1Categories.forEach(cat => {
+  scope1Categories.forEach((cat) => {
     const key = scope1CategoryMap[cat.category];
     if (key) scope1CategoriesObj[key] = cat.emissions;
   });
@@ -356,15 +438,13 @@ function buildScopeDataFromCalculator(
     purchased_electricity: 0,
     purchased_heat: 0,
     purchased_steam: 0,
-    purchased_cooling: 0
+    purchased_cooling: 0,
   };
-  scope2Categories.forEach(cat => {
-    console.log(`📊 Scope 2 Category found: "${cat.category}" with ${cat.emissions} tCO2e`);
+  scope2Categories.forEach((cat) => {
     const key = scope2CategoryMap[cat.category];
     if (key) {
       scope2CategoriesObj[key] = cat.emissions;
     } else {
-      console.log(`⚠️ Unmapped Scope 2 category: "${cat.category}"`);
     }
   });
 
@@ -384,15 +464,15 @@ function buildScopeDataFromCalculator(
     end_of_life: { value: 0, included: false, data_quality: 0 },
     downstream_leased: { value: 0, included: false, data_quality: 0 },
     franchises: { value: 0, included: false, data_quality: 0 },
-    investments: { value: 0, included: false, data_quality: 0 }
+    investments: { value: 0, included: false, data_quality: 0 },
   };
-  scope3Categories.forEach(cat => {
+  scope3Categories.forEach((cat) => {
     const key = scope3CategoryMap[cat.category];
     if (key) {
       scope3CategoriesObj[key] = {
         value: cat.emissions,
         included: cat.emissions > 0,
-        data_quality: cat.emissions > 0 ? 100 : 0
+        data_quality: cat.emissions > 0 ? 100 : 0,
       };
     }
   });
@@ -400,7 +480,7 @@ function buildScopeDataFromCalculator(
   // Get unique sources
   const scope1Sources = new Set<string>();
   const scope2Sources = new Set<string>();
-  metricsData.forEach(record => {
+  metricsData.forEach((record) => {
     const scope = record.metrics_catalog?.scope;
     const name = record.metrics_catalog?.name;
     if (scope === 'scope_1' && name) scope1Sources.add(name);
@@ -410,29 +490,29 @@ function buildScopeDataFromCalculator(
   // Build final structure using calculator values (NOT manual calculations!)
   return {
     scope_1: {
-      total: scopes.scope_1,  // From calculator
+      total: scopes.scope_1, // From calculator
       categories: scope1CategoriesObj,
       trend: 0,
       sources: Array.from(scope1Sources),
-      percentage: scopes.total > 0 ? Math.round((scopes.scope_1 / scopes.total) * 1000) / 10 : 0
+      percentage: scopes.total > 0 ? Math.round((scopes.scope_1 / scopes.total) * 1000) / 10 : 0,
     },
     scope_2: {
-      total: scopes.scope_2,  // From calculator
+      total: scopes.scope_2, // From calculator
       categories: scope2CategoriesObj,
-      location_based: scopes.scope_2,  // From calculator
-      market_based: scopes.scope_2,    // From calculator (same for now)
+      location_based: scopes.scope_2, // From calculator
+      market_based: scopes.scope_2, // From calculator (same for now)
       renewable_percentage: 0,
       trend: 0,
       sources: Array.from(scope2Sources),
-      percentage: scopes.total > 0 ? Math.round((scopes.scope_2 / scopes.total) * 1000) / 10 : 0
+      percentage: scopes.total > 0 ? Math.round((scopes.scope_2 / scopes.total) * 1000) / 10 : 0,
     },
     scope_3: {
-      total: scopes.scope_3,  // From calculator
+      total: scopes.scope_3, // From calculator
       categories: scope3CategoriesObj,
       trend: 0,
       coverage: 0,
-      percentage: scopes.total > 0 ? Math.round((scopes.scope_3 / scopes.total) * 1000) / 10 : 0
-    }
+      percentage: scopes.total > 0 ? Math.round((scopes.scope_3 / scopes.total) * 1000) / 10 : 0,
+    },
   };
 }
 
@@ -449,10 +529,10 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
         stationary_combustion: 0,
         mobile_combustion: 0,
         process_emissions: 0,
-        fugitive_emissions: 0
+        fugitive_emissions: 0,
       },
       trend: 0,
-      sources: []
+      sources: [],
     },
     scope_2: {
       total: 0,
@@ -460,35 +540,35 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
         purchased_electricity: 0,
         purchased_heat: 0,
         purchased_steam: 0,
-        purchased_cooling: 0
+        purchased_cooling: 0,
       },
       location_based: 0,
       market_based: 0,
       trend: 0,
-      sources: []
+      sources: [],
     },
     scope_3: {
       total: 0,
       categories: {
-        'purchased_goods': { value: 0, included: false, data_quality: 0 },
-        'capital_goods': { value: 0, included: false, data_quality: 0 },
-        'fuel_energy': { value: 0, included: false, data_quality: 0 },
-        'upstream_transportation': { value: 0, included: false, data_quality: 0 },
-        'waste': { value: 0, included: false, data_quality: 0 },
-        'business_travel': { value: 0, included: false, data_quality: 0 },
-        'employee_commuting': { value: 0, included: false, data_quality: 0 },
-        'upstream_leased': { value: 0, included: false, data_quality: 0 },
-        'downstream_transportation': { value: 0, included: false, data_quality: 0 },
-        'processing': { value: 0, included: false, data_quality: 0 },
-        'use_of_products': { value: 0, included: false, data_quality: 0 },
-        'end_of_life': { value: 0, included: false, data_quality: 0 },
-        'downstream_leased': { value: 0, included: false, data_quality: 0 },
-        'franchises': { value: 0, included: false, data_quality: 0 },
-        'investments': { value: 0, included: false, data_quality: 0 }
+        purchased_goods: { value: 0, included: false, data_quality: 0 },
+        capital_goods: { value: 0, included: false, data_quality: 0 },
+        fuel_energy: { value: 0, included: false, data_quality: 0 },
+        upstream_transportation: { value: 0, included: false, data_quality: 0 },
+        waste: { value: 0, included: false, data_quality: 0 },
+        business_travel: { value: 0, included: false, data_quality: 0 },
+        employee_commuting: { value: 0, included: false, data_quality: 0 },
+        upstream_leased: { value: 0, included: false, data_quality: 0 },
+        downstream_transportation: { value: 0, included: false, data_quality: 0 },
+        processing: { value: 0, included: false, data_quality: 0 },
+        use_of_products: { value: 0, included: false, data_quality: 0 },
+        end_of_life: { value: 0, included: false, data_quality: 0 },
+        downstream_leased: { value: 0, included: false, data_quality: 0 },
+        franchises: { value: 0, included: false, data_quality: 0 },
+        investments: { value: 0, included: false, data_quality: 0 },
       },
       trend: 0,
-      coverage: 0
-    }
+      coverage: 0,
+    },
   };
 
   // Map of category names to scope 1 categories
@@ -496,15 +576,15 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
     'Stationary Combustion': 'stationary_combustion',
     'Mobile Combustion': 'mobile_combustion',
     'Process Emissions': 'process_emissions',
-    'Fugitive Emissions': 'fugitive_emissions'
+    'Fugitive Emissions': 'fugitive_emissions',
   };
 
   // Map of subcategories to scope 2 categories
   const scope2CategoryMap: { [key: string]: keyof typeof scopeData.scope_2.categories } = {
-    'Electricity': 'purchased_electricity',
-    'Heat': 'purchased_heat',
-    'Steam': 'purchased_steam',
-    'Cooling': 'purchased_cooling'
+    Electricity: 'purchased_electricity',
+    Heat: 'purchased_heat',
+    Steam: 'purchased_steam',
+    Cooling: 'purchased_cooling',
   };
 
   // Map of categories to scope 3 categories
@@ -513,11 +593,11 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
     'Capital Goods': 'capital_goods',
     'Fuel & Energy Related': 'fuel_energy',
     'Upstream Transportation': 'upstream_transportation',
-    'Waste': 'waste',
+    Waste: 'waste',
     'Business Travel': 'business_travel',
     'Employee Commuting': 'employee_commuting',
     'Downstream Transportation': 'downstream_transportation',
-    'End of Life Treatment': 'end_of_life'
+    'End of Life Treatment': 'end_of_life',
   };
 
   // Track unique sources
@@ -525,7 +605,7 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
   const scope2Sources = new Set<string>();
 
   // Process each metrics record
-  metricsData.forEach(record => {
+  metricsData.forEach((record) => {
     // IMPORTANT: co2e_emissions is stored in kgCO2e, convert to tCO2e
     const emissions = (record.co2e_emissions || 0) / 1000;
     const scope = record.metrics_catalog?.scope;
@@ -546,8 +626,7 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
       }
 
       if (name) scope1Sources.add(name);
-    }
-    else if (scope === 'scope_2' || scope === 2) {
+    } else if (scope === 'scope_2' || scope === 2) {
       scopeData.scope_2.total += emissions;
       scopeData.scope_2.location_based += emissions;
 
@@ -587,8 +666,7 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
       }
 
       if (name) scope2Sources.add(name);
-    }
-    else {
+    } else {
       // Scope 3
       scopeData.scope_3.total += emissions;
 
@@ -599,8 +677,7 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
         scopeData.scope_3.categories[mappedCategory].included = true;
         // Estimate data quality based on whether we have verification
         scopeData.scope_3.categories[mappedCategory].data_quality =
-          record.verification_status === 'verified' ? 0.95 :
-          record.data_quality || 0.7;
+          record.verification_status === 'verified' ? 0.95 : record.data_quality || 0.7;
       }
     }
   });
@@ -612,7 +689,9 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
   // Calculate renewable energy percentage for Scope 2
   if (scopeData.scope_2.location_based > 0) {
     const renewableImpact = scopeData.scope_2.location_based - scopeData.scope_2.market_based;
-    scopeData.scope_2.renewable_percentage = Math.round((renewableImpact / scopeData.scope_2.location_based) * 100);
+    scopeData.scope_2.renewable_percentage = Math.round(
+      (renewableImpact / scopeData.scope_2.location_based) * 100
+    );
     scopeData.scope_2.renewable_impact = renewableImpact;
   } else {
     scopeData.scope_2.renewable_percentage = 0;
@@ -625,8 +704,9 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
   scopeData.scope_3.trend = -3.5;
 
   // Calculate Scope 3 coverage
-  const includedCategories = Object.values(scopeData.scope_3.categories)
-    .filter((cat: any) => cat.included).length;
+  const includedCategories = Object.values(scopeData.scope_3.categories).filter(
+    (cat: any) => cat.included
+  ).length;
   scopeData.scope_3.coverage = Math.round((includedCategories / 15) * 100);
 
   return scopeData;
@@ -655,8 +735,8 @@ function calculateComplianceScore(scopeData: any): number {
 
   // Calculation methodology (15 points)
   // Check if we have diverse categories
-  const scope1Categories = Object.values(scopeData.scope_1.categories).filter(v => v > 0).length;
-  const scope2Categories = Object.values(scopeData.scope_2.categories).filter(v => v > 0).length;
+  const scope1Categories = Object.values(scopeData.scope_1.categories).filter((v) => v > 0).length;
+  const scope2Categories = Object.values(scopeData.scope_2.categories).filter((v) => v > 0).length;
   score += Math.min(15, (scope1Categories + scope2Categories) * 3);
 
   // Reporting standards (15 points)
@@ -672,7 +752,7 @@ function calculateDataQuality(metricsData: any[]) {
       estimatedDataPercentage: 0,
       verifiedPercentage: 0,
       pendingVerification: 0,
-      totalRecords: 0
+      totalRecords: 0,
     };
   }
 
@@ -680,7 +760,7 @@ function calculateDataQuality(metricsData: any[]) {
   let estimatedCount = 0;
   let verifiedCount = 0;
 
-  metricsData.forEach(record => {
+  metricsData.forEach((record) => {
     // Check data_quality field (string: 'measured', 'calculated', 'estimated')
     if (record.data_quality === 'measured' || record.data_quality === 'calculated') {
       primaryCount++;
@@ -704,7 +784,7 @@ function calculateDataQuality(metricsData: any[]) {
     estimatedDataPercentage: Math.round(estimatedPercentage),
     verifiedPercentage: Math.round(verifiedPercentage),
     pendingVerification: Math.round(100 - verifiedPercentage),
-    totalRecords: total
+    totalRecords: total,
   };
 }
 
@@ -724,7 +804,7 @@ function calculateScope3Coverage(scope3Categories: any) {
     'end_of_life',
     'downstream_leased',
     'franchises',
-    'investments'
+    'investments',
   ];
 
   let tracked = 0;
@@ -734,7 +814,7 @@ function calculateScope3Coverage(scope3Categories: any) {
   const trackedCategories: string[] = [];
   const missingCategories: string[] = [];
 
-  allCategories.forEach(category => {
+  allCategories.forEach((category) => {
     const categoryData = scope3Categories[category];
     if (categoryData && categoryData.included) {
       tracked++;
@@ -754,7 +834,7 @@ function calculateScope3Coverage(scope3Categories: any) {
     missing,
     trackedCategories,
     missingCategories,
-    coveragePercentage: Math.round((tracked / 15) * 100)
+    coveragePercentage: Math.round((tracked / 15) * 100),
   };
 }
 
@@ -775,7 +855,7 @@ async function getOrganizationContext(organizationId: string) {
         baseYear: 2023,
         coverage: 100,
         employees: 0,
-        industry: 'Not specified'
+        industry: 'Not specified',
       };
     }
 
@@ -789,7 +869,7 @@ async function getOrganizationContext(organizationId: string) {
     const totalEmployees = sites?.reduce((sum, site) => sum + (site.total_employees || 0), 0) || 0;
 
     // Count active sites
-    const activeSites = sites?.filter(s => s.status === 'active').length || 0;
+    const activeSites = sites?.filter((s) => s.status === 'active').length || 0;
     const totalSites = sites?.length || 0;
     const coverage = totalSites > 0 ? Math.round((activeSites / totalSites) * 100) : 100;
 
@@ -800,7 +880,7 @@ async function getOrganizationContext(organizationId: string) {
       baseYear: org?.base_year || 2023,
       coverage,
       employees: totalEmployees,
-      industry: org?.industry_primary || 'Not specified'
+      industry: org?.industry_primary || 'Not specified',
     };
   } catch (error) {
     console.error('Error in getOrganizationContext:', error);
@@ -811,7 +891,7 @@ async function getOrganizationContext(organizationId: string) {
       baseYear: 2023,
       coverage: 100,
       employees: 0,
-      industry: 'Not specified'
+      industry: 'Not specified',
     };
   }
 }
@@ -832,7 +912,7 @@ async function getSBTiTargets(organizationId: string) {
         hasTargets: false,
         validated: false,
         ambition: null,
-        targetCount: 0
+        targetCount: 0,
       };
     }
 
@@ -841,14 +921,14 @@ async function getSBTiTargets(organizationId: string) {
         hasTargets: false,
         validated: false,
         ambition: null,
-        targetCount: 0
+        targetCount: 0,
       };
     }
 
     // Find the most ambitious validated target
-    const validatedTargets = targets.filter(t => t.sbti_validated);
-    const nearTermTarget = targets.find(t => t.target_type === 'near-term');
-    const netZeroTarget = targets.find(t => t.target_type === 'net-zero');
+    const validatedTargets = targets.filter((t) => t.sbti_validated);
+    const nearTermTarget = targets.find((t) => t.target_type === 'near-term');
+    const netZeroTarget = targets.find((t) => t.target_type === 'net-zero');
 
     return {
       hasTargets: true,
@@ -856,16 +936,20 @@ async function getSBTiTargets(organizationId: string) {
       validationDate: validatedTargets[0]?.sbti_validation_date || null,
       ambition: validatedTargets[0]?.sbti_ambition || nearTermTarget?.sbti_ambition || null,
       targetCount: targets.length,
-      nearTermTarget: nearTermTarget ? {
-        targetYear: nearTermTarget.target_year,
-        reductionPercent: nearTermTarget.target_reduction_percent,
-        baselineYear: nearTermTarget.baseline_year,
-        scope: nearTermTarget.target_scope
-      } : null,
-      netZeroTarget: netZeroTarget ? {
-        targetYear: netZeroTarget.target_year,
-        baselineYear: netZeroTarget.baseline_year
-      } : null
+      nearTermTarget: nearTermTarget
+        ? {
+            targetYear: nearTermTarget.target_year,
+            reductionPercent: nearTermTarget.target_reduction_percent,
+            baselineYear: nearTermTarget.baseline_year,
+            scope: nearTermTarget.target_scope,
+          }
+        : null,
+      netZeroTarget: netZeroTarget
+        ? {
+            targetYear: netZeroTarget.target_year,
+            baselineYear: netZeroTarget.baseline_year,
+          }
+        : null,
     };
   } catch (error) {
     console.error('Error in getSBTiTargets:', error);
@@ -873,7 +957,7 @@ async function getSBTiTargets(organizationId: string) {
       hasTargets: false,
       validated: false,
       ambition: null,
-      targetCount: 0
+      targetCount: 0,
     };
   }
 }
@@ -908,54 +992,78 @@ function calculateIntensityMetrics(scopeData: any, orgData: any, sites: any[]) {
   const productionUnit = orgData?.production_unit;
 
   // Calculate total area from sites
-  const totalAreaM2 = sites?.reduce((sum, site) => {
-    const area = typeof site.total_area_sqm === 'string'
-      ? parseFloat(site.total_area_sqm)
-      : (site.total_area_sqm || 0);
-    return sum + area;
-  }, 0) || 0;
+  const totalAreaM2 =
+    sites?.reduce((sum, site) => {
+      const area =
+        typeof site.total_area_sqm === 'string'
+          ? parseFloat(site.total_area_sqm)
+          : site.total_area_sqm || 0;
+      return sum + area;
+    }, 0) || 0;
 
   // Initialize comprehensive intensity metrics structure with data quality flags
   const intensityMetrics: any = {
     // GRI 305-4 & TCFD - Common denominators
-    perEmployee: 0,        // tCO2e/FTE
-    perRevenue: 0,         // tCO2e/M€ (ESRS E1 mandatory)
-    perSqm: 0,             // kgCO2e/m²
+    perEmployee: 0, // tCO2e/FTE
+    perRevenue: 0, // tCO2e/M€ (ESRS E1 mandatory)
+    perSqm: 0, // kgCO2e/m²
 
     // SBTi - Economic intensity (GEVA method)
-    perValueAdded: 0,      // tCO2e/M€ value added
+    perValueAdded: 0, // tCO2e/M€ value added
 
     // Additional metrics for comprehensive reporting
-    perOperatingHour: 0,   // kgCO2e/operating hour
-    perCustomer: 0,        // kgCO2e/customer served
+    perOperatingHour: 0, // kgCO2e/operating hour
+    perCustomer: 0, // kgCO2e/customer served
 
     // Data quality indicators
     dataQuality: {
       employees: { available: employees > 0, source: 'sites_aggregation' },
-      revenue: { available: revenue > 0, source: revenue > 0 ? 'organization_data' : 'missing', missingReason: revenue === 0 ? 'not_provided' : null },
-      area: { available: totalAreaM2 > 0, source: totalAreaM2 > 0 ? 'sites_aggregation' : 'missing' },
-      valueAdded: { available: valueAdded > 0, source: valueAdded > 0 ? 'organization_data' : 'missing', missingReason: valueAdded === 0 ? 'not_provided' : null },
-      operatingHours: { available: operatingHours > 0, source: operatingHoursIsEstimated ? 'calculated_40h_week' : 'organization_data', isEstimated: operatingHoursIsEstimated },
-      customers: { available: customers > 0, source: customers > 0 ? 'organization_data' : 'missing', missingReason: customers === 0 ? 'not_provided' : null },
-      productionVolume: { available: productionVolume > 0, source: productionVolume > 0 ? 'organization_data' : 'missing' }
+      revenue: {
+        available: revenue > 0,
+        source: revenue > 0 ? 'organization_data' : 'missing',
+        missingReason: revenue === 0 ? 'not_provided' : null,
+      },
+      area: {
+        available: totalAreaM2 > 0,
+        source: totalAreaM2 > 0 ? 'sites_aggregation' : 'missing',
+      },
+      valueAdded: {
+        available: valueAdded > 0,
+        source: valueAdded > 0 ? 'organization_data' : 'missing',
+        missingReason: valueAdded === 0 ? 'not_provided' : null,
+      },
+      operatingHours: {
+        available: operatingHours > 0,
+        source: operatingHoursIsEstimated ? 'calculated_40h_week' : 'organization_data',
+        isEstimated: operatingHoursIsEstimated,
+      },
+      customers: {
+        available: customers > 0,
+        source: customers > 0 ? 'organization_data' : 'missing',
+        missingReason: customers === 0 ? 'not_provided' : null,
+      },
+      productionVolume: {
+        available: productionVolume > 0,
+        source: productionVolume > 0 ? 'organization_data' : 'missing',
+      },
     },
 
     // Scope-specific intensities (GRI 305-4 recommendation)
     scope1: {
       perEmployee: 0,
       perRevenue: 0,
-      perSqm: 0
+      perSqm: 0,
     },
     scope2: {
       perEmployee: 0,
       perRevenue: 0,
-      perSqm: 0
+      perSqm: 0,
     },
     scope3: {
       perEmployee: 0,
       perRevenue: 0,
-      perSqm: 0
-    }
+      perSqm: 0,
+    },
   };
 
   // Total emissions intensities (GRI 305-4, ESRS E1, TCFD) with sector benchmarks
@@ -964,7 +1072,11 @@ function calculateIntensityMetrics(scopeData: any, orgData: any, sites: any[]) {
 
     // Add benchmark if sector is known
     if (industrySector) {
-      const benchmark = calculateBenchmarkForMetric(intensityMetrics.perEmployee, industrySector, 'perEmployee');
+      const benchmark = calculateBenchmarkForMetric(
+        intensityMetrics.perEmployee,
+        industrySector,
+        'perEmployee'
+      );
       intensityMetrics.perEmployeeBenchmark = benchmark.benchmark;
       intensityMetrics.perEmployeeBenchmarkValue = benchmark.benchmarkValue;
     }
@@ -975,7 +1087,11 @@ function calculateIntensityMetrics(scopeData: any, orgData: any, sites: any[]) {
 
     // Add benchmark if sector is known
     if (industrySector) {
-      const benchmark = calculateBenchmarkForMetric(intensityMetrics.perRevenue, industrySector, 'perRevenue');
+      const benchmark = calculateBenchmarkForMetric(
+        intensityMetrics.perRevenue,
+        industrySector,
+        'perRevenue'
+      );
       intensityMetrics.perRevenueBenchmark = benchmark.benchmark;
       intensityMetrics.perRevenueBenchmarkValue = benchmark.benchmarkValue;
     }
@@ -986,7 +1102,11 @@ function calculateIntensityMetrics(scopeData: any, orgData: any, sites: any[]) {
 
     // Add benchmark if sector is known
     if (industrySector) {
-      const benchmark = calculateBenchmarkForMetric(intensityMetrics.perSqm, industrySector, 'perArea');
+      const benchmark = calculateBenchmarkForMetric(
+        intensityMetrics.perSqm,
+        industrySector,
+        'perArea'
+      );
       intensityMetrics.perSqmBenchmark = benchmark.benchmark;
       intensityMetrics.perSqmBenchmarkValue = benchmark.benchmarkValue;
     }
@@ -998,7 +1118,11 @@ function calculateIntensityMetrics(scopeData: any, orgData: any, sites: any[]) {
 
     // Add benchmark if sector is known
     if (industrySector) {
-      const benchmark = calculateBenchmarkForMetric(intensityMetrics.perValueAdded, industrySector, 'perValueAdded');
+      const benchmark = calculateBenchmarkForMetric(
+        intensityMetrics.perValueAdded,
+        industrySector,
+        'perValueAdded'
+      );
       intensityMetrics.perValueAddedBenchmark = benchmark.benchmark;
       intensityMetrics.perValueAddedBenchmarkValue = benchmark.benchmarkValue;
     }
@@ -1051,7 +1175,7 @@ function calculateIntensityMetrics(scopeData: any, orgData: any, sites: any[]) {
       benchmark: sectorIntensity.benchmark,
       benchmarkValue: sectorIntensity.benchmarkValue,
       sbtiPathway: getSBTiPathway(industrySector),
-      griStandard: getGRISectorStandard(industrySector)
+      griStandard: getGRISectorStandard(industrySector),
     };
   }
 
@@ -1092,10 +1216,12 @@ async function getScopeCategoryBreakdownEnhanced(
   // Fetch all Scope 2 metrics with both category AND name
   let query = supabaseAdmin
     .from('metrics_data')
-    .select(`
+    .select(
+      `
       co2e_emissions,
       metrics_catalog!inner(scope, category, name)
-    `)
+    `
+    )
     .eq('organization_id', organizationId)
     .eq('metrics_catalog.scope', scope)
     .gte('period_start', startDate)
@@ -1114,8 +1240,8 @@ async function getScopeCategoryBreakdownEnhanced(
   // Group by intelligently detecting the energy type from name or category
   const categoryMap = new Map<string, { emissions: number; count: number }>();
 
-  metricsData.forEach(d => {
-    const catalog = (d.metrics_catalog as any);
+  metricsData.forEach((d) => {
+    const catalog = d.metrics_catalog as any;
     const category = catalog?.category || '';
     const name = catalog?.name || '';
     const emissionsKg = d.co2e_emissions || 0;
@@ -1126,16 +1252,28 @@ async function getScopeCategoryBreakdownEnhanced(
     const nameLower = name.toLowerCase();
     const categoryLower = category.toLowerCase();
 
-    if (nameLower.includes('heating') || nameLower.includes('heat') ||
-        categoryLower.includes('heating') || categoryLower.includes('heat')) {
+    if (
+      nameLower.includes('heating') ||
+      nameLower.includes('heat') ||
+      categoryLower.includes('heating') ||
+      categoryLower.includes('heat')
+    ) {
       scope2Type = 'Purchased Heating';
-    } else if (nameLower.includes('cooling') || nameLower.includes('cool') ||
-               categoryLower.includes('cooling') || categoryLower.includes('cool')) {
+    } else if (
+      nameLower.includes('cooling') ||
+      nameLower.includes('cool') ||
+      categoryLower.includes('cooling') ||
+      categoryLower.includes('cool')
+    ) {
       scope2Type = 'Purchased Cooling';
     } else if (nameLower.includes('steam') || categoryLower.includes('steam')) {
       scope2Type = 'Purchased Steam';
-    } else if (nameLower.includes('electricity') || nameLower.includes('electric') ||
-               categoryLower.includes('electricity') || categoryLower.includes('electric')) {
+    } else if (
+      nameLower.includes('electricity') ||
+      nameLower.includes('electric') ||
+      categoryLower.includes('electricity') ||
+      categoryLower.includes('electric')
+    ) {
       scope2Type = 'Purchased Electricity';
     }
 
@@ -1151,13 +1289,13 @@ async function getScopeCategoryBreakdownEnhanced(
   // Build category array
   const categories: any[] = [];
   categoryMap.forEach((data, category) => {
-    const emissions = Math.round(data.emissions / 1000 * 10) / 10;
+    const emissions = Math.round((data.emissions / 1000) * 10) / 10;
     categories.push({
       category,
       scope: 'scope_2',
       emissions,
       percentage: 0, // Will be calculated later
-      recordCount: data.count
+      recordCount: data.count,
     });
   });
 

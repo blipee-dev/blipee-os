@@ -19,16 +19,16 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export interface BlipeePerformanceIndex {
   // Overall metrics
-  overallScore: number;                    // 0-100
+  overallScore: number; // 0-100
   grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F';
 
   // Category scores
   categoryScores: CategoryScores;
 
   // Advanced metrics
-  improvementVelocity: number;             // -100 to +100
+  improvementVelocity: number; // -100 to +100
   predictedScore90Days: number;
-  peerPercentile: number;                  // 0-100
+  peerPercentile: number; // 0-100
 
   // Time-based views
   timeSeriesScores: TimeSeriesScores;
@@ -41,29 +41,29 @@ export interface BlipeePerformanceIndex {
 
   // Metadata
   calculatedAt: Date;
-  dataCompleteness: number;                // 0-100 (data quality)
+  dataCompleteness: number; // 0-100 (data quality)
   confidenceLevel: 'high' | 'medium' | 'low';
 }
 
 export interface CategoryScores {
-  energy: CategoryScore;           // 0-30 points (base weight)
-  water: CategoryScore;            // 0-12 points
-  waste: CategoryScore;            // 0-8 points
-  transportation: CategoryScore;   // 0-10 points
-  humanExperience: CategoryScore;  // 0-15 points
-  scopeThree: CategoryScore;       // 0-15 points
-  supplyChain: CategoryScore;      // 0-5 points
-  compliance: CategoryScore;       // 0-5 points
+  energy: CategoryScore; // 0-30 points (base weight)
+  water: CategoryScore; // 0-12 points
+  waste: CategoryScore; // 0-8 points
+  transportation: CategoryScore; // 0-10 points
+  humanExperience: CategoryScore; // 0-15 points
+  scopeThree: CategoryScore; // 0-15 points
+  supplyChain: CategoryScore; // 0-5 points
+  compliance: CategoryScore; // 0-5 points
 }
 
 export interface CategoryScore {
-  rawScore: number;                // 0-100
-  weightedScore: number;           // Contribution to overall
-  weight: number;                  // Industry-specific weight
-  percentile: number;              // vs. industry peers
+  rawScore: number; // 0-100
+  weightedScore: number; // Contribution to overall
+  weight: number; // Industry-specific weight
+  percentile: number; // vs. industry peers
   trend: 'improving' | 'stable' | 'declining';
-  trendValue: number;              // Points/month
-  dataPoints: number;              // Number of measurements
+  trendValue: number; // Points/month
+  dataPoints: number; // Number of measurements
   lastUpdated: Date;
 
   // Sub-scores (category dependent)
@@ -75,11 +75,11 @@ export interface CategoryScore {
 }
 
 export interface TimeSeriesScores {
-  realTime: number;                // Last 24 hours
+  realTime: number; // Last 24 hours
   rolling7Day: number;
   rolling30Day: number;
   rolling90Day: number;
-  rolling365Day: number;           // Arc equivalent
+  rolling365Day: number; // Arc equivalent
 
   // ML predictions
   predicted30Day: number;
@@ -123,7 +123,7 @@ export interface ScoringOpportunity {
   paybackMonths: number | 'immediate';
   priority: 'high' | 'medium' | 'low';
   difficulty: 'easy' | 'moderate' | 'complex';
-  agentWorking?: boolean;          // Is an AI agent already on this?
+  agentWorking?: boolean; // Is an AI agent already on this?
 }
 
 export interface BestPractice {
@@ -132,6 +132,45 @@ export interface BestPractice {
   impact: string;
   applicableTo: string[];
   category: string;
+}
+
+interface SupabaseSiteRecord {
+  id: string;
+  name: string;
+  type?: string | null;
+  total_area_sqm?: number | null;
+  total_employees?: number | null;
+}
+
+interface MetricsCatalogRow {
+  id: string;
+  name: string;
+  category?: string | null;
+  is_diverted?: boolean | null;
+  is_recycling?: boolean | null;
+}
+
+interface MetricsDataRow {
+  metric_id?: string | null;
+  value?: number | null;
+  unit?: string | null;
+  co2e_emissions?: number | null;
+}
+
+interface ComplianceTrackingRow {
+  status?: string | null;
+}
+
+interface PerformanceScoreRow {
+  score: number;
+  calculated_at: string;
+}
+
+interface CategoryScoreRow {
+  raw_score: number;
+  created_at: string;
+  site_id?: string;
+  category?: string;
 }
 
 export interface IndustryWeights {
@@ -156,7 +195,7 @@ const INDUSTRY_WEIGHTS: Record<string, IndustryWeights> = {
     waste: 0.12,
     transportation: 0.08,
     humanExperience: 0.12,
-    scopeThree: 0.10,
+    scopeThree: 0.1,
     supplyChain: 0.05,
     compliance: 0.05,
   },
@@ -165,14 +204,14 @@ const INDUSTRY_WEIGHTS: Record<string, IndustryWeights> = {
     water: 0.08,
     waste: 0.06,
     transportation: 0.15,
-    humanExperience: 0.20,
+    humanExperience: 0.2,
     scopeThree: 0.18,
     supplyChain: 0.03,
     compliance: 0.05,
   },
   retail: {
     energy: 0.28,
-    water: 0.10,
+    water: 0.1,
     waste: 0.15,
     transportation: 0.12,
     humanExperience: 0.15,
@@ -181,12 +220,12 @@ const INDUSTRY_WEIGHTS: Record<string, IndustryWeights> = {
     compliance: 0.05,
   },
   hospitality: {
-    energy: 0.30,
-    water: 0.20,
-    waste: 0.10,
+    energy: 0.3,
+    water: 0.2,
+    waste: 0.1,
     transportation: 0.08,
     humanExperience: 0.18,
-    scopeThree: 0.10,
+    scopeThree: 0.1,
     supplyChain: 0.04,
     compliance: 0.05,
   },
@@ -195,7 +234,7 @@ const INDUSTRY_WEIGHTS: Record<string, IndustryWeights> = {
     water: 0.15,
     waste: 0.12,
     transportation: 0.08,
-    humanExperience: 0.20,
+    humanExperience: 0.2,
     scopeThree: 0.12,
     supplyChain: 0.05,
     compliance: 0.08,
@@ -205,16 +244,16 @@ const INDUSTRY_WEIGHTS: Record<string, IndustryWeights> = {
     water: 0.08,
     waste: 0.08,
     transportation: 0.12,
-    humanExperience: 0.20,
+    humanExperience: 0.2,
     scopeThree: 0.22,
     supplyChain: 0.05,
     compliance: 0.05,
   },
   default: {
-    energy: 0.30,
+    energy: 0.3,
     water: 0.12,
     waste: 0.08,
-    transportation: 0.10,
+    transportation: 0.1,
     humanExperience: 0.15,
     scopeThree: 0.15,
     supplyChain: 0.05,
@@ -235,11 +274,11 @@ export class BlipeePerformanceScorer {
   async calculateSiteScore(
     siteId: string,
     options: {
-      timeWindow?: number;        // Days (default 365) - ignored if startDate/endDate provided
-      startDate?: Date | string;  // Absolute start date for historical calculations
-      endDate?: Date | string;    // Absolute end date for historical calculations
+      timeWindow?: number; // Days (default 365) - ignored if startDate/endDate provided
+      startDate?: Date | string; // Absolute start date for historical calculations
+      endDate?: Date | string; // Absolute end date for historical calculations
       includeForecasts?: boolean; // Include ML predictions
-      industryOverride?: string;  // Force specific industry
+      industryOverride?: string; // Force specific industry
     } = {}
   ): Promise<BlipeePerformanceIndex> {
     const {
@@ -256,7 +295,8 @@ export class BlipeePerformanceScorer {
 
     if (optionsStartDate && optionsEndDate) {
       // Use absolute dates for historical calculations
-      startDate = typeof optionsStartDate === 'string' ? new Date(optionsStartDate) : optionsStartDate;
+      startDate =
+        typeof optionsStartDate === 'string' ? new Date(optionsStartDate) : optionsStartDate;
       endDate = typeof optionsEndDate === 'string' ? new Date(optionsEndDate) : optionsEndDate;
     } else {
       // Use timeWindow (backward compatible)
@@ -269,7 +309,6 @@ export class BlipeePerformanceScorer {
     const site = await this.getSiteDetails(siteId);
 
     if (!site) {
-      console.log(`⚠️ Site ${siteId} not found - returning empty score`);
       return this.createEmptyPortfolioScore();
     }
 
@@ -277,12 +316,7 @@ export class BlipeePerformanceScorer {
     const weights = INDUSTRY_WEIGHTS[industry] || INDUSTRY_WEIGHTS.default;
 
     // Calculate category scores
-    const categoryScores = await this.calculateCategoryScores(
-      siteId,
-      startDate,
-      endDate,
-      weights
-    );
+    const categoryScores = await this.calculateCategoryScores(siteId, startDate, endDate, weights);
 
     // Calculate overall score
     const overallScore = this.aggregateCategoryScores(categoryScores);
@@ -294,31 +328,17 @@ export class BlipeePerformanceScorer {
     );
 
     // Get peer benchmarking
-    const peerPercentile = await this.calculatePeerPercentile(
-      overallScore,
-      industry,
-      site
-    );
+    const peerPercentile = await this.calculatePeerPercentile(overallScore, industry, site);
 
     // Time series scores
-    const timeSeriesScores = await this.calculateTimeSeriesScores(
-      siteId,
-      includeForecasts
-    );
+    const timeSeriesScores = await this.calculateTimeSeriesScores(siteId, includeForecasts);
 
     // Generate opportunities
-    const topOpportunities = await this.generateOpportunities(
-      siteId,
-      categoryScores,
-      industry
-    );
+    const topOpportunities = await this.generateOpportunities(siteId, categoryScores, industry);
 
     // Data quality check
     const dataCompleteness = this.calculateDataCompleteness(categoryScores);
-    const confidenceLevel = this.determineConfidenceLevel(
-      dataCompleteness,
-      categoryScores
-    );
+    const confidenceLevel = this.determineConfidenceLevel(dataCompleteness, categoryScores);
 
     return {
       overallScore: Math.round(overallScore),
@@ -338,11 +358,9 @@ export class BlipeePerformanceScorer {
   /**
    * Calculate portfolio-level score
    */
-  async calculatePortfolioScore(
-    organizationId: string
-  ): Promise<BlipeePerformanceIndex> {
+  async calculatePortfolioScore(organizationId: string): Promise<BlipeePerformanceIndex> {
     // Get all sites in organization
-    const { data: sites, error } = await this.supabase
+    const { data: sitesData, error } = await this.supabase
       .from('sites')
       .select('id, name, type, total_area_sqm, total_employees')
       .eq('organization_id', organizationId);
@@ -352,15 +370,14 @@ export class BlipeePerformanceScorer {
       return this.createEmptyPortfolioScore();
     }
 
-    if (!sites || sites.length === 0) {
-      console.log('📊 No sites found for organization - returning empty portfolio score');
+    if (!sitesData || sitesData.length === 0) {
       return this.createEmptyPortfolioScore();
     }
 
-    console.log(`📊 Calculating portfolio score for ${sites.length} sites`);
+    const sites: SupabaseSiteRecord[] = sitesData as SupabaseSiteRecord[];
 
     // Calculate scores for all sites (with error handling)
-    const siteScoresPromises = sites.map(async site => {
+    const siteScoresPromises = sites.map(async (site: SupabaseSiteRecord) => {
       try {
         return await this.calculateSiteScore(site.id);
       } catch (error) {
@@ -374,28 +391,22 @@ export class BlipeePerformanceScorer {
     // Filter out any empty scores and track corresponding sites
     const validEntries = siteScores
       .map((score, index) => ({ score, site: sites[index] }))
-      .filter(entry => entry.score.overallScore > 0 || entry.score.dataCompleteness > 0);
+      .filter((entry) => entry.score.overallScore > 0 || entry.score.dataCompleteness > 0);
 
     if (validEntries.length === 0) {
-      console.log('📊 No valid site scores - returning empty portfolio score');
       return this.createEmptyPortfolioScore();
     }
 
-    const validSites = validEntries.map(e => e.site);
-    const validSiteScores = validEntries.map(e => e.score);
+    const validSites = validEntries.map((entry) => entry.site);
+    const validSiteScores = validEntries.map((entry) => entry.score);
 
     // Aggregate category scores with smart weighting (do this first)
-    const aggregatedCategories = this.aggregatePortfolioCategories(
-      validSites,
-      validSiteScores
-    );
+    const aggregatedCategories = this.aggregatePortfolioCategories(validSites, validSiteScores);
 
     // Calculate portfolio overall score from aggregated categories
     // This properly accounts for different weighting strategies per category
     // (employee-based for transportation, area-based for energy/water/waste)
     const portfolioOverallScore = this.aggregateCategoryScores(aggregatedCategories);
-
-    console.log(`📊 [Portfolio] Overall Score: ${Math.round(portfolioOverallScore)}/100`);
 
     // Calculate portfolio improvement velocity (average from all sites)
     const portfolioVelocity = this.calculatePortfolioVelocity(validSiteScores);
@@ -403,22 +414,21 @@ export class BlipeePerformanceScorer {
     // Calculate predicted score based on current velocity
     // Assumes velocity is in points/month, multiply by 3 for 90 days
     const predicted90Days = Math.round(
-      Math.max(0, Math.min(100, portfolioOverallScore + (portfolioVelocity * 3)))
+      Math.max(0, Math.min(100, portfolioOverallScore + portfolioVelocity * 3))
     );
 
     // Calculate portfolio peer percentile (average from sites with data)
-    const sitesWithPercentile = validSiteScores.filter(s => s.peerPercentile > 0);
-    const portfolioPeerPercentile = sitesWithPercentile.length > 0
-      ? Math.round(sitesWithPercentile.reduce((sum, s) => sum + s.peerPercentile, 0) / sitesWithPercentile.length)
-      : 0;
-
-    console.log(`📊 [Portfolio] Velocity: ${portfolioVelocity.toFixed(2)}, Predicted 90d: ${predicted90Days}, Peer Percentile: ${portfolioPeerPercentile}th`);
+    const sitesWithPercentile = validSiteScores.filter((s) => s.peerPercentile > 0);
+    const portfolioPeerPercentile =
+      sitesWithPercentile.length > 0
+        ? Math.round(
+            sitesWithPercentile.reduce((sum, s) => sum + s.peerPercentile, 0) /
+              sitesWithPercentile.length
+          )
+        : 0;
 
     // Portfolio analytics
-    const portfolioMetrics = this.calculatePortfolioMetrics(
-      validSites,
-      validSiteScores
-    );
+    const portfolioMetrics = this.calculatePortfolioMetrics(validSites, validSiteScores);
 
     // Portfolio-wide opportunities
     const portfolioOpportunities = await this.generatePortfolioOpportunities(
@@ -427,7 +437,9 @@ export class BlipeePerformanceScorer {
     );
 
     // Calculate data completeness based on category coverage
-    const categoriesWithData = Object.values(aggregatedCategories).filter(cat => cat.dataPoints > 0).length;
+    const categoriesWithData = Object.values(aggregatedCategories).filter(
+      (cat) => cat.dataPoints > 0
+    ).length;
     const dataCompleteness = Math.round((categoriesWithData / 8) * 100);
 
     return {
@@ -445,10 +457,12 @@ export class BlipeePerformanceScorer {
         rolling365Day: portfolioOverallScore,
         predicted30Day: Math.round(portfolioOverallScore + portfolioVelocity),
         predicted90Day: predicted90Days,
-        predicted365Day: Math.round(Math.max(0, Math.min(100, portfolioOverallScore + (portfolioVelocity * 12)))),
+        predicted365Day: Math.round(
+          Math.max(0, Math.min(100, portfolioOverallScore + portfolioVelocity * 12))
+        ),
         confidenceInterval95: [
           Math.max(0, predicted90Days - 10),
-          Math.min(100, predicted90Days + 10)
+          Math.min(100, predicted90Days + 10),
         ],
         historicalScores: [],
       },
@@ -474,11 +488,36 @@ export class BlipeePerformanceScorer {
       energy: await this.calculateEnergyScore(siteId, startDate, endDate, weights.energy),
       water: await this.calculateWaterScore(siteId, startDate, endDate, weights.water),
       waste: await this.calculateWasteScore(siteId, startDate, endDate, weights.waste),
-      transportation: await this.calculateTransportationScore(siteId, startDate, endDate, weights.transportation),
-      humanExperience: await this.calculateHumanExperienceScore(siteId, startDate, endDate, weights.humanExperience),
-      scopeThree: await this.calculateScopeThreeScore(siteId, startDate, endDate, weights.scopeThree),
-      supplyChain: await this.calculateSupplyChainScore(siteId, startDate, endDate, weights.supplyChain),
-      compliance: await this.calculateComplianceScore(siteId, startDate, endDate, weights.compliance),
+      transportation: await this.calculateTransportationScore(
+        siteId,
+        startDate,
+        endDate,
+        weights.transportation
+      ),
+      humanExperience: await this.calculateHumanExperienceScore(
+        siteId,
+        startDate,
+        endDate,
+        weights.humanExperience
+      ),
+      scopeThree: await this.calculateScopeThreeScore(
+        siteId,
+        startDate,
+        endDate,
+        weights.scopeThree
+      ),
+      supplyChain: await this.calculateSupplyChainScore(
+        siteId,
+        startDate,
+        endDate,
+        weights.supplyChain
+      ),
+      compliance: await this.calculateComplianceScore(
+        siteId,
+        startDate,
+        endDate,
+        weights.compliance
+      ),
     };
   }
 
@@ -488,22 +527,19 @@ export class BlipeePerformanceScorer {
     endDate: Date,
     weight: number
   ): Promise<CategoryScore> {
-    console.log(`📊 [Energy] Calculating for site ${siteId}, period: ${startDate.toISOString()} to ${endDate.toISOString()}`);
-
     // Get energy metrics from catalog (Electricity, Stationary Combustion, etc.)
     const { data: energyMetrics } = await this.supabase
       .from('metrics_catalog')
       .select('id')
       .in('category', ['Electricity', 'Stationary Combustion', 'Purchased Energy']);
 
-    console.log(`📊 [Energy] Found ${energyMetrics?.length || 0} energy metrics in catalog`);
+    const energyMetricRows = (energyMetrics ?? []) as Array<Pick<MetricsCatalogRow, 'id'>>;
 
-    if (!energyMetrics || energyMetrics.length === 0) {
-      console.log('❌ [Energy] No energy metrics in catalog');
+    if (energyMetricRows.length === 0) {
       return this.createEmptyScore(weight, 'energy');
     }
 
-    const metricIds = energyMetrics.map(m => m.id);
+    const metricIds = energyMetricRows.map((metric) => metric.id);
 
     // Get energy consumption data from metrics_data within date range
     const { data: energyData } = await this.supabase
@@ -514,24 +550,21 @@ export class BlipeePerformanceScorer {
       .gte('period_start', startDate.toISOString())
       .lte('period_start', endDate.toISOString());
 
-    console.log(`📊 [Energy] Found ${energyData?.length || 0} energy data records`);
+    const energyDataRows = (energyData ?? []) as MetricsDataRow[];
 
-    if (!energyData || energyData.length === 0) {
-      console.log('❌ [Energy] No energy data found for time window');
+    if (energyDataRows.length === 0) {
       return this.createEmptyScore(weight, 'energy');
     }
 
     // Calculate total consumption and emissions
-    const totalConsumption = energyData.reduce(
-      (sum, record) => sum + (record.value || 0),
+    const totalConsumption = energyDataRows.reduce<number>(
+      (sum, record) => sum + (record.value ?? 0),
       0
     );
-    const totalEmissions = energyData.reduce(
-      (sum, record) => sum + (record.co2e_emissions || 0),
+    const totalEmissions = energyDataRows.reduce<number>(
+      (sum, record) => sum + (record.co2e_emissions ?? 0),
       0
     );
-
-    console.log(`📊 [Energy] Total consumption: ${totalConsumption}, emissions: ${totalEmissions}`);
 
     // Get site square footage for intensity calculation
     const { data: site } = await this.supabase
@@ -543,8 +576,6 @@ export class BlipeePerformanceScorer {
     const squareFootage = site?.total_area_sqm || 1;
     const energyIntensity = totalConsumption / squareFootage; // kWh/sqm
     const emissionsIntensity = totalEmissions / squareFootage; // kg CO2e/sqm
-
-    console.log(`📊 [Energy] Site area: ${squareFootage} sqm, intensity: ${energyIntensity.toFixed(2)} kWh/sqm, emissions intensity: ${emissionsIntensity.toFixed(2)} kg/sqm`);
 
     // Score calculation (0-100)
     // Lower intensity = higher score
@@ -562,11 +593,8 @@ export class BlipeePerformanceScorer {
     // 120+ kg/sqm = Poor
     const emissionsScore = Math.max(0, Math.min(100, 100 - (emissionsIntensity / 120) * 100));
 
-    console.log(`📊 [Energy] Energy score: ${energyScore.toFixed(2)}, emissions score: ${emissionsScore.toFixed(2)}`);
-
     // Average of sub-scores
     const rawScore = (energyScore + emissionsScore) / 2;
-    console.log(`📊 [Energy] Raw score: ${rawScore.toFixed(2)}`);
 
     // Get peer percentile
     const percentile = await this.getPeerPercentile('energy', rawScore, siteId);
@@ -581,7 +609,7 @@ export class BlipeePerformanceScorer {
       percentile,
       trend: trend > 0.5 ? 'improving' : trend < -0.5 ? 'declining' : 'stable',
       trendValue: trend,
-      dataPoints: energyData.length,
+  dataPoints: energyDataRows.length,
       lastUpdated: new Date(),
       subScores: {
         energyIntensity: energyScore,
@@ -606,27 +634,26 @@ export class BlipeePerformanceScorer {
     const { data: allWaterMetrics } = await this.supabase
       .from('metrics_catalog')
       .select('id, name, category')
-      .in('category', ['Water Consumption', 'Water Withdrawal', 'Water Discharge', 'Purchased Goods & Services']);
+      .in('category', [
+        'Water Consumption',
+        'Water Withdrawal',
+        'Water Discharge',
+        'Purchased Goods & Services',
+      ]);
 
-    console.log(`📊 [Water] Found ${allWaterMetrics?.length || 0} metrics in water-related categories`);
+    const waterMetricRows = (allWaterMetrics ?? []) as MetricsCatalogRow[];
 
     // Filter to only include actual water (not wastewater, not other purchased goods)
-    const filteredWaterMetrics = allWaterMetrics?.filter(m => {
-      const name = m.name.toLowerCase();
+    const filteredWaterMetrics = waterMetricRows.filter((metric) => {
+      const name = metric.name.toLowerCase();
       return name.includes('water') && !name.includes('wastewater');
-    }) || [];
+    });
 
-    console.log(`📊 [Water] After filtering: ${filteredWaterMetrics.length} water metrics (excluded wastewater)`);
-    if (filteredWaterMetrics.length > 0) {
-      console.log(`📊 [Water] Metrics found:`, filteredWaterMetrics.map(m => `${m.name} (${m.category})`).join(', '));
-    }
-
-    if (!filteredWaterMetrics || filteredWaterMetrics.length === 0) {
-      console.log('❌ [Water] No water metrics found');
+    if (filteredWaterMetrics.length === 0) {
       return this.createEmptyScore(weight, 'water');
     }
 
-    const metricIds = filteredWaterMetrics.map(m => m.id);
+    const metricIds = filteredWaterMetrics.map((metric) => metric.id);
 
     // Get water consumption data from metrics_data within date range
     const { data: waterData } = await this.supabase
@@ -637,20 +664,14 @@ export class BlipeePerformanceScorer {
       .gte('period_start', startDate.toISOString())
       .lte('period_start', endDate.toISOString());
 
-    console.log(`📊 [Water] Found ${waterData?.length || 0} water data records`);
+    const waterDataRows = (waterData ?? []) as MetricsDataRow[];
 
-    if (!waterData || waterData.length === 0) {
-      console.log('❌ [Water] No water data found for time window');
+    if (waterDataRows.length === 0) {
       return this.createEmptyScore(weight, 'water');
     }
 
     // Calculate water intensity (m³/sqm)
-    const totalWater = waterData.reduce(
-      (sum, record) => sum + (record.value || 0),
-      0
-    );
-
-    console.log(`📊 [Water] Total water consumption: ${totalWater.toFixed(2)} m³`);
+    const totalWater = waterDataRows.reduce<number>((sum, record) => sum + (record.value ?? 0), 0);
 
     const { data: site } = await this.supabase
       .from('sites')
@@ -661,8 +682,6 @@ export class BlipeePerformanceScorer {
     const squareFootage = site?.total_area_sqm || 1;
     const waterIntensity = totalWater / squareFootage;
 
-    console.log(`📊 [Water] Site area: ${squareFootage} sqm, intensity: ${waterIntensity.toFixed(3)} m³/sqm`);
-
     // Realistic water intensity benchmarks (m³/sqm/year):
     // 0-0.5 m³/sqm = Excellent (75-100 points)
     // 0.5-1.0 m³/sqm = Good (50-75 points)
@@ -670,8 +689,6 @@ export class BlipeePerformanceScorer {
     // 2.0-4.0 m³/sqm = Poor (0-25 points)
     // 4.0+ m³/sqm = Very Poor (0 points)
     const rawScore = Math.max(0, Math.min(100, 100 - (waterIntensity / 4.0) * 100));
-
-    console.log(`📊 [Water] Raw score: ${rawScore.toFixed(2)}`);
 
     const percentile = await this.getPeerPercentile('water', rawScore, siteId);
     const trend = await this.calculateCategoryTrend(siteId, 'water', 90);
@@ -683,7 +700,7 @@ export class BlipeePerformanceScorer {
       percentile,
       trend: trend > 0.5 ? 'improving' : trend < -0.5 ? 'declining' : 'stable',
       trendValue: trend,
-      dataPoints: waterData.length,
+  dataPoints: waterDataRows.length,
       lastUpdated: new Date(),
       insights: [],
       recommendations: [],
@@ -702,11 +719,13 @@ export class BlipeePerformanceScorer {
       .select('id, name, is_diverted, is_recycling')
       .eq('category', 'Waste');
 
-    if (!wasteMetrics || wasteMetrics.length === 0) {
+    const wasteMetricRows = (wasteMetrics ?? []) as MetricsCatalogRow[];
+
+    if (wasteMetricRows.length === 0) {
       return this.createEmptyScore(weight, 'waste');
     }
 
-    const metricIds = wasteMetrics.map(m => m.id);
+    const metricIds = wasteMetricRows.map((metric) => metric.id);
 
     // Get waste data from metrics_data within date range
     const { data: wasteData } = await this.supabase
@@ -717,21 +736,20 @@ export class BlipeePerformanceScorer {
       .gte('period_start', startDate.toISOString())
       .lte('period_start', endDate.toISOString());
 
-    if (!wasteData || wasteData.length === 0) {
+    const wasteDataRows = (wasteData ?? []) as MetricsDataRow[];
+
+    if (wasteDataRows.length === 0) {
       return this.createEmptyScore(weight, 'waste');
     }
 
     // Calculate total waste and diverted waste based on metric properties
-    const totalWaste = wasteData.reduce(
-      (sum, record) => sum + (record.value || 0),
-      0
-    );
+    const totalWaste = wasteDataRows.reduce<number>((sum, record) => sum + (record.value ?? 0), 0);
 
-    const divertedWaste = wasteData.reduce((sum, record) => {
-      const metric = wasteMetrics.find(m => m.id === record.metric_id);
+    const divertedWaste = wasteDataRows.reduce<number>((sum, record) => {
+      const metric = wasteMetricRows.find((item) => item.id === record.metric_id);
       // Count as diverted if it's recycling, composting, or marked as diverted
       if (metric && (metric.is_diverted || metric.is_recycling)) {
-        return sum + (record.value || 0);
+        return sum + (record.value ?? 0);
       }
       return sum;
     }, 0);
@@ -751,7 +769,7 @@ export class BlipeePerformanceScorer {
       percentile,
       trend: trend > 0.5 ? 'improving' : trend < -0.5 ? 'declining' : 'stable',
       trendValue: trend,
-      dataPoints: wasteData.length,
+  dataPoints: wasteDataRows.length,
       lastUpdated: new Date(),
       subScores: {
         diversionRate,
@@ -767,21 +785,24 @@ export class BlipeePerformanceScorer {
     endDate: Date,
     weight: number
   ): Promise<CategoryScore> {
-    console.log(`📊 [Transportation] Calculating for site ${siteId}`);
-
     // Get transportation metrics from catalog
     // Includes: Mobile Combustion (fleet), Business Travel, Employee Commuting
     const { data: allTransportMetrics } = await this.supabase
       .from('metrics_catalog')
       .select('id, name, category')
-      .in('category', ['Mobile Combustion', 'Business Travel', 'Employee Commuting', 'Purchased Goods & Services']);
+      .in('category', [
+        'Mobile Combustion',
+        'Business Travel',
+        'Employee Commuting',
+        'Purchased Goods & Services',
+      ]);
 
-    console.log(`📊 [Transportation] Found ${allTransportMetrics?.length || 0} potential transport metrics in catalog`);
+    const transportMetricRows = (allTransportMetrics ?? []) as MetricsCatalogRow[];
 
     // Filter to only include actual transportation/travel
-    const transportMetrics = allTransportMetrics?.filter(m => {
-      const name = m.name.toLowerCase();
-      const category = m.category.toLowerCase();
+    const transportMetrics = transportMetricRows.filter((metric) => {
+      const name = metric.name.toLowerCase();
+      const category = (metric.category || '').toLowerCase();
       return (
         category === 'mobile combustion' ||
         category === 'business travel' ||
@@ -794,19 +815,13 @@ export class BlipeePerformanceScorer {
         name.includes('gasoline') ||
         name.includes('diesel')
       );
-    }) || [];
+    });
 
-    console.log(`📊 [Transportation] After filtering: ${transportMetrics?.length || 0} transport metrics`);
-    if (transportMetrics && transportMetrics.length > 0) {
-      console.log(`📊 [Transportation] Metrics found:`, transportMetrics.map(m => `${m.name} (${m.category})`).join(', '));
-    }
-
-    if (!transportMetrics || transportMetrics.length === 0) {
-      console.log('❌ [Transportation] No mobile combustion metrics found');
+    if (transportMetrics.length === 0) {
       return this.createEmptyScore(weight, 'transportation');
     }
 
-    const metricIds = transportMetrics.map(m => m.id);
+    const metricIds = transportMetrics.map((metric) => metric.id);
 
     // Get transportation data from metrics_data within date range
     const { data: transportData } = await this.supabase
@@ -817,21 +832,17 @@ export class BlipeePerformanceScorer {
       .gte('period_start', startDate.toISOString())
       .lte('period_start', endDate.toISOString());
 
-    console.log(`📊 [Transportation] Found ${transportData?.length || 0} transportation data records`);
+    const transportDataRows = (transportData ?? []) as MetricsDataRow[];
 
-    if (!transportData || transportData.length === 0) {
-      console.log('❌ [Transportation] No transportation data found for time window');
+    if (transportDataRows.length === 0) {
       return this.createEmptyScore(weight, 'transportation');
     }
 
     // Calculate total emissions
-    const totalEmissions = transportData.reduce(
-      (sum, record) => sum + (record.co2e_emissions || 0),
+    const totalEmissions = transportDataRows.reduce<number>(
+      (sum, record) => sum + (record.co2e_emissions ?? 0),
       0
     );
-
-    console.log(`📊 [Transportation] Total emissions: ${totalEmissions.toFixed(2)} kg CO2e`);
-    console.log(`📊 [Transportation] Sample records:`, transportData.slice(0, 3).map(r => ({ value: r.value, co2e: r.co2e_emissions })));
 
     const { data: site } = await this.supabase
       .from('sites')
@@ -842,11 +853,8 @@ export class BlipeePerformanceScorer {
     const employeeCount = site?.total_employees || 1;
     const area = site?.total_area_sqm || 1;
 
-    console.log(`📊 [Transportation] Site: ${employeeCount} employees, ${area} sqm`);
-
     // Calculate emissions per employee (primary metric for transportation)
     const emissionsPerEmployee = totalEmissions / employeeCount;
-    console.log(`📊 [Transportation] Emissions per employee: ${emissionsPerEmployee.toFixed(2)} kg CO2e/employee`);
 
     // Benchmark for transportation emissions per employee (kg CO2e/employee/year):
     // 0-500 kg/employee = Excellent (80-100 points)
@@ -855,7 +863,7 @@ export class BlipeePerformanceScorer {
     // 2000-3000 kg/employee = Poor (20-40 points)
     // 3000+ kg/employee = Very Poor (0-20 points)
     const rawScore = Math.max(0, Math.min(100, 100 - (emissionsPerEmployee / 3000) * 100));
-    console.log(`📊 [Transportation] Raw score: ${rawScore.toFixed(2)}`);
+
     const percentile = await this.getPeerPercentile('transportation', rawScore, siteId);
     const trend = await this.calculateCategoryTrend(siteId, 'transportation', 90);
 
@@ -866,7 +874,7 @@ export class BlipeePerformanceScorer {
       percentile,
       trend: trend > 0.5 ? 'improving' : trend < -0.5 ? 'declining' : 'stable',
       trendValue: trend,
-      dataPoints: transportData.length,
+  dataPoints: transportDataRows.length,
       lastUpdated: new Date(),
       insights: [],
       recommendations: [],
@@ -894,15 +902,20 @@ export class BlipeePerformanceScorer {
     const { data: scope3Metrics } = await this.supabase
       .from('metrics_catalog')
       .select('id, name')
-      .in('category', ['Purchased Goods & Services', 'Process Emissions', 'Raw Materials', 'Recycled Materials']);
+      .in('category', [
+        'Purchased Goods & Services',
+        'Process Emissions',
+        'Raw Materials',
+        'Recycled Materials',
+      ]);
 
-    console.log(`📊 [Scope 3] Found ${scope3Metrics?.length || 0} potential Scope 3 metrics`);
+    const scope3MetricRows = (scope3Metrics ?? []) as MetricsCatalogRow[];
 
     // Filter out items counted in other categories:
     // - Water/wastewater (counted in Water category)
     // - Travel/transportation (counted in Transportation category)
-    const filteredScope3Metrics = scope3Metrics?.filter(m => {
-      const name = m.name.toLowerCase();
+    const filteredScope3Metrics = scope3MetricRows.filter((metric) => {
+      const name = metric.name.toLowerCase();
       return (
         !name.includes('water') &&
         !name.includes('travel') &&
@@ -910,15 +923,13 @@ export class BlipeePerformanceScorer {
         !name.includes('flight') &&
         !name.includes('vehicle')
       );
-    }) || [];
+    });
 
-    console.log(`📊 [Scope 3] After excluding water & transport: ${filteredScope3Metrics.length} Scope 3 metrics`);
-
-    if (!filteredScope3Metrics || filteredScope3Metrics.length === 0) {
+    if (filteredScope3Metrics.length === 0) {
       return this.createEmptyScore(weight, 'scopeThree');
     }
 
-    const metricIds = filteredScope3Metrics.map(m => m.id);
+    const metricIds = filteredScope3Metrics.map((metric) => metric.id);
 
     // Get Scope 3 data from metrics_data within date range
     const { data: scope3Data } = await this.supabase
@@ -929,16 +940,15 @@ export class BlipeePerformanceScorer {
       .gte('period_start', startDate.toISOString())
       .lte('period_start', endDate.toISOString());
 
-    console.log(`📊 [Scope 3] Found ${scope3Data?.length || 0} Scope 3 data records`);
+    const scope3DataRows = (scope3Data ?? []) as MetricsDataRow[];
 
-    if (!scope3Data || scope3Data.length === 0) {
-      console.log('❌ [Scope 3] No Scope 3 data found for time window');
+    if (scope3DataRows.length === 0) {
       return this.createEmptyScore(weight, 'scopeThree');
     }
 
     // Calculate Scope 3 total emissions
-    const totalScope3 = scope3Data.reduce(
-      (sum, record) => sum + (record.co2e_emissions || 0),
+    const totalScope3 = scope3DataRows.reduce<number>(
+      (sum, record) => sum + (record.co2e_emissions ?? 0),
       0
     );
 
@@ -956,7 +966,7 @@ export class BlipeePerformanceScorer {
       percentile,
       trend: trend > 0.5 ? 'improving' : trend < -0.5 ? 'declining' : 'stable',
       trendValue: trend,
-      dataPoints: scope3Data.length,
+  dataPoints: scope3DataRows.length,
       lastUpdated: new Date(),
       insights: [],
       recommendations: [],
@@ -985,13 +995,15 @@ export class BlipeePerformanceScorer {
       .select('*')
       .eq('site_id', siteId);
 
-    if (!complianceData || complianceData.length === 0) {
+    const complianceRows = (complianceData ?? []) as ComplianceTrackingRow[];
+
+    if (complianceRows.length === 0) {
       return this.createEmptyScore(weight, 'compliance');
     }
 
     // Score = % of requirements met
-    const totalRequirements = complianceData.length;
-    const metRequirements = complianceData.filter(r => r.status === 'compliant').length;
+    const totalRequirements = complianceRows.length;
+    const metRequirements = complianceRows.filter((row) => row.status === 'compliant').length;
     const rawScore = (metRequirements / totalRequirements) * 100;
 
     const percentile = await this.getPeerPercentile('compliance', rawScore, siteId);
@@ -1015,10 +1027,7 @@ export class BlipeePerformanceScorer {
   // ============================================================================
 
   private aggregateCategoryScores(categories: CategoryScores): number {
-    return Object.values(categories).reduce(
-      (sum, category) => sum + category.weightedScore,
-      0
-    );
+    return Object.values(categories).reduce((sum, category) => sum + category.weightedScore, 0);
   }
 
   private scoreToGrade(score: number): 'A+' | 'A' | 'B' | 'C' | 'D' | 'F' {
@@ -1030,10 +1039,7 @@ export class BlipeePerformanceScorer {
     return 'F';
   }
 
-  private async calculateImprovementVelocity(
-    siteId: string,
-    days: number
-  ): Promise<number> {
+  private async calculateImprovementVelocity(siteId: string, days: number): Promise<number> {
     // Get historical scores
     const { data: historicalScores } = await this.supabase
       .from('performance_scores')
@@ -1042,12 +1048,14 @@ export class BlipeePerformanceScorer {
       .gte('calculated_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
       .order('calculated_at', { ascending: true });
 
-    if (!historicalScores || historicalScores.length < 2) {
+    const historicalScoreRows = (historicalScores ?? []) as PerformanceScoreRow[];
+
+    if (historicalScoreRows.length < 2) {
       return 0;
     }
 
     // Simple linear regression
-    const scores = historicalScores.map(h => h.score);
+    const scores = historicalScoreRows.map((row) => row.score);
     const trend = (scores[scores.length - 1] - scores[0]) / scores.length;
 
     // Normalize to -100 to +100 scale
@@ -1061,17 +1069,20 @@ export class BlipeePerformanceScorer {
   private async calculatePeerPercentile(
     score: number,
     industry: string,
-    site: any
+    site: SupabaseSiteRecord
   ): Promise<number> {
     // Compare to peer buildings
+    const siteArea = site.total_area_sqm ?? 0;
     const { data: peerScores } = await this.supabase
       .from('performance_scores')
       .select('score')
       .eq('industry', industry)
-      .gte('total_area_sqm', site.total_area_sqm * 0.7)
-      .lte('total_area_sqm', site.total_area_sqm * 1.3);
+      .gte('total_area_sqm', siteArea * 0.7)
+      .lte('total_area_sqm', siteArea * 1.3);
 
-    if (!peerScores || peerScores.length === 0) {
+    const peerScoreRows = (peerScores ?? []) as PerformanceScoreRow[];
+
+    if (peerScoreRows.length === 0) {
       // No peer data available - calculate percentile based on score
       // Use same formula as category percentiles for consistency
       if (score <= 0) return 5;
@@ -1086,8 +1097,8 @@ export class BlipeePerformanceScorer {
       return Math.round(percentile);
     }
 
-    const lowerScores = peerScores.filter(p => p.score < score).length;
-    return Math.round((lowerScores / peerScores.length) * 100);
+  const lowerScores = peerScoreRows.filter((record) => record.score < score).length;
+  return Math.round((lowerScores / peerScoreRows.length) * 100);
   }
 
   private async calculateTimeSeriesScores(
@@ -1130,9 +1141,12 @@ export class BlipeePerformanceScorer {
       .eq('site_id', siteId)
       .gte('calculated_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString());
 
-    if (!data || data.length === 0) return 0;
+    const scoreRows = (data ?? []) as PerformanceScoreRow[];
 
-    return data.reduce((sum, s) => sum + s.score, 0) / data.length;
+    if (scoreRows.length === 0) return 0;
+
+    const total = scoreRows.reduce<number>((sum, row) => sum + row.score, 0);
+    return total / scoreRows.length;
   }
 
   private async generateOpportunities(
@@ -1209,7 +1223,18 @@ export class BlipeePerformanceScorer {
         confidenceInterval95: [0, 0],
         historicalScores: [],
       },
-      portfolioMetrics: {},
+      portfolioMetrics: {
+        overallScore: 0,
+        totalSites: 0,
+        averageScore: 0,
+        medianScore: 0,
+        scoreRange: [0, 0],
+        topPerformers: [],
+        bottomPerformers: [],
+        mostImproved: [],
+        portfolioOpportunities: [],
+        bestPractices: [],
+      },
       topOpportunities: [],
       calculatedAt: new Date(),
       dataCompleteness: 0,
@@ -1219,9 +1244,7 @@ export class BlipeePerformanceScorer {
 
   private calculateDataCompleteness(categories: CategoryScores): number {
     const totalCategories = Object.keys(categories).length;
-    const categoriesWithData = Object.values(categories).filter(
-      c => c.dataPoints > 0
-    ).length;
+    const categoriesWithData = Object.values(categories).filter((c) => c.dataPoints > 0).length;
 
     return Math.round((categoriesWithData / totalCategories) * 100);
   }
@@ -1230,10 +1253,9 @@ export class BlipeePerformanceScorer {
     dataCompleteness: number,
     categories: CategoryScores
   ): 'high' | 'medium' | 'low' {
-    const avgDataPoints = Object.values(categories).reduce(
-      (sum, c) => sum + c.dataPoints,
-      0
-    ) / Object.keys(categories).length;
+    const avgDataPoints =
+      Object.values(categories).reduce((sum, c) => sum + c.dataPoints, 0) /
+      Object.keys(categories).length;
 
     if (dataCompleteness >= 80 && avgDataPoints >= 30) return 'high';
     if (dataCompleteness >= 60 && avgDataPoints >= 10) return 'medium';
@@ -1241,11 +1263,7 @@ export class BlipeePerformanceScorer {
   }
 
   private async getSiteDetails(siteId: string) {
-    const { data } = await this.supabase
-      .from('sites')
-      .select('*')
-      .eq('id', siteId)
-      .single();
+    const { data } = await this.supabase.from('sites').select('*').eq('id', siteId).single();
 
     return data;
   }
@@ -1300,19 +1318,25 @@ export class BlipeePerformanceScorer {
         .gte('created_at', startDate.toISOString())
         .order('created_at', { ascending: true });
 
-      if (error || !historicalScores || historicalScores.length < 2) {
+      const historicalRows = (historicalScores ?? []) as CategoryScoreRow[];
+
+      if (error || historicalRows.length < 2) {
         // Not enough data to calculate trend
         return 0;
       }
 
       // Split data into two halves: older period vs recent period
-      const midpoint = Math.floor(historicalScores.length / 2);
-      const olderScores = historicalScores.slice(0, midpoint);
-      const recentScores = historicalScores.slice(midpoint);
+      const midpoint = Math.floor(historicalRows.length / 2);
+      const olderScores = historicalRows.slice(0, midpoint) as CategoryScoreRow[];
+      const recentScores = historicalRows.slice(midpoint) as CategoryScoreRow[];
 
       // Calculate average scores for each period
-      const olderAvg = olderScores.reduce((sum, s) => sum + s.raw_score, 0) / olderScores.length;
-      const recentAvg = recentScores.reduce((sum, s) => sum + s.raw_score, 0) / recentScores.length;
+      const olderAvg =
+        olderScores.reduce((sum: number, record: CategoryScoreRow) => sum + record.raw_score, 0) /
+        olderScores.length;
+      const recentAvg =
+        recentScores.reduce((sum: number, record: CategoryScoreRow) => sum + record.raw_score, 0) /
+        recentScores.length;
 
       // Calculate trend as percentage change
       // Positive = improving, Negative = declining
@@ -1320,18 +1344,13 @@ export class BlipeePerformanceScorer {
 
       // Cap trend at +/-20 for display purposes
       return Math.max(-20, Math.min(20, trend));
-
     } catch (error) {
       console.error(`Error calculating trend for ${category}:`, error);
       return 0;
     }
   }
 
-  private generateEnergyInsights(
-    score: number,
-    trend: number,
-    percentile: number
-  ): string[] {
+  private generateEnergyInsights(score: number, trend: number, percentile: number): string[] {
     const insights: string[] = [];
 
     if (score > 80) {
@@ -1355,7 +1374,7 @@ export class BlipeePerformanceScorer {
 
   private calculateScope3Completeness(data: any[]): number {
     // Calculate how many Scope 3 categories are tracked
-    const categories = new Set(data.map(d => d.category));
+    const categories = new Set(data.map((d) => d.category));
     const totalCategories = 15; // GHG Protocol has 15 Scope 3 categories
     return (categories.size / totalCategories) * 100;
   }
@@ -1364,7 +1383,7 @@ export class BlipeePerformanceScorer {
     sites: any[],
     siteScores: BlipeePerformanceIndex[]
   ): PortfolioMetrics {
-    const scores = siteScores.map(s => s.overallScore);
+    const scores = siteScores.map((s) => s.overallScore);
     const sorted = [...scores].sort((a, b) => a - b);
 
     return {
@@ -1411,8 +1430,6 @@ export class BlipeePerformanceScorer {
     const avgCategories: any = {};
     const categories = Object.keys(scores[0].categoryScores);
 
-    console.log(`📊 [Portfolio] Aggregating ${categories.length} categories across ${sites.length} sites`);
-
     for (const category of categories) {
       // Determine weighting strategy based on category
       let weightedScore = 0;
@@ -1420,24 +1437,24 @@ export class BlipeePerformanceScorer {
       let sitesWithData = 0;
 
       // Category-specific weighting
-      const useEmployeeWeight = ['transportation', 'humanExperience', 'scopeThree', 'supplyChain'].includes(category);
+      const useEmployeeWeight = [
+        'transportation',
+        'humanExperience',
+        'scopeThree',
+        'supplyChain',
+      ].includes(category);
 
       for (let i = 0; i < scores.length; i++) {
         const score = scores[i].categoryScores[category as keyof CategoryScores];
         const site = sites[i];
 
-        console.log(`📊 [Portfolio] ${category} - Site ${i} (${site.name}): rawScore=${score.rawScore}, dataPoints=${score.dataPoints}`);
-
         // Skip sites with no data (0 score AND 0 data points means no data)
         if (score.rawScore === 0 && score.dataPoints === 0) {
-          console.log(`   ⏭️  Skipping ${site.name} - no data`);
           continue;
         }
 
         // Weight by employees or area depending on category
-        const weight = useEmployeeWeight
-          ? (site.total_employees || 0)
-          : (site.total_area_sqm || 0);
+        const weight = useEmployeeWeight ? site.total_employees || 0 : site.total_area_sqm || 0;
 
         if (weight > 0) {
           weightedScore += score.rawScore * weight;
@@ -1450,10 +1467,11 @@ export class BlipeePerformanceScorer {
       const avgRawScore = totalWeight > 0 ? weightedScore / totalWeight : 0;
 
       // Get average weight across all sites (for the category importance)
-      const avgWeight = scores.reduce(
-        (sum, s) => sum + s.categoryScores[category as keyof CategoryScores].weight,
-        0
-      ) / scores.length;
+      const avgWeight =
+        scores.reduce(
+          (sum, s) => sum + s.categoryScores[category as keyof CategoryScores].weight,
+          0
+        ) / scores.length;
 
       // Calculate total data points
       const totalDataPoints = scores.reduce(
@@ -1481,29 +1499,28 @@ export class BlipeePerformanceScorer {
       const weightedScoreValue = avgRawScore * avgWeight;
 
       // Calculate average percentile from sites with data
-      const avgPercentile = sitesWithData > 0
-        ? scores.reduce((sum, s, i) => {
-            const score = s.categoryScores[category as keyof CategoryScores];
-            if (score.rawScore === 0 && score.dataPoints === 0) return sum;
-            return sum + score.percentile;
-          }, 0) / sitesWithData
-        : 0;
+      const avgPercentile =
+        sitesWithData > 0
+          ? scores.reduce((sum, s, i) => {
+              const score = s.categoryScores[category as keyof CategoryScores];
+              if (score.rawScore === 0 && score.dataPoints === 0) return sum;
+              return sum + score.percentile;
+            }, 0) / sitesWithData
+          : 0;
 
       // Calculate average trend value from sites with data
-      const avgTrendValue = sitesWithData > 0
-        ? scores.reduce((sum, s, i) => {
-            const score = s.categoryScores[category as keyof CategoryScores];
-            if (score.rawScore === 0 && score.dataPoints === 0) return sum;
-            return sum + (score.trendValue || 0);
-          }, 0) / sitesWithData
-        : 0;
+      const avgTrendValue =
+        sitesWithData > 0
+          ? scores.reduce((sum, s, i) => {
+              const score = s.categoryScores[category as keyof CategoryScores];
+              if (score.rawScore === 0 && score.dataPoints === 0) return sum;
+              return sum + (score.trendValue || 0);
+            }, 0) / sitesWithData
+          : 0;
 
       // Determine overall trend
-      const trend = avgTrendValue > 0.5 ? 'improving' : avgTrendValue < -0.5 ? 'declining' : 'stable';
-
-      console.log(`📊 [Portfolio] ${category}: ${Math.round(avgRawScore)}/100 (${sitesWithData}/${sites.length} sites, ${dataCoverage.toFixed(0)}% ${useEmployeeWeight ? 'employees' : 'area'} covered)`);
-      console.log(`   Weight: ${avgWeight.toFixed(3)}, Weighted Score: ${weightedScoreValue.toFixed(2)}`);
-      console.log(`   Percentile: ${Math.round(avgPercentile)}th, Trend: ${trend} (${avgTrendValue.toFixed(2)})`);
+      const trend =
+        avgTrendValue > 0.5 ? 'improving' : avgTrendValue < -0.5 ? 'declining' : 'stable';
 
       avgCategories[category] = {
         rawScore: Math.round(avgRawScore),
@@ -1514,9 +1531,12 @@ export class BlipeePerformanceScorer {
         trendValue: avgTrendValue,
         dataPoints: totalDataPoints,
         lastUpdated: new Date(),
-        insights: dataCoverage < 100
-          ? [`Data coverage: ${dataCoverage.toFixed(0)}% of ${useEmployeeWeight ? 'employees' : 'area'}`]
-          : [],
+        insights:
+          dataCoverage < 100
+            ? [
+                `Data coverage: ${dataCoverage.toFixed(0)}% of ${useEmployeeWeight ? 'employees' : 'area'}`,
+              ]
+            : [],
         recommendations: [],
       };
     }
@@ -1526,18 +1546,11 @@ export class BlipeePerformanceScorer {
       (sum: number, cat: any) => sum + cat.weightedScore,
       0
     );
-    console.log(`📊 [Portfolio] Total Weighted Score Breakdown:`);
-    console.log(`   ${Object.entries(avgCategories).map(([name, cat]: [string, any]) =>
-      `${name}: ${cat.weightedScore.toFixed(2)}`
-    ).join(', ')}`);
-    console.log(`   Total: ${totalWeightedScore.toFixed(2)}`);
 
     return avgCategories as CategoryScores;
   }
 
-  private calculatePortfolioVelocity(
-    scores: BlipeePerformanceIndex[]
-  ): number {
+  private calculatePortfolioVelocity(scores: BlipeePerformanceIndex[]): number {
     return scores.reduce((sum, s) => sum + s.improvementVelocity, 0) / scores.length;
   }
 

@@ -130,7 +130,7 @@ async function main() {
     '/',
     '/signin',
     '/api/health',
-    '/api/ai/chat',
+    '/api/monitoring/health',
     '/_next/static/test.js', // Should be excluded by middleware
   ];
 

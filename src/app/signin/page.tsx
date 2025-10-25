@@ -10,18 +10,6 @@ import { useTranslations } from "@/providers/LanguageProvider";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { MFAVerification } from "@/components/auth/mfa/MFAVerification";
 import { useSSOAuth } from "@/hooks/useSSOAuth";
-import dynamic from 'next/dynamic';
-
-// Preload the ConversationInterface component
-const preloadConversationInterface = () => {
-  const LazyConversationInterface = dynamic(
-    () => import('@/components/blipee-os/ConversationInterface').then(mod => mod.ConversationInterface),
-    { ssr: true }
-  );
-  if ('preload' in LazyConversationInterface && typeof LazyConversationInterface.preload === 'function') {
-    LazyConversationInterface.preload();
-  }
-};
 
 export default function SignInPage() {
   const t = useTranslations('auth.signin');
@@ -58,11 +46,6 @@ export default function SignInPage() {
   const handleEmailChange = (value: string) => {
     setEmail(value);
     setSsoChecked(false); // Reset SSO check when email changes
-    
-    // Preload ConversationInterface when user starts typing (likely to sign in)
-    if (value.length === 1) {
-      preloadConversationInterface();
-    }
   };
 
   // Check SSO when user finishes entering email (on blur)

@@ -176,38 +176,39 @@ export class DeveloperPortalManager {
   private initializeEndpoints(): void {
     const endpoints: APIEndpoint[] = [
       {
-        id: 'chat-create',
-        path: '/api/ai/chat',
+        id: 'sustainability-intelligence',
+        path: '/api/sustainability/intelligence',
         method: 'POST',
-        title: 'Create AI Chat',
-        description: 'Send a message to the AI and get an intelligent response with dynamic UI components',
-        category: 'AI & Conversations',
-        tags: ['ai', 'chat', 'sustainability', 'insights'],
-        version: '2024-09-01',
+        title: 'Generate Sustainability Intelligence',
+        description: 'Run the sustainability intelligence engine to produce insights, recommendations, and alerts for a specific dashboard.',
+        category: 'Sustainability Intelligence',
+        tags: ['ai', 'sustainability', 'intelligence', 'insights'],
+        version: '2025-01-01',
         deprecated: false,
         authentication: 'api_key',
         rateLimited: true,
         parameters: [
           {
-            name: 'message',
+            name: 'dashboardType',
             type: 'string',
             required: true,
-            description: 'The user message to send to the AI',
-            example: 'What is our current carbon footprint?'
+            description: 'Dashboard to enrich with intelligence output',
+            example: 'energy',
+            enum: ['emissions', 'energy', 'compliance', 'targets', 'overview']
           },
           {
-            name: 'context',
+            name: 'rawData',
             type: 'object',
             required: false,
-            description: 'Additional context about the organization or building',
-            example: { buildingId: 'building-123', organizationId: 'org-456' }
+            description: 'Optional dashboard dataset to provide additional context (falls back to warehouse data when omitted)',
+            example: { metrics: [], filters: { siteId: 'site-123' } }
           },
           {
-            name: 'provider',
-            type: 'string',
+            name: 'options',
+            type: 'object',
             required: false,
-            description: 'AI provider preference (auto-selected if not specified)',
-            example: 'deepseek'
+            description: 'Advanced tuning options such as forcing agent execution',
+            example: { refreshCache: true }
           }
         ],
         requestBody: {
@@ -215,59 +216,72 @@ export class DeveloperPortalManager {
           schema: {
             type: 'object',
             properties: {
-              message: { type: 'string' },
-              context: { type: 'object' },
-              provider: { type: 'string', enum: ['deepseek', 'openai', 'anthropic'] }
+              dashboardType: { type: 'string', enum: ['emissions', 'energy', 'compliance', 'targets', 'overview'] },
+              rawData: { type: 'object' },
+              options: { type: 'object' }
             },
-            required: ['message']
+            required: ['dashboardType']
           },
           example: {
-            message: 'Show me our energy consumption trends for the last quarter',
-            context: {
-              buildingId: 'building-123',
-              organizationId: 'org-456'
+            dashboardType: 'energy',
+            options: {
+              refreshCache: false,
+              includeBenchmarks: true
             }
           }
         },
         responses: {
           '200': {
-            description: 'Successful AI response with optional UI components',
+            description: 'Intelligence package containing insights, recommendations, and alerts for the requested dashboard',
             schema: {
               type: 'object',
               properties: {
-                content: { type: 'string' },
-                provider: { type: 'string' },
-                model: { type: 'string' },
-                components: { type: 'array' },
-                suggestions: { type: 'array' },
-                cached: { type: 'boolean' }
+                dashboardType: { type: 'string' },
+                organizationId: { type: 'string' },
+                insights: { type: 'array' },
+                recommendations: { type: 'array' },
+                alerts: { type: 'array' },
+                metrics: { type: 'object' },
+                generatedAt: { type: 'string' },
+                cacheHit: { type: 'boolean' }
               }
             },
             example: {
-              content: 'Based on your energy data, I see a 15% increase in consumption...',
-              provider: 'deepseek',
-              model: 'deepseek-chat',
-              components: [{
-                type: 'chart',
-                data: { /* chart data */ }
-              }],
-              suggestions: ['Compare with previous year', 'Identify peak usage hours'],
-              cached: false
+              dashboardType: 'energy',
+              organizationId: 'org-456',
+              insights: [
+                { type: 'trend', message: 'Electricity consumption increased 12% month over month.' }
+              ],
+              recommendations: [
+                {
+                  action: 'Enable night setback schedules',
+                  potentialImpact: 'Reduce baseline load by 6%',
+                  priority: 'high'
+                }
+              ],
+              alerts: [],
+              metrics: {
+                agentsExecuted: 5,
+                executionTimeMs: 842,
+                cacheHit: false
+              },
+              generatedAt: new Date().toISOString(),
+              cacheHit: false
             }
           }
         },
         examples: [
           {
             language: 'curl',
-            title: 'Basic Chat Request',
-            code: `curl -X POST https://api.blipee.com/api/ai/chat \\
+            title: 'Generate intelligence for the energy dashboard',
+            code: `curl -X POST https://api.blipee.com/api/sustainability/intelligence \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
-  -H "API-Version: 2024-09-01" \\
   -d '{
-    "message": "What is our current carbon footprint?",
-    "context": {
-      "buildingId": "building-123"
+    "dashboardType": "energy",
+    "options": {
+      "refreshCache": false,
+      "includeBenchmarks": true
     }
   }'`,
             runnable: true
@@ -275,9 +289,9 @@ export class DeveloperPortalManager {
         ],
         changelog: [
           {
-            version: '2024-09-01',
-            date: new Date('2024-09-01'),
-            changes: ['Added provider selection', 'Enhanced context support', 'Dynamic UI components']
+            version: '2025-01-01',
+            date: new Date('2025-01-01'),
+            changes: ['Initial sustainability intelligence endpoint release', 'Supports 5 dashboard types', 'Includes agent execution metrics']
           }
         ]
       },
@@ -596,29 +610,28 @@ The AI automatically selects the best model for each query, balancing cost and q
           },
           {
             id: 'ai-step-2',
-            title: 'Building a Chat Interface',
-            content: `Let's build a simple chat interface that connects to Blipee's AI:`,
+            title: 'Requesting Sustainability Intelligence',
+            content: `Let's build a helper that calls the Sustainability Intelligence endpoint and returns structured insights:`,
             code: [
               {
                 language: 'javascript',
-                title: 'AI Chat Implementation',
-                code: `class BlipeeChat {
+                title: 'Intelligence request helper',
+                code: `class BlipeeIntelligenceClient {
   constructor(apiKey) {
     this.apiKey = apiKey;
     this.baseUrl = 'https://api.blipee.com';
   }
 
-  async sendMessage(message, context = {}) {
-    const response = await fetch(\`\${this.baseUrl}/api/ai/chat\`, {
+  async generateIntelligence(dashboardType, options = {}) {
+    const response = await fetch(\`\${this.baseUrl}/api/sustainability/intelligence\`, {
       method: 'POST',
       headers: {
         'Authorization': \`Bearer \${this.apiKey}\`,
         'Content-Type': 'application/json',
-        'API-Version': '2024-09-01'
       },
       body: JSON.stringify({
-        message,
-        context
+        dashboardType,
+        options
       })
     });
 
@@ -627,11 +640,11 @@ The AI automatically selects the best model for each query, balancing cost and q
 }
 
 // Usage example
-const chat = new BlipeeChat('your-api-key');
-const response = await chat.sendMessage(
-  'What are the top 3 energy efficiency opportunities in our building?',
-  { buildingId: 'building-123' }
-);`,
+const intelligence = new BlipeeIntelligenceClient('your-api-key');
+const response = await intelligence.generateIntelligence('energy', {
+  includeBenchmarks: true,
+  refreshCache: false
+});`,
                 runnable: true
               }
             ]

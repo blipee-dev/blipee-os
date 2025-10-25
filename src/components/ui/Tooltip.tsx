@@ -1,83 +1,53 @@
-'use client';
+"use client"
 
-import React, { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import * as React from "react"
+import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
+import { cn } from "@/lib/utils"
+
+const TooltipProvider = TooltipPrimitive.Provider
+
+const TooltipRoot = TooltipPrimitive.Root
+
+const TooltipTrigger = TooltipPrimitive.Trigger
+
+const TooltipContent = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+>(({ className, sideOffset = 4, ...props }, ref) => (
+  <TooltipPrimitive.Portal>
+    <TooltipPrimitive.Content
+      ref={ref}
+      sideOffset={sideOffset}
+      className={cn(
+        "z-50 overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-tooltip-content-transform-origin]",
+        className
+      )}
+      {...props}
+    />
+  </TooltipPrimitive.Portal>
+))
+TooltipContent.displayName = TooltipPrimitive.Content.displayName
+
+// Wrapper component for convenience
 interface TooltipProps {
-  content: string;
-  children: React.ReactElement;
-  side?: 'top' | 'right' | 'bottom' | 'left';
-  disabled?: boolean;
+  children: React.ReactNode;
+  content: React.ReactNode;
+  side?: "top" | "right" | "bottom" | "left";
+  className?: string;
 }
 
-export function Tooltip({ content, children, side = 'right', disabled = false }: TooltipProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const triggerRef = useRef<HTMLElement>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isVisible && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      const tooltipRect = tooltipRef.current?.getBoundingClientRect();
-      const spacing = 8;
-
-      let x = 0;
-      let y = 0;
-
-      switch (side) {
-        case 'right':
-          x = rect.right + spacing;
-          y = rect.top + rect.height / 2 - (tooltipRect?.height || 0) / 2;
-          break;
-        case 'left':
-          x = rect.left - (tooltipRect?.width || 0) - spacing;
-          y = rect.top + rect.height / 2 - (tooltipRect?.height || 0) / 2;
-          break;
-        case 'top':
-          x = rect.left + rect.width / 2 - (tooltipRect?.width || 0) / 2;
-          y = rect.top - (tooltipRect?.height || 0) - spacing;
-          break;
-        case 'bottom':
-          x = rect.left + rect.width / 2 - (tooltipRect?.width || 0) / 2;
-          y = rect.bottom + spacing;
-          break;
-      }
-
-      setPosition({ x, y });
-    }
-  }, [isVisible, side]);
-
-  if (disabled) {
-    return children;
-  }
-
-  const childWithRef = React.cloneElement(children, {
-    ref: triggerRef,
-    onMouseEnter: () => setIsVisible(true),
-    onMouseLeave: () => setIsVisible(false),
-    onFocus: () => setIsVisible(true),
-    onBlur: () => setIsVisible(false),
-  });
-
+const Tooltip = ({ children, content, side = "top", className }: TooltipProps) => {
   return (
-    <>
-      {childWithRef}
-      {isVisible &&
-        typeof window !== 'undefined' &&
-        createPortal(
-          <div
-            ref={tooltipRef}
-            className="fixed z-[10000] px-2 py-1.5 text-xs font-medium text-white bg-gray-900 dark:bg-gray-800 rounded-md shadow-lg pointer-events-none animate-in fade-in duration-100"
-            style={{
-              left: `${position.x}px`,
-              top: `${position.y}px`,
-            }}
-          >
-            {content}
-          </div>,
-          document.body
-        )}
-    </>
+    <TooltipProvider>
+      <TooltipRoot>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent side={side} className={className}>
+          {content}
+        </TooltipContent>
+      </TooltipRoot>
+    </TooltipProvider>
   );
-}
+};
+
+export { Tooltip, TooltipRoot, TooltipTrigger, TooltipContent, TooltipProvider }

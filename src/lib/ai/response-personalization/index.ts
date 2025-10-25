@@ -1112,21 +1112,24 @@ Return as JSON array: ["suggestion1", "suggestion2", "suggestion3"]`;
     adaptation: ResponseAdaptation,
     profile: UserPersonalizationProfile
   ): Promise<string> {
-    const prompt = `Adapt this response based on the specified adaptation:
+    const prompt = `You are a response adaptation assistant. Your task is to adapt the given response according to user preferences.
 
-Original: "${content}"
+CRITICAL: Return ONLY the adapted response text. Do NOT include any explanations, metadata, or descriptions of what you changed.
 
-Adaptation: ${adaptation.aspect}
-From: ${adaptation.originalValue}
-To: ${adaptation.adaptedValue}
-Reason: ${adaptation.reason}
+Original response: "${content}"
+
+Adaptation requirements:
+- Aspect: ${adaptation.aspect}
+- From: ${adaptation.originalValue}
+- To: ${adaptation.adaptedValue}
+- Reason: ${adaptation.reason}
 
 User preferences:
 - Formality: ${profile.communicationPreferences.formality.level}
 - Verbosity: ${profile.communicationPreferences.verbosity.level}
 - Technical level: ${profile.expertiseLevels.sustainability.level}
 
-Adapt the response while maintaining its core message and accuracy.`;
+Adapt the response while maintaining its core message and accuracy. Return ONLY the adapted text, nothing else.`;
 
     try {
       const adapted = await aiService.complete(prompt, {
@@ -1134,7 +1137,15 @@ Adapt the response while maintaining its core message and accuracy.`;
         maxTokens: Math.max(content.length, 200)
       });
 
-      return adapted.trim();
+      // Strip any potential metadata that might have leaked through
+      let cleanedResponse = adapted.trim();
+
+      // Remove common metadata patterns
+      cleanedResponse = cleanedResponse.replace(/^(Of course\.|Sure\.|Here is|This adaptation:).*?\*{2,3}\s*/is, '');
+      cleanedResponse = cleanedResponse.replace(/This adaptation:\s*-.*?(?=\n\n|\n[A-Z]|$)/gs, '');
+      cleanedResponse = cleanedResponse.replace(/^.*?(maintains|revised|align).*?verbosity.*?\n/gi, '');
+
+      return cleanedResponse.trim() || content;
     } catch (error) {
       console.error('Error applying adaptation:', error);
       return content;

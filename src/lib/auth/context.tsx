@@ -10,7 +10,7 @@ interface AuthContextType {
   organization: Organization | null;
   loading: boolean;
   error: string | null;
-  signIn: (email: string, password: string) => Promise<void | { requiresMFA: boolean; challengeId: string }>;
+  signIn: (email: string, password: string) => Promise<void | { requiresMFA: boolean; challengeId: string; factorId?: string }>;
   signUp: (email: string, password: string, metadata: any) => Promise<void>;
   signOut: () => Promise<void>;
   switchOrganization: (organizationId: string) => Promise<void>;
@@ -44,8 +44,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await response.json();
         if (data.success && data.data) {
           // Load organization data
-          let currentOrganization = null;
-          let organizations = [];
+          let currentOrganization: Organization | null = null;
+          const organizations: Organization[] = [];
 
           try {
             const orgResponse = await fetch("/api/organization/context", {
@@ -66,8 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setSession({
             user: data.data.user,
             current_organization: currentOrganization,
-            organizations: organizations,
+            organizations,
             permissions: [],
+            expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
           });
         }
       }

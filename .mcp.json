@@ -14,6 +14,131 @@
           "Storage management"
         ]
       }
+    },
+    "exa": {
+      "command": "npx",
+      "args": ["-y", "exa-mcp-server"],
+      "env": {
+        "EXA_API_KEY": "${EXA_API_KEY}"
+      },
+      "metadata": {
+        "description": "AI-powered search MCP for discovering sustainability reports, regulations, and sector intel",
+        "features": [
+          "Semantic web search",
+          "Documentation lookup",
+          "Code/context retrieval"
+        ]
+      }
+    },
+    "firecrawl": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      },
+      "metadata": {
+        "description": "Firecrawl MCP for sector intelligence and large-scale sustainability web scraping",
+        "features": [
+          "Deep website scraping to Markdown",
+          "Domain crawling",
+          "Structured ESG data extraction"
+        ]
+      }
+    },
+    "docling": {
+      "command": "uvx",
+      "args": ["mcp-server-docling"],
+      "metadata": {
+        "description": "Docling MCP to parse sustainability PDFs with high table accuracy",
+        "features": [
+          "PDF to structured document conversion",
+          "Markdown export",
+          "Table-aware parsing"
+        ]
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"],
+      "metadata": {
+        "description": "Headless browser MCP for utility portal automation and regulatory site navigation",
+        "features": [
+          "Scriptable browsing",
+          "Screenshot capture",
+          "Form interactions"
+        ]
+      }
+    },
+    "vercel": {
+      "command": "npx",
+      "args": ["-y", "vercel-mcp", "VERCEL_API_KEY=${VERCEL_API_KEY}"],
+      "metadata": {
+        "description": "Vercel MCP for deployment management",
+        "features": [
+          "List and inspect deployments",
+          "Fetch build logs",
+          "Manage domains"
+        ]
+      }
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "puppeteer-mcp-server"],
+      "metadata": {
+        "description": "Puppeteer MCP for browser automation workflows",
+        "features": [
+          "Chromium automation",
+          "Screenshot capture",
+          "DOM interaction"
+        ]
+      }
+    },
+    "boikot": {
+      "type": "http",
+      "url": "https://mcp.boikot.xyz/mcp",
+      "metadata": {
+        "description": "Boikot MCP for ESG and sustainability news intelligence",
+        "features": [
+          "Company ESG event lookup",
+          "Sustainability incident tracking"
+        ]
+      }
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      },
+      "metadata": {
+        "description": "GitHub MCP for repository operations",
+        "features": [
+          "Issue and PR management",
+          "Branch and commit inspection"
+        ]
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/pedro/Documents/blipee/blipee-os/blipee-os"],
+      "metadata": {
+        "description": "Filesystem MCP for local project navigation",
+        "features": [
+          "Read project files",
+          "Search directory tree"
+        ]
+      }
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "metadata": {
+        "description": "Memory MCP for session-persistent notes",
+        "features": [
+          "Store/retrieve contextual memory",
+          "Assist with long-running workflows"
+        ]
+      }
     }
   }
 }

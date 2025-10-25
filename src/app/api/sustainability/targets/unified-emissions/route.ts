@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { getAPIUser } from '@/lib/auth/server-auth';
-import { UnifiedSustainabilityCalculator } from '@/lib/sustainability/unified-calculator';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { supabaseAdmin } from '@/lib/supabase/admin';
 import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { UnifiedSustainabilityCalculator } from '@/lib/sustainability/unified-calculator';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Unified Emissions Targets API
@@ -41,7 +40,6 @@ import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
  */
 export async function GET(request: NextRequest) {
   try {
-
     // Check authentication
     const user = await getAPIUser(request);
     if (!user) {
@@ -57,7 +55,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Parse categories - support all emission categories
-    const categories = categoriesParam?.split(',').map(c => c.trim()) || [
+    const categories = categoriesParam?.split(',').map((c) => c.trim()) || [
       // Scope 1
       'Natural Gas',
       'Heating Oil',
@@ -92,47 +90,50 @@ export async function GET(request: NextRequest) {
       'End of Life',
       'Downstream Leased Assets',
       'Franchises',
-      'Investments'
+      'Investments',
     ];
 
     // Create unified calculator
-    console.log(`[unified-emissions] Creating calculator for org: ${organizationId}`);
+
     const calculator = new UnifiedSustainabilityCalculator(organizationId);
 
     // Get configuration
-    console.log(`[unified-emissions] Getting sustainability target...`);
+
     const targetConfig = await calculator.getSustainabilityTarget();
     if (!targetConfig) {
-      console.log(`[unified-emissions] No target found for org: ${organizationId}`);
-      return NextResponse.json({
-        error: 'No sustainability target found',
-        hint: 'Create a sustainability target for this organization first'
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          error: 'No sustainability target found',
+          hint: 'Create a sustainability target for this organization first',
+        },
+        { status: 404 }
+      );
     }
-    console.log(`[unified-emissions] Target found: baseline=${targetConfig.baseline_year}, reduction=${targetConfig.emission_reduction_percent}%`);
 
     const currentYear = new Date().getFullYear();
     const baselineYear = targetConfig.baseline_year;
     const reductionPercent = targetConfig.emission_reduction_percent;
 
     // Get overall metrics using unified calculator
-    console.log(`[unified-emissions] Fetching baseline, target, projected...`);
+
     const [baseline, target, projected] = await Promise.all([
       calculator.getBaseline('emissions', baselineYear),
       calculator.getTarget('emissions'),
       calculator.getProjected('emissions'),
     ]);
-    console.log(`[unified-emissions] Metrics fetched: baseline=${baseline?.value}, target=${target?.value}, projected=${projected?.value}`);
 
     if (!baseline || !target || !projected) {
-      return NextResponse.json({
-        error: 'Unable to calculate metrics',
-        hint: 'Ensure organization has emissions data for baseline year'
-      }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: 'Unable to calculate metrics',
+          hint: 'Ensure organization has emissions data for baseline year',
+        },
+        { status: 500 }
+      );
     }
 
     // Get category-level breakdown
-    console.log(`[unified-emissions] Getting category breakdown for ${categories.length} categories...`);
+
     const categoryData = await getCategoryBreakdown(
       organizationId,
       categories,
@@ -140,12 +141,10 @@ export async function GET(request: NextRequest) {
       currentYear,
       reductionPercent
     );
-    console.log(`[unified-emissions] Category breakdown completed: ${categoryData.length} categories with data`);
 
     // Calculate overall progress
-    console.log(`[unified-emissions] Calculating progress to target...`);
+
     const progress = await calculator.calculateProgressToTarget('emissions');
-    console.log(`[unified-emissions] Progress calculated: ${progress?.progressPercent}%`);
 
     return NextResponse.json({
       success: true,
@@ -155,13 +154,15 @@ export async function GET(request: NextRequest) {
         target: target.value,
         projected: projected.value,
         ytd: projected.ytd,
-        progress: progress ? {
-          progressPercent: progress.progressPercent,
-          exceedancePercent: progress.exceedancePercent,
-          status: progress.status,
-          reductionNeeded: progress.reductionNeeded,
-          reductionAchieved: progress.reductionAchieved,
-        } : null,
+        progress: progress
+          ? {
+              progressPercent: progress.progressPercent,
+              exceedancePercent: progress.exceedancePercent,
+              status: progress.status,
+              reductionNeeded: progress.reductionNeeded,
+              reductionAchieved: progress.reductionAchieved,
+            }
+          : null,
       },
       configuration: {
         baselineYear,
@@ -170,19 +171,24 @@ export async function GET(request: NextRequest) {
         formula: 'linear',
         source: 'unified_calculator',
       },
-      message: 'Calculated using UnifiedSustainabilityCalculator with linear reduction formula'
+      message: 'Calculated using UnifiedSustainabilityCalculator with linear reduction formula',
     });
-
   } catch (error: any) {
     console.error('❌ [unified-emissions] API Error:', error);
-    console.error('❌ [unified-emissions] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    console.error('❌ [unified-emissions] Error message:', error instanceof Error ? error.message : String(error));
+    console.error(
+      '❌ [unified-emissions] Error stack:',
+      error instanceof Error ? error.stack : 'No stack trace'
+    );
+    console.error(
+      '❌ [unified-emissions] Error message:',
+      error instanceof Error ? error.message : String(error)
+    );
     return NextResponse.json(
       {
         error: error.message || 'Internal server error',
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined,
       },
       { status: 500 }
     );
@@ -220,7 +226,7 @@ async function getCategoryBreakdown(
 
   // Create reduction rate map (category-specific overrides overall rate)
   const reductionRateMap = new Map<string, number>();
-  categoryTargets?.forEach(ct => {
+  categoryTargets?.forEach((ct) => {
     reductionRateMap.set(ct.category, ct.reduction_rate);
   });
 
@@ -228,8 +234,8 @@ async function getCategoryBreakdown(
   const results = await Promise.all(
     categories.map(async (category) => {
       // Get metrics in this category
-      const categoryMetrics = metricsData.filter(m => m.category === category);
-      const metricIds = categoryMetrics.map(m => m.id);
+      const categoryMetrics = metricsData.filter((m) => m.category === category);
+      const metricIds = categoryMetrics.map((m) => m.id);
 
       if (metricIds.length === 0) {
         return null;
@@ -244,8 +250,9 @@ async function getCategoryBreakdown(
         .gte('period_start', `${baselineYear}-01-01`)
         .lt('period_start', `${baselineYear + 1}-01-01`);
 
-      const baselineEmissions = (baselineData || [])
-        .reduce((sum, d) => sum + parseFloat(d.co2e_emissions || '0'), 0) / 1000; // kg to tonnes
+      const baselineEmissions =
+        (baselineData || []).reduce((sum, d) => sum + parseFloat(d.co2e_emissions || '0'), 0) /
+        1000; // kg to tonnes
 
       if (baselineEmissions === 0) {
         return null; // Skip categories with no baseline data
@@ -264,11 +271,11 @@ async function getCategoryBreakdown(
         .order('period_start', { ascending: true });
 
       // Calculate YTD emissions for current year
-      const currentYearData = (historicalData || []).filter(d =>
-        d.period_start >= `${currentYear}-01-01`
+      const currentYearData = (historicalData || []).filter(
+        (d) => d.period_start >= `${currentYear}-01-01`
       );
-      const currentEmissions = currentYearData
-        .reduce((sum, d) => sum + parseFloat(d.co2e_emissions || '0'), 0) / 1000; // kg to tCO2e
+      const currentEmissions =
+        currentYearData.reduce((sum, d) => sum + parseFloat(d.co2e_emissions || '0'), 0) / 1000; // kg to tCO2e
 
       // Calculate target using linear formula
       const categoryReductionRate = reductionRateMap.get(category) || overallReductionPercent;
@@ -282,7 +289,7 @@ async function getCategoryBreakdown(
       try {
         // Group historical data by month
         const monthlyEmissions: { [key: string]: number } = {};
-        (historicalData || []).forEach(d => {
+        (historicalData || []).forEach((d) => {
           const monthKey = d.period_start.substring(0, 7); // YYYY-MM
           if (!monthlyEmissions[monthKey]) {
             monthlyEmissions[monthKey] = 0;
@@ -295,7 +302,7 @@ async function getCategoryBreakdown(
           .sort(([a], [b]) => a.localeCompare(b))
           .map(([month, emissions]) => ({
             month,
-            emissions
+            emissions,
           }));
 
         if (monthlyDataArray.length >= 12) {
@@ -344,8 +351,11 @@ async function getCategoryBreakdown(
         progressPercent = 0;
         status = 'exceeded-baseline';
       } else {
-        progressPercent = ((baselineEmissions - projected2025FullYear) / (baselineEmissions - targetEmissions)) * 100;
-        status = progressPercent >= 95 ? 'on-track' : progressPercent >= 80 ? 'at-risk' : 'off-track';
+        progressPercent =
+          ((baselineEmissions - projected2025FullYear) / (baselineEmissions - targetEmissions)) *
+          100;
+        status =
+          progressPercent >= 95 ? 'on-track' : progressPercent >= 80 ? 'at-risk' : 'off-track';
       }
 
       return {
@@ -367,5 +377,5 @@ async function getCategoryBreakdown(
   );
 
   // Filter out null results and return
-  return results.filter(r => r !== null);
+  return results.filter((r) => r !== null);
 }
