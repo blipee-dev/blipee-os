@@ -87,3 +87,6 @@ scripts/set-user-password.*
 .playwright-mcp/
 codex-outputs/
 data/temp-docling/
+
+# Claude Code configuration with secrets
+.claude/mcp.json

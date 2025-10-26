@@ -4,22 +4,22 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-supabase"],
       "env": {
-        "SUPABASE_URL": "https://quovvwrwyfkzhgqdeham.supabase.co",
-        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1b3Z2d3J3eWZremhncWRlaGFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgyOTIyMiwiZXhwIjoyMDY3NDA1MjIyfQ.3Tua91dJQ9obteac_y9aSD6IEGMO04rkg7Z8sM88yOI"
+        "SUPABASE_URL": "YOUR_SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY": "YOUR_SUPABASE_SERVICE_ROLE_KEY"
       }
     },
     "exa": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-exa"],
       "env": {
-        "EXA_API_KEY": "cf6be639-60b8-42e5-be8e-c039566582bd"
+        "EXA_API_KEY": "YOUR_EXA_API_KEY"
       }
     },
     "firecrawl": {
       "command": "npx",
       "args": ["-y", "firecrawl-mcp"],
       "env": {
-        "FIRECRAWL_API_KEY": "fc-1d70f13a214d4c7ab6d8e0d03caed6c4"
+        "FIRECRAWL_API_KEY": "YOUR_FIRECRAWL_API_KEY"
       }
     },
     "docling": {
@@ -32,7 +32,7 @@
     },
     "vercel": {
       "command": "npx",
-      "args": ["-y", "vercel-mcp", "VERCEL_API_KEY=5B4fXGNEvj7mtjlH9WKj5JEE"]
+      "args": ["-y", "vercel-mcp", "VERCEL_API_KEY=YOUR_VERCEL_API_KEY"]
     },
     "boikot": {
       "url": "https://mcp.boikot.xyz/mcp",
