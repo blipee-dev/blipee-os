@@ -1,18 +1,15 @@
 # Railway Nixpacks Configuration
-# This file tells Railway to skip the Next.js build and run the worker directly
+# Worker-only deployment - no Next.js build needed
 
 [phases.setup]
 nixPkgs = ["nodejs_20"]
 
 [phases.install]
-cmds = ["npm ci --only=production"]
+cmds = ["npm ci --only=production --ignore-scripts"]
 
 [phases.build]
-# Skip Next.js build entirely
-cmds = ["echo 'Skipping Next.js build - deploying AI worker only'"]
+# No build needed for worker
+cmds = []
 
 [start]
 cmd = "npx tsx services/ai-agent-orchestrator.ts"
-
-[variables]
-PORT = "8080"
