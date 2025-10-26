@@ -1,0 +1,75 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Next.js (not needed for worker)
+.next
+out
+build
+
+# Testing
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts
+__tests__
+__mocks__
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+docs/
+*.md
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Misc
+.prettierrc
+.eslintrc
+.editorconfig
+
+# Frontend (not needed for worker)
+src/app
+src/components
+src/hooks
+src/styles
+src/test
+public
+
+# Keep only what's needed
+!services/
+!src/lib/ai/
+!tsconfig.json
+!package.json
+!package-lock.json
