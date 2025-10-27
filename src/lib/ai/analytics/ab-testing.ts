@@ -6,6 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface ExperimentVariant {
   id: string;
@@ -141,9 +142,9 @@ export async function stopExperiment(experimentId: string): Promise<boolean> {
 /**
  * Get experiment results with statistical analysis
  */
-export async function getExperimentResults(experimentId: string): Promise<ExperimentResults | null> {
+export async function getExperimentResults(experimentId: string, client?: SupabaseClient): Promise<ExperimentResults | null> {
   try {
-    const supabase = createClient();
+    const supabase = client || createClient();
 
     // Get experiment details
     const { data: experiment, error: expError } = await supabase
@@ -316,13 +317,14 @@ function determineWinner(variants: VariantPerformance[]): {
  */
 export async function completeExperiment(
   experimentId: string,
-  promoteWinner: boolean = false
+  promoteWinner: boolean = false,
+  client?: SupabaseClient
 ): Promise<boolean> {
   try {
-    const supabase = createClient();
+    const supabase = client || createClient();
 
     // Get experiment results
-    const results = await getExperimentResults(experimentId);
+    const results = await getExperimentResults(experimentId, supabase);
     if (!results) {
       return false;
     }
@@ -370,8 +372,8 @@ export async function completeExperiment(
 /**
  * Get all active experiments
  */
-export async function getActiveExperiments(): Promise<any[]> {
-  const supabase = createClient();
+export async function getActiveExperiments(client?: SupabaseClient): Promise<any[]> {
+  const supabase = client || createClient();
 
   const { data, error } = await supabase
     .from('ai_ab_experiments')

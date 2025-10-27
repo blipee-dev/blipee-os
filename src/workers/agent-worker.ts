@@ -447,7 +447,7 @@ class AgentWorker {
     try {
       console.log('\n🧪 [Prompt Optimization] Checking experiments...');
 
-      const experiments = await getActiveExperiments();
+      const experiments = await getActiveExperiments(supabase);
 
       if (!experiments || experiments.length === 0) {
         console.log('ℹ️  [Prompt Optimization] No active experiments');
@@ -457,11 +457,11 @@ class AgentWorker {
       console.log(`📋 [Prompt Optimization] Monitoring ${experiments.length} experiments`);
 
       for (const experiment of experiments) {
-        const results = await getExperimentResults(experiment.id);
+        const results = await getExperimentResults(experiment.id, supabase);
 
         // Auto-complete if sufficient data and high confidence winner
         if (results.totalConversations > 100 && results.winnerConfidence > 0.9) {
-          await completeExperiment(experiment.id, results.winner);
+          await completeExperiment(experiment.id, results.winner, supabase);
           this.promptStats.experimentsCompleted++;
           console.log(`✅ [Prompt Optimization] Auto-completed experiment: ${experiment.name}`);
           console.log(`   Winner: ${results.winner} (${(results.winnerConfidence * 100).toFixed(1)}% confidence)`);
