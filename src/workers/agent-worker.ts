@@ -40,7 +40,7 @@ import { MLTrainingService } from './services/ml-training-service';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY! // Service role key for background operations
+  process.env.SUPABASE_SERVICE_ROLE_KEY! // Service role key for background operations
 );
 
 class AgentWorker {
@@ -418,7 +418,7 @@ class AgentWorker {
     try {
       console.log('\n🔍 [Prompt Optimization] Starting pattern analysis...');
 
-      const analysis = await analyzeConversationPatterns(7);
+      const analysis = await analyzeConversationPatterns(7, supabase);
 
       console.log(`📊 [Prompt Optimization] Analyzed ${analysis.overallMetrics.totalConversations} conversations`);
       console.log(`   Avg Rating: ${analysis.overallMetrics.avgRating.toFixed(2)}/5`);
@@ -426,7 +426,7 @@ class AgentWorker {
       console.log(`   Patterns Found: ${analysis.patterns.length}`);
 
       if (analysis.patterns.length > 0) {
-        await savePatternInsights(analysis.patterns);
+        await savePatternInsights(analysis.patterns, supabase);
         this.promptStats.patternsAnalyzed += analysis.patterns.length;
         console.log(`✅ [Prompt Optimization] Saved ${analysis.patterns.length} actionable patterns`);
       } else {

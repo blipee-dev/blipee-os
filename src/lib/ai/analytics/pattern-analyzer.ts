@@ -6,7 +6,8 @@
  * AI-powered pattern detection.
  */
 
-import { createClient } from '@/lib/supabase/client';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { openai } from '@ai-sdk/openai';
 import { generateText } from 'ai';
 
@@ -35,9 +36,14 @@ export interface AnalysisResult {
  * Analyze conversations from a date range
  */
 export async function analyzeConversationPatterns(
-  daysToAnalyze: number = 7
+  daysToAnalyze: number = 7,
+  supabaseClient?: SupabaseClient
 ): Promise<AnalysisResult> {
-  const supabase = createClient();
+  // Create client if not provided (for server-side use)
+  const supabase = supabaseClient || createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!
+  );
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - daysToAnalyze);
 
@@ -293,8 +299,15 @@ async function generateOverallRecommendations(
 /**
  * Save pattern insights to database
  */
-export async function savePatternInsights(patterns: Pattern[]): Promise<void> {
-  const supabase = createClient();
+export async function savePatternInsights(
+  patterns: Pattern[],
+  supabaseClient?: SupabaseClient
+): Promise<void> {
+  // Create client if not provided (for server-side use)
+  const supabase = supabaseClient || createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!
+  );
   const now = new Date();
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
@@ -322,8 +335,15 @@ export async function savePatternInsights(patterns: Pattern[]): Promise<void> {
 /**
  * Get top actionable patterns
  */
-export async function getTopActionablePatterns(limit: number = 10): Promise<any[]> {
-  const supabase = createClient();
+export async function getTopActionablePatterns(
+  limit: number = 10,
+  supabaseClient?: SupabaseClient
+): Promise<any[]> {
+  // Create client if not provided (for server-side use)
+  const supabase = supabaseClient || createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!
+  );
 
   const { data, error } = await supabase
     .from('ai_pattern_insights')
