@@ -14,6 +14,7 @@ import { ChatInterface } from './ChatInterface';
 import type { SustainabilityAgentMessage } from '@/lib/ai/agents';
 import { useAuth } from '@/lib/auth/context';
 import { Input } from '@/components/ui/input';
+import { NotificationBadge } from '@/components/ui/notification-badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +62,7 @@ export function FloatingChat({
   const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [deletingConversationId, setDeletingConversationId] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { user } = useAuth();
 
   const fetchConversations = async () => {
@@ -139,19 +141,12 @@ export function FloatingChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, user]);
 
-  // When conversations load, switch to most recent if we don't have a specific conversation
+  // When conversations load, keep the new chat (don't auto-switch to most recent)
+  // Users expect to start with a blank chat when opening the modal
   useEffect(() => {
     if (!initialConversationId && conversations.length > 0 && isOpen && conversationsLoaded) {
-      // Only switch if we're currently on a generated UUID (new conversation)
-      // Check if selected conversation exists in the list
-      const existsInList = conversations.some(c => c.id === selectedConversationId);
-      if (!existsInList) {
-        console.log('[FloatingChat] 🔄 Auto-switching to most recent conversation:', conversations[0].id);
-        setIsLoadingMessages(true);
-        setLoadedMessages([]);
-        setLoadedMessagesFor(null);
-        setSelectedConversationId(conversations[0].id);
-      }
+      // Keep the current new conversation - don't auto-switch
+      console.log('[FloatingChat] 💬 Conversations loaded, keeping new chat active');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversations, isOpen, conversationsLoaded]);
@@ -185,7 +180,11 @@ export function FloatingChat({
       if (conversationExists || conversations.length === 0) {
         fetchMessages(selectedConversationId);
       } else {
-        console.log('[FloatingChat] Skipping fetch - conversation does not exist in list');
+        // New conversation (doesn't exist in list yet) - mark as loaded with empty messages
+        console.log('[FloatingChat] New conversation - marking as loaded with empty messages');
+        setLoadedMessages([]);
+        setLoadedMessagesFor(selectedConversationId);
+        setIsLoadingMessages(false);
       }
     } else {
       console.log('[FloatingChat] Skipping fetch - conversations not loaded yet');
@@ -337,6 +336,57 @@ export function FloatingChat({
   // Get recent conversations for sidebar (limit to 10)
   const recentConversations = conversations.slice(0, 10);
 
+  // Fetch unread agent message count
+  const fetchUnreadCount = async () => {
+    if (!user) return;
+
+    try {
+      const response = await fetch('/api/messages/unread');
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadCount(data.count || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
+
+  // Mark messages as read when opening agent conversation
+  const markMessagesAsRead = async (conversationId: string) => {
+    try {
+      await fetch('/api/messages/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId }),
+      });
+      // Refresh unread count
+      fetchUnreadCount();
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  };
+
+  // Poll for unread count every 30 seconds
+  useEffect(() => {
+    if (!user) return;
+
+    fetchUnreadCount(); // Initial fetch
+
+    const interval = setInterval(fetchUnreadCount, 30000); // Poll every 30s
+    return () => clearInterval(interval);
+  }, [user]);
+
+  // Mark messages as read when opening chat
+  useEffect(() => {
+    if (isOpen && selectedConversationId) {
+      // Find if this is the agent proactive conversation
+      const agentConv = conversations.find(c => c.id === selectedConversationId);
+      if (agentConv) {
+        markMessagesAsRead(selectedConversationId);
+      }
+    }
+  }, [isOpen, selectedConversationId]);
+
   // Close on Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -359,13 +409,14 @@ export function FloatingChat({
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 bg-black text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2 group"
+          className="fixed bottom-6 right-6 z-50 bg-black text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2 group relative"
           aria-label="Open Chat"
         >
           <MessageCircle className="w-6 h-6" />
           <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap">
             Ask blipee
           </span>
+          <NotificationBadge count={unreadCount} />
         </button>
       )}
 
