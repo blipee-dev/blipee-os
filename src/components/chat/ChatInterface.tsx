@@ -54,13 +54,14 @@ import {
   SourcesTrigger
 } from '@/components/ai-elements/sources';
 import { Suggestion, Suggestions } from '@/components/ai-elements/suggestion';
-import { Bot, CopyIcon, RefreshCcwIcon, PaperclipIcon } from 'lucide-react';
+import { Bot, CopyIcon, RefreshCcwIcon, PaperclipIcon, ThumbsUpIcon, ThumbsDownIcon } from 'lucide-react';
 import { Fragment, useState, useMemo, useRef } from 'react';
 import type { SustainabilityAgentUIMessage } from '@/lib/ai/agents/sustainability-agent';
 import { ToolConfirmation } from '@/components/ai-elements/tool-confirmation';
 import { requiresApproval } from '@/lib/ai/hitl/tool-config';
 import { isToolUIPart, getToolName } from 'ai';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/lib/auth/context';
 
 // Available AI models for selection
 const AVAILABLE_MODELS = [
@@ -120,6 +121,7 @@ interface ChatInterfaceProps {
   buildingId?: string;
   initialMessages?: SustainabilityAgentUIMessage[];
   className?: string;
+  onConversationUpdate?: () => void; // Callback to refresh conversation list
 }
 
 export function ChatInterface({
@@ -127,19 +129,53 @@ export function ChatInterface({
   organizationId,
   buildingId,
   initialMessages,
-  className
+  className,
+  onConversationUpdate
 }: ChatInterfaceProps) {
   const [input, setInput] = useState('');
   const [model, setModel] = useState(AVAILABLE_MODELS[0].id);
+  const [feedback, setFeedback] = useState<Record<string, 'up' | 'down' | null>>({});
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pathname = usePathname();
+  const { user } = useAuth();
 
   // Generate context-aware suggestions based on current page
   const suggestions = useMemo(() => getContextualSuggestions(pathname), [pathname]);
 
+  // Get user initials from name or email
+  const getUserInitials = () => {
+    if (!user) return 'U';
+
+    // Try to get from user name first
+    if (user.user_metadata?.full_name) {
+      const nameParts = user.user_metadata.full_name.trim().split(' ');
+      if (nameParts.length >= 2) {
+        return (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
+      }
+      return nameParts[0].slice(0, 2).toUpperCase();
+    }
+
+    // Fallback to email
+    if (user.email) {
+      const emailParts = user.email.split('@')[0].split('.');
+      if (emailParts.length >= 2) {
+        return (emailParts[0][0] + emailParts[1][0]).toUpperCase();
+      }
+      return user.email.slice(0, 2).toUpperCase();
+    }
+
+    return 'U';
+  };
+
   const { messages, sendMessage, status, error, regenerate, addToolResult } = useChat<SustainabilityAgentUIMessage>({
     api: '/api/chat',
-    initialMessages: initialMessages || []
+    initialMessages: initialMessages || [],
+    onFinish: () => {
+      // Refresh conversation list when message is complete
+      if (onConversationUpdate) {
+        onConversationUpdate();
+      }
+    }
   });
 
   const handleSubmit = (message: PromptInputMessage) => {
@@ -181,20 +217,29 @@ export function ChatInterface({
     );
   };
 
+  const handleFeedback = (messageId: string, type: 'up' | 'down') => {
+    setFeedback(prev => ({
+      ...prev,
+      [messageId]: prev[messageId] === type ? null : type
+    }));
+    // TODO: Send feedback to API
+    console.log(`Feedback for message ${messageId}:`, type);
+  };
+
   return (
     <div className={cn("flex flex-col w-full h-full bg-white dark:bg-gray-950 relative", className)}>
       {/* Messages Container - ChatGPT Mobile Style */}
       <Conversation className="flex-1 min-h-0 overflow-y-auto pb-32">
         <ConversationContent className="max-w-3xl mx-auto px-4 py-6">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full space-y-8">
+            <div className="flex flex-col items-center justify-center h-full space-y-6">
               <ConversationEmptyState
                 title="Welcome to blipee"
                 description="Your intelligent sustainability assistant. Ask me anything about emissions, compliance, or ESG reporting."
                 icon={
-                  <div className="p-[3px] rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500">
-                    <div className="p-4 rounded-xl bg-white/90 dark:bg-gray-950/90">
-                      <Bot className="w-16 h-16 text-green-500" />
+                  <div className="p-[2px] rounded-lg bg-gradient-to-r from-green-500 to-emerald-500">
+                    <div className="p-3 rounded-md bg-white/90 dark:bg-gray-950/90">
+                      <Bot className="w-10 h-10 text-green-500" />
                     </div>
                   </div>
                 }
@@ -318,7 +363,7 @@ export function ChatInterface({
                                       ALERT
                                     </span>
                                   )}
-                                  <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                  <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-500 text-xs rounded-full">
                                     Automated Update
                                   </span>
                                 </div>
@@ -330,7 +375,7 @@ export function ChatInterface({
                                 )}>
                                   {part.text}
                                 </Response>
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                <div className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                                   {new Date(message.createdAt || Date.now()).toLocaleString()}
                                 </div>
                               </div>
@@ -344,61 +389,86 @@ export function ChatInterface({
                       case 'text':
                         return (
                           <Fragment key={`${message.id}-${i}`}>
-                            <div
-                              className={`flex gap-3 ${
-                                message.role === 'user' ? 'justify-end' : 'justify-start'
-                              }`}
-                            >
-                              {/* AI Avatar - Left side */}
-                              {message.role === 'assistant' && (
-                                <div className="flex-shrink-0 mt-1">
-                                  <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold text-sm">
-                                    B
+                            {message.role === 'user' ? (
+                              /* User Message - Gray bubble on right with actions */
+                              <div className="group flex flex-col items-end">
+                                <div className="flex gap-2 items-center">
+                                  <Message from={message.role}>
+                                    <MessageContent
+                                      variant="flat"
+                                      className="!max-w-none !bg-gray-100 dark:!bg-gray-800 rounded-2xl px-4 py-2.5"
+                                    >
+                                      <Response className="text-[15px] leading-relaxed !text-gray-500 dark:!text-gray-500">
+                                        {part.text}
+                                      </Response>
+                                    </MessageContent>
+                                  </Message>
+                                  {/* User Avatar */}
+                                  <div className="flex-shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-white font-semibold text-base">
+                                      {getUserInitials()}
+                                    </div>
                                   </div>
                                 </div>
-                              )}
-
-                              {/* Message Bubble */}
-                              <Message from={message.role}>
-                                <MessageContent
-                                  className={`max-w-[80%] md:max-w-[70%] ${
-                                    message.role === 'user'
-                                      ? 'bg-emerald-500 text-white rounded-2xl rounded-tr-sm px-4 py-3'
-                                      : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl rounded-tl-sm px-4 py-3'
-                                  }`}
-                                >
-                                  <Response className="text-[15px] leading-relaxed">
-                                    {part.text}
-                                  </Response>
-                                </MessageContent>
-                              </Message>
-
-                              {/* User Avatar - Right side */}
-                              {message.role === 'user' && (
-                                <div className="flex-shrink-0 mt-1">
-                                  <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                    U
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Actions - Show for last assistant message */}
-                            {message.role === 'assistant' && i === message.parts.length - 1 && (
-                              <Actions className="mt-2 ml-11">
-                                <Action
-                                  onClick={() => regenerate()}
-                                  label="Regenerate"
-                                >
-                                  <RefreshCcwIcon className="size-3" />
-                                </Action>
-                                <Action
-                                  onClick={() => navigator.clipboard.writeText(part.text)}
-                                  label="Copy"
-                                >
-                                  <CopyIcon className="size-3" />
-                                </Action>
-                              </Actions>
+                                {/* Actions below user message */}
+                                <Actions className="mt-2 mr-12 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Action
+                                    onClick={() => navigator.clipboard.writeText(part.text)}
+                                    label="Copy"
+                                  >
+                                    <CopyIcon className="size-4" />
+                                  </Action>
+                                </Actions>
+                              </div>
+                            ) : (
+                              /* AI Message - Plain text on left, no bubble */
+                              <div className="group">
+                                <Message from={message.role}>
+                                  <MessageContent variant="flat" className="max-w-full !bg-transparent !p-0">
+                                    <Response className="text-[15px] leading-relaxed !text-gray-500 dark:!text-gray-500 [&_*]:!text-gray-500 dark:[&_*]:!text-gray-500">
+                                      {part.text}
+                                    </Response>
+                                  </MessageContent>
+                                </Message>
+                                {/* Actions below AI message */}
+                                {i === message.parts.length - 1 && (
+                                  <Actions className="mt-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Action
+                                      onClick={() => regenerate({
+                                        body: {
+                                          conversationId,
+                                          organizationId,
+                                          buildingId,
+                                          model
+                                        }
+                                      })}
+                                      label="Regenerate"
+                                    >
+                                      <RefreshCcwIcon className="size-4" />
+                                    </Action>
+                                    <Action
+                                      onClick={() => handleFeedback(message.id, 'up')}
+                                      label="Good response"
+                                      className={feedback[message.id] === 'up' ? 'text-green-500' : ''}
+                                    >
+                                      <ThumbsUpIcon className="size-4" />
+                                    </Action>
+                                    <Action
+                                      onClick={() => handleFeedback(message.id, 'down')}
+                                      label="Bad response"
+                                      className={feedback[message.id] === 'down' ? 'text-red-500' : ''}
+                                    >
+                                      <ThumbsDownIcon className="size-4" />
+                                    </Action>
+                                    <Action
+                                      onClick={() => navigator.clipboard.writeText(part.text)}
+                                      label="Copy"
+                                    >
+                                      <CopyIcon className="size-4" />
+                                    </Action>
+                                  </Actions>
+                                )}
+                              </div>
                             )}
                           </Fragment>
                         );
@@ -426,17 +496,10 @@ export function ChatInterface({
                 </div>
               ))}
 
-              {/* Loading State - ChatGPT Style */}
+              {/* Loading State */}
               {status === 'submitted' && (
-                <div className="flex gap-3 justify-start">
-                  <div className="flex-shrink-0 mt-1">
-                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold text-sm">
-                      B
-                    </div>
-                  </div>
-                  <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-tl-sm px-4 py-3">
-                    <Loader />
-                  </div>
+                <div className="flex justify-start">
+                  <Loader />
                 </div>
               )}
             </div>
@@ -462,7 +525,14 @@ export function ChatInterface({
                     </p>
                   </div>
                   <Actions>
-                    <Action onClick={() => regenerate()} label="Retry">
+                    <Action onClick={() => regenerate({
+                      body: {
+                        conversationId,
+                        organizationId,
+                        buildingId,
+                        model
+                      }
+                    })} label="Retry">
                       <RefreshCcwIcon className="w-3 h-3" />
                     </Action>
                   </Actions>
@@ -501,7 +571,7 @@ export function ChatInterface({
 
                     <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
 
-                    <div className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+                    <div className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-500">
                       Model
                     </div>
 

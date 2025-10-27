@@ -64,12 +64,12 @@ export class NotificationQueueService {
 
     try {
       // Get pending notifications from agent task results
-      // Agent task results with notification_importance are essentially queued notifications
+      // Process high, critical, and medium priority notifications
       const { data: pendingNotifications, error } = await supabase
         .from('agent_task_results')
         .select('*')
-        .in('notification_importance', ['alert', 'critical'])
-        .is('notification_sent', null)
+        .in('notification_importance', ['high', 'critical', 'medium'])
+        .eq('notification_sent', false)
         .order('created_at', { ascending: true })
         .limit(50); // Process in batches
 
@@ -112,13 +112,23 @@ export class NotificationQueueService {
    * Process a single notification
    */
   private async processNotification(notification: any): Promise<void> {
+    // Extract user_id and message from result
+    const userId = notification.result?.user_id;
+    const title = notification.result?.title || `Agent Alert: ${notification.task_type}`;
+    const body = notification.result?.message || notification.result?.summary || 'New finding from autonomous agent';
+
+    if (!userId) {
+      console.warn(`   ⚠️  No user_id in result for task ${notification.task_id}`);
+      return;
+    }
+
     // Create in-app notification
     const { error: notificationError } = await supabase
       .from('notifications')
       .insert({
-        user_id: notification.user_id,
-        title: `Agent Alert: ${notification.task_type}`,
-        body: notification.finding || notification.result?.summary || 'New finding from autonomous agent',
+        user_id: userId,
+        title,
+        body,
         type: 'agent_alert',
         metadata: {
           agent_type: notification.task_type,

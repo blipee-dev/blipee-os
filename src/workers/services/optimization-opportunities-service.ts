@@ -293,13 +293,13 @@ export class OptimizationOpportunitiesService {
           .single();
 
         // Create agent task result for notification
-        // High priority opportunities get alerts, critical ones get critical notifications
-        const importance = opp.priority === 'high' ? 'alert' : opp.priority === 'medium' ? 'info' : null;
+        // Map priority to notification importance: high->high, medium->medium, low->low
+        const importance = opp.priority === 'high' ? 'high' : opp.priority === 'medium' ? 'medium' : 'low';
 
         if (importance && savedOpp) {
           // Get organization admin for notification
           const { data: orgUsers } = await supabase
-            .from('organization_users')
+            .from('organization_members')
             .select('user_id')
             .eq('organization_id', opp.organization_id)
             .limit(1)
@@ -308,20 +308,24 @@ export class OptimizationOpportunitiesService {
           if (orgUsers) {
             await supabase.from('agent_task_results').insert({
               organization_id: opp.organization_id,
-              user_id: orgUsers.user_id,
+              agent_id: 'optimization_agent',
               task_type: 'optimization_opportunity',
               task_id: `opt_${savedOpp.id}`,
-              status: 'completed',
-              finding: `💡 ${opp.title}\n\n${opp.description}\n\n💰 Potential savings: $${opp.potential_savings.toFixed(2)}`,
+              priority: opp.priority,
+              success: true,
+              execution_time_ms: 0,
               result: {
+                user_id: orgUsers.user_id,
                 opportunity_id: savedOpp.id,
                 area: opp.type,
+                title: opp.title,
+                message: `💡 ${opp.title}\n\n${opp.description}\n\n💰 Potential savings: $${opp.potential_savings.toFixed(2)}`,
                 priority: opp.priority,
                 potential_savings: opp.potential_savings,
                 potential_emission_reduction: opp.potential_emission_reduction,
               },
               notification_importance: importance,
-              notification_sent: null,
+              notification_sent: false,
             });
           }
         }

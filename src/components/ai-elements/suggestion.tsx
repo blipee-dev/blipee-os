@@ -47,10 +47,10 @@ export const Suggestion = forwardRef<HTMLButtonElement, SuggestionProps>(
         type="button"
         onClick={() => onClick?.(suggestion)}
         className={cn(
-          'group px-4 py-2 rounded-full text-sm font-medium',
+          'group px-3 py-1.5 rounded-full text-xs font-medium',
           'bg-white dark:bg-gray-800',
           'border border-gray-300 dark:border-gray-600',
-          'text-gray-700 dark:text-gray-300',
+          'text-gray-500 dark:text-gray-500',
           'hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20',
           'hover:border-green-500 dark:hover:border-emerald-400',
           'transition-all duration-150',

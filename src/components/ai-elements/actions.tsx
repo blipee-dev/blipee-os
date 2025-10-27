@@ -47,8 +47,8 @@ export const Action = forwardRef<HTMLButtonElement, ActionProps>(
         title={label}
         aria-label={label}
         className={cn(
-          'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg',
-          'text-xs font-medium text-gray-600 dark:text-gray-400',
+          'inline-flex items-center justify-center p-1.5 rounded-lg',
+          'text-gray-600 dark:text-gray-400',
           'hover:bg-gray-100 dark:hover:bg-gray-800',
           'hover:text-gray-900 dark:hover:text-gray-100',
           'transition-colors duration-150',
@@ -59,7 +59,6 @@ export const Action = forwardRef<HTMLButtonElement, ActionProps>(
         {...props}
       >
         {children}
-        <span className="sr-only md:not-sr-only">{label}</span>
       </button>
     );
   }

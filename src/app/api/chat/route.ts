@@ -136,6 +136,53 @@ export async function POST(req: NextRequest) {
       buildingId
     );
 
+    // Ensure conversation exists
+    const { data: existingConversation } = await supabase
+      .from('conversations')
+      .select('id, title, message_count')
+      .eq('id', conversationId)
+      .single();
+
+    if (!existingConversation) {
+      // Create new conversation
+      await supabase.from('conversations').insert({
+        id: conversationId,
+        user_id: user.id,
+        organization_id: organizationId,
+        building_id: buildingId || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+    }
+
+    // Save user message
+    const lastUserMessage = validatedMessages.filter(m => m.role === 'user').pop();
+    if (lastUserMessage) {
+      try {
+        const userContent = lastUserMessage.parts
+          .filter((part: any) => part.type === 'text')
+          .map((part: any) => part.text)
+          .join('\n');
+
+        await supabase.from('messages').insert({
+          conversation_id: conversationId,
+          role: 'user',
+          content: userContent,
+          created_at: new Date().toISOString()
+        });
+
+        // Generate title from first user message if conversation is new
+        if (!existingConversation || !existingConversation.title) {
+          const title = userContent.slice(0, 60) + (userContent.length > 60 ? '...' : '');
+          await supabase.from('conversations')
+            .update({ title })
+            .eq('id', conversationId);
+        }
+      } catch (error) {
+        console.error('[Chat] Failed to save user message:', error);
+      }
+    }
+
     // Use agent to respond (handles loop, tools, and streaming automatically)
     return agent.respond({
       messages: validatedMessages,
@@ -148,7 +195,7 @@ export async function POST(req: NextRequest) {
           console.log('[Chat] Usage:', usage);
         }
 
-        // Save to conversation history
+        // Save assistant message
         try {
           await supabase.from('messages').insert({
             conversation_id: conversationId,
@@ -157,6 +204,42 @@ export async function POST(req: NextRequest) {
             model: model,
             created_at: new Date().toISOString()
           });
+
+          // Update or create conversation memory
+          const { data: existingMemory } = await supabase
+            .from('conversation_memories')
+            .select('id')
+            .eq('conversation_id', conversationId)
+            .single();
+
+          const summary = `Recent conversation about: ${text.slice(0, 200)}...`;
+
+          if (existingMemory) {
+            // Update existing memory
+            await supabase.from('conversation_memories')
+              .update({
+                summary,
+                updated_at: new Date().toISOString()
+              })
+              .eq('conversation_id', conversationId);
+          } else {
+            // Create new memory
+            const { data: conversation } = await supabase
+              .from('conversations')
+              .select('title')
+              .eq('id', conversationId)
+              .single();
+
+            await supabase.from('conversation_memories').insert({
+              conversation_id: conversationId,
+              user_id: user.id,
+              organization_id: organizationId,
+              title: conversation?.title || 'Untitled conversation',
+              summary,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            });
+          }
         } catch (error) {
           console.error('[Chat] Failed to save message:', error);
         }

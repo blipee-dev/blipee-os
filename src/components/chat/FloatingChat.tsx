@@ -65,17 +65,20 @@ export function FloatingChat({
     }
   };
 
-  // Fetch conversations when modal opens
+  // Reset to small size when opening chat
   useEffect(() => {
-    if (isOpen && user) {
-      fetchConversations();
+    if (isOpen) {
+      setIsExpanded(false);
+      if (user) {
+        fetchConversations();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, user]);
 
   const handleNewChat = () => {
-    // Generate a new conversation ID
-    const newConversationId = `conv_${Date.now()}`;
+    // Generate a new conversation ID (UUID format to match database schema)
+    const newConversationId = crypto.randomUUID();
     setSelectedConversationId(newConversationId);
     setSearchQuery('');
     setIsSearchModalOpen(false);
@@ -205,7 +208,7 @@ export function FloatingChat({
                       className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                       aria-label="Maximize"
                     >
-                      <Maximize2 className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                      <Maximize2 className="w-4 h-4 text-gray-500 dark:text-gray-500" />
                     </button>
                   ) : (
                     <button
@@ -213,7 +216,7 @@ export function FloatingChat({
                       className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                       aria-label="Minimize"
                     >
-                      <Minimize2 className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                      <Minimize2 className="w-4 h-4 text-gray-500 dark:text-gray-500" />
                     </button>
                   )}
                   <button
@@ -221,7 +224,7 @@ export function FloatingChat({
                     className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                     aria-label="Close"
                   >
-                    <X className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                    <X className="w-4 h-4 text-gray-500 dark:text-gray-500" />
                   </button>
                 </div>
               </div>
@@ -238,7 +241,7 @@ export function FloatingChat({
                     <div className="px-2 pt-2">
                       <button
                         onClick={handleNewChat}
-                        className={`group w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors`}
+                        className={`group w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 text-sm text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors`}
                         title={isSidebarCollapsed ? 'New chat' : undefined}
                       >
                         <PencilLine className="w-4 h-4 group-hover:text-green-500" />
@@ -250,7 +253,7 @@ export function FloatingChat({
                     <div className="px-2">
                       <button
                         onClick={() => setIsSearchModalOpen(true)}
-                        className={`group w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors`}
+                        className={`group w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 text-sm text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors`}
                         title={isSidebarCollapsed ? 'Search chats' : undefined}
                       >
                         <Search className="w-4 h-4 group-hover:text-green-500" />
@@ -263,17 +266,17 @@ export function FloatingChat({
                       {!isSidebarCollapsed && (
                         <>
                           <div className="px-3 mb-2">
-                            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wide">
                               Chats
                             </h3>
                           </div>
 
                           {isLoadingConversations ? (
-                            <div className="px-2 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                            <div className="px-2 py-8 text-center text-sm text-gray-500 dark:text-gray-500">
                               Loading...
                             </div>
                           ) : recentConversations.length === 0 ? (
-                            <div className="px-2 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                            <div className="px-2 py-8 text-center text-sm text-gray-500 dark:text-gray-500">
                               No conversations yet
                             </div>
                           ) : (
@@ -283,7 +286,7 @@ export function FloatingChat({
                                   <div key={conv.id} className="p-[2px] rounded-lg bg-gradient-to-r from-green-500 to-emerald-500">
                                     <button
                                       onClick={() => handleSelectConversation(conv.id)}
-                                      className="w-full text-left px-3 py-2 text-sm rounded-md bg-white/90 dark:bg-zinc-900/90 text-gray-900 dark:text-gray-100"
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md bg-white/90 dark:bg-zinc-900/90 text-gray-500 dark:text-gray-500"
                                     >
                                       <p className="truncate">{conv.title || 'Untitled conversation'}</p>
                                     </button>
@@ -292,7 +295,7 @@ export function FloatingChat({
                                   <button
                                     key={conv.id}
                                     onClick={() => handleSelectConversation(conv.id)}
-                                    className="group w-full text-left px-3 py-2 text-sm rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 transition-colors"
+                                    className="group w-full text-left px-3 py-2 text-sm rounded-lg text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 transition-colors"
                                   >
                                     <p className="truncate group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">{conv.title || 'Untitled conversation'}</p>
                                   </button>
@@ -308,7 +311,7 @@ export function FloatingChat({
                     <div className="p-3 border-t border-gray-200 dark:border-zinc-800">
                       <button
                         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                        className="group w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors"
+                        className="group w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors"
                         title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                       >
                         {isSidebarCollapsed ? (
@@ -330,6 +333,7 @@ export function FloatingChat({
                     buildingId={buildingId}
                     initialMessages={initialMessages}
                     className="h-full"
+                    onConversationUpdate={fetchConversations}
                   />
                 </div>
               </div>
@@ -358,7 +362,7 @@ export function FloatingChat({
                     {/* Search Header */}
                     <div className="p-4 border-b border-gray-200 dark:border-zinc-800">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
                         <Input
                           type="text"
                           value={searchQuery}
@@ -370,7 +374,7 @@ export function FloatingChat({
                           onClick={() => setIsSearchModalOpen(false)}
                           className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                         >
-                          <X className="w-5 h-5 text-gray-400" />
+                          <X className="w-5 h-5 text-gray-500" />
                         </button>
                       </div>
                     </div>
@@ -380,18 +384,18 @@ export function FloatingChat({
                       {/* New Chat Option */}
                       <button
                         onClick={handleNewChat}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors mb-2"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors mb-2"
                       >
                         <PencilLine className="w-4 h-4" />
                         <span>New chat</span>
                       </button>
 
                       {isLoadingConversations ? (
-                        <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                        <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-500">
                           Loading...
                         </div>
                       ) : filteredConversations.length === 0 ? (
-                        <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                        <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-500">
                           {searchQuery ? 'No conversations found' : 'No conversations yet'}
                         </div>
                       ) : (
@@ -400,7 +404,7 @@ export function FloatingChat({
                             <div key={period} className="mb-4">
                               {/* Time Period Header */}
                               <div className="px-3 py-2">
-                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-500">
                                   {period}
                                 </h4>
                               </div>
@@ -411,9 +415,9 @@ export function FloatingChat({
                                   <button
                                     key={conv.id}
                                     onClick={() => handleSelectConversation(conv.id)}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                                   >
-                                    <MessageCircle className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                                    <MessageCircle className="w-4 h-4 flex-shrink-0 text-gray-500" />
                                     <span className="flex-1 text-left truncate">
                                       {conv.title || 'Untitled conversation'}
                                     </span>

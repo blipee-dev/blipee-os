@@ -143,6 +143,14 @@ class AgentWorker {
       }
     }
 
+    // Check if this is the first time running (bootstrap mode)
+    const shouldBootstrap = process.env.RUN_INITIAL_ANALYSIS === 'true';
+
+    if (shouldBootstrap && orgs && orgs.length > 0) {
+      console.log('\n🎯 BOOTSTRAP MODE: Running initial analysis for all organizations...');
+      await this.runInitialAnalysis();
+    }
+
     // Start GLOBAL task listener (listens to ALL organizations)
     this.startGlobalTaskListener();
 
@@ -352,6 +360,87 @@ class AgentWorker {
         console.error('   ❌ Health check failed:', error);
       }
     }, 5 * 60 * 1000); // Check every 5 minutes
+  }
+
+  /**
+   * Run initial analysis for all services (bootstrap mode)
+   * This runs all agents immediately on first deployment to process historical data
+   */
+  private async runInitialAnalysis() {
+    console.log('\n════════════════════════════════════════════════════════════');
+    console.log('  🎯 BOOTSTRAP: Initial Analysis of Historical Data');
+    console.log('════════════════════════════════════════════════════════════\n');
+
+    const startTime = Date.now();
+
+    try {
+      // Phase 1: Foundation Services
+      console.log('📊 Phase 1: Foundation Services');
+      console.log('─────────────────────────────────\n');
+
+      console.log('1️⃣  Running metrics pre-computation...');
+      await this.metricsService.run();
+      console.log('   ✅ Metrics computed\n');
+
+      console.log('2️⃣  Running data cleanup...');
+      await this.cleanupService.run();
+      console.log('   ✅ Cleanup complete\n');
+
+      console.log('3️⃣  Processing notification queue...');
+      await this.notificationService.run();
+      console.log('   ✅ Notifications processed\n');
+
+      // Phase 2: Intelligence & Optimization
+      console.log('\n🔍 Phase 2: Intelligence & Optimization');
+      console.log('─────────────────────────────────────────\n');
+
+      console.log('4️⃣  Analyzing optimization opportunities...');
+      await this.optimizationService.run();
+      console.log('   ✅ Optimization analysis complete\n');
+
+      console.log('5️⃣  Running database optimization...');
+      await this.databaseOptService.run();
+      console.log('   ✅ Database optimized\n');
+
+      console.log('6️⃣  Fetching weather data...');
+      await this.weatherService.run();
+      console.log('   ✅ Weather data updated\n');
+
+      // Phase 3: Advanced Analytics
+      console.log('\n📈 Phase 3: Advanced Analytics');
+      console.log('──────────────────────────────\n');
+
+      console.log('7️⃣  Generating sustainability reports...');
+      await this.reportService.run();
+      console.log('   ✅ Reports generated\n');
+
+      console.log('8️⃣  Running ML model training...');
+      await this.mlTrainingService.run();
+      console.log('   ✅ ML training complete\n');
+
+      // Prompt Optimization
+      console.log('\n🎯 Prompt Optimization');
+      console.log('────────────────────\n');
+
+      console.log('9️⃣  Analyzing conversation patterns...');
+      await this.runPatternAnalysis();
+      console.log('   ✅ Pattern analysis complete\n');
+
+      console.log('🔟 Checking A/B experiments...');
+      await this.runExperimentMonitoring();
+      console.log('   ✅ Experiments checked\n');
+
+      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+
+      console.log('\n════════════════════════════════════════════════════════════');
+      console.log(`  ✅ BOOTSTRAP COMPLETE in ${duration}s`);
+      console.log('  🚀 Switching to normal scheduled operations...');
+      console.log('════════════════════════════════════════════════════════════\n');
+
+    } catch (error) {
+      console.error('\n❌ Bootstrap analysis failed:', error);
+      console.log('⚠️  Continuing with normal operations despite bootstrap failure\n');
+    }
   }
 
   /**
@@ -701,6 +790,7 @@ console.log('║  CORE FEATURES:                                          ║');
 console.log('║  • 8 Global Autonomous Agents (all organizations)        ║');
 console.log('║  • Cross-Organizational Benchmarking & Insights          ║');
 console.log('║  • ML-Based Prompt Optimization                          ║');
+console.log('║  • Bootstrap Mode: Initial Historical Analysis           ║');
 console.log('╠══════════════════════════════════════════════════════════╣');
 console.log('║  PHASE 1 - Foundation Services:                          ║');
 console.log('║  • Sustainability Metrics Pre-Computation (Daily)        ║');
@@ -715,6 +805,9 @@ console.log('╠═════════════════════�
 console.log('║  PHASE 3 - Advanced Analytics:                           ║');
 console.log('║  • Monthly Sustainability Reports (Auto-generated)       ║');
 console.log('║  • ML Model Training Pipeline (Auto-improvement)         ║');
+console.log('╠══════════════════════════════════════════════════════════╣');
+console.log('║  BOOTSTRAP: Set RUN_INITIAL_ANALYSIS=true to process    ║');
+console.log('║             all historical data on first deployment      ║');
 console.log('╚══════════════════════════════════════════════════════════╝\n');
 
 worker.start().catch((error) => {
