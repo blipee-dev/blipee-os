@@ -507,7 +507,35 @@ class SustainabilityIntelligence {
   }
 }
 
-// Export singleton instance
-export const blipeeIntelligence = SustainabilityIntelligence.getInstance();
+// Export getter functions for lazy initialization (prevents build-time instantiation)
+export function getBlipeeIntelligence(): SustainabilityIntelligence {
+  return SustainabilityIntelligence.getInstance();
+}
+
+// Backward compatibility - lazy-loaded singleton exports
+// These use getters so they don't instantiate during Next.js build analysis
+let _blipeeIntelligenceInstance: SustainabilityIntelligence | null = null;
+
+export const blipeeIntelligence = {
+  get enrichDashboardData() {
+    if (!_blipeeIntelligenceInstance) {
+      _blipeeIntelligenceInstance = SustainabilityIntelligence.getInstance();
+    }
+    return _blipeeIntelligenceInstance.enrichDashboardData.bind(_blipeeIntelligenceInstance);
+  },
+  get clearCache() {
+    if (!_blipeeIntelligenceInstance) {
+      _blipeeIntelligenceInstance = SustainabilityIntelligence.getInstance();
+    }
+    return _blipeeIntelligenceInstance.clearCache.bind(_blipeeIntelligenceInstance);
+  },
+  get getCacheStats() {
+    if (!_blipeeIntelligenceInstance) {
+      _blipeeIntelligenceInstance = SustainabilityIntelligence.getInstance();
+    }
+    return _blipeeIntelligenceInstance.getCacheStats.bind(_blipeeIntelligenceInstance);
+  }
+};
+
 // Legacy alias for backward compatibility
 export const sustainabilityIntelligence = blipeeIntelligence;
