@@ -89,6 +89,8 @@ const nextConfig = {
   experimental: {
     // Optimize for smaller bundles
     optimizeCss: true,
+    // Explicitly disable automatic Edge runtime for API routes with Supabase
+    serverComponentsExternalPackages: ['@supabase/supabase-js'],
   },
   
   // Webpack configuration

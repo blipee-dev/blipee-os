@@ -14,7 +14,7 @@
 
 import { CarbonHunterAgent } from './autonomous-agents/carbon-hunter';
 import { ComplianceGuardianAgent } from './autonomous-agents/compliance-guardian';
-import { EsgChiefOfStaffAgent } from './autonomous-agents/esg-chief-of-staff';
+import { ESGChiefOfStaffAgent } from './autonomous-agents/esg-chief-of-staff';
 import { AgentResult } from './autonomous-agents/agent-framework';
 
 // Dashboard intelligence types
@@ -508,4 +508,6 @@ class SustainabilityIntelligence {
 }
 
 // Export singleton instance
-export const sustainabilityIntelligence = SustainabilityIntelligence.getInstance();
+export const blipeeIntelligence = SustainabilityIntelligence.getInstance();
+// Legacy alias for backward compatibility
+export const sustainabilityIntelligence = blipeeIntelligence;
