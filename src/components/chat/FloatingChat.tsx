@@ -8,15 +8,22 @@
  */
 
 import { useState, useEffect } from 'react';
-import { X, MessageCircle, Bot, PencilLine, Search, Maximize2, Minimize2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, MessageCircle, Bot, PencilLine, Search, Maximize2, Minimize2, ChevronLeft, ChevronRight, MoreVertical, Share, Edit, Archive, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatInterface } from './ChatInterface';
 import type { SustainabilityAgentMessage } from '@/lib/ai/agents';
 import { useAuth } from '@/lib/auth/context';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface FloatingChatProps {
-  conversationId: string;
+  conversationId?: string;
   organizationId: string;
   buildingId?: string;
   initialMessages?: SustainabilityAgentMessage[];
@@ -42,26 +49,68 @@ export function FloatingChat({
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationMemory[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedConversationId, setSelectedConversationId] = useState(initialConversationId);
+  // If no initial conversation provided, start with a new one
+  const [selectedConversationId, setSelectedConversationId] = useState(
+    initialConversationId || crypto.randomUUID()
+  );
   const [isLoadingConversations, setIsLoadingConversations] = useState(false);
+  const [loadedMessages, setLoadedMessages] = useState<SustainabilityAgentMessage[]>(initialMessages || []);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const [deletingConversationId, setDeletingConversationId] = useState<string | null>(null);
   const { user } = useAuth();
 
   const fetchConversations = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('[FloatingChat] No user, skipping fetch');
+      return;
+    }
 
+    console.log('[FloatingChat] Fetching conversations for user:', user.id);
     setIsLoadingConversations(true);
     try {
-      const response = await fetch(
-        `/api/conversations?userId=${user.id}&organizationId=${organizationId}`
-      );
+      const url = `/api/conversations?userId=${user.id}&organizationId=${organizationId}`;
+      console.log('[FloatingChat] Fetching from:', url);
+      const response = await fetch(url);
+      console.log('[FloatingChat] Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('[FloatingChat] Received data:', data);
         setConversations(data.conversations || []);
+      } else {
+        console.error('[FloatingChat] Response not OK:', response.status, await response.text());
       }
     } catch (error) {
-      console.error('Error fetching conversations:', error);
+      console.error('[FloatingChat] Error fetching conversations:', error);
     } finally {
       setIsLoadingConversations(false);
+    }
+  };
+
+  // Fetch messages for a conversation
+  const fetchMessages = async (conversationId: string) => {
+    console.log('[FloatingChat] Fetching messages for conversation:', conversationId);
+    setIsLoadingMessages(true);
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}/messages`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[FloatingChat] Loaded', data.count, 'messages');
+        setLoadedMessages(data.messages || []);
+      } else if (response.status === 404) {
+        // 404 is expected for new conversations that haven't been created yet
+        console.log('[FloatingChat] No messages yet (new conversation)');
+        setLoadedMessages([]);
+      } else {
+        console.error('[FloatingChat] Failed to load messages:', response.status);
+        setLoadedMessages([]);
+      }
+    } catch (error) {
+      console.error('[FloatingChat] Error loading messages:', error);
+      setLoadedMessages([]);
+    } finally {
+      setIsLoadingMessages(false);
     }
   };
 
@@ -76,17 +125,124 @@ export function FloatingChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, user]);
 
+  // When conversations load, switch to most recent if we don't have a specific conversation
+  useEffect(() => {
+    if (!initialConversationId && conversations.length > 0 && isOpen) {
+      // Only switch if we're currently on a generated UUID (new conversation)
+      // Check if selected conversation exists in the list
+      const existsInList = conversations.some(c => c.id === selectedConversationId);
+      if (!existsInList) {
+        console.log('[FloatingChat] Switching to most recent conversation:', conversations[0].id);
+        setSelectedConversationId(conversations[0].id);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversations, isOpen]);
+
+  // Load messages when conversation changes
+  useEffect(() => {
+    if (selectedConversationId) {
+      fetchMessages(selectedConversationId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedConversationId]);
+
   const handleNewChat = () => {
     // Generate a new conversation ID (UUID format to match database schema)
     const newConversationId = crypto.randomUUID();
     setSelectedConversationId(newConversationId);
+    setLoadedMessages([]); // Clear messages for new chat
     setSearchQuery('');
     setIsSearchModalOpen(false);
   };
 
   const handleSelectConversation = (conversationId: string) => {
+    console.log('[FloatingChat] Selecting conversation:', conversationId);
+    setIsLoadingMessages(true); // Set loading state immediately
+    setLoadedMessages([]); // Clear messages immediately when switching
     setSelectedConversationId(conversationId);
     setIsSearchModalOpen(false);
+    // Messages will be loaded by useEffect
+  };
+
+  const handleRenameConversation = async (conversationId: string, newTitle: string) => {
+    if (!newTitle.trim()) return;
+
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle.trim() })
+      });
+
+      if (response.ok) {
+        // Refresh conversation list
+        await fetchConversations();
+        setRenamingConversationId(null);
+        setRenameValue('');
+      } else {
+        console.error('[FloatingChat] Failed to rename conversation');
+      }
+    } catch (error) {
+      console.error('[FloatingChat] Error renaming conversation:', error);
+    }
+  };
+
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        // If we're deleting the current conversation, switch to a new one
+        if (conversationId === selectedConversationId) {
+          handleNewChat();
+        }
+        // Refresh conversation list
+        await fetchConversations();
+        setDeletingConversationId(null);
+      } else {
+        console.error('[FloatingChat] Failed to delete conversation');
+      }
+    } catch (error) {
+      console.error('[FloatingChat] Error deleting conversation:', error);
+    }
+  };
+
+  const handleArchiveConversation = async (conversationId: string) => {
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ archived: true })
+      });
+
+      if (response.ok) {
+        // If we're archiving the current conversation, switch to a new one
+        if (conversationId === selectedConversationId) {
+          handleNewChat();
+        }
+        // Refresh conversation list
+        await fetchConversations();
+      } else {
+        console.error('[FloatingChat] Failed to archive conversation');
+      }
+    } catch (error) {
+      console.error('[FloatingChat] Error archiving conversation:', error);
+    }
+  };
+
+  const handleShareConversation = async (conversationId: string) => {
+    // For now, just copy the conversation URL to clipboard
+    const url = `${window.location.origin}/chat/${conversationId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      // TODO: Show toast notification
+      console.log('[FloatingChat] Conversation URL copied to clipboard');
+    } catch (error) {
+      console.error('[FloatingChat] Error copying to clipboard:', error);
+    }
   };
 
   // Helper function to get time period label
@@ -282,24 +438,141 @@ export function FloatingChat({
                           ) : (
                             <div className="space-y-0.5 px-2">
                               {recentConversations.map((conv) => (
-                                selectedConversationId === conv.id ? (
-                                  <div key={conv.id} className="p-[2px] rounded-lg bg-gradient-to-r from-green-500 to-emerald-500">
-                                    <button
-                                      onClick={() => handleSelectConversation(conv.id)}
-                                      className="w-full text-left px-3 py-2 text-sm rounded-md bg-white/90 dark:bg-zinc-900/90 text-gray-500 dark:text-gray-500"
-                                    >
-                                      <p className="truncate">{conv.title || 'Untitled conversation'}</p>
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    key={conv.id}
-                                    onClick={() => handleSelectConversation(conv.id)}
-                                    className="group w-full text-left px-3 py-2 text-sm rounded-lg text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 transition-colors"
-                                  >
-                                    <p className="truncate group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">{conv.title || 'Untitled conversation'}</p>
-                                  </button>
-                                )
+                                <div key={conv.id} className="relative group/conv">
+                                  {selectedConversationId === conv.id ? (
+                                    <div className="p-[2px] rounded-lg bg-gradient-to-r from-green-500 to-emerald-500">
+                                      <div className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-md bg-white/90 dark:bg-zinc-900/90 text-gray-500 dark:text-gray-500">
+                                        {renamingConversationId === conv.id ? (
+                                          <input
+                                            type="text"
+                                            value={renameValue}
+                                            onChange={(e) => setRenameValue(e.target.value)}
+                                            onBlur={() => {
+                                              handleRenameConversation(conv.id, renameValue);
+                                            }}
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter') {
+                                                handleRenameConversation(conv.id, renameValue);
+                                              } else if (e.key === 'Escape') {
+                                                setRenamingConversationId(null);
+                                                setRenameValue('');
+                                              }
+                                            }}
+                                            autoFocus
+                                            className="flex-1 bg-transparent border-none outline-none focus:ring-0"
+                                          />
+                                        ) : (
+                                          <>
+                                            <button
+                                              onClick={() => handleSelectConversation(conv.id)}
+                                              className="flex-1 text-left truncate"
+                                            >
+                                              {conv.title || 'Untitled conversation'}
+                                            </button>
+                                            <DropdownMenu>
+                                              <DropdownMenuTrigger
+                                                className="opacity-100 hover:bg-gray-200 dark:hover:bg-zinc-700 rounded p-1 transition-opacity"
+                                                onClick={(e) => e.stopPropagation()}
+                                              >
+                                                <MoreVertical className="w-3.5 h-3.5" />
+                                              </DropdownMenuTrigger>
+                                              <DropdownMenuContent align="end" className="w-48">
+                                                <DropdownMenuItem onClick={() => handleShareConversation(conv.id)}>
+                                                  <Share className="w-4 h-4 mr-2" />
+                                                  Share
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => {
+                                                  setRenamingConversationId(conv.id);
+                                                  setRenameValue(conv.title || '');
+                                                }}>
+                                                  <Edit className="w-4 h-4 mr-2" />
+                                                  Rename
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleArchiveConversation(conv.id)}>
+                                                  <Archive className="w-4 h-4 mr-2" />
+                                                  Archive
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem
+                                                  className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                                                  onClick={() => setDeletingConversationId(conv.id)}
+                                                >
+                                                  <Trash2 className="w-4 h-4 mr-2" />
+                                                  Delete
+                                                </DropdownMenuItem>
+                                              </DropdownMenuContent>
+                                            </DropdownMenu>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 transition-colors">
+                                      {renamingConversationId === conv.id ? (
+                                        <input
+                                          type="text"
+                                          value={renameValue}
+                                          onChange={(e) => setRenameValue(e.target.value)}
+                                          onBlur={() => {
+                                            handleRenameConversation(conv.id, renameValue);
+                                          }}
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              handleRenameConversation(conv.id, renameValue);
+                                            } else if (e.key === 'Escape') {
+                                              setRenamingConversationId(null);
+                                              setRenameValue('');
+                                            }
+                                          }}
+                                          autoFocus
+                                          className="flex-1 bg-transparent border-none outline-none focus:ring-0"
+                                        />
+                                      ) : (
+                                        <>
+                                          <button
+                                            onClick={() => handleSelectConversation(conv.id)}
+                                            className="flex-1 text-left truncate group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent"
+                                          >
+                                            {conv.title || 'Untitled conversation'}
+                                          </button>
+                                          <DropdownMenu>
+                                            <DropdownMenuTrigger
+                                              className="opacity-0 group-hover/conv:opacity-100 hover:bg-gray-200 dark:hover:bg-zinc-700 rounded p-1 transition-opacity"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              <MoreVertical className="w-3.5 h-3.5" />
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-48">
+                                              <DropdownMenuItem onClick={() => handleShareConversation(conv.id)}>
+                                                <Share className="w-4 h-4 mr-2" />
+                                                Share
+                                              </DropdownMenuItem>
+                                              <DropdownMenuItem onClick={() => {
+                                                setRenamingConversationId(conv.id);
+                                                setRenameValue(conv.title || '');
+                                              }}>
+                                                <Edit className="w-4 h-4 mr-2" />
+                                                Rename
+                                              </DropdownMenuItem>
+                                              <DropdownMenuItem onClick={() => handleArchiveConversation(conv.id)}>
+                                                <Archive className="w-4 h-4 mr-2" />
+                                                Archive
+                                              </DropdownMenuItem>
+                                              <DropdownMenuSeparator />
+                                              <DropdownMenuItem
+                                                className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                                                onClick={() => setDeletingConversationId(conv.id)}
+                                              >
+                                                <Trash2 className="w-4 h-4 mr-2" />
+                                                Delete
+                                              </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                          </DropdownMenu>
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
                               ))}
                             </div>
                           )}
@@ -327,14 +600,21 @@ export function FloatingChat({
 
                 {/* Chat Content */}
                 <div className="flex-1 overflow-hidden bg-white dark:bg-zinc-900">
-                  <ChatInterface
-                    conversationId={selectedConversationId}
-                    organizationId={organizationId}
-                    buildingId={buildingId}
-                    initialMessages={initialMessages}
-                    className="h-full"
-                    onConversationUpdate={fetchConversations}
-                  />
+                  {isLoadingMessages ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-sm text-gray-500 dark:text-gray-500">Loading messages...</div>
+                    </div>
+                  ) : (
+                    <ChatInterface
+                      key={selectedConversationId}
+                      conversationId={selectedConversationId}
+                      organizationId={organizationId}
+                      buildingId={buildingId}
+                      initialMessages={loadedMessages}
+                      className="h-full"
+                      onConversationUpdate={fetchConversations}
+                    />
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -428,6 +708,51 @@ export function FloatingChat({
                           ))}
                         </>
                       )}
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+
+            {/* Delete Confirmation Dialog */}
+            <AnimatePresence>
+              {deletingConversationId && (
+                <>
+                  {/* Modal Backdrop */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setDeletingConversationId(null)}
+                    className="fixed inset-0 bg-black/60 z-[60]"
+                  />
+
+                  {/* Confirmation Modal */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="fixed inset-0 m-auto w-full max-w-md h-fit bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl z-[70] p-6"
+                  >
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      Delete conversation?
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                      This will permanently delete this conversation and all its messages. This action cannot be undone.
+                    </p>
+                    <div className="flex gap-3 justify-end">
+                      <button
+                        onClick={() => setDeletingConversationId(null)}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => handleDeleteConversation(deletingConversationId)}
+                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 rounded-lg transition-colors"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </motion.div>
                 </>

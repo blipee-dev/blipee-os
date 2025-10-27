@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,14 +14,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
-    // Fetch conversation memories from the database
+    // Fetch conversations from the database
     let query = supabase
-      .from('conversation_memories')
-      .select('id, title, summary, created_at, updated_at')
+      .from('conversations')
+      .select('id, title, summary, created_at, updated_at, last_message_at')
       .eq('user_id', userId)
-      .order('updated_at', { ascending: false })
+      .order('last_message_at', { ascending: false })
       .limit(50);
 
     // Filter by organization if provided
@@ -32,12 +32,19 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching conversations:', error);
+      console.error('[API Conversations] Error fetching conversations:', error);
       return NextResponse.json(
         { error: 'Failed to fetch conversations' },
         { status: 500 }
       );
     }
+
+    console.log('[API Conversations] Fetched conversations:', {
+      userId,
+      organizationId,
+      count: data?.length || 0,
+      conversations: data
+    });
 
     return NextResponse.json({
       conversations: data || [],
@@ -64,7 +71,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     // Create a new conversation memory
     const { data, error } = await supabase

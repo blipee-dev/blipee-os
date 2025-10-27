@@ -14,6 +14,7 @@
  */
 
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { cn } from '@/lib/utils';
 import { Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton } from '@/components/ai-elements/conversation';
 import { Message, MessageContent } from '@/components/ai-elements/message';
@@ -168,8 +169,22 @@ export function ChatInterface({
   };
 
   const { messages, sendMessage, status, error, regenerate, addToolResult } = useChat<SustainabilityAgentUIMessage>({
-    api: '/api/chat',
     initialMessages: initialMessages || [],
+    transport: new DefaultChatTransport({
+      api: '/api/chat',
+      // Only send the last message to the server (recommended pattern for persistence)
+      prepareSendMessagesRequest({ messages, id }) {
+        return {
+          body: {
+            message: messages[messages.length - 1], // Send only the last message
+            conversationId,
+            organizationId,
+            buildingId,
+            model
+          }
+        };
+      }
+    }),
     onFinish: () => {
       // Refresh conversation list when message is complete
       if (onConversationUpdate) {
@@ -186,35 +201,17 @@ export function ChatInterface({
       return;
     }
 
-    sendMessage(
-      {
-        text: message.text || 'Sent with attachments',
-        files: message.files
-      },
-      {
-        body: {
-          conversationId,
-          organizationId,
-          buildingId,
-          model
-        }
-      }
-    );
+    // Body parameters are now handled by prepareSendMessagesRequest
+    sendMessage({
+      text: message.text || 'Sent with attachments',
+      files: message.files
+    });
     setInput('');
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    sendMessage(
-      { text: suggestion },
-      {
-        body: {
-          conversationId,
-          organizationId,
-          buildingId,
-          model
-        }
-      }
-    );
+    // Body parameters are now handled by prepareSendMessagesRequest
+    sendMessage({ text: suggestion });
   };
 
   const handleFeedback = (messageId: string, type: 'up' | 'down') => {
@@ -434,14 +431,7 @@ export function ChatInterface({
                                 {i === message.parts.length - 1 && (
                                   <Actions className="mt-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Action
-                                      onClick={() => regenerate({
-                                        body: {
-                                          conversationId,
-                                          organizationId,
-                                          buildingId,
-                                          model
-                                        }
-                                      })}
+                                      onClick={() => regenerate()}
                                       label="Regenerate"
                                     >
                                       <RefreshCcwIcon className="size-4" />
@@ -525,14 +515,7 @@ export function ChatInterface({
                     </p>
                   </div>
                   <Actions>
-                    <Action onClick={() => regenerate({
-                      body: {
-                        conversationId,
-                        organizationId,
-                        buildingId,
-                        model
-                      }
-                    })} label="Retry">
+                    <Action onClick={() => regenerate()} label="Retry">
                       <RefreshCcwIcon className="w-3 h-3" />
                     </Action>
                   </Actions>

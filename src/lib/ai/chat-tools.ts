@@ -47,7 +47,9 @@ export const analyzeCarbonFootprintTool = tool({
   - Default behavior (no timeframe): Current year (${new Date().getFullYear()}) January 1 to today
   - Do NOT use years before ${new Date().getFullYear() - 2} unless explicitly requested
 
-  Use this for questions like "what are my emissions this year", "emissions in 2024", or "emissions for Q1 2025". Returns comprehensive emissions data with breakdowns and recommendations. Do NOT use for future predictions.`,
+  Use this for questions like "what are my emissions this year", "emissions in 2024", or "emissions for Q1 2025". Returns comprehensive emissions data with breakdowns and recommendations. Do NOT use for future predictions.
+
+  IMPORTANT: After calling this tool, you MUST generate a conversational text response explaining the emissions data to the user in plain language. Do not just return the tool result - explain what it means.`,
   inputSchema: z.object({
     scope: z.enum(['building', 'organization', 'activity', 'product']).describe('The scope of carbon analysis'),
     organizationId: z.string().describe('Organization ID'),

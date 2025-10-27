@@ -14,11 +14,12 @@
  */
 
 import { NextRequest } from 'next/server';
-import { type UIMessage, validateUIMessages } from 'ai';
+import { type UIMessage, validateUIMessages, generateText, streamText, convertToCoreMessages, stepCountIs } from 'ai';
 import { createAdminClient } from '@/lib/supabase/server';
 import { getAPIUser } from '@/lib/auth/server-auth';
 import {
   createSustainabilityAgent,
+  createSystemPrompt,
   validateFileType,
   SUPPORTED_FILE_TYPES
 } from '@/lib/ai/agents/sustainability-agent';
@@ -27,6 +28,9 @@ import {
   defaultSustainabilityContentSafety
 } from '@/lib/ai/safety/content-safety';
 import { createDatabaseViolationLogger } from '@/lib/ai/safety/violation-logger';
+import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
+import { sustainabilityTools } from '@/lib/ai/chat-tools';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -47,23 +51,23 @@ export async function POST(req: NextRequest) {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    // Parse request body
+    // Parse request body - now receiving only the last message
     const {
-      messages,
+      message,
       conversationId,
       organizationId,
       buildingId,
       model = 'gpt-4o' // Default to GPT-4o if not specified
     }: {
-      messages: UIMessage[];
+      message: UIMessage;
       conversationId: string;
       organizationId: string;
       buildingId?: string;
       model?: string;
     } = await req.json();
 
-    if (!messages || !Array.isArray(messages)) {
-      return new Response('Invalid messages format', { status: 400 });
+    if (!message) {
+      return new Response('Invalid message format', { status: 400 });
     }
 
     if (!conversationId || !organizationId) {
@@ -90,10 +94,36 @@ export async function POST(req: NextRequest) {
 
     console.log('[Chat API] Access granted - role:', member.role);
 
+    // Load previous messages from database
+    console.log('[Chat API] Loading previous messages for conversation:', conversationId);
+    const { data: dbMessages, error: messagesError } = await supabase
+      .from('messages')
+      .select('id, role, content, model, created_at')
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: true });
+
+    // Convert database messages to UIMessage format
+    const previousMessages: UIMessage[] = (dbMessages || []).map((msg) => ({
+      id: msg.id,
+      role: msg.role as 'user' | 'assistant',
+      parts: [
+        {
+          type: 'text' as const,
+          text: msg.content,
+        },
+      ],
+      createdAt: new Date(msg.created_at),
+    }));
+
+    console.log('[Chat API] Loaded', previousMessages.length, 'previous messages');
+
+    // Append the new message to previous messages
+    const messages = [...previousMessages, message];
+
     // Validate file attachments in messages
-    for (const message of messages) {
-      if (message.parts) {
-        for (const part of message.parts) {
+    for (const msg of messages) {
+      if (msg.parts) {
+        for (const part of msg.parts) {
           // Validate file parts
           if (part.type === 'file' && part.mediaType) {
             if (!validateFileType(part.mediaType, model)) {
@@ -128,24 +158,24 @@ export async function POST(req: NextRequest) {
       })
     };
 
-    // Create agent for the specified model with custom safety config and org context
-    const agent = createSustainabilityAgent(
-      model,
-      contentSafetyConfig,
-      organizationId,
-      buildingId
-    );
-
     // Ensure conversation exists
-    const { data: existingConversation } = await supabase
+    console.log('[Chat API] Looking for conversation:', conversationId);
+    const { data: existingConversation, error: conversationError } = await supabase
       .from('conversations')
       .select('id, title, message_count')
       .eq('id', conversationId)
       .single();
 
+    console.log('[Chat API] Conversation query result:', {
+      found: !!existingConversation,
+      error: conversationError,
+      data: existingConversation
+    });
+
     if (!existingConversation) {
       // Create new conversation
-      await supabase.from('conversations').insert({
+      console.log('[Chat API] Creating new conversation:', { conversationId, userId: user.id, organizationId, buildingId });
+      const { error: insertError } = await supabase.from('conversations').insert({
         id: conversationId,
         user_id: user.id,
         organization_id: organizationId,
@@ -153,57 +183,188 @@ export async function POST(req: NextRequest) {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       });
+      if (insertError) {
+        console.error('[Chat API] Error creating conversation:', insertError);
+      } else {
+        console.log('[Chat API] Conversation created successfully');
+      }
     }
 
-    // Save user message
-    const lastUserMessage = validatedMessages.filter(m => m.role === 'user').pop();
-    if (lastUserMessage) {
+    // Save user message (only if it's a new message, not already in database)
+    // Check if this message is already saved by comparing with last message in previousMessages
+    const isNewMessage = previousMessages.length === 0 ||
+      previousMessages[previousMessages.length - 1].id !== message.id;
+
+    if (isNewMessage && message.role === 'user') {
       try {
-        const userContent = lastUserMessage.parts
+        const userContent = message.parts
           .filter((part: any) => part.type === 'text')
           .map((part: any) => part.text)
           .join('\n');
 
-        await supabase.from('messages').insert({
+        console.log('[Chat] Saving user message...');
+        const { data: savedUserMessage, error: userSaveError } = await supabase.from('messages').insert({
           conversation_id: conversationId,
           role: 'user',
           content: userContent,
           created_at: new Date().toISOString()
-        });
+        }).select();
 
-        // Generate title from first user message if conversation is new
-        if (!existingConversation || !existingConversation.title) {
-          const title = userContent.slice(0, 60) + (userContent.length > 60 ? '...' : '');
-          await supabase.from('conversations')
-            .update({ title })
-            .eq('id', conversationId);
+        if (userSaveError) {
+          console.error('[Chat] ❌ Failed to save user message:', userSaveError);
+          throw userSaveError;
         }
+
+        console.log('[Chat] ✅ User message saved successfully');
+
+        // Title will be generated after first AI response (in onFinish)
       } catch (error) {
         console.error('[Chat] Failed to save user message:', error);
       }
     }
 
-    // Use agent to respond (handles loop, tools, and streaming automatically)
-    return agent.respond({
-      messages: validatedMessages,
-      onFinish: async ({ text, toolCalls, usage }) => {
-        // Log conversation to database
-        if (process.env.NODE_ENV === 'development') {
-          console.log('[Chat] Finished streaming');
-          console.log('[Chat] Model:', model);
-          console.log('[Chat] Tool calls:', toolCalls?.length || 0);
-          console.log('[Chat] Usage:', usage);
+    // Get the appropriate model based on model ID
+    const getModel = (modelId: string) => {
+      if (modelId.startsWith('claude')) {
+        return anthropic(modelId);
+      }
+      return openai(modelId);
+    };
+
+    // Create contextualized system prompt with org and building context
+    const systemPrompt = createSystemPrompt(organizationId, buildingId);
+
+    // Use streamText with proper message persistence pattern
+    const result = streamText({
+      model: getModel(model),
+      system: systemPrompt,
+      messages: convertToCoreMessages(validatedMessages),
+      tools: sustainabilityTools,
+      maxSteps: 5,
+      // CRITICAL: Enable multi-step calls so model continues after tool execution
+      stopWhen: stepCountIs(5),
+      // Ensure model responds after tool execution
+      onStepFinish: async ({ text, toolCalls, toolResults, finishReason, usage, isContinued }) => {
+        console.log('[Chat] 📊 Step finished:', {
+          hasText: !!text && text.length > 0,
+          textLength: text?.length || 0,
+          toolCallsCount: toolCalls?.length || 0,
+          toolResultsCount: toolResults?.length || 0,
+          finishReason,
+          isContinued: isContinued || false,
+        });
+
+        // If we have tool results but no text, the model stopped prematurely
+        if (toolResults && toolResults.length > 0 && (!text || text.length === 0)) {
+          console.warn('[Chat] ⚠️ WARNING: Tool executed but no text response generated!');
+          console.warn('[Chat] This means the model stopped after calling the tool without explaining results');
         }
+      },
+    });
+
+    // Return streaming response with originalMessages for persistence
+    return result.toUIMessageStreamResponse({
+      originalMessages: validatedMessages,
+      onFinish: async ({ messages: finalMessages }) => {
+        console.log('[Chat] ⚠️ onFinish callback triggered!');
+        console.log('[Chat] Final messages count:', finalMessages.length);
+        console.log('[Chat] ConversationId:', conversationId);
+
+        // Get the last assistant message from finalMessages
+        const lastAssistantMessage = finalMessages
+          .filter(m => m.role === 'assistant')
+          .pop();
+
+        if (!lastAssistantMessage) {
+          console.error('[Chat] No assistant message found in final messages');
+          return;
+        }
+
+        // Extract all content from the assistant message (text + tool results)
+        const textParts = lastAssistantMessage.parts
+          .filter((part: any) => part.type === 'text')
+          .map((part: any) => part.text);
+
+        // Also include tool results as context
+        const toolParts = lastAssistantMessage.parts
+          .filter((part: any) => part.type?.startsWith('tool-') && part.state === 'output-available')
+          .map((part: any) => `[Tool: ${part.type}]\n${JSON.stringify(part.output, null, 2)}`);
+
+        const assistantText = [...textParts, ...toolParts].join('\n\n');
+
+        console.log('[Chat] Assistant text length:', assistantText.length);
+        console.log('[Chat] Text parts:', textParts.length, 'Tool parts:', toolParts.length);
 
         // Save assistant message
         try {
-          await supabase.from('messages').insert({
+          console.log('[Chat] Saving assistant message...');
+          const { data: savedMessage, error: saveError } = await supabase.from('messages').insert({
             conversation_id: conversationId,
             role: 'assistant',
-            content: text,
+            content: assistantText,
             model: model,
             created_at: new Date().toISOString()
-          });
+          }).select();
+
+          if (saveError) {
+            console.error('[Chat] ❌ Failed to save assistant message:', saveError);
+            throw saveError;
+          }
+
+          console.log('[Chat] ✅ Assistant message saved successfully');
+
+          // Generate conversation title if this is the first response
+          console.log('[Chat] Checking if title needs generation...');
+          const { data: conversation } = await supabase
+            .from('conversations')
+            .select('title, message_count')
+            .eq('id', conversationId)
+            .single();
+
+          console.log('[Chat] Conversation title check:', { title: conversation?.title, shouldGenerate: !conversation?.title || conversation.title === 'New Chat' });
+
+          if (!conversation?.title || conversation.title === 'New Chat') {
+            console.log('[Chat] Starting title generation...');
+            // Get the user's first message for context
+            const { data: messages } = await supabase
+              .from('messages')
+              .select('content, role')
+              .eq('conversation_id', conversationId)
+              .order('created_at', { ascending: true })
+              .limit(2);
+
+            const userMessage = messages?.find(m => m.role === 'user')?.content || '';
+
+            // Generate a concise title using AI
+            try {
+              const { text: generatedTitle } = await generateText({
+                model: openai('gpt-4o-mini'), // Use fast, cheap model for title generation
+                prompt: `Based on this conversation, generate a short, descriptive title (3-6 words maximum, no quotes or punctuation at the end):
+
+User: ${userMessage}
+Assistant: ${assistantText.slice(0, 200)}...
+
+Title:`,
+                maxTokens: 20,
+                temperature: 0.7
+              });
+
+              const title = generatedTitle.trim().replace(/^["']|["']$/g, ''); // Remove quotes if present
+
+              console.log('[Chat] Generated title:', title);
+
+              await supabase.from('conversations')
+                .update({ title })
+                .eq('id', conversationId);
+            } catch (error) {
+              console.error('[Chat] Failed to generate title:', error);
+              // Fallback to simple title
+              const fallbackTitle = userMessage.slice(0, 50) + (userMessage.length > 50 ? '...' : '');
+              await supabase.from('conversations')
+                .update({ title: fallbackTitle })
+                .eq('id', conversationId);
+            }
+          }
 
           // Update or create conversation memory
           const { data: existingMemory } = await supabase
@@ -212,7 +373,7 @@ export async function POST(req: NextRequest) {
             .eq('conversation_id', conversationId)
             .single();
 
-          const summary = `Recent conversation about: ${text.slice(0, 200)}...`;
+          const summary = `Recent conversation about: ${assistantText.slice(0, 200)}...`;
 
           if (existingMemory) {
             // Update existing memory
@@ -223,8 +384,8 @@ export async function POST(req: NextRequest) {
               })
               .eq('conversation_id', conversationId);
           } else {
-            // Create new memory
-            const { data: conversation } = await supabase
+            // Get the updated conversation title
+            const { data: updatedConversation } = await supabase
               .from('conversations')
               .select('title')
               .eq('id', conversationId)
@@ -234,7 +395,7 @@ export async function POST(req: NextRequest) {
               conversation_id: conversationId,
               user_id: user.id,
               organization_id: organizationId,
-              title: conversation?.title || 'Untitled conversation',
+              title: updatedConversation?.title || 'Untitled conversation',
               summary,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()

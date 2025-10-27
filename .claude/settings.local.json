@@ -160,7 +160,16 @@
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_ICMDlS/**)",
       "Bash(npm run migrate:run:*)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_yvXR8Y/**)",
-      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_FARMyR/**)"
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_FARMyR/**)",
+      "Bash(wait)",
+      "Bash(NODE_OPTIONS='--env-file=.env.local' npx tsx:*)",
+      "mcp__Railway__list-variables",
+      "Bash(supabase db push:*)",
+      "Bash(supabase migration:*)",
+      "Bash(if [ -f /tmp/railway-logs.txt ])",
+      "Bash(then cat /tmp/railway-logs.txt)",
+      "Bash(else echo \"No logs file\")",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_wHnblz/**)"
     ],
     "deny": [],
     "ask": []

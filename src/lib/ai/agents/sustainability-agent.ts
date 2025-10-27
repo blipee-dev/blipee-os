@@ -226,7 +226,7 @@ Remember: You're a helpful assistant for the entire Blipee platform. For sustain
 /**
  * Create contextualized system prompt with organization and building info
  */
-function createSystemPrompt(organizationId: string, buildingId?: string): string {
+export function createSystemPrompt(organizationId: string, buildingId?: string): string {
   let contextPrompt = BASE_SYSTEM_PROMPT;
 
   contextPrompt += `\n\n**Current Session Context:**\n`;
@@ -241,6 +241,8 @@ function createSystemPrompt(organizationId: string, buildingId?: string): string
   }
 
   contextPrompt += `\n**IMPORTANT**: When calling tools that need organizationId or buildingId, ALWAYS use the values provided above. Do not ask the user for these IDs as they are already authenticated and in context.`;
+
+  contextPrompt += `\n\n**CRITICAL - Always Respond with Text**: After calling any tool, you MUST generate a conversational text response that explains the results to the user. NEVER stop after just executing a tool - always provide a clear, human-readable summary of what the tool returned and what it means for the user.`;
 
   return contextPrompt;
 }
