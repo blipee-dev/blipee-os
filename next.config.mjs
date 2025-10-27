@@ -47,6 +47,10 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+
+  // Prevent build from hanging on static page generation
+  staticPageGenerationTimeout: 90, // 90 seconds max per page
+
   images: {
     domains: ["quovvwrwyfkzhgqdeham.supabase.co"],
   },
