@@ -72,7 +72,10 @@ export class DataCleanupService {
       // 4. Clean up old analytics data (1 year)
       await this.cleanupOldAnalytics();
 
-      // 5. Execute automatic deletions
+      // 5. Clean up expired metrics cache entries
+      await this.cleanupExpiredMetricsCache();
+
+      // 6. Execute automatic deletions
       if (eligibleRecords.length > 0) {
         const recordIds = eligibleRecords.map(r => r.id);
         const jobId = dataRetentionManager.scheduleDeletion(recordIds);
@@ -180,6 +183,36 @@ export class DataCleanupService {
 
     } catch (error) {
       console.error('   ⚠️  Analytics cleanup failed:', error);
+      this.stats.errors++;
+    }
+  }
+
+  /**
+   * Clean up expired metrics cache entries
+   */
+  private async cleanupExpiredMetricsCache(): Promise<void> {
+    try {
+      console.log('   🗄️  Cleaning up expired metrics cache...');
+
+      // Call the database function to clean up expired cache entries
+      const { data, error } = await supabase.rpc('cleanup_expired_metrics_cache');
+
+      if (error) {
+        console.error('     ⚠️  Cache cleanup failed:', error);
+        this.stats.errors++;
+        return;
+      }
+
+      const deletedCount = data || 0;
+      if (deletedCount > 0) {
+        console.log(`     ✅ Deleted ${deletedCount} expired cache entries`);
+        this.stats.recordsDeleted += deletedCount;
+      } else {
+        console.log('     ℹ️  No expired cache entries found');
+      }
+
+    } catch (error) {
+      console.error('   ⚠️  Metrics cache cleanup error:', error);
       this.stats.errors++;
     }
   }

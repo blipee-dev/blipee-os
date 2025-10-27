@@ -156,21 +156,35 @@ export class MetricsPreComputeService {
     baseline: any
   ): Promise<void> {
     try {
-      // Store in a cache table (you'll need to create this table)
-      // For now, just count the cache update
-      this.stats.cacheUpdates++;
+      const startTime = Date.now();
 
-      // Future: Store in metrics_cache table or Redis
-      // await supabase.from('metrics_cache').upsert({
-      //   organization_id: orgId,
-      //   domain,
-      //   year,
-      //   type: 'baseline',
-      //   data: baseline,
-      //   computed_at: new Date().toISOString(),
-      // });
+      // Store in metrics_cache table with 30-day expiration
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+
+      const { error } = await supabase.from('metrics_cache').upsert({
+        organization_id: orgId,
+        cache_type: 'baseline',
+        domain,
+        period_year: year,
+        period_start: `${year}-01-01`,
+        period_end: `${year}-12-31`,
+        data: baseline,
+        computed_at: new Date().toISOString(),
+        expires_at: expiresAt.toISOString(),
+        computation_time_ms: Date.now() - startTime,
+        data_version: 1,
+      }, {
+        onConflict: 'organization_id,cache_type,domain,period_year',
+      });
+
+      if (error) {
+        console.error('     ⚠️  Cache baseline failed:', error);
+      } else {
+        this.stats.cacheUpdates++;
+      }
     } catch (error) {
-      console.error('     ⚠️  Cache baseline failed:', error);
+      console.error('     ⚠️  Cache baseline error:', error);
     }
   }
 
@@ -183,18 +197,38 @@ export class MetricsPreComputeService {
     forecast: any
   ): Promise<void> {
     try {
-      this.stats.cacheUpdates++;
+      const startTime = Date.now();
 
-      // Future: Store in metrics_cache table or Redis
-      // await supabase.from('metrics_cache').upsert({
-      //   organization_id: orgId,
-      //   domain,
-      //   type: 'forecast',
-      //   data: forecast,
-      //   computed_at: new Date().toISOString(),
-      // });
+      // Store in metrics_cache table with 7-day expiration (forecasts are more volatile)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7);
+
+      // Extract period from forecast data
+      const periodStart = forecast.startDate || new Date().toISOString().split('T')[0];
+      const periodEnd = forecast.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const { error } = await supabase.from('metrics_cache').upsert({
+        organization_id: orgId,
+        cache_type: 'forecast',
+        domain,
+        period_start: periodStart,
+        period_end: periodEnd,
+        data: forecast,
+        computed_at: new Date().toISOString(),
+        expires_at: expiresAt.toISOString(),
+        computation_time_ms: Date.now() - startTime,
+        data_version: 1,
+      }, {
+        onConflict: 'organization_id,cache_type,domain,period_start',
+      });
+
+      if (error) {
+        console.error('     ⚠️  Cache forecast failed:', error);
+      } else {
+        this.stats.cacheUpdates++;
+      }
     } catch (error) {
-      console.error('     ⚠️  Cache forecast failed:', error);
+      console.error('     ⚠️  Cache forecast error:', error);
     }
   }
 
