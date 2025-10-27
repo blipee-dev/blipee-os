@@ -45,7 +45,8 @@ const supabaseAdmin = createClient(
 
 class AgentWorker {
   private isRunning = false;
-  private workforce: Map<string, any> = new Map(); // organizationId -> workforce
+  private globalWorkforce: any = null; // Single global workforce for all orgs
+  private organizationIds: Set<string> = new Set(); // Track active organizations
   private messageGenerator: AgentMessageGenerator;
   private healthCheckInterval: NodeJS.Timeout | null = null;
   private healthServer: http.Server | null = null;
@@ -101,14 +102,27 @@ class AgentWorker {
   }
 
   async start() {
-    console.log('🚀 Starting Blipee AI Autonomous Agent Worker...');
+    console.log('🚀 Starting Blipee AI Global Agent Worker...');
     console.log('📅 Current time:', new Date().toISOString());
     this.isRunning = true;
 
     // Start health check HTTP server
     this.startHealthCheckServer();
 
-    // Get all organizations
+    // Initialize GLOBAL workforce (single instance for all organizations)
+    console.log('\n🌍 Initializing global AI workforce...');
+    try {
+      this.globalWorkforce = await initializeAutonomousAgents();
+      console.log('✅ Global workforce initialized successfully');
+      console.log(`   • ${this.globalWorkforce.config.totalEmployees} agents active globally`);
+      console.log(`   • Mode: ${this.globalWorkforce.config.operationalMode}`);
+      console.log(`   • Cross-org benchmarking: ${this.globalWorkforce.config.crossOrgBenchmarkingEnabled}`);
+    } catch (error) {
+      console.error('❌ Failed to initialize global workforce:', error);
+      return;
+    }
+
+    // Get all organizations (just to track them)
     const { data: orgs, error } = await supabaseAdmin
       .from('organizations')
       .select('id, name, created_at');
@@ -119,18 +133,18 @@ class AgentWorker {
     }
 
     if (!orgs || orgs.length === 0) {
-      console.log('⚠️  No organizations found. Waiting for organizations to be created...');
-      // Set up a periodic check for new organizations
-      this.watchForNewOrganizations();
-      return;
+      console.log('⚠️  No organizations found. Global agents ready and waiting...');
+    } else {
+      console.log(`📊 Found ${orgs.length} organization(s)`);
+      // Track organization IDs
+      for (const org of orgs) {
+        this.organizationIds.add(org.id);
+        console.log(`   • ${org.name} (${org.id})`);
+      }
     }
 
-    console.log(`📊 Found ${orgs.length} organization(s)`);
-
-    // Initialize agents for each organization
-    for (const org of orgs) {
-      await this.initializeAgentsForOrganization(org);
-    }
+    // Start GLOBAL task listener (listens to ALL organizations)
+    this.startGlobalTaskListener();
 
     // Start health monitoring
     this.startHealthMonitoring();
@@ -147,8 +161,9 @@ class AgentWorker {
     // Watch for new organizations
     this.watchForNewOrganizations();
 
-    console.log('✅ Agent worker fully operational');
-    console.log('🤖 8 autonomous agents working 24/7 for each organization');
+    console.log('\n✅ Global agent worker fully operational');
+    console.log('🌍 8 autonomous agents working globally across all organizations');
+    console.log('📊 Cross-organizational benchmarking enabled');
     console.log('📨 Proactive messages will appear in user chats');
     console.log('🎯 Prompt optimization running in background');
     console.log('💚 Phase 1: Metrics, cleanup, and notifications running');
@@ -157,47 +172,26 @@ class AgentWorker {
   }
 
   /**
-   * Initialize agents for a specific organization
+   * Start GLOBAL task listener for ALL organizations
+   * Single subscription that receives task results from any organization
    */
-  private async initializeAgentsForOrganization(org: any) {
-    console.log(`\n🏢 Initializing agents for: ${org.name} (${org.id})`);
+  private startGlobalTaskListener() {
+    console.log('👂 Starting global task listener for all organizations...');
 
-    try {
-      const workforce = await initializeAutonomousAgents(org.id);
-      this.workforce.set(org.id, workforce);
-
-      console.log(`✅ Workforce initialized for ${org.name}`);
-      console.log(`   • ${workforce.config.totalEmployees} AI employees active`);
-      console.log(`   • Operating mode: ${workforce.config.operationalMode}`);
-
-      // Start listening to agent task results for this org
-      this.startTaskListener(org.id);
-
-    } catch (error) {
-      console.error(`❌ Failed to initialize agents for ${org.name}:`, error);
-    }
-  }
-
-  /**
-   * Listen for completed agent tasks and generate proactive messages
-   */
-  private startTaskListener(organizationId: string) {
-    console.log(`👂 Listening for agent task results (org: ${organizationId})...`);
-
-    // Subscribe to real-time updates from agent_task_results
+    // Subscribe to ALL agent task results (no organization filter)
     const channel = supabaseAdmin
-      .channel(`agent-tasks-${organizationId}`)
+      .channel('global-agent-tasks')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'agent_task_results',
-          filter: `organization_id=eq.${organizationId}`
+          table: 'agent_task_results'
+          // No filter - listen to ALL organizations
         },
         async (payload) => {
           const taskResult = payload.new;
-          console.log(`\n📨 New task result from ${taskResult.agent_id} (org: ${organizationId})`);
+          console.log(`\n📨 New task result from ${taskResult.agent_id} (org: ${taskResult.organization_id})`);
           console.log(`   • Task type: ${taskResult.task_type}`);
           console.log(`   • Success: ${taskResult.success}`);
           console.log(`   • Execution time: ${taskResult.execution_time_ms}ms`);
@@ -208,9 +202,9 @@ class AgentWorker {
       )
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
-          console.log(`✅ Subscribed to task results for org ${organizationId}`);
+          console.log('✅ Subscribed to global task results (all organizations)');
         } else if (status === 'CHANNEL_ERROR') {
-          console.error(`❌ Channel error for org ${organizationId}`);
+          console.error('❌ Global channel error');
         }
       });
   }
@@ -283,15 +277,17 @@ class AgentWorker {
     this.healthServer = http.createServer((req, res) => {
       if (req.url === '/health') {
         const uptime = Date.now() - this.startTime;
-        const activeAgents = this.workforce.size * 8; // 8 agents per org
+        const globalAgentCount = this.globalWorkforce?.config?.totalEmployees || 0;
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           status: 'healthy',
           uptime: Math.floor(uptime / 1000), // seconds
           agents: {
-            organizations: this.workforce.size,
-            totalAgents: activeAgents,
+            mode: 'global',
+            totalAgents: globalAgentCount,
+            organizations: this.organizationIds.size,
+            crossOrgBenchmarking: this.globalWorkforce?.config?.crossOrgBenchmarkingEnabled || false,
           },
           promptOptimization: {
             ...this.promptStats,
@@ -327,38 +323,40 @@ class AgentWorker {
   }
 
   /**
-   * Monitor agent health and restart if needed
+   * Monitor global agent health
    */
   private startHealthMonitoring() {
-    console.log('\n💚 Starting health monitoring (checks every 5 minutes)...');
+    console.log('\n💚 Starting global health monitoring (checks every 5 minutes)...');
 
     this.healthCheckInterval = setInterval(async () => {
       if (!this.isRunning) return;
 
       const timestamp = new Date().toISOString();
-      console.log(`\n💚 Health check at ${timestamp}`);
+      console.log(`\n💚 Global health check at ${timestamp}`);
 
-      for (const [orgId, workforce] of this.workforce.entries()) {
-        try {
-          const status = await getAIWorkforceStatus();
+      try {
+        const status = await getAIWorkforceStatus();
 
-          console.log(`   • Org ${orgId}: ${status.systemHealth} - ${status.employeeCount}/8 agents active`);
+        console.log(`   🌍 Global workforce: ${status.systemHealth}`);
+        console.log(`   • Agents active: ${status.employeeCount}/8`);
+        console.log(`   • Organizations: ${this.organizationIds.size}`);
 
-          if (status.systemHealth === 'offline') {
-            console.error(`   🚨 Workforce is offline for org ${orgId}! Attempting restart...`);
-            await this.restartWorkforce(orgId);
-          } else if (status.systemHealth === 'degraded') {
-            console.warn(`   ⚠️  Workforce degraded for org ${orgId} (${status.employeeCount}/8 active)`);
-          }
-        } catch (error) {
-          console.error(`   ❌ Health check failed for org ${orgId}:`, error);
+        if (status.systemHealth === 'offline') {
+          console.error('   🚨 Global workforce is offline! Critical issue detected.');
+        } else if (status.systemHealth === 'degraded') {
+          console.warn(`   ⚠️  Workforce degraded (${status.employeeCount}/8 active)`);
+        } else {
+          console.log('   ✅ All systems operational');
         }
+      } catch (error) {
+        console.error('   ❌ Health check failed:', error);
       }
     }, 5 * 60 * 1000); // Check every 5 minutes
   }
 
   /**
    * Watch for new organizations being created
+   * Just tracks them - global agents already handle all orgs
    */
   private watchForNewOrganizations() {
     console.log('👀 Watching for new organizations...');
@@ -375,40 +373,13 @@ class AgentWorker {
         async (payload) => {
           const newOrg = payload.new;
           console.log(`\n🆕 New organization created: ${newOrg.name} (${newOrg.id})`);
-          console.log('   Initializing agents...');
+          console.log('   ✅ Global agents automatically handle new organization');
 
-          await this.initializeAgentsForOrganization(newOrg);
+          // Track the new organization
+          this.organizationIds.add(newOrg.id);
         }
       )
       .subscribe();
-  }
-
-  /**
-   * Restart workforce for a specific organization
-   */
-  private async restartWorkforce(organizationId: string) {
-    console.log(`🔄 Restarting workforce for org ${organizationId}...`);
-
-    try {
-      // Get organization details
-      const { data: org } = await supabaseAdmin
-        .from('organizations')
-        .select('id, name')
-        .eq('id', organizationId)
-        .single();
-
-      if (!org) {
-        console.error(`❌ Organization ${organizationId} not found`);
-        return;
-      }
-
-      // Reinitialize
-      await this.initializeAgentsForOrganization(org);
-      console.log(`✅ Workforce restarted for ${org.name}`);
-
-    } catch (error) {
-      console.error(`❌ Failed to restart workforce for org ${organizationId}:`, error);
-    }
   }
 
   /**
@@ -682,16 +653,16 @@ class AgentWorker {
     }
     this.cronJobs = [];
 
-    // Stop all workforces
-    for (const [orgId, workforce] of this.workforce.entries()) {
-      console.log(`   • Stopping workforce for org ${orgId}`);
+    // Stop global workforce
+    if (this.globalWorkforce) {
+      console.log('   • Stopping global workforce');
       // Add cleanup logic here if needed
     }
 
     // Unsubscribe from all channels
     await supabaseAdmin.removeAllChannels();
 
-    console.log('✅ Agent worker stopped gracefully');
+    console.log('✅ Global agent worker stopped gracefully');
   }
 }
 
@@ -724,10 +695,11 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Start worker
 console.log('╔══════════════════════════════════════════════════════════╗');
-console.log('║  Blipee AI Unified Worker - Complete Platform           ║');
+console.log('║  Blipee AI Global Worker - Complete Platform            ║');
 console.log('╠══════════════════════════════════════════════════════════╣');
 console.log('║  CORE FEATURES:                                          ║');
-console.log('║  • 8 Autonomous Agents per Organization                  ║');
+console.log('║  • 8 Global Autonomous Agents (all organizations)        ║');
+console.log('║  • Cross-Organizational Benchmarking & Insights          ║');
 console.log('║  • ML-Based Prompt Optimization                          ║');
 console.log('╠══════════════════════════════════════════════════════════╣');
 console.log('║  PHASE 1 - Foundation Services:                          ║');

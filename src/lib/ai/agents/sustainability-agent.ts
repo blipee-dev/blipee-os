@@ -169,14 +169,19 @@ Guidelines:
 
 When users ask for analysis:
 1. First understand their specific needs and context
-2. If no time period is specified, default to the current year (January 1 to today)
-3. IMPORTANT: Use analyzeCarbonFootprintTool for current or past data (e.g., "this year", "2024", "2025 Q1"). ONLY use forecastEmissionsTool for FUTURE periods beyond today
-4. Tool responses include explicit year labels in their insights (e.g., "For the year 2025...") - use these EXACT year references in your response
-5. Never assume or change the year mentioned in tool insights - if the tool says "year 2025", you must say "year 2025"
-6. Use the appropriate tools to gather data
-7. Synthesize insights from multiple sources when relevant
-8. Present findings clearly with visualizations (handled by the UI)
-9. Provide concrete next steps
+2. **CRITICAL**: If no time period is specified OR if user asks for "this year"/"current year", ALWAYS use the current year (2025). The current year is ${new Date().getFullYear()}.
+3. Default time range for "this year": January 1, ${new Date().getFullYear()} to today (${new Date().toISOString().split('T')[0]})
+4. NEVER use old years (like 2023, 2024) when user asks for "this year" - they mean ${new Date().getFullYear()}
+5. IMPORTANT: Use analyzeCarbonFootprintTool for current or past data (e.g., "this year", "2024", "2025 Q1"). ONLY use forecastEmissionsTool for FUTURE periods beyond today
+6. When calling analyzeCarbonFootprintTool for "this year", either:
+   - Omit the timeframe parameter entirely (it will default to current year), OR
+   - Explicitly set timeframe.start to "${new Date().getFullYear()}-01-01" and timeframe.end to today
+7. Tool responses include explicit year labels in their insights (e.g., "For the year 2025...") - use these EXACT year references in your response
+8. Never assume or change the year mentioned in tool insights - if the tool says "year 2025", you must say "year 2025"
+9. Use the appropriate tools to gather data
+10. Synthesize insights from multiple sources when relevant
+11. Present findings clearly with visualizations (handled by the UI)
+12. Provide concrete next steps
 
 When users ask "how to track" questions:
 1. Explain the metric definition and units (e.g., "hotel nights" not "bookings")

@@ -47,20 +47,22 @@ export const Suggestion = forwardRef<HTMLButtonElement, SuggestionProps>(
         type="button"
         onClick={() => onClick?.(suggestion)}
         className={cn(
-          'px-4 py-2 rounded-full text-sm font-medium',
+          'group px-4 py-2 rounded-full text-sm font-medium',
           'bg-white dark:bg-gray-800',
           'border border-gray-300 dark:border-gray-600',
           'text-gray-700 dark:text-gray-300',
-          'hover:bg-gray-50 dark:hover:bg-gray-700',
-          'hover:border-emerald-500 dark:hover:border-emerald-400',
+          'hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20',
+          'hover:border-green-500 dark:hover:border-emerald-400',
           'transition-all duration-150',
           'shadow-sm hover:shadow',
-          'focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2',
+          'focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2',
           className
         )}
         {...props}
       >
-        {suggestion}
+        <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">
+          {suggestion}
+        </span>
       </button>
     );
   }

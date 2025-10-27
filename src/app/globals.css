@@ -10,17 +10,22 @@
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
-  
+
   .safe-top {
     padding-top: env(safe-area-inset-top);
+  }
+
+  /* Auto-resizing textarea */
+  .field-sizing-content {
+    field-sizing: content;
   }
 }
 
 :root {
-  --foreground-rgb: 255, 255, 255;
+  --foreground-rgb: 156, 163, 175;
   --background-start-rgb: 10, 10, 10;
   --background-end-rgb: 10, 10, 10;
-  
+
   /* Appearance settings CSS variables */
   --font-size-base: 16px;
   --font-scale: 1;
@@ -75,9 +80,28 @@ body {
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
+}
+
+/* Custom text selection */
+::selection {
+  background: #f3f4f6;
+  color: #34d399;
+}
+
+::-moz-selection {
+  background: #f3f4f6;
+  color: #34d399;
+}
+
+/* Light mode text selection */
+.light-mode ::selection {
+  background: #f3f4f6;
+  color: #34d399;
+}
+
+.light-mode ::-moz-selection {
+  background: #f3f4f6;
+  color: #34d399;
 }
 
 /* Custom scrollbar */
@@ -353,7 +377,7 @@ textarea {
 
 /* Light mode styles */
 .light-mode {
-  --foreground-rgb: 26, 26, 26;
+  --foreground-rgb: 55, 65, 81;
   --background-start-rgb: 250, 250, 250;
   --background-end-rgb: 245, 245, 245;
   background: linear-gradient(
@@ -361,7 +385,7 @@ textarea {
     rgb(250, 250, 250),
     rgb(245, 245, 245)
   );
-  color: #1a1a1a;
+  color: #374151;
 }
 
 /* Light mode scrollbar */
@@ -399,7 +423,7 @@ textarea {
 
 /* Light mode text colors */
 .light-mode .text-white {
-  color: #1a1a1a;
+  color: #374151;
 }
 
 .light-mode .text-gray-400 {
@@ -436,7 +460,7 @@ textarea {
 .light-mode .premium-input {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.08);
-  color: #1a1a1a;
+  color: #374151;
 }
 
 .light-mode .premium-input::placeholder {
@@ -529,7 +553,7 @@ textarea {
 .light-mode .premium-input {
   background: rgba(0, 0, 0, 0.02);
   border-color: rgba(0, 0, 0, 0.1);
-  color: #1a1a1a;
+  color: #374151;
 }
 
 .light-mode .premium-input::placeholder {

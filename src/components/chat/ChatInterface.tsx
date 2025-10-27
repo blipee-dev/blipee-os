@@ -30,6 +30,7 @@ import {
   PromptInputActionMenu,
   PromptInputActionMenuTrigger,
   PromptInputActionMenuContent,
+  PromptInputActionMenuItem,
   PromptInputActionAddAttachments,
   PromptInputSpeechButton,
   PromptInputModelSelect,
@@ -53,8 +54,8 @@ import {
   SourcesTrigger
 } from '@/components/ai-elements/sources';
 import { Suggestion, Suggestions } from '@/components/ai-elements/suggestion';
-import { Bot, CopyIcon, RefreshCcwIcon } from 'lucide-react';
-import { Fragment, useState, useMemo } from 'react';
+import { Bot, CopyIcon, RefreshCcwIcon, PaperclipIcon } from 'lucide-react';
+import { Fragment, useState, useMemo, useRef } from 'react';
 import type { SustainabilityAgentUIMessage } from '@/lib/ai/agents/sustainability-agent';
 import { ToolConfirmation } from '@/components/ai-elements/tool-confirmation';
 import { requiresApproval } from '@/lib/ai/hitl/tool-config';
@@ -107,7 +108,7 @@ function getContextualSuggestions(pathname: string): string[] {
   // Default suggestions for other pages
   return [
     'What are my emissions this year?',
-    'How do I get started with Blipee?',
+    'How do I get started with blipee?',
     'Show me my sustainability dashboard',
     'I want to add sustainability data',
   ];
@@ -130,6 +131,7 @@ export function ChatInterface({
 }: ChatInterfaceProps) {
   const [input, setInput] = useState('');
   const [model, setModel] = useState(AVAILABLE_MODELS[0].id);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pathname = usePathname();
 
   // Generate context-aware suggestions based on current page
@@ -180,16 +182,22 @@ export function ChatInterface({
   };
 
   return (
-    <div className={cn("flex flex-col w-full h-full bg-white dark:bg-gray-950", className)}>
+    <div className={cn("flex flex-col w-full h-full bg-white dark:bg-gray-950 relative", className)}>
       {/* Messages Container - ChatGPT Mobile Style */}
-      <Conversation className="flex-1 min-h-0 overflow-y-auto">
+      <Conversation className="flex-1 min-h-0 overflow-y-auto pb-32">
         <ConversationContent className="max-w-3xl mx-auto px-4 py-6">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full space-y-8">
               <ConversationEmptyState
-                title="Welcome to Blipee AI"
+                title="Welcome to blipee"
                 description="Your intelligent sustainability assistant. Ask me anything about emissions, compliance, or ESG reporting."
-                icon={<Bot className="w-16 h-16 text-emerald-500" />}
+                icon={
+                  <div className="p-[3px] rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500">
+                    <div className="p-4 rounded-xl bg-white/90 dark:bg-gray-950/90">
+                      <Bot className="w-16 h-16 text-green-500" />
+                    </div>
+                  </div>
+                }
               />
 
               {/* Suggestion Chips */}
@@ -437,32 +445,32 @@ export function ChatInterface({
         <ConversationScrollButton />
       </Conversation>
 
-      {/* Error State - Improved */}
-      {error && (
-        <div className="px-4 pb-3 max-w-3xl mx-auto w-full">
-          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">
-                  Something went wrong
-                </p>
-                <p className="text-xs text-red-600 dark:text-red-500">
-                  {error.message || 'Please try again.'}
-                </p>
+      {/* Input Form - Floating at bottom of chat area */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white dark:from-gray-950 via-white dark:via-gray-950 to-transparent p-4 pt-12">
+        <div className="max-w-3xl mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-3 text-gray-700 dark:text-gray-100">
+          {/* Error State */}
+          {error && (
+            <div className="mb-3">
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">
+                      Something went wrong
+                    </p>
+                    <p className="text-xs text-red-600 dark:text-red-500">
+                      {error.message || 'Please try again.'}
+                    </p>
+                  </div>
+                  <Actions>
+                    <Action onClick={() => regenerate()} label="Retry">
+                      <RefreshCcwIcon className="w-3 h-3" />
+                    </Action>
+                  </Actions>
+                </div>
               </div>
-              <Actions>
-                <Action onClick={() => regenerate()} label="Retry">
-                  <RefreshCcwIcon className="w-3 h-3" />
-                </Action>
-              </Actions>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* Input Form - AI SDK Elements Default Style */}
-      <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
-        <div className="max-w-3xl mx-auto">
           <PromptInput
             onSubmit={handleSubmit}
             globalDrop
@@ -473,41 +481,61 @@ export function ChatInterface({
                 {(attachment) => <PromptInputAttachment data={attachment} />}
               </PromptInputAttachments>
               <PromptInputTextarea
-                placeholder="Message Blipee AI..."
+                ref={textareaRef}
+                placeholder="Ask me anything..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
               />
             </PromptInputBody>
-            <PromptInputFooter>
+            <PromptInputFooter className="flex items-center justify-between">
               <PromptInputTools>
                 <PromptInputActionMenu>
-                  <PromptInputActionMenuTrigger />
-                  <PromptInputActionMenuContent>
-                    <PromptInputActionAddAttachments />
+                  <PromptInputActionMenuTrigger className="border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-100/90 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 data-[state=open]:bg-gradient-to-r data-[state=open]:from-green-500/20 data-[state=open]:to-emerald-500/20 data-[state=open]:border-green-500 dark:data-[state=open]:border-emerald-500 data-[state=open]:text-green-500" />
+                  <PromptInputActionMenuContent className="w-56 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-100 rounded-2xl">
+                    <PromptInputActionMenuItem className="group flex items-center gap-3 cursor-pointer hover:bg-gray-100/90 dark:hover:bg-gray-800 focus:bg-gray-200 dark:focus:bg-gray-800 hover:text-gray-500 focus:text-gray-500 rounded-lg mx-1 my-1">
+                      <PromptInputActionAddAttachments>
+                        <PaperclipIcon className="w-4 h-4" />
+                        <span>Add photos or files</span>
+                      </PromptInputActionAddAttachments>
+                    </PromptInputActionMenuItem>
+
+                    <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
+
+                    <div className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+                      Model
+                    </div>
+
+                    {AVAILABLE_MODELS.map((modelOption) => (
+                      model === modelOption.id ? (
+                        <PromptInputActionMenuItem
+                          key={modelOption.id}
+                          onClick={() => setModel(modelOption.id)}
+                          className="group flex items-center gap-3 cursor-pointer !bg-gradient-to-r !from-green-500/20 !to-emerald-500/20 rounded-lg mx-1 my-1"
+                        >
+                          <span className="bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">{modelOption.name}</span>
+                        </PromptInputActionMenuItem>
+                      ) : (
+                        <PromptInputActionMenuItem
+                          key={modelOption.id}
+                          onClick={() => setModel(modelOption.id)}
+                          className="group flex items-center gap-3 cursor-pointer hover:bg-gray-100/90 dark:hover:bg-gray-800 focus:bg-gray-200 dark:focus:bg-gray-800 hover:text-gray-500 focus:text-gray-500 rounded-lg mx-1 my-1"
+                        >
+                          <span>{modelOption.name}</span>
+                        </PromptInputActionMenuItem>
+                      )
+                    ))}
                   </PromptInputActionMenuContent>
                 </PromptInputActionMenu>
                 <PromptInputSpeechButton
+                  textareaRef={textareaRef}
                   onTranscriptionChange={setInput}
+                  className="border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-100/90 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 active:bg-gradient-to-r active:from-green-500/20 active:to-emerald-500/20 active:border-green-500 dark:active:border-emerald-500"
                 />
-                <PromptInputModelSelect value={model} onValueChange={setModel}>
-                  <PromptInputModelSelectTrigger>
-                    <PromptInputModelSelectValue />
-                  </PromptInputModelSelectTrigger>
-                  <PromptInputModelSelectContent>
-                    {AVAILABLE_MODELS.map((modelOption) => (
-                      <PromptInputModelSelectItem
-                        key={modelOption.id}
-                        value={modelOption.id}
-                      >
-                        {modelOption.name}
-                      </PromptInputModelSelectItem>
-                    ))}
-                  </PromptInputModelSelectContent>
-                </PromptInputModelSelect>
               </PromptInputTools>
               <PromptInputSubmit
                 disabled={!input.trim() && status !== 'streaming'}
                 status={status}
+                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg"
               />
             </PromptInputFooter>
           </PromptInput>

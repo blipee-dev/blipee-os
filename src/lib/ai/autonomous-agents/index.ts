@@ -49,10 +49,11 @@ import { agentOrchestrator } from './base/AgentOrchestrator';
 
 export const AI_WORKFORCE_CONFIG = {
   totalEmployees: 8,
-  operationalMode: '24/7',
+  operationalMode: 'global',
   autonomyLevel: 'high',
   collaborationEnabled: true,
   learningEnabled: true,
+  crossOrgBenchmarkingEnabled: true,
   implementationPlan: 'FULL_IMPLEMENTATION_PLAN.md - Phase 1 Complete'
 };
 
@@ -123,10 +124,20 @@ export const AI_EMPLOYEE_DIRECTORY = {
   }
 };
 
-// Initialize the complete AI workforce - all 8 autonomous agents from FULL_IMPLEMENTATION_PLAN.md
-export async function initializeAutonomousAgents(organizationId: string) {
+/**
+ * Initialize the complete GLOBAL AI workforce
+ *
+ * Creates a single set of 8 autonomous agents that work across ALL organizations.
+ * Agents filter by organization_id when executing tasks, enabling:
+ * - Cross-organizational benchmarking
+ * - Best practice sharing
+ * - Industry-wide insights
+ * - Reduced resource usage (8 agents total instead of 8 per org)
+ */
+export async function initializeAutonomousAgents() {
+  console.log('[Global Workforce] Initializing 8 autonomous agents for all organizations...');
 
-  // Create all 8 AI employees according to FULL_IMPLEMENTATION_PLAN.md
+  // Create global instances of all 8 AI employees
   const esgChiefOfStaff = new ESGChiefOfStaff();
   const complianceGuardian = new ComplianceGuardian();
   const carbonHunter = new CarbonHunter();
@@ -136,7 +147,7 @@ export async function initializeAutonomousAgents(organizationId: string) {
   const autonomousOptimizer = new AutonomousOptimizer();
   const regulatoryForesight = new RegulatoryForesight();
 
-  // Register all agents with the registry
+  // Register all agents with the global registry
   AgentRegistry.register(esgChiefOfStaff);
   AgentRegistry.register(complianceGuardian);
   AgentRegistry.register(carbonHunter);
@@ -146,9 +157,11 @@ export async function initializeAutonomousAgents(organizationId: string) {
   AgentRegistry.register(autonomousOptimizer);
   AgentRegistry.register(regulatoryForesight);
 
-  // Start the orchestrator
+  // Start the global orchestrator
   await agentOrchestrator.start();
 
+  console.log('[Global Workforce] ✅ 8 agents initialized globally');
+  console.log('[Global Workforce] Mode: Cross-organizational with benchmarking');
 
   return {
     orchestrator: agentOrchestrator,

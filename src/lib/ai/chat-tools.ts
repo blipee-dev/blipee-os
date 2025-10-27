@@ -39,15 +39,23 @@ const griMapper = new GRISectorMapper();
  * Carbon Footprint Analysis Tool
  */
 export const analyzeCarbonFootprintTool = tool({
-  description: 'Analyze ACTUAL/HISTORICAL carbon emissions for past and current year-to-date periods. Use this for questions like "what are my emissions this year", "emissions in 2024", or "emissions for Q1 2025". Returns comprehensive emissions data with breakdowns and recommendations. Do NOT use for future predictions.',
+  description: `Analyze ACTUAL/HISTORICAL carbon emissions for past and current year-to-date periods.
+
+  CRITICAL DATE HANDLING:
+  - For "this year" or "current year" queries: ALWAYS use ${new Date().getFullYear()} (current year)
+  - For specific year queries like "2024": Use that exact year
+  - Default behavior (no timeframe): Current year (${new Date().getFullYear()}) January 1 to today
+  - Do NOT use years before ${new Date().getFullYear() - 2} unless explicitly requested
+
+  Use this for questions like "what are my emissions this year", "emissions in 2024", or "emissions for Q1 2025". Returns comprehensive emissions data with breakdowns and recommendations. Do NOT use for future predictions.`,
   inputSchema: z.object({
     scope: z.enum(['building', 'organization', 'activity', 'product']).describe('The scope of carbon analysis'),
     organizationId: z.string().describe('Organization ID'),
     buildingId: z.string().optional().describe('Building ID for building-specific analysis'),
     timeframe: z.object({
-      start: z.string().describe('Start date (ISO format)'),
-      end: z.string().describe('End date (ISO format)')
-    }).optional().describe('Time period for analysis'),
+      start: z.string().describe('Start date (ISO format) - for "this year", use current year start (e.g., 2025-01-01)'),
+      end: z.string().describe('End date (ISO format) - for "this year", use today')
+    }).optional().describe('Time period for analysis - omit for current year default'),
     includeBreakdown: z.boolean().default(true).describe('Include detailed breakdown by source (Scope 1, 2, 3)'),
     compareToBaseline: z.boolean().default(true).describe('Compare to baseline or previous periods')
   }),
@@ -55,7 +63,11 @@ export const analyzeCarbonFootprintTool = tool({
     try {
       // Calculate date range - default to current year if not provided
       const now = new Date();
+      const currentYear = now.getFullYear();
       const today = now.toISOString().split('T')[0];
+
+      // Default to current year if no timeframe provided
+      const defaultStartDate = new Date(currentYear, 0, 1).toISOString().split('T')[0];
 
       // Cap end date at today if it's in the future
       let endDate = timeframe?.end || today;
@@ -64,17 +76,43 @@ export const analyzeCarbonFootprintTool = tool({
         const todayObj = new Date(today);
         if (endDateObj > todayObj) {
           endDate = today;
-          console.log('[Carbon Tool] End date capped at today:', { requested: timeframe.end, capped: endDate });
+          console.log('[Carbon Tool] ⚠️  End date capped at today:', { requested: timeframe.end, capped: endDate });
         }
       }
 
-      const startDate = timeframe?.start || (() => {
-        const yearStart = new Date(now.getFullYear(), 0, 1);
-        return yearStart.toISOString().split('T')[0];
-      })();
+      let startDate = timeframe?.start || defaultStartDate;
 
-      // Debug logging
-      console.log('[Carbon Tool] Date range:', { startDate, endDate, timeframe, currentYear: now.getFullYear() });
+      // CRITICAL FIX: Validate that requested year isn't too old
+      // If user asked for "this year" but got an old year, correct it
+      if (timeframe?.start) {
+        const requestedYear = new Date(timeframe.start).getFullYear();
+        // If the requested start year is more than 2 years old, it's likely an error
+        // unless there's a specific end year that's also old
+        if (requestedYear < currentYear - 2) {
+          const requestedEndYear = timeframe.end ? new Date(timeframe.end).getFullYear() : currentYear;
+          // If both start and end are old, assume it's intentional (e.g., "emissions in 2023")
+          // If only start is old but end is recent, correct to current year
+          if (requestedEndYear >= currentYear) {
+            console.log('[Carbon Tool] ⚠️  WARNING: Old start year detected for current year query, correcting:', {
+              requested: requestedYear,
+              corrected: currentYear,
+              originalStart: timeframe.start,
+              correctedStart: defaultStartDate
+            });
+            startDate = defaultStartDate;
+            console.log('[Carbon Tool] 🔧 AUTO-CORRECTED: Changed start date from', timeframe.start, 'to', defaultStartDate);
+          }
+        }
+      }
+
+      // Enhanced debug logging
+      console.log('[Carbon Tool] 📅 Date range:', {
+        startDate,
+        endDate,
+        providedTimeframe: timeframe,
+        currentYear,
+        defaultStart: defaultStartDate
+      });
 
       // Get emissions using centralized calculator
       const emissions = await getPeriodEmissions(
@@ -83,6 +121,36 @@ export const analyzeCarbonFootprintTool = tool({
         endDate,
         buildingId // buildingId maps to siteId in calculator
       );
+
+      // Check if there's no data for the requested period
+      if (emissions.total === 0) {
+        const requestedYear = new Date(startDate).getFullYear();
+        const requestedEndYear = new Date(endDate).getFullYear();
+        const yearLabel = requestedYear === requestedEndYear ? `year ${requestedYear}` : `period ${requestedYear}-${requestedEndYear}`;
+        console.log('[Carbon Tool] ⚠️  No emissions data found for period:', { startDate, endDate, requestedYear });
+
+        // If this is the current year and there's no data, inform the user
+        if (requestedYear === currentYear) {
+          return {
+            success: true,
+            scope,
+            totalEmissions: 0,
+            breakdown: { scope1: 0, scope2: 0, scope3: 0 },
+            categories: [],
+            unit: 'tCO2e',
+            insights: `No emissions data found for ${yearLabel} yet. This could mean: (1) Data hasn't been added for ${currentYear} yet, or (2) No activities with emissions occurred. If you have data for a previous year, you can ask about that year specifically (e.g., "emissions in 2024").`,
+            recommendations: [
+              'Start tracking emissions by adding your first data points',
+              'Use the data entry features to record electricity, fuel, travel, and other activities',
+              'Check if you have historical data that needs to be imported'
+            ],
+            dataQuality: 'no-data',
+            period: { startDate, endDate },
+            analysisDate: new Date().toISOString(),
+            warning: 'no_data_for_period'
+          };
+        }
+      }
 
       // Get scope breakdown if requested
       const breakdown = includeBreakdown ? {
