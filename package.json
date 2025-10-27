@@ -103,7 +103,6 @@
     "test:assistant:all": "tsx scripts/test-blipee-assistant.ts all",
     "websocket": "tsx scripts/start-websocket.ts",
     "websocket:demo": "GENERATE_DEMO_DATA=true tsx scripts/start-websocket.ts",
-    "optimize-prompts": "tsx scripts/optimize-ai-prompts.ts",
     "agent:start": "tsx services/ai-agent-orchestrator.ts",
     "agent:start:bg": "nohup tsx services/ai-agent-orchestrator.ts > logs/agent.log 2>&1 &",
     "agent:stop": "pkill -f 'ai-agent-orchestrator'",

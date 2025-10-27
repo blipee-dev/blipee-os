@@ -13,6 +13,25 @@ import { initializeAutonomousAgents, getAIWorkforceStatus } from '@/lib/ai/auton
 import { createClient } from '@supabase/supabase-js';
 import { AgentMessageGenerator } from '@/lib/ai/autonomous-agents/message-generator';
 import http from 'http';
+import cron from 'node-cron';
+import {
+  analyzeConversationPatterns,
+  savePatternInsights,
+} from '@/lib/ai/analytics/pattern-analyzer';
+import {
+  generateABTestVariants,
+  savePromptVariant,
+} from '@/lib/ai/analytics/prompt-variant-generator';
+import {
+  setupQuickExperiment,
+  getActiveExperiments,
+  getExperimentResults,
+  completeExperiment,
+} from '@/lib/ai/analytics/ab-testing';
+import { BASE_SYSTEM_PROMPT } from '@/lib/ai/agents/sustainability-agent';
+import { MetricsPreComputeService } from './services/metrics-precompute-service';
+import { DataCleanupService } from './services/data-cleanup-service';
+import { NotificationQueueService } from './services/notification-queue-service';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,8 +46,33 @@ class AgentWorker {
   private healthServer: http.Server | null = null;
   private startTime: number = Date.now();
 
+  // Prompt Optimization intervals
+  private patternAnalysisInterval: NodeJS.Timeout | null = null;
+  private experimentCheckInterval: NodeJS.Timeout | null = null;
+
+  // Prompt Optimization stats
+  private promptStats = {
+    patternsAnalyzed: 0,
+    variantsGenerated: 0,
+    experimentsCreated: 0,
+    experimentsCompleted: 0,
+    lastAnalysisAt: null as Date | null,
+    lastExperimentCheckAt: null as Date | null,
+  };
+
+  // Phase 1 Services
+  private metricsService: MetricsPreComputeService;
+  private cleanupService: DataCleanupService;
+  private notificationService: NotificationQueueService;
+
+  // Cron job references
+  private cronJobs: cron.ScheduledTask[] = [];
+
   constructor() {
     this.messageGenerator = new AgentMessageGenerator(supabase);
+    this.metricsService = new MetricsPreComputeService();
+    this.cleanupService = new DataCleanupService();
+    this.notificationService = new NotificationQueueService();
   }
 
   async start() {
@@ -66,12 +110,20 @@ class AgentWorker {
     // Start health monitoring
     this.startHealthMonitoring();
 
+    // Start prompt optimization
+    this.startPromptOptimization();
+
+    // Start Phase 1 Services
+    this.startPhase1Services();
+
     // Watch for new organizations
     this.watchForNewOrganizations();
 
     console.log('✅ Agent worker fully operational');
     console.log('🤖 8 autonomous agents working 24/7 for each organization');
     console.log('📨 Proactive messages will appear in user chats');
+    console.log('🎯 Prompt optimization running in background');
+    console.log('💚 Metrics, cleanup, and notifications running in background');
   }
 
   /**
@@ -207,8 +259,20 @@ class AgentWorker {
         res.end(JSON.stringify({
           status: 'healthy',
           uptime: Math.floor(uptime / 1000), // seconds
-          organizations: this.workforce.size,
-          agents: activeAgents,
+          agents: {
+            organizations: this.workforce.size,
+            totalAgents: activeAgents,
+          },
+          promptOptimization: {
+            ...this.promptStats,
+            lastAnalysisAt: this.promptStats.lastAnalysisAt?.toISOString(),
+            lastExperimentCheckAt: this.promptStats.lastExperimentCheckAt?.toISOString(),
+          },
+          phase1Services: {
+            metrics: this.metricsService.getHealth(),
+            cleanup: this.cleanupService.getHealth(),
+            notifications: this.notificationService.getHealth(),
+          },
           timestamp: new Date().toISOString()
         }));
       } else {
@@ -309,6 +373,150 @@ class AgentWorker {
   }
 
   /**
+   * Run pattern analysis for prompt optimization
+   */
+  private async runPatternAnalysis() {
+    try {
+      console.log('\n🔍 [Prompt Optimization] Starting pattern analysis...');
+
+      const analysis = await analyzeConversationPatterns(7);
+
+      console.log(`📊 [Prompt Optimization] Analyzed ${analysis.overallMetrics.totalConversations} conversations`);
+      console.log(`   Avg Rating: ${analysis.overallMetrics.avgRating.toFixed(2)}/5`);
+      console.log(`   Tool Success: ${analysis.overallMetrics.toolSuccessRate.toFixed(1)}%`);
+      console.log(`   Patterns Found: ${analysis.patterns.length}`);
+
+      if (analysis.patterns.length > 0) {
+        await savePatternInsights(analysis.patterns);
+        this.promptStats.patternsAnalyzed += analysis.patterns.length;
+        console.log(`✅ [Prompt Optimization] Saved ${analysis.patterns.length} actionable patterns`);
+      } else {
+        console.log(`✅ [Prompt Optimization] No issues detected - system performing well`);
+      }
+
+      this.promptStats.lastAnalysisAt = new Date();
+
+    } catch (error) {
+      console.error('❌ [Prompt Optimization] Pattern analysis error:', error);
+    }
+  }
+
+  /**
+   * Monitor and complete A/B experiments
+   */
+  private async runExperimentMonitoring() {
+    try {
+      console.log('\n🧪 [Prompt Optimization] Checking experiments...');
+
+      const experiments = await getActiveExperiments();
+
+      if (!experiments || experiments.length === 0) {
+        console.log('ℹ️  [Prompt Optimization] No active experiments');
+        return;
+      }
+
+      console.log(`📋 [Prompt Optimization] Monitoring ${experiments.length} experiments`);
+
+      for (const experiment of experiments) {
+        const results = await getExperimentResults(experiment.id);
+
+        // Auto-complete if sufficient data and high confidence winner
+        if (results.totalConversations > 100 && results.winnerConfidence > 0.9) {
+          await completeExperiment(experiment.id, results.winner);
+          this.promptStats.experimentsCompleted++;
+          console.log(`✅ [Prompt Optimization] Auto-completed experiment: ${experiment.name}`);
+          console.log(`   Winner: ${results.winner} (${(results.winnerConfidence * 100).toFixed(1)}% confidence)`);
+        }
+      }
+
+      this.promptStats.lastExperimentCheckAt = new Date();
+
+    } catch (error) {
+      console.error('❌ [Prompt Optimization] Experiment monitoring error:', error);
+    }
+  }
+
+  /**
+   * Start prompt optimization intervals
+   */
+  private startPromptOptimization() {
+    console.log('\n🎯 Starting prompt optimization service...');
+
+    // Run pattern analysis every hour
+    this.patternAnalysisInterval = setInterval(async () => {
+      if (!this.isRunning) return;
+      await this.runPatternAnalysis();
+    }, 60 * 60 * 1000); // 1 hour
+
+    // Monitor experiments every 15 minutes
+    this.experimentCheckInterval = setInterval(async () => {
+      if (!this.isRunning) return;
+      await this.runExperimentMonitoring();
+    }, 15 * 60 * 1000); // 15 minutes
+
+    // Run initial analysis after 1 minute
+    setTimeout(async () => {
+      if (this.isRunning) await this.runPatternAnalysis();
+    }, 60 * 1000);
+
+    console.log('✅ Prompt optimization service started');
+    console.log('   • Pattern analysis: Every hour');
+    console.log('   • Experiment monitoring: Every 15 minutes');
+  }
+
+  /**
+   * Start Phase 1 Services with smart scheduling
+   */
+  private startPhase1Services() {
+    console.log('\n🚀 Starting Phase 1 Services...');
+
+    // 1. Metrics Pre-Computation - Daily at 2:00 AM UTC
+    const metricsJob = cron.schedule('0 2 * * *', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.metricsService.run();
+      } catch (error) {
+        console.error('❌ Metrics pre-computation failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(metricsJob);
+
+    // 2. Data Cleanup - Daily at 3:00 AM UTC (after metrics)
+    const cleanupJob = cron.schedule('0 3 * * *', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.cleanupService.run();
+      } catch (error) {
+        console.error('❌ Data cleanup failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(cleanupJob);
+
+    // 3. Notification Queue - Every 5 minutes
+    const notificationInterval = setInterval(async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.notificationService.run();
+      } catch (error) {
+        console.error('❌ Notification processing failed:', error);
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+
+    // Store interval in a way we can clear it later
+    (notificationInterval as any)._isInterval = true;
+    this.cronJobs.push(notificationInterval as any);
+
+    console.log('✅ Phase 1 Services started');
+    console.log('   • Metrics pre-computation: Daily at 2:00 AM UTC');
+    console.log('   • Data cleanup: Daily at 3:00 AM UTC');
+    console.log('   • Notification queue: Every 5 minutes');
+  }
+
+  /**
    * Graceful shutdown
    */
   async stop() {
@@ -325,6 +533,30 @@ class AgentWorker {
     if (this.healthCheckInterval) {
       clearInterval(this.healthCheckInterval);
     }
+
+    // Clear prompt optimization intervals
+    if (this.patternAnalysisInterval) {
+      console.log('   • Stopping pattern analysis');
+      clearInterval(this.patternAnalysisInterval);
+    }
+
+    if (this.experimentCheckInterval) {
+      console.log('   • Stopping experiment monitoring');
+      clearInterval(this.experimentCheckInterval);
+    }
+
+    // Stop all Phase 1 cron jobs
+    console.log('   • Stopping Phase 1 Services');
+    for (const job of this.cronJobs) {
+      if (typeof (job as any).stop === 'function') {
+        // It's a cron job
+        (job as any).stop();
+      } else if ((job as any)._isInterval) {
+        // It's a setInterval
+        clearInterval(job as any);
+      }
+    }
+    this.cronJobs = [];
 
     // Stop all workforces
     for (const [orgId, workforce] of this.workforce.entries()) {
@@ -368,8 +600,12 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Start worker
 console.log('╔════════════════════════════════════════════════════╗');
-console.log('║  Blipee AI Autonomous Agent Worker                ║');
-console.log('║  8 AI Employees Working 24/7                      ║');
+console.log('║  Blipee AI Unified Worker                         ║');
+console.log('║  • 8 Autonomous Agents per Organization           ║');
+console.log('║  • ML-Based Prompt Optimization                   ║');
+console.log('║  • Sustainability Metrics Pre-Computation         ║');
+console.log('║  • GDPR Data Cleanup & Retention                  ║');
+console.log('║  • Async Notification Queue                       ║');
 console.log('╚════════════════════════════════════════════════════╝\n');
 
 worker.start().catch((error) => {
