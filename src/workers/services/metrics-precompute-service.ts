@@ -12,7 +12,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { getBaselineEmissions } from '@/lib/sustainability/baseline-calculator';
-import { generateForecast } from '@/lib/sustainability/unified-forecast';
+import { getUnifiedForecast } from '@/lib/sustainability/unified-forecast';
 import type { Domain } from '@/lib/sustainability/unified-calculator';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -124,7 +124,7 @@ export class MetricsPreComputeService {
 
       for (const domain of domains) {
         try {
-          const forecast = await generateForecast({
+          const forecast = await getUnifiedForecast({
             organizationId: orgId,
             domain,
             startDate: forecastStartDate.toISOString().split('T')[0],
