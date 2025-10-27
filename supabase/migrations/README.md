@@ -1,73 +1,80 @@
 # Phase 2 & 3 Database Schema Migration
 
-## Overview
+## ⚠️ IMPORTANT: Production Database Compatibility
 
-This migration creates the complete database schema for all Phase 2 & 3 services:
+The production database (quovvwrwyfkzhgqdeham) already has some tables with **different schemas** than originally designed. This migration has been split into two parts to work with the existing production schema:
+
+1. **Missing Tables Only** - Creates 5 new tables that don't exist
+2. **Missing Columns** - Adds columns needed by Railway worker to existing tables
+
+## Overview
 
 ### Phase 2 Services
 - **Weather Data Service**: Location columns, weather history, weather alerts
-- **Optimization Opportunities**: Cost-saving and efficiency opportunities
 - **Database Optimization**: Performance reports and query analysis
 - **Notification Queue**: Notification tracking columns
 
 ### Phase 3 Services
-- **Report Generation**: Sustainability reports table
-- **ML Model Training**: Model configs, evaluations, training logs
 - **Prompt Optimization**: Conversation analytics, pattern insights
 
 ## What's Included
 
-The migration file `20250127_complete_phase2_phase3_schema.sql` contains:
+### Migration 1: `20250127_phase2_phase3_missing_tables_only.sql`
 
-1. **Site Location Columns** (Weather Service)
-   - `latitude`, `longitude`, `address`, `city`, `country`
+Creates **5 new tables** that don't exist in production:
+- `weather_history` - Historical weather data for sites
+- `weather_alerts` - Extreme weather event alerts
+- `database_optimization_reports` - DB performance analysis
+- `ai_conversation_analytics` - Conversation data for prompt optimization
+- `ai_pattern_insights` - AI usage pattern insights
 
-2. **Notification Columns** (Notification Queue)
-   - `notification_importance`, `notification_sent`, `notification_sent_at`
+Also includes:
+- Row Level Security (RLS) policies
+- Performance indexes
+- Organization-based access control
 
-3. **12 New Tables**:
-   - `ai_conversation_analytics` - Conversation data for prompt optimization
-   - `ai_pattern_insights` - Identified patterns from analysis
-   - `weather_history` - Historical weather data
-   - `weather_alerts` - Extreme weather alerts
-   - `optimization_opportunities` - Cost-saving opportunities
-   - `database_optimization_reports` - DB performance reports
-   - `sustainability_reports` - Monthly sustainability reports
-   - `ml_models` - ML model configurations
-   - `ml_evaluations` - Model performance evaluations
-   - `ml_training_logs` - Training history
+### Migration 2: `20250127_add_missing_columns_to_existing_tables.sql`
 
-4. **Row Level Security (RLS)**
-   - All tables have RLS enabled
-   - Organization-based access control
-   - Service role has full access for worker operations
+Adds **missing columns** to existing tables:
 
-5. **Indexes**
-   - Performance indexes on all critical queries
-   - Composite indexes for organization + timestamp queries
+**sites table:**
+- `latitude`, `longitude`, `city`, `country` (for weather API integration)
 
-## How to Apply the Migration
+**agent_task_results table:**
+- `notification_importance`, `notification_sent`, `notification_sent_at` (for notification queue)
+
+## How to Apply the Migrations
 
 ### Step 1: Open Supabase Dashboard
 
 1. Go to https://supabase.com/dashboard
-2. Select your Blipee project
+2. Select your **Blipee project** (quovvwrwyfkzhgqdeham)
 3. Navigate to **SQL Editor** in the left sidebar
 
-### Step 2: Run the Migration
+### Step 2: Run Migration 1 (Missing Tables)
 
 1. Click **New Query** button
-2. Open the file `supabase/migrations/20250127_complete_phase2_phase3_schema.sql`
+2. Open the file `supabase/migrations/20250127_phase2_phase3_missing_tables_only.sql`
 3. Copy the entire contents
 4. Paste into the SQL Editor
 5. Click **Run** button
+6. Wait for "Success. No rows returned" message
 
-### Step 3: Verify Success
+### Step 3: Run Migration 2 (Missing Columns)
 
-After running the migration, verify it succeeded:
+1. Click **New Query** button (or clear the previous query)
+2. Open the file `supabase/migrations/20250127_add_missing_columns_to_existing_tables.sql`
+3. Copy the entire contents
+4. Paste into the SQL Editor
+5. Click **Run** button
+6. Wait for "Success. No rows returned" message
+
+### Step 4: Verify Success
+
+After running both migrations, verify they succeeded:
 
 ```sql
--- Check that all tables were created
+-- Check that new tables were created
 SELECT table_name
 FROM information_schema.tables
 WHERE table_schema = 'public'
@@ -76,27 +83,22 @@ AND table_name IN (
   'ai_pattern_insights',
   'weather_history',
   'weather_alerts',
-  'optimization_opportunities',
-  'database_optimization_reports',
-  'sustainability_reports',
-  'ml_models',
-  'ml_evaluations',
-  'ml_training_logs'
+  'database_optimization_reports'
 )
 ORDER BY table_name;
 ```
 
-You should see all 10 tables listed.
+You should see all 5 new tables listed.
 
 ```sql
--- Check that site columns were added
+-- Check that site location columns were added
 SELECT column_name
 FROM information_schema.columns
 WHERE table_name = 'sites'
-AND column_name IN ('latitude', 'longitude', 'address', 'city', 'country');
+AND column_name IN ('latitude', 'longitude', 'city', 'country');
 ```
 
-You should see all 5 columns.
+You should see all 4 location columns.
 
 ```sql
 -- Check that notification columns were added
@@ -106,11 +108,11 @@ WHERE table_name = 'agent_task_results'
 AND column_name IN ('notification_importance', 'notification_sent', 'notification_sent_at');
 ```
 
-You should see all 3 columns.
+You should see all 3 notification columns.
 
-### Step 4: Restart Railway Service
+### Step 5: Restart Railway Service
 
-After the migration succeeds:
+After both migrations succeed:
 
 1. Go to Railway dashboard
 2. Select the `ai-agents-worker` service
@@ -118,20 +120,29 @@ After the migration succeeds:
 
 This will restart the worker with the new schema in place.
 
-### Step 5: Monitor Logs
+### Step 6: Monitor Logs
 
-Check Railway logs to confirm all services start without schema errors:
+Check Railway logs to confirm services start without schema errors. You should see log messages like:
 
 ```
-✅ [Metrics Service] Started
-✅ [Cleanup Service] Started
-✅ [Notification Service] Started
-✅ [Optimization] Started
-✅ [Database Optimization] Started
 ✅ [Weather Service] Started
-✅ [Reports] Started
-✅ [ML Training] Started
+✅ [Database Optimization] Started
+✅ [Notification Service] Started
+✅ [Prompt Optimization] Started
 ```
+
+And NO error messages about missing columns or tables.
+
+## Notes About Existing Tables
+
+The production database already has these tables with their own schemas. The migrations do NOT modify them:
+- `ml_models` - Uses `id` (UUID) as primary key, has different column structure
+- `ml_evaluations` - References `model_type` instead of `model_id`
+- `ml_training_logs` - References `model_type` instead of `model_id`
+- `optimization_opportunities` - Has different column names (area, improvement_potential, etc.)
+- `sustainability_reports` - Has different column structure
+
+The Railway worker services will use these existing tables as-is.
 
 ## Troubleshooting
 
