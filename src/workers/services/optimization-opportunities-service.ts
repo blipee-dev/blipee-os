@@ -275,20 +275,62 @@ export class OptimizationOpportunitiesService {
   private async saveOpportunities(opportunities: OptimizationOpportunity[]): Promise<void> {
     try {
       for (const opp of opportunities) {
-        await supabase.from('optimization_opportunities').upsert({
-          organization_id: opp.organization_id,
-          type: opp.type,
-          title: opp.title,
-          description: opp.description,
-          potential_savings: opp.potential_savings,
-          potential_emission_reduction: opp.potential_emission_reduction,
-          confidence_score: opp.confidence_score,
-          priority: opp.priority,
-          implementation_effort: opp.implementation_effort,
-          status: 'identified',
-          data_source: opp.data_source,
-          identified_at: new Date().toISOString(),
-        });
+        // Save to optimization_opportunities table
+        const { data: savedOpp } = await supabase
+          .from('optimization_opportunities')
+          .upsert(
+            {
+              organization_id: opp.organization_id,
+              type: opp.type,
+              title: opp.title,
+              description: opp.description,
+              potential_savings: opp.potential_savings,
+              potential_emission_reduction: opp.potential_emission_reduction,
+              confidence_score: opp.confidence_score,
+              priority: opp.priority,
+              implementation_effort: opp.implementation_effort,
+              status: 'identified',
+              data_source: opp.data_source,
+              identified_at: new Date().toISOString(),
+            },
+            { onConflict: 'organization_id,type,title' }
+          )
+          .select()
+          .single();
+
+        // Create agent task result for notification
+        // High priority opportunities get alerts, critical ones get critical notifications
+        const importance = opp.priority === 'high' ? 'alert' : opp.priority === 'medium' ? 'info' : null;
+
+        if (importance && savedOpp) {
+          // Get organization admin for notification
+          const { data: orgUsers } = await supabase
+            .from('organization_users')
+            .select('user_id')
+            .eq('organization_id', opp.organization_id)
+            .limit(1)
+            .single();
+
+          if (orgUsers) {
+            await supabase.from('agent_task_results').insert({
+              organization_id: opp.organization_id,
+              user_id: orgUsers.user_id,
+              task_type: 'optimization_opportunity',
+              task_id: `opt_${savedOpp.id}`,
+              status: 'completed',
+              finding: `💡 ${opp.title}\n\n${opp.description}\n\n💰 Potential savings: $${opp.potential_savings.toFixed(2)}`,
+              result: {
+                opportunity_id: savedOpp.id,
+                type: opp.type,
+                priority: opp.priority,
+                potential_savings: opp.potential_savings,
+                potential_emission_reduction: opp.potential_emission_reduction,
+              },
+              notification_importance: importance,
+              notification_sent: null,
+            });
+          }
+        }
       }
     } catch (error) {
       console.error('     ⚠️  Failed to save opportunities:', error);
