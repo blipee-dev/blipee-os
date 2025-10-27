@@ -219,6 +219,9 @@ CREATE TABLE IF NOT EXISTS database_optimization_reports (
   generated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Add missing columns if table already existed
+ALTER TABLE database_optimization_reports ADD COLUMN IF NOT EXISTS generated_at TIMESTAMPTZ DEFAULT NOW();
+
 CREATE INDEX IF NOT EXISTS idx_database_optimization_reports_date ON database_optimization_reports(generated_at DESC);
 
 
@@ -237,6 +240,12 @@ CREATE TABLE IF NOT EXISTS sustainability_reports (
   emailed_to TEXT[],
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add missing columns if table already existed
+ALTER TABLE sustainability_reports ADD COLUMN IF NOT EXISTS generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+ALTER TABLE sustainability_reports ADD COLUMN IF NOT EXISTS report_markdown TEXT;
+ALTER TABLE sustainability_reports ADD COLUMN IF NOT EXISTS report_pdf_url TEXT;
+ALTER TABLE sustainability_reports ADD COLUMN IF NOT EXISTS emailed_to TEXT[];
 
 CREATE INDEX IF NOT EXISTS idx_sustainability_reports_org ON sustainability_reports(organization_id, generated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sustainability_reports_type ON sustainability_reports(report_type, generated_at DESC);
