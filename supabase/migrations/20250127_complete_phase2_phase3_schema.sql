@@ -265,6 +265,10 @@ CREATE TABLE IF NOT EXISTS ml_models (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Add missing columns if table already existed
+ALTER TABLE ml_models ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE ml_models ADD COLUMN IF NOT EXISTS training_enabled BOOLEAN DEFAULT TRUE;
+
 CREATE INDEX IF NOT EXISTS idx_ml_models_org ON ml_models(organization_id, is_active);
 
 
