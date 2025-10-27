@@ -164,7 +164,7 @@ export class CostSavingFinder extends AutonomousAgent {
     this.costAnalytics.totalSavingsIdentified += totalSavings;
 
     const opportunities = await aiStub.complete(
-      `Identify cost-saving opportunities based on ${wasteTotal.toFixed(0)} kg waste and ${emissionsTotal.toFixed(0)} kg CO2e. Focus on energy, waste, water, and operational efficiency.`,
+      `Identify cost-saving opportunities based on ${wasteTotal.toFixed(0)} kg waste and ${emissionsTotal.toFixed(0)} kg CO2e. Focus on energy, waste, water, and operational efficiency. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -198,7 +198,7 @@ export class CostSavingFinder extends AutonomousAgent {
     this.costAnalytics.averageROI = averageROI;
 
     const roiAnalysis = await aiStub.complete(
-      `Calculate ROI for cost-saving initiatives with $${totalSavings} potential savings and $${estimatedInvestment} investment. Include payback periods and risk assessments.`,
+      `Calculate ROI for cost-saving initiatives with $${totalSavings} potential savings and $${estimatedInvestment} investment. Include payback periods and risk assessments. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -247,7 +247,7 @@ export class CostSavingFinder extends AutonomousAgent {
   private async handleGenericTask(task: Task): Promise<TaskResult> {
     // Handle cost-related tasks generically
     const result = await aiStub.complete(
-      `Handle cost-saving related task: ${task.type}. Provide analysis and recommendations.`,
+      `Handle cost-saving related task: ${task.type}. Provide analysis and recommendations. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
