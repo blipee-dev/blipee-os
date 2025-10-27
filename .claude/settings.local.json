@@ -169,7 +169,9 @@
       "Bash(if [ -f /tmp/railway-logs.txt ])",
       "Bash(then cat /tmp/railway-logs.txt)",
       "Bash(else echo \"No logs file\")",
-      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_wHnblz/**)"
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_wHnblz/**)",
+      "Bash(git check-ignore:*)",
+      "Bash(git mv:*)"
     ],
     "deny": [],
     "ask": []

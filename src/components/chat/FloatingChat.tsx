@@ -54,8 +54,10 @@ export function FloatingChat({
     initialConversationId || crypto.randomUUID()
   );
   const [isLoadingConversations, setIsLoadingConversations] = useState(false);
+  const [conversationsLoaded, setConversationsLoaded] = useState(false);
   const [loadedMessages, setLoadedMessages] = useState<SustainabilityAgentMessage[]>(initialMessages || []);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [loadedMessagesFor, setLoadedMessagesFor] = useState<string | null>(initialConversationId || null);
   const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [deletingConversationId, setDeletingConversationId] = useState<string | null>(null);
@@ -85,32 +87,44 @@ export function FloatingChat({
       console.error('[FloatingChat] Error fetching conversations:', error);
     } finally {
       setIsLoadingConversations(false);
+      setConversationsLoaded(true);
     }
   };
 
   // Fetch messages for a conversation
   const fetchMessages = async (conversationId: string) => {
-    console.log('[FloatingChat] Fetching messages for conversation:', conversationId);
+    console.log('[FloatingChat] ▶️ fetchMessages called for:', conversationId);
     setIsLoadingMessages(true);
+    setLoadedMessagesFor(null); // Clear tracking while loading
+    console.log('[FloatingChat] Set loadedMessagesFor to null (loading)');
     try {
       const response = await fetch(`/api/conversations/${conversationId}/messages`);
       if (response.ok) {
         const data = await response.json();
-        console.log('[FloatingChat] Loaded', data.count, 'messages');
+        console.log('[FloatingChat] ✅ Loaded', data.count, 'messages for conversation:', conversationId);
         setLoadedMessages(data.messages || []);
+        setLoadedMessagesFor(conversationId);
+        console.log('[FloatingChat] Set loadedMessagesFor to:', conversationId);
       } else if (response.status === 404) {
         // 404 is expected for new conversations that haven't been created yet
-        console.log('[FloatingChat] No messages yet (new conversation)');
+        console.log('[FloatingChat] ℹ️ No messages yet (new conversation, 404)');
         setLoadedMessages([]);
+        setLoadedMessagesFor(conversationId);
+        console.log('[FloatingChat] Set loadedMessagesFor to:', conversationId, '(empty conversation)');
       } else {
-        console.error('[FloatingChat] Failed to load messages:', response.status);
+        console.error('[FloatingChat] ❌ Failed to load messages:', response.status);
         setLoadedMessages([]);
+        setLoadedMessagesFor(null);
+        console.log('[FloatingChat] Set loadedMessagesFor to null (failed)');
       }
     } catch (error) {
-      console.error('[FloatingChat] Error loading messages:', error);
+      console.error('[FloatingChat] ❌ Error loading messages:', error);
       setLoadedMessages([]);
+      setLoadedMessagesFor(null);
+      console.log('[FloatingChat] Set loadedMessagesFor to null (error)');
     } finally {
       setIsLoadingMessages(false);
+      console.log('[FloatingChat] ⏹️ fetchMessages complete, isLoadingMessages set to false');
     }
   };
 
@@ -127,41 +141,77 @@ export function FloatingChat({
 
   // When conversations load, switch to most recent if we don't have a specific conversation
   useEffect(() => {
-    if (!initialConversationId && conversations.length > 0 && isOpen) {
+    if (!initialConversationId && conversations.length > 0 && isOpen && conversationsLoaded) {
       // Only switch if we're currently on a generated UUID (new conversation)
       // Check if selected conversation exists in the list
       const existsInList = conversations.some(c => c.id === selectedConversationId);
       if (!existsInList) {
-        console.log('[FloatingChat] Switching to most recent conversation:', conversations[0].id);
+        console.log('[FloatingChat] 🔄 Auto-switching to most recent conversation:', conversations[0].id);
+        setIsLoadingMessages(true);
+        setLoadedMessages([]);
+        setLoadedMessagesFor(null);
         setSelectedConversationId(conversations[0].id);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversations, isOpen]);
+  }, [conversations, isOpen, conversationsLoaded]);
 
-  // Load messages when conversation changes
+  // Load messages when conversation changes (but only for valid conversations)
   useEffect(() => {
-    if (selectedConversationId) {
+    if (!selectedConversationId) return;
+
+    console.log('[FloatingChat] Message loading useEffect triggered', {
+      selectedConversationId,
+      conversationsLoaded,
+      hasInitialConversationId: !!initialConversationId,
+      conversationsCount: conversations.length
+    });
+
+    // If we have an initial conversation ID (from props), fetch immediately
+    if (initialConversationId) {
       fetchMessages(selectedConversationId);
+      return;
+    }
+
+    // Otherwise, only fetch if:
+    // 1. Conversations have been loaded, AND
+    // 2. The selected conversation exists in the list OR there are no conversations (new chat)
+    if (conversationsLoaded) {
+      const conversationExists = conversations.some(c => c.id === selectedConversationId);
+      console.log('[FloatingChat] Checking if should fetch:', {
+        conversationExists,
+        conversationsLength: conversations.length
+      });
+      if (conversationExists || conversations.length === 0) {
+        fetchMessages(selectedConversationId);
+      } else {
+        console.log('[FloatingChat] Skipping fetch - conversation does not exist in list');
+      }
+    } else {
+      console.log('[FloatingChat] Skipping fetch - conversations not loaded yet');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedConversationId]);
+  }, [selectedConversationId, conversationsLoaded]);
 
   const handleNewChat = () => {
     // Generate a new conversation ID (UUID format to match database schema)
     const newConversationId = crypto.randomUUID();
+    console.log('[FloatingChat] 🆕 handleNewChat - Creating new conversation:', newConversationId);
     setSelectedConversationId(newConversationId);
     setLoadedMessages([]); // Clear messages for new chat
+    setLoadedMessagesFor(null); // Clear loaded message tracking
     setSearchQuery('');
     setIsSearchModalOpen(false);
   };
 
   const handleSelectConversation = (conversationId: string) => {
-    console.log('[FloatingChat] Selecting conversation:', conversationId);
+    console.log('[FloatingChat] 👆 handleSelectConversation - Selecting conversation:', conversationId);
     setIsLoadingMessages(true); // Set loading state immediately
     setLoadedMessages([]); // Clear messages immediately when switching
+    setLoadedMessagesFor(null); // Clear loaded message tracking
     setSelectedConversationId(conversationId);
     setIsSearchModalOpen(false);
+    console.log('[FloatingChat] Set states for conversation switch - loading=true, messages=[], loadedFor=null');
     // Messages will be loaded by useEffect
   };
 
@@ -600,21 +650,36 @@ export function FloatingChat({
 
                 {/* Chat Content */}
                 <div className="flex-1 overflow-hidden bg-white dark:bg-zinc-900">
-                  {isLoadingMessages ? (
-                    <div className="flex items-center justify-center h-full">
-                      <div className="text-sm text-gray-500 dark:text-gray-500">Loading messages...</div>
-                    </div>
-                  ) : (
-                    <ChatInterface
-                      key={selectedConversationId}
-                      conversationId={selectedConversationId}
-                      organizationId={organizationId}
-                      buildingId={buildingId}
-                      initialMessages={loadedMessages}
-                      className="h-full"
-                      onConversationUpdate={fetchConversations}
-                    />
-                  )}
+                  {(() => {
+                    const shouldShowLoading = !conversationsLoaded || isLoadingMessages || loadedMessagesFor !== selectedConversationId;
+                    console.log('[FloatingChat] Render decision:', {
+                      conversationsLoaded,
+                      isLoadingMessages,
+                      loadedMessagesFor,
+                      selectedConversationId,
+                      messagesMatch: loadedMessagesFor === selectedConversationId,
+                      shouldShowLoading,
+                      loadedMessagesCount: loadedMessages.length
+                    });
+
+                    return shouldShowLoading ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-sm text-gray-500 dark:text-gray-500">
+                          {!conversationsLoaded ? 'Loading conversations...' : 'Loading messages...'}
+                        </div>
+                      </div>
+                    ) : (
+                      <ChatInterface
+                        key={selectedConversationId}
+                        conversationId={selectedConversationId}
+                        organizationId={organizationId}
+                        buildingId={buildingId}
+                        initialMessages={loadedMessages}
+                        className="h-full"
+                        onConversationUpdate={fetchConversations}
+                      />
+                    );
+                  })()}
                 </div>
               </div>
             </motion.div>
