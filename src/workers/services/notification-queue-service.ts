@@ -122,6 +122,15 @@ export class NotificationQueueService {
       return;
     }
 
+    // Map notification_importance to notifications table priority values
+    const priorityMap: Record<string, string> = {
+      'low': 'low',
+      'medium': 'normal',
+      'high': 'high',
+      'critical': 'urgent',
+    };
+    const priority = priorityMap[notification.notification_importance] || 'normal';
+
     // Create in-app notification
     const { error: notificationError } = await supabase
       .from('notifications')
@@ -130,7 +139,7 @@ export class NotificationQueueService {
         title,
         message: body,
         type: 'agent_alert',
-        priority: notification.notification_importance,
+        priority,
         data: {
           agent_type: notification.task_type,
           task_id: notification.task_id,
