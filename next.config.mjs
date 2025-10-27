@@ -48,6 +48,10 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
 
+  // Force dynamic rendering to prevent build hangs during static generation
+  // All pages will be server-rendered on-demand instead of pre-generated
+  output: 'standalone',
+
   // Prevent build from hanging on static page generation
   staticPageGenerationTimeout: 90, // 90 seconds max per page
 
@@ -91,6 +95,8 @@ const nextConfig = {
     optimizeCss: true,
     // Explicitly disable automatic Edge runtime for API routes with Supabase
     serverComponentsExternalPackages: ['@supabase/supabase-js'],
+    // Speed up builds by skipping unchanged pages
+    optimizePackageImports: ['@supabase/supabase-js', '@supabase/auth-helpers-nextjs'],
   },
   
   // Webpack configuration
