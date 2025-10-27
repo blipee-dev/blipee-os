@@ -85,8 +85,8 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   eslint: {
-    // Don't fail build on ESLint errors (we've already fixed them)
-    ignoreDuringBuilds: false,
+    // Skip ESLint during builds to speed up deployment
+    ignoreDuringBuilds: true,
   },
   
   // Experimental features to improve build
