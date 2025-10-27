@@ -38,7 +38,7 @@ import { WeatherDataService } from './services/weather-data-service';
 import { ReportGenerationService } from './services/report-generation-service';
 import { MLTrainingService } from './services/ml-training-service';
 
-const supabase = createClient(
+const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY! // Service role key for background operations
 );
@@ -83,7 +83,7 @@ class AgentWorker {
   private cronJobs: cron.ScheduledTask[] = [];
 
   constructor() {
-    this.messageGenerator = new AgentMessageGenerator(supabase);
+    this.messageGenerator = new AgentMessageGenerator(supabaseAdmin);
 
     // Initialize Phase 1 Services
     this.metricsService = new MetricsPreComputeService();
@@ -109,7 +109,7 @@ class AgentWorker {
     this.startHealthCheckServer();
 
     // Get all organizations
-    const { data: orgs, error } = await supabase
+    const { data: orgs, error } = await supabaseAdmin
       .from('organizations')
       .select('id, name, created_at');
 
@@ -185,7 +185,7 @@ class AgentWorker {
     console.log(`👂 Listening for agent task results (org: ${organizationId})...`);
 
     // Subscribe to real-time updates from agent_task_results
-    const channel = supabase
+    const channel = supabaseAdmin
       .channel(`agent-tasks-${organizationId}`)
       .on(
         'postgres_changes',
@@ -238,7 +238,7 @@ class AgentWorker {
     console.log(`   🔔 Important finding! Notifying users...`);
 
     // Get users to notify (admins, sustainability managers)
-    const { data: members } = await supabase
+    const { data: members } = await supabaseAdmin
       .from('organization_members')
       .select('user_id, role')
       .eq('organization_id', organization_id)
@@ -363,7 +363,7 @@ class AgentWorker {
   private watchForNewOrganizations() {
     console.log('👀 Watching for new organizations...');
 
-    supabase
+    supabaseAdmin
       .channel('new-organizations')
       .on(
         'postgres_changes',
@@ -391,7 +391,7 @@ class AgentWorker {
 
     try {
       // Get organization details
-      const { data: org } = await supabase
+      const { data: org } = await supabaseAdmin
         .from('organizations')
         .select('id, name')
         .eq('id', organizationId)
@@ -418,7 +418,7 @@ class AgentWorker {
     try {
       console.log('\n🔍 [Prompt Optimization] Starting pattern analysis...');
 
-      const analysis = await analyzeConversationPatterns(7, supabase);
+      const analysis = await analyzeConversationPatterns(7, supabaseAdmin);
 
       console.log(`📊 [Prompt Optimization] Analyzed ${analysis.overallMetrics.totalConversations} conversations`);
       console.log(`   Avg Rating: ${analysis.overallMetrics.avgRating.toFixed(2)}/5`);
@@ -426,7 +426,7 @@ class AgentWorker {
       console.log(`   Patterns Found: ${analysis.patterns.length}`);
 
       if (analysis.patterns.length > 0) {
-        await savePatternInsights(analysis.patterns, supabase);
+        await savePatternInsights(analysis.patterns, supabaseAdmin);
         this.promptStats.patternsAnalyzed += analysis.patterns.length;
         console.log(`✅ [Prompt Optimization] Saved ${analysis.patterns.length} actionable patterns`);
       } else {
@@ -447,7 +447,7 @@ class AgentWorker {
     try {
       console.log('\n🧪 [Prompt Optimization] Checking experiments...');
 
-      const experiments = await getActiveExperiments(supabase);
+      const experiments = await getActiveExperiments(supabaseAdmin);
 
       if (!experiments || experiments.length === 0) {
         console.log('ℹ️  [Prompt Optimization] No active experiments');
@@ -457,11 +457,11 @@ class AgentWorker {
       console.log(`📋 [Prompt Optimization] Monitoring ${experiments.length} experiments`);
 
       for (const experiment of experiments) {
-        const results = await getExperimentResults(experiment.id, supabase);
+        const results = await getExperimentResults(experiment.id, supabaseAdmin);
 
         // Auto-complete if sufficient data and high confidence winner
         if (results.totalConversations > 100 && results.winnerConfidence > 0.9) {
-          await completeExperiment(experiment.id, results.winner, supabase);
+          await completeExperiment(experiment.id, results.winner, supabaseAdmin);
           this.promptStats.experimentsCompleted++;
           console.log(`✅ [Prompt Optimization] Auto-completed experiment: ${experiment.name}`);
           console.log(`   Winner: ${results.winner} (${(results.winnerConfidence * 100).toFixed(1)}% confidence)`);
@@ -689,7 +689,7 @@ class AgentWorker {
     }
 
     // Unsubscribe from all channels
-    await supabase.removeAllChannels();
+    await supabaseAdmin.removeAllChannels();
 
     console.log('✅ Agent worker stopped gracefully');
   }
