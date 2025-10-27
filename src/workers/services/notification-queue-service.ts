@@ -128,8 +128,9 @@ export class NotificationQueueService {
       .insert({
         user_id: userId,
         title,
-        body,
+        message: body,
         type: 'agent_alert',
+        priority: notification.notification_importance,
         metadata: {
           agent_type: notification.task_type,
           task_id: notification.task_id,
