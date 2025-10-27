@@ -88,7 +88,7 @@ export class DatabaseOptimizationService {
       console.log('   📊 Analyzing table sizes...');
 
       // Query table sizes (Supabase/PostgreSQL)
-      const { data, error } = await supabase.rpc('pg_table_size_summary', {});
+      const { data, error } = await supabase.rpc('get_table_stats', {});
 
       if (error) {
         console.error('     ⚠️  Table size analysis failed:', error);
