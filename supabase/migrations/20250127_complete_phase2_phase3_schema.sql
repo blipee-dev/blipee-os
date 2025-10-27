@@ -196,6 +196,13 @@ CREATE TABLE IF NOT EXISTS optimization_opportunities (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Add missing columns if table already existed
+ALTER TABLE optimization_opportunities ADD COLUMN IF NOT EXISTS priority TEXT CHECK (priority IN ('high', 'medium', 'low'));
+ALTER TABLE optimization_opportunities ADD COLUMN IF NOT EXISTS implementation_effort TEXT CHECK (implementation_effort IN ('low', 'medium', 'high'));
+ALTER TABLE optimization_opportunities ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('identified', 'in_progress', 'implemented', 'dismissed'));
+ALTER TABLE optimization_opportunities ADD COLUMN IF NOT EXISTS actual_savings DECIMAL(12, 2);
+ALTER TABLE optimization_opportunities ADD COLUMN IF NOT EXISTS actual_emission_reduction DECIMAL(12, 2);
+
 CREATE INDEX IF NOT EXISTS idx_optimization_opportunities_org ON optimization_opportunities(organization_id, status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_optimization_opportunities_priority ON optimization_opportunities(priority, status);
 
