@@ -275,26 +275,20 @@ export class OptimizationOpportunitiesService {
   private async saveOpportunities(opportunities: OptimizationOpportunity[]): Promise<void> {
     try {
       for (const opp of opportunities) {
-        // Save to optimization_opportunities table
+        // Map to actual database schema
         const { data: savedOpp } = await supabase
           .from('optimization_opportunities')
-          .upsert(
-            {
-              organization_id: opp.organization_id,
-              type: opp.type,
-              title: opp.title,
-              description: opp.description,
-              potential_savings: opp.potential_savings,
-              potential_emission_reduction: opp.potential_emission_reduction,
-              confidence_score: opp.confidence_score,
-              priority: opp.priority,
-              implementation_effort: opp.implementation_effort,
-              status: 'identified',
-              data_source: opp.data_source,
-              identified_at: new Date().toISOString(),
-            },
-            { onConflict: 'organization_id,type,title' }
-          )
+          .insert({
+            organization_id: opp.organization_id,
+            area: opp.type, // type maps to area
+            description: `${opp.title}\n\n${opp.description}`,
+            improvement_potential: opp.potential_emission_reduction,
+            estimated_savings: opp.potential_savings,
+            complexity: opp.implementation_effort,
+            confidence: opp.confidence_score,
+            actions: opp.data_source,
+            status: 'pending',
+          })
           .select()
           .single();
 
@@ -321,7 +315,7 @@ export class OptimizationOpportunitiesService {
               finding: `💡 ${opp.title}\n\n${opp.description}\n\n💰 Potential savings: $${opp.potential_savings.toFixed(2)}`,
               result: {
                 opportunity_id: savedOpp.id,
-                type: opp.type,
+                area: opp.type,
                 priority: opp.priority,
                 potential_savings: opp.potential_savings,
                 potential_emission_reduction: opp.potential_emission_reduction,
