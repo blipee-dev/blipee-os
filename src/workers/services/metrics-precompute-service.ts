@@ -11,7 +11,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { calculateOrganizationBaseline } from '@/lib/sustainability/baseline-calculator';
+import { getBaselineEmissions } from '@/lib/sustainability/baseline-calculator';
 import { generateForecast } from '@/lib/sustainability/unified-forecast';
 import type { Domain } from '@/lib/sustainability/unified-calculator';
 
@@ -53,10 +53,10 @@ export class MetricsPreComputeService {
     console.log('\n💚 [Metrics] Starting pre-computation...');
 
     try {
-      // Get all organizations
+      // Get all organizations with their baseline year
       const { data: orgs, error: orgsError } = await supabase
         .from('organizations')
-        .select('id, name');
+        .select('id, name, base_year');
 
       if (orgsError || !orgs || orgs.length === 0) {
         console.log('⚠️  [Metrics] No organizations found');
@@ -67,7 +67,7 @@ export class MetricsPreComputeService {
 
       for (const org of orgs) {
         try {
-          await this.preComputeOrgMetrics(org.id, org.name);
+          await this.preComputeOrgMetrics(org.id, org.name, org.base_year);
         } catch (error) {
           console.error(`❌ [Metrics] Failed for ${org.name}:`, error);
           this.stats.errors++;
@@ -92,17 +92,17 @@ export class MetricsPreComputeService {
   /**
    * Pre-compute metrics for a single organization
    */
-  private async preComputeOrgMetrics(orgId: string, orgName: string): Promise<void> {
+  private async preComputeOrgMetrics(orgId: string, orgName: string, baseYear?: number | null): Promise<void> {
     console.log(`   Processing: ${orgName}`);
 
-    // 1. Compute baselines for current year
-    const currentYear = new Date().getFullYear();
-    const startDate = `${currentYear}-01-01`;
-    const endDate = `${currentYear}-12-31`;
+    // Use organization's baseline year, or current year as fallback
+    const year = baseYear || new Date().getFullYear();
+    const startDate = `${year}-01-01`;
+    const endDate = `${year}-12-31`;
 
     try {
-      // Compute emissions baseline
-      const emissionsBaseline = await calculateOrganizationBaseline(
+      // Compute emissions baseline using the correct function
+      const emissionsBaseline = await getBaselineEmissions(
         orgId,
         startDate,
         endDate
@@ -110,7 +110,7 @@ export class MetricsPreComputeService {
 
       if (emissionsBaseline) {
         // Cache the baseline in database or Redis
-        await this.cacheBaseline(orgId, 'emissions', currentYear, emissionsBaseline);
+        await this.cacheBaseline(orgId, 'emissions', year, emissionsBaseline);
         this.stats.baselinesComputed++;
       }
 
