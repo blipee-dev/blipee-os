@@ -37,6 +37,17 @@ CREATE TABLE IF NOT EXISTS agent_task_results (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Create organization_members table if it doesn't exist (for RLS policies)
+CREATE TABLE IF NOT EXISTS organization_members (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL, -- References auth.users
+  role TEXT DEFAULT 'member',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(organization_id, user_id)
+);
+
 -- ============================================================================
 -- 1. ADD LOCATION COLUMNS TO SITES TABLE (Weather Service)
 -- ============================================================================
@@ -74,7 +85,7 @@ WHERE notification_importance IN ('alert', 'critical');
 CREATE TABLE IF NOT EXISTS ai_conversation_analytics (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID, -- References auth.users but no FK constraint (cross-schema)
   conversation_id UUID,
   user_message TEXT NOT NULL,
   ai_response TEXT,
@@ -153,7 +164,7 @@ CREATE TABLE IF NOT EXISTS weather_alerts (
   severity TEXT CHECK (severity IN ('info', 'warning', 'critical')),
   acknowledged BOOLEAN DEFAULT FALSE,
   acknowledged_at TIMESTAMPTZ,
-  acknowledged_by UUID REFERENCES users(id),
+  acknowledged_by UUID, -- References auth.users but no FK constraint (cross-schema)
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
