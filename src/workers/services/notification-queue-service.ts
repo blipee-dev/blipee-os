@@ -131,7 +131,7 @@ export class NotificationQueueService {
         message: body,
         type: 'agent_alert',
         priority: notification.notification_importance,
-        metadata: {
+        data: {
           agent_type: notification.task_type,
           task_id: notification.task_id,
           importance: notification.notification_importance,
