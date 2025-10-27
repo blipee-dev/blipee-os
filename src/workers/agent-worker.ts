@@ -32,6 +32,11 @@ import { BASE_SYSTEM_PROMPT } from '@/lib/ai/agents/sustainability-agent';
 import { MetricsPreComputeService } from './services/metrics-precompute-service';
 import { DataCleanupService } from './services/data-cleanup-service';
 import { NotificationQueueService } from './services/notification-queue-service';
+import { OptimizationOpportunitiesService } from './services/optimization-opportunities-service';
+import { DatabaseOptimizationService } from './services/database-optimization-service';
+import { WeatherDataService } from './services/weather-data-service';
+import { ReportGenerationService } from './services/report-generation-service';
+import { MLTrainingService } from './services/ml-training-service';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -65,14 +70,34 @@ class AgentWorker {
   private cleanupService: DataCleanupService;
   private notificationService: NotificationQueueService;
 
+  // Phase 2 Services
+  private optimizationService: OptimizationOpportunitiesService;
+  private databaseOptService: DatabaseOptimizationService;
+  private weatherService: WeatherDataService;
+
+  // Phase 3 Services
+  private reportService: ReportGenerationService;
+  private mlTrainingService: MLTrainingService;
+
   // Cron job references
   private cronJobs: cron.ScheduledTask[] = [];
 
   constructor() {
     this.messageGenerator = new AgentMessageGenerator(supabase);
+
+    // Initialize Phase 1 Services
     this.metricsService = new MetricsPreComputeService();
     this.cleanupService = new DataCleanupService();
     this.notificationService = new NotificationQueueService();
+
+    // Initialize Phase 2 Services
+    this.optimizationService = new OptimizationOpportunitiesService();
+    this.databaseOptService = new DatabaseOptimizationService();
+    this.weatherService = new WeatherDataService();
+
+    // Initialize Phase 3 Services
+    this.reportService = new ReportGenerationService();
+    this.mlTrainingService = new MLTrainingService();
   }
 
   async start() {
@@ -116,6 +141,9 @@ class AgentWorker {
     // Start Phase 1 Services
     this.startPhase1Services();
 
+    // Start Phase 2 & 3 Services
+    this.startPhase2And3Services();
+
     // Watch for new organizations
     this.watchForNewOrganizations();
 
@@ -123,7 +151,9 @@ class AgentWorker {
     console.log('🤖 8 autonomous agents working 24/7 for each organization');
     console.log('📨 Proactive messages will appear in user chats');
     console.log('🎯 Prompt optimization running in background');
-    console.log('💚 Metrics, cleanup, and notifications running in background');
+    console.log('💚 Phase 1: Metrics, cleanup, and notifications running');
+    console.log('🔍 Phase 2: Optimization, database monitoring, weather tracking');
+    console.log('📊 Phase 3: Report generation and ML model training');
   }
 
   /**
@@ -272,6 +302,15 @@ class AgentWorker {
             metrics: this.metricsService.getHealth(),
             cleanup: this.cleanupService.getHealth(),
             notifications: this.notificationService.getHealth(),
+          },
+          phase2Services: {
+            optimization: this.optimizationService.getHealth(),
+            databaseOpt: this.databaseOptService.getHealth(),
+            weather: this.weatherService.getHealth(),
+          },
+          phase3Services: {
+            reports: this.reportService.getHealth(),
+            mlTraining: this.mlTrainingService.getHealth(),
           },
           timestamp: new Date().toISOString()
         }));
@@ -517,6 +556,91 @@ class AgentWorker {
   }
 
   /**
+   * Start Phase 2 & 3 Services with smart scheduling
+   */
+  private startPhase2And3Services() {
+    console.log('\n🚀 Starting Phase 2 & 3 Services...');
+
+    // PHASE 2: Intelligence & Optimization
+
+    // 1. Optimization Opportunities - Daily at 4:00 AM UTC (after cleanup)
+    const optimizationJob = cron.schedule('0 4 * * *', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.optimizationService.run();
+      } catch (error) {
+        console.error('❌ Optimization opportunities analysis failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(optimizationJob);
+
+    // 2. Database Optimization - Weekly on Sundays at 1:00 AM UTC
+    const dbOptJob = cron.schedule('0 1 * * 0', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.databaseOptService.run();
+      } catch (error) {
+        console.error('❌ Database optimization failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(dbOptJob);
+
+    // 3. Weather Data Polling - Every hour at :00 minutes
+    const weatherJob = cron.schedule('0 * * * *', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.weatherService.run();
+      } catch (error) {
+        console.error('❌ Weather data polling failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(weatherJob);
+
+    // PHASE 3: Advanced Analytics
+
+    // 4. Report Generation - Monthly on 1st day at 6:00 AM UTC
+    const reportJob = cron.schedule('0 6 1 * *', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.reportService.run();
+      } catch (error) {
+        console.error('❌ Report generation failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(reportJob);
+
+    // 5. ML Model Training - Monthly on 15th day at 2:00 AM UTC
+    const mlTrainingJob = cron.schedule('0 2 15 * *', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.mlTrainingService.run();
+      } catch (error) {
+        console.error('❌ ML model training failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(mlTrainingJob);
+
+    console.log('✅ Phase 2 & 3 Services started');
+    console.log('\n   Phase 2 - Intelligence & Optimization:');
+    console.log('   • Optimization opportunities: Daily at 4:00 AM UTC');
+    console.log('   • Database optimization: Weekly (Sundays) at 1:00 AM UTC');
+    console.log('   • Weather data polling: Hourly');
+    console.log('\n   Phase 3 - Advanced Analytics:');
+    console.log('   • Report generation: Monthly (1st) at 6:00 AM UTC');
+    console.log('   • ML model training: Monthly (15th) at 2:00 AM UTC');
+  }
+
+  /**
    * Graceful shutdown
    */
   async stop() {
@@ -599,14 +723,27 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Start worker
-console.log('╔════════════════════════════════════════════════════╗');
-console.log('║  Blipee AI Unified Worker                         ║');
-console.log('║  • 8 Autonomous Agents per Organization           ║');
-console.log('║  • ML-Based Prompt Optimization                   ║');
-console.log('║  • Sustainability Metrics Pre-Computation         ║');
-console.log('║  • GDPR Data Cleanup & Retention                  ║');
-console.log('║  • Async Notification Queue                       ║');
-console.log('╚════════════════════════════════════════════════════╝\n');
+console.log('╔══════════════════════════════════════════════════════════╗');
+console.log('║  Blipee AI Unified Worker - Complete Platform           ║');
+console.log('╠══════════════════════════════════════════════════════════╣');
+console.log('║  CORE FEATURES:                                          ║');
+console.log('║  • 8 Autonomous Agents per Organization                  ║');
+console.log('║  • ML-Based Prompt Optimization                          ║');
+console.log('╠══════════════════════════════════════════════════════════╣');
+console.log('║  PHASE 1 - Foundation Services:                          ║');
+console.log('║  • Sustainability Metrics Pre-Computation (Daily)        ║');
+console.log('║  • GDPR Data Cleanup & Retention (Daily)                 ║');
+console.log('║  • Async Notification Queue (Every 5min)                 ║');
+console.log('╠══════════════════════════════════════════════════════════╣');
+console.log('║  PHASE 2 - Intelligence & Optimization:                  ║');
+console.log('║  • Optimization Opportunities Analysis (Daily)           ║');
+console.log('║  • Database Query Optimization (Weekly)                  ║');
+console.log('║  • Weather Data Polling & Correlation (Hourly)           ║');
+console.log('╠══════════════════════════════════════════════════════════╣');
+console.log('║  PHASE 3 - Advanced Analytics:                           ║');
+console.log('║  • Monthly Sustainability Reports (Auto-generated)       ║');
+console.log('║  • ML Model Training Pipeline (Auto-improvement)         ║');
+console.log('╚══════════════════════════════════════════════════════════╝\n');
 
 worker.start().catch((error) => {
   console.error('❌ Failed to start agent worker:', error);
