@@ -1,0 +1,518 @@
+'use client';
+
+/**
+ * Official AI SDK Chat Interface with Agent Class
+ *
+ * Built with Vercel AI SDK Elements and Agent class for type safety
+ * Following ChatGPT mobile design patterns with full support for:
+ * - Message parts (text, reasoning, sources, tools)
+ * - File attachments (images, PDFs, audio)
+ * - Actions (copy, regenerate)
+ * - Type-safe UIMessages (SustainabilityAgentUIMessage)
+ * - Multi-provider support (OpenAI, Anthropic)
+ * - Dynamic model selection
+ */
+
+import { useChat } from '@ai-sdk/react';
+import { cn } from '@/lib/utils';
+import { Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton } from '@/components/ai-elements/conversation';
+import { Message, MessageContent } from '@/components/ai-elements/message';
+import { Response } from '@/components/ai-elements/response';
+import {
+  PromptInput,
+  PromptInputTextarea,
+  PromptInputBody,
+  PromptInputFooter,
+  PromptInputTools,
+  PromptInputSubmit,
+  PromptInputAttachments,
+  PromptInputAttachment,
+  PromptInputActionMenu,
+  PromptInputActionMenuTrigger,
+  PromptInputActionMenuContent,
+  PromptInputActionAddAttachments,
+  PromptInputSpeechButton,
+  PromptInputModelSelect,
+  PromptInputModelSelectTrigger,
+  PromptInputModelSelectValue,
+  PromptInputModelSelectContent,
+  PromptInputModelSelectItem,
+  type PromptInputMessage
+} from '@/components/ai-elements/prompt-input';
+import { Loader } from '@/components/ai-elements/loader';
+import { Action, Actions } from '@/components/ai-elements/actions';
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger
+} from '@/components/ai-elements/reasoning';
+import {
+  Source,
+  Sources,
+  SourcesContent,
+  SourcesTrigger
+} from '@/components/ai-elements/sources';
+import { Suggestion, Suggestions } from '@/components/ai-elements/suggestion';
+import { Bot, CopyIcon, RefreshCcwIcon } from 'lucide-react';
+import { Fragment, useState, useMemo } from 'react';
+import type { SustainabilityAgentUIMessage } from '@/lib/ai/agents/sustainability-agent';
+import { ToolConfirmation } from '@/components/ai-elements/tool-confirmation';
+import { requiresApproval } from '@/lib/ai/hitl/tool-config';
+import { isToolUIPart, getToolName } from 'ai';
+import { usePathname } from 'next/navigation';
+
+// Available AI models for selection
+const AVAILABLE_MODELS = [
+  { id: 'gpt-4o', name: 'GPT-4o' },
+  { id: 'gpt-4o-mini', name: 'GPT-4o Mini' },
+  { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
+  { id: 'claude-opus-4-20250514', name: 'Claude 4 Opus' },
+  { id: 'claude-sonnet-4-20250514', name: 'Claude 4 Sonnet' },
+];
+
+/**
+ * Generate context-aware suggestions based on current page
+ */
+function getContextualSuggestions(pathname: string): string[] {
+  // Settings pages - focus on configuration and help
+  if (pathname.startsWith('/settings')) {
+    return [
+      'How do I add users to my organization?',
+      'Where can I find my API keys?',
+      'How do I set up integrations?',
+      'Where are my billing settings?',
+    ];
+  }
+
+  // Profile pages - focus on account and preferences
+  if (pathname.startsWith('/profile')) {
+    return [
+      'How do I change my password?',
+      'Where can I update my notification preferences?',
+      'How do I change the app theme?',
+      'Where are my account security settings?',
+    ];
+  }
+
+  // Sustainability pages - focus on emissions and data
+  if (pathname.startsWith('/sustainability')) {
+    return [
+      'What are my emissions this year?',
+      'Show me my emissions breakdown by scope',
+      'How do I track business travel?',
+      'I want to add sustainability data',
+    ];
+  }
+
+  // Default suggestions for other pages
+  return [
+    'What are my emissions this year?',
+    'How do I get started with Blipee?',
+    'Show me my sustainability dashboard',
+    'I want to add sustainability data',
+  ];
+}
+
+interface ChatInterfaceProps {
+  conversationId: string;
+  organizationId: string;
+  buildingId?: string;
+  initialMessages?: SustainabilityAgentUIMessage[];
+  className?: string;
+}
+
+export function ChatInterface({
+  conversationId,
+  organizationId,
+  buildingId,
+  initialMessages,
+  className
+}: ChatInterfaceProps) {
+  const [input, setInput] = useState('');
+  const [model, setModel] = useState(AVAILABLE_MODELS[0].id);
+  const pathname = usePathname();
+
+  // Generate context-aware suggestions based on current page
+  const suggestions = useMemo(() => getContextualSuggestions(pathname), [pathname]);
+
+  const { messages, sendMessage, status, error, regenerate, addToolResult } = useChat<SustainabilityAgentUIMessage>({
+    api: '/api/chat',
+    initialMessages: initialMessages || []
+  });
+
+  const handleSubmit = (message: PromptInputMessage) => {
+    const hasText = Boolean(message.text);
+    const hasAttachments = Boolean(message.files?.length);
+
+    if (!(hasText || hasAttachments)) {
+      return;
+    }
+
+    sendMessage(
+      {
+        text: message.text || 'Sent with attachments',
+        files: message.files
+      },
+      {
+        body: {
+          conversationId,
+          organizationId,
+          buildingId,
+          model
+        }
+      }
+    );
+    setInput('');
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    sendMessage(
+      { text: suggestion },
+      {
+        body: {
+          conversationId,
+          organizationId,
+          buildingId,
+          model
+        }
+      }
+    );
+  };
+
+  return (
+    <div className={cn("flex flex-col w-full h-full bg-white dark:bg-gray-950", className)}>
+      {/* Messages Container - ChatGPT Mobile Style */}
+      <Conversation className="flex-1 min-h-0 overflow-y-auto">
+        <ConversationContent className="max-w-3xl mx-auto px-4 py-6">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full space-y-8">
+              <ConversationEmptyState
+                title="Welcome to Blipee AI"
+                description="Your intelligent sustainability assistant. Ask me anything about emissions, compliance, or ESG reporting."
+                icon={<Bot className="w-16 h-16 text-emerald-500" />}
+              />
+
+              {/* Suggestion Chips */}
+              <div className="w-full max-w-2xl">
+                <Suggestions>
+                  {suggestions.map((suggestion) => (
+                    <Suggestion
+                      key={suggestion}
+                      suggestion={suggestion}
+                      onClick={handleSuggestionClick}
+                    />
+                  ))}
+                </Suggestions>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {messages.map((message) => (
+                <div key={message.id}>
+                  {/* Sources - Show at top if available */}
+                  {message.role === 'assistant' && message.parts.filter((part) => part.type === 'source-url').length > 0 && (
+                    <Sources className="mb-3">
+                      <SourcesTrigger
+                        count={message.parts.filter((part) => part.type === 'source-url').length}
+                      />
+                      <SourcesContent>
+                        {message.parts
+                          .filter((part) => part.type === 'source-url')
+                          .map((part, i) => (
+                            <Source
+                              key={`${message.id}-source-${i}`}
+                              href={part.url}
+                              title={part.url}
+                            />
+                          ))}
+                      </SourcesContent>
+                    </Sources>
+                  )}
+
+                  {/* Message Parts */}
+                  {message.parts.map((part, i) => {
+                    // Check if this is a tool part that needs approval
+                    if (isToolUIPart(part)) {
+                      const toolName = getToolName(part);
+
+                      // Render confirmation UI for tools requiring approval
+                      if (requiresApproval(toolName) && part.state === 'input-available') {
+                        return (
+                          <div key={`${message.id}-tool-${i}`} className="my-3">
+                            <ToolConfirmation
+                              toolName={toolName}
+                              toolCallId={part.toolCallId}
+                              toolInput={part.input}
+                              onApprove={async (toolCallId) => {
+                                await addToolResult({
+                                  toolCallId,
+                                  tool: toolName,
+                                  output: JSON.stringify({
+                                    approved: true,
+                                    timestamp: new Date().toISOString(),
+                                  })
+                                });
+                                sendMessage(); // Continue generation
+                              }}
+                              onDeny={async (toolCallId, reason) => {
+                                await addToolResult({
+                                  toolCallId,
+                                  tool: toolName,
+                                  output: JSON.stringify({
+                                    approved: false,
+                                    reason: reason || 'User declined',
+                                    timestamp: new Date().toISOString(),
+                                  })
+                                });
+                                sendMessage(); // Continue with denial
+                              }}
+                              requireReason={false}
+                              showDetails={true}
+                            />
+                          </div>
+                        );
+                      }
+                    }
+
+                    // Handle agent messages differently (proactive AI messages)
+                    if (message.role === 'agent' && part.type === 'text') {
+                      const agentMeta = message as any;
+                      const priority = agentMeta.priority || 'info';
+                      const agentId = agentMeta.agent_id || 'unknown';
+
+                      return (
+                        <div key={`${message.id}-${i}`} className="mb-4">
+                          <div className={cn(
+                            "border-l-4 rounded-lg p-4 shadow-sm",
+                            priority === 'critical' ? 'bg-red-50 border-red-500 dark:bg-red-950/20' :
+                            priority === 'alert' ? 'bg-yellow-50 border-yellow-500 dark:bg-yellow-950/20' :
+                            'bg-blue-50 border-blue-500 dark:bg-blue-950/20'
+                          )}>
+                            <div className="flex items-start gap-3">
+                              <div className="text-2xl flex-shrink-0">🤖</div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                  <span className={cn(
+                                    "font-semibold text-sm",
+                                    priority === 'critical' ? 'text-red-900 dark:text-red-100' :
+                                    priority === 'alert' ? 'text-yellow-900 dark:text-yellow-100' :
+                                    'text-blue-900 dark:text-blue-100'
+                                  )}>
+                                    {agentId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                  </span>
+                                  {priority === 'critical' && (
+                                    <span className="px-2 py-0.5 bg-red-500 text-white text-xs rounded-full font-medium">
+                                      CRITICAL
+                                    </span>
+                                  )}
+                                  {priority === 'alert' && (
+                                    <span className="px-2 py-0.5 bg-yellow-500 text-white text-xs rounded-full font-medium">
+                                      ALERT
+                                    </span>
+                                  )}
+                                  <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                    Automated Update
+                                  </span>
+                                </div>
+                                <Response className={cn(
+                                  "text-sm leading-relaxed",
+                                  priority === 'critical' ? 'text-red-800 dark:text-red-200' :
+                                  priority === 'alert' ? 'text-yellow-800 dark:text-yellow-200' :
+                                  'text-blue-800 dark:text-blue-200'
+                                )}>
+                                  {part.text}
+                                </Response>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                  {new Date(message.createdAt || Date.now()).toLocaleString()}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    switch (part.type) {
+                      case 'text':
+                        return (
+                          <Fragment key={`${message.id}-${i}`}>
+                            <div
+                              className={`flex gap-3 ${
+                                message.role === 'user' ? 'justify-end' : 'justify-start'
+                              }`}
+                            >
+                              {/* AI Avatar - Left side */}
+                              {message.role === 'assistant' && (
+                                <div className="flex-shrink-0 mt-1">
+                                  <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold text-sm">
+                                    B
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Message Bubble */}
+                              <Message from={message.role}>
+                                <MessageContent
+                                  className={`max-w-[80%] md:max-w-[70%] ${
+                                    message.role === 'user'
+                                      ? 'bg-emerald-500 text-white rounded-2xl rounded-tr-sm px-4 py-3'
+                                      : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl rounded-tl-sm px-4 py-3'
+                                  }`}
+                                >
+                                  <Response className="text-[15px] leading-relaxed">
+                                    {part.text}
+                                  </Response>
+                                </MessageContent>
+                              </Message>
+
+                              {/* User Avatar - Right side */}
+                              {message.role === 'user' && (
+                                <div className="flex-shrink-0 mt-1">
+                                  <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                    U
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Actions - Show for last assistant message */}
+                            {message.role === 'assistant' && i === message.parts.length - 1 && (
+                              <Actions className="mt-2 ml-11">
+                                <Action
+                                  onClick={() => regenerate()}
+                                  label="Regenerate"
+                                >
+                                  <RefreshCcwIcon className="size-3" />
+                                </Action>
+                                <Action
+                                  onClick={() => navigator.clipboard.writeText(part.text)}
+                                  label="Copy"
+                                >
+                                  <CopyIcon className="size-3" />
+                                </Action>
+                              </Actions>
+                            )}
+                          </Fragment>
+                        );
+
+                      case 'reasoning':
+                        return (
+                          <Reasoning
+                            key={`${message.id}-${i}`}
+                            className="w-full mb-3"
+                            isStreaming={
+                              status === 'streaming' &&
+                              i === message.parts.length - 1 &&
+                              message.id === messages.at(-1)?.id
+                            }
+                          >
+                            <ReasoningTrigger />
+                            <ReasoningContent>{part.text}</ReasoningContent>
+                          </Reasoning>
+                        );
+
+                      default:
+                        return null;
+                    }
+                  })}
+                </div>
+              ))}
+
+              {/* Loading State - ChatGPT Style */}
+              {status === 'submitted' && (
+                <div className="flex gap-3 justify-start">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold text-sm">
+                      B
+                    </div>
+                  </div>
+                  <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-tl-sm px-4 py-3">
+                    <Loader />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </ConversationContent>
+        <ConversationScrollButton />
+      </Conversation>
+
+      {/* Error State - Improved */}
+      {error && (
+        <div className="px-4 pb-3 max-w-3xl mx-auto w-full">
+          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">
+                  Something went wrong
+                </p>
+                <p className="text-xs text-red-600 dark:text-red-500">
+                  {error.message || 'Please try again.'}
+                </p>
+              </div>
+              <Actions>
+                <Action onClick={() => regenerate()} label="Retry">
+                  <RefreshCcwIcon className="w-3 h-3" />
+                </Action>
+              </Actions>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Input Form - AI SDK Elements Default Style */}
+      <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+        <div className="max-w-3xl mx-auto">
+          <PromptInput
+            onSubmit={handleSubmit}
+            globalDrop
+            multiple
+          >
+            <PromptInputBody>
+              <PromptInputAttachments>
+                {(attachment) => <PromptInputAttachment data={attachment} />}
+              </PromptInputAttachments>
+              <PromptInputTextarea
+                placeholder="Message Blipee AI..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+              />
+            </PromptInputBody>
+            <PromptInputFooter>
+              <PromptInputTools>
+                <PromptInputActionMenu>
+                  <PromptInputActionMenuTrigger />
+                  <PromptInputActionMenuContent>
+                    <PromptInputActionAddAttachments />
+                  </PromptInputActionMenuContent>
+                </PromptInputActionMenu>
+                <PromptInputSpeechButton
+                  onTranscriptionChange={setInput}
+                />
+                <PromptInputModelSelect value={model} onValueChange={setModel}>
+                  <PromptInputModelSelectTrigger>
+                    <PromptInputModelSelectValue />
+                  </PromptInputModelSelectTrigger>
+                  <PromptInputModelSelectContent>
+                    {AVAILABLE_MODELS.map((modelOption) => (
+                      <PromptInputModelSelectItem
+                        key={modelOption.id}
+                        value={modelOption.id}
+                      >
+                        {modelOption.name}
+                      </PromptInputModelSelectItem>
+                    ))}
+                  </PromptInputModelSelectContent>
+                </PromptInputModelSelect>
+              </PromptInputTools>
+              <PromptInputSubmit
+                disabled={!input.trim() && status !== 'streaming'}
+                status={status}
+              />
+            </PromptInputFooter>
+          </PromptInput>
+        </div>
+      </div>
+    </div>
+  );
+}

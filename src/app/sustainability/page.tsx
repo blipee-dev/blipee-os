@@ -18,5 +18,6 @@ export default async function SustainabilityHomePage() {
   }
 
   // Render the Overview page as the default sustainability page
-  return <OverviewPage />;
+  // Note: conversationId and organizationId are now handled by the layout
+  return <OverviewPage conversationId="" organizationId={organizationId} />;
 }

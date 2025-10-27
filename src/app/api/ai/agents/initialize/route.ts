@@ -34,54 +34,55 @@ export async function POST(request: NextRequest) {
     const { orchestrator, agents } = workforce;
 
     // Schedule recurring tasks for each agent
+    // Adjusted for monthly data: bi-weekly checks instead of hourly/daily
     const tasks = [
       {
         agentId: 'esg-chief',
         type: 'strategic_review',
-        schedule: '0 9 * * MON', // Weekly strategic review
+        schedule: '0 9 * * MON', // Weekly strategic review (KEEP)
         payload: { organizationId: memberData.organization_id }
       },
       {
         agentId: 'carbon-hunter',
         type: 'emissions_scan',
-        schedule: '0 */6 * * *', // Every 6 hours
-        payload: { organizationId: memberData.organization_id, autoDiscover: true }
+        schedule: '0 9 1,15 * *', // ✅ Bi-weekly (1st & 15th at 9 AM) - for monthly data
+        payload: { organizationId: memberData.organization_id, autoDiscover: true, scanType: 'monthly_data_check' }
       },
       {
         agentId: 'compliance-guardian',
         type: 'compliance_check',
-        schedule: '0 0 * * *', // Daily at midnight
+        schedule: '0 8 5,20 * *', // ✅ Bi-weekly (5th & 20th at 8 AM) - for monthly data
         payload: { organizationId: memberData.organization_id, frameworks: ['GRI', 'TCFD', 'CDP', 'SASB'] }
       },
       {
         agentId: 'supply-chain',
         type: 'supplier_risk_assessment',
-        schedule: '0 10 * * WED', // Weekly supplier check
+        schedule: '0 10 * * WED', // Weekly supplier check (KEEP - external monitoring)
         payload: { organizationId: memberData.organization_id }
       },
       {
         agentId: 'cost-finder',
         type: 'cost_optimization_scan',
-        schedule: '0 14 * * *', // Daily at 2 PM
-        payload: { organizationId: memberData.organization_id }
+        schedule: '0 14 3,18 * *', // ✅ Bi-weekly (3rd & 18th at 2 PM) - for monthly data
+        payload: { organizationId: memberData.organization_id, analyzeMonthlyData: true }
       },
       {
         agentId: 'predictive-maintenance',
         type: 'equipment_analysis',
-        schedule: '0 */4 * * *', // Every 4 hours
-        payload: { organizationId: memberData.organization_id }
+        schedule: '0 */4 * * *', // ✅ Every 4 hours (KEEP - monitors IoT/equipment in real-time)
+        payload: { organizationId: memberData.organization_id, monitorType: 'real-time' }
       },
       {
         agentId: 'optimizer',
         type: 'performance_optimization',
-        schedule: '0 */2 * * *', // Every 2 hours
-        payload: { organizationId: memberData.organization_id }
+        schedule: '0 */2 * * *', // ✅ Every 2 hours (KEEP - optimizes operations in real-time)
+        payload: { organizationId: memberData.organization_id, optimizationType: 'real-time' }
       },
       {
         agentId: 'regulatory',
         type: 'regulatory_updates',
-        schedule: '0 8 * * *', // Daily at 8 AM
-        payload: { organizationId: memberData.organization_id }
+        schedule: '0 8 * * *', // Daily at 8 AM (KEEP - monitors external regulations)
+        payload: { organizationId: memberData.organization_id, monitorRegulations: true }
       }
     ];
 

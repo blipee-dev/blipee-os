@@ -108,7 +108,7 @@ export class CostSavingFinder extends AutonomousAgent {
     const potentialSavings = Math.floor((avgMonthlyEmissions * 0.20) / 1000 * 50); // 20% reduction * $50/ton
 
     const analysis = await aiStub.complete(
-      `Analyze energy costs based on ${totalEmissions.toFixed(0)} kg CO2e over 90 days. Identify patterns, anomalies, and optimization opportunities.`,
+      `Analyze energy costs based on ${totalEmissions.toFixed(0)} kg CO2e over 90 days. Identify patterns, anomalies, and optimization opportunities. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );

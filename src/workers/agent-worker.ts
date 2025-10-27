@@ -1,0 +1,378 @@
+/**
+ * Blipee AI Autonomous Agent Worker
+ *
+ * Background process that runs the 8 autonomous agents 24/7
+ * Generates proactive messages for users based on agent findings
+ *
+ * Deploy separately to Railway/Render/long-running service
+ *
+ * Start with: npm run agents:start
+ */
+
+import { initializeAutonomousAgents, getAIWorkforceStatus } from '@/lib/ai/autonomous-agents';
+import { createClient } from '@supabase/supabase-js';
+import { AgentMessageGenerator } from '@/lib/ai/autonomous-agents/message-generator';
+import http from 'http';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY! // Service role key for background operations
+);
+
+class AgentWorker {
+  private isRunning = false;
+  private workforce: Map<string, any> = new Map(); // organizationId -> workforce
+  private messageGenerator: AgentMessageGenerator;
+  private healthCheckInterval: NodeJS.Timeout | null = null;
+  private healthServer: http.Server | null = null;
+  private startTime: number = Date.now();
+
+  constructor() {
+    this.messageGenerator = new AgentMessageGenerator(supabase);
+  }
+
+  async start() {
+    console.log('🚀 Starting Blipee AI Autonomous Agent Worker...');
+    console.log('📅 Current time:', new Date().toISOString());
+    this.isRunning = true;
+
+    // Start health check HTTP server
+    this.startHealthCheckServer();
+
+    // Get all organizations
+    const { data: orgs, error } = await supabase
+      .from('organizations')
+      .select('id, name, created_at');
+
+    if (error) {
+      console.error('❌ Failed to fetch organizations:', error);
+      return;
+    }
+
+    if (!orgs || orgs.length === 0) {
+      console.log('⚠️  No organizations found. Waiting for organizations to be created...');
+      // Set up a periodic check for new organizations
+      this.watchForNewOrganizations();
+      return;
+    }
+
+    console.log(`📊 Found ${orgs.length} organization(s)`);
+
+    // Initialize agents for each organization
+    for (const org of orgs) {
+      await this.initializeAgentsForOrganization(org);
+    }
+
+    // Start health monitoring
+    this.startHealthMonitoring();
+
+    // Watch for new organizations
+    this.watchForNewOrganizations();
+
+    console.log('✅ Agent worker fully operational');
+    console.log('🤖 8 autonomous agents working 24/7 for each organization');
+    console.log('📨 Proactive messages will appear in user chats');
+  }
+
+  /**
+   * Initialize agents for a specific organization
+   */
+  private async initializeAgentsForOrganization(org: any) {
+    console.log(`\n🏢 Initializing agents for: ${org.name} (${org.id})`);
+
+    try {
+      const workforce = await initializeAutonomousAgents(org.id);
+      this.workforce.set(org.id, workforce);
+
+      console.log(`✅ Workforce initialized for ${org.name}`);
+      console.log(`   • ${workforce.config.totalEmployees} AI employees active`);
+      console.log(`   • Operating mode: ${workforce.config.operationalMode}`);
+
+      // Start listening to agent task results for this org
+      this.startTaskListener(org.id);
+
+    } catch (error) {
+      console.error(`❌ Failed to initialize agents for ${org.name}:`, error);
+    }
+  }
+
+  /**
+   * Listen for completed agent tasks and generate proactive messages
+   */
+  private startTaskListener(organizationId: string) {
+    console.log(`👂 Listening for agent task results (org: ${organizationId})...`);
+
+    // Subscribe to real-time updates from agent_task_results
+    const channel = supabase
+      .channel(`agent-tasks-${organizationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'agent_task_results',
+          filter: `organization_id=eq.${organizationId}`
+        },
+        async (payload) => {
+          const taskResult = payload.new;
+          console.log(`\n📨 New task result from ${taskResult.agent_id} (org: ${organizationId})`);
+          console.log(`   • Task type: ${taskResult.task_type}`);
+          console.log(`   • Success: ${taskResult.success}`);
+          console.log(`   • Execution time: ${taskResult.execution_time_ms}ms`);
+
+          // Generate proactive message if needed
+          await this.handleTaskResult(taskResult);
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log(`✅ Subscribed to task results for org ${organizationId}`);
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error(`❌ Channel error for org ${organizationId}`);
+        }
+      });
+  }
+
+  /**
+   * Handle completed agent task and decide if user should be notified
+   */
+  private async handleTaskResult(taskResult: any) {
+    const { agent_id, result, priority, organization_id, success } = taskResult;
+
+    // Skip failed tasks
+    if (!success) {
+      console.log(`   ⏭️  Skipping failed task`);
+      return;
+    }
+
+    // Determine if this finding is worth notifying users about
+    const shouldNotify = await this.messageGenerator.shouldNotifyUsers(taskResult);
+
+    if (!shouldNotify) {
+      console.log(`   ℹ️  No user notification needed (routine task)`);
+      return;
+    }
+
+    console.log(`   🔔 Important finding! Notifying users...`);
+
+    // Get users to notify (admins, sustainability managers)
+    const { data: members } = await supabase
+      .from('organization_members')
+      .select('user_id, role')
+      .eq('organization_id', organization_id)
+      .in('role', ['account_owner', 'sustainability_manager', 'analyst']);
+
+    if (!members || members.length === 0) {
+      console.log(`   ⚠️  No users found to notify for org ${organization_id}`);
+      return;
+    }
+
+    console.log(`   📧 Notifying ${members.length} user(s)...`);
+
+    // Generate proactive message for each user
+    let messagesCreated = 0;
+    for (const member of members) {
+      try {
+        const message = await this.messageGenerator.createProactiveMessage({
+          userId: member.user_id,
+          organizationId: organization_id,
+          agentId: agent_id,
+          taskResult: result,
+          priority: priority || 'info'
+        });
+
+        if (message) {
+          messagesCreated++;
+        }
+      } catch (error) {
+        console.error(`   ❌ Failed to create message for user ${member.user_id}:`, error);
+      }
+    }
+
+    console.log(`   ✅ Created ${messagesCreated} proactive message(s)`);
+  }
+
+  /**
+   * Start HTTP health check server for Railway/Render
+   */
+  private startHealthCheckServer() {
+    const port = parseInt(process.env.PORT || '8080', 10);
+
+    this.healthServer = http.createServer((req, res) => {
+      if (req.url === '/health') {
+        const uptime = Date.now() - this.startTime;
+        const activeAgents = this.workforce.size * 8; // 8 agents per org
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          status: 'healthy',
+          uptime: Math.floor(uptime / 1000), // seconds
+          organizations: this.workforce.size,
+          agents: activeAgents,
+          timestamp: new Date().toISOString()
+        }));
+      } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Not found' }));
+      }
+    });
+
+    this.healthServer.listen(port, () => {
+      console.log(`🏥 Health check server listening on port ${port}`);
+      console.log(`   Endpoint: http://localhost:${port}/health`);
+    });
+  }
+
+  /**
+   * Monitor agent health and restart if needed
+   */
+  private startHealthMonitoring() {
+    console.log('\n💚 Starting health monitoring (checks every 5 minutes)...');
+
+    this.healthCheckInterval = setInterval(async () => {
+      if (!this.isRunning) return;
+
+      const timestamp = new Date().toISOString();
+      console.log(`\n💚 Health check at ${timestamp}`);
+
+      for (const [orgId, workforce] of this.workforce.entries()) {
+        try {
+          const status = await getAIWorkforceStatus();
+
+          console.log(`   • Org ${orgId}: ${status.systemHealth} - ${status.employeeCount}/8 agents active`);
+
+          if (status.systemHealth === 'offline') {
+            console.error(`   🚨 Workforce is offline for org ${orgId}! Attempting restart...`);
+            await this.restartWorkforce(orgId);
+          } else if (status.systemHealth === 'degraded') {
+            console.warn(`   ⚠️  Workforce degraded for org ${orgId} (${status.employeeCount}/8 active)`);
+          }
+        } catch (error) {
+          console.error(`   ❌ Health check failed for org ${orgId}:`, error);
+        }
+      }
+    }, 5 * 60 * 1000); // Check every 5 minutes
+  }
+
+  /**
+   * Watch for new organizations being created
+   */
+  private watchForNewOrganizations() {
+    console.log('👀 Watching for new organizations...');
+
+    supabase
+      .channel('new-organizations')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'organizations'
+        },
+        async (payload) => {
+          const newOrg = payload.new;
+          console.log(`\n🆕 New organization created: ${newOrg.name} (${newOrg.id})`);
+          console.log('   Initializing agents...');
+
+          await this.initializeAgentsForOrganization(newOrg);
+        }
+      )
+      .subscribe();
+  }
+
+  /**
+   * Restart workforce for a specific organization
+   */
+  private async restartWorkforce(organizationId: string) {
+    console.log(`🔄 Restarting workforce for org ${organizationId}...`);
+
+    try {
+      // Get organization details
+      const { data: org } = await supabase
+        .from('organizations')
+        .select('id, name')
+        .eq('id', organizationId)
+        .single();
+
+      if (!org) {
+        console.error(`❌ Organization ${organizationId} not found`);
+        return;
+      }
+
+      // Reinitialize
+      await this.initializeAgentsForOrganization(org);
+      console.log(`✅ Workforce restarted for ${org.name}`);
+
+    } catch (error) {
+      console.error(`❌ Failed to restart workforce for org ${organizationId}:`, error);
+    }
+  }
+
+  /**
+   * Graceful shutdown
+   */
+  async stop() {
+    console.log('\n🛑 Stopping agent worker...');
+    this.isRunning = false;
+
+    // Close health check server
+    if (this.healthServer) {
+      console.log('   • Closing health check server');
+      this.healthServer.close();
+    }
+
+    // Clear health check interval
+    if (this.healthCheckInterval) {
+      clearInterval(this.healthCheckInterval);
+    }
+
+    // Stop all workforces
+    for (const [orgId, workforce] of this.workforce.entries()) {
+      console.log(`   • Stopping workforce for org ${orgId}`);
+      // Add cleanup logic here if needed
+    }
+
+    // Unsubscribe from all channels
+    await supabase.removeAllChannels();
+
+    console.log('✅ Agent worker stopped gracefully');
+  }
+}
+
+// Initialize worker
+const worker = new AgentWorker();
+
+// Handle shutdown signals
+process.on('SIGINT', async () => {
+  console.log('\n🛑 Received SIGINT (Ctrl+C), shutting down gracefully...');
+  await worker.stop();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('\n🛑 Received SIGTERM, shutting down gracefully...');
+  await worker.stop();
+  process.exit(0);
+});
+
+// Handle uncaught errors
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+// Start worker
+console.log('╔════════════════════════════════════════════════════╗');
+console.log('║  Blipee AI Autonomous Agent Worker                ║');
+console.log('║  8 AI Employees Working 24/7                      ║');
+console.log('╚════════════════════════════════════════════════════╝\n');
+
+worker.start().catch((error) => {
+  console.error('❌ Failed to start agent worker:', error);
+  process.exit(1);
+});

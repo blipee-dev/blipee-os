@@ -14,6 +14,7 @@ const EXEMPT_PATHS = new Set([
   '/api/auth/callback',  // OAuth callbacks
   '/api/webhooks',       // External webhooks
   '/api/health',         // Health checks
+  '/api/chat',           // Streaming chat endpoint (protected by session auth)
 ]);
 
 export interface CSRFToken {
@@ -133,8 +134,14 @@ export async function csrfMiddleware(
   const cookieStore = await cookies();
   const cookieToken = cookieStore.get(CSRF_COOKIE_NAME)?.value;
 
+  console.log('🔐 [CSRF] Validating for:', pathname);
+  console.log('🔐 [CSRF] Header token:', headerToken ? `${headerToken.substring(0, 20)}...` : 'MISSING');
+  console.log('🔐 [CSRF] Cookie token:', cookieToken ? `${cookieToken.substring(0, 20)}...` : 'MISSING');
+  console.log('🔐 [CSRF] Tokens match:', headerToken === cookieToken);
+
   // Verify tokens match and are valid
   if (!headerToken || !cookieToken || headerToken !== cookieToken) {
+    console.log('❌ [CSRF] Validation failed - tokens do not match');
     return NextResponse.json(
       { error: 'CSRF token validation failed' },
       { status: 403 }

@@ -1,0 +1,40 @@
+# Render.com Configuration for Blipee AI Agent Worker
+#
+# Deploy the agent worker as a background worker service
+# The main Next.js app should be deployed separately to Vercel
+#
+# To deploy:
+# 1. Connect your GitHub repo to Render
+# 2. Create a new Background Worker service
+# 3. Point it to this render.yaml file
+# 4. Deploy!
+
+services:
+  - type: worker
+    name: blipee-agent-worker
+    env: node
+    region: oregon # Choose your preferred region
+    plan: starter # or higher for production
+    buildCommand: npm install
+    startCommand: npm run agents:start
+    autoDeploy: true
+
+    # Health check endpoint (optional)
+    healthCheckPath: /health
+
+    # Environment variables (set these in Render dashboard)
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false # Set manually in dashboard
+
+      - key: SUPABASE_SERVICE_KEY
+        sync: false # Set manually - sensitive!
+
+      - key: OPENAI_API_KEY
+        sync: false # Set manually - sensitive!
+
+      - key: DEEPSEEK_API_KEY
+        sync: false # Optional

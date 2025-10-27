@@ -4,6 +4,20 @@ import { SCOPE_COLORS } from '@/lib/constants/sustainability-colors';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 
+type SiteRecord = {
+  id: string;
+  name?: string | null;
+  total_area_sqm?: number | string | null;
+  total_employees?: number | null;
+  type?: string | null;
+};
+
+type SiteMapEntry = SiteRecord & {
+  area_m2?: number | string | null;
+  employee_count?: number | null;
+  site_type?: string | null;
+};
+
 export const dynamic = 'force-dynamic';
 
 /**
@@ -76,7 +90,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const range = searchParams.get('range') || null;
+    const range = searchParams.get('range');
     const startDateParam = searchParams.get('start_date');
     const endDateParam = searchParams.get('end_date');
     const siteId = searchParams.get('site') || searchParams.get('site_id') || 'all';
@@ -136,16 +150,17 @@ export async function GET(request: NextRequest) {
       .select('id, name, total_area_sqm, total_employees, type')
       .eq('organization_id', organizationId);
 
-    const sitesMap = new Map(
-      sites?.map((s) => [
-        s.id,
+    const siteRecords: SiteRecord[] = (sites ?? []) as SiteRecord[];
+    const sitesMap = new Map<string, SiteMapEntry>(
+      siteRecords.map((site) => [
+        site.id,
         {
-          ...s,
-          area_m2: s.total_area_sqm,
-          employee_count: s.total_employees,
-          site_type: s.type,
+          ...site,
+          area_m2: site.total_area_sqm,
+          employee_count: site.total_employees,
+          site_type: site.type,
         },
-      ]) || []
+      ])
     );
 
     // Calculate date range - support both explicit dates and range parameter
@@ -256,8 +271,8 @@ export async function GET(request: NextRequest) {
 
 async function processDashboardData(
   data: any[],
-  range: string,
-  sitesMap: Map<string, any>,
+  range: string | null,
+  sitesMap: Map<string, SiteMapEntry>,
   organizationId: string,
   providedStartDate: Date,
   providedEndDate: Date,
@@ -403,7 +418,7 @@ async function processDashboardData(
 }
 
 // Helper function to format monthly emissions from calculator
-function formatTrendDataFromCalculator(monthlyEmissions: any[], range: string) {
+function formatTrendDataFromCalculator(monthlyEmissions: any[], _range: string | null) {
   const months = [
     'Jan',
     'Feb',
@@ -592,8 +607,11 @@ function calculateScopeBreakdown(data: any[]) {
 
   data.forEach((d) => {
     const scope = d.metrics_catalog?.scope;
-    if (scope && d.co2e_emissions) {
-      scopes[scope] += d.co2e_emissions;
+    const scopeKey: keyof typeof scopes | null =
+      scope === 'scope_1' || scope === 'scope_2' || scope === 'scope_3' ? scope : null;
+
+    if (scopeKey && typeof d.co2e_emissions === 'number') {
+      scopes[scopeKey] += d.co2e_emissions;
     }
   });
 
@@ -718,8 +736,8 @@ function generateTrendData(data: any[], range: string) {
   });
 }
 
-function generateSiteComparison(data: any[], sitesMap: Map<string, any>) {
-  const siteData: any = {};
+function generateSiteComparison(data: any[], sitesMap: Map<string, SiteMapEntry>) {
+  const siteData: Record<string, any> = {};
 
   data.forEach((d) => {
     const siteInfo = sitesMap.get(d.site_id);
@@ -730,7 +748,7 @@ function generateSiteComparison(data: any[], sitesMap: Map<string, any>) {
       return; // Skip if site not found
     }
 
-    const siteName = siteInfo.name;
+    const siteName = siteInfo.name ?? 'Unknown';
 
     if (!siteData[siteName]) {
       siteData[siteName] = {
@@ -923,7 +941,11 @@ function calculateWaterTotal(data: any[]) {
     .reduce((sum, d) => sum + (d.value || 0), 0);
 }
 
-async function calculateYearOverYearComparison(data: any[], range: string, organizationId: string) {
+async function calculateYearOverYearComparison(
+  data: any[],
+  range: string | null,
+  organizationId: string
+) {
   const months = [
     'Jan',
     'Feb',

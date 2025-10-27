@@ -1,0 +1,71 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+.next
+out
+dist
+build
+
+# Git
+.git
+.gitignore
+
+# Environment files (will be set via Railway)
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Testing
+coverage
+.nyc_output
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+**/__tests__/**
+**/__mocks__/**
+
+# Documentation
+*.md
+!README.md
+docs
+AGENTS_IMPLEMENTATION_COMPLETE.md
+
+# Scripts and test files
+scripts
+test-*.mjs
+*.test.js
+*.test.mjs
+check-*.mjs
+debug-*.mjs
+get-*.mjs
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# Railway and deployment configs (not needed in image)
+railway.toml
+render.yaml
+Procfile
+vercel.json

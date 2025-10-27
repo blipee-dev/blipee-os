@@ -101,7 +101,7 @@ export class AutonomousOptimizer extends AutonomousAgent {
     const performanceScore = systemsAnalyzed > 0 ? Math.min(95, Math.max(65, 100 - (totalEmissions / systemsAnalyzed / 100))) : 75;
 
     const analysis = await aiStub.complete(
-      `Analyze ${systemsAnalyzed} operational systems with ${totalEmissions.toFixed(0)} kg CO2e emissions. Identify bottlenecks and inefficiencies.`,
+      `Analyze ${systemsAnalyzed} operational systems with ${totalEmissions.toFixed(0)} kg CO2e emissions. Identify bottlenecks and inefficiencies. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -161,7 +161,7 @@ export class AutonomousOptimizer extends AutonomousAgent {
     const efficiencyGain = opportunitiesFound > 0 ? Math.min(35, 10 + opportunitiesFound * 2) : 15;
 
     const optimizations = await aiStub.complete(
-      `Identify ${opportunitiesFound} optimization opportunities (${energyOps} energy, ${wasteOps} waste, ${scope3Ops} scope 3). Total emissions: ${totalEmissions.toFixed(0)} kg CO2e. Focus on efficiency, cost reduction, and performance improvement.`,
+      `Identify ${opportunitiesFound} optimization opportunities (${energyOps} energy, ${wasteOps} waste, ${scope3Ops} scope 3). Total emissions: ${totalEmissions.toFixed(0)} kg CO2e. Focus on efficiency, cost reduction, and performance improvement. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -204,7 +204,7 @@ export class AutonomousOptimizer extends AutonomousAgent {
     this.optimizationMetrics.performanceImprovement += performanceGain;
 
     const application = await aiStub.complete(
-      `Apply ${optimizationsApplied} optimization strategies to ${systemsOptimized} operational systems. Implement changes safely and monitor ${performanceGain}% performance improvement.`,
+      `Apply ${optimizationsApplied} optimization strategies to ${systemsOptimized} operational systems. Implement changes safely and monitor ${performanceGain}% performance improvement. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -245,7 +245,7 @@ export class AutonomousOptimizer extends AutonomousAgent {
     const performanceImprovement = totalOptimizations > 0 ? Math.floor(totalImprovements / totalOptimizations) : 12;
 
     const monitoring = await aiStub.complete(
-      `Monitor ${totalOptimizations} optimization results with ${successRate.toFixed(0)}% success rate. ${performanceImprovement}% performance improvement achieved. Track metrics and identify any issues.`,
+      `Monitor ${totalOptimizations} optimization results with ${successRate.toFixed(0)}% success rate. ${performanceImprovement}% performance improvement achieved. Track metrics and identify any issues. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -284,7 +284,7 @@ export class AutonomousOptimizer extends AutonomousAgent {
     this.optimizationMetrics.efficiencyGains += efficiencyGain;
 
     const continuous = await aiStub.complete(
-      `Perform continuous optimization cycle on ${analyzed} systems. ${optimized} optimized, ${applied} applied, ${validated} validated. Overall ${this.optimizationMetrics.efficiencyGains}% efficiency gains. Analyze, optimize, apply, and monitor in an ongoing loop.`,
+      `Perform continuous optimization cycle on ${analyzed} systems. ${optimized} optimized, ${applied} applied, ${validated} validated. Overall ${this.optimizationMetrics.efficiencyGains}% efficiency gains. Analyze, optimize, apply, and monitor in an ongoing loop. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -310,7 +310,7 @@ export class AutonomousOptimizer extends AutonomousAgent {
 
   private async handleGenericTask(task: Task): Promise<TaskResult> {
     const result = await aiStub.complete(
-      `Handle optimization-related task: ${task.type}. Analyze and provide improvement recommendations.`,
+      `Handle optimization-related task: ${task.type}. Analyze and provide improvement recommendations. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );

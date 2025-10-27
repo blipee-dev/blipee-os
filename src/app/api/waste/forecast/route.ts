@@ -4,6 +4,29 @@ import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 
+interface WasteMetric {
+  id: string;
+  unit?: string | null;
+  is_diverted?: boolean | null;
+}
+
+interface WasteMetricRecord {
+  metric_id: string;
+  period_start: string;
+  site_id?: string | null;
+  value: string | number | null;
+  unit?: string | null;
+  co2e_emissions?: string | number | null;
+}
+
+interface HistoricalMonthSummary {
+  monthKey: string;
+  generated: number;
+  diverted: number;
+  disposal: number;
+  emissions: number;
+}
+
 export const dynamic = 'force-dynamic';
 
 /**
@@ -42,19 +65,20 @@ export async function GET(request: NextRequest) {
     const maxHistoricalDate = new Date(filterYear, filterMonth, 0); // Last day of current month
 
     // Get waste metrics from metrics_catalog
-    const { data: wasteMetrics } = await supabaseAdmin
+    const { data: wasteMetricsRaw } = await supabaseAdmin
       .from('metrics_catalog')
       .select('*')
       .eq('category', 'Waste');
 
-    if (!wasteMetrics || wasteMetrics.length === 0) {
+    if (!wasteMetricsRaw || wasteMetricsRaw.length === 0) {
       return NextResponse.json({ forecast: [] });
     }
 
-    const metricIds = wasteMetrics.map((m) => m.id);
+    const wasteMetrics = wasteMetricsRaw as WasteMetric[];
+    const metricIds = wasteMetrics.map((m: WasteMetric) => m.id);
 
     // Fetch waste data from metrics_data with pagination
-    let allData: any[] = [];
+    let allData: WasteMetricRecord[] = [];
     let rangeStart = 0;
     const batchSize = 1000;
     let hasMore = true;
@@ -80,7 +104,7 @@ export async function GET(request: NextRequest) {
         break;
       }
 
-      allData = allData.concat(batchData);
+      allData = allData.concat(batchData as WasteMetricRecord[]);
 
       if (batchData.length < batchSize) {
         hasMore = false;
@@ -92,7 +116,7 @@ export async function GET(request: NextRequest) {
     // DEDUPLICATION: Remove duplicate records before processing
     // The database has duplicate records (same metric_id, period_start, site_id)
     const seenRecords = new Set<string>();
-    const historicalData = allData.filter((record: any) => {
+    const historicalData = allData.filter((record: WasteMetricRecord) => {
       // Skip future months from current year (they might be forecasts stored in the database)
       const recordDate = new Date(record.period_start);
       if (recordDate > maxHistoricalDate) {
@@ -122,8 +146,8 @@ export async function GET(request: NextRequest) {
       };
     } = {};
 
-    historicalData.forEach((record: any) => {
-      const metric = wasteMetrics.find((m) => m.id === record.metric_id);
+    historicalData.forEach((record) => {
+      const metric = wasteMetrics.find((m: WasteMetric) => m.id === record.metric_id);
       if (!metric) return;
 
       const date = new Date(record.period_start);
@@ -134,12 +158,16 @@ export async function GET(request: NextRequest) {
       }
 
       // Get quantity (convert to tons if needed)
-      const value = parseFloat(record.value) || 0;
+      const valueRaw = record.value ?? '0';
+      const value = typeof valueRaw === 'number' ? valueRaw : parseFloat(valueRaw || '0');
       const recordUnit = record.unit || metric.unit || 'tons';
       const valueInTons = recordUnit === 'kg' ? value / 1000 : value;
 
       // Get emissions (convert from kgCO2e to tCO2e)
-      const emissionsInTons = (parseFloat(record.co2e_emissions) || 0) / 1000;
+      const emissionsRaw = record.co2e_emissions ?? '0';
+      const emissionsValue =
+        typeof emissionsRaw === 'number' ? emissionsRaw : parseFloat(emissionsRaw || '0');
+      const emissionsInTons = emissionsValue / 1000;
 
       // Check if diverted using metric metadata
       const isDiverted = metric.is_diverted || false;
@@ -158,7 +186,7 @@ export async function GET(request: NextRequest) {
 
     // Convert to array
     const months = Object.keys(monthlyData).sort();
-    const historicalMonthly = months.map((monthKey) => ({
+    const historicalMonthly: HistoricalMonthSummary[] = months.map((monthKey) => ({
       monthKey,
       generated: monthlyData[monthKey].generated,
       diverted: monthlyData[monthKey].diverted,
@@ -188,7 +216,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Use enterprise forecaster for generated waste
-    const generatedData = historicalMonthly.map((m) => ({
+    const generatedData = historicalMonthly.map((m: HistoricalMonthSummary) => ({
       month: m.monthKey,
       emissions: m.generated,
     }));
@@ -196,7 +224,7 @@ export async function GET(request: NextRequest) {
     const generatedForecast = EnterpriseForecast.forecast(generatedData, monthsToForecast, false);
 
     // Use enterprise forecaster for diverted waste
-    const divertedData = historicalMonthly.map((m) => ({
+    const divertedData = historicalMonthly.map((m: HistoricalMonthSummary) => ({
       month: m.monthKey,
       emissions: m.diverted,
     }));
@@ -204,7 +232,7 @@ export async function GET(request: NextRequest) {
     const divertedForecast = EnterpriseForecast.forecast(divertedData, monthsToForecast, false);
 
     // Use enterprise forecaster for emissions
-    const emissionsData = historicalMonthly.map((m) => ({
+    const emissionsData = historicalMonthly.map((m: HistoricalMonthSummary) => ({
       month: m.monthKey,
       emissions: m.emissions,
     }));

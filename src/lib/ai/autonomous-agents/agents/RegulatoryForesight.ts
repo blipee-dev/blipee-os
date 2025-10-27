@@ -94,7 +94,7 @@ export class RegulatoryForesight extends AutonomousAgent {
     this.complianceMetrics.regulationsMonitored += regulationsScanned;
 
     const monitoring = await aiStub.complete(
-      `Monitor ${regulationsScanned} regulatory requirements across ${uniqueFrameworks} frameworks (GRI, TCFD, SASB, CDP, CSRD, SEC). Identify new requirements and updates.`,
+      `Monitor ${regulationsScanned} regulatory requirements across ${uniqueFrameworks} frameworks (GRI, TCFD, SASB, CDP, CSRD, SEC). Identify new requirements and updates. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -144,7 +144,7 @@ export class RegulatoryForesight extends AutonomousAgent {
     const estimatedCost = (criticalGaps * 15000) + 25000; // $15k per gap + base
 
     const assessment = await aiStub.complete(
-      `Assess impact of regulatory changes on organization. ${reports?.length || 0} reports analyzed, ${criticalGaps} critical gaps found (${draftReports} draft reports, missing data in ${missingScope1 + missingScope2 + missingScope3} scope areas). Evaluate compliance gaps and required actions.`,
+      `Assess impact of regulatory changes on organization. ${reports?.length || 0} reports analyzed, ${criticalGaps} critical gaps found (${draftReports} draft reports, missing data in ${missingScope1 + missingScope2 + missingScope3} scope areas). Evaluate compliance gaps and required actions. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -194,7 +194,7 @@ export class RegulatoryForesight extends AutonomousAgent {
     this.complianceMetrics.proactiveActions += actionsPlanned;
 
     const actionPlan = await aiStub.complete(
-      `Create comprehensive action plan for ${uniqueFrameworks} regulatory frameworks with ${draftReports} incomplete reports. Include timelines, responsibilities, and resources for ${actionsPlanned} planned actions.`,
+      `Create comprehensive action plan for ${uniqueFrameworks} regulatory frameworks with ${draftReports} incomplete reports. Include timelines, responsibilities, and resources for ${actionsPlanned} planned actions. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -249,7 +249,7 @@ export class RegulatoryForesight extends AutonomousAgent {
     this.complianceMetrics.alertsGenerated += alertsConfigured;
 
     const automation = await aiStub.complete(
-      `Implement compliance automation workflows for ${uniqueFrameworks} frameworks. Set up monitoring, reporting, and alert systems. ${workflowsCreated} existing workflows, ${alertsConfigured} total alerts configured.`,
+      `Implement compliance automation workflows for ${uniqueFrameworks} frameworks. Set up monitoring, reporting, and alert systems. ${workflowsCreated} existing workflows, ${alertsConfigured} total alerts configured. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -304,7 +304,7 @@ export class RegulatoryForesight extends AutonomousAgent {
     }).length;
 
     const tracking = await aiStub.complete(
-      `Track ${deadlinesTracked} regulatory deadlines and compliance requirements. ${upcomingDeadlines} upcoming deadlines, ${urgentDeadlines} urgent. Monitor progress and alert on upcoming dates.`,
+      `Track ${deadlinesTracked} regulatory deadlines and compliance requirements. ${upcomingDeadlines} upcoming deadlines, ${urgentDeadlines} urgent. Monitor progress and alert on upcoming dates. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );
@@ -334,7 +334,7 @@ export class RegulatoryForesight extends AutonomousAgent {
 
   private async handleGenericTask(task: Task): Promise<TaskResult> {
     const result = await aiStub.complete(
-      `Handle regulatory-related task: ${task.type}. Provide compliance analysis and recommendations.`,
+      `Handle regulatory-related task: ${task.type}. Provide compliance analysis and recommendations. Return your analysis as JSON.`,
       TaskType.ANALYSIS,
       { jsonMode: true }
     );

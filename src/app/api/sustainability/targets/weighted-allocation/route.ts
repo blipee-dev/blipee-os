@@ -285,7 +285,9 @@ export async function GET(request: NextRequest) {
       const emissionPercent = totalEmissions > 0 ? (emissions / totalEmissions) * 100 : 0;
 
       // Get effort factor for this category
-      const categoryConfig = CATEGORY_EFFORT_FACTORS[category] || CATEGORY_EFFORT_FACTORS['Other'];
+      const categoryConfig =
+        CATEGORY_EFFORT_FACTORS[category as keyof typeof CATEGORY_EFFORT_FACTORS] ||
+        CATEGORY_EFFORT_FACTORS['Other'];
 
       // Calculate adjusted target:
       // Categories with high emission % and high effort factor get higher reduction targets

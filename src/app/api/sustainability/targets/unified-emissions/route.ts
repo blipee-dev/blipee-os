@@ -4,6 +4,41 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { UnifiedSustainabilityCalculator } from '@/lib/sustainability/unified-calculator';
 import { NextRequest, NextResponse } from 'next/server';
 
+interface MetricCatalogRow {
+  id: string;
+  name: string;
+  code: string | null;
+  category: string | null;
+  scope: string | null;
+  unit: string | null;
+}
+
+interface MetricDataRow {
+  co2e_emissions: string | number | null;
+  period_start?: string;
+}
+
+interface CategoryTargetRow {
+  category: string;
+  reduction_rate: number | null;
+}
+
+interface CategoryBreakdownResult {
+  category: string;
+  metricName: string;
+  metricIds: string[];
+  baselineEmissions: number;
+  targetEmissions: number;
+  currentEmissions: number;
+  projected2025FullYear: number;
+  reductionRate: number;
+  progress: {
+    progressPercent: number;
+    status: string;
+    ytdEmissions: number;
+  };
+}
+
 /**
  * Unified Emissions Targets API
  *
@@ -112,7 +147,7 @@ export async function GET(request: NextRequest) {
 
     const currentYear = new Date().getFullYear();
     const baselineYear = targetConfig.baseline_year;
-    const reductionPercent = targetConfig.emission_reduction_percent;
+    const reductionPercent = targetConfig.emissions_reduction_percent;
 
     // Get overall metrics using unified calculator
 
@@ -208,26 +243,30 @@ async function getCategoryBreakdown(
   const currentMonth = new Date().getMonth() + 1;
 
   // Get metrics for each category
-  const { data: metricsData, error: metricsError } = await supabaseAdmin
+  const { data: metricsDataRaw, error: metricsError } = await supabaseAdmin
     .from('metrics_catalog')
     .select('id, name, code, category, scope, unit')
     .in('category', categories);
 
-  if (metricsError || !metricsData) {
+  if (metricsError || !metricsDataRaw) {
     console.error('Error fetching metrics catalog:', metricsError);
     return [];
   }
 
+  const metricsData = metricsDataRaw as MetricCatalogRow[];
+
   // Get category-specific targets if they exist
-  const { data: categoryTargets } = await supabaseAdmin
+  const { data: categoryTargetsRaw } = await supabaseAdmin
     .from('category_targets')
     .select('category, reduction_rate')
     .eq('organization_id', organizationId);
 
   // Create reduction rate map (category-specific overrides overall rate)
   const reductionRateMap = new Map<string, number>();
-  categoryTargets?.forEach((ct) => {
-    reductionRateMap.set(ct.category, ct.reduction_rate);
+  (categoryTargetsRaw as CategoryTargetRow[] | null)?.forEach((ct) => {
+    if (ct.category) {
+      reductionRateMap.set(ct.category, ct.reduction_rate ?? overallReductionPercent);
+    }
   });
 
   // Process each category
@@ -242,7 +281,7 @@ async function getCategoryBreakdown(
       }
 
       // Get baseline data
-      const { data: baselineData } = await supabaseAdmin
+      const { data: baselineDataRaw } = await supabaseAdmin
         .from('metrics_data')
         .select('co2e_emissions')
         .eq('organization_id', organizationId)
@@ -250,9 +289,14 @@ async function getCategoryBreakdown(
         .gte('period_start', `${baselineYear}-01-01`)
         .lt('period_start', `${baselineYear + 1}-01-01`);
 
+      const baselineData = (baselineDataRaw ?? []) as MetricDataRow[];
+
       const baselineEmissions =
-        (baselineData || []).reduce((sum, d) => sum + parseFloat(d.co2e_emissions || '0'), 0) /
-        1000; // kg to tonnes
+        baselineData.reduce((sum: number, d: MetricDataRow) => {
+          const valueRaw = d.co2e_emissions ?? '0';
+          const value = typeof valueRaw === 'number' ? valueRaw : parseFloat(valueRaw || '0');
+          return sum + value;
+        }, 0) / 1000; // kg to tonnes
 
       if (baselineEmissions === 0) {
         return null; // Skip categories with no baseline data
@@ -261,7 +305,7 @@ async function getCategoryBreakdown(
       // Use ALL available historical data from 2022 onwards, including 2025 YTD
       // This gives the ML model the most comprehensive dataset with recent patterns
       const historicalStartDate = new Date('2022-01-01');
-      const { data: historicalData } = await supabaseAdmin
+      const { data: historicalDataRaw } = await supabaseAdmin
         .from('metrics_data')
         .select('period_start, co2e_emissions')
         .eq('organization_id', organizationId)
@@ -270,12 +314,19 @@ async function getCategoryBreakdown(
         .lte('period_start', `${currentYear}-${currentMonth.toString().padStart(2, '0')}-31`)
         .order('period_start', { ascending: true });
 
+      const historicalData = (historicalDataRaw ?? []) as MetricDataRow[];
+
       // Calculate YTD emissions for current year
-      const currentYearData = (historicalData || []).filter(
-        (d) => d.period_start >= `${currentYear}-01-01`
-      );
+      const currentYearData = historicalData.filter((d: MetricDataRow) => {
+        const periodStart = d.period_start ?? '';
+        return periodStart >= `${currentYear}-01-01`;
+      });
       const currentEmissions =
-        currentYearData.reduce((sum, d) => sum + parseFloat(d.co2e_emissions || '0'), 0) / 1000; // kg to tCO2e
+        currentYearData.reduce((sum: number, d: MetricDataRow) => {
+          const valueRaw = d.co2e_emissions ?? '0';
+          const value = typeof valueRaw === 'number' ? valueRaw : parseFloat(valueRaw || '0');
+          return sum + value;
+        }, 0) / 1000; // kg to tCO2e
 
       // Calculate target using linear formula
       const categoryReductionRate = reductionRateMap.get(category) || overallReductionPercent;
@@ -289,12 +340,20 @@ async function getCategoryBreakdown(
       try {
         // Group historical data by month
         const monthlyEmissions: { [key: string]: number } = {};
-        (historicalData || []).forEach((d) => {
-          const monthKey = d.period_start.substring(0, 7); // YYYY-MM
+        historicalData.forEach((d: MetricDataRow) => {
+          const periodStart = d.period_start ?? '';
+          if (!periodStart) {
+            return;
+          }
+
+          const monthKey = periodStart.substring(0, 7); // YYYY-MM
           if (!monthlyEmissions[monthKey]) {
             monthlyEmissions[monthKey] = 0;
           }
-          monthlyEmissions[monthKey] += parseFloat(d.co2e_emissions || '0') / 1000; // Convert to tCO2e
+
+          const valueRaw = d.co2e_emissions ?? '0';
+          const value = typeof valueRaw === 'number' ? valueRaw : parseFloat(valueRaw || '0');
+          monthlyEmissions[monthKey] += value / 1000; // Convert to tCO2e
         });
 
         // Convert to array format for EnterpriseForecast

@@ -628,41 +628,206 @@ Provide a strategic analysis and recommended actions in JSON format:
   }
   
   private async saveStrategicObjectives(): Promise<void> {
-    // TODO: Implement database persistence for strategic objectives
-    console.warn('ESGChiefOfStaff.saveStrategicObjectives() not yet implemented - objectives will not be persisted');
+    try {
+      const objectives = Array.from(this.strategicObjectives.values());
+
+      for (const obj of objectives) {
+        await this.supabase
+          .from('esg_strategic_objectives')
+          .upsert({
+            id: obj.id,
+            agent_name: this.name,
+            title: obj.title,
+            description: obj.description,
+            target_year: obj.targetYear,
+            kpis: obj.kpis,
+            progress: obj.progress,
+            priority: obj.priority,
+            stakeholders: obj.stakeholders,
+            dependencies: obj.dependencies,
+            status: obj.status,
+            updated_at: new Date().toISOString()
+          });
+      }
+    } catch (error) {
+      console.error('Failed to save strategic objectives:', error);
+    }
   }
 
   private async saveStakeholderInsights(): Promise<void> {
-    // TODO: Implement database persistence for stakeholder insights
-    console.warn('ESGChiefOfStaff.saveStakeholderInsights() not yet implemented - insights will not be persisted');
+    try {
+      const insights = Array.from(this.stakeholderInsights.entries());
+
+      for (const [key, insight] of insights) {
+        await this.supabase
+          .from('esg_stakeholder_insights')
+          .upsert({
+            id: key,
+            agent_name: this.name,
+            stakeholder_type: insight.stakeholderType,
+            concerns: insight.concerns,
+            expectations: insight.expectations,
+            communication_frequency: insight.communicationFrequency,
+            last_engagement: insight.lastEngagement.toISOString(),
+            sentiment_score: insight.sentimentScore,
+            updated_at: new Date().toISOString()
+          });
+      }
+    } catch (error) {
+      console.error('Failed to save stakeholder insights:', error);
+    }
   }
 
   private async saveOpportunities(): Promise<void> {
-    // TODO: Implement database persistence for opportunities
-    console.warn('ESGChiefOfStaff.saveOpportunities() not yet implemented - opportunities will not be persisted');
+    try {
+      for (const opp of this.identifiedOpportunities) {
+        await this.supabase
+          .from('esg_opportunities')
+          .upsert({
+            id: opp.id,
+            agent_name: this.name,
+            type: opp.type,
+            title: opp.title,
+            description: opp.description,
+            estimated_impact: opp.estimatedImpact,
+            implementation_effort: opp.implementationEffort,
+            timeframe: opp.timeframe,
+            confidence: opp.confidence,
+            identified_at: opp.identifiedAt.toISOString(),
+            updated_at: new Date().toISOString()
+          });
+      }
+    } catch (error) {
+      console.error('Failed to save opportunities:', error);
+    }
   }
 
   // Additional helper methods...
   private async loadStakeholderInsights(): Promise<void> {
-    console.warn('ESGChiefOfStaff.loadStakeholderInsights() not yet implemented');
+    try {
+      const { data } = await this.supabase
+        .from('esg_stakeholder_insights')
+        .select('*')
+        .eq('agent_name', this.name);
+
+      (data || []).forEach(insight => {
+        this.stakeholderInsights.set(insight.id, {
+          stakeholderType: insight.stakeholder_type,
+          concerns: insight.concerns || [],
+          expectations: insight.expectations || [],
+          communicationFrequency: insight.communication_frequency,
+          lastEngagement: new Date(insight.last_engagement),
+          sentimentScore: insight.sentiment_score || 0
+        });
+      });
+    } catch (error) {
+      console.error('Failed to load stakeholder insights:', error);
+    }
   }
 
   private async loadOpportunities(): Promise<void> {
-    console.warn('ESGChiefOfStaff.loadOpportunities() not yet implemented');
+    try {
+      const { data } = await this.supabase
+        .from('esg_opportunities')
+        .select('*')
+        .eq('agent_name', this.name)
+        .order('identified_at', { ascending: false })
+        .limit(50);
+
+      this.identifiedOpportunities = (data || []).map(opp => ({
+        id: opp.id,
+        type: opp.type,
+        title: opp.title,
+        description: opp.description,
+        estimatedImpact: opp.estimated_impact,
+        implementationEffort: opp.implementation_effort,
+        timeframe: opp.timeframe,
+        confidence: opp.confidence,
+        identifiedAt: new Date(opp.identified_at)
+      }));
+    } catch (error) {
+      console.error('Failed to load opportunities:', error);
+    }
   }
 
   private async analyzeStakeholderSentiment(): Promise<any> {
-    console.warn('ESGChiefOfStaff.analyzeStakeholderSentiment() not yet implemented');
-    return {};
+    // Aggregate sentiment across all stakeholder groups
+    const sentiments: Record<string, number> = {};
+    let totalSentiment = 0;
+    let count = 0;
+
+    this.stakeholderInsights.forEach((insight, key) => {
+      sentiments[insight.stakeholderType] = insight.sentimentScore;
+      totalSentiment += insight.sentimentScore;
+      count++;
+    });
+
+    return {
+      overall_sentiment: count > 0 ? totalSentiment / count : 0,
+      by_stakeholder: sentiments,
+      engagement_gaps: this.identifyEngagementGaps(),
+      trending: this.calculateSentimentTrend()
+    };
   }
 
   private identifyEngagementOpportunities(analysis: any): any[] {
-    console.warn('ESGChiefOfStaff.identifyEngagementOpportunities() not yet implemented');
-    return [];
+    const opportunities = [];
+
+    // Check for low sentiment stakeholders
+    if (analysis.by_stakeholder) {
+      for (const [stakeholderType, sentiment] of Object.entries(analysis.by_stakeholder)) {
+        if ((sentiment as number) < 0.3) {
+          opportunities.push({
+            stakeholder: stakeholderType,
+            priority: 'high',
+            action: `Improve engagement with ${stakeholderType}`,
+            reason: 'Low sentiment score detected'
+          });
+        }
+      }
+    }
+
+    // Check for engagement gaps
+    if (analysis.engagement_gaps && analysis.engagement_gaps.length > 0) {
+      analysis.engagement_gaps.forEach((gap: string) => {
+        opportunities.push({
+          stakeholder: gap,
+          priority: 'medium',
+          action: `Initiate engagement with ${gap}`,
+          reason: 'No recent engagement detected'
+        });
+      });
+    }
+
+    return opportunities;
   }
 
   private async updateStakeholderInsights(analysis: any): Promise<void> {
-    console.warn('ESGChiefOfStaff.updateStakeholderInsights() not yet implemented');
+    // Update sentiment scores based on analysis
+    if (analysis.by_stakeholder) {
+      for (const [stakeholderType, sentiment] of Object.entries(analysis.by_stakeholder)) {
+        const key = stakeholderType;
+        const existing = this.stakeholderInsights.get(key);
+
+        if (existing) {
+          existing.sentimentScore = sentiment as number;
+          existing.lastEngagement = new Date();
+        } else {
+          // Create new insight entry
+          this.stakeholderInsights.set(key, {
+            stakeholderType: stakeholderType as any,
+            concerns: [],
+            expectations: [],
+            communicationFrequency: 'monthly',
+            lastEngagement: new Date(),
+            sentimentScore: sentiment as number
+          });
+        }
+      }
+    }
+
+    // Persist updates
+    await this.saveStakeholderInsights();
   }
 
   private calculateNextPulseCheck(frequency: string): Date {
@@ -673,21 +838,110 @@ Provide a strategic analysis and recommended actions in JSON format:
   }
 
   private async updateObjectivesBasedOnPerformance(analysis: any): Promise<void> {
-    console.warn('ESGChiefOfStaff.updateObjectivesBasedOnPerformance() not yet implemented');
+    // Update progress on strategic objectives based on performance analysis
+    this.strategicObjectives.forEach((objective) => {
+      if (objective.status === 'active') {
+        // Update KPIs based on analysis
+        objective.kpis.forEach(kpi => {
+          if (analysis.key_improvements?.includes(kpi.name.toLowerCase())) {
+            kpi.trend = 'improving';
+          } else if (analysis.areas_of_concern?.includes(kpi.name.toLowerCase())) {
+            kpi.trend = 'declining';
+          }
+        });
+
+        // Calculate overall progress
+        const improvingKpis = objective.kpis.filter(k => k.trend === 'improving').length;
+        const totalKpis = objective.kpis.length;
+        if (totalKpis > 0) {
+          objective.progress = Math.min(100, objective.progress + (improvingKpis / totalKpis) * 5);
+        }
+      }
+    });
+
+    await this.saveStrategicObjectives();
   }
 
   private async generateImplementationRoadmap(opportunities: ESGOpportunity[]): Promise<any> {
-    console.warn('ESGChiefOfStaff.generateImplementationRoadmap() not yet implemented');
-    return {};
+    // Group opportunities by timeframe
+    const roadmap = {
+      immediate: opportunities.filter(o => o.timeframe === 'immediate'),
+      short_term: opportunities.filter(o => o.timeframe === 'short'),
+      medium_term: opportunities.filter(o => o.timeframe === 'medium'),
+      long_term: opportunities.filter(o => o.timeframe === 'long'),
+      total_opportunities: opportunities.length,
+      estimated_duration_months: this.estimateTotalDuration(opportunities),
+      resource_requirements: this.estimateResourceNeeds(opportunities)
+    };
+
+    return roadmap;
   }
 
   private calculateTotalImpact(opportunities: ESGOpportunity[]): any {
-    console.warn('ESGChiefOfStaff.calculateTotalImpact() not yet implemented');
-    return {};
+    const totalImpact = opportunities.reduce((acc, opp) => ({
+      financial: acc.financial + opp.estimatedImpact.financial,
+      environmental: acc.environmental + opp.estimatedImpact.environmental,
+      social: acc.social + opp.estimatedImpact.social,
+      governance: acc.governance + opp.estimatedImpact.governance
+    }), { financial: 0, environmental: 0, social: 0, governance: 0 });
+
+    return {
+      ...totalImpact,
+      opportunities_count: opportunities.length,
+      average_confidence: opportunities.reduce((sum, o) => sum + o.confidence, 0) / opportunities.length || 0,
+      high_impact_opportunities: opportunities.filter(o =>
+        Math.abs(o.estimatedImpact.financial) > 50000 ||
+        Math.abs(o.estimatedImpact.environmental) > 50
+      ).length
+    };
   }
 
   private async adjustPriorities(area: string, adjustment: number): Promise<void> {
-    console.warn('ESGChiefOfStaff.adjustPriorities() not yet implemented');
+    // Adjust strategic focus based on feedback
+    this.strategicObjectives.forEach((objective) => {
+      if (objective.title.toLowerCase().includes(area.toLowerCase())) {
+        // Increase/decrease priority based on adjustment
+        if (adjustment > 0 && objective.priority !== 'critical') {
+          const priorities = ['low', 'medium', 'high', 'critical'];
+          const currentIndex = priorities.indexOf(objective.priority);
+          if (currentIndex < priorities.length - 1) {
+            objective.priority = priorities[currentIndex + 1] as any;
+          }
+        }
+      }
+    });
+
+    await this.saveStrategicObjectives();
+  }
+
+  // Helper methods for implementation
+  private identifyEngagementGaps(): string[] {
+    const allStakeholders = ['investors', 'customers', 'employees', 'regulators', 'community'];
+    const engaged = Array.from(this.stakeholderInsights.keys());
+    return allStakeholders.filter(s => !engaged.includes(s));
+  }
+
+  private calculateSentimentTrend(): string {
+    // Simplified trend calculation
+    const sentiments = Array.from(this.stakeholderInsights.values());
+    const avgSentiment = sentiments.reduce((sum, s) => sum + s.sentimentScore, 0) / sentiments.length;
+    return avgSentiment > 0.5 ? 'positive' : avgSentiment < -0.2 ? 'negative' : 'neutral';
+  }
+
+  private estimateTotalDuration(opportunities: ESGOpportunity[]): number {
+    const timeframeMonths = { immediate: 1, short: 3, medium: 6, long: 12 };
+    return opportunities.reduce((sum, opp) => sum + timeframeMonths[opp.timeframe], 0);
+  }
+
+  private estimateResourceNeeds(opportunities: ESGOpportunity[]): any {
+    const effortCosts = { low: 10000, medium: 50000, high: 150000 };
+    const totalCost = opportunities.reduce((sum, opp) => sum + effortCosts[opp.implementationEffort], 0);
+
+    return {
+      estimated_budget: totalCost,
+      team_size_required: Math.ceil(opportunities.length / 5),
+      specialist_roles: ['sustainability_analyst', 'project_manager', 'technical_lead']
+    };
   }
   private async handleRiskAssessment(task: Task): Promise<TaskResult> { 
     return { taskId: task.id, status: 'success', confidence: 0.8, reasoning: ['Risk assessment completed'], completedAt: new Date() }; 

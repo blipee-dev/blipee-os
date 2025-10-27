@@ -60,7 +60,8 @@ async function fetchAllMetricsData(
       // Use the earlier of: requested end date OR current month end
       const effectiveEndDate = requestedEndDate <= maxHistoricalDate ? endDate : maxHistoricalDate.toISOString().split('T')[0];
 
-      query = query.lte('period_end', effectiveEndDate);
+      // Use period_start for filtering since period_end is often the first day of the next month
+      query = query.lte('period_start', effectiveEndDate);
     }
 
     // Apply any additional filters
@@ -791,6 +792,10 @@ export async function getYoYComparison(
   const prevStartDate = new Date(startDateObj.getFullYear() - 1, startDateObj.getMonth(), startDateObj.getDate());
   const prevEndDate = new Date(endDateObj.getFullYear() - 1, endDateObj.getMonth(), endDateObj.getDate());
 
+  console.log('[YoY Comparison] Current period:', startDate, 'to', endDate);
+  console.log('[YoY Comparison] Previous period:', prevStartDate.toISOString().split('T')[0], 'to', prevEndDate.toISOString().split('T')[0]);
+  console.log('[YoY Comparison] Metric type:', metricType);
+
   let previous = 0;
   if (metricType === 'emissions') {
     const emissions = await getPeriodEmissions(
@@ -829,6 +834,10 @@ export async function getYoYComparison(
   // Calculate changes
   const change = Math.round((current - previous) * 10) / 10;
   const percentageChange = previous > 0 ? Math.round(((current - previous) / previous) * 1000) / 10 : 0;
+
+  console.log('[YoY Comparison] Current value:', current);
+  console.log('[YoY Comparison] Previous value:', previous);
+  console.log('[YoY Comparison] Change:', change, '(', percentageChange, '%)');
 
   // Determine trend
   let trend: 'up' | 'down' | 'stable' = 'stable';

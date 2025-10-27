@@ -46,8 +46,14 @@ const POLL_INTERVAL_MS = parseInt(process.env.AGENT_POLL_INTERVAL_MS || '60000')
 const HEARTBEAT_INTERVAL_MS = parseInt(process.env.AGENT_HEARTBEAT_INTERVAL_MS || '30000'); // 30 seconds
 const PORT = parseInt(process.env.PORT || '8080'); // Health check port
 
-// Supabase client
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+// Supabase client with server-side configuration
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false
+  }
+});
 
 // Service state
 const SERVICE_NAME = 'ai-agent-orchestrator';
@@ -103,6 +109,34 @@ class Logger {
 async function registerService(): Promise<void> {
   Logger.info('Registering service instance...');
 
+  // Log Supabase configuration
+  Logger.info('Supabase config check', {
+    hasUrl: !!SUPABASE_URL,
+    hasKey: !!SUPABASE_SERVICE_KEY,
+    urlLength: SUPABASE_URL?.length,
+    keyLength: SUPABASE_SERVICE_KEY?.length
+  });
+
+  // Test connection by trying to select from the table
+  try {
+    const { data: testData, error: testError } = await supabase
+      .from('ai_agent_service_state')
+      .select('count')
+      .limit(1);
+
+    Logger.info('Connection test', {
+      success: !testError,
+      hasData: !!testData,
+      errorMessage: testError?.message,
+      errorCode: testError?.code
+    });
+  } catch (e: any) {
+    Logger.error('Connection test failed', {
+      message: e.message,
+      stack: e.stack
+    });
+  }
+
   const { data, error } = await supabase
     .from('ai_agent_service_state')
     .insert({
@@ -116,9 +150,27 @@ async function registerService(): Promise<void> {
     .select('id')
     .single();
 
+  Logger.info('Insert result', {
+    hasData: !!data,
+    hasError: !!error,
+    errorType: typeof error,
+    errorKeys: error ? Object.keys(error) : []
+  });
+
   if (error) {
-    Logger.error('Failed to register service', error);
-    throw error;
+    Logger.error('Failed to register service', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      full: JSON.stringify(error),
+      errorConstructor: error.constructor?.name
+    });
+    throw new Error(`Registration failed: ${error.message || JSON.stringify(error)}`);
+  }
+
+  if (!data) {
+    throw new Error('No data returned from service registration');
   }
 
   serviceStateId = data.id;

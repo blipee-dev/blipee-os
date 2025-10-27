@@ -1,54 +1,54 @@
-"use client";
+'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  BarChart3,
-  Leaf,
-  Zap,
-  Droplets,
-  Trash2,
-  Truck,
-  Calendar,
-  FileCheck,
-  Target,
-  AlertCircle,
-  Trees,
-  Wind,
-  Shield,
-  HardHat,
-  ShieldCheck,
-  AlertTriangle,
-  Landmark,
-  Users,
-  Layers,
-  MapPin,
-  Sprout,
-  Pill,
-  Apple,
-  Cloud,
-  Database
-} from 'lucide-react';
-import { useAuth } from '@/lib/hooks/useAuth';
-import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
-import { useAccentGradient } from '@/providers/AppearanceProvider';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { OverviewDashboardWithScore } from '@/components/dashboard/OverviewDashboardWithScore';
 import { ComplianceDashboard } from '@/components/dashboard/ComplianceDashboard';
+import { DataManagementDashboard } from '@/components/dashboard/DataManagementDashboard';
 import { EmissionsDashboard } from '@/components/dashboard/EmissionsDashboard';
 import { EnergyDashboard } from '@/components/dashboard/EnergyDashboard';
-import { WaterDashboard } from '@/components/dashboard/WaterDashboard';
-import { WasteDashboard } from '@/components/dashboard/WasteDashboard';
-import { TransportationDashboard } from '@/components/dashboard/TransportationDashboard';
 import { MonthlyIntelligentDashboard } from '@/components/dashboard/MonthlyIntelligentDashboard';
+import { OverviewDashboardWithScore } from '@/components/dashboard/OverviewDashboardWithScore';
 import { TargetsDashboard } from '@/components/dashboard/TargetsDashboard';
-import { DataManagementDashboard } from '@/components/dashboard/DataManagementDashboard';
+import { TransportationDashboard } from '@/components/dashboard/TransportationDashboard';
+import { WasteDashboard } from '@/components/dashboard/WasteDashboard';
+import { WaterDashboard } from '@/components/dashboard/WaterDashboard';
+import { SustainabilityLayout } from '@/components/sustainability/SustainabilityLayout';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SiteSelector } from '@/components/zero-typing/SiteSelector';
-import { TimePeriodSelector, TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
-import type { Building } from '@/types/auth';
-import { useOrganizationContext } from '@/hooks/useOrganizationContext';
+import { TimePeriod, TimePeriodSelector } from '@/components/zero-typing/TimePeriodSelector';
 import { useGRISectorTopics } from '@/hooks/useGRISectorTopics';
+import { useOrganizationContext } from '@/hooks/useOrganizationContext';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useAccentGradient } from '@/providers/AppearanceProvider';
+import type { Building } from '@/types/auth';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  AlertCircle,
+  AlertTriangle,
+  Apple,
+  BarChart3,
+  Calendar,
+  Cloud,
+  Database,
+  Droplets,
+  FileCheck,
+  HardHat,
+  Landmark,
+  Layers,
+  Leaf,
+  MapPin,
+  Pill,
+  Shield,
+  ShieldCheck,
+  Sprout,
+  Target,
+  Trash2,
+  Trees,
+  Truck,
+  Users,
+  Wind,
+  Zap,
+} from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useEffect, useMemo, useState } from 'react';
 
 type DashboardView =
   | 'overview'
@@ -106,14 +106,14 @@ const getDefaultPeriod = (): TimePeriod => {
     label: year.toString(),
     start: `${year}-01-01`,
     end: `${year}-12-31`,
-    type: 'year'
+    type: 'year',
   };
 };
 
 const fallbackRecommendedDashboards: RecommendedDashboard[] = [
   { type: 'energy', name: 'Energy', gri: 'GRI 302' },
   { type: 'water_management', name: 'Water & Effluents', gri: 'GRI 303' },
-  { type: 'waste_management', name: 'Waste', gri: 'GRI 306' }
+  { type: 'waste_management', name: 'Waste', gri: 'GRI 306' },
 ];
 
 const iconMap: Partial<Record<DashboardView, React.ComponentType<{ className?: string }>>> = {
@@ -139,7 +139,7 @@ const iconMap: Partial<Record<DashboardView, React.ComponentType<{ className?: s
   food_waste: Apple,
   targets: Target,
   data: Database,
-  monthly: Calendar
+  monthly: Calendar,
 };
 
 const colorMap: Partial<Record<DashboardView, string>> = {
@@ -168,7 +168,7 @@ const colorMap: Partial<Record<DashboardView, string>> = {
   food_waste: '#dc2626',
   targets: '#10b981',
   data: '#6366f1',
-  monthly: '#8b5cf6'
+  monthly: '#8b5cf6',
 };
 
 export default function DashboardClient() {
@@ -187,7 +187,7 @@ export default function DashboardClient() {
   const {
     data: organizationData,
     isLoading: loadingOrganization,
-    error: organizationError
+    error: organizationError,
   } = useOrganizationContext(!!user);
   const { data: sectorTopicsData } = useGRISectorTopics(!!organizationData);
 
@@ -198,7 +198,9 @@ export default function DashboardClient() {
     : null;
 
   const dynamicDashboards = useMemo<RecommendedDashboard[]>(() => {
-    const dashboards = sectorTopicsData?.recommended_dashboards as RecommendedDashboard[] | undefined;
+    const dashboards = sectorTopicsData?.recommended_dashboards as
+      | RecommendedDashboard[]
+      | undefined;
     return dashboards?.length ? dashboards : fallbackRecommendedDashboards;
   }, [sectorTopicsData]);
 
@@ -211,23 +213,25 @@ export default function DashboardClient() {
       label: 'Overview',
       icon: BarChart3,
       description: 'Compliance and metrics summary',
-      color: colorMap.overview ?? '#64748b'
+      color: colorMap.overview ?? '#64748b',
     },
     {
       id: 'compliance',
       label: 'Compliance',
       icon: FileCheck,
-      description: sectorInfo?.name ? `GHG Protocol • ${sectorInfo.name}` : 'GHG Protocol & GRI Standards',
+      description: sectorInfo?.name
+        ? `GHG Protocol • ${sectorInfo.name}`
+        : 'GHG Protocol & GRI Standards',
       color: colorMap.compliance ?? '#475569',
-      badge: sectorInfo?.code ? `GRI ${sectorInfo.code.split('_').pop()}` : undefined
+      badge: sectorInfo?.code ? `GRI ${sectorInfo.code.split('_').pop()}` : undefined,
     },
     {
       id: 'emissions',
       label: 'Emissions',
       icon: Cloud,
       description: 'GHG Protocol • GRI 305 • ESRS E1 • TCFD',
-      color: colorMap.emissions ?? '#10b981'
-    }
+      color: colorMap.emissions ?? '#10b981',
+    },
   ];
 
   const sectorDashboardTabs: DashboardTab[] = dynamicDashboards.map((dashboard) => ({
@@ -236,7 +240,7 @@ export default function DashboardClient() {
     icon: iconMap[dashboard.type] ?? BarChart3,
     description: dashboard.gri ?? 'Sector-specific dashboard',
     color: colorMap[dashboard.type] ?? '#64748b',
-    badge: dashboard.priority === 1 ? 'High' : undefined
+    badge: dashboard.priority === 1 ? 'High' : undefined,
   }));
 
   const targetsTabs: DashboardTab[] = [
@@ -246,8 +250,8 @@ export default function DashboardClient() {
       icon: Target,
       description: 'SBTi • GHG Protocol • Target tracking',
       color: colorMap.targets ?? '#10b981',
-      badge: 'SBTi'
-    }
+      badge: 'SBTi',
+    },
   ];
 
   const dataTabs: DashboardTab[] = [
@@ -256,8 +260,8 @@ export default function DashboardClient() {
       label: 'Data',
       icon: Database,
       description: 'Metrics data management and history',
-      color: colorMap.data ?? '#6366f1'
-    }
+      color: colorMap.data ?? '#6366f1',
+    },
   ];
 
   const intelligenceTabs: DashboardTab[] = [
@@ -266,8 +270,8 @@ export default function DashboardClient() {
       label: 'Intelligence',
       icon: Calendar,
       description: 'Automated monthly insights',
-      color: colorMap.monthly ?? '#8b5cf6'
-    }
+      color: colorMap.monthly ?? '#8b5cf6',
+    },
   ];
 
   const dashboardTabs: DashboardTab[] = [
@@ -275,7 +279,7 @@ export default function DashboardClient() {
     ...sectorDashboardTabs,
     ...targetsTabs,
     ...dataTabs,
-    ...intelligenceTabs
+    ...intelligenceTabs,
   ];
 
   const availableViews = useMemo(() => {
@@ -284,7 +288,11 @@ export default function DashboardClient() {
 
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab');
-    if (tabFromUrl && availableViews.has(tabFromUrl as DashboardView) && tabFromUrl !== currentView) {
+    if (
+      tabFromUrl &&
+      availableViews.has(tabFromUrl as DashboardView) &&
+      tabFromUrl !== currentView
+    ) {
       setCurrentView(tabFromUrl as DashboardView);
     }
   }, [searchParams, availableViews, currentView]);
@@ -334,7 +342,7 @@ export default function DashboardClient() {
       waste: WasteDashboard,
       waste_management: WasteDashboard,
       transportation: TransportationDashboard,
-      targets: TargetsDashboard
+      targets: TargetsDashboard,
     };
 
     if (currentView === 'monthly') {
@@ -379,29 +387,36 @@ export default function DashboardClient() {
     return (
       <div className="flex items-center justify-center h-[600px]">
         <div className="text-center space-y-4 max-w-2xl p-8">
-          <Icon className="w-20 h-20 mx-auto" style={{ color: currentTab?.color ?? accentColorHex }} />
+          <Icon
+            className="w-20 h-20 mx-auto"
+            style={{ color: currentTab?.color ?? accentColorHex }}
+          />
           <h3 className="text-3xl font-bold text-gray-900 dark:text-white">{currentTab?.label}</h3>
           {materialTopics.length > 0 && (
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
               <div className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
                 Material Topic for {sectorInfo?.name ?? 'your sector'}
               </div>
-              <p className="text-blue-700 dark:text-blue-300 text-sm">
-                {currentTab?.description}
-              </p>
-              {materialTopics.find((topic) => topic.dashboard_type === currentView)?.description && (
+              <p className="text-blue-700 dark:text-blue-300 text-sm">{currentTab?.description}</p>
+              {materialTopics.find((topic) => topic.dashboard_type === currentView)
+                ?.description && (
                 <p className="text-gray-600 dark:text-gray-300 text-sm mt-3">
-                  {materialTopics.find((topic) => topic.dashboard_type === currentView)?.description}
+                  {
+                    materialTopics.find((topic) => topic.dashboard_type === currentView)
+                      ?.description
+                  }
                 </p>
               )}
             </div>
           )}
           <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-6">
             <p className="text-gray-700 dark:text-gray-300 mb-4">
-              This dashboard is part of your GRI sector-specific material topics and will be implemented soon.
+              This dashboard is part of your GRI sector-specific material topics and will be
+              implemented soon.
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              In the meantime, you can use the Compliance dashboard to track emissions data for this category.
+              In the meantime, you can use the Compliance dashboard to track emissions data for this
+              category.
             </p>
             <button
               onClick={() => setCurrentView('compliance')}
@@ -455,22 +470,18 @@ export default function DashboardClient() {
     <SustainabilityLayout>
       <div className="p-4 sm:p-6 space-y-6">
         {/* Header - Profile Style */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Sustainability Dashboard</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Sustainability Dashboard
+              </h1>
               <p className="text-[#616161] dark:text-[#757575]">Real-time monitoring active</p>
             </div>
 
             {/* Selectors in top right */}
             <div className="flex items-center gap-3">
-              <SiteSelector
-                currentSite={selectedSite}
-                onSiteChange={setSelectedSite}
-              />
+              <SiteSelector currentSite={selectedSite} onSiteChange={setSelectedSite} />
               <TimePeriodSelector
                 currentPeriod={selectedPeriod}
                 onPeriodChange={setSelectedPeriod}

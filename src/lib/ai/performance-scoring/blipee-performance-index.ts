@@ -609,7 +609,7 @@ export class BlipeePerformanceScorer {
       percentile,
       trend: trend > 0.5 ? 'improving' : trend < -0.5 ? 'declining' : 'stable',
       trendValue: trend,
-  dataPoints: energyDataRows.length,
+      dataPoints: energyDataRows.length,
       lastUpdated: new Date(),
       subScores: {
         energyIntensity: energyScore,
@@ -700,7 +700,7 @@ export class BlipeePerformanceScorer {
       percentile,
       trend: trend > 0.5 ? 'improving' : trend < -0.5 ? 'declining' : 'stable',
       trendValue: trend,
-  dataPoints: waterDataRows.length,
+      dataPoints: waterDataRows.length,
       lastUpdated: new Date(),
       insights: [],
       recommendations: [],
@@ -769,7 +769,7 @@ export class BlipeePerformanceScorer {
       percentile,
       trend: trend > 0.5 ? 'improving' : trend < -0.5 ? 'declining' : 'stable',
       trendValue: trend,
-  dataPoints: wasteDataRows.length,
+      dataPoints: wasteDataRows.length,
       lastUpdated: new Date(),
       subScores: {
         diversionRate,
@@ -874,7 +874,7 @@ export class BlipeePerformanceScorer {
       percentile,
       trend: trend > 0.5 ? 'improving' : trend < -0.5 ? 'declining' : 'stable',
       trendValue: trend,
-  dataPoints: transportDataRows.length,
+      dataPoints: transportDataRows.length,
       lastUpdated: new Date(),
       insights: [],
       recommendations: [],
@@ -966,7 +966,7 @@ export class BlipeePerformanceScorer {
       percentile,
       trend: trend > 0.5 ? 'improving' : trend < -0.5 ? 'declining' : 'stable',
       trendValue: trend,
-  dataPoints: scope3DataRows.length,
+      dataPoints: scope3DataRows.length,
       lastUpdated: new Date(),
       insights: [],
       recommendations: [],
@@ -1097,8 +1097,8 @@ export class BlipeePerformanceScorer {
       return Math.round(percentile);
     }
 
-  const lowerScores = peerScoreRows.filter((record) => record.score < score).length;
-  return Math.round((lowerScores / peerScoreRows.length) * 100);
+    const lowerScores = peerScoreRows.filter((record) => record.score < score).length;
+    return Math.round((lowerScores / peerScoreRows.length) * 100);
   }
 
   private async calculateTimeSeriesScores(

@@ -28,7 +28,7 @@ interface ScopeCategoryResult {
 }
 
 interface MetricsCatalogInfo {
-  scope?: string | null;
+  scope?: string | number | null;
   category?: string | null;
   subcategory?: string | null;
   name?: string | null;
@@ -67,6 +67,78 @@ interface SBTiTargetRow {
   target_scope?: string | null;
 }
 
+type Scope1CategoryTotals = {
+  stationary_combustion: number;
+  mobile_combustion: number;
+  process_emissions: number;
+  fugitive_emissions: number;
+};
+
+type Scope2CategoryTotals = {
+  purchased_electricity: number;
+  purchased_heat: number;
+  purchased_steam: number;
+  purchased_cooling: number;
+};
+
+type Scope3CategoryDetail = {
+  value: number;
+  included: boolean;
+  data_quality: number;
+};
+
+type Scope3Categories = {
+  purchased_goods: Scope3CategoryDetail;
+  capital_goods: Scope3CategoryDetail;
+  fuel_energy: Scope3CategoryDetail;
+  upstream_transportation: Scope3CategoryDetail;
+  waste: Scope3CategoryDetail;
+  business_travel: Scope3CategoryDetail;
+  employee_commuting: Scope3CategoryDetail;
+  upstream_leased: Scope3CategoryDetail;
+  downstream_transportation: Scope3CategoryDetail;
+  processing: Scope3CategoryDetail;
+  use_of_products: Scope3CategoryDetail;
+  end_of_life: Scope3CategoryDetail;
+  downstream_leased: Scope3CategoryDetail;
+  franchises: Scope3CategoryDetail;
+  investments: Scope3CategoryDetail;
+};
+
+type Scope1Data = {
+  total: number;
+  categories: Scope1CategoryTotals;
+  trend: number;
+  sources: string[];
+  percentage?: number;
+};
+
+type Scope2Data = {
+  total: number;
+  categories: Scope2CategoryTotals;
+  location_based: number;
+  market_based: number;
+  trend: number;
+  sources: string[];
+  percentage?: number;
+  renewable_percentage?: number;
+  renewable_impact?: number;
+};
+
+type Scope3Data = {
+  total: number;
+  categories: Scope3Categories;
+  trend: number;
+  coverage: number;
+  percentage?: number;
+};
+
+type ScopeAnalysisData = {
+  scope_1: Scope1Data;
+  scope_2: Scope2Data;
+  scope_3: Scope3Data;
+};
+
 export async function GET(request: NextRequest) {
   try {
     const startTime = Date.now();
@@ -92,7 +164,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'year';
     const siteId = searchParams.get('site_id');
-  const normalizedSiteId = siteId ?? undefined;
+    const normalizedSiteId = siteId ?? undefined;
 
     // Support custom date ranges
     const startDateParam = searchParams.get('start_date');
@@ -227,8 +299,8 @@ export async function GET(request: NextRequest) {
           .gte('period_start', startDate.toISOString())
           .lte('period_end', effectiveEndDate.toISOString());
 
-        if (siteId) {
-          query = query.eq('site_id', siteId);
+        if (normalizedSiteId) {
+          query = query.eq('site_id', normalizedSiteId);
         }
 
         return await query;
@@ -266,8 +338,8 @@ export async function GET(request: NextRequest) {
           .select('id, name, total_area_sqm, total_employees')
           .eq('organization_id', organizationId);
 
-        if (siteId) {
-          sitesQuery = sitesQuery.eq('id', siteId);
+        if (normalizedSiteId) {
+          sitesQuery = sitesQuery.eq('id', normalizedSiteId);
         }
 
         return await sitesQuery;
@@ -294,14 +366,16 @@ export async function GET(request: NextRequest) {
     const complianceScore = calculateComplianceScore(scopeData);
 
     // Calculate data quality metrics
-  const dataQuality = calculateDataQuality(metricsRows);
+    const dataQuality = calculateDataQuality(metricsRows);
 
     // Calculate Scope 3 coverage
     const scope3Coverage = calculateScope3Coverage(scopeData.scope_3.categories);
 
     // Aggregate employee count from sites (more accurate than org-level field)
-    const totalEmployeesFromSites =
-  siteRows.reduce((sum, site) => sum + (site.total_employees ?? 0), 0);
+    const totalEmployeesFromSites = siteRows.reduce(
+      (sum, site) => sum + (site.total_employees ?? 0),
+      0
+    );
 
     // Enhanced orgData with aggregated employees
     const enhancedOrgData = {
@@ -310,7 +384,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Calculate comprehensive intensity metrics
-  const intensityMetrics = calculateIntensityMetrics(scopeData, enhancedOrgData, siteRows);
+    const intensityMetrics = calculateIntensityMetrics(scopeData, enhancedOrgData, siteRows);
 
     const totalTime = Date.now() - startTime;
 
@@ -380,16 +454,16 @@ function buildScopeDataFromCalculator(
   scope2Categories: ScopeCategoryResult[],
   scope3Categories: ScopeCategoryResult[],
   metricsData: MetricsDataRecord[]
-) {
+): ScopeAnalysisData {
   // Map category names to keys
-  const scope1CategoryMap: { [key: string]: string } = {
+  const scope1CategoryMap: Record<string, keyof Scope1CategoryTotals> = {
     'Stationary Combustion': 'stationary_combustion',
     'Mobile Combustion': 'mobile_combustion',
     'Process Emissions': 'process_emissions',
     'Fugitive Emissions': 'fugitive_emissions',
   };
 
-  const scope2CategoryMap: { [key: string]: string } = {
+  const scope2CategoryMap: Record<string, keyof Scope2CategoryTotals> = {
     Electricity: 'purchased_electricity',
     'Purchased Energy': 'purchased_electricity',
     'Purchased Electricity': 'purchased_electricity',
@@ -403,7 +477,7 @@ function buildScopeDataFromCalculator(
     'Purchased Cooling': 'purchased_cooling', // Now properly handled by enhanced function
   };
 
-  const scope3CategoryMap: { [key: string]: string } = {
+  const scope3CategoryMap: Record<string, keyof Scope3Categories> = {
     'Purchased Goods & Services': 'purchased_goods',
     'Capital Goods': 'capital_goods',
     'Fuel & Energy Related': 'fuel_energy',
@@ -422,7 +496,7 @@ function buildScopeDataFromCalculator(
   };
 
   // Build Scope 1 categories
-  const scope1CategoriesObj: any = {
+  const scope1CategoriesObj: Scope1CategoryTotals = {
     stationary_combustion: 0,
     mobile_combustion: 0,
     process_emissions: 0,
@@ -434,7 +508,7 @@ function buildScopeDataFromCalculator(
   });
 
   // Build Scope 2 categories
-  const scope2CategoriesObj: any = {
+  const scope2CategoriesObj: Scope2CategoryTotals = {
     purchased_electricity: 0,
     purchased_heat: 0,
     purchased_steam: 0,
@@ -449,7 +523,7 @@ function buildScopeDataFromCalculator(
   });
 
   // Build Scope 3 categories
-  const scope3CategoriesObj: any = {
+  const scope3CategoriesObj: Scope3Categories = {
     purchased_goods: { value: 0, included: false, data_quality: 0 },
     capital_goods: { value: 0, included: false, data_quality: 0 },
     fuel_energy: { value: 0, included: false, data_quality: 0 },
@@ -520,9 +594,9 @@ function buildScopeDataFromCalculator(
  * @deprecated Use buildScopeDataFromCalculator instead
  * This function manually calculates emissions and will give INCONSISTENT results
  */
-function calculateScopeDataFromMetrics(metricsData: any[]) {
+function calculateScopeDataFromMetrics(metricsData: MetricsDataRecord[]): ScopeAnalysisData {
   // Initialize scope data structure
-  const scopeData = {
+  const scopeData: ScopeAnalysisData = {
     scope_1: {
       total: 0,
       categories: {
@@ -533,6 +607,7 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
       },
       trend: 0,
       sources: [],
+      percentage: 0,
     },
     scope_2: {
       total: 0,
@@ -546,6 +621,9 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
       market_based: 0,
       trend: 0,
       sources: [],
+      percentage: 0,
+      renewable_percentage: 0,
+      renewable_impact: 0,
     },
     scope_3: {
       total: 0,
@@ -568,6 +646,7 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
       },
       trend: 0,
       coverage: 0,
+      percentage: 0,
     },
   };
 
@@ -588,7 +667,7 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
   };
 
   // Map of categories to scope 3 categories
-  const scope3CategoryMap: { [key: string]: keyof typeof scopeData.scope_3.categories } = {
+  const scope3CategoryMap: Record<string, keyof Scope3Categories> = {
     'Purchased Goods & Services': 'purchased_goods',
     'Capital Goods': 'capital_goods',
     'Fuel & Energy Related': 'fuel_energy',
@@ -608,16 +687,16 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
   metricsData.forEach((record) => {
     // IMPORTANT: co2e_emissions is stored in kgCO2e, convert to tCO2e
     const emissions = (record.co2e_emissions || 0) / 1000;
-    const scope = record.metrics_catalog?.scope;
-    const category = record.metrics_catalog?.category;
-    const subcategory = record.metrics_catalog?.subcategory;
+    const scope = record.metrics_catalog?.scope ?? undefined;
+    const category = record.metrics_catalog?.category ?? undefined;
+    const subcategory = record.metrics_catalog?.subcategory ?? undefined;
     const name = record.metrics_catalog?.name;
 
     if (scope === 'scope_1' || scope === 1) {
       scopeData.scope_1.total += emissions;
 
       // Map to specific category
-      const mappedCategory = scope1CategoryMap[category];
+      const mappedCategory = category ? scope1CategoryMap[category] : undefined;
       if (mappedCategory) {
         scopeData.scope_1.categories[mappedCategory] += emissions;
       } else {
@@ -645,7 +724,13 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
       }
 
       // Map to specific category - check name, subcategory, then category
-      let mappedCategory = scope2CategoryMap[subcategory] || scope2CategoryMap[category];
+      let mappedCategory: keyof Scope2CategoryTotals | undefined;
+      if (subcategory) {
+        mappedCategory = scope2CategoryMap[subcategory];
+      }
+      if (!mappedCategory && category) {
+        mappedCategory = scope2CategoryMap[category];
+      }
 
       // Also check the metric name for better mapping
       if (!mappedCategory && name) {
@@ -671,13 +756,18 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
       scopeData.scope_3.total += emissions;
 
       // Map to specific category
-      const mappedCategory = scope3CategoryMap[category];
+      const mappedCategory = category ? scope3CategoryMap[category] : undefined;
       if (mappedCategory) {
         scopeData.scope_3.categories[mappedCategory].value += emissions;
         scopeData.scope_3.categories[mappedCategory].included = true;
         // Estimate data quality based on whether we have verification
-        scopeData.scope_3.categories[mappedCategory].data_quality =
-          record.verification_status === 'verified' ? 0.95 : record.data_quality || 0.7;
+        const dataQualityScore =
+          record.verification_status === 'verified'
+            ? 0.95
+            : record.data_quality === 'measured' || record.data_quality === 'calculated'
+              ? 0.85
+              : 0.7;
+        scopeData.scope_3.categories[mappedCategory].data_quality = dataQualityScore;
       }
     }
   });
@@ -705,14 +795,14 @@ function calculateScopeDataFromMetrics(metricsData: any[]) {
 
   // Calculate Scope 3 coverage
   const includedCategories = Object.values(scopeData.scope_3.categories).filter(
-    (cat: any) => cat.included
+    (cat) => cat.included
   ).length;
   scopeData.scope_3.coverage = Math.round((includedCategories / 15) * 100);
 
   return scopeData;
 }
 
-function calculateComplianceScore(scopeData: any): number {
+function calculateComplianceScore(scopeData: ScopeAnalysisData): number {
   let score = 0;
   let maxScore = 100;
 
@@ -735,8 +825,12 @@ function calculateComplianceScore(scopeData: any): number {
 
   // Calculation methodology (15 points)
   // Check if we have diverse categories
-  const scope1Categories = Object.values(scopeData.scope_1.categories).filter((v) => v > 0).length;
-  const scope2Categories = Object.values(scopeData.scope_2.categories).filter((v) => v > 0).length;
+  const scope1Categories = Object.values(scopeData.scope_1.categories).filter(
+    (value: number) => value > 0
+  ).length;
+  const scope2Categories = Object.values(scopeData.scope_2.categories).filter(
+    (value: number) => value > 0
+  ).length;
   score += Math.min(15, (scope1Categories + scope2Categories) * 3);
 
   // Reporting standards (15 points)
@@ -745,7 +839,7 @@ function calculateComplianceScore(scopeData: any): number {
   return Math.round(score);
 }
 
-function calculateDataQuality(metricsData: any[]) {
+function calculateDataQuality(metricsData: MetricsDataRecord[]) {
   if (metricsData.length === 0) {
     return {
       primaryDataPercentage: 0,
@@ -788,8 +882,8 @@ function calculateDataQuality(metricsData: any[]) {
   };
 }
 
-function calculateScope3Coverage(scope3Categories: any) {
-  const allCategories = [
+function calculateScope3Coverage(scope3Categories: Scope3Categories) {
+  const allCategories: (keyof Scope3Categories)[] = [
     'purchased_goods',
     'capital_goods',
     'fuel_energy',
@@ -865,12 +959,14 @@ async function getOrganizationContext(organizationId: string) {
       .select('id, total_employees, status')
       .eq('organization_id', organizationId);
 
+    const siteList: SiteSummary[] = (sites ?? []) as SiteSummary[];
+
     // Calculate total employees from all sites
-    const totalEmployees = sites?.reduce((sum, site) => sum + (site.total_employees || 0), 0) || 0;
+    const totalEmployees = siteList.reduce((sum, site) => sum + (site.total_employees ?? 0), 0);
 
     // Count active sites
-    const activeSites = sites?.filter((s) => s.status === 'active').length || 0;
-    const totalSites = sites?.length || 0;
+    const activeSites = siteList.filter((site) => site.status === 'active').length;
+    const totalSites = siteList.length;
     const coverage = totalSites > 0 ? Math.round((activeSites / totalSites) * 100) : 100;
 
     return {
@@ -916,7 +1012,9 @@ async function getSBTiTargets(organizationId: string) {
       };
     }
 
-    if (!targets || targets.length === 0) {
+    const targetRows: SBTiTargetRow[] = (targets ?? []) as SBTiTargetRow[];
+
+    if (targetRows.length === 0) {
       return {
         hasTargets: false,
         validated: false,
@@ -926,9 +1024,9 @@ async function getSBTiTargets(organizationId: string) {
     }
 
     // Find the most ambitious validated target
-    const validatedTargets = targets.filter((t) => t.sbti_validated);
-    const nearTermTarget = targets.find((t) => t.target_type === 'near-term');
-    const netZeroTarget = targets.find((t) => t.target_type === 'net-zero');
+    const validatedTargets = targetRows.filter((target) => target.sbti_validated);
+    const nearTermTarget = targetRows.find((target) => target.target_type === 'near-term');
+    const netZeroTarget = targetRows.find((target) => target.target_type === 'net-zero');
 
     return {
       hasTargets: true,
@@ -1213,6 +1311,14 @@ async function getScopeCategoryBreakdownEnhanced(
   endDate: string,
   siteId?: string
 ): Promise<any[]> {
+  type Scope2MetricRow = {
+    co2e_emissions: number | null;
+    metrics_catalog: {
+      category?: string | null;
+      name?: string | null;
+    } | null;
+  };
+
   // Fetch all Scope 2 metrics with both category AND name
   let query = supabaseAdmin
     .from('metrics_data')
@@ -1237,14 +1343,15 @@ async function getScopeCategoryBreakdownEnhanced(
     return [];
   }
 
+  const metricRows: Scope2MetricRow[] = metricsData as Scope2MetricRow[];
+
   // Group by intelligently detecting the energy type from name or category
   const categoryMap = new Map<string, { emissions: number; count: number }>();
 
-  metricsData.forEach((d) => {
-    const catalog = d.metrics_catalog as any;
-    const category = catalog?.category || '';
-    const name = catalog?.name || '';
-    const emissionsKg = d.co2e_emissions || 0;
+  metricRows.forEach((row) => {
+    const category = row.metrics_catalog?.category || '';
+    const name = row.metrics_catalog?.name || '';
+    const emissionsKg = row.co2e_emissions || 0;
 
     // Determine the Scope 2 subcategory by checking both name and category
     let scope2Type = 'Purchased Energy'; // Default

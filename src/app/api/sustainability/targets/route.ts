@@ -69,65 +69,65 @@ export async function GET(request: NextRequest) {
 
     // Transform data to match our component expectations
     // IMPORTANT: Using calculated baseline/current when site is selected, not database values
-    let transformedTargets =
-      targets?.map((target) => {
-        // Use calculated baseline (site-specific if site selected, org-level otherwise)
-        const calculatedBaseline = baselineData?.total || target.baseline_value;
+    const rawTargets = (targets ?? []) as any[];
+    let transformedTargets: any[] = rawTargets.map((target: any) => {
+      // Use calculated baseline (site-specific if site selected, org-level otherwise)
+      const calculatedBaseline = baselineData?.total || target.baseline_value;
 
-        // Use calculated current emissions (site-specific if site selected)
-        const calculatedCurrent = scopeBreakdown.total;
+      // Use calculated current emissions (site-specific if site selected)
+      const calculatedCurrent = scopeBreakdown.total;
 
-        // Calculate target_reduction_percent from DATABASE (organization-level target definition)
-        const reductionPercent =
-          target.baseline_value > 0
-            ? ((target.baseline_value - target.target_value) / target.baseline_value) * 100
-            : 0;
+      // Calculate target_reduction_percent from DATABASE (organization-level target definition)
+      const reductionPercent =
+        target.baseline_value > 0
+          ? ((target.baseline_value - target.target_value) / target.baseline_value) * 100
+          : 0;
 
-        // Calculate site-specific target emissions using org reduction percentage
-        const calculatedTarget = calculatedBaseline * (1 - reductionPercent / 100);
+      // Calculate site-specific target emissions using org reduction percentage
+      const calculatedTarget = calculatedBaseline * (1 - reductionPercent / 100);
 
-        // Calculate annual_reduction_rate (organization-level)
-        const yearsToTarget = target.target_year - target.baseline_year;
-        const annualRate = yearsToTarget > 0 ? reductionPercent / yearsToTarget : 0;
+      // Calculate annual_reduction_rate (organization-level)
+      const yearsToTarget = target.target_year - target.baseline_year;
+      const annualRate = yearsToTarget > 0 ? reductionPercent / yearsToTarget : 0;
 
-        // Use database scopes if available, otherwise use detected active scopes
-        const scopeCoverage =
-          Array.isArray(target.scopes) && target.scopes.length > 0 ? target.scopes : activeScopes;
+      // Use database scopes if available, otherwise use detected active scopes
+      const scopeCoverage =
+        Array.isArray(target.scopes) && target.scopes.length > 0 ? target.scopes : activeScopes;
 
-        // Calculate progress percentage using CALCULATED values
-        const currentYear = new Date().getFullYear();
-        const yearsElapsed = currentYear - target.baseline_year;
-        const totalYears = target.target_year - target.baseline_year;
-        const targetReduction = calculatedBaseline - calculatedTarget;
-        const actualReduction = calculatedBaseline - calculatedCurrent;
-        const progressPercentage =
-          targetReduction > 0 ? (actualReduction / targetReduction) * 100 : 0;
+      // Calculate progress percentage using CALCULATED values
+      const currentYear = new Date().getFullYear();
+      const yearsElapsed = currentYear - target.baseline_year;
+      const totalYears = target.target_year - target.baseline_year;
+      const targetReduction = calculatedBaseline - calculatedTarget;
+      const actualReduction = calculatedBaseline - calculatedCurrent;
+      const progressPercentage =
+        targetReduction > 0 ? (actualReduction / targetReduction) * 100 : 0;
 
-        return {
-          id: target.id,
-          name: target.name, // Frontend expects 'name'
-          target_type: target.target_type || 'near-term',
-          target_scope: scopeCoverage.join(','),
-          scope_coverage: scopeCoverage,
-          baseline_year: target.baseline_year,
-          baseline_emissions: calculatedBaseline, // ✅ Use calculated (site-specific)
-          target_year: target.target_year,
-          reduction_percentage: reductionPercent, // Organization-level target
-          target_emissions: calculatedTarget, // ✅ Site-specific calculated target
-          annual_reduction_rate: annualRate,
-          sbti_validated: target.sbti_approved || false,
-          status:
-            determinePerformanceStatus(target) === 'exceeding' ||
-            determinePerformanceStatus(target) === 'on-track'
-              ? 'on_track'
-              : determinePerformanceStatus(target) === 'at-risk'
-                ? 'at_risk'
-                : 'off_track',
-          current_emissions: calculatedCurrent, // ✅ Use calculated (site-specific)
-          progress_percentage: Math.max(0, Math.min(100, progressPercentage)),
-          performance_status: determinePerformanceStatus(target),
-        };
-      }) || [];
+      return {
+        id: target.id,
+        name: target.name, // Frontend expects 'name'
+        target_type: target.target_type || 'near-term',
+        target_scope: scopeCoverage.join(','),
+        scope_coverage: scopeCoverage,
+        baseline_year: target.baseline_year,
+        baseline_emissions: calculatedBaseline, // ✅ Use calculated (site-specific)
+        target_year: target.target_year,
+        reduction_percentage: reductionPercent, // Organization-level target
+        target_emissions: calculatedTarget, // ✅ Site-specific calculated target
+        annual_reduction_rate: annualRate,
+        sbti_validated: target.sbti_approved || false,
+        status:
+          determinePerformanceStatus(target) === 'exceeding' ||
+          determinePerformanceStatus(target) === 'on-track'
+            ? 'on_track'
+            : determinePerformanceStatus(target) === 'at-risk'
+              ? 'at_risk'
+              : 'off_track',
+        current_emissions: calculatedCurrent, // ✅ Use calculated (site-specific)
+        progress_percentage: Math.max(0, Math.min(100, progressPercentage)),
+        performance_status: determinePerformanceStatus(target),
+      } as any;
+    });
 
     // Fetch emissions data with ML-powered forecasting for incomplete years
 
@@ -186,7 +186,9 @@ export async function GET(request: NextRequest) {
       actualYearToDate = actualEmissions;
 
       // Count unique months (not total records, as there may be multiple records per month)
-      const uniqueMonths = new Set(currentYearMetrics.map((m) => m.period_start?.substring(0, 7)));
+      const uniqueMonths = new Set(
+        currentYearMetrics.map((m: any) => m.period_start?.substring(0, 7))
+      );
       const monthsCovered = uniqueMonths.size;
 
       // If we have less than 12 months, use enterprise forecasting
@@ -227,7 +229,7 @@ export async function GET(request: NextRequest) {
             // Group by month to get monthly totals
             const monthlyData: { [key: string]: number } = {};
 
-            historicalMetrics.forEach((m) => {
+            historicalMetrics.forEach((m: any) => {
               const month = m.period_start?.substring(0, 7);
               if (month) {
                 monthlyData[month] = (monthlyData[month] || 0) + (m.co2e_emissions || 0);
@@ -299,7 +301,7 @@ export async function GET(request: NextRequest) {
       .select('target_id, baseline_value, baseline_emissions')
       .in(
         'target_id',
-        transformedTargets.map((t) => t.id)
+        transformedTargets.map((t: any) => t.id)
       )
       .limit(1);
 
@@ -317,7 +319,7 @@ export async function GET(request: NextRequest) {
         if (metricTargets && metricTargets.length > 0) {
           // Sum up baseline emissions (which represent current state after replanning)
           const aggregatedCurrent = metricTargets.reduce(
-            (sum, mt) => sum + (mt.baseline_emissions || 0),
+            (sum: number, mt: any) => sum + (mt.baseline_emissions || 0),
             0
           );
 
@@ -340,7 +342,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Update in-memory objects for response
-      transformedTargets.forEach((target) => {
+      transformedTargets.forEach((target: any) => {
         target.current_emissions = currentYearEmissions;
         target.is_forecast = currentYearIsForecast;
         target.actual_ytd = actualYearToDate;
@@ -381,7 +383,7 @@ export async function GET(request: NextRequest) {
       const targetTypeMap = new Map<string, any>();
 
       // First, add all existing targets
-      transformedTargets.forEach((target) => {
+      transformedTargets.forEach((target: any) => {
         if (target.target_type) {
           targetTypeMap.set(target.target_type, target);
         }
@@ -391,7 +393,7 @@ export async function GET(request: NextRequest) {
       const targetTypes = ['near-term', 'long-term', 'net-zero'];
       targetTypes.forEach((type) => {
         if (!targetTypeMap.has(type) && calculatedTargets[type as keyof typeof calculatedTargets]) {
-          const calculatedTarget = calculatedTargets[type as keyof typeof calculatedTargets];
+          const calculatedTarget = calculatedTargets[type as keyof typeof calculatedTargets] as any;
 
           // Add current emissions to calculated targets
           if (currentYearEmissions > 0) {
@@ -435,7 +437,7 @@ export async function GET(request: NextRequest) {
       // Convert map back to array, maintaining order: near-term, long-term, net-zero
       transformedTargets = targetTypes
         .map((type) => targetTypeMap.get(type))
-        .filter((t) => t !== undefined);
+        .filter((t): t is any => t !== undefined);
     }
 
     const totalTime = Date.now() - startTime;
@@ -444,12 +446,13 @@ export async function GET(request: NextRequest) {
       targets: transformedTargets,
       summary: {
         total: transformedTargets.length,
-        validated: transformedTargets.filter((t) => t.sbti_validated).length,
+        validated: transformedTargets.filter((t: any) => t.sbti_validated).length,
         onTrack: transformedTargets.filter(
-          (t) => t.performance_status === 'on-track' || t.performance_status === 'exceeding'
+          (t: any) => t.performance_status === 'on-track' || t.performance_status === 'exceeding'
         ).length,
-        atRisk: transformedTargets.filter((t) => t.performance_status === 'at-risk').length,
-        offTrack: transformedTargets.filter((t) => t.performance_status === 'off-track').length,
+        atRisk: transformedTargets.filter((t: any) => t.performance_status === 'at-risk').length,
+        offTrack: transformedTargets.filter((t: any) => t.performance_status === 'off-track')
+          .length,
       },
       baselineData, // Include baseline data for UI display
     });

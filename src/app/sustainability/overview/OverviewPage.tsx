@@ -13,7 +13,12 @@ import { useTranslations } from '@/providers/LanguageProvider';
 import { useOrganizationContext } from '@/hooks/useOrganizationContext';
 import type { Building } from '@/types/auth';
 
-export default function OverviewPage() {
+interface OverviewPageProps {
+  conversationId: string;
+  organizationId: string;
+}
+
+export default function OverviewPage({ conversationId, organizationId }: OverviewPageProps) {
   const { user } = useAuth();
   const { settings } = useAppearance();
   const accentGradientConfig = useAccentGradient();
@@ -134,7 +139,6 @@ export default function OverviewPage() {
           />
         )}
       </div>
-
     </SustainabilityLayout>
   );
 }

@@ -1,8 +1,54 @@
 import { getAPIUser } from '@/lib/auth/server-auth';
 import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getMonthlyEmissions } from '@/lib/sustainability/baseline-calculator';
 import { NextRequest, NextResponse } from 'next/server';
+
+type MetricsCatalogRow = {
+  id: string;
+  code?: string | null;
+  name?: string | null;
+  category?: string | null;
+  scope?: string | null;
+  unit?: string | null;
+};
+
+type MetricTargetRow = {
+  id: string;
+  metric_catalog_id: string;
+  baseline_value: number | null;
+  baseline_emissions: number | null;
+  target_value: number | null;
+  target_emissions: number | null;
+  planned_emissions?: number | null;
+  metrics_catalog?: MetricsCatalogRow | null;
+};
+
+type MetricTargetWithCatalog = MetricTargetRow & {
+  metrics_catalog: MetricsCatalogRow | null;
+};
+
+type MetricTargetMonthlyRow = {
+  metric_target_id: string;
+  year: number;
+  month: number;
+  planned_emissions: number | null;
+  actual_emissions: number | null;
+};
+
+type MetricsDataRow = {
+  metric_id: string;
+  value: number | null;
+  co2e_emissions: number | null;
+  period_start: string | null;
+};
+
+type OrganizationMemberRow = {
+  organization_id: string;
+  user_id: string;
+  role: string | null;
+};
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +83,8 @@ export async function GET(request: NextRequest) {
     }
 
     const categories = categoriesParam.split(',').map((c) => c.trim());
+
+    const supabase = (await createServerSupabaseClient()) as any;
 
     // Verify user has access to this organization
     const { data: membership } = await supabase
@@ -89,11 +137,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter by categories client-side
-    const metricTargets = (allMetricTargets || []).filter((mt) =>
-      categories.includes(mt.metrics_catalog?.category)
-    );
+    const rawMetricTargets = (allMetricTargets ?? []) as unknown;
+    const metricTargetsData = rawMetricTargets as MetricTargetWithCatalog[];
+    const metricTargets = metricTargetsData.filter((mt) => {
+      const category = mt.metrics_catalog?.category ?? '';
+      return category.length > 0 && categories.includes(category);
+    });
     // Get monthly actuals for progress tracking
-    const metricTargetIds = metricTargets?.map((mt) => mt.id) || [];
+    const metricTargetIds = metricTargets.map((mt) => mt.id);
 
     const { data: monthlyData, error: monthlyError } = await supabase
       .from('metric_targets_monthly')
@@ -121,7 +172,8 @@ export async function GET(request: NextRequest) {
           .or('subcategory.eq.Water,code.ilike.%water%');
 
         if (waterMetrics && waterMetrics.length > 0) {
-          const metricIds = waterMetrics.map((m) => m.id);
+          const waterMetricsData = (waterMetrics ?? []) as unknown as MetricsCatalogRow[];
+          const metricIds = waterMetricsData.map((m) => m.id);
           const currentYear = new Date().getFullYear();
 
           // Get historical data for forecast calculation
@@ -135,11 +187,19 @@ export async function GET(request: NextRequest) {
             .order('period_start');
 
           if (metricsData && metricsData.length > 0) {
+            const metricsDataRows = (metricsData ?? []) as unknown as MetricsDataRow[];
             // Calculate monthly aggregates
-            const monthlyAggregates: any = {};
+            const monthlyAggregates: Record<
+              string,
+              { withdrawal: number; discharge: number; consumption: number }
+            > = {};
 
-            metricsData.forEach((record) => {
-              const metric = waterMetrics.find((m) => m.id === record.metric_id);
+            metricsDataRows.forEach((record) => {
+              if (!record.period_start) {
+                return;
+              }
+
+              const metric = waterMetricsData.find((m) => m.id === record.metric_id);
               const metricCode = metric?.code || '';
               const date = new Date(record.period_start);
               const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -148,7 +208,8 @@ export async function GET(request: NextRequest) {
                 monthlyAggregates[monthKey] = { withdrawal: 0, discharge: 0, consumption: 0 };
               }
 
-              const value = parseFloat(record.value) || 0;
+              const value =
+                typeof record.value === 'number' ? record.value : Number(record.value ?? 0);
               const isDischarge = metricCode.includes('wastewater');
 
               if (isDischarge) {
@@ -262,9 +323,10 @@ export async function GET(request: NextRequest) {
             .order('period_start');
 
           if (metricMonthlyData && metricMonthlyData.length > 0) {
+            const metricMonthlyDataRows = (metricMonthlyData ?? []) as unknown as MetricsDataRow[];
             // Aggregate by month
             const monthlyMap = new Map<string, number>();
-            metricMonthlyData.forEach((d) => {
+            metricMonthlyDataRows.forEach((d) => {
               const monthKey = d.period_start?.substring(0, 7); // "2025-01"
               if (monthKey) {
                 const current = monthlyMap.get(monthKey) || 0;
@@ -313,9 +375,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform for UI display
+    const monthlyTargetsData = (monthlyData ?? []) as unknown as MetricTargetMonthlyRow[];
     const transformedTargets = await Promise.all(
-      (metricTargets || []).map(async (mt) => {
-        const monthlyTargets = (monthlyData || []).filter((md) => md.metric_target_id === mt.id);
+      metricTargets.map(async (mt) => {
+        const monthlyTargets = monthlyTargetsData.filter((md) => md.metric_target_id === mt.id);
 
         // Calculate YTD values from REAL metrics_data (not metric_targets_monthly)
         const currentYear = new Date().getFullYear();
@@ -327,10 +390,11 @@ export async function GET(request: NextRequest) {
           .gte('period_start', `${currentYear}-01-01`)
           .lt('period_start', `${currentYear + 1}-01-01`);
 
-        const ytdValue = (ytdMetricsData || []).reduce((sum, m) => sum + (m.value || 0), 0);
+        const ytdMetricsRows = (ytdMetricsData ?? []) as unknown as MetricsDataRow[];
+        const ytdValue = ytdMetricsRows.reduce((sum, m) => sum + (m.value || 0), 0);
         const ytdEmissions =
           Math.round(
-            (ytdMetricsData || []).reduce(
+            ytdMetricsRows.reduce(
               (sum, m) => sum + (m.co2e_emissions || 0) / 1000, // Convert kgCO2e to tCO2e
               0
             ) * 10

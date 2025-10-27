@@ -1,42 +1,42 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
-import { AlertCircle, Mail, Lock, EyeOff, Eye, Loader2, Building2 } from "lucide-react";
-import { useAuth } from "@/lib/auth/context";
-import { useTranslations } from "@/providers/LanguageProvider";
-import { AuthLayout } from "@/components/auth/AuthLayout";
-import { MFAVerification } from "@/components/auth/mfa/MFAVerification";
-import { useSSOAuth } from "@/hooks/useSSOAuth";
+import { AuthLayout } from '@/components/auth/AuthLayout';
+import { MFAVerification } from '@/components/auth/mfa/MFAVerification';
+import { useSSOAuth } from '@/hooks/useSSOAuth';
+import { useAuth } from '@/lib/auth/context';
+import { useTranslations } from '@/providers/LanguageProvider';
+import { motion } from 'framer-motion';
+import { AlertCircle, Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 export default function SignInPage() {
   const t = useTranslations('auth.signin');
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [mfaRequired, setMfaRequired] = useState(false);
-  const [factorId, setFactorId] = useState("");
-  const [challengeId, setChallengeId] = useState("");
+  const [factorId, setFactorId] = useState('');
+  const [challengeId, setChallengeId] = useState('');
   const [checkingSSO, setCheckingSSO] = useState(false);
   const [ssoChecked, setSsoChecked] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn } = useAuth();
   const { initiateSSO, checkSSO } = useSSOAuth();
-  
+
   // Get redirect URL from query params
   const redirectParam = searchParams.get('redirect');
 
   // Load remembered email on mount
   useEffect(() => {
-    const remembered = localStorage.getItem("rememberMe");
-    const lastEmail = localStorage.getItem("lastEmail");
-    if (remembered === "true" && lastEmail) {
+    const remembered = localStorage.getItem('rememberMe');
+    const lastEmail = localStorage.getItem('lastEmail');
+    if (remembered === 'true' && lastEmail) {
       setEmail(lastEmail);
       setRememberMe(true);
     }
@@ -57,10 +57,10 @@ export default function SignInPage() {
       if (domainPart.includes('.')) {
         setCheckingSSO(true);
         setSsoChecked(true);
-        
+
         try {
           const ssoRequired = await checkSSO(email);
-          
+
           if (ssoRequired) {
             // Automatically redirect to SSO
             initiateSSO({ domain: domainPart });
@@ -76,7 +76,7 @@ export default function SignInPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     // Check SSO before attempting regular sign in
@@ -86,7 +86,7 @@ export default function SignInPage() {
         try {
           const ssoRequired = await checkSSO(email);
           setSsoChecked(true);
-          
+
           if (ssoRequired) {
             setLoading(false);
             // Redirect to SSO
@@ -114,42 +114,42 @@ export default function SignInPage() {
 
       // Store remember me preference
       if (rememberMe) {
-        localStorage.setItem("rememberMe", "true");
-        localStorage.setItem("lastEmail", email);
+        localStorage.setItem('rememberMe', 'true');
+        localStorage.setItem('lastEmail', email);
       } else {
-        localStorage.removeItem("rememberMe");
-        localStorage.removeItem("lastEmail");
+        localStorage.removeItem('rememberMe');
+        localStorage.removeItem('lastEmail');
       }
 
       // Wait a moment for cookies to be saved before redirecting
       // This ensures the auth cookies from the API response are committed
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Use window.location.href instead of router.push to ensure cookies are sent
       // This forces a full page reload which properly includes the auth cookies
       const redirectTo = redirectParam || '/sustainability';
       window.location.href = redirectTo;
     } catch (err: any) {
-      setError(err.message || "Failed to sign in");
+      setError(err.message || 'Failed to sign in');
       setLoading(false);
     }
   }
 
-  async function handleSocialLogin(provider: "google" | "azure") {
-    setError("");
+  async function handleSocialLogin(provider: 'google' | 'azure') {
+    setError('');
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/oauth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/auth/oauth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to initiate OAuth");
+        throw new Error(data.error || 'Failed to initiate OAuth');
       }
 
       // Redirect to OAuth URL
@@ -161,24 +161,24 @@ export default function SignInPage() {
   }
 
   async function handleDemoSignIn() {
-    setError("");
+    setError('');
     setLoading(true);
 
     try {
       // Create a demo account on the fly
       const demoEmail = `demo-${Date.now()}@blipee.com`;
-      const demoPassword = "DemoPass123!";
+      const demoPassword = 'DemoPass123!';
 
       // First try to sign up
       try {
-        await fetch("/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: demoEmail,
             password: demoPassword,
-            fullName: "Demo User",
-            companyName: "Demo Company",
+            fullName: 'Demo User',
+            companyName: 'Demo Company',
           }),
         });
       } catch (e) {
@@ -189,9 +189,9 @@ export default function SignInPage() {
       await signIn(demoEmail, demoPassword);
 
       // Demo accounts always go to sustainability overview
-      router.push("/sustainability");
+      router.push('/sustainability');
     } catch (err: any) {
-      setError("Demo sign in failed. Please try manual signup.");
+      setError('Demo sign in failed. Please try manual signup.');
       setLoading(false);
     }
   }
@@ -201,26 +201,23 @@ export default function SignInPage() {
     if (redirectParam) {
       router.push(redirectParam);
     } else {
-      router.push("/sustainability");
+      router.push('/sustainability');
     }
   }
 
   // Show MFA verification if required
   if (mfaRequired && factorId && challengeId) {
     return (
-      <AuthLayout
-        title=""
-        subtitle={t('mfaRequired')}
-      >
+      <AuthLayout title="" subtitle={t('mfaRequired')}>
         <MFAVerification
           factorId={factorId}
           challengeId={challengeId}
           onSuccess={handleMFASuccess}
           onCancel={() => {
             setMfaRequired(false);
-            setFactorId("");
-            setChallengeId("");
-            setPassword("");
+            setFactorId('');
+            setChallengeId('');
+            setPassword('');
           }}
         />
       </AuthLayout>
@@ -228,11 +225,7 @@ export default function SignInPage() {
   }
 
   return (
-    <AuthLayout
-      title=""
-      subtitle={t('subtitle')}
-    >
-
+    <AuthLayout title="" subtitle={t('subtitle')}>
       {/* Error Message */}
       {error && (
         <motion.div
@@ -272,8 +265,8 @@ export default function SignInPage() {
               className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 text-sm border border-gray-200 dark:border-gray-600 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-[#616161] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400/50 focus:border-purple-500/50 focus:bg-white dark:focus:bg-[#757575] transition-all disabled:opacity-50 focus:outline-none"
               aria-label="Email address"
               aria-required="true"
-              aria-invalid={error ? "true" : "false"}
-              aria-describedby={error ? "email-error" : undefined}
+              aria-invalid={error ? 'true' : 'false'}
+              aria-describedby={error ? 'email-error' : undefined}
               placeholder={t('emailPlaceholder')}
             />
           </div>
@@ -291,7 +284,7 @@ export default function SignInPage() {
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-white/60 pointer-events-none z-10" />
             <input
               id="password"
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -307,11 +300,7 @@ export default function SignInPage() {
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-600 focus:outline-none rounded"
               aria-label={showPassword ? t('hidePassword') : t('showPassword')}
             >
-              {showPassword ? (
-                <EyeOff className="h-5 w-5" />
-              ) : (
-                <Eye className="h-5 w-5" />
-              )}
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
         </div>
@@ -325,9 +314,7 @@ export default function SignInPage() {
           >
             <div className="flex items-center">
               <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400 mr-2" />
-              <p className="text-sm text-blue-600 dark:text-blue-400">
-                {t('checkingSSO')}
-              </p>
+              <p className="text-sm text-blue-600 dark:text-blue-400">{t('checkingSSO')}</p>
             </div>
           </motion.div>
         )}

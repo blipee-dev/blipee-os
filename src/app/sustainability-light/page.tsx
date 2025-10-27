@@ -33,7 +33,7 @@ import { useRouter } from 'next/navigation';
 import { OverviewDashboardMinimal } from '@/components/dashboard/OverviewDashboardMinimal';
 import { useTranslations } from '@/providers/LanguageProvider';
 import { useOrganizationContext } from '@/hooks/useOrganizationContext';
-import { FloatingChat } from '@/components/blipee-os/FloatingChat';
+import { FloatingChat } from '@/components/chat/FloatingChat';
 import type { Building } from '@/types/auth';
 
 // Minimal Site Selector

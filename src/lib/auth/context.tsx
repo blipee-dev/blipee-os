@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import type { Session, UserProfile, Organization } from "@/types/auth";
+import type { Organization, Session, UserProfile } from '@/types/auth';
+import { useRouter } from 'next/navigation';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
   session: Session | null;
@@ -10,7 +10,10 @@ interface AuthContextType {
   organization: Organization | null;
   loading: boolean;
   error: string | null;
-  signIn: (email: string, password: string) => Promise<void | { requiresMFA: boolean; challengeId: string; factorId?: string }>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<void | { requiresMFA: boolean; challengeId: string; factorId?: string }>;
   signUp: (email: string, password: string, metadata: any) => Promise<void>;
   signOut: () => Promise<void>;
   switchOrganization: (organizationId: string) => Promise<void>;
@@ -36,8 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function loadSession() {
     try {
       // Call the new /api/auth/user endpoint that works with session cookies
-      const response = await fetch("/api/auth/user", {
-        credentials: 'include' // Ensure cookies are sent with request
+      const response = await fetch('/api/auth/user', {
+        credentials: 'include', // Ensure cookies are sent with request
       });
 
       if (response.ok) {
@@ -48,8 +51,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const organizations: Organization[] = [];
 
           try {
-            const orgResponse = await fetch("/api/organization/context", {
-              credentials: 'include'
+            const orgResponse = await fetch('/api/organization/context', {
+              credentials: 'include',
             });
 
             if (orgResponse.ok) {
@@ -59,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
             }
           } catch (orgErr) {
-            console.error("Failed to load organization:", orgErr);
+            console.error('Failed to load organization:', orgErr);
           }
 
           // Map the response to our session format
@@ -74,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       // 401 is expected when not authenticated - no need to log
     } catch (err) {
-      console.error("Failed to load session:", err);
+      console.error('Failed to load session:', err);
     } finally {
       setLoading(false);
     }
@@ -85,9 +88,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Ensure cookies are sent and received
         body: JSON.stringify({ email, password }),
       });
@@ -95,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data._error || data.error || "Sign in failed");
+        throw new Error(data._error || data.error || 'Sign in failed');
       }
 
       // Session cookie is set by the server, reload session data
@@ -116,9 +119,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Ensure cookies are sent and received
         body: JSON.stringify({ email, password, ...metadata }),
       });
@@ -126,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data._error || data.error || "Sign up failed");
+        throw new Error(data._error || data.error || 'Sign up failed');
       }
 
       // Session cookie is set by the server, reload session data
@@ -148,8 +151,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Note: Logout logging is handled server-side in /api/auth/signout
       // No need to log here to avoid CSRF issues and redundant logs
 
-      const response = await fetch("/api/auth/signout", {
-        method: "POST",
+      const response = await fetch('/api/auth/signout', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -158,7 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Sign out failed");
+        throw new Error(errorData.error || 'Sign out failed');
       }
 
       // Clear session and local storage
@@ -171,7 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Redirect to signin page
-      router.push("/signin");
+      router.push('/signin');
     } catch (err: any) {
       setError(err.message);
       console.error('Sign out error:', err);
@@ -186,7 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const org = session.organizations.find((o) => o.id === organizationId);
     if (!org) {
-      setError("Organization not found");
+      setError('Organization not found');
       return;
     }
 
@@ -238,12 +241,12 @@ export function useAuth() {
         refreshSession: async () => {},
       } as AuthContextType;
     }
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
 
-export function useRequireAuth(redirectTo = "/signin") {
+export function useRequireAuth(redirectTo = '/signin') {
   const { session, loading } = useAuth();
   const router = useRouter();
 
@@ -263,11 +266,10 @@ export function usePermission(resource: string, action: string): boolean {
 
   return (
     session.permissions.some(
-      (permission) =>
-        permission.resource === resource && permission.action === action,
+      (permission) => permission.resource === resource && permission.action === action
     ) ||
     session.permissions.some(
-      (permission) => permission.resource === "*" && permission.action === "*",
+      (permission) => permission.resource === '*' && permission.action === '*'
     )
   );
 }

@@ -1,6 +1,7 @@
 import { getAPIUser } from '@/lib/auth/server-auth';
 import { getEnergyForecast } from '@/lib/forecasting/get-energy-forecast';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { calculateProgress, getTrajectoryStatus } from '@/lib/utils/progress-calculation';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -46,6 +47,8 @@ export async function GET(request: NextRequest) {
 
     const categories = categoriesParam.split(',').map((c) => c.trim());
 
+    const supabase = (await createServerSupabaseClient()) as any;
+
     // Verify user has access
     const { data: membership } = await supabase
       .from('organization_members')
@@ -85,7 +88,7 @@ export async function GET(request: NextRequest) {
 
     // Create a map of category -> reduction rate
     const categoryReductionMap = new Map(
-      categoryTargets.map((ct) => [
+      categoryTargets.map((ct: any) => [
         ct.category,
         ct.baseline_target_percent || ct.adjusted_target_percent || 4.2, // Fallback to 4.2%
       ])
@@ -112,7 +115,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Step 3: Get baseline data for each metric
-    const metricIds = metrics.map((m) => m.id);
+    const metricIds = metrics.map((m: any) => m.id);
 
     const { data: baselineData, error: baselineError } = await supabaseAdmin
       .from('metrics_data')
@@ -130,7 +133,7 @@ export async function GET(request: NextRequest) {
     // Step 4: Aggregate baseline by metric
     const metricBaselines = new Map();
 
-    baselineData?.forEach((record) => {
+    baselineData?.forEach((record: any) => {
       if (!metricBaselines.has(record.metric_id)) {
         metricBaselines.set(record.metric_id, {
           totalValue: 0,
@@ -138,19 +141,19 @@ export async function GET(request: NextRequest) {
         });
       }
       const current = metricBaselines.get(record.metric_id);
-      current.totalValue += parseFloat(record.value || '0');
-      current.totalEmissions += parseFloat(record.co2e_emissions || '0');
+      current.totalValue += Number(record.value || 0);
+      current.totalEmissions += Number(record.co2e_emissions || 0);
     });
 
     // Step 5: Calculate targets for each metric dynamically
     const currentYear = new Date().getFullYear();
     const yearsToTarget = targetYear - baselineYear;
 
-    const calculatedTargets = metrics
-      .filter((metric) => metricBaselines.has(metric.id))
-      .map((metric) => {
+    const calculatedTargets = (metrics as any[])
+      .filter((metric: any) => metricBaselines.has(metric.id))
+      .map((metric: any) => {
         const baseline = metricBaselines.get(metric.id);
-        const annualReductionRate = categoryReductionMap.get(metric.category) || 4.2;
+        const annualReductionRate = Number(categoryReductionMap.get(metric.category) ?? 4.2);
         const cumulativeReduction = (annualReductionRate / 100) * yearsToTarget;
 
         const baselineValue = baseline.totalValue;
@@ -159,7 +162,7 @@ export async function GET(request: NextRequest) {
         const targetEmissions = baselineEmissions * (1 - cumulativeReduction);
 
         // Get current year data for progress calculation
-        return {
+        const target: any = {
           id: `dynamic-${metric.id}`, // Virtual ID
           metricId: metric.id,
           metricName: metric.name,
@@ -174,7 +177,14 @@ export async function GET(request: NextRequest) {
           targetEmissions: Math.round(targetEmissions * 10) / 10, // tCO2e, round to 1 decimal
           annualReductionRate,
           cumulativeReductionPercent: Math.round(cumulativeReduction * 100 * 10) / 10,
+          currentValue: baselineValue,
+          currentEmissions: Math.round(baselineEmissions * 10) / 10,
+          projectedAnnualEmissions: Math.round(targetEmissions * 10) / 10,
+          monthsWithData: 0,
+          forecastMethod: 'simple-linear',
+          progress: null,
         };
+        return target;
       })
       .filter((target) => target.baselineEmissions > 0); // Only metrics with actual emissions
 
@@ -191,7 +201,7 @@ export async function GET(request: NextRequest) {
       // Aggregate current year by metric and count unique months
       const currentYearMap = new Map();
 
-      currentYearData.forEach((record) => {
+      currentYearData.forEach((record: any) => {
         if (!currentYearMap.has(record.metric_id)) {
           currentYearMap.set(record.metric_id, {
             value: 0,
@@ -230,7 +240,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Add current values and calculate progress with enterprise forecast
-      calculatedTargets.forEach((target) => {
+      calculatedTargets.forEach((target: any) => {
         const current = currentYearMap.get(target.metricId);
         if (current) {
           const ytdEmissions = current.emissions / 1000; // Convert to tCO2e

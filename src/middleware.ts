@@ -19,10 +19,12 @@ const recordMetric = (name: string, value: number, labels?: Record<string, strin
 
 // Routes that require authentication
 const protectedRoutes = [
+  '/chat',
   '/settings',
   '/sustainability',
   '/profile',
   '/api/ai',
+  '/api/chat',
   '/api/organizations',
   '/api/documents',
   '/api/files',
@@ -50,6 +52,7 @@ const publicRoutes = [
   '/api/health',
   '/api/version',
   '/api/debug',  // Debug endpoints for diagnostics
+  '/api/chat/test',  // Test chat endpoint (no auth required)
   '/about',
   '/features',
   '/industries',
@@ -184,7 +187,8 @@ async function executeMiddleware(
     '/api/auth/oauth',
     '/api/health',
     '/api/version',
-    '/api/debug'
+    '/api/debug',
+    '/api/chat',  // Streaming chat endpoint (protected by session auth)
   ];
 
   if (path.startsWith('/api/') && !csrfExemptPaths.some(exempt => path.startsWith(exempt))) {
@@ -284,6 +288,7 @@ async function executeMiddleware(
 
         // Set CSRF token for authenticated sessions
         await setCSRFCookie(authResponse);
+        console.log('🔐 [Middleware] CSRF cookie set for path:', path);
       }
     }
   }
