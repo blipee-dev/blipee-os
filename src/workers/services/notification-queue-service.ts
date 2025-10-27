@@ -3,15 +3,18 @@
  *
  * Asynchronous notification and email processing:
  * - Processes pending notifications from queue
+ * - Creates in-app notifications (database table)
+ * - Creates rich chat messages via AgentMessageGenerator
  * - Sends emails with retry logic
  * - Tracks delivery status
  * - Handles failed deliveries with exponential backoff
  *
  * Runs: Every 5 minutes
- * Benefits: Reliable notifications, no API timeouts, delivery tracking
+ * Benefits: Reliable notifications, no API timeouts, delivery tracking, rich chat integration
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { AgentMessageGenerator } from '@/lib/ai/autonomous-agents/message-generator';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -32,6 +35,7 @@ interface QueuedNotification {
 
 export interface NotificationServiceStats {
   notificationsSent: number;
+  chatMessagesCreated: number;
   emailsSent: number;
   failed: number;
   retried: number;
@@ -40,14 +44,21 @@ export interface NotificationServiceStats {
 }
 
 export class NotificationQueueService {
+  private messageGenerator: AgentMessageGenerator;
+
   private stats: NotificationServiceStats = {
     notificationsSent: 0,
+    chatMessagesCreated: 0,
     emailsSent: 0,
     failed: 0,
     retried: 0,
     errors: 0,
     lastRunAt: null,
   };
+
+  constructor() {
+    this.messageGenerator = new AgentMessageGenerator(supabase);
+  }
 
   /**
    * Get service health stats
@@ -99,7 +110,8 @@ export class NotificationQueueService {
 
       this.stats.lastRunAt = new Date();
       console.log(`✅ [Notifications] Processed ${pendingNotifications.length} notifications`);
-      console.log(`   • Sent: ${this.stats.notificationsSent}`);
+      console.log(`   • Notifications sent: ${this.stats.notificationsSent}`);
+      console.log(`   • Chat messages created: ${this.stats.chatMessagesCreated}`);
       console.log(`   • Failed: ${this.stats.failed}`);
 
     } catch (error) {
@@ -131,7 +143,7 @@ export class NotificationQueueService {
     };
     const priority = priorityMap[notification.notification_importance] || 'normal';
 
-    // Create in-app notification
+    // Create in-app notification (for notification center)
     const { error: notificationError } = await supabase
       .from('notifications')
       .insert({
@@ -152,6 +164,38 @@ export class NotificationQueueService {
       throw new Error(`Failed to create notification: ${notificationError.message}`);
     }
 
+    this.stats.notificationsSent++;
+
+    // 💬 ALSO create rich chat message for important findings (medium, high, critical)
+    if (['medium', 'high', 'critical'].includes(notification.notification_importance)) {
+      try {
+        // Map notification importance to message priority
+        const chatPriorityMap: Record<string, 'info' | 'alert' | 'critical'> = {
+          'low': 'info',
+          'medium': 'info',
+          'high': 'alert',
+          'critical': 'critical',
+        };
+        const chatPriority = chatPriorityMap[notification.notification_importance] || 'info';
+
+        const chatMessage = await this.messageGenerator.createProactiveMessage({
+          userId,
+          organizationId: notification.organization_id,
+          agentId: notification.agent_id,
+          taskResult: notification.result,
+          priority: chatPriority,
+        });
+
+        if (chatMessage) {
+          this.stats.chatMessagesCreated++;
+          console.log(`   💬 Created chat message for ${notification.agent_id}`);
+        }
+      } catch (chatError) {
+        console.error(`   ⚠️  Failed to create chat message:`, chatError);
+        // Don't throw - notification was already created successfully
+      }
+    }
+
     // Mark as sent
     await supabase
       .from('agent_task_results')
@@ -160,8 +204,6 @@ export class NotificationQueueService {
         notification_sent_at: new Date().toISOString(),
       })
       .eq('id', notification.id);
-
-    this.stats.notificationsSent++;
 
     // TODO: Send email for critical notifications
     if (notification.notification_importance === 'critical') {
@@ -239,6 +281,7 @@ export class NotificationQueueService {
   resetStats(): void {
     this.stats = {
       notificationsSent: 0,
+      chatMessagesCreated: 0,
       emailsSent: 0,
       failed: 0,
       retried: 0,
