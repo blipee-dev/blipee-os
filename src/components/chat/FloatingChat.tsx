@@ -17,6 +17,7 @@ import { useAuth } from '@/lib/auth/context';
 import { useCSRF } from '@/hooks/use-csrf';
 import { Input } from '@/components/ui/input';
 import { NotificationBadge } from '@/components/ui/notification-badge';
+import { useLanguage } from '@/providers/LanguageProvider';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -74,6 +75,7 @@ export function FloatingChat({
   const [unreadCount, setUnreadCount] = useState(0);
   const { user } = useAuth();
   const { headers: csrfHeaders } = useCSRF();
+  const { t } = useLanguage();
 
   const fetchConversations = async () => {
     if (!user) {
@@ -535,11 +537,11 @@ export function FloatingChat({
           type="button"
           onClick={() => setIsOpen(true)}
           className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60] bg-gradient-to-r from-green-500 to-emerald-500 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2 group"
-          aria-label={unreadCount > 0 ? `Open chat. ${unreadCount} unread notifications` : "Open chat"}
+          aria-label={unreadCount > 0 ? t('conversation.sidebar.labels.openChatWithUnread', { count: unreadCount }) : t('conversation.sidebar.labels.openChat')}
         >
           <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
           <span className="max-w-0 overflow-hidden sm:group-hover:max-w-xs transition-all duration-300 whitespace-nowrap" aria-hidden="true">
-            Ask blipee
+            {t('conversation.sidebar.labels.askBlipee')}
           </span>
           <NotificationBadge count={unreadCount} />
         </button>
@@ -592,7 +594,7 @@ export function FloatingChat({
                       type="button"
                       onClick={() => setIsExpanded(true)}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-                      aria-label="Maximize chat window"
+                      aria-label={t('conversation.sidebar.buttons.maximizeWindow')}
                     >
                       <Maximize2 className="w-4 h-4 text-gray-500 dark:text-gray-500" aria-hidden="true" />
                     </button>
@@ -601,7 +603,7 @@ export function FloatingChat({
                       type="button"
                       onClick={() => setIsExpanded(false)}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-                      aria-label="Minimize chat window"
+                      aria-label={t('conversation.sidebar.buttons.minimizeWindow')}
                     >
                       <Minimize2 className="w-4 h-4 text-gray-500 dark:text-gray-500" aria-hidden="true" />
                     </button>
@@ -634,7 +636,7 @@ export function FloatingChat({
                         aria-label="Start new chat conversation"
                       >
                         <PencilLine className="w-4 h-4 group-hover:text-green-500" aria-hidden="true" />
-                        {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">New chat</span>}
+                        {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">{t('conversation.sidebar.buttons.newChat')}</span>}
                       </button>
                     </div>
 
@@ -644,10 +646,10 @@ export function FloatingChat({
                         type="button"
                         onClick={() => setIsSearchModalOpen(true)}
                         className={`group w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 text-sm text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors`}
-                        aria-label="Search conversations"
+                        aria-label={t('conversation.sidebar.labels.searchConversations')}
                       >
                         <Search className="w-4 h-4 group-hover:text-green-500" aria-hidden="true" />
-                        {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">Search chats</span>}
+                        {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">{t('conversation.sidebar.buttons.searchChats')}</span>}
                       </button>
                     </div>
 
@@ -660,7 +662,7 @@ export function FloatingChat({
                         aria-label="Open prompt library"
                       >
                         <Sparkles className="w-4 h-4 group-hover:text-green-500" aria-hidden="true" />
-                        {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">Prompt library</span>}
+                        {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">{t('conversation.sidebar.buttons.library')}</span>}
                       </button>
                     </div>
 
@@ -735,7 +737,7 @@ export function FloatingChat({
                             </div>
                           ) : recentConversations.length === 0 ? (
                             <div className="px-2 py-8 text-center text-sm text-gray-500 dark:text-gray-500">
-                              No conversations yet
+                              {t('conversation.sidebar.empty.noConversations')}
                             </div>
                           ) : (
                             <div className="space-y-0.5 px-2">
@@ -770,9 +772,9 @@ export function FloatingChat({
                                               type="button"
                                               onClick={() => handleSelectConversation(conv.id)}
                                               className="flex-1 text-left truncate"
-                                              aria-label={`Open conversation: ${conv.title || 'Untitled conversation'}`}
+                                              aria-label={t('conversation.sidebar.labels.openConversation', { title: conv.title || t('conversation.sidebar.labels.untitled') })}
                                             >
-                                              {conv.title || 'Untitled conversation'}
+                                              {conv.title || t('conversation.sidebar.labels.untitled')}
                                             </button>
                                             <DropdownMenu>
                                               <DropdownMenuTrigger
@@ -784,18 +786,18 @@ export function FloatingChat({
                                               <DropdownMenuContent align="end" className="w-48">
                                                 <DropdownMenuItem onClick={() => handleShareConversation(conv.id)}>
                                                   <Share className="w-4 h-4 mr-2" />
-                                                  Share
+                                                  {t('conversation.sidebar.actions.share')}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => {
                                                   setRenamingConversationId(conv.id);
                                                   setRenameValue(conv.title || '');
                                                 }}>
                                                   <Edit className="w-4 h-4 mr-2" />
-                                                  Rename
+                                                  {t('conversation.sidebar.actions.rename')}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => handleArchiveConversation(conv.id)}>
                                                   <Archive className="w-4 h-4 mr-2" />
-                                                  Archive
+                                                  {t('conversation.sidebar.actions.archive')}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
@@ -803,7 +805,7 @@ export function FloatingChat({
                                                   onClick={() => setDeletingConversationId(conv.id)}
                                                 >
                                                   <Trash2 className="w-4 h-4 mr-2" />
-                                                  Delete
+                                                  {t('conversation.sidebar.actions.delete')}
                                                 </DropdownMenuItem>
                                               </DropdownMenuContent>
                                             </DropdownMenu>
@@ -839,9 +841,9 @@ export function FloatingChat({
                                             type="button"
                                             onClick={() => handleSelectConversation(conv.id)}
                                             className="flex-1 text-left truncate group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent"
-                                            aria-label={`Open conversation: ${conv.title || 'Untitled conversation'}`}
+                                            aria-label={t('conversation.sidebar.labels.openConversation', { title: conv.title || t('conversation.sidebar.labels.untitled') })}
                                           >
-                                            {conv.title || 'Untitled conversation'}
+                                            {conv.title || t('conversation.sidebar.labels.untitled')}
                                           </button>
                                           <DropdownMenu>
                                             <DropdownMenuTrigger
@@ -853,18 +855,18 @@ export function FloatingChat({
                                             <DropdownMenuContent align="end" className="w-48">
                                               <DropdownMenuItem onClick={() => handleShareConversation(conv.id)}>
                                                 <Share className="w-4 h-4 mr-2" />
-                                                Share
+                                                {t('conversation.sidebar.actions.share')}
                                               </DropdownMenuItem>
                                               <DropdownMenuItem onClick={() => {
                                                 setRenamingConversationId(conv.id);
                                                 setRenameValue(conv.title || '');
                                               }}>
                                                 <Edit className="w-4 h-4 mr-2" />
-                                                Rename
+                                                {t('conversation.sidebar.actions.rename')}
                                               </DropdownMenuItem>
                                               <DropdownMenuItem onClick={() => handleArchiveConversation(conv.id)}>
                                                 <Archive className="w-4 h-4 mr-2" />
-                                                Archive
+                                                {t('conversation.sidebar.actions.archive')}
                                               </DropdownMenuItem>
                                               <DropdownMenuSeparator />
                                               <DropdownMenuItem
@@ -872,7 +874,7 @@ export function FloatingChat({
                                                 onClick={() => setDeletingConversationId(conv.id)}
                                               >
                                                 <Trash2 className="w-4 h-4 mr-2" />
-                                                Delete
+                                                {t('conversation.sidebar.actions.delete')}
                                               </DropdownMenuItem>
                                             </DropdownMenuContent>
                                           </DropdownMenu>
@@ -894,7 +896,7 @@ export function FloatingChat({
                         type="button"
                         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                         className="group w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors"
-                        aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        aria-label={isSidebarCollapsed ? t('conversation.sidebar.buttons.expandSidebar') : t('conversation.sidebar.buttons.collapseSidebar')}
                         aria-expanded={!isSidebarCollapsed}
                       >
                         {isSidebarCollapsed ? (
@@ -902,7 +904,7 @@ export function FloatingChat({
                         ) : (
                           <ChevronLeft className="w-4 h-4 group-hover:text-green-500" aria-hidden="true" />
                         )}
-                        {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">Collapse sidebar</span>}
+                        {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">{t('conversation.sidebar.buttons.collapseSidebar')}</span>}
                       </button>
                     </div>
                   </div>
@@ -916,7 +918,7 @@ export function FloatingChat({
                     return shouldShowLoading ? (
                       <div className="flex items-center justify-center h-full">
                         <div className="text-sm text-gray-500 dark:text-gray-500">
-                          {!conversationsLoaded ? 'Loading conversations...' : 'Loading messages...'}
+                          {!conversationsLoaded ? t('conversation.sidebar.loading.conversations') : t('conversation.sidebar.loading.messages')}
                         </div>
                       </div>
                     ) : (
@@ -971,9 +973,9 @@ export function FloatingChat({
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           className="pl-10 pr-10 text-base border-0 shadow-none focus-visible:ring-0 bg-transparent"
-                          placeholder="Search conversations..."
+                          placeholder={t('conversation.sidebar.search.placeholder')}
                           autoFocus
-                          aria-label="Search conversations"
+                          aria-label={t('conversation.sidebar.labels.searchConversations')}
                         />
                         <button
                           type="button"
@@ -996,7 +998,7 @@ export function FloatingChat({
                         aria-label="Start new chat conversation"
                       >
                         <PencilLine className="w-4 h-4" aria-hidden="true" />
-                        <span>New chat</span>
+                        <span>{t('conversation.sidebar.buttons.newChat')}</span>
                       </button>
 
                       {isLoadingConversations ? (
@@ -1005,7 +1007,7 @@ export function FloatingChat({
                         </div>
                       ) : filteredConversations.length === 0 ? (
                         <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-500">
-                          {searchQuery ? 'No conversations found' : 'No conversations yet'}
+                          {searchQuery ? t('conversation.sidebar.empty.noConversationsFound') : t('conversation.sidebar.empty.noConversations')}
                         </div>
                       ) : (
                         <>
@@ -1026,11 +1028,11 @@ export function FloatingChat({
                                     key={conv.id}
                                     onClick={() => handleSelectConversation(conv.id)}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-                                    aria-label={`Open conversation: ${conv.title || 'Untitled conversation'}`}
+                                    aria-label={t('conversation.sidebar.labels.openConversation', { title: conv.title || t('conversation.sidebar.labels.untitled') })}
                                   >
                                     <MessageCircle className="w-4 h-4 flex-shrink-0 text-gray-500" aria-hidden="true" />
                                     <span className="flex-1 text-left truncate">
-                                      {conv.title || 'Untitled conversation'}
+                                      {conv.title || t('conversation.sidebar.labels.untitled')}
                                     </span>
                                   </button>
                                 ))}
@@ -1079,10 +1081,10 @@ export function FloatingChat({
                     className="fixed inset-x-4 top-1/2 -translate-y-1/2 sm:inset-0 sm:m-auto w-auto sm:w-full max-w-md h-fit bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl z-[70] p-6"
                   >
                     <h3 id="delete-dialog-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                      Delete conversation?
+                      {t('conversation.sidebar.delete.title')}
                     </h3>
                     <p id="delete-dialog-description" className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                      This will permanently delete this conversation and all its messages. This action cannot be undone.
+                      {t('conversation.sidebar.delete.message')}
                     </p>
                     <div className="flex gap-3 justify-end">
                       <button
@@ -1090,14 +1092,14 @@ export function FloatingChat({
                         onClick={() => setDeletingConversationId(null)}
                         className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                       >
-                        Cancel
+                        {t('conversation.sidebar.delete.cancel')}
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteConversation(deletingConversationId)}
                         className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 rounded-lg transition-colors"
                       >
-                        Delete
+                        {t('conversation.sidebar.delete.confirm')}
                       </button>
                     </div>
                   </motion.div>

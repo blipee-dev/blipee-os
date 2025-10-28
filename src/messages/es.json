@@ -2237,16 +2237,22 @@
     },
     "sidebar": {
       "buttons": {
-        "newChat": "Nueva Conversación",
+        "newChat": "Nueva conversación",
         "chats": "Conversaciones",
-        "library": "Biblioteca",
+        "library": "Biblioteca de prompts",
         "settings": "Configuración",
         "signOut": "Cerrar Sesión",
-        "expandSidebar": "Expandir Barra Lateral",
-        "collapseSidebar": "Contraer Barra Lateral"
+        "expandSidebar": "Expandir barra lateral",
+        "collapseSidebar": "Contraer barra lateral",
+        "searchChats": "Buscar conversaciones",
+        "maximizeWindow": "Maximizar ventana de chat",
+        "minimizeWindow": "Minimizar ventana de chat",
+        "close": "Cerrar chat"
       },
       "sections": {
-        "recents": "Recientes"
+        "recents": "Recientes",
+        "notifications": "Notificaciones",
+        "chats": "Conversaciones"
       },
       "empty": {
         "noConversations": "Aún no hay conversaciones",
@@ -2256,7 +2262,9 @@
       "actions": {
         "pin": "Fijar",
         "rename": "Renombrar",
-        "delete": "Eliminar"
+        "delete": "Eliminar",
+        "share": "Compartir",
+        "archive": "Archivar"
       },
       "search": {
         "placeholder": "Buscar conversaciones..."
@@ -2266,7 +2274,29 @@
         "yesterday": "Ayer",
         "thisWeek": "Esta Semana",
         "thisMonth": "Este Mes",
+        "sevenDays": "Hace 7 días",
+        "thirtyDays": "Hace 30 días",
         "older": "Anteriores"
+      },
+      "loading": {
+        "default": "Cargando...",
+        "conversations": "Cargando conversaciones...",
+        "messages": "Cargando mensajes..."
+      },
+      "labels": {
+        "untitled": "Conversación sin título",
+        "askBlipee": "Pregunta a blipee",
+        "openChat": "Abrir chat",
+        "openChatWithUnread": "Abrir chat. {{count}} notificaciones sin leer",
+        "openConversation": "Abrir conversación: {{title}}",
+        "renameConversation": "Renombrar conversación",
+        "searchConversations": "Buscar conversaciones"
+      },
+      "delete": {
+        "title": "¿Eliminar conversación?",
+        "message": "Esta acción no se puede deshacer. La conversación se eliminará permanentemente.",
+        "cancel": "Cancelar",
+        "confirm": "Eliminar"
       }
     },
     "message": {

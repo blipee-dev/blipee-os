@@ -59,6 +59,10 @@ const PromptLibrary = dynamic(() => import('./PromptLibrary').then(m => ({ defau
   ssr: false
 });
 
+const MobileSettings = dynamic(() => import('@/components/mobile/MobileSettings').then(m => ({ default: m.MobileSettings })), {
+  ssr: false
+});
+
 const PWAInstallBannerCompact = dynamic(() => import('@/components/pwa/PWAInstallBanner').then(m => ({ default: m.PWAInstallBannerCompact })), {
   ssr: false
 });
@@ -112,6 +116,7 @@ export function MobileChatInterface({
   const [isOnline, setIsOnline] = useState(true);
   const [pendingSyncCount, setPendingSyncCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { headers: csrfHeaders } = useCSRF();
   const { isSupported: isPushSupported, isSubscribed: isPushSubscribed, subscribe: subscribeToPush, permission: pushPermission } = usePushNotifications();
@@ -914,14 +919,14 @@ export function MobileChatInterface({
                   <button
                     type="button"
                     onClick={() => {
-                      router.push('/profile');
+                      setIsSettingsOpen(true);
                       setIsMenuOpen(false);
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-left"
-                    aria-label="Go to profile"
+                    aria-label="Open settings"
                   >
                     <User className="w-5 h-5 text-gray-600" aria-hidden="true" />
-                    <span className="font-medium">Profile</span>
+                    <span className="font-medium">Settings</span>
                   </button>
 
                   <button
@@ -1174,6 +1179,12 @@ export function MobileChatInterface({
           </>
         )}
       </AnimatePresence>
+
+      {/* Mobile Settings Modal */}
+      <MobileSettings
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </div>
   );
 }

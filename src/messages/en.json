@@ -2222,7 +2222,9 @@
         "close": "Close chat"
       },
       "sections": {
-        "recents": "Recent"
+        "recents": "Recent",
+        "notifications": "Notifications",
+        "chats": "Chats"
       },
       "empty": {
         "noConversations": "No conversations yet",
@@ -2244,9 +2246,12 @@
         "yesterday": "Yesterday",
         "thisWeek": "This Week",
         "thisMonth": "This Month",
+        "sevenDays": "7 days ago",
+        "thirtyDays": "30 days ago",
         "older": "Older"
       },
       "loading": {
+        "default": "Loading...",
         "conversations": "Loading conversations...",
         "messages": "Loading messages..."
       },

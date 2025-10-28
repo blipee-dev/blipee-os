@@ -2375,16 +2375,22 @@
     },
     "sidebar": {
       "buttons": {
-        "newChat": "Nova Conversa",
+        "newChat": "Nova conversa",
         "chats": "Conversas",
-        "library": "Biblioteca",
+        "library": "Biblioteca de prompts",
         "settings": "Configurações",
         "signOut": "Sair",
-        "expandSidebar": "Expandir Barra Lateral",
-        "collapseSidebar": "Recolher Barra Lateral"
+        "expandSidebar": "Expandir barra lateral",
+        "collapseSidebar": "Recolher barra lateral",
+        "searchChats": "Pesquisar conversas",
+        "maximizeWindow": "Maximizar janela de chat",
+        "minimizeWindow": "Minimizar janela de chat",
+        "close": "Fechar chat"
       },
       "sections": {
-        "recents": "Recentes"
+        "recents": "Recentes",
+        "notifications": "Notificações",
+        "chats": "Conversas"
       },
       "empty": {
         "noConversations": "Ainda não há conversas",
@@ -2394,7 +2400,9 @@
       "actions": {
         "pin": "Fixar",
         "rename": "Renomear",
-        "delete": "Excluir"
+        "delete": "Excluir",
+        "share": "Partilhar",
+        "archive": "Arquivar"
       },
       "search": {
         "placeholder": "Pesquisar conversas..."
@@ -2404,7 +2412,28 @@
         "yesterday": "Ontem",
         "thisWeek": "Esta Semana",
         "thisMonth": "Este Mês",
+        "sevenDays": "Há 7 dias",
+        "thirtyDays": "Há 30 dias",
         "older": "Anteriores"
+      },
+      "loading": {
+        "conversations": "A carregar conversas...",
+        "messages": "A carregar mensagens..."
+      },
+      "labels": {
+        "untitled": "Conversa sem título",
+        "askBlipee": "Perguntar ao blipee",
+        "openChat": "Abrir chat",
+        "openChatWithUnread": "Abrir chat. {{count}} notificações não lidas",
+        "openConversation": "Abrir conversa: {{title}}",
+        "renameConversation": "Renomear conversa",
+        "searchConversations": "Pesquisar conversas"
+      },
+      "delete": {
+        "title": "Excluir conversa?",
+        "message": "Esta ação não pode ser desfeita. A conversa será permanentemente excluída.",
+        "cancel": "Cancelar",
+        "confirm": "Excluir"
       }
     },
     "message": {
