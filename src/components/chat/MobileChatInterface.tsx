@@ -113,7 +113,7 @@ export function MobileChatInterface({
   const [isOnline, setIsOnline] = useState(true);
   const [pendingSyncCount, setPendingSyncCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { headers: csrfHeaders } = useCSRF();
   const { isSupported: isPushSupported, isSubscribed: isPushSubscribed, subscribe: subscribeToPush, permission: pushPermission } = usePushNotifications();
   const { showPrompt: showPWAPrompt, promptInstall, dismissPrompt: dismissPWAPrompt, isPWA } = usePWAInstall();
@@ -909,8 +909,13 @@ export function MobileChatInterface({
                   </button>
 
                   <button
-                    onClick={() => {
-                      window.location.href = '/api/auth/signout';
+                    onClick={async () => {
+                      try {
+                        await signOut();
+                        router.push('/signin');
+                      } catch (error) {
+                        console.error('Error during logout:', error);
+                      }
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left"
                   >

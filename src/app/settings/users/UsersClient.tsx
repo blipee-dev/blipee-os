@@ -585,14 +585,15 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
 
   return (
     <SettingsLayout pageTitle={t('title')}>
-      <header className="hidden md:block py-4 sm:py-6 border-b border-gray-200 dark:border-white/[0.05]">
-        <div className="px-4 sm:px-6">
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
-          <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">{t('subtitle')}</p>
-        </div>
-      </header>
+      <div className="flex flex-col h-full">
+        <header className="hidden md:block py-4 sm:py-6 border-b border-gray-200 dark:border-white/[0.05]">
+          <div className="px-4 sm:px-6">
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
+            <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">{t('subtitle')}</p>
+          </div>
+        </header>
 
-      <main className="py-4 sm:py-6">
+        <main className="flex-1 overflow-auto py-4 sm:py-6 bg-gray-50 dark:bg-[#1a1a1a]">
         {/* Search and Add Button */}
         <div className="flex items-center gap-2 mb-6 px-4 sm:px-6">
           <div className="flex-1 relative">
@@ -881,6 +882,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         type="danger"
         isLoading={isDeleting}
       />
+      </div>
     </SettingsLayout>
   );
 }

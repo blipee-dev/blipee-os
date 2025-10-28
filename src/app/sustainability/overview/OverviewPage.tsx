@@ -80,23 +80,24 @@ export default function OverviewPage({ conversationId, organizationId }: Overvie
 
   return (
     <SustainabilityLayout organizationId={organizationId}>
-      <div className="p-4 sm:p-6 space-y-6">
-        {/* Header with Title and Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div className="flex items-center justify-between gap-6 mb-6">
-            {/* Title and Subtitle */}
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <Leaf className="w-6 h-6 text-green-500" />
-                {tDashboard('header.title')}
-              </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {tDashboard('header.subtitle')}
-              </p>
-            </div>
+      <main className="flex-1 overflow-auto bg-gray-50 dark:bg-[#1a1a1a]">
+        <div className="p-4 sm:p-6 space-y-6">
+          {/* Header with Title and Filters */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="flex items-center justify-between gap-6 mb-6">
+              {/* Title and Subtitle */}
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Leaf className="w-6 h-6 text-green-500" />
+                  {tDashboard('header.title')}
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {tDashboard('header.subtitle')}
+                </p>
+              </div>
 
             {/* Filters */}
             <div className="flex items-center gap-3">
@@ -138,7 +139,8 @@ export default function OverviewPage({ conversationId, organizationId }: Overvie
             selectedPeriod={selectedPeriod}
           />
         )}
-      </div>
+        </div>
+      </main>
     </SustainabilityLayout>
   );
 }
