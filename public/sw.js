@@ -306,94 +306,266 @@ async function getOfflineFallback(request) {
  * Background sync event
  */
 self.addEventListener('sync', (event) => {
-  console.log('Background sync triggered:', event.tag);
-  
-  if (event.tag === 'background-sync') {
+  console.log('[SW] Background sync triggered:', event.tag);
+
+  if (event.tag === 'offline-sync') {
     event.waitUntil(handleBackgroundSync());
   }
 });
 
 /**
+ * Initialize IndexedDB for offline sync
+ */
+async function initOfflineDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('blipee-offline', 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      if (!db.objectStoreNames.contains('messages')) {
+        const messagesStore = db.createObjectStore('messages', { keyPath: 'id' });
+        messagesStore.createIndex('synced', 'synced', { unique: false });
+      }
+
+      if (!db.objectStoreNames.contains('actions')) {
+        const actionsStore = db.createObjectStore('actions', { keyPath: 'id' });
+        actionsStore.createIndex('synced', 'synced', { unique: false });
+      }
+    };
+  });
+}
+
+/**
+ * Get unsynced messages from IndexedDB
+ */
+async function getUnsyncedMessages() {
+  const db = await initOfflineDB();
+  const transaction = db.transaction(['messages'], 'readonly');
+  const store = transaction.objectStore('messages');
+  const index = store.index('synced');
+
+  return new Promise((resolve, reject) => {
+    const request = index.getAll(false);
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Get unsynced actions from IndexedDB
+ */
+async function getUnsyncedActions() {
+  const db = await initOfflineDB();
+  const transaction = db.transaction(['actions'], 'readonly');
+  const store = transaction.objectStore('actions');
+  const index = store.index('synced');
+
+  return new Promise((resolve, reject) => {
+    const request = index.getAll(false);
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Mark message as synced in IndexedDB
+ */
+async function markMessageSynced(id) {
+  const db = await initOfflineDB();
+  const transaction = db.transaction(['messages'], 'readwrite');
+  const store = transaction.objectStore('messages');
+
+  return new Promise((resolve, reject) => {
+    const getRequest = store.get(id);
+    getRequest.onsuccess = () => {
+      const message = getRequest.result;
+      if (message) {
+        message.synced = true;
+        const putRequest = store.put(message);
+        putRequest.onsuccess = () => resolve();
+        putRequest.onerror = () => reject(putRequest.error);
+      } else {
+        resolve();
+      }
+    };
+    getRequest.onerror = () => reject(getRequest.error);
+  });
+}
+
+/**
+ * Mark action as synced in IndexedDB
+ */
+async function markActionSynced(id) {
+  const db = await initOfflineDB();
+  const transaction = db.transaction(['actions'], 'readwrite');
+  const store = transaction.objectStore('actions');
+
+  return new Promise((resolve, reject) => {
+    const getRequest = store.get(id);
+    getRequest.onsuccess = () => {
+      const action = getRequest.result;
+      if (action) {
+        action.synced = true;
+        const putRequest = store.put(action);
+        putRequest.onsuccess = () => resolve();
+        putRequest.onerror = () => reject(putRequest.error);
+      } else {
+        resolve();
+      }
+    };
+    getRequest.onerror = () => reject(getRequest.error);
+  });
+}
+
+/**
+ * Delete message from IndexedDB
+ */
+async function deleteOfflineMessage(id) {
+  const db = await initOfflineDB();
+  const transaction = db.transaction(['messages'], 'readwrite');
+  const store = transaction.objectStore('messages');
+
+  return new Promise((resolve, reject) => {
+    const request = store.delete(id);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Delete action from IndexedDB
+ */
+async function deleteOfflineAction(id) {
+  const db = await initOfflineDB();
+  const transaction = db.transaction(['actions'], 'readwrite');
+  const store = transaction.objectStore('actions');
+
+  return new Promise((resolve, reject) => {
+    const request = store.delete(id);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
  * Handle background sync
  */
 async function handleBackgroundSync() {
-  console.log('Processing background sync...');
-  
+  console.log('[SW] Processing background sync...');
+
+  let successCount = 0;
+  let failedCount = 0;
+
   try {
-    // Get sync queue from IndexedDB or cache
-    const syncQueue = await getSyncQueue();
-    
-    if (syncQueue.length === 0) {
-      console.log('No items in sync queue');
-      return;
-    }
-    
-    // Process each sync item
-    for (const item of syncQueue) {
+    // Sync messages
+    const messages = await getUnsyncedMessages();
+    console.log(`[SW] Found ${messages.length} unsynced messages`);
+
+    for (const message of messages) {
       try {
-        await processSyncItem(item);
-        await removeSyncItem(item.id);
-        console.log('✅ Synced item:', item.action);
-      } catch (error) {
-        console.error('❌ Failed to sync item:', item.action, error);
-        
-        // Increment retry count
-        item.retries = (item.retries || 0) + 1;
-        if (item.retries >= 3) {
-          await removeSyncItem(item.id);
-          console.log('Removed failed item after 3 retries:', item.action);
+        const response = await fetch('/api/ai/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            conversationId: message.conversationId,
+            message: message.content,
+            offline: true,
+            offlineTimestamp: message.timestamp
+          })
+        });
+
+        if (response.ok) {
+          await markMessageSynced(message.id);
+          console.log(`[SW] ✅ Synced message ${message.id}`);
+          successCount++;
         } else {
-          await updateSyncItem(item);
+          throw new Error(`HTTP ${response.status}`);
         }
+      } catch (error) {
+        console.error(`[SW] ❌ Failed to sync message ${message.id}:`, error);
+        message.retries = (message.retries || 0) + 1;
+
+        if (message.retries >= 3) {
+          await deleteOfflineMessage(message.id);
+          console.log(`[SW] Removed message ${message.id} after max retries`);
+        }
+
+        failedCount++;
       }
     }
-    
+
+    // Sync actions
+    const actions = await getUnsyncedActions();
+    console.log(`[SW] Found ${actions.length} unsynced actions`);
+
+    for (const action of actions) {
+      try {
+        let endpoint = '';
+        let method = 'POST';
+
+        switch (action.type) {
+          case 'send_message':
+            endpoint = '/api/ai/chat';
+            break;
+          case 'create_conversation':
+            endpoint = '/api/conversations';
+            break;
+          case 'update_conversation':
+            endpoint = `/api/conversations/${action.data.id}`;
+            method = 'PUT';
+            break;
+          default:
+            console.warn(`[SW] Unknown action type: ${action.type}`);
+            continue;
+        }
+
+        const response = await fetch(endpoint, {
+          method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(action.data)
+        });
+
+        if (response.ok) {
+          await markActionSynced(action.id);
+          console.log(`[SW] ✅ Synced action ${action.id}`);
+          successCount++;
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (error) {
+        console.error(`[SW] ❌ Failed to sync action ${action.id}:`, error);
+        action.retries = (action.retries || 0) + 1;
+
+        if (action.retries >= 3) {
+          await deleteOfflineAction(action.id);
+          console.log(`[SW] Removed action ${action.id} after max retries`);
+        }
+
+        failedCount++;
+      }
+    }
+
     // Notify main thread
     const clients = await self.clients.matchAll();
     clients.forEach(client => {
       client.postMessage({
         type: 'SYNC_COMPLETE',
-        data: { processed: syncQueue.length },
-        timestamp: new Date()
+        success: successCount,
+        failed: failedCount,
+        timestamp: new Date().toISOString()
       });
     });
-    
-    console.log('Background sync completed');
-  } catch (error) {
-    console.error('Background sync failed:', error);
-  }
-}
 
-/**
- * Process individual sync item
- */
-async function processSyncItem(item) {
-  const { action, data } = item;
-  
-  switch (action) {
-    case 'chat_message':
-      await fetch('/api/ai/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': data.authorization
-        },
-        body: JSON.stringify(data.payload)
-      });
-      break;
-      
-    case 'analytics':
-      await fetch('/api/analytics/events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      break;
-      
-    default:
-      console.warn('Unknown sync action:', action);
+    console.log(`[SW] Sync complete: ${successCount} success, ${failedCount} failed`);
+  } catch (error) {
+    console.error('[SW] Background sync failed:', error);
   }
 }
 
@@ -401,70 +573,149 @@ async function processSyncItem(item) {
  * Push notification event
  */
 self.addEventListener('push', (event) => {
-  console.log('Push notification received');
-  
-  const options = {
+  console.log('[SW] Push notification received');
+
+  // Default options
+  let options = {
+    title: 'Blipee',
     body: 'You have new insights available',
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/badge-72x72.png',
+    icon: '/icon-192.png',
+    badge: '/favicon.svg',
     vibrate: [200, 100, 200],
     data: {
-      url: '/'
+      url: '/mobile'
     },
-    actions: [
-      {
-        action: 'view',
-        title: 'View',
-        icon: '/icons/action-view.png'
-      },
-      {
-        action: 'dismiss',
-        title: 'Dismiss',
-        icon: '/icons/action-dismiss.png'
-      }
-    ]
+    tag: 'blipee-notification',
+    requireInteraction: false
   };
-  
+
+  // Parse payload if available
   if (event.data) {
-    const payload = event.data.json();
-    Object.assign(options, payload);
+    try {
+      const payload = event.data.json();
+      console.log('[SW] Push payload:', payload);
+
+      // Merge payload with defaults
+      options = {
+        ...options,
+        ...payload,
+        title: payload.title || options.title,
+        body: payload.body || options.body
+      };
+    } catch (error) {
+      console.error('[SW] Error parsing push payload:', error);
+    }
   }
-  
+
   event.waitUntil(
-    self.registration.showNotification('Blipee', options)
+    Promise.all([
+      // Show notification
+      self.registration.showNotification(options.title, options),
+      // Update app badge
+      updateBadge()
+    ])
   );
 });
+
+/**
+ * Update app badge with unread count
+ */
+async function updateBadge() {
+  try {
+    // Check if Badge API is supported
+    if (!navigator.setAppBadge) {
+      console.log('[SW] Badge API not supported');
+      return;
+    }
+
+    // Fetch unread count from server
+    const response = await fetch('/api/messages/unread');
+    if (!response.ok) {
+      console.error('[SW] Failed to fetch unread count');
+      return;
+    }
+
+    const data = await response.json();
+    const unreadCount = data.count || 0;
+
+    console.log(`[SW] Updating badge to ${unreadCount}`);
+
+    if (unreadCount > 0) {
+      await navigator.setAppBadge(unreadCount);
+    } else {
+      await navigator.clearAppBadge();
+    }
+  } catch (error) {
+    console.error('[SW] Error updating badge:', error);
+  }
+}
 
 /**
  * Notification click event
  */
 self.addEventListener('notificationclick', (event) => {
-  console.log('Notification clicked:', event.action);
-  
+  console.log('[SW] Notification clicked:', event.action);
+
   event.notification.close();
-  
+
+  // Handle action buttons
   if (event.action === 'dismiss') {
+    // Clear badge when dismissed
+    clearBadgeCount();
     return;
   }
-  
-  const url = event.notification.data?.url || '/';
-  
+
+  // Get URL from notification data, default to /mobile
+  const url = event.notification.data?.url || '/mobile';
+
+  // If conversationId is in data, open that conversation
+  const conversationId = event.notification.data?.conversationId;
+  const targetUrl = conversationId ? `/mobile?conversation=${conversationId}` : url;
+
+  console.log('[SW] Opening URL:', targetUrl);
+
   event.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then((clients) => {
-      // Check if app is already open
-      for (const client of clients) {
-        if (client.url === url && 'focus' in client) {
-          return client.focus();
+    Promise.all([
+      // Clear badge when user opens the notification
+      clearBadgeCount(),
+      // Open or focus the app
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+        // Check if app is already open
+        for (const client of clients) {
+          if (client.url.includes('/mobile') && 'focus' in client) {
+            client.focus();
+            // Navigate to the target URL
+            client.postMessage({
+              type: 'NOTIFICATION_CLICK',
+              conversationId: conversationId,
+              url: targetUrl
+            });
+            return client;
+          }
         }
-      }
-      
-      // Open new window
-      if (self.clients.openWindow) {
-        return self.clients.openWindow(url);
-      }
-    })
+
+        // Open new window if app not open
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(targetUrl);
+        }
+      })
+    ])
   );
 });
+
+/**
+ * Clear app badge
+ */
+async function clearBadgeCount() {
+  try {
+    if (navigator.clearAppBadge) {
+      await navigator.clearAppBadge();
+      console.log('[SW] Badge cleared');
+    }
+  } catch (error) {
+    console.error('[SW] Error clearing badge:', error);
+  }
+}
 
 /**
  * Skip waiting message
@@ -472,6 +723,24 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+
+  // Handle badge update requests from main app
+  if (event.data && event.data.type === 'UPDATE_BADGE') {
+    const count = event.data.count || 0;
+    console.log(`[SW] Updating badge to ${count} (from client message)`);
+
+    if (navigator.setAppBadge) {
+      if (count > 0) {
+        navigator.setAppBadge(count).catch(err => {
+          console.error('[SW] Error setting badge:', err);
+        });
+      } else {
+        navigator.clearAppBadge().catch(err => {
+          console.error('[SW] Error clearing badge:', err);
+        });
+      }
+    }
   }
 });
 

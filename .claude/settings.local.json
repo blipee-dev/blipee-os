@@ -17,7 +17,22 @@
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_TgF7Bp/**)",
       "Bash(npm run build:*)",
       "Bash(timeout 120 npm run build:*)",
-      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_a6Wivb/**)"
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_a6Wivb/**)",
+      "Bash(wait)",
+      "mcp__firecrawl__firecrawl_search",
+      "WebSearch",
+      "mcp__supabase__execute_sql",
+      "Bash(npm install:*)",
+      "Bash(node scripts/generate-vapid-keys.js:*)",
+      "Bash(cat:*)",
+      "mcp__supabase__list_projects",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__apply_migration",
+      "Bash(node scripts/generate-pwa-icons.mjs:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_GYT3aV/**)",
+      "Bash(chmod:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

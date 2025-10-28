@@ -1558,7 +1558,7 @@ export const analyzeEnergyConsumptionTool = tool({
  * Analyzes waste by type and disposal method
  */
 export const analyzeWasteGenerationTool = tool({
-  description: 'Analyze waste generation by type (recycling, landfill, hazardous, organic) and disposal method. Returns detailed breakdown with diversion rates.',
+  description: 'Analyze waste generation by type (recycling, landfill, hazardous, organic) and disposal method. Returns detailed breakdown with diversion rates. IMPORTANT: All waste values are measured in TONS (not kg). Always use "tons" when communicating waste amounts to users.',
   inputSchema: z.object({
     organizationId: z.string().describe('Organization ID'),
     buildingId: z.string().optional().describe('Building/site ID for site-specific analysis'),
@@ -1589,7 +1589,7 @@ export const analyzeWasteGenerationTool = tool({
         .eq('organization_id', organizationId)
         .gte('period_start', startDate)
         .lte('period_start', endDate)
-        .ilike('metrics_catalog.category', '%waste%');
+        .or('category.ilike.%waste%', { foreignTable: 'metrics_catalog' });
 
       if (buildingId) {
         query = query.eq('site_id', buildingId);
@@ -1615,13 +1615,13 @@ export const analyzeWasteGenerationTool = tool({
 
       const breakdown = Array.from(typeMap.entries()).map(([name, data]) => ({
         wasteType: name,
-        weight_kg: Math.round(data.weight * 10) / 10,
+        weight_tons: Math.round(data.weight * 10) / 10,
         emissions_kgCO2e: Math.round(data.emissions * 10) / 10,
         diverted: data.diverted
       }));
 
-      const totalWeight = breakdown.reduce((sum, b) => sum + b.weight_kg, 0);
-      const divertedWeight = breakdown.filter(b => b.diverted).reduce((sum, b) => sum + b.weight_kg, 0);
+      const totalWeight = breakdown.reduce((sum, b) => sum + b.weight_tons, 0);
+      const divertedWeight = breakdown.filter(b => b.diverted).reduce((sum, b) => sum + b.weight_tons, 0);
       const diversionRate = totalWeight > 0 ? (divertedWeight / totalWeight) * 100 : 0;
       const totalEmissions = breakdown.reduce((sum, b) => sum + b.emissions_kgCO2e, 0);
 
@@ -1635,14 +1635,14 @@ export const analyzeWasteGenerationTool = tool({
       const endYear = new Date(endDate).getFullYear();
       const yearLabel = startYear === endYear ? `year ${startYear}` : `period ${startYear}-${endYear}`;
 
-      const insights = `For the ${yearLabel} (${startDate} to ${endDate}), a total of ${totalWeight.toFixed(0)} kg of waste was generated with a diversion rate of ${diversionRate.toFixed(1)}%, resulting in ${(totalEmissions/1000).toFixed(1)} tCO2e emissions. ${comparison ? `Year-over-year change: ${comparison.percentageChange > 0 ? '+' : ''}${comparison.percentageChange.toFixed(1)}%` : ''}`;
+      const insights = `For the ${yearLabel} (${startDate} to ${endDate}), a total of ${totalWeight.toFixed(1)} tons of waste was generated with a diversion rate of ${diversionRate.toFixed(1)}%, resulting in ${(totalEmissions/1000).toFixed(1)} tCO2e emissions. ${comparison ? `Year-over-year change: ${comparison.percentageChange > 0 ? '+' : ''}${comparison.percentageChange.toFixed(1)}%` : ''}`;
 
       return {
         success: true,
         total: {
-          weight_kg: Math.round(totalWeight),
-          diverted_kg: Math.round(divertedWeight),
-          landfill_kg: Math.round(totalWeight - divertedWeight),
+          weight_tons: Math.round(totalWeight * 10) / 10,
+          diverted_tons: Math.round(divertedWeight * 10) / 10,
+          landfill_tons: Math.round((totalWeight - divertedWeight) * 10) / 10,
           diversion_rate_percent: Math.round(diversionRate * 10) / 10,
           emissions_tCO2e: Math.round((totalEmissions / 1000) * 10) / 10
         },
@@ -2978,16 +2978,16 @@ export const getMonthlyConsumptionTool = tool({
       let title = 'Monthly Energy Consumption';
 
       if (resourceType === 'energy') {
-        categoryFilter = '%energy%,%electricity%';
+        categoryFilter = 'category.ilike.%energy%,category.ilike.%electricity%';
         unit = 'kWh';
         title = 'Monthly Energy Consumption';
       } else if (resourceType === 'water') {
-        categoryFilter = '%water%';
+        categoryFilter = 'category.ilike.%water%';
         unit = 'm³';
         title = 'Monthly Water Consumption';
       } else {
-        categoryFilter = '%waste%';
-        unit = 'kg';
+        categoryFilter = 'category.ilike.%waste%';
+        unit = 'tons';
         title = 'Monthly Waste Generation';
       }
 
@@ -3063,7 +3063,7 @@ export const getMonthlyConsumptionTool = tool({
         waste: {
           definition: 'Waste generation measures materials sent to landfill, recycling, or other disposal',
           impact: 'Waste contributes to Scope 3 emissions and represents resource inefficiency',
-          benchmarks: 'Average office: 0.5-1.5 kg/person/day. Target: <0.3 kg/person/day with strong recycling',
+          benchmarks: 'Average office: 0.5-1.5 tons/person/year. Target: <0.3 tons/person/year with strong recycling',
           reductionStrategies: 'Circular economy principles, composting, improved recycling, reduce single-use items, donate/reuse programs'
         }
       };

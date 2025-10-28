@@ -156,6 +156,82 @@ export class AgentMessageGenerator {
   }
 
   /**
+   * Check if a similar message was recently sent to avoid duplicates
+   */
+  private async isDuplicateMessage(
+    conversationId: string,
+    agentId: string,
+    taskResult: any,
+    hoursToCheck: number = 24
+  ): Promise<boolean> {
+    try {
+      // Get recent messages from this agent in this conversation
+      const cutoffTime = new Date();
+      cutoffTime.setHours(cutoffTime.getHours() - hoursToCheck);
+
+      const { data: recentMessages, error } = await this.supabase
+        .from('messages')
+        .select('metadata')
+        .eq('conversation_id', conversationId)
+        .eq('agent_id', agentId)
+        .gte('created_at', cutoffTime.toISOString())
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error || !recentMessages || recentMessages.length === 0) {
+        return false; // No recent messages, not a duplicate
+      }
+
+      // Create a fingerprint of the current finding for comparison
+      const currentFingerprint = this.createFindingFingerprint(taskResult);
+
+      // Check if any recent message has a similar fingerprint
+      for (const msg of recentMessages) {
+        const msgResult = (msg.metadata as any)?.taskResult;
+        if (msgResult) {
+          const msgFingerprint = this.createFindingFingerprint(msgResult);
+          if (currentFingerprint === msgFingerprint) {
+            console.log(`[${agentId}] 🔄 Duplicate finding detected - skipping message creation`);
+            return true;
+          }
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error checking for duplicates:', error);
+      return false; // On error, allow the message (fail open)
+    }
+  }
+
+  /**
+   * Create a fingerprint of a finding for deduplication
+   * This extracts key metrics and creates a comparable signature
+   */
+  private createFindingFingerprint(taskResult: any): string {
+    // Extract key numeric values and round them for comparison
+    const extractNumbers = (obj: any): number[] => {
+      const numbers: number[] = [];
+      const extract = (o: any) => {
+        if (typeof o === 'number') {
+          numbers.push(Math.round(o * 100) / 100); // Round to 2 decimals
+        } else if (Array.isArray(o)) {
+          o.forEach(extract);
+        } else if (typeof o === 'object' && o !== null) {
+          Object.values(o).forEach(extract);
+        }
+      };
+      extract(obj);
+      return numbers.sort((a, b) => a - b); // Sort for consistent ordering
+    };
+
+    const numbers = extractNumbers(taskResult);
+
+    // Create fingerprint from key metrics
+    return numbers.slice(0, 5).join('|'); // Use top 5 numbers as signature
+  }
+
+  /**
    * Create a proactive message from an agent
    */
   async createProactiveMessage(params: ProactiveMessageParams) {
@@ -172,6 +248,21 @@ export class AgentMessageGenerator {
       if (!conversation) {
         console.error('Failed to get/create conversation');
         return null;
+      }
+
+      // Check for duplicate messages (skip for critical priority)
+      if (priority !== 'critical') {
+        const isDuplicate = await this.isDuplicateMessage(
+          conversation.id,
+          agentId,
+          taskResult,
+          24 // Check last 24 hours
+        );
+
+        if (isDuplicate) {
+          console.log(`[${agentId}] Skipping duplicate message for user ${userId}`);
+          return null;
+        }
       }
 
       // Generate natural language message using AI
@@ -414,29 +505,35 @@ Would you like me to investigate further or take any actions?`;
     agentId: string
   ) {
     try {
-      // Check if conversation exists
+      // Check if conversation exists for this specific agent
       const { data: existing } = await this.supabase
         .from('conversations')
         .select('*')
         .eq('user_id', userId)
         .eq('organization_id', organizationId)
         .eq('type', 'agent_proactive')
+        .eq('metadata->>agent_id', agentId)
         .maybeSingle();
 
       if (existing) return existing;
 
-      // Create new conversation
+      // Get agent display name
+      const agentName = this.getAgentDisplayName(agentId);
+
+      // Create new conversation for this agent
       const { data: newConv, error } = await this.supabase
         .from('conversations')
         .insert({
           user_id: userId,
           organization_id: organizationId,
           type: 'agent_proactive',
-          title: 'AI Agent Updates',
+          title: agentName,
           metadata: {
             automated: true,
             createdBy: 'agent-worker',
-            description: 'Proactive updates from your AI workforce'
+            agent_id: agentId,
+            agent_name: agentName,
+            description: `Proactive updates from ${agentName}`
           }
         })
         .select()

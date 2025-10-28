@@ -16,9 +16,23 @@ export const metadata: Metadata = {
       { url: '/favicon.ico', sizes: '32x32' },
     ],
     shortcut: '/favicon.ico',
-    apple: '/favicon-black-white.svg',
+    apple: '/apple-touch-icon.png',
   },
-  manifest: '/site.webmanifest',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Blipee',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({

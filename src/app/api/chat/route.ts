@@ -31,6 +31,7 @@ import { createDatabaseViolationLogger } from '@/lib/ai/safety/violation-logger'
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { sustainabilityTools } from '@/lib/ai/chat-tools';
+import { getOrCreatePromptVersion } from '@/lib/ai/prompt-version-tracker';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -105,12 +106,13 @@ export async function POST(req: NextRequest) {
     // Convert database messages to UIMessage format
     // If metadata.parts exists, use it (preserves tool calls, attachments, etc.)
     // Otherwise, fall back to simple text-only message (backwards compatibility)
+    // Transform 'agent' role to 'assistant' for AI SDK compatibility
     const previousMessages: UIMessage[] = (dbMessages || []).map((msg) => {
       const hasParts = msg.metadata && Array.isArray(msg.metadata.parts);
 
       return {
         id: msg.id,
-        role: msg.role as 'user' | 'assistant',
+        role: msg.role === 'agent' ? 'assistant' : msg.role as 'user' | 'assistant',
         parts: hasParts
           ? msg.metadata.parts // Use full parts if available (includes tool calls, etc.)
           : [{ type: 'text' as const, text: msg.content }], // Fallback to text-only
@@ -240,6 +242,13 @@ export async function POST(req: NextRequest) {
     // Create contextualized system prompt with org and building context
     const systemPrompt = createSystemPrompt(organizationId, buildingId);
 
+    // Track prompt version for feedback and A/B testing
+    const promptVersionId = await getOrCreatePromptVersion(
+      systemPrompt,
+      organizationId,
+      { model, buildingId }
+    );
+
     // Use streamText with proper message persistence pattern
     const result = streamText({
       model: getModel(model),
@@ -302,7 +311,8 @@ export async function POST(req: NextRequest) {
             content: assistantText, // Text-only for backwards compatibility
             model: model,
             metadata: {
-              parts: lastAssistantMessage.parts // Store full message parts structure
+              parts: lastAssistantMessage.parts, // Store full message parts structure
+              prompt_version_id: promptVersionId // Track which prompt version was used
             },
             created_at: new Date().toISOString()
           }).select();

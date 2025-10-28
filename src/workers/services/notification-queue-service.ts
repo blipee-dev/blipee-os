@@ -15,6 +15,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { AgentMessageGenerator } from '@/lib/ai/autonomous-agents/message-generator';
+import { sendPushToUser, type PushNotificationPayload } from '@/lib/push/send';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -37,6 +38,7 @@ export interface NotificationServiceStats {
   notificationsSent: number;
   chatMessagesCreated: number;
   emailsSent: number;
+  pushNotificationsSent: number;
   failed: number;
   retried: number;
   errors: number;
@@ -50,6 +52,7 @@ export class NotificationQueueService {
     notificationsSent: 0,
     chatMessagesCreated: 0,
     emailsSent: 0,
+    pushNotificationsSent: 0,
     failed: 0,
     retried: 0,
     errors: 0,
@@ -112,6 +115,7 @@ export class NotificationQueueService {
       console.log(`✅ [Notifications] Processed ${pendingNotifications.length} notifications`);
       console.log(`   • Notifications sent: ${this.stats.notificationsSent}`);
       console.log(`   • Chat messages created: ${this.stats.chatMessagesCreated}`);
+      console.log(`   • Push notifications sent: ${this.stats.pushNotificationsSent}`);
       console.log(`   • Failed: ${this.stats.failed}`);
 
     } catch (error) {
@@ -205,10 +209,14 @@ export class NotificationQueueService {
       })
       .eq('id', notification.id);
 
-    // TODO: Send email for critical notifications
-    if (notification.notification_importance === 'critical') {
-      // await this.sendEmail(notification);
-      // this.stats.emailsSent++;
+    // 📱 Send push notification for high and critical importance
+    if (['high', 'critical'].includes(notification.notification_importance)) {
+      try {
+        await this.sendPushNotification(userId, title, body, notification);
+      } catch (pushError) {
+        console.error(`   ⚠️  Failed to send push notification:`, pushError);
+        // Don't throw - notification was already created successfully
+      }
     }
   }
 
@@ -221,6 +229,42 @@ export class NotificationQueueService {
     // Implement exponential backoff retry logic
     // For now, just log the failure
     console.error(`   ⚠️  Failed notification will be retried: ${notification.id}`);
+  }
+
+  /**
+   * Send push notification to user
+   */
+  private async sendPushNotification(
+    userId: string,
+    title: string,
+    body: string,
+    notification: any
+  ): Promise<void> {
+    const payload: PushNotificationPayload = {
+      title,
+      body,
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: `agent-notification-${notification.id}`,
+      data: {
+        url: '/mobile',
+        conversationId: notification.result?.conversation_id,
+        agentId: notification.agent_id,
+        taskId: notification.task_id,
+        importance: notification.notification_importance
+      },
+      vibrate: [200, 100, 200],
+      requireInteraction: notification.notification_importance === 'critical'
+    };
+
+    const result = await sendPushToUser(userId, payload);
+
+    if (result.success) {
+      this.stats.pushNotificationsSent += result.sentCount;
+      console.log(`   📱 Push notification sent to ${result.sentCount} device(s)`);
+    } else {
+      console.error(`   ⚠️  Push notification failed:`, result.errors);
+    }
   }
 
   /**
@@ -283,6 +327,7 @@ export class NotificationQueueService {
       notificationsSent: 0,
       chatMessagesCreated: 0,
       emailsSent: 0,
+      pushNotificationsSent: 0,
       failed: 0,
       retried: 0,
       errors: 0,

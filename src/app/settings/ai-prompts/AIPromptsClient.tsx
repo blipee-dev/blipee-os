@@ -14,6 +14,9 @@ import {
   FlaskConical,
   Brain,
   Server,
+  ThumbsUp,
+  ThumbsDown,
+  BarChart2,
 } from 'lucide-react';
 import { GlassCard } from '@/components/premium/GlassCard';
 import { GradientButton } from '@/components/premium/GradientButton';
@@ -70,6 +73,23 @@ interface Insight {
   created_at: string;
 }
 
+interface PromptVersion {
+  id: string;
+  version_number: number;
+  status: string;
+  content_hash: string;
+  created_at: string;
+  metadata: {
+    feedback_metrics?: {
+      total: number;
+      positive: number;
+      negative: number;
+      satisfaction_rate: number;
+    };
+    last_feedback_at?: string;
+  };
+}
+
 export default function AIPromptsClient() {
   useAuthRedirect('/settings/ai-prompts');
 
@@ -79,17 +99,19 @@ export default function AIPromptsClient() {
   const [experiments, setExperiments] = useState<Experiment[]>([]);
   const [experimentStats, setExperimentStats] = useState<any>(null);
   const [insights, setInsights] = useState<Insight[]>([]);
+  const [promptVersions, setPromptVersions] = useState<PromptVersion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'jobs' | 'experiments' | 'insights'>('overview');
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'jobs' | 'experiments' | 'insights' | 'feedback'>('overview');
 
   const fetchData = async () => {
     try {
-      const [workerRes, jobsRes, experimentsRes, insightsRes] = await Promise.all([
+      const [workerRes, jobsRes, experimentsRes, insightsRes, versionsRes] = await Promise.all([
         fetch('/api/ai-prompt-optimization/worker-status'),
         fetch('/api/ai-prompt-optimization/jobs?limit=20'),
         fetch('/api/ai-prompt-optimization/experiments?limit=10'),
         fetch('/api/ai-prompt-optimization/insights?limit=10'),
+        fetch('/api/ai-prompt-optimization/prompt-versions?limit=50'),
       ]);
 
       if (workerRes.ok) {
@@ -112,6 +134,11 @@ export default function AIPromptsClient() {
       if (insightsRes.ok) {
         const data = await insightsRes.json();
         setInsights(data.insights);
+      }
+
+      if (versionsRes.ok) {
+        const data = await versionsRes.json();
+        setPromptVersions(data.versions);
       }
 
       setError('');
@@ -291,7 +318,7 @@ export default function AIPromptsClient() {
 
         {/* Tabs */}
         <div className="flex gap-2 border-b border-white/10">
-          {(['overview', 'jobs', 'experiments', 'insights'] as const).map((tab) => (
+          {(['overview', 'jobs', 'experiments', 'insights', 'feedback'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setSelectedTab(tab)}
@@ -565,6 +592,175 @@ export default function AIPromptsClient() {
               </div>
             </div>
           </GlassCard>
+        )}
+
+        {/* Feedback Tab */}
+        {selectedTab === 'feedback' && (
+          <div className="space-y-6">
+            {/* Summary Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <GlassCard>
+                <div className="p-4 text-center">
+                  <BarChart2 className="h-6 w-6 text-purple-400 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">
+                    {promptVersions.length}
+                  </div>
+                  <div className="text-gray-400 text-sm">Prompt Versions</div>
+                </div>
+              </GlassCard>
+
+              <GlassCard>
+                <div className="p-4 text-center">
+                  <ThumbsUp className="h-6 w-6 text-green-400 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-green-400">
+                    {promptVersions.reduce((sum, v) =>
+                      sum + (v.metadata?.feedback_metrics?.positive || 0), 0
+                    )}
+                  </div>
+                  <div className="text-gray-400 text-sm">Positive Feedback</div>
+                </div>
+              </GlassCard>
+
+              <GlassCard>
+                <div className="p-4 text-center">
+                  <ThumbsDown className="h-6 w-6 text-red-400 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-red-400">
+                    {promptVersions.reduce((sum, v) =>
+                      sum + (v.metadata?.feedback_metrics?.negative || 0), 0
+                    )}
+                  </div>
+                  <div className="text-gray-400 text-sm">Negative Feedback</div>
+                </div>
+              </GlassCard>
+
+              <GlassCard>
+                <div className="p-4 text-center">
+                  <TrendingUp className="h-6 w-6 text-blue-400 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-blue-400">
+                    {(() => {
+                      const versionsWithFeedback = promptVersions.filter(
+                        v => (v.metadata?.feedback_metrics?.total || 0) > 0
+                      );
+                      if (versionsWithFeedback.length === 0) return '0%';
+                      const avgSat = versionsWithFeedback.reduce(
+                        (sum, v) => sum + (v.metadata?.feedback_metrics?.satisfaction_rate || 0),
+                        0
+                      ) / versionsWithFeedback.length;
+                      return `${avgSat.toFixed(1)}%`;
+                    })()}
+                  </div>
+                  <div className="text-gray-400 text-sm">Avg Satisfaction</div>
+                </div>
+              </GlassCard>
+            </div>
+
+            {/* Prompt Versions Table */}
+            <GlassCard>
+              <div className="p-6">
+                <h2 className="text-xl font-semibold text-white mb-4">Prompt Versions Performance</h2>
+                <div className="space-y-3">
+                  {promptVersions.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400">
+                      No prompt versions tracked yet. Versions will appear as users interact with the AI.
+                    </div>
+                  ) : (
+                    promptVersions.map((version) => {
+                      const metrics = version.metadata?.feedback_metrics || {
+                        total: 0,
+                        positive: 0,
+                        negative: 0,
+                        satisfaction_rate: 0
+                      };
+
+                      const hasEnoughFeedback = metrics.total >= 10;
+                      const isHealthy = metrics.satisfaction_rate >= 60;
+
+                      return (
+                        <div
+                          key={version.id}
+                          className={`p-4 rounded-lg border transition-all ${
+                            hasEnoughFeedback
+                              ? isHealthy
+                                ? 'bg-green-500/5 border-green-500/30'
+                                : 'bg-red-500/5 border-red-500/30'
+                              : 'bg-white/5 border-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <span className="text-white font-medium">
+                                Version #{version.version_number}
+                              </span>
+                              <span className={`px-2 py-1 rounded text-xs ${getStatusColor(version.status)}`}>
+                                {version.status}
+                              </span>
+                              <span className="text-gray-500 text-xs font-mono">
+                                {version.content_hash}
+                              </span>
+                            </div>
+                            <span className="text-gray-400 text-sm">
+                              {new Date(version.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+
+                          {/* Metrics */}
+                          {metrics.total > 0 ? (
+                            <div className="grid grid-cols-4 gap-4">
+                              <div>
+                                <div className="text-gray-400 text-xs mb-1">Total Feedback</div>
+                                <div className="text-white font-semibold">{metrics.total}</div>
+                              </div>
+                              <div>
+                                <div className="text-gray-400 text-xs mb-1">Positive</div>
+                                <div className="text-green-400 font-semibold flex items-center gap-1">
+                                  <ThumbsUp className="h-3 w-3" />
+                                  {metrics.positive}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-gray-400 text-xs mb-1">Negative</div>
+                                <div className="text-red-400 font-semibold flex items-center gap-1">
+                                  <ThumbsDown className="h-3 w-3" />
+                                  {metrics.negative}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-gray-400 text-xs mb-1">Satisfaction</div>
+                                <div className={`font-semibold ${
+                                  metrics.satisfaction_rate >= 80 ? 'text-green-400' :
+                                  metrics.satisfaction_rate >= 60 ? 'text-yellow-400' :
+                                  'text-red-400'
+                                }`}>
+                                  {metrics.satisfaction_rate.toFixed(1)}%
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-gray-500 text-sm">No feedback yet</div>
+                          )}
+
+                          {/* Warning for low satisfaction */}
+                          {hasEnoughFeedback && !isHealthy && (
+                            <div className="mt-3 flex items-center gap-2 text-yellow-400 text-sm">
+                              <AlertTriangle className="h-4 w-4" />
+                              Low satisfaction rate - optimization recommended
+                            </div>
+                          )}
+
+                          {/* Last feedback timestamp */}
+                          {version.metadata?.last_feedback_at && (
+                            <div className="mt-2 text-gray-500 text-xs">
+                              Last feedback: {new Date(version.metadata.last_feedback_at).toLocaleString()}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </GlassCard>
+          </div>
         )}
       </div>
     </div>

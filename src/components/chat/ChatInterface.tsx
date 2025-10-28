@@ -64,6 +64,7 @@ import { isToolUIPart, getToolName } from 'ai';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context';
 import { MetricsChart, type ChartData } from '@/components/chat/MetricsChart';
+import { ToolCallStatus } from '@/components/chat/ToolCallStatus';
 
 // Available AI models for selection
 const AVAILABLE_MODELS = [
@@ -125,6 +126,9 @@ interface ChatInterfaceProps {
   initialInput?: string; // Initial text for the input field
   className?: string;
   onConversationUpdate?: () => void; // Callback to refresh conversation list
+  showingOnlyUnread?: boolean; // Whether we're showing only unread messages (WhatsApp-like)
+  onLoadAllMessages?: () => void; // Callback to load all messages
+  highlightMessageId?: string | null; // ID of message to scroll to and highlight (from notification click)
 }
 
 export function ChatInterface({
@@ -134,12 +138,16 @@ export function ChatInterface({
   initialMessages,
   initialInput = '',
   className,
-  onConversationUpdate
+  onConversationUpdate,
+  showingOnlyUnread = false,
+  onLoadAllMessages,
+  highlightMessageId
 }: ChatInterfaceProps) {
   const [input, setInput] = useState(initialInput);
   const [model, setModel] = useState(AVAILABLE_MODELS[0].id);
   const [feedback, setFeedback] = useState<Record<string, 'up' | 'down' | null>>({});
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const highlightedMessageRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { user } = useAuth();
 
@@ -151,6 +159,35 @@ export function ChatInterface({
       setTimeout(() => textareaRef.current?.focus(), 100);
     }
   }, [initialInput]);
+
+  // Scroll to highlighted message when it's rendered (from notification click)
+  useEffect(() => {
+    if (highlightMessageId && highlightedMessageRef.current) {
+      console.log('[ChatInterface] 🎯 Scrolling to highlighted message:', highlightMessageId);
+      // Small delay to ensure the DOM has updated
+      setTimeout(() => {
+        if (highlightedMessageRef.current) {
+          // Scroll to the message with smooth behavior
+          highlightedMessageRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+
+          // Remove highlight after 3 seconds
+          setTimeout(() => {
+            if (highlightedMessageRef.current) {
+              highlightedMessageRef.current.classList.remove('highlighted-message');
+              highlightedMessageRef.current.classList.remove('bg-green-50');
+              highlightedMessageRef.current.classList.remove('dark:bg-green-900/20');
+              highlightedMessageRef.current.classList.remove('rounded-lg');
+              highlightedMessageRef.current.classList.remove('p-4');
+              highlightedMessageRef.current.classList.remove('-mx-4');
+            }
+          }, 3000);
+        }
+      }, 100);
+    }
+  }, [highlightMessageId]);
 
   // Generate context-aware suggestions based on current page
   const suggestions = useMemo(() => getContextualSuggestions(pathname), [pathname]);
@@ -243,13 +280,36 @@ export function ChatInterface({
     sendMessage({ text: suggestion });
   };
 
-  const handleFeedback = (messageId: string, type: 'up' | 'down') => {
+  const handleFeedback = async (messageId: string, type: 'up' | 'down') => {
+    // Update UI state immediately for responsiveness
+    const newFeedbackType = feedback[messageId] === type ? null : type;
     setFeedback(prev => ({
       ...prev,
-      [messageId]: prev[messageId] === type ? null : type
+      [messageId]: newFeedbackType
     }));
-    // TODO: Send feedback to API
-    console.log(`Feedback for message ${messageId}:`, type);
+
+    // Send feedback to API for prompt optimization
+    if (newFeedbackType) {
+      try {
+        const response = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messageId,
+            feedbackType: type === 'up' ? 'positive' : 'negative'
+          })
+        });
+
+        if (!response.ok) {
+          console.error('Failed to save feedback:', await response.text());
+        }
+      } catch (error) {
+        console.error('Failed to save feedback:', error);
+      }
+    } else {
+      // User cleared their feedback - we could add a DELETE endpoint later
+      console.log(`Feedback cleared for message ${messageId}`);
+    }
   };
 
   return (
@@ -257,6 +317,18 @@ export function ChatInterface({
       {/* Messages Container - ChatGPT Mobile Style */}
       <Conversation className="flex-1 min-h-0 overflow-y-auto pb-32">
         <ConversationContent className="max-w-3xl mx-auto px-4 py-6">
+          {/* Load Older Messages Button (WhatsApp-like) */}
+          {showingOnlyUnread && onLoadAllMessages && (
+            <div className="mb-4 flex justify-center">
+              <button
+                onClick={onLoadAllMessages}
+                className="px-4 py-2 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full transition-colors border border-gray-200 dark:border-gray-700"
+              >
+                ↑ Load older messages
+              </button>
+            </div>
+          )}
+
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full space-y-6">
               <ConversationEmptyState
@@ -287,7 +359,14 @@ export function ChatInterface({
           ) : (
             <div className="space-y-6">
               {messages.map((message) => (
-                <div key={message.id}>
+                <div
+                  key={message.id}
+                  ref={message.id === highlightMessageId ? highlightedMessageRef : null}
+                  className={cn(
+                    'transition-all duration-500',
+                    message.id === highlightMessageId && 'highlighted-message bg-green-50 dark:bg-green-900/20 rounded-lg p-4 -mx-4'
+                  )}
+                >
                   {/* Sources - Show at top if available */}
                   {message.role === 'assistant' && message.parts.filter((part) => part.type === 'source-url').length > 0 && (
                     <Sources className="mb-3">
@@ -420,60 +499,85 @@ export function ChatInterface({
                         // Return null for other states
                         return null;
                       }
+
+                      // For all other tools, show status indicator during execution
+                      const toolPart = part as any;
+                      const isExecuting = toolPart.state === 'input-available' || toolPart.state === 'input-streaming';
+                      const isComplete = toolPart.state === 'output-available';
+                      const isError = toolPart.state === 'output-error';
+
+                      // Show status for executing, completed, or errored tools (but not for tools that just have input)
+                      if (isExecuting || isComplete || isError) {
+                        // Don't show status for completed tools after a short delay (they'll be replaced by results/text)
+                        // Only show status during execution or if there's an error
+                        if (isComplete && !isError) {
+                          return null; // Completed successfully, don't show status
+                        }
+
+                        return (
+                          <div key={`${message.id}-tool-${i}`} className="my-3">
+                            <ToolCallStatus
+                              toolName={toolName}
+                              state={toolPart.state}
+                            />
+                          </div>
+                        );
+                      }
+
+                      // Return null for tools that don't need status display
+                      return null;
                     }
 
                     // Handle agent messages differently (proactive AI messages)
                     if (message.role === 'agent' && part.type === 'text') {
                       const agentMeta = message as any;
-                      const priority = agentMeta.priority || 'info';
                       const agentId = agentMeta.agent_id || 'unknown';
 
+                      // Agent avatar configurations
+                      const agentAvatars: Record<string, { emoji: string; color: string; name: string }> = {
+                        'carbon-hunter': { emoji: '🔍', color: 'from-green-500 to-emerald-600', name: 'Carbon Hunter' },
+                        'compliance-guardian': { emoji: '⚖️', color: 'from-blue-500 to-indigo-600', name: 'Compliance Guardian' },
+                        'cost-finder': { emoji: '💰', color: 'from-yellow-500 to-amber-600', name: 'Cost Finder' },
+                        'predictive-maintenance': { emoji: '🔧', color: 'from-orange-500 to-red-600', name: 'Predictive Maintenance' },
+                        'supply-chain': { emoji: '🔗', color: 'from-purple-500 to-pink-600', name: 'Supply Chain' },
+                        'regulatory': { emoji: '📋', color: 'from-cyan-500 to-blue-600', name: 'Regulatory Foresight' },
+                        'optimizer': { emoji: '⚡', color: 'from-violet-500 to-purple-600', name: 'Autonomous Optimizer' },
+                        'esg-chief': { emoji: '👔', color: 'from-slate-500 to-gray-600', name: 'ESG Chief of Staff' },
+                        'optimization_agent': { emoji: '⚡', color: 'from-violet-500 to-purple-600', name: 'Autonomous Optimizer' },
+                      };
+
+                      const agent = agentAvatars[agentId] || { emoji: '🤖', color: 'from-gray-500 to-gray-600', name: 'AI Agent' };
+
                       return (
-                        <div key={`${message.id}-${i}`} className="mb-4">
-                          <div className={cn(
-                            "border-l-4 rounded-lg p-4 shadow-sm",
-                            priority === 'critical' ? 'bg-red-50 border-red-500 dark:bg-red-950/20' :
-                            priority === 'alert' ? 'bg-yellow-50 border-yellow-500 dark:bg-yellow-950/20' :
-                            'bg-blue-50 border-blue-500 dark:bg-blue-950/20'
-                          )}>
-                            <div className="flex items-start gap-3">
-                              <div className="text-2xl flex-shrink-0">🤖</div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                  <span className={cn(
-                                    "font-semibold text-sm",
-                                    priority === 'critical' ? 'text-red-900 dark:text-red-100' :
-                                    priority === 'alert' ? 'text-yellow-900 dark:text-yellow-100' :
-                                    'text-blue-900 dark:text-blue-100'
-                                  )}>
-                                    {agentId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                  </span>
-                                  {priority === 'critical' && (
-                                    <span className="px-2 py-0.5 bg-red-500 text-white text-xs rounded-full font-medium">
-                                      CRITICAL
-                                    </span>
-                                  )}
-                                  {priority === 'alert' && (
-                                    <span className="px-2 py-0.5 bg-yellow-500 text-white text-xs rounded-full font-medium">
-                                      ALERT
-                                    </span>
-                                  )}
-                                  <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-500 text-xs rounded-full">
-                                    Automated Update
-                                  </span>
-                                </div>
-                                <Response className={cn(
-                                  "text-sm leading-relaxed",
-                                  priority === 'critical' ? 'text-red-800 dark:text-red-200' :
-                                  priority === 'alert' ? 'text-yellow-800 dark:text-yellow-200' :
-                                  'text-blue-800 dark:text-blue-200'
-                                )}>
-                                  {part.text}
-                                </Response>
-                                <div className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                                  {new Date(message.createdAt || Date.now()).toLocaleString()}
-                                </div>
+                        <div key={`${message.id}-${i}`} className="group mb-4">
+                          <div className="flex items-start gap-3">
+                            {/* Agent Avatar */}
+                            <div className="flex-shrink-0">
+                              <div className={cn(
+                                "w-10 h-10 rounded-full bg-gradient-to-r flex items-center justify-center text-white font-semibold text-lg",
+                                agent.color
+                              )}>
+                                {agent.emoji}
                               </div>
+                            </div>
+                            {/* Message Content */}
+                            <div className="flex-1 min-w-0">
+                              <Message from="assistant">
+                                <MessageContent variant="flat" className="max-w-full !bg-transparent !p-0">
+                                  <Response className="text-[15px] leading-relaxed !text-gray-500 dark:!text-gray-500 [&_*]:!text-gray-500 dark:[&_*]:!text-gray-500">
+                                    {part.text}
+                                  </Response>
+                                </MessageContent>
+                              </Message>
+                              {/* Actions below agent message */}
+                              <Actions className="mt-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Action
+                                  onClick={() => navigator.clipboard.writeText(part.text)}
+                                  label="Copy"
+                                >
+                                  <CopyIcon className="size-4" />
+                                </Action>
+                              </Actions>
                             </div>
                           </div>
                         </div>

@@ -48,10 +48,6 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
 
-  // Force dynamic rendering to prevent build hangs during static generation
-  // All pages will be server-rendered on-demand instead of pre-generated
-  output: 'standalone',
-
   // Prevent build from hanging on static page generation
   staticPageGenerationTimeout: 90, // 90 seconds max per page
 
@@ -93,10 +89,20 @@ const nextConfig = {
   experimental: {
     // Optimize for smaller bundles
     optimizeCss: true,
+    // Enable modern JavaScript output for better performance
+    optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/react-dropdown-menu'],
   },
-  
+
+  // Optimize bundle size for mobile
+  compiler: {
+    // Remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
   // Webpack configuration
-  webpack: (config, { dev }) => {
+  webpack: (config, { dev, isServer }) => {
     if (dev) {
       // Suppress cache serialization warnings in development
       config.cache = {
@@ -104,6 +110,54 @@ const nextConfig = {
         compression: false,
       };
     }
+
+    // Optimize bundle splitting for better caching
+    if (!dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            // Vendor splitting for better caching
+            default: false,
+            vendors: false,
+            // Framework chunk (react, react-dom, next)
+            framework: {
+              name: 'framework',
+              chunks: 'all',
+              test: /[\\/]node_modules[\\/](react|react-dom|next)[\\/]/,
+              priority: 40,
+              enforce: true,
+            },
+            // UI libraries chunk
+            ui: {
+              name: 'ui',
+              chunks: 'all',
+              test: /[\\/]node_modules[\\/](@radix-ui|lucide-react|framer-motion)[\\/]/,
+              priority: 30,
+            },
+            // Commons chunk for shared code
+            commons: {
+              name: 'commons',
+              minChunks: 2,
+              priority: 20,
+            },
+            // Default vendor chunk
+            lib: {
+              test: /[\\/]node_modules[\\/]/,
+              name(module) {
+                const packageName = module.context.match(
+                  /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+                )?.[1];
+                return `npm.${packageName?.replace('@', '')}`;
+              },
+              priority: 10,
+            },
+          },
+        },
+      };
+    }
+
     return config;
   },
 };

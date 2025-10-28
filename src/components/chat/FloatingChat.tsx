@@ -14,6 +14,7 @@ import { ChatInterface } from './ChatInterface';
 import { PromptLibrary } from './PromptLibrary';
 import type { SustainabilityAgentMessage } from '@/lib/ai/agents';
 import { useAuth } from '@/lib/auth/context';
+import { useCSRF } from '@/hooks/use-csrf';
 import { Input } from '@/components/ui/input';
 import { NotificationBadge } from '@/components/ui/notification-badge';
 import {
@@ -64,11 +65,15 @@ export function FloatingChat({
   const [loadedMessages, setLoadedMessages] = useState<SustainabilityAgentMessage[]>(initialMessages || []);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [loadedMessagesFor, setLoadedMessagesFor] = useState<string | null>(initialConversationId || null);
+  const [showingOnlyUnread, setShowingOnlyUnread] = useState(false); // Track if showing only unread messages
+  const [isHandlingNotificationClick, setIsHandlingNotificationClick] = useState(false); // Prevent auto-fetch when clicking notification
+  const [highlightMessageId, setHighlightMessageId] = useState<string | null>(null); // ID of message to scroll to and highlight
   const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [deletingConversationId, setDeletingConversationId] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const { user } = useAuth();
+  const { headers: csrfHeaders } = useCSRF();
 
   const fetchConversations = async () => {
     if (!user) {
@@ -93,14 +98,17 @@ export function FloatingChat({
     }
   };
 
-  // Fetch messages for a conversation
+  // Fetch messages for a conversation (used for regular chats - shows FULL history)
   const fetchMessages = async (conversationId: string) => {
+    console.log('[FloatingChat] 💬 Fetching FULL conversation history (ChatGPT-style):', conversationId);
     setIsLoadingMessages(true);
     setLoadedMessagesFor(null); // Clear tracking while loading
+    setShowingOnlyUnread(false); // Always show full history for regular chats
     try {
       const response = await fetch(`/api/conversations/${conversationId}/messages`);
       if (response.ok) {
         const data = await response.json();
+        console.log('[FloatingChat] ✅ Loaded full conversation:', data.messages?.length || 0, 'messages');
         setLoadedMessages(data.messages || []);
         setLoadedMessagesFor(conversationId);
       } else if (response.status === 404) {
@@ -145,6 +153,12 @@ export function FloatingChat({
   useEffect(() => {
     if (!selectedConversationId) return;
 
+    // Skip auto-fetch if we're handling a notification click (it fetches manually)
+    if (isHandlingNotificationClick) {
+      console.log('[FloatingChat] Skipping auto-fetch - handling notification click');
+      return;
+    }
+
     // If we have an initial conversation ID (from props), fetch immediately
     if (initialConversationId) {
       fetchMessages(selectedConversationId);
@@ -173,7 +187,7 @@ export function FloatingChat({
       console.log('[FloatingChat] Skipping fetch - conversations not loaded yet');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedConversationId, conversationsLoaded]);
+  }, [selectedConversationId, conversationsLoaded, isHandlingNotificationClick]);
 
   const handleNewChat = () => {
     // Generate a new conversation ID (UUID format to match database schema)
@@ -187,10 +201,11 @@ export function FloatingChat({
   };
 
   const handleSelectConversation = (conversationId: string) => {
-    console.log('[FloatingChat] 👆 handleSelectConversation - Selecting conversation:', conversationId);
+    console.log('[FloatingChat] 💬 REGULAR CHAT - Will show FULL history (ChatGPT-style):', conversationId);
     setIsLoadingMessages(true); // Set loading state immediately
     setLoadedMessages([]); // Clear messages immediately when switching
     setLoadedMessagesFor(null); // Clear loaded message tracking
+    setShowingOnlyUnread(false); // Always show full history for regular chats
     setSelectedConversationId(conversationId);
     setIsSearchModalOpen(false);
     console.log('[FloatingChat] Set states for conversation switch - loading=true, messages=[], loadedFor=null');
@@ -200,7 +215,7 @@ export function FloatingChat({
     if (existingConv) {
       markMessagesAsRead(conversationId);
     }
-    // Messages will be loaded by useEffect
+    // Messages will be loaded by useEffect (full history)
   };
 
   const handleRenameConversation = async (conversationId: string, newTitle: string) => {
@@ -209,7 +224,10 @@ export function FloatingChat({
     try {
       const response = await fetch(`/api/conversations/${conversationId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...csrfHeaders
+        },
         body: JSON.stringify({ title: newTitle.trim() })
       });
 
@@ -229,7 +247,10 @@ export function FloatingChat({
   const handleDeleteConversation = async (conversationId: string) => {
     try {
       const response = await fetch(`/api/conversations/${conversationId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          ...csrfHeaders
+        }
       });
 
       if (response.ok) {
@@ -252,7 +273,10 @@ export function FloatingChat({
     try {
       const response = await fetch(`/api/conversations/${conversationId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...csrfHeaders
+        },
         body: JSON.stringify({ archived: true })
       });
 
@@ -345,7 +369,10 @@ export function FloatingChat({
     try {
       await fetch('/api/messages/mark-read', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...csrfHeaders
+        },
         body: JSON.stringify({ conversationId }),
       });
       // Refresh unread count
@@ -373,18 +400,93 @@ export function FloatingChat({
     }
   };
 
-  // Handle notification click - open the agent conversation
-  const handleNotificationClick = async (conversationId: string) => {
-    // Load the conversation
-    setSelectedConversationId(conversationId);
-    setLoadedMessagesFor(null); // Force reload
+  // Handle notification click - open the agent conversation with ONLY unread messages (WhatsApp-like)
+  const handleNotificationClick = async (conversationId: string, messageId?: string) => {
+    console.log('[FloatingChat] 📱 AGENT NOTIFICATION - Will show ONLY unread messages (WhatsApp-style):', conversationId, 'messageId:', messageId);
 
-    // Mark messages as read
-    await markMessagesAsRead(conversationId);
+    try {
+      // Set flag to prevent auto-fetch from useEffect
+      setIsHandlingNotificationClick(true);
 
-    // Refresh notifications and unread count
-    fetchNotifications();
-    fetchUnreadCount();
+      // Set loading state
+      setIsLoadingMessages(true);
+      setLoadedMessages([]);
+      setLoadedMessagesFor(null);
+      setShowingOnlyUnread(false);
+      setHighlightMessageId(messageId || null); // Set the message to highlight
+
+      // Set the conversation ID
+      setSelectedConversationId(conversationId);
+
+      // Fetch ALL messages for this conversation
+      const response = await fetch(`/api/conversations/${conversationId}/messages`);
+      if (response.ok) {
+        const data = await response.json();
+        const allMessages = data.messages || [];
+
+        console.log('[FloatingChat] 📱 Agent messages loaded:', {
+          total: allMessages.length,
+          unread: allMessages.filter((msg: any) => !msg.read).length
+        });
+
+        // Filter to show ONLY unread messages (like WhatsApp)
+        const unreadMessages = allMessages.filter((msg: any) => !msg.read);
+
+        // If there are unread messages, show only those and set flag
+        if (unreadMessages.length > 0 && unreadMessages.length < allMessages.length) {
+          console.log('[FloatingChat] ✅ Showing ONLY unread messages (WhatsApp-style):', unreadMessages.length);
+          setLoadedMessages(unreadMessages);
+          setShowingOnlyUnread(true); // Flag that we're showing filtered view
+        } else {
+          // Show all messages if no unread or all are unread
+          console.log('[FloatingChat] ℹ️ Showing all messages (no partial unread)');
+          setLoadedMessages(allMessages);
+          setShowingOnlyUnread(false);
+        }
+        setLoadedMessagesFor(conversationId);
+      } else if (response.status === 404) {
+        setLoadedMessages([]);
+        setLoadedMessagesFor(conversationId);
+        setShowingOnlyUnread(false);
+      }
+
+      // Mark messages as read
+      await markMessagesAsRead(conversationId);
+
+      // Refresh notifications and unread count (wait a moment for DB to update)
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await fetchNotifications();
+      await fetchUnreadCount();
+
+    } catch (error) {
+      console.error('Error handling notification click:', error);
+      setLoadedMessages([]);
+      setLoadedMessagesFor(null);
+      setShowingOnlyUnread(false);
+    } finally {
+      setIsLoadingMessages(false);
+      // Reset flag after a short delay to allow the UI to update
+      setTimeout(() => setIsHandlingNotificationClick(false), 100);
+    }
+  };
+
+  // Load all messages (when user wants to see full history)
+  const loadAllMessages = async () => {
+    if (!selectedConversationId) return;
+
+    setIsLoadingMessages(true);
+    try {
+      const response = await fetch(`/api/conversations/${selectedConversationId}/messages`);
+      if (response.ok) {
+        const data = await response.json();
+        setLoadedMessages(data.messages || []);
+        setShowingOnlyUnread(false); // Now showing all messages
+      }
+    } catch (error) {
+      console.error('Error loading all messages:', error);
+    } finally {
+      setIsLoadingMessages(false);
+    }
   };
 
   // Poll for unread count every 30 seconds and fetch notifications
@@ -568,23 +670,37 @@ export function FloatingChat({
                               <div className="space-y-0.5 px-2 mb-4">
                                 {notifications.slice(0, 5).map((notification) => (
                                   <button
-                                    key={notification.id}
-                                    onClick={() => handleNotificationClick(notification.conversationId)}
+                                    key={notification.conversationId}
+                                    onClick={() => handleNotificationClick(notification.conversationId, notification.lastMessageId)}
                                     className={`w-full text-left px-3 py-2.5 text-sm rounded-lg transition-colors ${
-                                      notification.read
-                                        ? 'text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800'
-                                        : 'bg-green-50 dark:bg-green-900/20 text-gray-900 dark:text-white hover:bg-green-100 dark:hover:bg-green-900/30 font-medium'
+                                      notification.unreadCount > 0
+                                        ? 'bg-green-50 dark:bg-green-900/20 text-gray-900 dark:text-white hover:bg-green-100 dark:hover:bg-green-900/30 font-medium'
+                                        : 'text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800'
                                     }`}
                                   >
                                     <div className="flex items-start gap-2">
                                       <Bot className="w-4 h-4 mt-0.5 shrink-0 text-green-500" />
                                       <div className="flex-1 min-w-0">
-                                        <p className="truncate">{notification.message}</p>
+                                        {notification.agentName && (
+                                          <div className="flex items-center justify-between mb-0.5">
+                                            <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                                              {notification.agentName}
+                                            </p>
+                                            {notification.unreadCount > 0 && (
+                                              <span className="text-xs bg-green-500 text-white px-1.5 py-0.5 rounded-full font-medium">
+                                                {notification.unreadCount}
+                                              </span>
+                                            )}
+                                          </div>
+                                        )}
+                                        <p className="truncate text-xs text-gray-600 dark:text-gray-400">
+                                          {notification.lastMessage}
+                                        </p>
                                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                                          {new Date(notification.timestamp).toLocaleDateString()} {new Date(notification.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                          {new Date(notification.lastMessageTimestamp).toLocaleDateString()} {new Date(notification.lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </p>
                                       </div>
-                                      {!notification.read && (
+                                      {notification.unreadCount > 0 && (
                                         <div className="w-2 h-2 rounded-full bg-green-500 shrink-0 mt-1.5" />
                                       )}
                                     </div>
@@ -793,6 +909,9 @@ export function FloatingChat({
                         initialInput={initialInput}
                         className="h-full"
                         onConversationUpdate={fetchConversations}
+                        showingOnlyUnread={showingOnlyUnread}
+                        onLoadAllMessages={loadAllMessages}
+                        highlightMessageId={highlightMessageId}
                       />
                     );
                   })()}
