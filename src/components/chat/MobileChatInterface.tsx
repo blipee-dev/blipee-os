@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {
   Menu,
@@ -116,6 +117,7 @@ export function MobileChatInterface({
   const { headers: csrfHeaders } = useCSRF();
   const { isSupported: isPushSupported, isSubscribed: isPushSubscribed, subscribe: subscribeToPush, permission: pushPermission } = usePushNotifications();
   const { showPrompt: showPWAPrompt, promptInstall, dismissPrompt: dismissPWAPrompt, isPWA } = usePWAInstall();
+  const router = useRouter();
 
   const fetchConversations = async () => {
     if (!user) return;
@@ -886,7 +888,8 @@ export function MobileChatInterface({
                 <div className="border-t border-gray-200 pt-4 space-y-1">
                   <button
                     onClick={() => {
-                      window.location.href = '/settings/organizations';
+                      router.push('/settings/organizations');
+                      setIsMenuOpen(false);
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-left"
                   >
@@ -896,7 +899,8 @@ export function MobileChatInterface({
 
                   <button
                     onClick={() => {
-                      window.location.href = '/profile';
+                      router.push('/profile');
+                      setIsMenuOpen(false);
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-left"
                   >

@@ -585,14 +585,16 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
 
   return (
     <SettingsLayout pageTitle={t('title')}>
-      <header className="hidden md:block p-4 sm:p-6 border-b border-gray-200 dark:border-white/[0.05]">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
-        <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">{t('subtitle')}</p>
+      <header className="hidden md:block py-4 sm:py-6 border-b border-gray-200 dark:border-white/[0.05]">
+        <div className="px-4 sm:px-6">
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
+          <p className="text-xs sm:text-sm text-[#616161] dark:text-[#757575] mt-1">{t('subtitle')}</p>
+        </div>
       </header>
 
-      <main className="p-4 sm:p-6">
+      <main className="py-4 sm:py-6">
         {/* Search and Add Button */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6 px-4 sm:px-6">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#757575]" />
             <input
