@@ -25,6 +25,7 @@ import { BaseSidebarLayout } from "@/components/layout/BaseSidebarLayout";
 import { useTranslations, useLanguage } from "@/providers/LanguageProvider";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { EducationalModal } from "@/components/education/EducationalModal";
+import { FloatingChat } from "@/components/chat/FloatingChat";
 
 const getSustainabilityNavItems = (tDashboard: (key: string) => string, isSuperAdmin: boolean, onHelpClick?: () => void) => {
   const allItems = [
@@ -48,6 +49,7 @@ const getSustainabilityNavItems = (tDashboard: (key: string) => string, isSuperA
 
 interface SustainabilityLayoutProps {
   children: React.ReactNode;
+  organizationId: string;
 }
 
 const educationalTopics = [
@@ -58,7 +60,7 @@ const educationalTopics = [
   { id: 'sbti-targets', icon: '🎯', titleKey: 'education.topics.sbtiTargets.title' }
 ];
 
-export function SustainabilityLayout({ children }: SustainabilityLayoutProps) {
+export function SustainabilityLayout({ children, organizationId }: SustainabilityLayoutProps) {
   const tDashboard = useTranslations('settings.sustainability.dashboard');
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -147,6 +149,9 @@ export function SustainabilityLayout({ children }: SustainabilityLayoutProps) {
           sector: 'professional_services'
         }}
       />
+
+      {/* Floating AI Chat */}
+      <FloatingChat organizationId={organizationId} />
     </>
   );
 }

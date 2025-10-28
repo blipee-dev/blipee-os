@@ -67,20 +67,15 @@ export function FloatingChat({
 
   const fetchConversations = async () => {
     if (!user) {
-      console.log('[FloatingChat] No user, skipping fetch');
       return;
     }
 
-    console.log('[FloatingChat] Fetching conversations for user:', user.id);
     setIsLoadingConversations(true);
     try {
       const url = `/api/conversations?userId=${user.id}&organizationId=${organizationId}`;
-      console.log('[FloatingChat] Fetching from:', url);
       const response = await fetch(url);
-      console.log('[FloatingChat] Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
-        console.log('[FloatingChat] Received data:', data);
         setConversations(data.conversations || []);
       } else {
         console.error('[FloatingChat] Response not OK:', response.status, await response.text());
@@ -95,38 +90,29 @@ export function FloatingChat({
 
   // Fetch messages for a conversation
   const fetchMessages = async (conversationId: string) => {
-    console.log('[FloatingChat] ▶️ fetchMessages called for:', conversationId);
     setIsLoadingMessages(true);
     setLoadedMessagesFor(null); // Clear tracking while loading
-    console.log('[FloatingChat] Set loadedMessagesFor to null (loading)');
     try {
       const response = await fetch(`/api/conversations/${conversationId}/messages`);
       if (response.ok) {
         const data = await response.json();
-        console.log('[FloatingChat] ✅ Loaded', data.count, 'messages for conversation:', conversationId);
         setLoadedMessages(data.messages || []);
         setLoadedMessagesFor(conversationId);
-        console.log('[FloatingChat] Set loadedMessagesFor to:', conversationId);
       } else if (response.status === 404) {
         // 404 is expected for new conversations that haven't been created yet
-        console.log('[FloatingChat] ℹ️ No messages yet (new conversation, 404)');
         setLoadedMessages([]);
         setLoadedMessagesFor(conversationId);
-        console.log('[FloatingChat] Set loadedMessagesFor to:', conversationId, '(empty conversation)');
       } else {
         console.error('[FloatingChat] ❌ Failed to load messages:', response.status);
         setLoadedMessages([]);
         setLoadedMessagesFor(null);
-        console.log('[FloatingChat] Set loadedMessagesFor to null (failed)');
       }
     } catch (error) {
       console.error('[FloatingChat] ❌ Error loading messages:', error);
       setLoadedMessages([]);
       setLoadedMessagesFor(null);
-      console.log('[FloatingChat] Set loadedMessagesFor to null (error)');
     } finally {
       setIsLoadingMessages(false);
-      console.log('[FloatingChat] ⏹️ fetchMessages complete, isLoadingMessages set to false');
     }
   };
 
@@ -146,7 +132,6 @@ export function FloatingChat({
   useEffect(() => {
     if (!initialConversationId && conversations.length > 0 && isOpen && conversationsLoaded) {
       // Keep the current new conversation - don't auto-switch
-      console.log('[FloatingChat] 💬 Conversations loaded, keeping new chat active');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversations, isOpen, conversationsLoaded]);
@@ -154,13 +139,6 @@ export function FloatingChat({
   // Load messages when conversation changes (but only for valid conversations)
   useEffect(() => {
     if (!selectedConversationId) return;
-
-    console.log('[FloatingChat] Message loading useEffect triggered', {
-      selectedConversationId,
-      conversationsLoaded,
-      hasInitialConversationId: !!initialConversationId,
-      conversationsCount: conversations.length
-    });
 
     // If we have an initial conversation ID (from props), fetch immediately
     if (initialConversationId) {
@@ -211,6 +189,12 @@ export function FloatingChat({
     setSelectedConversationId(conversationId);
     setIsSearchModalOpen(false);
     console.log('[FloatingChat] Set states for conversation switch - loading=true, messages=[], loadedFor=null');
+
+    // Mark messages as read for existing conversations
+    const existingConv = conversations.find(c => c.id === conversationId);
+    if (existingConv) {
+      markMessagesAsRead(conversationId);
+    }
     // Messages will be loaded by useEffect
   };
 
@@ -376,16 +360,6 @@ export function FloatingChat({
     return () => clearInterval(interval);
   }, [user]);
 
-  // Mark messages as read when opening chat
-  useEffect(() => {
-    if (isOpen && selectedConversationId) {
-      // Find if this is the agent proactive conversation
-      const agentConv = conversations.find(c => c.id === selectedConversationId);
-      if (agentConv) {
-        markMessagesAsRead(selectedConversationId);
-      }
-    }
-  }, [isOpen, selectedConversationId]);
 
   // Close on Escape key
   useEffect(() => {
@@ -409,7 +383,7 @@ export function FloatingChat({
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 bg-black text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2 group relative"
+          className="fixed bottom-6 right-6 z-[60] bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2 group"
           aria-label="Open Chat"
         >
           <MessageCircle className="w-6 h-6" />
@@ -430,7 +404,7 @@ export function FloatingChat({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55]"
             />
 
             {/* Modal Container */}
@@ -442,7 +416,7 @@ export function FloatingChat({
               }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className={`fixed z-50 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden flex flex-col ${
+              className={`fixed z-[60] bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden flex flex-col ${
                 isExpanded
                   ? 'inset-0 m-auto w-[90vw] h-[90vh]'
                   : 'bottom-6 right-6 w-[450px] h-[650px]'
@@ -703,15 +677,6 @@ export function FloatingChat({
                 <div className="flex-1 overflow-hidden bg-white dark:bg-zinc-900">
                   {(() => {
                     const shouldShowLoading = !conversationsLoaded || isLoadingMessages || loadedMessagesFor !== selectedConversationId;
-                    console.log('[FloatingChat] Render decision:', {
-                      conversationsLoaded,
-                      isLoadingMessages,
-                      loadedMessagesFor,
-                      selectedConversationId,
-                      messagesMatch: loadedMessagesFor === selectedConversationId,
-                      shouldShowLoading,
-                      loadedMessagesCount: loadedMessages.length
-                    });
 
                     return shouldShowLoading ? (
                       <div className="flex items-center justify-center h-full">

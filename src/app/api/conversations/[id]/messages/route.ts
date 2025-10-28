@@ -41,10 +41,10 @@ export async function GET(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    // Load messages
+    // Load messages with metadata (contains full parts structure)
     const { data: messages, error: messagesError } = await supabase
       .from('messages')
-      .select('id, role, content, model, created_at')
+      .select('id, role, content, model, created_at, metadata')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true });
 
@@ -59,17 +59,26 @@ export async function GET(
     console.log('[API Messages] Loaded', messages?.length || 0, 'messages');
 
     // Convert database messages to UIMessage format for AI SDK
-    const uiMessages = (messages || []).map((msg) => ({
-      id: msg.id,
-      role: msg.role as 'user' | 'assistant',
-      parts: [
-        {
-          type: 'text' as const,
-          text: msg.content,
-        },
-      ],
-      createdAt: new Date(msg.created_at),
-    }));
+    // If metadata.parts exists, use it (preserves tool calls, attachments, etc.)
+    // Otherwise, fall back to simple text-only message (backwards compatibility)
+    const uiMessages = (messages || []).map((msg) => {
+      const hasParts = msg.metadata && Array.isArray(msg.metadata.parts);
+
+      if (hasParts) {
+        console.log(`[API Messages] Message ${msg.id}: Using full parts (${msg.metadata.parts.length} parts)`);
+      } else {
+        console.log(`[API Messages] Message ${msg.id}: Using text fallback`);
+      }
+
+      return {
+        id: msg.id,
+        role: msg.role as 'user' | 'assistant',
+        parts: hasParts
+          ? msg.metadata.parts // Use full parts if available (includes tool calls, etc.)
+          : [{ type: 'text' as const, text: msg.content }], // Fallback to text-only
+        createdAt: new Date(msg.created_at),
+      };
+    });
 
     return NextResponse.json({
       messages: uiMessages,

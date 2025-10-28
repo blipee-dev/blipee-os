@@ -591,7 +591,7 @@ export async function getMonthlyEmissions(
       `)
       .eq('organization_id', organizationId)
       .gte('period_start', startDate)
-      .lte('period_end', effectiveEndDate)
+      .lte('period_start', effectiveEndDate)
       .order('period_start', { ascending: true })
       .range(rangeStart, rangeStart + batchSize - 1);
 

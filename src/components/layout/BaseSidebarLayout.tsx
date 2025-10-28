@@ -443,7 +443,7 @@ export function BaseSidebarLayout({
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/[0.05] bg-white dark:bg-[#111111]">
           <div className="flex items-center gap-3">
@@ -468,7 +468,7 @@ export function BaseSidebarLayout({
         </div>
 
         {/* Content with consistent background */}
-        <div className="h-full overflow-y-auto bg-gray-50 dark:bg-[#1a1a1a] pb-20 md:pb-0">
+        <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#1a1a1a]">
           {children}
         </div>
       </div>

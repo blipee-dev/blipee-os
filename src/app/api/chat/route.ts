@@ -94,26 +94,29 @@ export async function POST(req: NextRequest) {
 
     console.log('[Chat API] Access granted - role:', member.role);
 
-    // Load previous messages from database
+    // Load previous messages from database with metadata
     console.log('[Chat API] Loading previous messages for conversation:', conversationId);
     const { data: dbMessages, error: messagesError } = await supabase
       .from('messages')
-      .select('id, role, content, model, created_at')
+      .select('id, role, content, model, created_at, metadata')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true });
 
     // Convert database messages to UIMessage format
-    const previousMessages: UIMessage[] = (dbMessages || []).map((msg) => ({
-      id: msg.id,
-      role: msg.role as 'user' | 'assistant',
-      parts: [
-        {
-          type: 'text' as const,
-          text: msg.content,
-        },
-      ],
-      createdAt: new Date(msg.created_at),
-    }));
+    // If metadata.parts exists, use it (preserves tool calls, attachments, etc.)
+    // Otherwise, fall back to simple text-only message (backwards compatibility)
+    const previousMessages: UIMessage[] = (dbMessages || []).map((msg) => {
+      const hasParts = msg.metadata && Array.isArray(msg.metadata.parts);
+
+      return {
+        id: msg.id,
+        role: msg.role as 'user' | 'assistant',
+        parts: hasParts
+          ? msg.metadata.parts // Use full parts if available (includes tool calls, etc.)
+          : [{ type: 'text' as const, text: msg.content }], // Fallback to text-only
+        createdAt: new Date(msg.created_at),
+      };
+    });
 
     console.log('[Chat API] Loaded', previousMessages.length, 'previous messages');
 
@@ -202,11 +205,14 @@ export async function POST(req: NextRequest) {
           .map((part: any) => part.text)
           .join('\n');
 
-        console.log('[Chat] Saving user message...');
+        console.log('[Chat] Saving user message with full parts...');
         const { data: savedUserMessage, error: userSaveError } = await supabase.from('messages').insert({
           conversation_id: conversationId,
           role: 'user',
-          content: userContent,
+          content: userContent, // Text-only for backwards compatibility
+          metadata: {
+            parts: message.parts // Store full message parts structure (includes attachments, etc.)
+          },
           created_at: new Date().toISOString()
         }).select();
 
@@ -280,29 +286,24 @@ export async function POST(req: NextRequest) {
           return;
         }
 
-        // Extract all content from the assistant message (text + tool results)
+        // Extract text content for the content field (for backwards compatibility and search)
         const textParts = lastAssistantMessage.parts
           .filter((part: any) => part.type === 'text')
           .map((part: any) => part.text);
 
-        // Also include tool results as context
-        const toolParts = lastAssistantMessage.parts
-          .filter((part: any) => part.type?.startsWith('tool-') && part.state === 'output-available')
-          .map((part: any) => `[Tool: ${part.type}]\n${JSON.stringify(part.output, null, 2)}`);
+        const assistantText = textParts.join('\n\n');
 
-        const assistantText = [...textParts, ...toolParts].join('\n\n');
-
-        console.log('[Chat] Assistant text length:', assistantText.length);
-        console.log('[Chat] Text parts:', textParts.length, 'Tool parts:', toolParts.length);
-
-        // Save assistant message
+        // Save assistant message with full parts structure in metadata
         try {
-          console.log('[Chat] Saving assistant message...');
+          console.log('[Chat] Saving assistant message with full parts...');
           const { data: savedMessage, error: saveError } = await supabase.from('messages').insert({
             conversation_id: conversationId,
             role: 'assistant',
-            content: assistantText,
+            content: assistantText, // Text-only for backwards compatibility
             model: model,
+            metadata: {
+              parts: lastAssistantMessage.parts // Store full message parts structure
+            },
             created_at: new Date().toISOString()
           }).select();
 

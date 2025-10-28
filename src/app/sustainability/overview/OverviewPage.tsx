@@ -44,7 +44,7 @@ export default function OverviewPage({ conversationId, organizationId }: Overvie
 
   if (loading) {
     return (
-      <SustainabilityLayout>
+      <SustainabilityLayout organizationId={organizationId}>
         <div className="flex items-center justify-center min-h-[600px]">
           <div className="text-center space-y-4">
             <div
@@ -60,7 +60,7 @@ export default function OverviewPage({ conversationId, organizationId }: Overvie
 
   if (error) {
     return (
-      <SustainabilityLayout>
+      <SustainabilityLayout organizationId={organizationId}>
         <div className="flex items-center justify-center min-h-[600px]">
           <div className="text-center space-y-4">
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
@@ -79,7 +79,7 @@ export default function OverviewPage({ conversationId, organizationId }: Overvie
   }
 
   return (
-    <SustainabilityLayout>
+    <SustainabilityLayout organizationId={organizationId}>
       <div className="p-4 sm:p-6 space-y-6">
         {/* Header with Title and Filters */}
         <motion.div

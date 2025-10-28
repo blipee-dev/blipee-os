@@ -56,13 +56,14 @@ import {
 } from '@/components/ai-elements/sources';
 import { Suggestion, Suggestions } from '@/components/ai-elements/suggestion';
 import { Bot, CopyIcon, RefreshCcwIcon, PaperclipIcon, ThumbsUpIcon, ThumbsDownIcon } from 'lucide-react';
-import { Fragment, useState, useMemo, useRef } from 'react';
+import { Fragment, useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import type { SustainabilityAgentUIMessage } from '@/lib/ai/agents/sustainability-agent';
 import { ToolConfirmation } from '@/components/ai-elements/tool-confirmation';
 import { requiresApproval } from '@/lib/ai/hitl/tool-config';
 import { isToolUIPart, getToolName } from 'ai';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context';
+import { MetricsChart, type ChartData } from '@/components/chat/MetricsChart';
 
 // Available AI models for selection
 const AVAILABLE_MODELS = [
@@ -144,7 +145,7 @@ export function ChatInterface({
   const suggestions = useMemo(() => getContextualSuggestions(pathname), [pathname]);
 
   // Get user initials from name or email
-  const getUserInitials = () => {
+  const getUserInitials = useCallback(() => {
     if (!user) return 'U';
 
     // Try to get from user name first
@@ -166,32 +167,49 @@ export function ChatInterface({
     }
 
     return 'U';
-  };
+  }, [user]);
 
-  const { messages, sendMessage, status, error, regenerate, addToolResult } = useChat<SustainabilityAgentUIMessage>({
-    initialMessages: initialMessages || [],
-    transport: new DefaultChatTransport({
-      api: '/api/chat',
-      // Only send the last message to the server (recommended pattern for persistence)
-      prepareSendMessagesRequest({ messages, id }) {
-        return {
-          body: {
-            message: messages[messages.length - 1], // Send only the last message
-            conversationId,
-            organizationId,
-            buildingId,
-            model
-          }
-        };
-      }
-    }),
-    onFinish: () => {
-      // Refresh conversation list when message is complete
-      if (onConversationUpdate) {
-        onConversationUpdate();
-      }
+  // Memoize the transport configuration to prevent re-renders
+  const transport = useMemo(() => new DefaultChatTransport({
+    api: '/api/chat',
+    // Only send the last message to the server (recommended pattern for persistence)
+    prepareSendMessagesRequest({ messages, id }) {
+      return {
+        body: {
+          message: messages[messages.length - 1], // Send only the last message
+          conversationId,
+          organizationId,
+          buildingId,
+          model
+        }
+      };
     }
+  }), [conversationId, organizationId, buildingId, model]);
+
+  // Memoize the onFinish callback
+  const handleFinish = useCallback(() => {
+    // Refresh conversation list when message is complete
+    if (onConversationUpdate) {
+      onConversationUpdate();
+    }
+  }, [onConversationUpdate]);
+
+  const { messages, setMessages, sendMessage, status, error, regenerate, addToolResult } = useChat<SustainabilityAgentUIMessage>({
+    id: conversationId, // CRITICAL: This forces useChat to reinitialize when conversation changes
+    initialMessages: initialMessages || [],
+    transport,
+    onFinish: handleFinish
   });
+
+  // WORKAROUND: Manually set messages when initialMessages changes
+  // This is needed because useChat's initialMessages prop doesn't always reinitialize properly
+  useEffect(() => {
+    if (initialMessages && initialMessages.length > 0) {
+      setMessages(initialMessages);
+    } else {
+      setMessages([]);
+    }
+  }, [conversationId, initialMessages, setMessages]);
 
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text);
@@ -321,6 +339,73 @@ export function ChatInterface({
                             />
                           </div>
                         );
+                      }
+
+                      // Render visualization tools (charts)
+                      const visualizationTools = [
+                        'getEmissionsTrend',
+                        'getEmissionsBreakdown',
+                        'getMonthlyConsumption',
+                        'getTripAnalytics',
+                        'getBuildingEnergyBreakdown'
+                      ];
+
+                      if (visualizationTools.includes(toolName)) {
+                        const toolPart = part as any;
+
+                        // Show loading skeleton during tool execution
+                        if (toolPart.state === 'input-available' || toolPart.state === 'input-streaming') {
+                          return (
+                            <div key={`${message.id}-tool-${i}`} className="my-4">
+                              <div className="rounded-lg border bg-card p-6 shadow-sm animate-pulse">
+                                <div className="mb-4 flex items-center justify-between">
+                                  <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded" />
+                                  <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                                </div>
+                                <div className="h-[300px] md:h-[400px] bg-gray-200 dark:bg-gray-700 rounded" />
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // Render chart when output is available
+                        if (toolPart.state === 'output-available' && toolPart.output) {
+                          try {
+                            const chartData = toolPart.output as ChartData;
+                            return (
+                              <div key={`${message.id}-tool-${i}`} className="my-4">
+                                <MetricsChart data={chartData} />
+                              </div>
+                            );
+                          } catch (error) {
+                            console.error('❌ Error rendering chart:', error);
+                            return (
+                              <div key={`${message.id}-tool-${i}`} className="my-4">
+                                <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
+                                  <p className="text-sm text-red-700 dark:text-red-400">
+                                    Failed to render chart: {error instanceof Error ? error.message : 'Unknown error'}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          }
+                        }
+
+                        // Handle error state
+                        if (toolPart.state === 'output-error') {
+                          return (
+                            <div key={`${message.id}-tool-${i}`} className="my-4">
+                              <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
+                                <p className="text-sm text-red-700 dark:text-red-400">
+                                  {toolPart.errorText || 'Failed to generate chart'}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // Return null for other states
+                        return null;
                       }
                     }
 

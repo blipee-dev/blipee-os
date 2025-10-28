@@ -32,7 +32,10 @@
     },
     "vercel": {
       "command": "npx",
-      "args": ["-y", "vercel-mcp", "VERCEL_API_KEY=YOUR_VERCEL_API_KEY"]
+      "args": ["-y", "vercel-mcp"],
+      "env": {
+        "VERCEL_TOKEN": "5B4fXGNEvj7mtjlH9WKj5JEE"
+      }
     },
     "boikot": {
       "url": "https://mcp.boikot.xyz/mcp",

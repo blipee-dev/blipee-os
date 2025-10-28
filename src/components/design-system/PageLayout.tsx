@@ -110,7 +110,7 @@ export function PageLayout({
 
   if (loading) {
     return (
-      <SustainabilityLayout>
+      <SustainabilityLayout organizationId={organizationData?.id || ''}>
         <div className="flex items-center justify-center min-h-[600px]">
           <div className="text-center space-y-4">
             <div
@@ -126,7 +126,7 @@ export function PageLayout({
 
   if (error) {
     return (
-      <SustainabilityLayout>
+      <SustainabilityLayout organizationId={organizationData?.id || ''}>
         <div className="flex items-center justify-center min-h-[600px]">
           <div className="text-center space-y-4">
             <AlertCircle className={`${designTokens.icons.extraLarge} text-red-500 mx-auto`} />
@@ -145,7 +145,7 @@ export function PageLayout({
   }
 
   return (
-    <SustainabilityLayout>
+    <SustainabilityLayout organizationId={organizationData?.id || ''}>
       <div className={designTokens.spacing.sectionPadding}>
         {/* Page Header */}
         <motion.div

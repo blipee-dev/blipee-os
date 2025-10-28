@@ -25,8 +25,13 @@ import {
   getScopeBreakdown,
   getCategoryBreakdown,
   getMonthlyEmissions,
-  getYoYComparison
+  getYoYComparison,
+  getTopEmissionSources,
+  getEnergyTotal,
+  getWaterTotal,
+  getWasteTotal
 } from '@/lib/sustainability/baseline-calculator';
+import { EnterpriseForecast } from '@/lib/forecasting/enterprise-forecaster';
 
 // Initialize intelligence engines
 const industryIntelligence = new IndustryIntelligenceEngine();
@@ -521,6 +526,552 @@ export const trackSustainabilityGoalsTool = tool({
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         goalType
+      };
+    }
+  }
+});
+
+/**
+ * Executive Report Tool (Time-Flexible)
+ */
+export const getExecutiveReportTool = tool({
+  description: 'Generate an executive report for any time period. Use when users ask for "executive report", "summary", "report for last month/quarter/year", etc. Supports: "last month", "last 2 months", "last 3 months", "quarter", "semester", "this year", "last year", "YTD".',
+  inputSchema: z.object({
+    organizationId: z.string().describe('Organization ID'),
+    buildingId: z.string().optional().describe('Building ID'),
+    period: z.enum([
+      'last_month',
+      'last_2_months',
+      'last_3_months',
+      'quarter',
+      'semester',
+      'this_year',
+      'last_year',
+      'ytd',
+      'custom'
+    ]).describe('Time period for the report'),
+    customStartDate: z.string().optional().describe('Custom start date (YYYY-MM-DD)'),
+    customEndDate: z.string().optional().describe('Custom end date (YYYY-MM-DD)')
+  }),
+  execute: async ({ organizationId, buildingId, period, customStartDate, customEndDate }) => {
+    try {
+      const now = new Date();
+      let startDate: string;
+      let endDate: string;
+      let comparisonStartDate: string;
+      let comparisonEndDate: string;
+      let periodLabel: string;
+
+      // Calculate date ranges based on period
+      if (period === 'custom' && customStartDate && customEndDate) {
+        startDate = customStartDate;
+        endDate = customEndDate;
+        periodLabel = `${startDate} to ${endDate}`;
+
+        // Comparison period: same length, prior period
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const daysDiff = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+        const compStart = new Date(start);
+        compStart.setDate(compStart.getDate() - daysDiff);
+        const compEnd = new Date(end);
+        compEnd.setDate(compEnd.getDate() - daysDiff);
+        comparisonStartDate = compStart.toISOString().split('T')[0];
+        comparisonEndDate = compEnd.toISOString().split('T')[0];
+      } else if (period === 'last_month') {
+        const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+        const year = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+        startDate = `${year}-${(lastMonth + 1).toString().padStart(2, '0')}-01`;
+        const lastDay = new Date(year, lastMonth + 1, 0).getDate();
+        endDate = `${year}-${(lastMonth + 1).toString().padStart(2, '0')}-${lastDay}`;
+        periodLabel = new Date(startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        // Previous month for comparison
+        const prevMonth = lastMonth === 0 ? 11 : lastMonth - 1;
+        const prevYear = lastMonth === 0 ? year - 1 : year;
+        comparisonStartDate = `${prevYear}-${(prevMonth + 1).toString().padStart(2, '0')}-01`;
+        const prevLastDay = new Date(prevYear, prevMonth + 1, 0).getDate();
+        comparisonEndDate = `${prevYear}-${(prevMonth + 1).toString().padStart(2, '0')}-${prevLastDay}`;
+      } else if (period === 'last_2_months') {
+        const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+        startDate = twoMonthsAgo.toISOString().split('T')[0];
+        endDate = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0];
+        periodLabel = 'Last 2 Months';
+
+        const fourMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 4, 1);
+        comparisonStartDate = fourMonthsAgo.toISOString().split('T')[0];
+        comparisonEndDate = new Date(now.getFullYear(), now.getMonth() - 2, 0).toISOString().split('T')[0];
+      } else if (period === 'last_3_months') {
+        const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+        startDate = threeMonthsAgo.toISOString().split('T')[0];
+        endDate = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0];
+        periodLabel = 'Last 3 Months';
+
+        const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+        comparisonStartDate = sixMonthsAgo.toISOString().split('T')[0];
+        comparisonEndDate = new Date(now.getFullYear(), now.getMonth() - 3, 0).toISOString().split('T')[0];
+      } else if (period === 'quarter') {
+        const currentQuarter = Math.floor(now.getMonth() / 3);
+        const lastQuarter = currentQuarter === 0 ? 3 : currentQuarter - 1;
+        const quarterYear = currentQuarter === 0 ? now.getFullYear() - 1 : now.getFullYear();
+        startDate = `${quarterYear}-${(lastQuarter * 3 + 1).toString().padStart(2, '0')}-01`;
+        const endMonth = lastQuarter * 3 + 3;
+        const lastDay = new Date(quarterYear, endMonth, 0).getDate();
+        endDate = `${quarterYear}-${endMonth.toString().padStart(2, '0')}-${lastDay}`;
+        periodLabel = `Q${lastQuarter + 1} ${quarterYear}`;
+
+        // Previous quarter
+        const prevQuarter = lastQuarter === 0 ? 3 : lastQuarter - 1;
+        const prevQuarterYear = lastQuarter === 0 ? quarterYear - 1 : quarterYear;
+        comparisonStartDate = `${prevQuarterYear}-${(prevQuarter * 3 + 1).toString().padStart(2, '0')}-01`;
+        const prevEndMonth = prevQuarter * 3 + 3;
+        const prevLastDay = new Date(prevQuarterYear, prevEndMonth, 0).getDate();
+        comparisonEndDate = `${prevQuarterYear}-${prevEndMonth.toString().padStart(2, '0')}-${prevLastDay}`;
+      } else if (period === 'semester') {
+        const currentSemester = Math.floor(now.getMonth() / 6);
+        const lastSemester = currentSemester === 0 ? 1 : 0;
+        const semesterYear = currentSemester === 0 ? now.getFullYear() - 1 : now.getFullYear();
+        startDate = lastSemester === 0 ? `${semesterYear}-01-01` : `${semesterYear}-07-01`;
+        endDate = lastSemester === 0 ? `${semesterYear}-06-30` : `${semesterYear}-12-31`;
+        periodLabel = `${lastSemester === 0 ? 'H1' : 'H2'} ${semesterYear}`;
+
+        // Previous semester
+        const prevSemesterYear = lastSemester === 0 ? semesterYear - 1 : semesterYear;
+        comparisonStartDate = lastSemester === 0 ? `${prevSemesterYear}-07-01` : `${prevSemesterYear}-01-01`;
+        comparisonEndDate = lastSemester === 0 ? `${prevSemesterYear}-12-31` : `${prevSemesterYear}-06-30`;
+      } else if (period === 'this_year' || period === 'ytd') {
+        startDate = `${now.getFullYear()}-01-01`;
+        endDate = now.toISOString().split('T')[0];
+        periodLabel = `${now.getFullYear()} (YTD)`;
+
+        // Same period last year
+        comparisonStartDate = `${now.getFullYear() - 1}-01-01`;
+        comparisonEndDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).toISOString().split('T')[0];
+      } else if (period === 'last_year') {
+        const lastYear = now.getFullYear() - 1;
+        startDate = `${lastYear}-01-01`;
+        endDate = `${lastYear}-12-31`;
+        periodLabel = `${lastYear}`;
+
+        // Year before last
+        comparisonStartDate = `${lastYear - 1}-01-01`;
+        comparisonEndDate = `${lastYear - 1}-12-31`;
+      } else {
+        throw new Error('Invalid period specified');
+      }
+
+      // Get current period emissions
+      const currentEmissions = await getPeriodEmissions(organizationId, startDate, endDate, buildingId);
+
+      // Get comparison period emissions
+      const comparisonEmissions = await getPeriodEmissions(organizationId, comparisonStartDate, comparisonEndDate, buildingId);
+
+      // Calculate change
+      const periodChange = comparisonEmissions.total > 0
+        ? ((currentEmissions.total - comparisonEmissions.total) / comparisonEmissions.total) * 100
+        : 0;
+
+      // Get top emission sources
+      const topSources = await getTopEmissionSources(organizationId, startDate, endDate, 5, buildingId);
+
+      // Get category breakdown
+      const categoryBreakdown = await getCategoryBreakdown(organizationId, startDate, endDate, buildingId);
+
+      return {
+        success: true,
+        period: periodLabel,
+        summary: {
+          totalEmissions: currentEmissions.total,
+          scope1: currentEmissions.scope_1,
+          scope2: currentEmissions.scope_2,
+          scope3: currentEmissions.scope_3,
+          comparisonPeriodTotal: comparisonEmissions.total,
+          periodChange: Math.round(periodChange * 10) / 10,
+          trend: periodChange < -5 ? 'improving' : periodChange > 5 ? 'worsening' : 'stable'
+        },
+        topEmissionSources: topSources.map(s => ({
+          category: s.category,
+          emissions: s.emissions,
+          percentage: s.percentage,
+          trend: s.trend,
+          recommendation: s.recommendation
+        })),
+        categoryBreakdown: categoryBreakdown.slice(0, 5).map(c => ({
+          category: c.category,
+          total: c.total,
+          percentage: c.percentage
+        })),
+        insights: [
+          periodChange < -5
+            ? `Emissions decreased by ${Math.abs(periodChange).toFixed(1)}% compared to previous period - great progress!`
+            : periodChange > 5
+            ? `Emissions increased by ${periodChange.toFixed(1)}% compared to previous period - requires attention.`
+            : 'Emissions remained stable compared to previous period.',
+
+          topSources.length > 0
+            ? `${topSources[0].category} is the largest emission source at ${topSources[0].percentage.toFixed(1)}% of total emissions.`
+            : 'No significant emission sources identified.',
+
+          currentEmissions.scope_3 > currentEmissions.scope_1 + currentEmissions.scope_2
+            ? 'Scope 3 (indirect) emissions dominate - focus on supply chain and value chain optimization.'
+            : currentEmissions.scope_2 > currentEmissions.scope_1
+            ? 'Scope 2 (energy) emissions are significant - consider renewable energy contracts.'
+            : 'Scope 1 (direct) emissions are the primary contributor.'
+        ],
+        recommendations: topSources.slice(0, 3).map(s => s.recommendation)
+      };
+    } catch (error) {
+      console.error('Executive report error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+});
+
+/**
+ * GRI Metrics Report Tool (Time-Flexible)
+ */
+export const getGRIReportTool = tool({
+  description: 'Generate a GRI (Global Reporting Initiative) compliant metrics report for any time period. Use when users ask for "GRI report", "GRI metrics", "sustainability report", etc. Supports all time periods: last month, quarter, semester, this year, last year, custom dates.',
+  inputSchema: z.object({
+    organizationId: z.string().describe('Organization ID'),
+    buildingId: z.string().optional().describe('Building ID'),
+    period: z.enum([
+      'last_month',
+      'last_2_months',
+      'last_3_months',
+      'quarter',
+      'semester',
+      'this_year',
+      'last_year',
+      'ytd',
+      'custom'
+    ]).describe('Time period for the report'),
+    customStartDate: z.string().optional().describe('Custom start date (YYYY-MM-DD)'),
+    customEndDate: z.string().optional().describe('Custom end date (YYYY-MM-DD)'),
+    standards: z.array(z.enum(['GRI_305', 'GRI_302', 'GRI_303', 'GRI_306', 'GRI_301'])).optional().describe('Specific GRI standards to include (default: all)')
+  }),
+  execute: async ({ organizationId, buildingId, period, customStartDate, customEndDate, standards }) => {
+    try {
+      const now = new Date();
+      let startDate: string;
+      let endDate: string;
+      let periodLabel: string;
+
+      // Calculate date ranges based on period (same logic as executive report)
+      if (period === 'custom' && customStartDate && customEndDate) {
+        startDate = customStartDate;
+        endDate = customEndDate;
+        periodLabel = `${startDate} to ${endDate}`;
+      } else if (period === 'last_month') {
+        const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+        const year = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+        startDate = `${year}-${(lastMonth + 1).toString().padStart(2, '0')}-01`;
+        const lastDay = new Date(year, lastMonth + 1, 0).getDate();
+        endDate = `${year}-${(lastMonth + 1).toString().padStart(2, '0')}-${lastDay}`;
+        periodLabel = new Date(startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      } else if (period === 'last_2_months') {
+        const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+        startDate = twoMonthsAgo.toISOString().split('T')[0];
+        endDate = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0];
+        periodLabel = 'Last 2 Months';
+      } else if (period === 'last_3_months') {
+        const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+        startDate = threeMonthsAgo.toISOString().split('T')[0];
+        endDate = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0];
+        periodLabel = 'Last 3 Months';
+      } else if (period === 'quarter') {
+        const currentQuarter = Math.floor(now.getMonth() / 3);
+        const lastQuarter = currentQuarter === 0 ? 3 : currentQuarter - 1;
+        const quarterYear = currentQuarter === 0 ? now.getFullYear() - 1 : now.getFullYear();
+        startDate = `${quarterYear}-${(lastQuarter * 3 + 1).toString().padStart(2, '0')}-01`;
+        const endMonth = lastQuarter * 3 + 3;
+        const lastDay = new Date(quarterYear, endMonth, 0).getDate();
+        endDate = `${quarterYear}-${endMonth.toString().padStart(2, '0')}-${lastDay}`;
+        periodLabel = `Q${lastQuarter + 1} ${quarterYear}`;
+      } else if (period === 'semester') {
+        const currentSemester = Math.floor(now.getMonth() / 6);
+        const lastSemester = currentSemester === 0 ? 1 : 0;
+        const semesterYear = currentSemester === 0 ? now.getFullYear() - 1 : now.getFullYear();
+        startDate = lastSemester === 0 ? `${semesterYear}-01-01` : `${semesterYear}-07-01`;
+        endDate = lastSemester === 0 ? `${semesterYear}-06-30` : `${semesterYear}-12-31`;
+        periodLabel = `${lastSemester === 0 ? 'H1' : 'H2'} ${semesterYear}`;
+      } else if (period === 'this_year' || period === 'ytd') {
+        startDate = `${now.getFullYear()}-01-01`;
+        endDate = now.toISOString().split('T')[0];
+        periodLabel = `${now.getFullYear()} (YTD)`;
+      } else if (period === 'last_year') {
+        const lastYear = now.getFullYear() - 1;
+        startDate = `${lastYear}-01-01`;
+        endDate = `${lastYear}-12-31`;
+        periodLabel = `${lastYear}`;
+      } else {
+        throw new Error('Invalid period specified');
+      }
+
+      // Calculate YoY comparison period (same period, previous year)
+      const startDateObj = new Date(startDate);
+      const endDateObj = new Date(endDate);
+      const yoyStartDate = new Date(startDateObj.getFullYear() - 1, startDateObj.getMonth(), startDateObj.getDate()).toISOString().split('T')[0];
+      const yoyEndDate = new Date(endDateObj.getFullYear() - 1, endDateObj.getMonth(), endDateObj.getDate()).toISOString().split('T')[0];
+      const yoyPeriodLabel = new Date(yoyStartDate).getFullYear().toString();
+
+      // Default to all GRI standards if none specified
+      const includeStandards = standards || ['GRI_305', 'GRI_302', 'GRI_303', 'GRI_306', 'GRI_301'];
+      const report: any = {
+        success: true,
+        period: periodLabel,
+        reportingPeriod: { startDate, endDate },
+        comparisonPeriod: { startDate: yoyStartDate, endDate: yoyEndDate, label: yoyPeriodLabel },
+        standards: {}
+      };
+
+      // GRI 305: Emissions
+      if (includeStandards.includes('GRI_305')) {
+        const emissions = await getPeriodEmissions(organizationId, startDate, endDate, buildingId);
+        const scopeBreakdown = await getScopeBreakdown(organizationId, startDate, endDate, buildingId);
+        const categoryBreakdown = await getCategoryBreakdown(organizationId, startDate, endDate, buildingId);
+
+        // YoY comparison
+        const yoyEmissions = await getPeriodEmissions(organizationId, yoyStartDate, yoyEndDate, buildingId);
+        const yoyScopeBreakdown = await getScopeBreakdown(organizationId, yoyStartDate, yoyEndDate, buildingId);
+
+        const calculateChange = (current: number, previous: number) => {
+          if (previous === 0) return 0;
+          return Math.round(((current - previous) / previous) * 1000) / 10;
+        };
+
+        report.standards.GRI_305 = {
+          title: 'GRI 305: Emissions',
+          disclosures: {
+            '305-1': {
+              title: 'Direct (Scope 1) GHG emissions',
+              currentPeriod: {
+                value: scopeBreakdown.scope_1,
+                unit: 'tCO2e'
+              },
+              previousYear: {
+                value: yoyScopeBreakdown.scope_1,
+                unit: 'tCO2e'
+              },
+              yoyChange: calculateChange(scopeBreakdown.scope_1, yoyScopeBreakdown.scope_1),
+              description: 'Direct greenhouse gas emissions from sources owned or controlled by the organization'
+            },
+            '305-2': {
+              title: 'Energy indirect (Scope 2) GHG emissions',
+              currentPeriod: {
+                value: scopeBreakdown.scope_2,
+                unit: 'tCO2e'
+              },
+              previousYear: {
+                value: yoyScopeBreakdown.scope_2,
+                unit: 'tCO2e'
+              },
+              yoyChange: calculateChange(scopeBreakdown.scope_2, yoyScopeBreakdown.scope_2),
+              description: 'Indirect greenhouse gas emissions from consumption of purchased electricity, heat, or steam'
+            },
+            '305-3': {
+              title: 'Other indirect (Scope 3) GHG emissions',
+              currentPeriod: {
+                value: scopeBreakdown.scope_3,
+                unit: 'tCO2e'
+              },
+              previousYear: {
+                value: yoyScopeBreakdown.scope_3,
+                unit: 'tCO2e'
+              },
+              yoyChange: calculateChange(scopeBreakdown.scope_3, yoyScopeBreakdown.scope_3),
+              description: 'All other indirect greenhouse gas emissions in the value chain'
+            },
+            '305-4': {
+              title: 'GHG emissions intensity',
+              currentPeriod: {
+                value: emissions.total,
+                unit: 'tCO2e'
+              },
+              previousYear: {
+                value: yoyEmissions.total,
+                unit: 'tCO2e'
+              },
+              yoyChange: calculateChange(emissions.total, yoyEmissions.total),
+              description: 'Total greenhouse gas emissions'
+            },
+            '305-5': {
+              title: 'Reduction of GHG emissions',
+              totalReduction: yoyEmissions.total - emissions.total,
+              percentageReduction: calculateChange(emissions.total, yoyEmissions.total) * -1, // Negative change = reduction
+              categories: categoryBreakdown.slice(0, 5).map(c => ({
+                category: c.category,
+                emissions: c.total,
+                percentage: c.percentage
+              }))
+            }
+          }
+        };
+      }
+
+      // GRI 302: Energy
+      if (includeStandards.includes('GRI_302')) {
+        const energy = await getEnergyTotal(organizationId, startDate, endDate, buildingId);
+        const yoyEnergy = await getEnergyTotal(organizationId, yoyStartDate, yoyEndDate, buildingId);
+
+        const calculateChange = (current: number, previous: number) => {
+          if (previous === 0) return 0;
+          return Math.round(((current - previous) / previous) * 1000) / 10;
+        };
+
+        report.standards.GRI_302 = {
+          title: 'GRI 302: Energy',
+          disclosures: {
+            '302-1': {
+              title: 'Energy consumption within the organization',
+              currentPeriod: {
+                value: energy.value,
+                unit: energy.unit,
+                recordCount: energy.recordCount
+              },
+              previousYear: {
+                value: yoyEnergy.value,
+                unit: yoyEnergy.unit,
+                recordCount: yoyEnergy.recordCount
+              },
+              yoyChange: calculateChange(energy.value, yoyEnergy.value),
+              description: 'Total energy consumption from all sources'
+            },
+            '302-3': {
+              title: 'Energy intensity',
+              currentPeriod: {
+                value: energy.value,
+                unit: energy.unit
+              },
+              previousYear: {
+                value: yoyEnergy.value,
+                unit: yoyEnergy.unit
+              },
+              yoyChange: calculateChange(energy.value, yoyEnergy.value),
+              description: 'Energy intensity ratio'
+            }
+          }
+        };
+      }
+
+      // GRI 303: Water
+      if (includeStandards.includes('GRI_303')) {
+        const water = await getWaterTotal(organizationId, startDate, endDate, buildingId);
+        const yoyWater = await getWaterTotal(organizationId, yoyStartDate, yoyEndDate, buildingId);
+
+        const calculateChange = (current: number, previous: number) => {
+          if (previous === 0) return 0;
+          return Math.round(((current - previous) / previous) * 1000) / 10;
+        };
+
+        report.standards.GRI_303 = {
+          title: 'GRI 303: Water and Effluents',
+          disclosures: {
+            '303-3': {
+              title: 'Water withdrawal',
+              currentPeriod: {
+                value: water.value,
+                unit: water.unit,
+                recordCount: water.recordCount
+              },
+              previousYear: {
+                value: yoyWater.value,
+                unit: yoyWater.unit,
+                recordCount: yoyWater.recordCount
+              },
+              yoyChange: calculateChange(water.value, yoyWater.value),
+              description: 'Total water withdrawal by source'
+            },
+            '303-5': {
+              title: 'Water consumption',
+              currentPeriod: {
+                value: water.value,
+                unit: water.unit
+              },
+              previousYear: {
+                value: yoyWater.value,
+                unit: yoyWater.unit
+              },
+              yoyChange: calculateChange(water.value, yoyWater.value),
+              description: 'Total water consumption'
+            }
+          }
+        };
+      }
+
+      // GRI 306: Waste
+      if (includeStandards.includes('GRI_306')) {
+        const waste = await getWasteTotal(organizationId, startDate, endDate, buildingId);
+        const yoyWaste = await getWasteTotal(organizationId, yoyStartDate, yoyEndDate, buildingId);
+
+        const calculateChange = (current: number, previous: number) => {
+          if (previous === 0) return 0;
+          return Math.round(((current - previous) / previous) * 1000) / 10;
+        };
+
+        report.standards.GRI_306 = {
+          title: 'GRI 306: Waste',
+          disclosures: {
+            '306-3': {
+              title: 'Waste generated',
+              currentPeriod: {
+                value: waste.value,
+                unit: waste.unit,
+                recordCount: waste.recordCount
+              },
+              previousYear: {
+                value: yoyWaste.value,
+                unit: yoyWaste.unit,
+                recordCount: yoyWaste.recordCount
+              },
+              yoyChange: calculateChange(waste.value, yoyWaste.value),
+              description: 'Total weight of waste generated'
+            },
+            '306-4': {
+              title: 'Waste diverted from disposal',
+              currentPeriod: {
+                value: waste.value,
+                unit: waste.unit
+              },
+              previousYear: {
+                value: yoyWaste.value,
+                unit: yoyWaste.unit
+              },
+              yoyChange: calculateChange(waste.value, yoyWaste.value),
+              description: 'Total weight of waste diverted from disposal'
+            }
+          }
+        };
+      }
+
+      // GRI 301: Materials
+      if (includeStandards.includes('GRI_301')) {
+        report.standards.GRI_301 = {
+          title: 'GRI 301: Materials',
+          disclosures: {
+            '301-1': {
+              title: 'Materials used by weight or volume',
+              description: 'Materials tracking not yet implemented',
+              note: 'Add material consumption data to enable this disclosure'
+            },
+            '301-2': {
+              title: 'Recycled input materials used',
+              description: 'Recycled materials tracking not yet implemented',
+              note: 'Add recycled material data to enable this disclosure'
+            }
+          }
+        };
+      }
+
+      return report;
+    } catch (error) {
+      console.error('GRI report error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
@@ -1624,6 +2175,1273 @@ export const deleteMetricDataTool = tool({
 });
 
 /**
+ * VISUALIZATION TOOLS
+ * These tools return structured data for rendering charts in the UI
+ */
+
+/**
+ * Emissions Trend Visualization (Line Chart)
+ */
+export const getEmissionsTrendTool = tool({
+  description: 'VISUALIZATION: Create an interactive bar chart showing emissions trends over time. Use when users ask about "trends", "over time", "historical", "changes", "monthly emissions", or "progression" of emissions. Returns chart data for visualization.',
+  inputSchema: z.object({
+    organizationId: z.string().describe('Organization ID'),
+    buildingId: z.string().optional().describe('Building ID for building-specific trends'),
+    timeRange: z.enum(['week', 'month', 'quarter', 'year']).default('year').describe('Time range for the trend'),
+    includeScopes: z.array(z.enum(['scope1', 'scope2', 'scope3'])).optional().describe('Which scopes to include (default: all)')
+  }),
+  execute: async ({ organizationId, buildingId, timeRange, includeScopes }) => {
+    try {
+      const supabase = createAdminClient();
+
+      // Calculate date range
+      const endDate = new Date().toISOString().split('T')[0];
+      let startDate;
+
+      if (timeRange === 'year') {
+        // For year, show current year from January 1 to today
+        const currentYear = new Date().getFullYear();
+        startDate = `${currentYear}-01-01`;
+      } else {
+        // For other ranges, go back N months
+        const monthsBack = timeRange === 'week' ? 1 : timeRange === 'month' ? 6 : 12; // quarter
+        startDate = new Date(Date.now() - monthsBack * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      }
+
+      // Get monthly emissions
+      const monthlyData = await getMonthlyEmissions(organizationId, startDate, endDate, buildingId);
+
+      // Format for chart
+      const labels = monthlyData.map(m => {
+        const date = new Date(m.month + '-01');
+        return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      });
+      const totalData = monthlyData.map(m => m.emissions);
+
+      // Calculate trend
+      const firstTotal = totalData[0] || 0;
+      const lastTotal = totalData[totalData.length - 1] || 0;
+      const percentageChange = firstTotal > 0 ? ((lastTotal - firstTotal) / firstTotal) * 100 : 0;
+      const trend = percentageChange < -5 ? 'decreasing' : percentageChange > 5 ? 'increasing' : 'stable';
+
+      // Build datasets - only show total emissions
+      const datasets = [{
+        label: 'Total Emissions',
+        data: totalData,
+        borderColor: '#3b82f6',
+        backgroundColor: '#3b82f6'
+      }];
+
+      // Calculate additional insights
+      const averageEmissions = totalData.reduce((a, b) => a + b, 0) / totalData.length;
+      const peakMonth = totalData.indexOf(Math.max(...totalData));
+      const lowestMonth = totalData.indexOf(Math.min(...totalData));
+      const totalEmissions = totalData.reduce((a, b) => a + b, 0);
+
+      // Identify volatility
+      const variance = totalData.reduce((sum, val) => sum + Math.pow(val - averageEmissions, 2), 0) / totalData.length;
+      const stdDev = Math.sqrt(variance);
+      const volatility = (stdDev / averageEmissions) * 100;
+
+      return {
+        chartType: 'bar' as const,
+        labels,
+        datasets,
+        unit: 'tCO2e',
+        title: `Emissions Trend - ${timeRange}`,
+        trend,
+        percentageChange: Math.abs(percentageChange),
+        period: { startDate, endDate },
+        analysis: {
+          summary: `Total emissions for the period: ${Math.round(totalEmissions * 10) / 10} tCO2e across ${totalData.length} months`,
+          averageMonthly: Math.round(averageEmissions * 10) / 10,
+          peakMonth: labels[peakMonth],
+          peakValue: Math.round(totalData[peakMonth] * 10) / 10,
+          lowestMonth: labels[lowestMonth],
+          lowestValue: Math.round(totalData[lowestMonth] * 10) / 10,
+          volatility: Math.round(volatility * 10) / 10,
+          volatilityLevel: volatility > 20 ? 'high' : volatility > 10 ? 'moderate' : 'low',
+          keyInsights: [
+            trend === 'decreasing'
+              ? `Positive trend: Emissions decreased ${Math.round(percentageChange * 10) / 10}% from ${labels[0]} to ${labels[labels.length - 1]}`
+              : trend === 'increasing'
+              ? `Concerning trend: Emissions increased ${Math.round(percentageChange * 10) / 10}% from ${labels[0]} to ${labels[labels.length - 1]}`
+              : `Stable emissions with ${Math.round(percentageChange * 10) / 10}% variation`,
+            `Peak emissions occurred in ${labels[peakMonth]} (${Math.round(totalData[peakMonth] * 10) / 10} tCO2e)`,
+            volatility > 20
+              ? `High volatility (${Math.round(volatility * 10) / 10}%) indicates inconsistent emission patterns`
+              : `Emissions show ${volatility > 10 ? 'moderate' : 'low'} volatility (${Math.round(volatility * 10) / 10}%)`
+          ],
+          recommendations: [
+            trend === 'increasing'
+              ? `Investigate drivers of emission increases - identify high-impact sources`
+              : trend === 'stable'
+              ? `Implement reduction initiatives to move beyond current plateau`
+              : `Sustain downward trend by continuing current reduction strategies`,
+            volatility > 20
+              ? `Address volatility by identifying and managing irregular emission sources`
+              : null,
+            `Focus on ${labels[peakMonth]} patterns to prevent future peaks`
+          ].filter(Boolean)
+        }
+      };
+    } catch (error) {
+      console.error('Emissions trend error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+});
+
+/**
+ * Emissions Breakdown Visualization (Pie Chart)
+ */
+export const getEmissionsBreakdownTool = tool({
+  description: 'VISUALIZATION: Create an interactive pie chart showing emissions breakdown by scope (Scope 1, 2, 3). Use when users ask to "break down", "show breakdown", "distribution", or "split" of emissions. Returns chart data for visualization.',
+  inputSchema: z.object({
+    organizationId: z.string().describe('Organization ID'),
+    buildingId: z.string().optional().describe('Building ID for building-specific breakdown'),
+    period: z.string().optional().describe('Time period (e.g., "2025-01" for January 2025, or "2025" for full year)')
+  }),
+  execute: async ({ organizationId, buildingId, period }) => {
+    try {
+      // Calculate period dates
+      const endDate = new Date().toISOString().split('T')[0];
+      let startDate;
+
+      if (period) {
+        if (period.length === 4) { // Year only
+          startDate = `${period}-01-01`;
+        } else if (period.length === 7) { // Year-month
+          startDate = `${period}-01`;
+        } else {
+          startDate = period;
+        }
+      } else {
+        // Default to current year
+        startDate = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0];
+      }
+
+      const emissions = await getPeriodEmissions(organizationId, startDate, endDate, buildingId);
+
+      // Calculate percentages
+      const scope1Pct = emissions.total > 0 ? (emissions.scope_1 / emissions.total) * 100 : 0;
+      const scope2Pct = emissions.total > 0 ? (emissions.scope_2 / emissions.total) * 100 : 0;
+      const scope3Pct = emissions.total > 0 ? (emissions.scope_3 / emissions.total) * 100 : 0;
+
+      // Identify dominant scope
+      const scopes = [
+        { name: 'Scope 1', value: emissions.scope_1, pct: scope1Pct },
+        { name: 'Scope 2', value: emissions.scope_2, pct: scope2Pct },
+        { name: 'Scope 3', value: emissions.scope_3, pct: scope3Pct }
+      ];
+      const dominantScope = scopes.reduce((max, scope) => scope.value > max.value ? scope : max);
+
+      return {
+        chartType: 'doughnut' as const,
+        labels: ['Scope 1: Direct', 'Scope 2: Energy', 'Scope 3: Indirect'],
+        values: [emissions.scope_1, emissions.scope_2, emissions.scope_3],
+        colors: ['#ef4444', '#f59e0b', '#8b5cf6'],
+        unit: 'tCO2e',
+        title: 'Emissions Breakdown by Scope',
+        total: emissions.total,
+        period: { startDate, endDate },
+        analysis: {
+          summary: `Total emissions: ${Math.round(emissions.total * 10) / 10} tCO2e. ${dominantScope.name} is the largest contributor at ${Math.round(dominantScope.pct * 10) / 10}%`,
+          breakdown: {
+            scope1: {
+              value: Math.round(emissions.scope_1 * 10) / 10,
+              percentage: Math.round(scope1Pct * 10) / 10,
+              definition: 'Direct emissions from owned/controlled sources (vehicles, facilities, equipment)',
+              examples: 'Company vehicles, natural gas for heating, on-site fuel combustion'
+            },
+            scope2: {
+              value: Math.round(emissions.scope_2 * 10) / 10,
+              percentage: Math.round(scope2Pct * 10) / 10,
+              definition: 'Indirect emissions from purchased energy (electricity, steam, heating, cooling)',
+              examples: 'Grid electricity, purchased steam/heat for buildings'
+            },
+            scope3: {
+              value: Math.round(emissions.scope_3 * 10) / 10,
+              percentage: Math.round(scope3Pct * 10) / 10,
+              definition: 'All other indirect emissions in the value chain',
+              examples: 'Business travel, employee commuting, purchased goods, waste, supply chain'
+            }
+          },
+          keyInsights: [
+            `${dominantScope.name} represents ${Math.round(dominantScope.pct * 10) / 10}% of total emissions - this is your primary reduction opportunity`,
+            scope1Pct > 40 ? 'High Scope 1 emissions indicate significant direct operations - consider fleet electrification or fuel switching' : null,
+            scope2Pct > 50 ? 'Scope 2 dominance suggests high electricity consumption - renewable energy contracts or on-site generation recommended' : null,
+            scope3Pct > 40 ? 'High Scope 3 emissions indicate value chain impact - engage suppliers and review business travel policies' : null,
+            scope3Pct < 10 ? 'Low Scope 3 may indicate incomplete tracking - ensure all categories are measured (travel, commuting, supply chain)' : null
+          ].filter(Boolean),
+          recommendations: [
+            scope1Pct > 30 ? 'Scope 1: Transition to electric vehicles, switch to renewable fuels, improve energy efficiency in facilities' : null,
+            scope2Pct > 30 ? 'Scope 2: Purchase renewable energy certificates (RECs), install solar panels, negotiate green power purchase agreements (PPAs)' : null,
+            scope3Pct > 30 ? 'Scope 3: Engage suppliers on emissions reduction, optimize business travel, implement sustainable procurement policies' : null,
+            'Measure all scopes comprehensively to identify true reduction opportunities',
+            'Set science-based targets (SBTi) covering all material scopes'
+          ].filter(Boolean)
+        }
+      };
+    } catch (error) {
+      console.error('Emissions breakdown error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+});
+
+/**
+ * Year-over-Year Emissions Variation Chart
+ */
+export const getEmissionsYoYVariationTool = tool({
+  description: 'VISUALIZATION: Create an interactive bar chart showing month-by-month year-over-year percentage variation in emissions. Positive bars (red) show increases, negative bars (green) show decreases. Use when users ask about "variation", "year over year", "YoY", "compare with last year", or "percentage change". Returns chart data for visualization.',
+  inputSchema: z.object({
+    organizationId: z.string().describe('Organization ID'),
+    buildingId: z.string().optional().describe('Building ID for building-specific variation'),
+    year: z.number().optional().describe('Year to analyze (default: current year)')
+  }),
+  execute: async ({ organizationId, buildingId, year }) => {
+    try {
+      const currentYear = year || new Date().getFullYear();
+      const previousYear = currentYear - 1;
+
+      // Get monthly data for current year (January to today)
+      const currentYearStart = `${currentYear}-01-01`;
+      const currentYearEnd = new Date().toISOString().split('T')[0];
+      const currentYearData = await getMonthlyEmissions(organizationId, currentYearStart, currentYearEnd, buildingId);
+
+      // Get monthly data for previous year (same period)
+      const previousYearStart = `${previousYear}-01-01`;
+      const previousYearEnd = new Date(previousYear, new Date().getMonth(), new Date().getDate()).toISOString().split('T')[0];
+      const previousYearData = await getMonthlyEmissions(organizationId, previousYearStart, previousYearEnd, buildingId);
+
+      // Create lookup map for previous year
+      const prevYearMap = new Map(previousYearData.map(m => [m.month.substring(5, 7), m.emissions])); // Extract month number
+
+      // Calculate percentage variation for each month
+      const labels: string[] = [];
+      const variations: number[] = [];
+      const colors: string[] = [];
+
+      currentYearData.forEach(current => {
+        const monthNum = current.month.substring(5, 7); // Extract "01", "02", etc.
+        const prevEmissions = prevYearMap.get(monthNum) || 0;
+
+        // Format label
+        const date = new Date(current.month + '-01');
+        const label = date.toLocaleDateString('en-US', { month: 'short' });
+        labels.push(label);
+
+        // Calculate percentage change
+        let percentChange = 0;
+        if (prevEmissions > 0) {
+          percentChange = ((current.emissions - prevEmissions) / prevEmissions) * 100;
+        } else if (current.emissions > 0) {
+          percentChange = 100; // New emissions where there were none
+        }
+
+        variations.push(Math.round(percentChange * 10) / 10);
+
+        // Color: green for decrease, red for increase
+        colors.push(percentChange < 0 ? '#22c55e' : '#ef4444');
+      });
+
+      // Calculate analysis metrics
+      const avgVariation = variations.reduce((sum, v) => sum + v, 0) / variations.length;
+      const maxIncrease = Math.max(...variations);
+      const maxDecrease = Math.min(...variations);
+      const maxIncreaseMonth = labels[variations.indexOf(maxIncrease)];
+      const maxDecreaseMonth = labels[variations.indexOf(maxDecrease)];
+      const monthsWithIncrease = variations.filter(v => v > 0).length;
+      const monthsWithDecrease = variations.filter(v => v < 0).length;
+
+      // Calculate volatility in variations
+      const variationStdDev = Math.sqrt(
+        variations.reduce((sum, v) => sum + Math.pow(v - avgVariation, 2), 0) / variations.length
+      );
+      const variationVolatility = variationStdDev > 15 ? 'high' : variationStdDev > 5 ? 'moderate' : 'low';
+
+      return {
+        chartType: 'bar' as const,
+        labels,
+        datasets: [{
+          label: 'YoY Variation (%)',
+          data: variations,
+          backgroundColor: colors,
+          borderColor: colors,
+          borderWidth: 2
+        }],
+        unit: '%',
+        title: `Emissions YoY Variation (${currentYear} vs ${previousYear})`,
+        period: {
+          startDate: currentYearStart,
+          endDate: currentYearEnd
+        },
+        analysis: {
+          summary: `Average YoY variation: ${Math.round(avgVariation * 10) / 10}%. ${monthsWithDecrease} months showed improvement (${Math.round((monthsWithDecrease / labels.length) * 100)}%), ${monthsWithIncrease} months showed increases (${Math.round((monthsWithIncrease / labels.length) * 100)}%)`,
+          averageVariation: Math.round(avgVariation * 10) / 10,
+          bestPerformingMonth: {
+            month: maxDecreaseMonth,
+            variation: Math.round(maxDecrease * 10) / 10,
+            description: `${maxDecreaseMonth} showed the largest improvement with a ${Math.abs(Math.round(maxDecrease * 10) / 10)}% reduction`
+          },
+          worstPerformingMonth: {
+            month: maxIncreaseMonth,
+            variation: Math.round(maxIncrease * 10) / 10,
+            description: `${maxIncreaseMonth} had the largest increase at ${Math.round(maxIncrease * 10) / 10}%`
+          },
+          volatility: variationVolatility,
+          volatilityDescription: variationVolatility === 'high'
+            ? 'High volatility indicates inconsistent emission patterns - month-to-month changes are erratic'
+            : variationVolatility === 'moderate'
+            ? 'Moderate volatility - some consistency in emission patterns with occasional fluctuations'
+            : 'Low volatility - emission changes are consistent and predictable across months',
+          keyInsights: [
+            avgVariation < 0
+              ? `Positive trend: Overall emissions decreased by ${Math.abs(Math.round(avgVariation * 10) / 10)}% year-over-year`
+              : `Negative trend: Overall emissions increased by ${Math.round(avgVariation * 10) / 10}% year-over-year`,
+            monthsWithDecrease > monthsWithIncrease
+              ? `${monthsWithDecrease} out of ${labels.length} months showed improvement - majority of months trending positively`
+              : `Only ${monthsWithDecrease} out of ${labels.length} months showed improvement - need to reverse this trend`,
+            Math.abs(maxIncrease) > Math.abs(maxDecrease) * 2
+              ? `${maxIncreaseMonth} spike of ${Math.round(maxIncrease * 10) / 10}% requires investigation - unusual increase`
+              : null,
+            variationVolatility === 'high'
+              ? 'High volatility suggests operational inconsistencies or external factors affecting emissions'
+              : null
+          ].filter(Boolean),
+          education: {
+            concept: 'Year-over-Year (YoY) Variation',
+            definition: 'YoY variation compares emissions in each month of the current year to the same month in the previous year. This metric eliminates seasonal effects and shows true performance trends.',
+            whyItMatters: 'Tracking YoY variation helps identify: (1) Whether emission reduction initiatives are working, (2) Seasonal patterns that repeat annually, (3) Months requiring targeted interventions, (4) Progress toward climate targets',
+            interpretation: 'Green bars (negative %) = emissions decreased compared to last year (good). Red bars (positive %) = emissions increased compared to last year (needs attention).'
+          },
+          recommendations: [
+            maxIncrease > 20
+              ? `Investigate ${maxIncreaseMonth}: ${Math.round(maxIncrease * 10) / 10}% increase is significant - identify root causes (operations changes, equipment issues, activity spikes)`
+              : null,
+            maxDecrease < -10
+              ? `Replicate ${maxDecreaseMonth} success: Achieved ${Math.abs(Math.round(maxDecrease * 10) / 10)}% reduction - document what worked and apply to other months`
+              : null,
+            monthsWithIncrease > monthsWithDecrease
+              ? `Reverse the trend: ${monthsWithIncrease} months increased - implement systematic reduction programs across all operations`
+              : null,
+            variationVolatility === 'high'
+              ? 'Address volatility: High month-to-month variation suggests need for standardized processes and better emission controls'
+              : null,
+            avgVariation > 5
+              ? 'Urgent action needed: Overall YoY increase suggests current strategies are insufficient - consider transformational changes'
+              : avgVariation < -5
+              ? 'Maintain momentum: Strong YoY reduction - continue current initiatives and explore additional opportunities'
+              : 'Stabilize performance: Emissions are flat year-over-year - introduce new reduction initiatives to drive progress'
+          ].filter(Boolean)
+        }
+      };
+    } catch (error) {
+      console.error('YoY variation error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+});
+
+/**
+ * SBTi Progress Tracking Tool
+ * Shows progress toward Science Based Targets (1.5°C pathway)
+ */
+export const getSBTiProgressTool = tool({
+  description: 'VISUALIZATION: Track progress toward Science Based Targets initiative (SBTi) goals using Enterprise Forecast (Prophet-style ML model). Shows baseline year, actual emissions, and SBTi 1.5°C pathway with THREE milestones: (1) 2030: 42% reduction from baseline, (2) 2050 - 90% Reduction: Must reduce to ≤10% of baseline WITHOUT offsets (deep decarbonization), (3) 2050 - Net-Zero: Achieve zero emissions by offsetting the residual 10% (max offset cap = 10% of baseline per SBTi rules). ML-forecasted path uses all historical data with trend+seasonality. Shows if net-zero is achievable under SBTi (if projected > 10% baseline, excess CANNOT be offset). Calculates: deviations, additional reduction needed, max allowed offsets, excess emissions beyond offset cap. Use for: "SBTi", "science based targets", "net zero", "1.5 degrees", "2030 targets", "carbon neutral", "carbon offsets", "baseline", "residual emissions". Returns multi-line chart: actual (orange), SBTi target (blue), Prophet forecast (red).',
+  inputSchema: z.object({
+    organizationId: z.string().describe('Organization ID'),
+    buildingId: z.string().optional().describe('Building ID for building-specific tracking'),
+    baselineYear: z.number().optional().describe('Custom baseline year (default: earliest year with data)'),
+    targetYear: z.number().optional().describe('Net-zero target year (default: 2050)')
+  }),
+  execute: async ({ organizationId, buildingId, baselineYear, targetYear = 2050 }) => {
+    try {
+      const supabase = createAdminClient();
+      const currentYear = new Date().getFullYear();
+
+      // Get baseline year from database or use provided value
+      let actualBaselineYear = baselineYear;
+      if (!actualBaselineYear) {
+        // Use database function to get the organization's baseline year
+        const { data: baselineYearData, error: baselineError } = await supabase.rpc('get_baseline_year', {
+          org_id: organizationId
+        });
+
+        if (!baselineError && baselineYearData) {
+          actualBaselineYear = baselineYearData;
+        } else {
+          // Fallback: find earliest year with emissions data
+          const { data: earliestData } = await supabase
+            .from('metrics_data')
+            .select('period_start')
+            .eq('organization_id', organizationId)
+            .not('co2e_emissions', 'is', null)
+            .order('period_start', { ascending: true })
+            .limit(1);
+
+          if (earliestData && earliestData.length > 0) {
+            actualBaselineYear = new Date(earliestData[0].period_start).getFullYear();
+          } else {
+            actualBaselineYear = currentYear - 1; // Default to last year if no data
+          }
+        }
+      }
+
+      // Get baseline year emissions
+      const baselineEmissions = await getPeriodEmissions(
+        organizationId,
+        `${actualBaselineYear}-01-01`,
+        `${actualBaselineYear}-12-31`,
+        buildingId
+      );
+
+      if (baselineEmissions.total === 0) {
+        return {
+          success: false,
+          error: `No emissions data found for baseline year ${actualBaselineYear}. Please select a different baseline year or add emissions data.`
+        };
+      }
+
+      // Get ALL monthly emissions from baseline to current year for forecasting
+      const allMonthlyData = await getMonthlyEmissions(
+        organizationId,
+        `${actualBaselineYear}-01-01`,
+        new Date().toISOString().split('T')[0],
+        buildingId
+      );
+
+      // Get yearly emissions from baseline to current year
+      const yearlyEmissions: Array<{ year: number; emissions: number }> = [];
+      for (let year = actualBaselineYear; year <= currentYear; year++) {
+        const emissions = await getPeriodEmissions(
+          organizationId,
+          `${year}-01-01`,
+          `${year}-12-31`,
+          buildingId
+        );
+        yearlyEmissions.push({ year, emissions: emissions.total });
+      }
+
+      // Use EnterpriseForecast (Prophet-style) to predict future emissions
+      const monthsToForecast = (targetYear - currentYear) * 12;
+      const forecastResult = EnterpriseForecast.forecast(allMonthlyData, monthsToForecast, false);
+
+      // Convert monthly forecast to yearly totals
+      const yearlyForecast: Array<{ year: number; emissions: number }> = [];
+      for (let i = 0; i < forecastResult.forecasted.length; i += 12) {
+        const yearIndex = Math.floor(i / 12);
+        const futureYear = currentYear + yearIndex + 1;
+        if (futureYear <= targetYear) {
+          const yearlyTotal = forecastResult.forecasted.slice(i, i + 12).reduce((sum, val) => sum + val, 0);
+          yearlyForecast.push({ year: futureYear, emissions: yearlyTotal });
+        }
+      }
+
+      // Calculate SBTi 1.5°C target trajectory
+      // Linear reduction from baseline to targets
+      const sbtiTargets = [
+        { year: actualBaselineYear, reduction: 0 }, // Baseline (100%)
+        { year: 2030, reduction: 0.42 }, // 42% reduction by 2030 (58% remaining)
+        { year: 2050, reduction: 0.90 }, // 90% reduction by 2050 (10% residual, NO offsets)
+        { year: 2050, reduction: 1.0 } // Net-zero by 2050 (offset the 10% residual)
+      ];
+
+      // Note: 2050 has TWO distinct targets:
+      // 1. 90% Reduction Target: Emissions must be ≤ 10% of baseline (NO carbon offsets)
+      //    - This is deep decarbonization through actual emission reductions
+      //    - If baseline = 458 tCO2e, target = 45.8 tCO2e
+      //
+      // 2. Net-Zero Target: Achieve zero emissions using carbon offsets
+      //    - Maximum offsets allowed = 10% of baseline (45.8 tCO2e per SBTi rules)
+      //    - If projected emissions > 45.8 tCO2e, the excess CANNOT be offset under SBTi
+      //    - Example: If projected = 541.6 tCO2e, excess = 495.8 tCO2e (not offsettable)
+
+      // Generate target trajectory points
+      const labels: string[] = [];
+      const actualData: (number | null)[] = [];
+      const targetData: number[] = [];
+      const projectedData: (number | null)[] = [];
+
+      // Generate data points from baseline to target year
+      for (let year = actualBaselineYear; year <= targetYear; year += 1) {
+        labels.push(year.toString());
+
+        // Actual emissions (only for years with data)
+        const actualYear = yearlyEmissions.find(y => y.year === year);
+        actualData.push(actualYear ? Math.round(actualYear.emissions * 10) / 10 : null);
+
+        // Target trajectory (linear interpolation between SBTi milestones)
+        let targetReduction = 0;
+        for (let i = 0; i < sbtiTargets.length - 1; i++) {
+          const current = sbtiTargets[i];
+          const next = sbtiTargets[i + 1];
+          if (year >= current.year && year <= next.year) {
+            const progress = (year - current.year) / (next.year - current.year);
+            targetReduction = current.reduction + (next.reduction - current.reduction) * progress;
+            break;
+          }
+        }
+        const targetEmissions = baselineEmissions.total * (1 - targetReduction);
+        targetData.push(Math.round(targetEmissions * 10) / 10);
+
+        // Projected emissions using EnterpriseForecast (Prophet model)
+        if (year > currentYear) {
+          const forecastYear = yearlyForecast.find(y => y.year === year);
+          projectedData.push(forecastYear ? Math.round(forecastYear.emissions * 10) / 10 : null);
+        } else {
+          projectedData.push(null);
+        }
+      }
+
+      // Calculate current progress
+      const currentEmissions = yearlyEmissions[yearlyEmissions.length - 1].emissions;
+      const currentReduction = ((baselineEmissions.total - currentEmissions) / baselineEmissions.total) * 100;
+
+      // Calculate milestone deviations
+      const projected2030 = yearlyForecast.find(y => y.year === 2030);
+      const target2030 = baselineEmissions.total * (1 - 0.42);
+      const deviation2030 = projected2030
+        ? ((projected2030.emissions - target2030) / target2030) * 100
+        : 0;
+
+      const projected2050 = yearlyForecast.find(y => y.year === 2050);
+      const target2050_90percent = baselineEmissions.total * 0.10; // 90% reduction = 10% residual (NO offsets)
+      const maxAllowedOffsets = baselineEmissions.total * 0.10; // SBTi allows max 10% of baseline to be offset
+
+      const deviation2050_90percent = projected2050
+        ? ((projected2050.emissions - target2050_90percent) / target2050_90percent) * 100
+        : 0;
+
+      // For net-zero: calculate what would be needed vs what's allowed
+      const projectedEmissions2050 = projected2050 ? projected2050.emissions : 0;
+      const requiredOffsetsForNetZero = projectedEmissions2050; // All emissions need to be offset for net-zero
+      const excessEmissions = Math.max(0, projectedEmissions2050 - maxAllowedOffsets); // Amount that CANNOT be offset under SBTi
+      const canAchieveNetZero = projectedEmissions2050 <= maxAllowedOffsets;
+
+      // Check if on track for targets
+      const onTrackFor2030 = projected2030 && projected2030.emissions <= target2030;
+      const onTrackFor2050_90percent = projected2050 && projected2050.emissions <= target2050_90percent;
+
+      return {
+        chartType: 'line' as const,
+        labels,
+        datasets: [
+          {
+            label: 'Actual Emissions',
+            data: actualData,
+            borderColor: '#f59e0b', // Orange
+            backgroundColor: '#f59e0b20',
+            borderWidth: 3,
+            pointRadius: 4,
+            pointBackgroundColor: '#f59e0b'
+          },
+          {
+            label: 'SBTi 1.5°C Target',
+            data: targetData,
+            borderColor: '#3b82f6', // Blue
+            backgroundColor: '#3b82f620',
+            borderWidth: 3,
+            borderDash: [5, 5],
+            pointRadius: 0
+          },
+          {
+            label: 'Projected (Current Trend)',
+            data: projectedData,
+            borderColor: '#ef4444', // Red
+            backgroundColor: '#ef444420',
+            borderWidth: 2,
+            borderDash: [2, 2],
+            pointRadius: 0
+          }
+        ],
+        unit: 'tCO2e',
+        title: `Net-Zero Ambition by ${targetYear}`,
+        baselineYear: actualBaselineYear,
+        baselineEmissions: Math.round(baselineEmissions.total * 10) / 10,
+        currentYear,
+        currentEmissions: Math.round(currentEmissions * 10) / 10,
+        currentReduction: Math.round(currentReduction * 10) / 10,
+        onTrackFor2030,
+        forecastMethod: forecastResult.method,
+        forecastMetadata: {
+          confidence: forecastResult.metadata.r2 ? `${Math.round(forecastResult.metadata.r2 * 100)}%` : 'N/A',
+          trendSlope: Math.round(forecastResult.metadata.trendSlope * 100) / 100,
+          volatility: Math.round(forecastResult.metadata.volatility * 10) / 10
+        },
+        milestones: {
+          milestone_2030: {
+            year: 2030,
+            title: '2030 Target (42% reduction)',
+            goal: Math.round(target2030 * 10) / 10,
+            goalDescription: `Reduce to ${Math.round(target2030 * 10) / 10} tCO2e (42% reduction from ${actualBaselineYear} baseline)`,
+            projected: projected2030 ? Math.round(projected2030.emissions * 10) / 10 : null,
+            deviationFromGoal: projected2030 ? Math.round((projected2030.emissions - target2030) * 10) / 10 : 0,
+            deviationPercentage: Math.round(deviation2030 * 10) / 10,
+            status: deviation2030 > 10 ? 'at-risk' : deviation2030 > 0 ? 'off-track' : 'on-track',
+            yearsUntilTarget: Math.max(0, 2030 - currentYear),
+            annualReductionNeeded: projected2030 && (2030 - currentYear) > 0
+              ? Math.round(((projected2030.emissions - target2030) / (2030 - currentYear)) * 10) / 10
+              : 0
+          },
+          milestone_2050_reduction: {
+            year: 2050,
+            title: '2050 Target (90% reduction)',
+            goal: Math.round(target2050_90percent * 10) / 10,
+            goalDescription: `Reduce to ${Math.round(target2050_90percent * 10) / 10} tCO2e (90% reduction from ${actualBaselineYear} baseline)`,
+            baselineYear: actualBaselineYear,
+            baselineEmissions: Math.round(baselineEmissions.total * 10) / 10,
+            reductionAmount: Math.round(baselineEmissions.total * 0.90 * 10) / 10,
+            projected: projected2050 ? Math.round(projected2050.emissions * 10) / 10 : null,
+            deviationFromGoal: projected2050 ? Math.round((projected2050.emissions - target2050_90percent) * 10) / 10 : 0,
+            deviationPercentage: Math.round(deviation2050_90percent * 10) / 10,
+            status: deviation2050_90percent > 50 ? 'at-risk' : deviation2050_90percent > 0 ? 'off-track' : 'on-track',
+            yearsUntilTarget: Math.max(0, 2050 - currentYear),
+            annualReductionNeeded: projected2050 && (2050 - currentYear) > 0
+              ? Math.round(((projected2050.emissions - target2050_90percent) / (2050 - currentYear)) * 10) / 10
+              : 0
+          },
+          milestone_2050_netZero: {
+            year: 2050,
+            title: '2050 Target (Net-Zero)',
+            goal: 0,
+            goalDescription: 'Net-zero emissions (10% residual emissions can be offset)',
+            maxOffsetsAllowed: Math.round(maxAllowedOffsets * 10) / 10,
+            maxOffsetsAllowedDescription: `${Math.round(maxAllowedOffsets * 10) / 10} tCO2e (10% of ${actualBaselineYear} baseline)`,
+            projected: projected2050 ? Math.round(projectedEmissions2050 * 10) / 10 : null,
+            offsetsNeeded: Math.round(requiredOffsetsForNetZero * 10) / 10,
+            achievable: canAchieveNetZero,
+            status: canAchieveNetZero ? 'achievable-with-offsets' : 'not-achievable',
+            excessEmissions: Math.round(excessEmissions * 10) / 10,
+            excessEmissionsDescription: excessEmissions > 0
+              ? `${Math.round(excessEmissions * 10) / 10} tCO2e exceed SBTi offset cap and cannot be neutralized`
+              : 'All emissions can be offset within SBTi limits'
+          }
+        },
+        analysis: {
+          overallTrajectory: forecastResult.metadata.trendSlope < 0 ? 'decreasing' : forecastResult.metadata.trendSlope > 0 ? 'increasing' : 'stable',
+          criticalGaps: [
+            projected2030 && projected2030.emissions > target2030
+              ? `2030: Need to reduce ${Math.round((projected2030.emissions - target2030) * 10) / 10} tCO2e more`
+              : null,
+            projected2050 && projected2050.emissions > target2050_90percent
+              ? `2050: Need to reduce ${Math.round((projected2050.emissions - target2050_90percent) * 10) / 10} tCO2e more`
+              : null,
+            excessEmissions > 0
+              ? `Net-Zero: ${Math.round(excessEmissions * 10) / 10} tCO2e cannot be offset under SBTi rules`
+              : null
+          ].filter(Boolean),
+          keyInsights: {
+            currentTrend: `Emissions are ${forecastResult.metadata.trendSlope < 0 ? 'decreasing' : 'increasing'} at ${Math.abs(Math.round(forecastResult.metadata.trendSlope * 12 * 100) / 100)} tCO2e per year`,
+            forecast2030Gap: projected2030
+              ? `Projected to miss 2030 target by ${Math.round(((projected2030.emissions - target2030) / target2030) * 100 * 10) / 10}%`
+              : 'N/A',
+            forecast2050Gap: projected2050
+              ? `Projected to miss 2050 target by ${Math.round(((projected2050.emissions - target2050_90percent) / target2050_90percent) * 100 * 10) / 10}%`
+              : 'N/A',
+            offsetFeasibility: canAchieveNetZero
+              ? `Net-zero achievable with ${Math.round(requiredOffsetsForNetZero * 10) / 10} tCO2e offsets`
+              : `Net-zero not achievable - emissions ${Math.round(excessEmissions * 10) / 10} tCO2e above offset cap`
+          },
+          recommendations: [
+            projected2030 && projected2030.emissions > target2030
+              ? `Accelerate emission reductions by ${Math.round(((projected2030.emissions - target2030) / (2030 - currentYear)) * 10) / 10} tCO2e/year to meet 2030 target`
+              : null,
+            projected2050 && projected2050.emissions > target2050_90percent * 2
+              ? 'Consider transformational changes - current trajectory significantly off-track for 2050'
+              : null,
+            excessEmissions > 0
+              ? 'Focus on deep decarbonization - relying on offsets alone will not achieve SBTi compliance'
+              : null
+          ].filter(Boolean)
+        }
+      };
+    } catch (error) {
+      console.error('SBTi progress tracking error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+});
+
+/**
+ * Monthly Consumption Visualization (Bar Chart)
+ */
+export const getMonthlyConsumptionTool = tool({
+  description: 'VISUALIZATION: Create an interactive bar chart showing monthly energy/water/waste consumption patterns. Use when users ask about "monthly", "consumption", "usage", or resource trends. Returns chart data for visualization.',
+  inputSchema: z.object({
+    organizationId: z.string().describe('Organization ID'),
+    buildingId: z.string().optional().describe('Building ID'),
+    resourceType: z.enum(['energy', 'water', 'waste']).describe('Type of resource to visualize'),
+    months: z.number().default(6).describe('Number of months to show (default: 6)')
+  }),
+  execute: async ({ organizationId, buildingId, resourceType, months }) => {
+    try {
+      const supabase = createAdminClient();
+
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - months * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      // Query based on resource type
+      let categoryFilter;
+      let unit = 'kWh';
+      let title = 'Monthly Energy Consumption';
+
+      if (resourceType === 'energy') {
+        categoryFilter = '%energy%,%electricity%';
+        unit = 'kWh';
+        title = 'Monthly Energy Consumption';
+      } else if (resourceType === 'water') {
+        categoryFilter = '%water%';
+        unit = 'm³';
+        title = 'Monthly Water Consumption';
+      } else {
+        categoryFilter = '%waste%';
+        unit = 'kg';
+        title = 'Monthly Waste Generation';
+      }
+
+      let query = supabase
+        .from('metrics_data')
+        .select(`
+          value,
+          period_start,
+          metrics_catalog!inner(category, unit)
+        `)
+        .eq('organization_id', organizationId)
+        .gte('period_start', startDate)
+        .lte('period_start', endDate)
+        .or(categoryFilter, { foreignTable: 'metrics_catalog' });
+
+      if (buildingId) {
+        query = query.eq('site_id', buildingId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      // Aggregate by month
+      const monthMap = new Map<string, number>();
+      data?.forEach(row => {
+        const month = row.period_start.slice(0, 7); // YYYY-MM
+        monthMap.set(month, (monthMap.get(month) || 0) + (row.value || 0));
+      });
+
+      const sortedMonths = Array.from(monthMap.keys()).sort();
+      const labels = sortedMonths.map(m => {
+        const date = new Date(m + '-01');
+        return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      });
+      const values = sortedMonths.map(m => monthMap.get(m) || 0);
+
+      // Calculate analysis metrics
+      const totalConsumption = values.reduce((sum, v) => sum + v, 0);
+      const avgConsumption = totalConsumption / values.length;
+      const maxConsumption = Math.max(...values);
+      const minConsumption = Math.min(...values);
+      const maxMonth = labels[values.indexOf(maxConsumption)];
+      const minMonth = labels[values.indexOf(minConsumption)];
+
+      // Calculate trend using linear regression
+      const n = values.length;
+      const sumX = (n * (n - 1)) / 2;
+      const sumY = totalConsumption;
+      const sumXY = values.reduce((sum, y, x) => sum + x * y, 0);
+      const sumX2 = (n * (n - 1) * (2 * n - 1)) / 6;
+      const trendSlope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const trendDirection = trendSlope > avgConsumption * 0.05 ? 'increasing' : trendSlope < -avgConsumption * 0.05 ? 'decreasing' : 'stable';
+
+      // Calculate volatility
+      const stdDev = Math.sqrt(values.reduce((sum, v) => sum + Math.pow(v - avgConsumption, 2), 0) / n);
+      const coefficientOfVariation = (stdDev / avgConsumption) * 100;
+      const volatility = coefficientOfVariation > 20 ? 'high' : coefficientOfVariation > 10 ? 'moderate' : 'low';
+
+      // Resource-specific educational content
+      const resourceEducation = {
+        energy: {
+          definition: 'Energy consumption measures electricity usage from the grid, typically from fossil fuels or renewable sources',
+          impact: 'Energy use contributes to Scope 2 emissions (indirect emissions from purchased electricity)',
+          benchmarks: 'Average office: 250-300 kWh/m²/year. Data center: 100-200 kWh/m²/year',
+          reductionStrategies: 'LED lighting, HVAC optimization, renewable energy contracts (PPAs/RECs), energy-efficient equipment'
+        },
+        water: {
+          definition: 'Water consumption measures freshwater withdrawal from municipal supply or wells',
+          impact: 'Water scarcity is a critical sustainability issue - reducing usage conserves local water resources',
+          benchmarks: 'Average office: 20-50 L/person/day. Industrial: varies widely by sector',
+          reductionStrategies: 'Low-flow fixtures, leak detection, rainwater harvesting, water-efficient landscaping, cooling tower optimization'
+        },
+        waste: {
+          definition: 'Waste generation measures materials sent to landfill, recycling, or other disposal',
+          impact: 'Waste contributes to Scope 3 emissions and represents resource inefficiency',
+          benchmarks: 'Average office: 0.5-1.5 kg/person/day. Target: <0.3 kg/person/day with strong recycling',
+          reductionStrategies: 'Circular economy principles, composting, improved recycling, reduce single-use items, donate/reuse programs'
+        }
+      };
+
+      return {
+        chartType: 'bar',
+        labels,
+        datasets: [{
+          label: title,
+          data: values,
+          backgroundColor: resourceType === 'energy' ? '#3b82f6' : resourceType === 'water' ? '#06b6d4' : '#10b981'
+        }],
+        unit,
+        title,
+        period: { startDate, endDate },
+        analysis: {
+          summary: `Total ${resourceType} consumption: ${Math.round(totalConsumption * 10) / 10} ${unit} over ${values.length} months. Average: ${Math.round(avgConsumption * 10) / 10} ${unit}/month. Trend: ${trendDirection}.`,
+          totalConsumption: Math.round(totalConsumption * 10) / 10,
+          averageMonthly: Math.round(avgConsumption * 10) / 10,
+          peakMonth: {
+            month: maxMonth,
+            value: Math.round(maxConsumption * 10) / 10,
+            percentAboveAverage: Math.round(((maxConsumption - avgConsumption) / avgConsumption) * 100)
+          },
+          lowestMonth: {
+            month: minMonth,
+            value: Math.round(minConsumption * 10) / 10,
+            percentBelowAverage: Math.round(((avgConsumption - minConsumption) / avgConsumption) * 100)
+          },
+          trend: {
+            direction: trendDirection,
+            description: trendDirection === 'increasing'
+              ? `Consumption is increasing at approximately ${Math.abs(Math.round(trendSlope * 10) / 10)} ${unit}/month`
+              : trendDirection === 'decreasing'
+              ? `Consumption is decreasing at approximately ${Math.abs(Math.round(trendSlope * 10) / 10)} ${unit}/month`
+              : 'Consumption is relatively stable with no clear upward or downward trend'
+          },
+          volatility: volatility,
+          volatilityDescription: volatility === 'high'
+            ? `High volatility (CV: ${Math.round(coefficientOfVariation)}%) - consumption varies significantly month-to-month`
+            : volatility === 'moderate'
+            ? `Moderate volatility (CV: ${Math.round(coefficientOfVariation)}%) - some month-to-month variation`
+            : `Low volatility (CV: ${Math.round(coefficientOfVariation)}%) - consistent consumption patterns`,
+          keyInsights: [
+            `${maxMonth} had peak consumption at ${Math.round(maxConsumption * 10) / 10} ${unit} (${Math.round(((maxConsumption - avgConsumption) / avgConsumption) * 100)}% above average)`,
+            `${minMonth} had lowest consumption at ${Math.round(minConsumption * 10) / 10} ${unit} (${Math.round(((avgConsumption - minConsumption) / avgConsumption) * 100)}% below average)`,
+            trendDirection === 'increasing'
+              ? `Concerning trend: ${resourceType} use is increasing - investigate drivers and implement reduction measures`
+              : trendDirection === 'decreasing'
+              ? `Positive trend: ${resourceType} use is decreasing - current initiatives are working`
+              : null,
+            volatility === 'high'
+              ? `High variability suggests inconsistent ${resourceType} management or seasonal factors`
+              : null,
+            Math.round(((maxConsumption - minConsumption) / avgConsumption) * 100) > 50
+              ? `${Math.round(((maxConsumption - minConsumption) / avgConsumption) * 100)}% difference between peak and lowest months - significant opportunity for smoothing consumption`
+              : null
+          ].filter(Boolean),
+          education: {
+            resourceType: resourceType,
+            definition: resourceEducation[resourceType].definition,
+            environmentalImpact: resourceEducation[resourceType].impact,
+            industryBenchmarks: resourceEducation[resourceType].benchmarks,
+            whyItMatters: `Tracking ${resourceType} consumption helps: (1) Identify waste and inefficiency, (2) Reduce environmental impact, (3) Lower operational costs, (4) Meet sustainability targets, (5) Comply with regulations`
+          },
+          recommendations: [
+            trendDirection === 'increasing'
+              ? `Reverse increasing trend: Implement ${resourceEducation[resourceType].reductionStrategies.split(',')[0]}`
+              : null,
+            `Investigate ${maxMonth} peak: ${Math.round(((maxConsumption - avgConsumption) / avgConsumption) * 100)}% above average - identify and address root causes`,
+            `Replicate ${minMonth} efficiency: Achieved ${Math.round(((avgConsumption - minConsumption) / avgConsumption) * 100)}% reduction - document successful practices`,
+            volatility === 'high'
+              ? `Stabilize consumption: High variability suggests need for better controls and monitoring`
+              : null,
+            `Implement reduction strategies: ${resourceEducation[resourceType].reductionStrategies}`,
+            resourceType === 'energy'
+              ? 'Consider renewable energy: Solar panels, wind PPAs, or Renewable Energy Certificates (RECs) to reduce Scope 2 emissions'
+              : null,
+            resourceType === 'water'
+              ? 'Water audit recommended: Professional audit can identify leaks and inefficiencies saving 15-30% typically'
+              : null,
+            resourceType === 'waste'
+              ? 'Waste hierarchy: Follow Reduce > Reuse > Recycle > Recover > Dispose (last resort)'
+              : null
+          ].filter(Boolean)
+        }
+      };
+    } catch (error) {
+      console.error('Monthly consumption error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+});
+
+/**
+ * Trip Analytics Visualization (Stacked Bar Chart)
+ */
+export const getTripAnalyticsTool = tool({
+  description: 'VISUALIZATION: Create an interactive stacked bar chart showing trip analytics by transport mode (car, plane, train, etc). Use when users ask about "trips", "travel", "transportation", or "transport modes". Returns chart data for visualization.',
+  inputSchema: z.object({
+    organizationId: z.string().describe('Organization ID'),
+    timeRange: z.enum(['week', 'month', 'quarter']).default('month').describe('Time range for analytics')
+  }),
+  execute: async ({ organizationId, timeRange }) => {
+    try {
+      const supabase = createAdminClient();
+
+      const periodsCount = timeRange === 'week' ? 4 : timeRange === 'month' ? 6 : 12;
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - periodsCount * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      // Query trip data
+      const { data, error } = await supabase
+        .from('metrics_data')
+        .select(`
+          value,
+          period_start,
+          metrics_catalog!inner(name, subcategory)
+        `)
+        .eq('organization_id', organizationId)
+        .gte('period_start', startDate)
+        .lte('period_start', endDate)
+        .or('category.ilike.%travel%,category.ilike.%transport%,category.ilike.%commut%', { foreignTable: 'metrics_catalog' });
+
+      if (error) throw error;
+
+      // Aggregate by period and mode
+      const periodModeMap = new Map<string, Map<string, number>>();
+
+      data?.forEach(row => {
+        const catalog = row.metrics_catalog as any;
+        const period = row.period_start.slice(0, 7); // YYYY-MM
+        const mode = catalog.subcategory || catalog.name || 'Other';
+
+        if (!periodModeMap.has(period)) {
+          periodModeMap.set(period, new Map());
+        }
+
+        const modeMap = periodModeMap.get(period)!;
+        modeMap.set(mode, (modeMap.get(mode) || 0) + (row.value || 0));
+      });
+
+      // Sort periods and extract modes
+      const sortedPeriods = Array.from(periodModeMap.keys()).sort();
+      const labels = sortedPeriods.map(p => {
+        const date = new Date(p + '-01');
+        return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      });
+
+      // Get unique modes
+      const allModes = new Set<string>();
+      periodModeMap.forEach(modeMap => {
+        modeMap.forEach((_, mode) => allModes.add(mode));
+      });
+
+      const modeColors: Record<string, string> = {
+        'Car': '#ef4444',
+        'Train': '#10b981',
+        'Plane': '#f59e0b',
+        'Bus': '#06b6d4',
+        'Ferry': '#8b5cf6',
+        'Other': '#6b7280'
+      };
+
+      const datasets = Array.from(allModes).map(mode => ({
+        label: mode,
+        data: sortedPeriods.map(period => periodModeMap.get(period)?.get(mode) || 0),
+        backgroundColor: modeColors[mode] || '#6b7280'
+      }));
+
+      // Calculate analysis metrics
+      const modeTotals = new Map<string, number>();
+      datasets.forEach(ds => {
+        const total = ds.data.reduce((sum: number, v: number) => sum + v, 0);
+        modeTotals.set(ds.label, total);
+      });
+
+      const totalTrips = Array.from(modeTotals.values()).reduce((sum, v) => sum + v, 0);
+      const sortedModes = Array.from(modeTotals.entries()).sort((a, b) => b[1] - a[1]);
+      const dominantMode = sortedModes[0];
+      const secondMode = sortedModes[1];
+
+      // Emission factors (kg CO2e per trip - rough estimates for typical distances)
+      const emissionFactors: Record<string, { factor: number; description: string }> = {
+        'Car': { factor: 20, description: 'High emission intensity - gasoline/diesel vehicles' },
+        'Plane': { factor: 150, description: 'Very high emission intensity - especially short-haul flights' },
+        'Train': { factor: 5, description: 'Low emission intensity - electric/diesel trains' },
+        'Bus': { factor: 8, description: 'Low-medium emission intensity - shared transport' },
+        'Ferry': { factor: 40, description: 'Medium-high emission intensity - marine diesel' },
+        'Other': { factor: 15, description: 'Varies by mode' }
+      };
+
+      // Estimate emissions by mode
+      const estimatedEmissions = new Map<string, number>();
+      modeTotals.forEach((trips, mode) => {
+        const factor = emissionFactors[mode]?.factor || 15;
+        estimatedEmissions.set(mode, trips * factor);
+      });
+
+      const totalEstimatedEmissions = Array.from(estimatedEmissions.values()).reduce((sum, v) => sum + v, 0);
+      const highEmissionTrips = (modeTotals.get('Car') || 0) + (modeTotals.get('Plane') || 0);
+      const lowEmissionTrips = (modeTotals.get('Train') || 0) + (modeTotals.get('Bus') || 0);
+
+      return {
+        chartType: 'stackedBar',
+        labels,
+        datasets,
+        unit: 'trips',
+        title: 'Trip Analytics by Transport Mode',
+        period: { startDate, endDate },
+        analysis: {
+          summary: `Total trips: ${totalTrips} across ${sortedModes.length} transport modes. ${dominantMode[0]} accounts for ${Math.round((dominantMode[1] / totalTrips) * 100)}% of trips. Estimated emissions: ${Math.round(totalEstimatedEmissions)} kg CO2e.`,
+          totalTrips: totalTrips,
+          modeBreakdown: Array.from(modeTotals.entries()).map(([mode, trips]) => ({
+            mode,
+            trips,
+            percentage: Math.round((trips / totalTrips) * 100),
+            estimatedEmissions: Math.round(estimatedEmissions.get(mode) || 0),
+            emissionIntensity: emissionFactors[mode]?.description || 'Unknown'
+          })),
+          dominantMode: {
+            mode: dominantMode[0],
+            trips: dominantMode[1],
+            percentage: Math.round((dominantMode[1] / totalTrips) * 100),
+            description: `${dominantMode[0]} is the primary transport mode`
+          },
+          emissionProfile: {
+            totalEstimatedEmissions: Math.round(totalEstimatedEmissions),
+            highEmissionTrips: highEmissionTrips,
+            highEmissionPercentage: Math.round((highEmissionTrips / totalTrips) * 100),
+            lowEmissionTrips: lowEmissionTrips,
+            lowEmissionPercentage: Math.round((lowEmissionTrips / totalTrips) * 100),
+            description: `${Math.round((highEmissionTrips / totalTrips) * 100)}% of trips are high-emission (car/plane), ${Math.round((lowEmissionTrips / totalTrips) * 100)}% are low-emission (train/bus)`
+          },
+          keyInsights: [
+            `${dominantMode[0]} dominates at ${Math.round((dominantMode[1] / totalTrips) * 100)}% of trips - ${emissionFactors[dominantMode[0]]?.description || ''}`,
+            secondMode ? `${secondMode[0]} is second at ${Math.round((secondMode[1] / totalTrips) * 100)}% - ${emissionFactors[secondMode[0]]?.description || ''}` : null,
+            highEmissionTrips > lowEmissionTrips
+              ? `${Math.round((highEmissionTrips / totalTrips) * 100)}% of trips use high-emission modes (car/plane) - major reduction opportunity`
+              : `${Math.round((lowEmissionTrips / totalTrips) * 100)}% of trips use low-emission modes (train/bus) - strong sustainable transport performance`,
+            (modeTotals.get('Plane') || 0) > totalTrips * 0.1
+              ? `Air travel represents ${Math.round(((modeTotals.get('Plane') || 0) / totalTrips) * 100)}% of trips - highest emission intensity per trip`
+              : null,
+            (modeTotals.get('Car') || 0) > totalTrips * 0.5
+              ? `Car dependency is high at ${Math.round(((modeTotals.get('Car') || 0) / totalTrips) * 100)}% - consider carpooling, EV fleet, or alternative modes`
+              : null
+          ].filter(Boolean),
+          education: {
+            concept: 'Business Travel Emissions (Scope 3 Category 6)',
+            definition: 'Business travel includes employee trips for work purposes via air, rail, bus, and personal/rental vehicles. These are Scope 3 emissions (value chain emissions).',
+            emissionHierarchy: 'Plane > Car > Ferry > Bus > Train (from highest to lowest emission intensity per passenger-km)',
+            whyItMatters: 'Business travel often represents 5-15% of total organizational emissions. It\'s one of the most controllable Scope 3 categories and offers quick wins through travel policy changes.',
+            scope3Context: 'GHG Protocol Scope 3 Category 6: Business Travel. Must be reported separately from employee commuting (Category 7).'
+          },
+          recommendations: [
+            (modeTotals.get('Plane') || 0) > 0
+              ? `Reduce air travel: ${modeTotals.get('Plane')} flights detected - implement virtual meeting policy, prefer rail for <500km, carbon budgets per department`
+              : null,
+            (modeTotals.get('Car') || 0) > totalTrips * 0.3
+              ? `Transition car trips: ${Math.round(((modeTotals.get('Car') || 0) / totalTrips) * 100)}% car usage - encourage train/bus, carpool matching, EV fleet, bike-share programs`
+              : null,
+            lowEmissionTrips < totalTrips * 0.3
+              ? 'Promote sustainable modes: Only ${Math.round((lowEmissionTrips / totalTrips) * 100)}% use train/bus - improve rail booking tools, transit subsidies, travel policy incentives'
+              : null,
+            'Implement travel hierarchy: Virtual > Rail > Bus > Car > Air (in order of preference)',
+            'Set emission budgets: Allocate annual CO2e budgets per team/employee for business travel accountability',
+            'Track and report: Measure km traveled per mode, calculate actual emissions using distance-based factors',
+            totalEstimatedEmissions > 5000
+              ? 'Consider carbon offsets: Estimated emissions are significant - offset remaining emissions through certified projects while reducing'
+              : null
+          ].filter(Boolean)
+        }
+      };
+    } catch (error) {
+      console.error('Trip analytics error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+});
+
+/**
+ * Building Energy Breakdown Visualization (Doughnut Chart)
+ */
+export const getBuildingEnergyBreakdownTool = tool({
+  description: 'VISUALIZATION: Create an interactive doughnut chart showing building energy usage breakdown by category (HVAC, Lighting, Equipment, etc.). Use when users ask about "building energy", "energy categories", "energy breakdown", or building-specific consumption. Returns chart data for visualization.',
+  inputSchema: z.object({
+    buildingId: z.string().describe('Building ID'),
+    organizationId: z.string().describe('Organization ID'),
+    period: z.string().optional().describe('Time period (e.g., "2025-01" for January 2025)')
+  }),
+  execute: async ({ buildingId, organizationId, period }) => {
+    try {
+      const supabase = createAdminClient();
+
+      // Calculate period
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = period ? `${period}-01` : new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0];
+
+      // Query energy data by subcategory
+      const { data, error } = await supabase
+        .from('metrics_data')
+        .select(`
+          value,
+          metrics_catalog!inner(subcategory, name)
+        `)
+        .eq('organization_id', organizationId)
+        .eq('site_id', buildingId)
+        .gte('period_start', startDate)
+        .lte('period_start', endDate)
+        .or('category.ilike.%energy%,category.ilike.%electricity%', { foreignTable: 'metrics_catalog' });
+
+      if (error) throw error;
+
+      // Aggregate by category
+      const categoryMap = new Map<string, number>();
+
+      data?.forEach(row => {
+        const catalog = row.metrics_catalog as any;
+        const category = catalog.subcategory || catalog.name || 'Other';
+        categoryMap.set(category, (categoryMap.get(category) || 0) + (row.value || 0));
+      });
+
+      const labels = Array.from(categoryMap.keys());
+      const values = Array.from(categoryMap.values());
+      const total = values.reduce((sum, v) => sum + v, 0);
+
+      // Calculate analysis metrics
+      const categoryBreakdown = labels.map((label, idx) => ({
+        category: label,
+        consumption: values[idx],
+        percentage: Math.round((values[idx] / total) * 100)
+      })).sort((a, b) => b.consumption - a.consumption);
+
+      const dominantCategory = categoryBreakdown[0];
+      const secondCategory = categoryBreakdown[1];
+
+      // Typical building energy breakdown benchmarks (% of total)
+      const typicalBreakdown: Record<string, { typical: string; description: string; reductionPotential: string }> = {
+        'HVAC': {
+          typical: '40-50%',
+          description: 'Heating, Ventilation, Air Conditioning - usually largest consumer',
+          reductionPotential: '15-30% through setpoint optimization, zoning, variable speed drives, heat recovery'
+        },
+        'Lighting': {
+          typical: '20-30%',
+          description: 'Interior and exterior lighting systems',
+          reductionPotential: '50-75% through LED retrofits, daylight harvesting, occupancy sensors, task lighting'
+        },
+        'Equipment': {
+          typical: '15-25%',
+          description: 'Plug loads, computers, servers, appliances, manufacturing equipment',
+          reductionPotential: '10-20% through ENERGY STAR equipment, power management, server consolidation'
+        },
+        'Other': {
+          typical: '5-15%',
+          description: 'Elevators, pumps, miscellaneous systems',
+          reductionPotential: '10-30% through efficient motors, controls, scheduling'
+        }
+      };
+
+      // Calculate period duration
+      const periodDuration = Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
+      const periodDescription = periodDuration > 300 ? 'year-to-date' : periodDuration > 25 ? 'monthly' : 'partial month';
+
+      return {
+        chartType: 'doughnut',
+        labels,
+        values,
+        colors: ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444', '#6b7280'],
+        unit: 'kWh',
+        title: 'Building Energy Breakdown',
+        total,
+        period: { startDate, endDate },
+        analysis: {
+          summary: `Total energy consumption: ${Math.round(total * 10) / 10} kWh (${periodDescription}). ${dominantCategory.category} is the largest consumer at ${dominantCategory.percentage}% (${Math.round(dominantCategory.consumption * 10) / 10} kWh).`,
+          totalConsumption: Math.round(total * 10) / 10,
+          periodDescription: periodDescription,
+          categoryBreakdown: categoryBreakdown.map(cat => ({
+            ...cat,
+            consumption: Math.round(cat.consumption * 10) / 10,
+            typicalRange: typicalBreakdown[cat.category]?.typical || 'N/A',
+            description: typicalBreakdown[cat.category]?.description || 'Other building systems',
+            reductionPotential: typicalBreakdown[cat.category]?.reductionPotential || 'Varies by system'
+          })),
+          dominantCategory: {
+            category: dominantCategory.category,
+            consumption: Math.round(dominantCategory.consumption * 10) / 10,
+            percentage: dominantCategory.percentage,
+            description: `${dominantCategory.category} represents ${dominantCategory.percentage}% of building energy use`,
+            isTypical: typicalBreakdown[dominantCategory.category]
+              ? dominantCategory.percentage <= parseInt(typicalBreakdown[dominantCategory.category].typical.split('-')[1])
+              : null
+          },
+          keyInsights: [
+            `${dominantCategory.category} dominates at ${dominantCategory.percentage}% - ${typicalBreakdown[dominantCategory.category]?.description || 'primary energy consumer'}`,
+            secondCategory ? `${secondCategory.category} is second at ${secondCategory.percentage}% - ${typicalBreakdown[secondCategory.category]?.description || 'secondary consumer'}` : null,
+            dominantCategory.category === 'HVAC' && dominantCategory.percentage > 50
+              ? 'HVAC exceeds typical 40-50% - investigate setpoints, insulation, system efficiency'
+              : null,
+            dominantCategory.category === 'Lighting' && dominantCategory.percentage > 30
+              ? 'Lighting exceeds typical 20-30% - significant LED retrofit opportunity'
+              : null,
+            dominantCategory.category === 'Equipment' && dominantCategory.percentage > 25
+              ? 'Equipment/plug loads high - implement power management and efficient equipment policies'
+              : null,
+            categoryBreakdown.find(c => c.category === 'Lighting' && c.percentage > 25)
+              ? 'High lighting consumption suggests non-LED fixtures remain - LED retrofits offer quick payback'
+              : null
+          ].filter(Boolean),
+          education: {
+            concept: 'Building Energy End-Use Categories',
+            definition: 'Energy consumption in buildings is categorized by end-use: HVAC (heating/cooling/ventilation), Lighting, Equipment (plug loads), and Other (elevators, pumps, etc.).',
+            typicalBreakdown: 'Commercial buildings: HVAC 40-50%, Lighting 20-30%, Equipment 15-25%, Other 5-15%',
+            whyItMatters: 'Understanding energy breakdown helps prioritize efficiency investments. HVAC typically offers largest absolute savings, but lighting often has best ROI (return on investment) due to LED technology.',
+            scope2Connection: 'Building electricity consumption contributes to Scope 2 emissions (indirect emissions from purchased energy). Reducing consumption directly reduces carbon footprint.',
+            energyIntensity: 'Measured in kWh/m²/year. Office buildings: 200-300 kWh/m²/year is typical. Data centers: 800-1500 kWh/m²/year.',
+            eui: 'Energy Use Intensity (EUI) = Annual kWh ÷ Building Area (m²). Lower EUI indicates better efficiency.'
+          },
+          recommendations: [
+            dominantCategory.category === 'HVAC'
+              ? `HVAC optimization: ${dominantCategory.percentage}% consumption - implement smart thermostats, optimize schedules, upgrade to high-efficiency systems, improve building envelope`
+              : null,
+            categoryBreakdown.find(c => c.category === 'Lighting')
+              ? `Lighting upgrades: ${categoryBreakdown.find(c => c.category === 'Lighting')?.percentage}% consumption - retrofit to LED (50-75% savings), add daylight sensors, occupancy controls`
+              : null,
+            categoryBreakdown.find(c => c.category === 'Equipment')
+              ? `Equipment efficiency: ${categoryBreakdown.find(c => c.category === 'Equipment')?.percentage}% consumption - deploy power management software, replace with ENERGY STAR models, eliminate phantom loads`
+              : null,
+            'Conduct energy audit: Professional audit identifies specific opportunities with payback periods and savings estimates',
+            'Building automation system (BAS): Implement or upgrade BAS for centralized monitoring and control',
+            'Retro-commissioning: Re-tune existing systems to restore design efficiency (often 5-15% savings)',
+            'Renewable energy: After efficiency improvements, consider solar PV to offset remaining consumption',
+            total > 50000
+              ? 'Significant consumption detected: Benchmark against similar buildings using ENERGY STAR Portfolio Manager'
+              : null,
+            'Set reduction targets: Aim for 2-3% annual energy intensity reduction through continuous improvement'
+          ].filter(Boolean)
+        }
+      };
+    } catch (error) {
+      console.error('Building energy breakdown error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+});
+
+/**
  * Export all tools for use in chat API
  */
 export const sustainabilityTools = {
@@ -1634,6 +3452,8 @@ export const sustainabilityTools = {
   analyzeSupplyChain: analyzeSupplyChainTool,
   trackSustainabilityGoals: trackSustainabilityGoalsTool,
   generateESGReport: generateESGReportTool,
+  getExecutiveReport: getExecutiveReportTool,
+  getGRIReport: getGRIReportTool,
   analyzeDocument: analyzeDocumentTool,
   forecastEmissions: forecastEmissionsTool,
   analyzeWaterConsumption: analyzeWaterConsumptionTool,
@@ -1644,5 +3464,13 @@ export const sustainabilityTools = {
   addMetricData: addMetricDataTool,
   bulkAddMetricData: bulkAddMetricDataTool,
   updateMetricData: updateMetricDataTool,
-  deleteMetricData: deleteMetricDataTool
+  deleteMetricData: deleteMetricDataTool,
+  // Visualization tools
+  getEmissionsTrend: getEmissionsTrendTool,
+  getEmissionsBreakdown: getEmissionsBreakdownTool,
+  getEmissionsYoYVariation: getEmissionsYoYVariationTool,
+  getSBTiProgress: getSBTiProgressTool,
+  getMonthlyConsumption: getMonthlyConsumptionTool,
+  getTripAnalytics: getTripAnalyticsTool,
+  getBuildingEnergyBreakdown: getBuildingEnergyBreakdownTool
 };
