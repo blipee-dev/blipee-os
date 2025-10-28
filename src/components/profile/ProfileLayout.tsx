@@ -58,6 +58,7 @@ export function ProfileLayout({ children, pageTitle }: ProfileLayoutProps) {
       navItems={profileNavItems}
       pageTitle={defaultPageTitle}
       sectionTitle={t('title')}
+      hideFloatingButton={true}
     >
       {children}
     </BaseSidebarLayout>

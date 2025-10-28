@@ -26,6 +26,14 @@ import { useTranslations, useLanguage } from "@/providers/LanguageProvider";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { EducationalModal } from "@/components/education/EducationalModal";
 import { FloatingChat } from "@/components/chat/FloatingChat";
+import dynamic from "next/dynamic";
+import { useMobileDetection } from "@/hooks/use-mobile-detection";
+
+// Lazy load MobileChatInterface for mobile devices
+const MobileChatInterface = dynamic(() => import("@/components/chat/MobileChatInterface"), {
+  ssr: false,
+  loading: () => null,
+});
 
 const getSustainabilityNavItems = (tDashboard: (key: string) => string, isSuperAdmin: boolean, onHelpClick?: () => void) => {
   const allItems = [
@@ -64,6 +72,7 @@ export function SustainabilityLayout({ children, organizationId }: Sustainabilit
   const tDashboard = useTranslations('settings.sustainability.dashboard');
   const { t } = useLanguage();
   const { user } = useAuth();
+  const isMobile = useMobileDetection();
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [showHelpMenu, setShowHelpMenu] = useState(false);
   const [activeEducationalModal, setActiveEducationalModal] = useState<string | null>(null);
@@ -96,6 +105,26 @@ export function SustainabilityLayout({ children, organizationId }: Sustainabilit
 
   const sustainabilityNavItems = getSustainabilityNavItems(tDashboard, isSuperAdmin, handleHelpClick);
 
+  // On mobile, show only the mobile chat interface
+  if (isMobile) {
+    return (
+      <>
+        <MobileChatInterface organizationId={organizationId} />
+
+        {/* Educational Modal */}
+        <EducationalModal
+          activeModal={activeEducationalModal}
+          onClose={() => setActiveEducationalModal(null)}
+          organizationContext={{
+            country: 'Portugal',
+            sector: 'professional_services'
+          }}
+        />
+      </>
+    );
+  }
+
+  // Desktop layout
   return (
     <>
       <BaseSidebarLayout
@@ -150,7 +179,7 @@ export function SustainabilityLayout({ children, organizationId }: Sustainabilit
         }}
       />
 
-      {/* Floating AI Chat */}
+      {/* Desktop Floating AI Chat */}
       <FloatingChat organizationId={organizationId} />
     </>
   );

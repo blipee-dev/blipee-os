@@ -12,8 +12,6 @@ import {
 import { BaseSidebarLayout } from "@/components/layout/BaseSidebarLayout";
 import { useTranslations } from "@/providers/LanguageProvider";
 import { useAuth } from "@/lib/auth/context";
-import { FloatingChat } from "@/components/chat/FloatingChat";
-import { useOrganizationContext } from "@/hooks/useOrganizationContext";
 
 const getSettingsNavItems = (t: (key: string) => string, isSuperAdmin: boolean) => {
   const items = [
@@ -45,8 +43,6 @@ export default function SettingsLayout({
   const t = useTranslations('settings.sidebar');
   const { user } = useAuth();
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const [conversationId, setConversationId] = useState<string>('');
-  const { data: organizationData } = useOrganizationContext(!!user);
 
   // Check super admin status
   useEffect(() => {
@@ -63,59 +59,15 @@ export default function SettingsLayout({
     checkSuperAdmin();
   }, [user]);
 
-  // Get or create conversation for floating chat
-  useEffect(() => {
-    async function setupConversation() {
-      if (!user || !organizationData?.id) return;
-
-      try {
-        // Check for existing conversation
-        const response = await fetch(`/api/conversations?userId=${user.id}&organizationId=${organizationData.id}`);
-        const conversations = await response.json();
-
-        if (conversations && conversations.length > 0) {
-          setConversationId(conversations[0].id);
-        } else {
-          // Create new conversation
-          const createResponse = await fetch('/api/conversations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              organizationId: organizationData.id,
-              title: 'Settings Chat',
-              model: 'gpt-4o',
-              temperature: 0.7,
-              max_tokens: 2000
-            })
-          });
-          const newConversation = await createResponse.json();
-          setConversationId(newConversation.id);
-        }
-      } catch (error) {
-        console.error('Error setting up conversation:', error);
-      }
-    }
-    setupConversation();
-  }, [user, organizationData]);
-
   const settingsNavItems = getSettingsNavItems(t, isSuperAdmin);
 
   return (
-    <>
-      <BaseSidebarLayout
-        navItems={settingsNavItems}
-        sectionTitle={t('title')}
-      >
-        {children}
-      </BaseSidebarLayout>
-
-      {/* Floating AI Chat */}
-      {conversationId && organizationData && (
-        <FloatingChat
-          conversationId={conversationId}
-          organizationId={organizationData.id}
-        />
-      )}
-    </>
+    <BaseSidebarLayout
+      navItems={settingsNavItems}
+      sectionTitle={t('title')}
+      hideFloatingButton={true}
+    >
+      {children}
+    </BaseSidebarLayout>
   );
 }

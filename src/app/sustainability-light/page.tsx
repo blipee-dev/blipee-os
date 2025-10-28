@@ -34,7 +34,15 @@ import { OverviewDashboardMinimal } from '@/components/dashboard/OverviewDashboa
 import { useTranslations } from '@/providers/LanguageProvider';
 import { useOrganizationContext } from '@/hooks/useOrganizationContext';
 import { FloatingChat } from '@/components/chat/FloatingChat';
+import dynamic from 'next/dynamic';
+import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import type { Building } from '@/types/auth';
+
+// Lazy load MobileChatInterface for mobile devices
+const MobileChatInterface = dynamic(() => import('@/components/chat/MobileChatInterface'), {
+  ssr: false,
+  loading: () => null,
+});
 
 // Minimal Site Selector
 function MinimalSiteSelector({
@@ -373,6 +381,7 @@ export default function SustainabilityLightPage() {
   const { user } = useAuth();
   const router = useRouter();
   const t = useTranslations('sustainability.overview');
+  const isMobile = useMobileDetection();
 
   const { data: organizationData, isLoading: loading, error: queryError } = useOrganizationContext(!!user);
 
@@ -499,8 +508,14 @@ export default function SustainabilityLightPage() {
         )}
       </main>
 
-      {/* Floating AI Chat */}
-      {organizationData && <FloatingChat organizationId={organizationData.id} />}
+      {/* AI Chat - Mobile or Desktop */}
+      {organizationData && (
+        isMobile ? (
+          <MobileChatInterface organizationId={organizationData.id} />
+        ) : (
+          <FloatingChat organizationId={organizationData.id} />
+        )
+      )}
     </div>
   );
 }
