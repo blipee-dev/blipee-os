@@ -2633,20 +2633,35 @@ export const getSBTiProgressTool = tool({
         yearlyEmissions.push({ year, emissions: emissions.total });
       }
 
-      // Use EnterpriseForecast (Prophet-style) to predict future emissions
-      const monthsToForecast = (targetYear - currentYear) * 12;
-      const forecastResult = EnterpriseForecast.forecast(allMonthlyData, monthsToForecast, false);
+      // Use EnterpriseForecast (Prophet-style) to predict future emissions at key milestones only
+      // We only need 2030 and 2050 forecasts for strategic planning view
+      const monthsTo2030 = (2030 - currentYear) * 12;
+      const monthsTo2050 = (2050 - currentYear) * 12;
 
-      // Convert monthly forecast to yearly totals
+      const forecast2030Result = EnterpriseForecast.forecast(allMonthlyData, Math.max(1, monthsTo2030), false);
+      const forecast2050Result = EnterpriseForecast.forecast(allMonthlyData, Math.max(1, monthsTo2050), false);
+
+      // Calculate yearly totals for milestone years only
       const yearlyForecast: Array<{ year: number; emissions: number }> = [];
-      for (let i = 0; i < forecastResult.forecasted.length; i += 12) {
-        const yearIndex = Math.floor(i / 12);
-        const futureYear = currentYear + yearIndex + 1;
-        if (futureYear <= targetYear) {
-          const yearlyTotal = forecastResult.forecasted.slice(i, i + 12).reduce((sum, val) => sum + val, 0);
-          yearlyForecast.push({ year: futureYear, emissions: yearlyTotal });
-        }
+
+      if (monthsTo2030 > 0 && forecast2030Result.forecasted.length >= 12) {
+        // Get last 12 months of 2030 forecast (represents full year 2030)
+        const year2030Start = Math.max(0, monthsTo2030 - 11);
+        const year2030Data = forecast2030Result.forecasted.slice(year2030Start, year2030Start + 12);
+        const emissions2030 = year2030Data.reduce((sum, val) => sum + val, 0);
+        yearlyForecast.push({ year: 2030, emissions: emissions2030 });
       }
+
+      if (monthsTo2050 > 0 && forecast2050Result.forecasted.length >= 12) {
+        // Get last 12 months of 2050 forecast (represents full year 2050)
+        const year2050Start = Math.max(0, monthsTo2050 - 11);
+        const year2050Data = forecast2050Result.forecasted.slice(year2050Start, year2050Start + 12);
+        const emissions2050 = year2050Data.reduce((sum, val) => sum + val, 0);
+        yearlyForecast.push({ year: 2050, emissions: emissions2050 });
+      }
+
+      // Use the more recent forecast for metadata
+      const forecastResult = forecast2050Result;
 
       // Calculate SBTi 1.5°C target trajectory
       // Linear reduction from baseline to targets
@@ -2673,8 +2688,21 @@ export const getSBTiProgressTool = tool({
       const targetData: number[] = [];
       const projectedData: (number | null)[] = [];
 
-      // Generate data points from baseline to target year
-      for (let year = actualBaselineYear; year <= targetYear; year += 1) {
+      // Get current year emissions for projection baseline
+      const currentEmissions = yearlyEmissions[yearlyEmissions.length - 1]?.emissions || baselineEmissions.total;
+
+      // Get forecasted values for milestones
+      const projected2030 = yearlyForecast.find(y => y.year === 2030);
+      const projected2050 = yearlyForecast.find(y => y.year === 2050);
+
+      // Generate data points from baseline to target year (sample every few years for cleaner chart)
+      const yearStep = targetYear - actualBaselineYear > 30 ? 5 : 1; // Show every 5 years if range > 30 years
+      for (let year = actualBaselineYear; year <= targetYear; year += yearStep) {
+        // Always include key milestone years
+        if (year !== actualBaselineYear && year !== currentYear && year !== 2030 && year !== 2050 && year !== targetYear) {
+          continue;
+        }
+
         labels.push(year.toString());
 
         // Actual emissions (only for years with data)
@@ -2695,27 +2723,77 @@ export const getSBTiProgressTool = tool({
         const targetEmissions = baselineEmissions.total * (1 - targetReduction);
         targetData.push(Math.round(targetEmissions * 10) / 10);
 
-        // Projected emissions using EnterpriseForecast (Prophet model)
-        if (year > currentYear) {
-          const forecastYear = yearlyForecast.find(y => y.year === year);
-          projectedData.push(forecastYear ? Math.round(forecastYear.emissions * 10) / 10 : null);
+        // Projected emissions - linear interpolation between current → 2030 → 2050
+        if (year <= currentYear) {
+          projectedData.push(null);
+        } else if (year === 2030 && projected2030) {
+          projectedData.push(Math.round(projected2030.emissions * 10) / 10);
+        } else if (year === 2050 && projected2050) {
+          projectedData.push(Math.round(projected2050.emissions * 10) / 10);
+        } else if (year > currentYear && year < 2030 && projected2030) {
+          // Linear interpolation between current year and 2030
+          const progress = (year - currentYear) / (2030 - currentYear);
+          const interpolated = currentEmissions + (projected2030.emissions - currentEmissions) * progress;
+          projectedData.push(Math.round(interpolated * 10) / 10);
+        } else if (year > 2030 && year < 2050 && projected2030 && projected2050) {
+          // Linear interpolation between 2030 and 2050
+          const progress = (year - 2030) / (2050 - 2030);
+          const interpolated = projected2030.emissions + (projected2050.emissions - projected2030.emissions) * progress;
+          projectedData.push(Math.round(interpolated * 10) / 10);
         } else {
           projectedData.push(null);
         }
       }
 
+      // Ensure key years are always in labels
+      const keyYears = [actualBaselineYear, currentYear, 2030, 2050];
+      for (const keyYear of keyYears) {
+        if (!labels.includes(keyYear.toString()) && keyYear <= targetYear) {
+          // Insert in correct position
+          const insertIndex = labels.findIndex(y => parseInt(y) > keyYear);
+          const insertPos = insertIndex === -1 ? labels.length : insertIndex;
+
+          labels.splice(insertPos, 0, keyYear.toString());
+
+          // Actual data
+          const actualYear = yearlyEmissions.find(y => y.year === keyYear);
+          actualData.splice(insertPos, 0, actualYear ? Math.round(actualYear.emissions * 10) / 10 : null);
+
+          // Target data
+          let targetReduction = 0;
+          for (let i = 0; i < sbtiTargets.length - 1; i++) {
+            const current = sbtiTargets[i];
+            const next = sbtiTargets[i + 1];
+            if (keyYear >= current.year && keyYear <= next.year) {
+              const progress = (keyYear - current.year) / (next.year - current.year);
+              targetReduction = current.reduction + (next.reduction - current.reduction) * progress;
+              break;
+            }
+          }
+          const targetEmissions = baselineEmissions.total * (1 - targetReduction);
+          targetData.splice(insertPos, 0, Math.round(targetEmissions * 10) / 10);
+
+          // Projected data
+          if (keyYear <= currentYear) {
+            projectedData.splice(insertPos, 0, null);
+          } else if (keyYear === 2030 && projected2030) {
+            projectedData.splice(insertPos, 0, Math.round(projected2030.emissions * 10) / 10);
+          } else if (keyYear === 2050 && projected2050) {
+            projectedData.splice(insertPos, 0, Math.round(projected2050.emissions * 10) / 10);
+          } else {
+            projectedData.splice(insertPos, 0, null);
+          }
+        }
+      }
+
       // Calculate current progress
-      const currentEmissions = yearlyEmissions[yearlyEmissions.length - 1].emissions;
       const currentReduction = ((baselineEmissions.total - currentEmissions) / baselineEmissions.total) * 100;
 
       // Calculate milestone deviations
-      const projected2030 = yearlyForecast.find(y => y.year === 2030);
       const target2030 = baselineEmissions.total * (1 - 0.42);
       const deviation2030 = projected2030
         ? ((projected2030.emissions - target2030) / target2030) * 100
         : 0;
-
-      const projected2050 = yearlyForecast.find(y => y.year === 2050);
       const target2050_90percent = baselineEmissions.total * 0.10; // 90% reduction = 10% residual (NO offsets)
       const maxAllowedOffsets = baselineEmissions.total * 0.10; // SBTi allows max 10% of baseline to be offset
 
