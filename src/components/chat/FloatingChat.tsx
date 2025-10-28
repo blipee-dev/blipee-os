@@ -532,12 +532,13 @@ export function FloatingChat({
       {/* Chat Button */}
       {!isOpen && (
         <button
+          type="button"
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-[60] bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2 group"
-          aria-label="Open Chat"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60] bg-gradient-to-r from-green-500 to-emerald-500 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2 group"
+          aria-label={unreadCount > 0 ? `Open chat. ${unreadCount} unread notifications` : "Open chat"}
         >
-          <MessageCircle className="w-6 h-6" />
-          <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap">
+          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
+          <span className="max-w-0 overflow-hidden sm:group-hover:max-w-xs transition-all duration-300 whitespace-nowrap" aria-hidden="true">
             Ask blipee
           </span>
           <NotificationBadge count={unreadCount} />
@@ -566,10 +567,13 @@ export function FloatingChat({
               }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Chat interface"
               className={`fixed z-[60] bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden flex flex-col ${
                 isExpanded
-                  ? 'inset-0 m-auto w-[90vw] h-[90vh]'
-                  : 'bottom-6 right-6 w-[450px] h-[650px]'
+                  ? 'inset-0 m-2 sm:m-4 md:m-auto w-auto sm:w-[90vw] h-[calc(100vh-1rem)] sm:h-[90vh]'
+                  : 'inset-x-2 bottom-2 sm:inset-x-auto sm:bottom-4 sm:right-4 md:bottom-6 md:right-6 w-auto sm:w-[400px] md:w-[450px] h-[calc(100vh-1rem)] sm:h-[600px] md:h-[650px]'
               }`}
             >
               {/* Top Bar with Controls */}
@@ -585,47 +589,51 @@ export function FloatingChat({
                 <div className="flex items-center gap-1">
                   {!isExpanded ? (
                     <button
+                      type="button"
                       onClick={() => setIsExpanded(true)}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-                      aria-label="Maximize"
+                      aria-label="Maximize chat window"
                     >
-                      <Maximize2 className="w-4 h-4 text-gray-500 dark:text-gray-500" />
+                      <Maximize2 className="w-4 h-4 text-gray-500 dark:text-gray-500" aria-hidden="true" />
                     </button>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => setIsExpanded(false)}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-                      aria-label="Minimize"
+                      aria-label="Minimize chat window"
                     >
-                      <Minimize2 className="w-4 h-4 text-gray-500 dark:text-gray-500" />
+                      <Minimize2 className="w-4 h-4 text-gray-500 dark:text-gray-500" aria-hidden="true" />
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={() => setIsOpen(false)}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-                    aria-label="Close"
+                    aria-label="Close chat window"
                   >
-                    <X className="w-4 h-4 text-gray-500 dark:text-gray-500" />
+                    <X className="w-4 h-4 text-gray-500 dark:text-gray-500" aria-hidden="true" />
                   </button>
                 </div>
               </div>
 
               {/* Main Content: Sidebar + Chat */}
               <div className="flex-1 flex overflow-hidden">
-                {/* Sidebar - Only shown when expanded */}
+                {/* Sidebar - Only shown when expanded and on md+ screens */}
                 {isExpanded && (
-                  <div className={`bg-gray-50 dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800 flex-col transition-all duration-300 ${
+                  <div className={`hidden md:flex bg-gray-50 dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800 flex-col transition-all duration-300 ${
                     isSidebarCollapsed ? 'w-16' : 'w-64'
-                  } flex`}>
+                  }`}>
 
                     {/* New Chat Button */}
                     <div className="px-2 pt-2">
                       <button
+                        type="button"
                         onClick={handleNewChat}
                         className={`group w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 text-sm text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors`}
-                        title={isSidebarCollapsed ? 'New chat' : undefined}
+                        aria-label="Start new chat conversation"
                       >
-                        <PencilLine className="w-4 h-4 group-hover:text-green-500" />
+                        <PencilLine className="w-4 h-4 group-hover:text-green-500" aria-hidden="true" />
                         {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">New chat</span>}
                       </button>
                     </div>
@@ -633,11 +641,12 @@ export function FloatingChat({
                     {/* Search Chats Button */}
                     <div className="px-2">
                       <button
+                        type="button"
                         onClick={() => setIsSearchModalOpen(true)}
                         className={`group w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 text-sm text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors`}
-                        title={isSidebarCollapsed ? 'Search chats' : undefined}
+                        aria-label="Search conversations"
                       >
-                        <Search className="w-4 h-4 group-hover:text-green-500" />
+                        <Search className="w-4 h-4 group-hover:text-green-500" aria-hidden="true" />
                         {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">Search chats</span>}
                       </button>
                     </div>
@@ -645,11 +654,12 @@ export function FloatingChat({
                     {/* Prompt Library Button */}
                     <div className="px-2">
                       <button
+                        type="button"
                         onClick={() => setIsPromptLibraryOpen(true)}
                         className={`group w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 text-sm text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors`}
-                        title={isSidebarCollapsed ? 'Prompt library' : undefined}
+                        aria-label="Open prompt library"
                       >
-                        <Sparkles className="w-4 h-4 group-hover:text-green-500" />
+                        <Sparkles className="w-4 h-4 group-hover:text-green-500" aria-hidden="true" />
                         {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">Prompt library</span>}
                       </button>
                     </div>
@@ -670,6 +680,7 @@ export function FloatingChat({
                               <div className="space-y-0.5 px-2 mb-4">
                                 {notifications.slice(0, 5).map((notification) => (
                                   <button
+                                    type="button"
                                     key={notification.conversationId}
                                     onClick={() => handleNotificationClick(notification.conversationId, notification.lastMessageId)}
                                     className={`w-full text-left px-3 py-2.5 text-sm rounded-lg transition-colors ${
@@ -677,6 +688,7 @@ export function FloatingChat({
                                         ? 'bg-green-50 dark:bg-green-900/20 text-gray-900 dark:text-white hover:bg-green-100 dark:hover:bg-green-900/30 font-medium'
                                         : 'text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800'
                                     }`}
+                                    aria-label={`${notification.agentName || 'Agent'} notification: ${notification.lastMessage}. ${notification.unreadCount} unread messages.`}
                                   >
                                     <div className="flex items-start gap-2">
                                       <Bot className="w-4 h-4 mt-0.5 shrink-0 text-green-500" />
@@ -750,12 +762,15 @@ export function FloatingChat({
                                             }}
                                             autoFocus
                                             className="flex-1 bg-transparent border-none outline-none focus:ring-0"
+                                            aria-label="Rename conversation"
                                           />
                                         ) : (
                                           <>
                                             <button
+                                              type="button"
                                               onClick={() => handleSelectConversation(conv.id)}
                                               className="flex-1 text-left truncate"
+                                              aria-label={`Open conversation: ${conv.title || 'Untitled conversation'}`}
                                             >
                                               {conv.title || 'Untitled conversation'}
                                             </button>
@@ -816,12 +831,15 @@ export function FloatingChat({
                                           }}
                                           autoFocus
                                           className="flex-1 bg-transparent border-none outline-none focus:ring-0"
+                                          aria-label="Rename conversation"
                                         />
                                       ) : (
                                         <>
                                           <button
+                                            type="button"
                                             onClick={() => handleSelectConversation(conv.id)}
                                             className="flex-1 text-left truncate group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent"
+                                            aria-label={`Open conversation: ${conv.title || 'Untitled conversation'}`}
                                           >
                                             {conv.title || 'Untitled conversation'}
                                           </button>
@@ -873,14 +891,16 @@ export function FloatingChat({
                     {/* Collapse/Expand Sidebar Button */}
                     <div className="p-3 border-t border-gray-200 dark:border-zinc-800">
                       <button
+                        type="button"
                         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                         className="group w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors"
-                        title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        aria-expanded={!isSidebarCollapsed}
                       >
                         {isSidebarCollapsed ? (
-                          <ChevronRight className="w-4 h-4 group-hover:text-green-500" />
+                          <ChevronRight className="w-4 h-4 group-hover:text-green-500" aria-hidden="true" />
                         ) : (
-                          <ChevronLeft className="w-4 h-4 group-hover:text-green-500" />
+                          <ChevronLeft className="w-4 h-4 group-hover:text-green-500" aria-hidden="true" />
                         )}
                         {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">Collapse sidebar</span>}
                       </button>
@@ -937,24 +957,31 @@ export function FloatingChat({
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="fixed inset-0 m-auto w-full max-w-2xl h-fit max-h-[80vh] bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl z-[70] flex flex-col"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Search conversations"
+                    className="fixed inset-x-2 top-4 sm:inset-0 sm:m-auto w-auto sm:w-full max-w-2xl h-fit max-h-[calc(100vh-2rem)] sm:max-h-[80vh] bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl z-[70] flex flex-col"
                   >
                     {/* Search Header */}
                     <div className="p-4 border-b border-gray-200 dark:border-zinc-800">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" aria-hidden="true" />
                         <Input
                           type="text"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           className="pl-10 pr-10 text-base border-0 shadow-none focus-visible:ring-0 bg-transparent"
+                          placeholder="Search conversations..."
                           autoFocus
+                          aria-label="Search conversations"
                         />
                         <button
+                          type="button"
                           onClick={() => setIsSearchModalOpen(false)}
                           className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                          aria-label="Close search modal"
                         >
-                          <X className="w-5 h-5 text-gray-500" />
+                          <X className="w-5 h-5 text-gray-500" aria-hidden="true" />
                         </button>
                       </div>
                     </div>
@@ -963,10 +990,12 @@ export function FloatingChat({
                     <div className="flex-1 overflow-y-auto p-2">
                       {/* New Chat Option */}
                       <button
+                        type="button"
                         onClick={handleNewChat}
                         className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors mb-2"
+                        aria-label="Start new chat conversation"
                       >
-                        <PencilLine className="w-4 h-4" />
+                        <PencilLine className="w-4 h-4" aria-hidden="true" />
                         <span>New chat</span>
                       </button>
 
@@ -993,11 +1022,13 @@ export function FloatingChat({
                               <div className="space-y-0.5">
                                 {convs.map((conv) => (
                                   <button
+                                    type="button"
                                     key={conv.id}
                                     onClick={() => handleSelectConversation(conv.id)}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                    aria-label={`Open conversation: ${conv.title || 'Untitled conversation'}`}
                                   >
-                                    <MessageCircle className="w-4 h-4 flex-shrink-0 text-gray-500" />
+                                    <MessageCircle className="w-4 h-4 flex-shrink-0 text-gray-500" aria-hidden="true" />
                                     <span className="flex-1 text-left truncate">
                                       {conv.title || 'Untitled conversation'}
                                     </span>
@@ -1041,22 +1072,28 @@ export function FloatingChat({
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="fixed inset-0 m-auto w-full max-w-md h-fit bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl z-[70] p-6"
+                    role="alertdialog"
+                    aria-modal="true"
+                    aria-labelledby="delete-dialog-title"
+                    aria-describedby="delete-dialog-description"
+                    className="fixed inset-x-4 top-1/2 -translate-y-1/2 sm:inset-0 sm:m-auto w-auto sm:w-full max-w-md h-fit bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl z-[70] p-6"
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    <h3 id="delete-dialog-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                       Delete conversation?
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                    <p id="delete-dialog-description" className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                       This will permanently delete this conversation and all its messages. This action cannot be undone.
                     </p>
                     <div className="flex gap-3 justify-end">
                       <button
+                        type="button"
                         onClick={() => setDeletingConversationId(null)}
                         className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                       >
                         Cancel
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleDeleteConversation(deletingConversationId)}
                         className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 rounded-lg transition-colors"
                       >

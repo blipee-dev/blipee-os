@@ -321,8 +321,10 @@ export function ChatInterface({
           {showingOnlyUnread && onLoadAllMessages && (
             <div className="mb-4 flex justify-center">
               <button
+                type="button"
                 onClick={onLoadAllMessages}
                 className="px-4 py-2 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full transition-colors border border-gray-200 dark:border-gray-700"
+                aria-label="Load older messages"
               >
                 ↑ Load older messages
               </button>

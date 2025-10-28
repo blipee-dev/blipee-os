@@ -868,7 +868,7 @@ export const PromptInputTextarea = forwardRef<HTMLTextAreaElement, PromptInputTe
   return (
     <InputGroupTextarea
       ref={ref}
-      className={cn("field-sizing-content max-h-48 min-h-10", className)}
+      className={cn("field-sizing-content max-h-12 md:max-h-48 min-h-10", className)}
       name="message"
       onCompositionEnd={() => setIsComposing(false)}
       onCompositionStart={() => setIsComposing(true)}
