@@ -2417,6 +2417,7 @@
         "older": "Anteriores"
       },
       "loading": {
+        "default": "A carregar...",
         "conversations": "A carregar conversas...",
         "messages": "A carregar mensagens..."
       },

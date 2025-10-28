@@ -23,6 +23,21 @@ export function MobileSettings({ isOpen, onClose }: MobileSettingsProps) {
     permission: pushPermission
   } = usePushNotifications();
 
+  // Get user initials from full name or email
+  const getUserInitials = () => {
+    if (user?.full_name) {
+      const names = user.full_name.trim().split(' ');
+      if (names.length >= 2) {
+        // First letter of first name + first letter of last name
+        return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+      }
+      // Just first name, use first letter
+      return names[0][0].toUpperCase();
+    }
+    // Fallback to email first letter
+    return user?.email?.[0].toUpperCase() || 'U';
+  };
+
   const handleTogglePushNotifications = async () => {
     if (isPushSubscribed) {
       await unsubscribePush();
@@ -95,10 +110,15 @@ export function MobileSettings({ isOpen, onClose }: MobileSettingsProps) {
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Profile</h3>
                 <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
                   <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold text-lg shrink-0">
-                    {user?.email?.[0].toUpperCase() || 'U'}
+                    {getUserInitials()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">{user?.email}</p>
+                    <p className="font-medium text-gray-900 truncate">
+                      {user?.full_name || user?.email}
+                    </p>
+                    {user?.email && user?.full_name && (
+                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    )}
                     <button
                       onClick={() => window.location.href = '/profile'}
                       className="text-xs text-green-600 hover:text-green-700 mt-0.5"

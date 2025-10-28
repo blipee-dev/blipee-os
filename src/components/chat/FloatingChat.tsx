@@ -309,17 +309,17 @@ export function FloatingChat({
     }
   };
 
-  // Helper function to get time period label
+  // Helper function to get time period translation key
   const getTimePeriod = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays <= 7) return '7 days ago';
-    if (diffDays <= 30) return '30 days ago';
-    return 'Older';
+    if (diffDays === 0) return 'conversation.sidebar.groups.today';
+    if (diffDays === 1) return 'conversation.sidebar.groups.yesterday';
+    if (diffDays <= 7) return 'conversation.sidebar.groups.sevenDays';
+    if (diffDays <= 30) return 'conversation.sidebar.groups.thirtyDays';
+    return 'conversation.sidebar.groups.older';
   };
 
   // Group conversations by time period
@@ -675,7 +675,7 @@ export function FloatingChat({
                             <>
                               <div className="px-3 mb-2">
                                 <h3 className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wide">
-                                  Notifications
+                                  {t('conversation.sidebar.sections.notifications')}
                                 </h3>
                               </div>
 
@@ -727,13 +727,13 @@ export function FloatingChat({
                           {/* Chats Section */}
                           <div className="px-3 mb-2">
                             <h3 className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wide">
-                              Chats
+                              {t('conversation.sidebar.sections.chats')}
                             </h3>
                           </div>
 
                           {isLoadingConversations ? (
                             <div className="px-2 py-8 text-center text-sm text-gray-500 dark:text-gray-500">
-                              Loading...
+                              {t('conversation.sidebar.loading.default')}
                             </div>
                           ) : recentConversations.length === 0 ? (
                             <div className="px-2 py-8 text-center text-sm text-gray-500 dark:text-gray-500">
@@ -1003,7 +1003,7 @@ export function FloatingChat({
 
                       {isLoadingConversations ? (
                         <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-500">
-                          Loading...
+                          {t('conversation.sidebar.loading.default')}
                         </div>
                       ) : filteredConversations.length === 0 ? (
                         <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-500">
@@ -1016,7 +1016,7 @@ export function FloatingChat({
                               {/* Time Period Header */}
                               <div className="px-3 py-2">
                                 <h4 className="text-xs font-medium text-gray-500 dark:text-gray-500">
-                                  {period}
+                                  {t(period as any)}
                                 </h4>
                               </div>
 
