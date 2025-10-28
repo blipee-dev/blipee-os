@@ -30,6 +30,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from '@/providers/LanguageProvider';
 import { auditLogger } from '@/lib/audit/client';
 import toast from 'react-hot-toast';
+import { useCSRFHeaders } from '@/lib/security/csrf-client';
 
 interface AppUser {
   id: string;
@@ -80,6 +81,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const t = useTranslations('settings.users');
+  const csrfHeaders = useCSRFHeaders();
 
   // Get session stats for multiple users via API
   const getSessionStats = async (userIds: string[]): Promise<Record<string, number>> => {
@@ -88,6 +90,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders,
         },
         body: JSON.stringify({ userIds }),
       });
@@ -243,6 +246,9 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
       // Use the API endpoint for deletion which uses admin client
       const response = await fetch(`/api/users/manage?id=${deleteConfirm.user.id}`, {
         method: 'DELETE',
+        headers: {
+          ...csrfHeaders,
+        },
       });
 
       if (!response.ok) {
@@ -279,6 +285,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders,
         },
         body: JSON.stringify({
           userId: user.id
@@ -318,6 +325,7 @@ export default function UsersClient({ initialUsers, organizations, userRole }: U
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders,
         },
         body: JSON.stringify({
           userIds: Array.from(selectedUsers)

@@ -190,26 +190,10 @@ export async function getCSRFToken(): Promise<string | null> {
 
 /**
  * Hook to use CSRF token in client components
+ *
+ * NOTE: For client components, import from '@/lib/security/csrf-client' instead
+ * to avoid server-only module import errors.
  */
-export function useCSRFHeaders(): Record<string, string> {
-  if (typeof window === 'undefined') {
-    return {};
-  }
-
-  const token = document.cookie
-    .split('; ')
-    .find(row => row.startsWith(CSRF_COOKIE_NAME + '='))
-    ?.split('=')[1];
-
-  if (!token) {
-    console.warn('CSRF token not found in cookies');
-    return {};
-  }
-
-  return {
-    [CSRF_HEADER_NAME]: token
-  };
-}
 
 /**
  * Enhanced fetch with CSRF token (server-side)
