@@ -34,7 +34,7 @@ export function PromptLibrary({ isOpen, onClose, onSelectPrompt }: PromptLibrary
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-4xl max-h-[85vh] bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:border-zinc-800">
         {/* Header */}
         <div className="flex-shrink-0 px-6 py-4 border-b border-gray-200 dark:border-zinc-800">
