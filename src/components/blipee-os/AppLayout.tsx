@@ -13,6 +13,7 @@ interface AppLayoutProps {
   onDeleteConversation?: (id: string) => void;
   showSidebar?: boolean;
   pageTitle?: string;
+  hideFloatingButton?: boolean;
 }
 
 export function AppLayout({
@@ -23,6 +24,7 @@ export function AppLayout({
   onDeleteConversation = () => {},
   showSidebar = true,
   pageTitle,
+  hideFloatingButton = false,
 }: AppLayoutProps) {
   const { settings, updateSetting } = useAppearance();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(settings.sidebarAutoCollapse);
@@ -66,7 +68,7 @@ export function AppLayout({
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <MobileNavigation onNewChat={onNewConversation} />
+      {!hideFloatingButton && <MobileNavigation onNewChat={onNewConversation} />}
     </div>
   );
 }

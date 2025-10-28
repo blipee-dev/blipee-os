@@ -12,6 +12,8 @@ import {
 import { BaseSidebarLayout } from "@/components/layout/BaseSidebarLayout";
 import { useTranslations } from "@/providers/LanguageProvider";
 import { useAuth } from "@/lib/auth/context";
+import { FloatingChat } from "@/components/chat/FloatingChat";
+import { useOrganizationContext } from "@/hooks/useOrganizationContext";
 
 const getSettingsNavItems = (t: (key: string) => string, isSuperAdmin: boolean) => {
   const items = [
@@ -43,6 +45,7 @@ export default function SettingsLayout({
   const t = useTranslations('settings.sidebar');
   const { user } = useAuth();
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const { data: organizationData } = useOrganizationContext(!!user);
 
   // Check super admin status
   useEffect(() => {
@@ -62,12 +65,19 @@ export default function SettingsLayout({
   const settingsNavItems = getSettingsNavItems(t, isSuperAdmin);
 
   return (
-    <BaseSidebarLayout
-      navItems={settingsNavItems}
-      sectionTitle={t('title')}
-      hideFloatingButton={true}
-    >
-      {children}
-    </BaseSidebarLayout>
+    <>
+      <BaseSidebarLayout
+        navItems={settingsNavItems}
+        sectionTitle={t('title')}
+        hideFloatingButton={true}
+      >
+        {children}
+      </BaseSidebarLayout>
+
+      {/* Floating AI Chat */}
+      {organizationData?.id && (
+        <FloatingChat organizationId={organizationData.id} />
+      )}
+    </>
   );
 }

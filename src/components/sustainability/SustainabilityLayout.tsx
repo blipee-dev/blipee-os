@@ -105,71 +105,62 @@ export function SustainabilityLayout({ children, organizationId }: Sustainabilit
 
   const sustainabilityNavItems = getSustainabilityNavItems(tDashboard, isSuperAdmin, handleHelpClick);
 
-  // On mobile, show only the mobile chat interface
-  if (isMobile) {
-    return (
-      <>
-        <MobileChatInterface organizationId={organizationId} />
-
-        {/* Educational Modal */}
-        <EducationalModal
-          activeModal={activeEducationalModal}
-          onClose={() => setActiveEducationalModal(null)}
-          organizationContext={{
-            country: 'Portugal',
-            sector: 'professional_services'
-          }}
-        />
-      </>
-    );
-  }
-
-  // Desktop layout
   return (
     <>
-      <BaseSidebarLayout
-        navItems={sustainabilityNavItems}
-        sectionTitle="Sustainability"
-        hideFloatingButton={true}
-      >
-        {children}
-      </BaseSidebarLayout>
+      {/* Mobile Interface - Hidden on desktop with CSS */}
+      <div className={isMobile ? 'block' : 'hidden md:hidden'}>
+        <MobileChatInterface organizationId={organizationId} />
+      </div>
 
-      {/* Help Topics Menu */}
-      {showHelpMenu && (
-        <>
-          <div
-            className="fixed inset-0 z-[9998] bg-black/20 backdrop-blur-sm"
-            onClick={() => setShowHelpMenu(false)}
-          />
-          <div className="fixed left-20 md:left-80 bottom-20 z-[9999] w-80 bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="accent-gradient p-4">
-              <h3 className="text-white font-semibold flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                Help & Learning
-              </h3>
-            </div>
-            <div className="p-2 space-y-1 max-h-96 overflow-y-auto">
-              {educationalTopics.map((topic) => (
-                <button
-                  key={topic.id}
-                  onClick={() => handleTopicSelect(topic.id)}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left group"
-                >
-                  <span className="text-2xl group-hover:scale-110 transition-transform">
-                    {topic.icon}
-                  </span>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {t(topic.titleKey)}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
+      {/* Desktop Layout - Hidden on mobile with CSS */}
+      <div className={!isMobile ? 'block' : 'hidden md:block'}>
+        <BaseSidebarLayout
+          navItems={sustainabilityNavItems}
+          sectionTitle="Sustainability"
+          hideFloatingButton={true}
+        >
+          {children}
+        </BaseSidebarLayout>
 
-      {/* Educational Modal */}
+        {/* Help Topics Menu */}
+        {showHelpMenu && (
+          <>
+            <div
+              className="fixed inset-0 z-[9998] bg-black/20 backdrop-blur-sm"
+              onClick={() => setShowHelpMenu(false)}
+            />
+            <div className="fixed left-20 md:left-80 bottom-20 z-[9999] w-80 bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="accent-gradient p-4">
+                <h3 className="text-white font-semibold flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  Help & Learning
+                </h3>
+              </div>
+              <div className="p-2 space-y-1 max-h-96 overflow-y-auto">
+                {educationalTopics.map((topic) => (
+                  <button
+                    key={topic.id}
+                    onClick={() => handleTopicSelect(topic.id)}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left group"
+                  >
+                    <span className="text-2xl group-hover:scale-110 transition-transform">
+                      {topic.icon}
+                    </span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      {t(topic.titleKey)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Desktop Floating AI Chat */}
+        <FloatingChat organizationId={organizationId} />
+      </div>
+
+      {/* Educational Modal - Shared between mobile and desktop */}
       <EducationalModal
         activeModal={activeEducationalModal}
         onClose={() => setActiveEducationalModal(null)}
@@ -178,9 +169,6 @@ export function SustainabilityLayout({ children, organizationId }: Sustainabilit
           sector: 'professional_services'
         }}
       />
-
-      {/* Desktop Floating AI Chat */}
-      <FloatingChat organizationId={organizationId} />
     </>
   );
 }

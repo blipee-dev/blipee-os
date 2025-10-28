@@ -33,7 +33,8 @@
       "Bash(chmod:*)",
       "Bash(npx tsc:*)",
       "Bash(node:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_qhWosT/**)"
     ],
     "deny": [],
     "ask": []

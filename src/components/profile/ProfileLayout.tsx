@@ -5,6 +5,8 @@ import { User, Bell, Shield, Palette, Globe } from "lucide-react";
 import { BaseSidebarLayout } from "@/components/layout/BaseSidebarLayout";
 import { useTranslations } from "@/providers/LanguageProvider";
 import { useAuth } from "@/lib/auth/context";
+import { FloatingChat } from "@/components/chat/FloatingChat";
+import { useOrganizationContext } from "@/hooks/useOrganizationContext";
 
 const getProfileNavItems = (t: (key: string) => string, isSuperAdmin: boolean) => {
   const items = [
@@ -34,6 +36,7 @@ export function ProfileLayout({ children, pageTitle }: ProfileLayoutProps) {
   const t = useTranslations('profile.sidebar');
   const { user } = useAuth();
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const { data: organizationData } = useOrganizationContext(!!user);
 
   // Check super admin status
   useEffect(() => {
@@ -54,13 +57,20 @@ export function ProfileLayout({ children, pageTitle }: ProfileLayoutProps) {
   const defaultPageTitle = pageTitle || t('title');
 
   return (
-    <BaseSidebarLayout
-      navItems={profileNavItems}
-      pageTitle={defaultPageTitle}
-      sectionTitle={t('title')}
-      hideFloatingButton={true}
-    >
-      {children}
-    </BaseSidebarLayout>
+    <>
+      <BaseSidebarLayout
+        navItems={profileNavItems}
+        pageTitle={defaultPageTitle}
+        sectionTitle={t('title')}
+        hideFloatingButton={true}
+      >
+        {children}
+      </BaseSidebarLayout>
+
+      {/* Floating AI Chat */}
+      {organizationData?.id && (
+        <FloatingChat organizationId={organizationData.id} />
+      )}
+    </>
   );
 }

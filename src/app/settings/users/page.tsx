@@ -73,6 +73,8 @@ export default async function UsersPage() {
       .eq('auth_user_id', user.id)
       .single();
 
+    console.log('[Users Page] Current user app_users data:', currentAppUser);
+
     let currentUserRole = currentAppUser?.role || 'viewer';
 
     // Get organizations from user_access table (Simple RBAC)
@@ -81,6 +83,8 @@ export default async function UsersPage() {
       .select('resource_id, role')
       .eq('user_id', user.id)
       .eq('resource_type', 'org');
+
+    console.log('[Users Page] User access data:', userAccess);
 
     if (userAccess && userAccess.length > 0) {
       // Get organization IDs from user_access
@@ -121,8 +125,12 @@ export default async function UsersPage() {
 
     // If no organizations, redirect
     if (!userOrgs || userOrgs.length === 0) {
+      console.log('[Users Page] No organizations found, redirecting to /');
       redirect('/');
     }
+
+    console.log('[Users Page] Organization IDs:', organizationIds);
+    console.log('[Users Page] User organizations:', userOrgs);
 
     // Check permission using centralized permission service
     let hasPermission = false;
@@ -130,15 +138,21 @@ export default async function UsersPage() {
     if (organizationIds && organizationIds.length > 0) {
       // Check if user has permission to manage users in any of their organizations
       for (const orgId of organizationIds) {
-        if (await PermissionService.canManageUsers(user.id, orgId)) {
+        const canManage = await PermissionService.canManageUsers(user.id, orgId);
+        console.log(`[Users Page] Can manage users for org ${orgId}:`, canManage);
+        if (canManage) {
           hasPermission = true;
           break;
         }
       }
     }
 
+    console.log('[Users Page] Has permission:', hasPermission);
+    console.log('[Users Page] Current user role:', currentUserRole);
+
     if (!hasPermission) {
       // User doesn't have permission to manage users
+      console.log('[Users Page] No permission to manage users, redirecting to /');
       redirect('/');
     }
 
