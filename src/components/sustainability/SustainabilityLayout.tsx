@@ -131,13 +131,22 @@ export function SustainabilityLayout({ children, organizationId }: Sustainabilit
         {showHelpMenu && (
           <>
             <div
+              role="button"
+              tabIndex={0}
               className="fixed inset-0 z-[9998] bg-black/20 backdrop-blur-sm"
               onClick={() => setShowHelpMenu(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+                  e.preventDefault();
+                  setShowHelpMenu(false);
+                }
+              }}
+              aria-label="Close help menu"
             />
             <div className="fixed left-20 md:left-80 bottom-20 z-[9999] w-80 bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div className="accent-gradient p-4">
                 <h3 className="text-white font-semibold flex items-center gap-2">
-                  <BookOpen className="w-5 h-5" />
+                  <BookOpen className="w-5 h-5" aria-hidden="true" />
                   Help & Learning
                 </h3>
               </div>
@@ -145,10 +154,12 @@ export function SustainabilityLayout({ children, organizationId }: Sustainabilit
                 {educationalTopics.map((topic) => (
                   <button
                     key={topic.id}
+                    type="button"
                     onClick={() => handleTopicSelect(topic.id)}
                     className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left group"
+                    aria-label={`Learn about ${t(topic.titleKey)}`}
                   >
-                    <span className="text-2xl group-hover:scale-110 transition-transform">
+                    <span className="text-2xl group-hover:scale-110 transition-transform" aria-hidden="true">
                       {topic.icon}
                     </span>
                     <span className="text-sm font-medium text-gray-900 dark:text-white">

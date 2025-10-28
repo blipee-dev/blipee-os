@@ -2209,13 +2209,17 @@
     },
     "sidebar": {
       "buttons": {
-        "newChat": "New Chat",
+        "newChat": "New chat",
         "chats": "Chats",
-        "library": "Library",
+        "library": "Prompt library",
         "settings": "Settings",
         "signOut": "Sign Out",
-        "expandSidebar": "Expand Sidebar",
-        "collapseSidebar": "Collapse Sidebar"
+        "expandSidebar": "Expand sidebar",
+        "collapseSidebar": "Collapse sidebar",
+        "searchChats": "Search chats",
+        "maximizeWindow": "Maximize chat window",
+        "minimizeWindow": "Minimize chat window",
+        "close": "Close chat"
       },
       "sections": {
         "recents": "Recent"
@@ -2228,7 +2232,9 @@
       "actions": {
         "pin": "Pin",
         "rename": "Rename",
-        "delete": "Delete"
+        "delete": "Delete",
+        "share": "Share",
+        "archive": "Archive"
       },
       "search": {
         "placeholder": "Search conversations..."
@@ -2239,6 +2245,25 @@
         "thisWeek": "This Week",
         "thisMonth": "This Month",
         "older": "Older"
+      },
+      "loading": {
+        "conversations": "Loading conversations...",
+        "messages": "Loading messages..."
+      },
+      "labels": {
+        "untitled": "Untitled conversation",
+        "askBlipee": "Ask blipee",
+        "openChat": "Open chat",
+        "openChatWithUnread": "Open chat. {{count}} unread notifications",
+        "openConversation": "Open conversation: {{title}}",
+        "renameConversation": "Rename conversation",
+        "searchConversations": "Search conversations"
+      },
+      "delete": {
+        "title": "Delete conversation?",
+        "message": "This action cannot be undone. The conversation will be permanently deleted.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
       }
     },
     "message": {

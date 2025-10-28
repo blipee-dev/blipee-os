@@ -133,8 +133,10 @@ export function PageLayout({
             <h3 className="text-xl font-semibold">{errorTitle || `Error Loading ${title}`}</h3>
             <p className="text-gray-400">{error}</p>
             <button
+              type="button"
               onClick={() => window.location.reload()}
               className={`px-6 py-3 bg-gradient-to-r ${accentGradient} hover:opacity-90 rounded-xl transition-opacity text-white`}
+              aria-label="Retry loading page"
             >
               Retry
             </button>
@@ -153,11 +155,11 @@ export function PageLayout({
           animate={{ opacity: 1, y: 0 }}
           className={designTokens.spacing.sectionGap}
         >
-          <div className="flex items-start justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
             {/* Title and Description */}
-            <div>
+            <div className="flex-1 min-w-0">
               <h1 className={`${designTokens.typography.pageTitle} mb-2 flex items-center gap-2`}>
-                <Icon className={designTokens.icons.large} style={{ color: accentColorHex }} />
+                <Icon className={designTokens.icons.large} style={{ color: accentColorHex }} aria-hidden="true" />
                 {title}
               </h1>
               <p className={designTokens.typography.description}>
@@ -167,7 +169,7 @@ export function PageLayout({
 
             {/* Filters */}
             {showFilters && (
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <SiteSelector
                   currentSite={selectedSite}
                   onSiteChange={setSelectedSite}
@@ -178,6 +180,7 @@ export function PageLayout({
                 />
                 {(selectedSite || selectedPeriod.id !== 'current-year') && (
                   <button
+                    type="button"
                     onClick={() => {
                       setSelectedSite(null);
                       setSelectedPeriod({
@@ -190,6 +193,7 @@ export function PageLayout({
                     }}
                     className="text-sm transition-opacity hover:opacity-80"
                     style={{ color: accentColorHex }}
+                    aria-label="Clear all filters"
                   >
                     Clear Filters
                   </button>

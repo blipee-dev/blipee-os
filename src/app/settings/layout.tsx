@@ -8,6 +8,7 @@ import {
   Cpu,
   FileText,
   Leaf,
+  Settings2,
 } from "lucide-react";
 import { BaseSidebarLayout } from "@/components/layout/BaseSidebarLayout";
 import { useTranslations } from "@/providers/LanguageProvider";
@@ -31,7 +32,8 @@ const getSettingsNavItems = (t: (key: string) => string, isSuperAdmin: boolean) 
 
   items.push(
     { id: "users", label: t('navigation.users'), icon: Users, href: "/settings/users", view: null },
-    { id: "logs", label: t('navigation.logs'), icon: FileText, href: "/settings/logs", view: null }
+    { id: "logs", label: t('navigation.logs'), icon: FileText, href: "/settings/logs", view: null },
+    { id: "app", label: t('navigation.app'), icon: Settings2, href: "/settings/app", view: null }
   );
 
   return items;

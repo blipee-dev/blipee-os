@@ -22,7 +22,6 @@ import {
   Edit,
   Archive,
   Trash2,
-  Settings,
   LogOut,
   User,
   Bell,
@@ -567,14 +566,15 @@ export function MobileChatInterface({
         </div>
 
         <button
+          type="button"
           onClick={() => {
             hapticLight();
             setIsMenuOpen(true);
           }}
           className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors active:scale-95"
-          aria-label="Open menu"
+          aria-label={unreadCount > 0 ? `Open menu. ${unreadCount} unread notifications` : "Open menu"}
         >
-          <Menu className="w-6 h-6 text-gray-700" />
+          <Menu className="w-6 h-6 text-gray-700" aria-hidden="true" />
           <NotificationBadge count={unreadCount} />
         </button>
       </div>
@@ -631,6 +631,8 @@ export function MobileChatInterface({
           <>
             {/* Backdrop */}
             <motion.div
+              role="button"
+              tabIndex={0}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -638,7 +640,15 @@ export function MobileChatInterface({
                 hapticLight();
                 setIsMenuOpen(false);
               }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+                  e.preventDefault();
+                  hapticLight();
+                  setIsMenuOpen(false);
+                }
+              }}
               className="fixed inset-0 bg-black/50 z-[70]"
+              aria-label="Close menu"
             />
 
             {/* Menu Panel */}
@@ -663,6 +673,7 @@ export function MobileChatInterface({
               <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 bg-gray-50">
                 <h2 className="font-semibold text-lg text-gray-900">Menu</h2>
                 <button
+                  type="button"
                   onClick={() => {
                     hapticLight();
                     setIsMenuOpen(false);
@@ -670,7 +681,7 @@ export function MobileChatInterface({
                   className="p-2 hover:bg-gray-200 rounded-lg transition-colors active:scale-95"
                   aria-label="Close menu"
                 >
-                  <X className="w-5 h-5 text-gray-700" />
+                  <X className="w-5 h-5 text-gray-700" aria-hidden="true" />
                 </button>
               </div>
 
@@ -679,37 +690,43 @@ export function MobileChatInterface({
                 {/* Actions Section */}
                 <div className="space-y-1">
                   <button
+                    type="button"
                     onClick={() => {
                       hapticMedium();
                       handleNewChat();
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-green-500/10 hover:to-emerald-500/10 rounded-lg transition-all active:scale-98 text-left"
+                    aria-label="Start new chat"
                   >
-                    <PencilLine className="w-5 h-5 text-green-600" />
+                    <PencilLine className="w-5 h-5 text-green-600" aria-hidden="true" />
                     <span className="font-medium">New Chat</span>
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => {
                       hapticLight();
                       setIsSearchModalOpen(true);
                       setIsMenuOpen(false);
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-green-500/10 hover:to-emerald-500/10 rounded-lg transition-all active:scale-98 text-left"
+                    aria-label="Search conversations"
                   >
-                    <Search className="w-5 h-5 text-green-600" />
+                    <Search className="w-5 h-5 text-green-600" aria-hidden="true" />
                     <span className="font-medium">Search Chats</span>
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => {
                       hapticLight();
                       setIsPromptLibraryOpen(true);
                       setIsMenuOpen(false);
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-green-500/10 hover:to-emerald-500/10 rounded-lg transition-all active:scale-98 text-left"
+                    aria-label="Open prompt library"
                   >
-                    <Sparkles className="w-5 h-5 text-green-600" />
+                    <Sparkles className="w-5 h-5 text-green-600" aria-hidden="true" />
                     <span className="font-medium">Prompt Library</span>
                   </button>
                 </div>
@@ -741,6 +758,7 @@ export function MobileChatInterface({
                       {notifications.slice(0, 5).map((notification) => (
                         <button
                           key={notification.id}
+                          type="button"
                           onClick={() => {
                             hapticLight();
                             handleNotificationClick(notification.conversationId);
@@ -750,9 +768,10 @@ export function MobileChatInterface({
                               ? 'text-gray-600 hover:bg-gray-100'
                               : 'bg-green-50 text-gray-900 hover:bg-green-100 font-medium'
                           }`}
+                          aria-label={`${notification.read ? 'Read notification' : 'Unread notification'} from ${notification.agentName || 'AI'}: ${notification.message}`}
                         >
                           <div className="flex items-start gap-3">
-                            <Bot className="w-4 h-4 mt-0.5 shrink-0 text-green-600" />
+                            <Bot className="w-4 h-4 mt-0.5 shrink-0 text-green-600" aria-hidden="true" />
                             <div className="flex-1 min-w-0">
                               {notification.agentName && (
                                 <p className="text-xs text-green-600 mb-0.5">
@@ -765,7 +784,7 @@ export function MobileChatInterface({
                               </p>
                             </div>
                             {!notification.read && (
-                              <div className="w-2 h-2 rounded-full bg-green-500 shrink-0 mt-1.5" />
+                              <div className="w-2 h-2 rounded-full bg-green-500 shrink-0 mt-1.5" aria-hidden="true" />
                             )}
                           </div>
                         </button>
@@ -813,8 +832,10 @@ export function MobileChatInterface({
                                 ) : (
                                   <>
                                     <button
+                                      type="button"
                                       onClick={() => handleSelectConversation(conv.id)}
                                       className="flex-1 text-left truncate text-sm font-medium"
+                                      aria-label={`View conversation: ${conv.title || 'Untitled conversation'}`}
                                     >
                                       {conv.title || 'Untitled conversation'}
                                     </button>
@@ -857,13 +878,15 @@ export function MobileChatInterface({
                             </div>
                           ) : (
                             <button
+                              type="button"
                               onClick={() => handleSelectConversation(conv.id)}
                               className="w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-green-500/10 hover:to-emerald-500/10 rounded-lg transition-colors text-left"
+                              aria-label={`Select conversation: ${conv.title || 'Untitled conversation'}`}
                             >
                               <span className="flex-1 truncate text-sm">
                                 {conv.title || 'Untitled conversation'}
                               </span>
-                              <ChevronRight className="w-4 h-4 text-gray-400" />
+                              <ChevronRight className="w-4 h-4 text-gray-400" aria-hidden="true" />
                             </button>
                           )}
                         </div>
@@ -871,11 +894,13 @@ export function MobileChatInterface({
 
                       {conversations.length > 5 && (
                         <button
+                          type="button"
                           onClick={() => {
                             setIsSearchModalOpen(true);
                             setIsMenuOpen(false);
                           }}
                           className="w-full px-4 py-3 text-sm text-green-600 hover:bg-green-50 rounded-lg transition-colors text-center font-medium"
+                          aria-label="See all conversations"
                         >
                           See all conversations...
                         </button>
@@ -884,31 +909,23 @@ export function MobileChatInterface({
                   )}
                 </div>
 
-                {/* Settings Section */}
+                {/* Account Section */}
                 <div className="border-t border-gray-200 pt-4 space-y-1">
                   <button
-                    onClick={() => {
-                      router.push('/settings/organizations');
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-left"
-                  >
-                    <Settings className="w-5 h-5 text-gray-600" />
-                    <span className="font-medium">Settings</span>
-                  </button>
-
-                  <button
+                    type="button"
                     onClick={() => {
                       router.push('/profile');
                       setIsMenuOpen(false);
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-left"
+                    aria-label="Go to profile"
                   >
-                    <User className="w-5 h-5 text-gray-600" />
+                    <User className="w-5 h-5 text-gray-600" aria-hidden="true" />
                     <span className="font-medium">Profile</span>
                   </button>
 
                   <button
+                    type="button"
                     onClick={async () => {
                       try {
                         await signOut();
@@ -918,8 +935,9 @@ export function MobileChatInterface({
                       }
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left"
+                    aria-label="Logout"
                   >
-                    <LogOut className="w-5 h-5" />
+                    <LogOut className="w-5 h-5" aria-hidden="true" />
                     <span className="font-medium">Logout</span>
                   </button>
                 </div>
@@ -934,11 +952,20 @@ export function MobileChatInterface({
         {isSearchModalOpen && (
           <>
             <motion.div
+              role="button"
+              tabIndex={0}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsSearchModalOpen(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+                  e.preventDefault();
+                  setIsSearchModalOpen(false);
+                }
+              }}
               className="fixed inset-0 bg-black/50 z-[90]"
+              aria-label="Close search"
             />
 
             <motion.div
@@ -950,7 +977,7 @@ export function MobileChatInterface({
               {/* Search Header */}
               <div className="px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center gap-3">
-                  <Search className="w-5 h-5 text-gray-400" />
+                  <Search className="w-5 h-5 text-gray-400" aria-hidden="true" />
                   <Input
                     type="text"
                     placeholder="Search conversations..."
@@ -958,13 +985,16 @@ export function MobileChatInterface({
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="flex-1 border-none focus:ring-0 p-0"
                     autoFocus
+                    aria-label="Search conversations"
                   />
                   <button
+                    type="button"
                     onClick={() => {
                       setIsSearchModalOpen(false);
                       setSearchQuery('');
                     }}
                     className="text-sm text-gray-500 hover:text-gray-700"
+                    aria-label="Cancel search"
                   >
                     Cancel
                   </button>
@@ -982,12 +1012,14 @@ export function MobileChatInterface({
                     {filteredConversations.map((conv) => (
                       <button
                         key={conv.id}
+                        type="button"
                         onClick={() => {
                           handleSelectConversation(conv.id);
                           setIsSearchModalOpen(false);
                           setSearchQuery('');
                         }}
                         className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors"
+                        aria-label={`Open conversation: ${conv.title || 'Untitled conversation'}`}
                       >
                         <div className="font-medium text-gray-900 mb-1">
                           {conv.title || 'Untitled conversation'}
@@ -1023,33 +1055,49 @@ export function MobileChatInterface({
         {deletingConversationId && (
           <>
             <motion.div
+              role="button"
+              tabIndex={0}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDeletingConversationId(null)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+                  e.preventDefault();
+                  setDeletingConversationId(null);
+                }
+              }}
               className="fixed inset-0 bg-black/50 z-[90]"
+              aria-label="Cancel delete"
             />
 
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-dialog-title"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="fixed inset-0 m-auto w-[90vw] max-w-sm h-fit bg-white rounded-2xl shadow-2xl z-[100] p-6"
             >
-              <h3 className="text-lg font-semibold mb-2">Delete conversation?</h3>
+              <h3 id="delete-dialog-title" className="text-lg font-semibold mb-2">Delete conversation?</h3>
               <p className="text-sm text-gray-600 mb-6">
                 This action cannot be undone. The conversation will be permanently deleted.
               </p>
               <div className="flex gap-3">
                 <button
+                  type="button"
                   onClick={() => setDeletingConversationId(null)}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  aria-label="Cancel deletion"
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleDeleteConversation(deletingConversationId)}
                   className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  aria-label="Confirm deletion"
                 >
                   Delete
                 </button>
@@ -1064,14 +1112,26 @@ export function MobileChatInterface({
         {showPushPrompt && (
           <>
             <motion.div
+              role="button"
+              tabIndex={0}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={handleSkipPush}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+                  e.preventDefault();
+                  handleSkipPush();
+                }
+              }}
               className="fixed inset-0 bg-black/50 z-[90]"
+              aria-label="Dismiss notification prompt"
             />
 
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="push-prompt-title"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -1079,24 +1139,28 @@ export function MobileChatInterface({
             >
               <div className="text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                  <Bell className="w-8 h-8 text-white" />
+                  <Bell className="w-8 h-8 text-white" aria-hidden="true" />
                 </div>
 
-                <h3 className="text-xl font-semibold mb-2">Stay Updated</h3>
+                <h3 id="push-prompt-title" className="text-xl font-semibold mb-2">Stay Updated</h3>
                 <p className="text-sm text-gray-600 mb-6">
                   Get notified when AI agents find important sustainability insights, compliance alerts, or optimization opportunities.
                 </p>
 
                 <div className="space-y-3">
                   <button
+                    type="button"
                     onClick={handleEnablePush}
                     className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium rounded-lg hover:shadow-lg transition-all"
+                    aria-label="Enable push notifications"
                   >
                     Enable Notifications
                   </button>
                   <button
+                    type="button"
                     onClick={handleSkipPush}
                     className="w-full px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    aria-label="Skip push notifications for now"
                   >
                     Maybe Later
                   </button>
