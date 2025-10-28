@@ -122,6 +122,7 @@ interface ChatInterfaceProps {
   organizationId: string;
   buildingId?: string;
   initialMessages?: SustainabilityAgentUIMessage[];
+  initialInput?: string; // Initial text for the input field
   className?: string;
   onConversationUpdate?: () => void; // Callback to refresh conversation list
 }
@@ -131,15 +132,25 @@ export function ChatInterface({
   organizationId,
   buildingId,
   initialMessages,
+  initialInput = '',
   className,
   onConversationUpdate
 }: ChatInterfaceProps) {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(initialInput);
   const [model, setModel] = useState(AVAILABLE_MODELS[0].id);
   const [feedback, setFeedback] = useState<Record<string, 'up' | 'down' | null>>({});
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pathname = usePathname();
   const { user } = useAuth();
+
+  // Update input when initialInput changes (from prompt library)
+  useEffect(() => {
+    if (initialInput) {
+      setInput(initialInput);
+      // Focus the textarea after setting input
+      setTimeout(() => textareaRef.current?.focus(), 100);
+    }
+  }, [initialInput]);
 
   // Generate context-aware suggestions based on current page
   const suggestions = useMemo(() => getContextualSuggestions(pathname), [pathname]);

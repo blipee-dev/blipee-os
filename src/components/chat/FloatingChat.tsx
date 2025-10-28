@@ -8,9 +8,10 @@
  */
 
 import { useState, useEffect } from 'react';
-import { X, MessageCircle, Bot, PencilLine, Search, Maximize2, Minimize2, ChevronLeft, ChevronRight, MoreVertical, Share, Edit, Archive, Trash2 } from 'lucide-react';
+import { X, MessageCircle, Bot, PencilLine, Search, Maximize2, Minimize2, ChevronLeft, ChevronRight, MoreVertical, Share, Edit, Archive, Trash2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatInterface } from './ChatInterface';
+import { PromptLibrary } from './PromptLibrary';
 import type { SustainabilityAgentMessage } from '@/lib/ai/agents';
 import { useAuth } from '@/lib/auth/context';
 import { Input } from '@/components/ui/input';
@@ -48,6 +49,8 @@ export function FloatingChat({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isPromptLibraryOpen, setIsPromptLibraryOpen] = useState(false);
+  const [initialInput, setInitialInput] = useState('');
   const [conversations, setConversations] = useState<ConversationMemory[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   // If no initial conversation provided, start with a new one
@@ -492,6 +495,18 @@ export function FloatingChat({
                       </button>
                     </div>
 
+                    {/* Prompt Library Button */}
+                    <div className="px-2">
+                      <button
+                        onClick={() => setIsPromptLibraryOpen(true)}
+                        className={`group w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 text-sm text-gray-500 dark:text-gray-500 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 rounded-lg transition-colors`}
+                        title={isSidebarCollapsed ? 'Prompt library' : undefined}
+                      >
+                        <Sparkles className="w-4 h-4 group-hover:text-green-500" />
+                        {!isSidebarCollapsed && <span className="group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:to-emerald-500 group-hover:bg-clip-text group-hover:text-transparent">Prompt library</span>}
+                      </button>
+                    </div>
+
                     {/* Chats Section */}
                     <div className={`flex-1 overflow-y-auto mt-4 ${isSidebarCollapsed ? '' : ''}`}>
                       {!isSidebarCollapsed && (
@@ -691,6 +706,7 @@ export function FloatingChat({
                         organizationId={organizationId}
                         buildingId={buildingId}
                         initialMessages={loadedMessages}
+                        initialInput={initialInput}
                         className="h-full"
                         onConversationUpdate={fetchConversations}
                       />
@@ -794,6 +810,15 @@ export function FloatingChat({
                 </>
               )}
             </AnimatePresence>
+
+            {/* Prompt Library Modal */}
+            <PromptLibrary
+              isOpen={isPromptLibraryOpen}
+              onClose={() => setIsPromptLibraryOpen(false)}
+              onSelectPrompt={(prompt) => {
+                setInitialInput(prompt);
+              }}
+            />
 
             {/* Delete Confirmation Dialog */}
             <AnimatePresence>
