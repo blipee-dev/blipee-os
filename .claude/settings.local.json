@@ -16,7 +16,8 @@
       "Bash(git push:*)",
       "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_TgF7Bp/**)",
       "Bash(npm run build:*)",
-      "Bash(timeout 120 npm run build:*)"
+      "Bash(timeout 120 npm run build:*)",
+      "Read(//var/folders/kp/whtkks4x4_q89b46fjswsnkm0000gn/T/TemporaryItems/NSIRD_screencaptureui_a6Wivb/**)"
     ],
     "deny": [],
     "ask": []

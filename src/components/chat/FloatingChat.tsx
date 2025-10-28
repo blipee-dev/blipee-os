@@ -52,6 +52,8 @@ export function FloatingChat({
   const [isPromptLibraryOpen, setIsPromptLibraryOpen] = useState(false);
   const [initialInput, setInitialInput] = useState('');
   const [conversations, setConversations] = useState<ConversationMemory[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   // If no initial conversation provided, start with a new one
   const [selectedConversationId, setSelectedConversationId] = useState(
@@ -353,15 +355,58 @@ export function FloatingChat({
     }
   };
 
-  // Poll for unread count every 30 seconds
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    if (!user) return;
+
+    setIsLoadingNotifications(true);
+    try {
+      const response = await fetch('/api/messages/notifications');
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.notifications || []);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setIsLoadingNotifications(false);
+    }
+  };
+
+  // Handle notification click - open the agent conversation
+  const handleNotificationClick = async (conversationId: string) => {
+    // Load the conversation
+    setSelectedConversationId(conversationId);
+    setLoadedMessagesFor(null); // Force reload
+
+    // Mark messages as read
+    await markMessagesAsRead(conversationId);
+
+    // Refresh notifications and unread count
+    fetchNotifications();
+    fetchUnreadCount();
+  };
+
+  // Poll for unread count every 30 seconds and fetch notifications
   useEffect(() => {
     if (!user) return;
 
     fetchUnreadCount(); // Initial fetch
+    fetchNotifications(); // Initial fetch
 
-    const interval = setInterval(fetchUnreadCount, 30000); // Poll every 30s
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+      fetchNotifications();
+    }, 30000); // Poll every 30s
     return () => clearInterval(interval);
   }, [user]);
+
+  // Fetch notifications when chat opens
+  useEffect(() => {
+    if (isOpen && user) {
+      fetchNotifications();
+    }
+  }, [isOpen, user]);
 
 
   // Close on Escape key
@@ -507,10 +552,49 @@ export function FloatingChat({
                       </button>
                     </div>
 
-                    {/* Chats Section */}
+                    {/* Notifications and Chats Section */}
                     <div className={`flex-1 overflow-y-auto mt-4 ${isSidebarCollapsed ? '' : ''}`}>
                       {!isSidebarCollapsed && (
                         <>
+                          {/* Notifications Section */}
+                          {notifications.length > 0 && (
+                            <>
+                              <div className="px-3 mb-2">
+                                <h3 className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wide">
+                                  Notifications
+                                </h3>
+                              </div>
+
+                              <div className="space-y-0.5 px-2 mb-4">
+                                {notifications.slice(0, 5).map((notification) => (
+                                  <button
+                                    key={notification.id}
+                                    onClick={() => handleNotificationClick(notification.conversationId)}
+                                    className={`w-full text-left px-3 py-2.5 text-sm rounded-lg transition-colors ${
+                                      notification.read
+                                        ? 'text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800'
+                                        : 'bg-green-50 dark:bg-green-900/20 text-gray-900 dark:text-white hover:bg-green-100 dark:hover:bg-green-900/30 font-medium'
+                                    }`}
+                                  >
+                                    <div className="flex items-start gap-2">
+                                      <Bot className="w-4 h-4 mt-0.5 shrink-0 text-green-500" />
+                                      <div className="flex-1 min-w-0">
+                                        <p className="truncate">{notification.message}</p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                                          {new Date(notification.timestamp).toLocaleDateString()} {new Date(notification.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                      </div>
+                                      {!notification.read && (
+                                        <div className="w-2 h-2 rounded-full bg-green-500 shrink-0 mt-1.5" />
+                                      )}
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
+
+                          {/* Chats Section */}
                           <div className="px-3 mb-2">
                             <h3 className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wide">
                               Chats
