@@ -30,7 +30,7 @@ import dynamic from "next/dynamic";
 import { useMobileDetection } from "@/hooks/use-mobile-detection";
 
 // Lazy load MobileChatInterface for mobile devices
-const MobileChatInterface = dynamic(() => import("@/components/chat/MobileChatInterface"), {
+const MobileChatInterface = dynamic(() => import("@/components/chat/MobileChatInterface").then(mod => ({ default: mod.MobileChatInterface })), {
   ssr: false,
   loading: () => null,
 });
@@ -76,6 +76,7 @@ export function SustainabilityLayout({ children, organizationId }: Sustainabilit
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [showHelpMenu, setShowHelpMenu] = useState(false);
   const [activeEducationalModal, setActiveEducationalModal] = useState<string | null>(null);
+  const [conversationId, setConversationId] = useState<string>(crypto.randomUUID());
 
   useEffect(() => {
     async function checkSuperAdmin() {
@@ -109,7 +110,11 @@ export function SustainabilityLayout({ children, organizationId }: Sustainabilit
     <>
       {/* Mobile Interface - Hidden on desktop with CSS */}
       <div className={isMobile ? 'block' : 'hidden md:hidden'}>
-        <MobileChatInterface organizationId={organizationId} />
+        <MobileChatInterface
+          conversationId={conversationId}
+          organizationId={organizationId}
+          onNewChat={() => setConversationId(crypto.randomUUID())}
+        />
       </div>
 
       {/* Desktop Layout - Hidden on mobile with CSS */}

@@ -89,11 +89,14 @@ export async function getUnsyncedMessages(): Promise<OfflineMessage[]> {
   const db = await initDB();
   const transaction = db.transaction(['messages'], 'readonly');
   const store = transaction.objectStore('messages');
-  const index = store.index('synced');
 
   return new Promise((resolve, reject) => {
-    const request = index.getAll(false);
-    request.onsuccess = () => resolve(request.result || []);
+    const request = store.getAll();
+    request.onsuccess = () => {
+      const allMessages = request.result || [];
+      const unsynced = allMessages.filter(msg => !msg.synced);
+      resolve(unsynced);
+    };
     request.onerror = () => reject(request.error);
   });
 }
@@ -162,11 +165,14 @@ export async function getUnsyncedActions(): Promise<OfflineAction[]> {
   const db = await initDB();
   const transaction = db.transaction(['actions'], 'readonly');
   const store = transaction.objectStore('actions');
-  const index = store.index('synced');
 
   return new Promise((resolve, reject) => {
-    const request = index.getAll(false);
-    request.onsuccess = () => resolve(request.result || []);
+    const request = store.getAll();
+    request.onsuccess = () => {
+      const allActions = request.result || [];
+      const unsynced = allActions.filter(action => !action.synced);
+      resolve(unsynced);
+    };
     request.onerror = () => reject(request.error);
   });
 }

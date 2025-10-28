@@ -1107,3 +1107,5 @@ export function MobileChatInterface({
     </div>
   );
 }
+
+export default MobileChatInterface;

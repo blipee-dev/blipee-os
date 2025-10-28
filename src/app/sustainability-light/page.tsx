@@ -39,7 +39,7 @@ import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import type { Building } from '@/types/auth';
 
 // Lazy load MobileChatInterface for mobile devices
-const MobileChatInterface = dynamic(() => import('@/components/chat/MobileChatInterface'), {
+const MobileChatInterface = dynamic(() => import('@/components/chat/MobileChatInterface').then(mod => ({ default: mod.MobileChatInterface })), {
   ssr: false,
   loading: () => null,
 });
@@ -385,6 +385,7 @@ export default function SustainabilityLightPage() {
 
   const { data: organizationData, isLoading: loading, error: queryError } = useOrganizationContext(!!user);
 
+  const [conversationId, setConversationId] = useState<string>(crypto.randomUUID());
   const [selectedSite, setSelectedSite] = useState<Building | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState({
     id: 'current-year',
@@ -511,7 +512,11 @@ export default function SustainabilityLightPage() {
       {/* AI Chat - Mobile or Desktop */}
       {organizationData && (
         isMobile ? (
-          <MobileChatInterface organizationId={organizationData.id} />
+          <MobileChatInterface
+            conversationId={conversationId}
+            organizationId={organizationData.id}
+            onNewChat={() => setConversationId(crypto.randomUUID())}
+          />
         ) : (
           <FloatingChat organizationId={organizationData.id} />
         )

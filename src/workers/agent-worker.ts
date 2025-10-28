@@ -749,7 +749,11 @@ class AgentWorker {
     }
 
     // Unsubscribe from all channels
-    await supabaseAdmin.removeAllChannels();
+    try {
+      await supabaseAdmin.removeAllChannels();
+    } catch (error) {
+      console.log('   • Note: Realtime channels cleanup skipped (connection already closed)');
+    }
 
     console.log('✅ Global agent worker stopped gracefully');
   }
