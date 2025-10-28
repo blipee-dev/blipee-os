@@ -1000,17 +1000,14 @@ export function MobileChatInterface({
       </AnimatePresence>
 
       {/* Prompt Library Modal */}
-      <AnimatePresence>
-        {isPromptLibraryOpen && (
-          <PromptLibrary
-            onClose={() => setIsPromptLibraryOpen(false)}
-            onSelectPrompt={(prompt) => {
-              setInitialInput(prompt);
-              setIsPromptLibraryOpen(false);
-            }}
-          />
-        )}
-      </AnimatePresence>
+      <PromptLibrary
+        isOpen={isPromptLibraryOpen}
+        onClose={() => setIsPromptLibraryOpen(false)}
+        onSelectPrompt={(prompt) => {
+          setInitialInput(prompt);
+          setIsPromptLibraryOpen(false);
+        }}
+      />
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
