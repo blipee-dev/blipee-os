@@ -33,6 +33,9 @@ export const metadata: Metadata = {
     maximumScale: 1,
     userScalable: false,
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
 };
 
 export default function RootLayout({
