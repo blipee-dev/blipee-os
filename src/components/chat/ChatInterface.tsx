@@ -345,6 +345,8 @@ export function ChatInterface({
                       const visualizationTools = [
                         'getEmissionsTrend',
                         'getEmissionsBreakdown',
+                        'getEmissionsYoYVariation',
+                        'getSBTiProgress',
                         'getMonthlyConsumption',
                         'getTripAnalytics',
                         'getBuildingEnergyBreakdown'
