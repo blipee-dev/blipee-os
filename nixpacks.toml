@@ -1,15 +1,23 @@
 # Railway Nixpacks Configuration
-# Worker-only deployment - no Next.js build needed
+# Multi-process deployment: Node.js Agent Worker + Python Prophet Service
 
 [phases.setup]
-nixPkgs = ["nodejs_20"]
+nixPkgs = [
+  "nodejs_20",
+  "python311",
+  "python311Packages.pip",
+  "supervisor"
+]
 
 [phases.install]
-cmds = ["npm ci --only=production --ignore-scripts"]
+cmds = [
+  "npm ci --only=production --ignore-scripts",
+  "pip install -r services/forecast-service/requirements.txt"
+]
 
 [phases.build]
 # No build needed for worker
 cmds = []
 
 [start]
-cmd = "npx tsx services/ai-agent-orchestrator.ts"
+cmd = "supervisord -c supervisord.conf"
