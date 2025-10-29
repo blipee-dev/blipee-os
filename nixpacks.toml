@@ -1,23 +1,37 @@
 # Railway Nixpacks Configuration
 # Multi-process deployment: Node.js Agent Worker + Python Prophet Service
+#
+# Architecture:
+# - Process 1 (priority 1): Node.js Agent Worker with 8 autonomous agents
+# - Process 2 (priority 2): Python Prophet forecasting service (FastAPI + uvicorn)
+# - Communication: Internal localhost:8001
+# - Management: Supervisord for process orchestration
 
 [phases.setup]
 nixPkgs = [
   "nodejs_20",
   "python311",
   "python311Packages.pip",
-  "supervisor"
+  "supervisor",
+  "coreutils",
+  "bash"
 ]
 
 [phases.install]
 cmds = [
+  # Install Node.js dependencies
   "npm ci --only=production --ignore-scripts",
-  "pip install -r services/forecast-service/requirements.txt"
+  # Install Python dependencies for Prophet service
+  "pip install --no-cache-dir -r services/forecast-service/requirements.txt",
+  # Make startup script executable
+  "chmod +x scripts/start-supervisor.sh"
 ]
 
 [phases.build]
-# No build needed for worker
-cmds = []
+cmds = [
+  # Validate supervisor configuration syntax
+  "supervisord -c supervisord.conf -h || (echo '❌ Invalid supervisord config' && exit 1)"
+]
 
 [start]
-cmd = "supervisord -c supervisord.conf"
+cmd = "bash scripts/start-supervisor.sh"
