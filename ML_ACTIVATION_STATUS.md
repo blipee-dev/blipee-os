@@ -6,7 +6,8 @@
 - **Status**: ✅ **DEPLOYED & RUNNING**
 - **Technology**: Facebook Prophet via FastAPI (Python)
 - **Schedule**: Every 4 hours (6x/day): 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
-- **Domains**: Energy, Water, Waste, Emissions
+- **Coverage**: All 121 metrics from metrics_catalog (28 categories)
+- **Dynamic**: Fully data-driven, no hardcoded mappings
 - **Performance**: ~8 minutes CPU/day, instant dashboard loading
 - **Location**: Railway container (port 8001), $0 additional cost
 
@@ -17,6 +18,13 @@
 - Pre-computed forecasts stored in `ml_predictions` table
 - Health check endpoint: `/health`
 - Prediction endpoint: `/predict`
+
+### Dynamic Architecture (No Hardcoding)
+- Queries `metrics_catalog` for all active metrics (121 total)
+- Fetches data from `metrics_data` using `metric_id` join
+- Generates forecasts for any metric with ≥12 months of historical data
+- Stores complete metadata: `metric_id`, `category`, `subcategory`, `name`, `code`
+- Automatically adapts to new metrics added to the catalog
 
 ### Architecture
 ```
@@ -166,9 +174,10 @@ The system now combines:
 
 ### Data Availability
 - **Organization**: PLMJ
-- **Training Data Points**: 426 (last 6 months)
-- **Metrics**: 28 unique metrics
-- **Date Range**: 2025-05-01 to 2025-10-01
+- **Metrics Catalog**: 121 metrics across 28 categories
+- **Active Metrics with Data**: 20+ metrics
+- **Top Metrics**: Water (138 points), Electricity (138 points), Waste (90+ points)
+- **Forecasting**: Generates predictions for all metrics with ≥12 months of data
 
 ## 🔧 Manual Commands
 
