@@ -183,17 +183,14 @@ export class MLTrainingService {
 
   private async prepareTrainingData(modelConfig: ModelConfig): Promise<any[] | null> {
     try {
-      // Get historical data for training
-      const sixMonthsAgo = new Date();
-      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
+      // Get ALL historical data for training (no time limitation)
+      // Deep learning models benefit from more data - use all 46+ months available
       const { data, error } = await supabase
         .from('metrics_data')
         .select('*')
         .eq('organization_id', modelConfig.organization_id)
-        .gte('period_start', sixMonthsAgo.toISOString())
         .order('period_start', { ascending: true })
-        .limit(1000);
+        .limit(5000); // Increased from 1000 to handle more historical data
 
       if (error || !data || data.length === 0) {
         return null;
