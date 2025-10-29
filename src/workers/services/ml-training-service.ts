@@ -16,7 +16,9 @@
 
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-import * as tf from '@tensorflow/tfjs-node'; // Real TensorFlow.js with Node backend
+// Use CPU backend instead of Node backend for Node.js v24 compatibility
+import * as tf from '@tensorflow/tfjs';
+import '@tensorflow/tfjs-backend-cpu';
 
 // Load environment variables
 config({ path: '.env.local' });
@@ -231,9 +233,15 @@ export class MLTrainingService {
         throw new Error(`Unsupported model type: ${modelConfig.model_type}`);
       }
 
-      // Save model to file system
-      const modelPath = `file://./ml-models/${modelConfig.id}`;
-      await tfModel.save(modelPath);
+      // Save model topology and weights as JSON (no file system needed)
+      const modelJson = await tfModel.toJSON();
+      const weights = await tfModel.getWeights();
+      const weightsData = await Promise.all(
+        weights.map(async (w) => ({
+          shape: w.shape,
+          data: Array.from(await w.data())
+        }))
+      );
 
       const model = {
         model_id: modelConfig.id,
@@ -241,7 +249,10 @@ export class MLTrainingService {
         type: modelConfig.model_type,
         trained_at: new Date().toISOString(),
         hyperparameters: modelConfig.hyperparameters || {},
-        weights: modelPath,
+        weights: {
+          modelTopology: modelJson.modelTopology,
+          weightsData: weightsData
+        },
         metadata: normalizedData,
         tfModel: tfModel, // Keep in memory for evaluation
       };
@@ -407,7 +418,7 @@ export class MLTrainingService {
     try {
       // Use real TensorFlow.js predictions for evaluation
       const tfModel = model.tfModel as tf.LayersModel;
-      const values = testData.map(d => d.co2e_kg || d.value || 0);
+      const values = testData.map(d => d.co2e_emissions || d.value || 0);
 
       // Use last 20% of data for testing
       const testSize = Math.floor(values.length * 0.2);
@@ -418,7 +429,7 @@ export class MLTrainingService {
       let rmse = 0;
       let r2_score = 0;
 
-      if (model.type === 'emissions_forecast' || model.type === 'energy_forecast') {
+      if (model.type === 'emissions_forecast' || model.type === 'emissions_prediction' || model.type === 'energy_forecast') {
         // For LSTM models
         const windowSize = model.metadata.windowSize || 30;
         const predictions: number[] = [];
@@ -451,7 +462,7 @@ export class MLTrainingService {
         r2_score = 1 - (ssRes / ssTot);
       } else {
         // For autoencoder (anomaly detection)
-        const features = testData.slice(-testSize).map(d => [d.co2e_kg || 0, d.value || 0, d.grid_factor || 0]);
+        const features = testData.slice(-testSize).map(d => [d.co2e_emissions || 0, d.value || 0, d.grid_region || 0]);
         const inputTensor = tf.tensor2d(features);
 
         const reconstructed = tfModel.predict(inputTensor) as tf.Tensor2D;

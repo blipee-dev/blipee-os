@@ -24,8 +24,8 @@ export async function GET(request: NextRequest) {
       .order('last_message_at', { ascending: false })
       .limit(50);
 
-    // Filter by organization if provided
-    if (organizationId) {
+    // Filter by organization if provided and valid
+    if (organizationId && organizationId !== 'undefined' && organizationId !== 'null') {
       query = query.eq('organization_id', organizationId);
     }
 
@@ -38,13 +38,6 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    console.log('[API Conversations] Fetched conversations:', {
-      userId,
-      organizationId,
-      count: data?.length || 0,
-      conversations: data
-    });
 
     return NextResponse.json({
       conversations: data || [],

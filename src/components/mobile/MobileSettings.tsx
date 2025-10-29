@@ -1,11 +1,12 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bell, Monitor, BellOff, User, Trash2 } from 'lucide-react';
+import { X, Bell, Monitor, BellOff, Trash2, Globe, Sun, Moon } from 'lucide-react';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
-import { useAuth } from '@/lib/auth/context';
 import { clearSynced } from '@/lib/offline/db';
 import { useState } from 'react';
+import { useLanguage, getLocaleInfo, SUPPORTED_LOCALES, type Locale } from '@/providers/LanguageProvider';
+import { useAppearance } from '@/providers/AppearanceProvider';
 
 interface MobileSettingsProps {
   isOpen: boolean;
@@ -13,8 +14,9 @@ interface MobileSettingsProps {
 }
 
 export function MobileSettings({ isOpen, onClose }: MobileSettingsProps) {
-  const { user } = useAuth();
   const [isClearing, setIsClearing] = useState(false);
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+
   const {
     isSupported: isPushSupported,
     isSubscribed: isPushSubscribed,
@@ -23,20 +25,8 @@ export function MobileSettings({ isOpen, onClose }: MobileSettingsProps) {
     permission: pushPermission
   } = usePushNotifications();
 
-  // Get user initials from full name or email
-  const getUserInitials = () => {
-    if (user?.full_name) {
-      const names = user.full_name.trim().split(' ');
-      if (names.length >= 2) {
-        // First letter of first name + first letter of last name
-        return (names[0][0] + names[names.length - 1][0]).toUpperCase();
-      }
-      // Just first name, use first letter
-      return names[0][0].toUpperCase();
-    }
-    // Fallback to email first letter
-    return user?.email?.[0].toUpperCase() || 'U';
-  };
+  const { locale, setLocale } = useLanguage();
+  const { settings: appearanceSettings, updateSetting: updateAppearance } = useAppearance();
 
   const handleTogglePushNotifications = async () => {
     if (isPushSubscribed) {
@@ -70,6 +60,21 @@ export function MobileSettings({ isOpen, onClose }: MobileSettingsProps) {
     // Redirect to desktop sustainability page
     window.location.href = '/sustainability';
   };
+
+  const handleLanguageChange = (newLocale: Locale) => {
+    setLocale(newLocale);
+    setIsLanguageOpen(false);
+  };
+
+  const handleThemeToggle = () => {
+    const newTheme = appearanceSettings.theme === 'dark' ? 'light' : 'dark';
+    updateAppearance('theme', newTheme);
+  };
+
+  const isDarkMode = appearanceSettings.theme === 'dark' ||
+    (appearanceSettings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  const currentLocaleInfo = getLocaleInfo(locale);
 
   return (
     <AnimatePresence>
@@ -105,30 +110,6 @@ export function MobileSettings({ isOpen, onClose }: MobileSettingsProps) {
 
             {/* Content */}
             <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-              {/* Profile Section */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Profile</h3>
-                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold text-lg shrink-0">
-                    {getUserInitials()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">
-                      {user?.full_name || user?.email}
-                    </p>
-                    {user?.email && user?.full_name && (
-                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                    )}
-                    <button
-                      onClick={() => window.location.href = '/profile'}
-                      className="text-xs text-green-600 hover:text-green-700 mt-0.5"
-                    >
-                      Edit profile →
-                    </button>
-                  </div>
-                </div>
-              </div>
-
               {/* Notifications Section */}
               <div>
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Notifications</h3>
@@ -191,6 +172,106 @@ export function MobileSettings({ isOpen, onClose }: MobileSettingsProps) {
                     )}
                   </div>
                 )}
+              </div>
+
+              {/* Language Section */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-3">Language</h3>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                    className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Globe className="w-5 h-5 text-blue-600" />
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-gray-900">
+                          {currentLocaleInfo.nativeName}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {currentLocaleInfo.name}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-2xl">{currentLocaleInfo.flag}</span>
+                  </button>
+
+                  {isLanguageOpen && (
+                    <>
+                      {/* Backdrop for language dropdown */}
+                      <div
+                        className="fixed inset-0 z-[95]"
+                        onClick={() => setIsLanguageOpen(false)}
+                      />
+                      {/* Language dropdown */}
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-[96]">
+                        {SUPPORTED_LOCALES.map((loc) => {
+                          const localeInfo = getLocaleInfo(loc);
+                          return (
+                            <button
+                              key={loc}
+                              onClick={() => handleLanguageChange(loc)}
+                              disabled={loc === locale}
+                              className={`w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${
+                                loc === locale ? 'bg-green-50' : ''
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-2xl">{localeInfo.flag}</span>
+                                <div className="text-left">
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {localeInfo.nativeName}
+                                  </p>
+                                  <p className="text-xs text-gray-600">
+                                    {localeInfo.name}
+                                  </p>
+                                </div>
+                              </div>
+                              {loc === locale && (
+                                <span className="text-xs text-green-600 font-medium">✓</span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Dark Mode Section */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-3">Appearance</h3>
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {isDarkMode ? (
+                      <Moon className="w-5 h-5 text-indigo-600" />
+                    ) : (
+                      <Sun className="w-5 h-5 text-amber-600" />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        Dark Mode
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        {isDarkMode ? 'Dark theme enabled' : 'Light theme enabled'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleThemeToggle}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      isDarkMode ? 'bg-indigo-600' : 'bg-gray-300'
+                    }`}
+                    aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        isDarkMode ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* Clear Cache */}

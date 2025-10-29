@@ -51,22 +51,66 @@ export async function getCachedBaseline(
     }
 
     if (!data) {
-      console.log(`Cache miss: baseline for ${domain} ${year}`);
       return null;
     }
 
     // Check if cache is still valid
     if (data.expires_at && new Date(data.expires_at) < new Date()) {
-      console.log(`Cache expired: baseline for ${domain} ${year}`);
       return null;
     }
 
-    console.log(`Cache hit: baseline for ${domain} ${year} (computed ${data.computation_time_ms}ms ago)`);
     return data.data;
 
   } catch (error) {
     console.error('Cache retrieval error:', error);
     return null;
+  }
+}
+
+/**
+ * Set/store cached baseline for a specific year and domain
+ * TTL: 24 hours (baseline data is historical and changes infrequently)
+ */
+export async function setCachedBaseline(
+  organizationId: string,
+  domain: Domain,
+  year: number,
+  data: any,
+  computationTimeMs?: number,
+  supabase?: SupabaseClient
+): Promise<boolean> {
+  const client = supabase || createClient();
+
+  try {
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24); // 24 hour TTL
+
+    const cacheEntry = {
+      organization_id: organizationId,
+      cache_type: 'baseline' as const,
+      domain,
+      period_year: year,
+      data,
+      computed_at: new Date().toISOString(),
+      expires_at: expiresAt.toISOString(),
+      computation_time_ms: computationTimeMs || 0,
+    };
+
+    const { error } = await client
+      .from('metrics_cache')
+      .upsert(cacheEntry, {
+        onConflict: 'organization_id,cache_type,domain,period_year',
+      });
+
+    if (error) {
+      console.error('Failed to cache baseline:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error caching baseline:', error);
+    return false;
   }
 }
 
@@ -98,17 +142,14 @@ export async function getCachedForecast(
     }
 
     if (!data) {
-      console.log(`Cache miss: forecast for ${domain} starting ${startDate}`);
       return null;
     }
 
     // Check if cache is still valid
     if (data.expires_at && new Date(data.expires_at) < new Date()) {
-      console.log(`Cache expired: forecast for ${domain} starting ${startDate}`);
       return null;
     }
 
-    console.log(`Cache hit: forecast for ${domain} (computed ${data.computation_time_ms}ms ago)`);
     return data.data;
 
   } catch (error) {

@@ -6,7 +6,7 @@
     "about": "Sobre",
     "signIn": "Iniciar Sessão",
     "signOut": "Terminar Sessão",
-    "dashboard": "Painel de Controlo",
+    "dashboard": "Dashboard",
     "menu": "Menu",
     "toggleTheme": "Alternar tema",
     "toggleLanguage": "Alterar idioma"
@@ -17,8 +17,8 @@
     "tagline": "A Primeira IA Conversacional de Sustentabilidade do Mundo",
     "headline1": "Inteligência de Sustentabilidade",
     "headline2": "Através de Conversação",
-    "description": "Não é apenas mais uma plataforma ESG. O blipee é a sua equipa de IA autónoma que trabalha 24/7 para gerir, otimizar e melhorar o seu desempenho em sustentabilidade.",
-    "mainDescription": "Onde a IA encontra a sustentabilidade com um toque de magia ✨ A revolução não está a chegar—está aqui, e fala a sua língua. Bem-vindo ao futuro onde salvar o planeta é como conversar com o seu amigo mais inteligente.",
+    "description": "Não é apenas mais uma plataforma ESG. A blipee é a sua equipa de IA autónoma que trabalha 24/7 para gerir, otimizar e melhorar o seu performance em sustentabilidade.",
+    "mainDescription": "Onde a IA encontra a sustentabilidade com um toque de magia ✨ A revolução não está a chegar—está aqui, e fala a sua língua. Bem-vindo ao futuro onde guardar o planeta é como conversar com o seu amigo mais inteligente.",
     "cta": {
       "getStarted": "Começar",
       "startSetup": "Iniciar Configuração de 7 Minutos",
@@ -43,11 +43,11 @@
       "subtitle": "A plataforma de sustentabilidade mais avançada, alimentada por IA que prevê, aconselha e atua",
       "conversational": {
         "title": "100% Conversacional",
-        "description": "Sem painéis, sem formulários complexos. Apenas pergunte à sua IA qualquer coisa sobre sustentabilidade"
+        "description": "Sem dashboards, sem formulários complexos. Apenas pergunte à suaIA qualquer coisa sobre sustentabilidade"
       },
       "scopeTracking": {
-        "title": "Rastreamento de Âmbito 1, 2, 3",
-        "description": "Rastreamento completo de emissões em toda a sua cadeia de valor, automaticamente"
+        "title": "Tracking de Âmbito 1, 2, 3",
+        "description": "Tracking completo de emissões em toda a sua cadeia de valor, automaticamente"
       },
       "scienceTargets": {
         "title": "Metas Baseadas na Ciência",
@@ -62,19 +62,19 @@
         "description": "Capacidades de gestão de edifícios de classe mundial integradas perfeitamente"
       },
       "complianceAutomation": {
-        "title": "Automação de Conformidade",
-        "description": "Mantenha-se à frente das regulamentações com IA que monitoriza e garante conformidade"
+        "title": "Automação de Compliance",
+        "description": "Mantenha-se à frente das regulamentações com IA que monitoriza e garante compliance"
       }
     },
     "useCases": {
       "title": "Funciona para",
       "titleHighlight": "Todas as Indústrias",
-      "subtitle": "Veja como as organizações alcançam os seus objetivos de sustentabilidade através da conversação",
+      "subtitle": "Veja como as organizações alcançam os seusobjetivos de sustentabilidade através da conversação",
       "buildings": {
         "title": "Para Edifícios",
         "stats": "23 Mil Milhões de pés²",
         "query": "Reduzir as nossas emissões de edifícios em 40% este ano",
-        "response": "Analisei os seus padrões de energia e identifiquei 2 oportunidades de otimização que reduzirão as emissões em 42% enquanto poupam €127.000 anualmente."
+        "response": "Analisei os seuspadrões de energia e identifiquei 2 oportunidades de otimização que reduzirão as emissões em 42% enquanto poupam €127.000 anualmente."
       },
       "manufacturing": {
         "title": "Para Manufatura",
@@ -85,7 +85,7 @@
       "energy": {
         "title": "Para Energia",
         "stats": "7 Sites Ativos",
-        "query": "Mostre-me o desempenho de energia renovável em todos os sites",
+        "query": "Mostre-me o performance de energia renovável em todos os sites",
         "response": "Geração solar aumentou 18% este mês. Site 3 a render 30% acima do objetivo. Recomendo armazenamento de bateria para o Site 5 para capturar €85K em créditos de rede."
       },
       "retail": {
@@ -103,7 +103,7 @@
       "minutesToSetupValue": "5min",
       "aiAccuracy": "Taxa de Precisão da IA",
       "aiAccuracyValue": "99,2%",
-      "compliance": "Conformidade Regulamentar",
+      "compliance": "Compliance Regulamentar",
       "complianceValue": "100%"
     },
     "aiCapabilities": {
@@ -111,9 +111,9 @@
       "titleHighlight": "Para Si 24/7",
       "subtitle": "A nossa arquitetura de IA multi-cérebro garante que cada aspeto da sustentabilidade está coberto, desde monitorização em tempo real até análises preditivas e ações autónomas.",
       "capabilities": [
-        "Rastreamento e previsão de emissões",
+        "Tracking e previsão de emissões",
         "Análise preditiva para equipamentos",
-        "Monitorização e alertas de conformidade",
+        "Monitorização e alertas de compliance",
         "Otimização da cadeia de fornecimento",
         "Definição de metas baseadas na ciência",
         "Relatórios de sustentabilidade automatizados",
@@ -127,23 +127,23 @@
     },
     "cta": {
       "title": "Pronto para Transformar a sua Sustentabilidade?",
-      "subtitle": "Aceda à sua plataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
+      "subtitle": "Aceda à suaplataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
       "signInButton": "Iniciar Sessão no Painel",
       "requestButton": "Solicitar Acesso",
-      "footer": "A sua equipa de IA de sustentabilidade está à sua espera"
+      "footer": "A a sua equipa de IA de sustentabilidade está à sua espera"
     },
     "contactModal": {
       "title": "Agendar uma Demonstração",
-      "subtitle": "Entre em contacto com a nossa equipa para ver o blipee em ação",
+      "subtitle": "Entre em contacto com a nossa equipa para ver a blipee em ação",
       "namePlaceholder": "O Seu Nome",
       "emailPlaceholder": "Endereço de Email",
       "companyPlaceholder": "Empresa",
-      "messagePlaceholder": "Conte-nos sobre os seus objetivos de sustentabilidade",
+      "messagePlaceholder": "Conte-nos sobre os seusobjetivos de sustentabilidade",
       "submitButton": "Enviar Pedido"
     },
     "supportModal": {
       "title": "Obter Suporte",
-      "subtitle": "A nossa equipa está aqui para ajudá-lo a ter sucesso com o blipee",
+      "subtitle": "A nossa equipa está aqui para ajudá-lo a ter sucesso com a blipee",
       "namePlaceholder": "O Seu Nome",
       "emailPlaceholder": "Endereço de Email",
       "issueTypePlaceholder": "Selecionar Tipo de Problema",
@@ -158,11 +158,11 @@
     },
     "testimonials": {
       "title": "Adorado por Líderes de Sustentabilidade",
-      "cta": "Junte-se a milhares de empresas a transformar a sua sustentabilidade"
+      "cta": "Junte-se a milhares de empresas a transformar a suasustentabilidade"
     },
     "pricing": {
       "title": "Preços Simples e Transparentes",
-      "subtitle": "Escolha o plano que se adequa à sua jornada",
+      "subtitle": "Escolha o plano que se adequa à suajornada",
       "starter": {
         "name": "Inicial",
         "price": "€299",
@@ -170,7 +170,7 @@
         "description": "Perfeito para pequenas equipas a começar",
         "features": [
           "Até 10 utilizadores",
-          "Rastreamento básico de emissões",
+          "Tracking básico de emissões",
           "Relatórios mensais",
           "Suporte por email"
         ]
@@ -207,7 +207,7 @@
       "q1": "Quão rapidamente posso começar?",
       "a1": "A nossa configuração de 7 minutos coloca-o a funcionar imediatamente. Sem implementação complexa.",
       "q2": "Preciso de conhecimentos técnicos?",
-      "a2": "De todo! O blipee foi desenhado para todos. Se consegue conversar, consegue usar o blipee.",
+      "a2": "De todo! A blipee foi desenvolvida para todos. Se consegue conversar, consegue usar a blipee.",
       "q3": "Os meus dados estão seguros?",
       "a3": "Absolutamente. Usamos encriptação de nível bancário e somos certificados SOC 2 Tipo II.",
       "q4": "Posso integrar com sistemas existentes?",
@@ -217,7 +217,7 @@
   "features": {
     "skipToContent": "Saltar para o conteúdo principal",
     "hero": {
-      "badge": "Cada funcionalidade desenhada para impacto",
+      "badge": "Cada funcionalidade depalavra-passeda para impacto",
       "title1": "Funcionalidades que Transformam",
       "title2": "Gestão de Sustentabilidade",
       "description": "Da IA conversacional à análise preditiva, cada funcionalidade é criada para tornar a sustentabilidade simples, acionável e impactante."
@@ -254,17 +254,17 @@
         ]
       },
       "sustainabilityTracking": {
-        "title": "Rastreamento de Sustentabilidade",
+        "title": "Tracking de Sustentabilidade",
         "description": "Gestão completa de emissões simplificada",
         "features": [
           "Emissões Scope 1, 2, 3",
           "Metas baseadas na ciência",
           "Gestão de créditos de carbono",
-          "Rastreamento da cadeia de fornecimento",
-          "Conformidade regulatória",
+          "Tracking da cadeia de fornecimento",
+          "Compliance regulatória",
           "Relatórios ESG",
           "Análise de benchmark",
-          "Rastreamento de progresso de metas",
+          "Tracking de progresso de metas",
           "Recomendações de compensação"
         ]
       },
@@ -303,7 +303,7 @@
         "description": "Segurança bancária com transparência completa",
         "features": [
           "Encriptação ponta a ponta",
-          "Conformidade SOC 2",
+          "Compliance SOC 2",
           "Pronto para GDPR",
           "Acesso baseado em funções",
           "Registo de auditoria",
@@ -316,23 +316,23 @@
     },
     "cta": {
       "title": "Pronto para Transformar a Sua Sustentabilidade?",
-      "description": "Aceda à sua plataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
+      "description": "Aceda à suaplataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
       "signInButton": "Entrar no Dashboard",
       "requestButton": "Solicitar Acesso",
-      "footer": "A sua equipa de sustentabilidade IA está à sua espera"
+      "footer": "A a sua equipa de sustentabilidade IA está à sua espera"
     },
     "contactModal": {
       "title": "Agendar uma Demo",
-      "subtitle": "Entre em contacto com a nossa equipa para ver o blipee em ação",
+      "subtitle": "Entre em contacto com a nossa equipa para ver a blipee em ação",
       "namePlaceholder": "O Seu Nome",
       "emailPlaceholder": "Endereço de Email",
       "companyPlaceholder": "Empresa",
-      "messagePlaceholder": "Conte-nos sobre os seus objetivos de sustentabilidade",
+      "messagePlaceholder": "Conte-nos sobre os seusobjetivos de sustentabilidade",
       "submitButton": "Enviar Pedido"
     },
     "supportModal": {
       "title": "Obter Suporte",
-      "subtitle": "A nossa equipa está aqui para o ajudar a ter sucesso com o blipee",
+      "subtitle": "A nossa equipa está aqui para o ajudar a ter sucesso com a blipee",
       "namePlaceholder": "O Seu Nome",
       "emailPlaceholder": "Endereço de Email",
       "issueTypePlaceholder": "Selecionar Tipo de Problema",
@@ -352,7 +352,7 @@
       "badge": "Tecnologia IA de Próxima Geração",
       "title1": "A IA Por Detrás da",
       "title2": "Magia da Sustentabilidade",
-      "description": "Descobre a arquitetura revolucionária de IA multi-cérebro que faz com que a gestão de sustentabilidade pareça magia. 12 modelos de IA especializados trabalhando juntos para transformar como alcança os seus objetivos ambientais."
+      "description": "Descobre a arquitetura revolucionária de IA multi-cérebro que faz com que a gestão de sustentabilidade pareça magia. 12 modelos de IA especializados trabalhando juntos para transformar como alcança os seusobjetivos ambientais."
     },
     "architectureSection": {
       "badge": "Arquitetura IA Avançada",
@@ -372,7 +372,7 @@
           "Sistema de análise visual",
           "Motor de recomendações",
           "Módulo de planeamento de ações",
-          "IA de monitorização de conformidade",
+          "IA de monitorização de compliance",
           "Orquestrador de dados em tempo real"
         ],
         "showMore": "Mostrar {count} funcionalidades mais",
@@ -408,7 +408,7 @@
       },
       "predictiveAnalytics": {
         "title": "Análise Preditiva",
-        "description": "Prevê futuras emissões, custos e desempenho de sustentabilidade com precisão",
+        "description": "Prevê futuras emissões, custos e performance de sustentabilidade com precisão",
         "features": [
           "Previsão de falhas de equipamento",
           "Previsão de consumo de energia",
@@ -422,15 +422,15 @@
       },
       "orchestration": {
         "title": "Orquestração em Tempo Real",
-        "description": "Coordena perfeitamente entre múltiplos fornecedores de IA para desempenho otimizado",
+        "description": "Coordena perfeitamente entre múltiplos fornecedores de IA para performance otimizado",
         "features": [
           "Sistema de backup multi-fornecedor",
           "Algoritmos de balanceamento de carga",
           "Otimização do tempo de resposta",
           "Monitorização de garantia de qualidade",
           "Motor de otimização de custos",
-          "Encaminhamento de conformidade regional",
-          "Análise de desempenho",
+          "Encaminhamento de compliance regional",
+          "Análise de performance",
           "Escalamento automático"
         ]
       },
@@ -440,18 +440,18 @@
         "features": [
           "Encriptação ponto a ponto (AES-256)",
           "Arquitetura de conhecimento zero",
-          "Conformidade SOC 2 Tipo II",
+          "Compliance SOC 2 Tipo II",
           "Pronto para GDPR e CCPA",
           "Opções de implementação local",
           "Registo de auditoria para todas as operações",
           "Controlo de acesso baseado em funções",
-          "Conformidade de residência de dados"
+          "Compliance de residência de dados"
         ]
       }
     },
     "providers": {
       "title": "Fornecedores de IA de Primeira Classe",
-      "description": "Fazemos parceria com os principais fornecedores de IA do mundo para garantir desempenho otimizado, fiabilidade e custo-efetividade",
+      "description": "Fazemos parceria com os principais fornecedores de IA do mundo para garantir performance otimizado, fiabilidade e custo-efetividade",
       "deepseek": {
         "name": "DeepSeek",
         "role": "Motor de raciocínio principal",
@@ -483,25 +483,25 @@
   },
   "cta": {
     "title": "Pronto para Transformar a Sua Sustentabilidade?",
-    "description": "Aceda à sua plataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
+    "description": "Aceda à suaplataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
     "signInToDashboard": "Entrar no Painel",
     "requestAccess": "Solicitar Acesso",
-    "waitingMessage": "A sua equipa de sustentabilidade IA está à sua espera"
+    "waitingMessage": "A a sua equipa de sustentabilidade IA está à sua espera"
   },
   "about": {
     "title": "Sobre a blipee",
     "hero": {
       "title": "Sobre",
       "brand": "blipee",
-      "description": "Estamos a construir a primeira plataforma mundial de Inteligência de Sustentabilidade Autónoma que transforma a gestão ESG tradicional baseada em painéis numa IA conversacional que funciona 24/7 como a sua equipa digital de sustentabilidade. A nossa missão é criar não apenas software, mas funcionários de IA que gerem, otimizem e melhorem autonomamente o desempenho de sustentabilidade em qualquer indústria."
+      "description": "Estamos a construir a primeira plataforma mundial de Inteligência de Sustentabilidade Autónoma que transforma a gestão ESG tradicional baseada em dashboards numa IA conversacional que funciona 24/7 como a sua equipa digital de sustentabilidade. A nossa missão é criar não apenas software, mas funcionários de IA que gerem, otimizem e melhorem autonomamente o performance de sustentabilidade em qualquer indústria."
     },
     "vision": {
       "title": "A Nossa Visão",
-      "description": "Um mundo onde cada organização tem acesso a gestão de sustentabilidade inteligente e autónoma—onde a administração ambiental não é um fardo, mas uma vantagem capacitadora baseada em dados. Visionamos um futuro onde funcionários de IA trabalham ao lado de equipas humanas para tomar decisões de sustentabilidade em tempo real, transformando conformidade em vantagem competitiva e responsabilidade ambiental em crescimento empresarial."
+      "description": "Um mundo onde cada organização tem acesso a gestão de sustentabilidade inteligente e autónoma—onde a administração ambiental não é um fardo, mas uma vantagem capacitadora baseada em dados. Visionamos um futuro onde funcionários de IA trabalham ao lado de equipas humanas para tomar decisões de sustentabilidade em tempo real, transformando compliance em vantagem competitiva e responsabilidade ambiental em crescimento empresarial."
     },
     "mission": {
       "title": "A Nossa Missão",
-      "description": "Democratizar a inteligência de sustentabilidade construindo sistemas de IA que eliminam a complexidade, custo e barreiras de conhecimento que impedem as organizações de alcançar os seus objetivos ambientais. Existimos para tornar a gestão de sustentabilidade acessível a cada organização—desde startups a empresas—fornecendo funcionários de IA autónomos que compreendem, preveem e otimizam o desempenho ambiental sem requerer conhecimento especializado ou recursos massivos."
+      "description": "Democratizar a inteligência de sustentabilidade construindo sistemas de IA que eliminam a complexidade, custo e barreiras de conhecimento que impedem as organizações de alcançar os seusobjetivos ambientais. Existimos para tornar a gestão de sustentabilidade acessível a cada organização—desde startups a empresas—fornecendo funcionários de IA autónomos que compreendem, preveem e otimizam o performance ambiental sem requerer conhecimento especializado ou recursos massivos."
     },
     "values": {
       "title": "Os Nossos Valores",
@@ -513,7 +513,7 @@
         },
         "customerObsession": {
           "title": "Obsessão pelo Cliente",
-          "description": "O sucesso dos nossos clientes é o nosso sucesso. Ouvimos profundamente, iteramos rapidamente, e não descansaremos até que as equipas de sustentabilidade se sintam capacitadas em vez de sobrecarregadas pelas suas ferramentas"
+          "description": "O sucesso dos nossos clientes é o nosso sucesso. Ouvimos profundamente, iteramos rapidamente, e não descansaremos até que as equipas de sustentabilidade se sintam capacitadas em vez de sobrecarregadas pelas suasferramentas"
         },
         "transparencyTrust": {
           "title": "Transparência e Confiança",
@@ -541,7 +541,7 @@
           "name": "O Seu Nome",
           "email": "Endereço de Email",
           "company": "Empresa",
-          "message": "Conte-nos sobre os seus objetivos de sustentabilidade",
+          "message": "Conte-nos sobre os seusobjetivos de sustentabilidade",
           "submit": "Enviar Pedido"
         }
       },
@@ -595,18 +595,18 @@
   "modals": {
     "contact": {
       "title": "Agendar uma Demonstração",
-      "description": "Entre em contacto com a nossa equipa para ver o blipee em ação",
+      "description": "Entre em contacto com a nossa equipa para ver a blipee em ação",
       "form": {
         "name": "O Seu Nome",
         "email": "Endereço de Email",
         "company": "Empresa",
-        "message": "Fale-nos sobre os seus objetivos de sustentabilidade",
+        "message": "Fale-nos sobre os seusobjetivos de sustentabilidade",
         "submit": "Enviar Pedido"
       }
     },
     "support": {
       "title": "Obter Suporte",
-      "description": "A nossa equipa está aqui para o ajudar a ter sucesso com o blipee",
+      "description": "A nossa equipa está aqui para o ajudar a ter sucesso com a blipee",
       "form": {
         "name": "O Seu Nome",
         "email": "Endereço de Email",
@@ -631,7 +631,7 @@
         "changePhoto": "Alterar Foto",
         "fileHint": "JPG, PNG ou GIF. Máx. 5MB.",
         "uploadError": "O tamanho do ficheiro deve ser inferior a 5MB",
-        "uploadSuccess": "Foto de perfil atualizada com sucesso"
+        "uploadSuccess": "Foto de perfil atualizada com êxito"
       },
       "roles": {
         "super_admin": "Super Administrador",
@@ -687,19 +687,19 @@
       "actions": {
         "saveChanges": "Guardar Alterações",
         "saving": "A guardar...",
-        "saved": "Alterações guardadas com sucesso"
+        "saved": "Alterações guardadas com êxito"
       }
     },
     "notifications": {
       "title": "Notificações",
-      "subtitle": "Gira como recebes notificações e atualizações do blipee",
+      "subtitle": "Gira como recebes notificações e atualizações da blipee",
       "loading": "A carregar...",
       "realtime": "Tempo real",
       "daily": "Diário",
       "weekly": "Semanal",
       "monthly": "Mensal",
       "never": "Nunca",
-      "saveSuccess": "Definições de notificações guardadas com sucesso!",
+      "saveSuccess": "Definições de notificações guardadas com êxito!",
       "saveError": "Falha ao guardar definições. Alterações guardadas localmente.",
       "saving": "A guardar...",
       "saveChanges": "Guardar Alterações",
@@ -734,11 +734,11 @@
         },
         "sustainabilityReports": {
           "title": "Relatórios de Sustentabilidade",
-          "description": "Relatórios ESG, rastreamento de carbono e insights de sustentabilidade"
+          "description": "Relatórios ESG, tracking de carbono e insights de sustentabilidade"
         },
         "complianceAlerts": {
-          "title": "Alertas de Conformidade",
-          "description": "Atualizações regulatórias e lembretes de conformidade"
+          "title": "Alertas de Compliance",
+          "description": "Atualizações regulatórias e lembretes de compliance"
         },
         "achievements": {
           "title": "Conquistas",
@@ -748,7 +748,7 @@
       "frequency": {
         "title": "Definições de Frequência",
         "reports": "Relatórios de Sustentabilidade",
-        "alerts": "Alertas de Segurança e Conformidade",
+        "alerts": "Alertas de Segurança e Compliance",
         "updates": "Atualizações do Sistema"
       },
       "quietHours": {
@@ -786,7 +786,7 @@
       "loading": "A carregar...",
       "loadingSettings": "A carregar definições de segurança...",
       "signInRequired": "Por favor, inicia sessão para ver as definições de segurança",
-      "settingsSaved": "Definições de segurança guardadas com sucesso",
+      "settingsSaved": "Definições de segurança guardadas com êxito",
       "settingsSaveError": "Erro ao guardar definições de segurança",
       "changePassword": "Alterar Palavra-passe",
       "currentPassword": "Palavra-passe Atual",
@@ -794,10 +794,10 @@
       "confirmNewPassword": "Confirmar Nova Palavra-passe",
       "updatePassword": "Atualizar Palavra-passe",
       "updating": "A atualizar...",
-      "passwordUpdated": "Palavra-passe atualizada com sucesso",
-      "passwordMismatch": "As palavras-passe não coincidem",
+      "passwordUpdated": "Palavra-passe atualizada com êxito",
+      "passwordMismatch": "As palavras-passe não correspondem",
       "passwordTooShort": "A palavra-passe deve ter pelo menos 8 caracteres",
-      "passwordChangedSuccess": "Palavra-passe alterada com sucesso",
+      "passwordChangedSuccess": "Palavra-passe alterada com êxito",
       "twoFactorAuth": "Autenticação de Dois Fatores",
       "twoFactorEnabled": "A autenticação de dois fatores está ativada",
       "twoFactorDisabled": "A autenticação de dois fatores está desativada",
@@ -838,7 +838,7 @@
     },
     "language": {
       "title": "Idioma e Região",
-      "subtitle": "Configure suas preferências de idioma, região e formatação",
+      "subtitle": "Configure as suaspreferências de idioma, região e formatação",
       "displayLanguage": "Idioma de Exibição",
       "interfaceLanguage": "Idioma da Interface",
       "fallbackLanguage": "Idioma de Fallback",
@@ -859,18 +859,18 @@
       "contentLanguagePreference": "Preferência de Idioma do Conteúdo",
       "exportLanguage": "Idioma de Exportação",
       "autoTranslateContent": "Traduzir conteúdo automaticamente",
-      "autoTranslateContentDescription": "Traduzir automaticamente o conteúdo para seu idioma preferido",
+      "autoTranslateContentDescription": "Traduzir automaticamente o conteúdo para o seuidioma preferido",
       "sustainabilityStandards": "Padrões de Sustentabilidade",
       "reportingStandardLanguage": "Idioma do Padrão de Relatório",
       "reportingStandardDescription": "Escolha a versão do idioma dos padrões de relatório de sustentabilidade",
-      "saveChanges": "Salvar Alterações",
+      "saveChanges": "Guardar Alterações",
       "saving": "Salvando...",
-      "saved": "Configurações de idioma salvas com sucesso",
-      "loading": "Carregando..."
+      "saved": "Configurações de idioma guardadas com êxito",
+      "loading": "A carregar..."
     },
     "appearance": {
       "title": "Aparência",
-      "subtitle": "Personalize como o blipee OS parece e funciona",
+      "subtitle": "Personalize como a blipee OS parece e funciona",
       "theme": {
         "title": "Tema",
         "light": {
@@ -967,7 +967,7 @@
     },
     "sidebar": {
       "title": "Perfil",
-      "defaultUser": "Usuário",
+      "defaultUser": "Utilizador",
       "navigation": {
         "profile": "Perfil",
         "notifications": "Notificações",
@@ -995,10 +995,10 @@
     },
     "coverage": {
       "title": "A Sua Indústria Está Coberta",
-      "description": "Os desafios de sustentabilidade são universais. Se está a rastrear emissões, a gerir energia, a reduzir resíduos, ou a reportar métricas ESG, o blipee adapta-se aos seus requisitos e regulamentos específicos da indústria.",
+      "description": "Os desafios de sustentabilidade são universais. Se está a rastrear emissões, a gerir energia, a reduzir resíduos, ou a reportar métricas ESG, a blipee adapta-se aos seusrequisitos e regulamentos específicos da indústria.",
       "anySector": {
         "title": "Qualquer Sector",
-        "description": "Da indústria pesada aos serviços digitais, a nossa IA compreende os seus desafios únicos de sustentabilidade."
+        "description": "Da indústria pesada aos serviços digitais, a nossa IA compreende os seusdesafios únicos de sustentabilidade."
       },
       "anyStandard": {
         "title": "Qualquer Padrão",
@@ -1006,7 +1006,7 @@
       },
       "anySize": {
         "title": "Qualquer Tamanho",
-        "description": "De pequenas empresas a corporações multinacionais, a nossa plataforma escala com as suas necessidades."
+        "description": "De pequenas empresas a corporações multinacionais, a nossa plataforma escala com as suasnecessidades."
       }
     },
     "intelligence": {
@@ -1101,7 +1101,7 @@
           "Maquinaria pesada e equipamentos",
           "Economia circular e sustentabilidade",
           "Redução de resíduos na produção",
-          "Rastreamento da pegada de carbono"
+          "Tracking da pegada de carbono"
         ]
       },
       "builtEnvironment": {
@@ -1181,8 +1181,8 @@
       }
     },
     "compliance": {
-      "title": "Padrões de Conformidade",
-      "description": "Conformidade total com padrões específicos do sector da Global Reporting Initiative e CSRD (Directiva de Relatórios de Sustentabilidade Corporativa). A nossa IA conhece os requisitos exactos para a sua indústria.",
+      "title": "Padrões de Compliance",
+      "description": "Compliance total com padrões específicos do sector da Global Reporting Initiative e CSRD (Directiva de Relatórios de Sustentabilidade Corporativa). A nossa IA conhece os requisitos exactos para a sua indústria.",
       "gri11": {
         "title": "GRI 11",
         "sector": "Sector de Petróleo e Gás",
@@ -1252,23 +1252,23 @@
     },
     "cta": {
       "title": "Pronto para Transformar a Sua Sustentabilidade?",
-      "description": "Aceda à sua plataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
+      "description": "Aceda à suaplataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
       "signInButton": "Entrar no Dashboard",
       "requestButton": "Solicitar Acesso",
-      "footer": "A sua equipa de sustentabilidade IA está à sua espera"
+      "footer": "A a sua equipa de sustentabilidade IA está à sua espera"
     },
     "contactModal": {
       "title": "Agendar uma Demo",
-      "subtitle": "Entre em contacto com a nossa equipa para ver o blipee em ação",
+      "subtitle": "Entre em contacto com a nossa equipa para ver a blipee em ação",
       "namePlaceholder": "O Seu Nome",
       "emailPlaceholder": "Endereço de Email",
       "companyPlaceholder": "Empresa",
-      "messagePlaceholder": "Conte-nos sobre os seus objetivos de sustentabilidade",
+      "messagePlaceholder": "Conte-nos sobre os seusobjetivos de sustentabilidade",
       "submitButton": "Enviar Pedido"
     },
     "supportModal": {
       "title": "Obter Suporte",
-      "subtitle": "A nossa equipa está aqui para o ajudar a ter sucesso com o blipee",
+      "subtitle": "A nossa equipa está aqui para o ajudar a ter sucesso com a blipee",
       "namePlaceholder": "O Seu Nome",
       "emailPlaceholder": "Endereço de Email",
       "issueTypePlaceholder": "Selecionar Tipo de Problema",
@@ -1285,24 +1285,24 @@
   "settings": {
     "organizations": {
       "title": "Gestão de Organizações",
-      "subtitle": "Gerencie suas organizações e suas configurações",
+      "subtitle": "Gira as suasorganizações e as suasconfigurações",
       "searchPlaceholder": "Pesquisar organizações...",
       "filter": "Filtrar",
-      "download": "Baixar",
+      "download": "Descarregar",
       "upload": "Carregar",
       "addOrganization": "Adicionar Organização",
       "createFirstOrganization": "Criar Sua Primeira Organização",
       "noOrganizationsFound": "Nenhuma organização encontrada",
-      "userNotAuthenticated": "Usuário não autenticado",
+      "userNotAuthenticated": "Utilizador não autenticado",
       "failedToLoad": "Falha ao carregar organizações",
       "retry": "Tentar novamente",
-      "failedToDelete": "Falha ao excluir organização",
+      "failedToDelete": "Falha ao eliminar organização",
       "table": {
         "organization": "Organização",
         "industry": "Indústria",
         "subscription": "Subscrição",
         "sites": "Locais",
-        "users": "Usuários",
+        "users": "Utilizadors",
         "status": "Status"
       },
       "pagination": {
@@ -1318,8 +1318,8 @@
         "createTitle": "Adicionar Nova Organização",
         "editTitle": "Editar Organização",
         "viewTitle": "Ver Organização",
-        "createSuccess": "Organização criada com sucesso!",
-        "updateSuccess": "Organização atualizada com sucesso!",
+        "createSuccess": "Organização criada com êxito!",
+        "updateSuccess": "Organização atualizada com êxito!",
         "aiLookupSuccess": "✨ Detalhes da organização preenchidos por IA!",
         "aiLookupTooltip": "Busca IA - Preencher automaticamente detalhes da organização",
         "sections": {
@@ -1407,20 +1407,20 @@
           "nameRequired": "O nome da organização é obrigatório",
           "slugRequired": "O slug da URL é obrigatório",
           "slugInvalid": "O slug da URL só pode conter letras minúsculas, números e hífenes",
-          "emailInvalid": "Por favor, insira um endereço de e-mail válido",
-          "urlInvalid": "Por favor, insira uma URL válida",
-          "phoneInvalid": "Por favor, insira um número de telefone válido",
+          "emailInvalid": "Por favor, introduza um endereço de e-mail válido",
+          "urlInvalid": "Por favor, introduza uma URL válida",
+          "phoneInvalid": "Por favor, introduza um número de telefone válido",
           "seatsMin": "Mínimo 1 lugar obrigatório",
           "confidenceRange": "A confiança deve estar entre 0 e 100",
           "stockTickerInvalid": "O símbolo da bolsa deve ter 1-5 letras maiúsculas",
-          "colorInvalid": "Por favor, insira um código de cor hex válido",
+          "colorInvalid": "Por favor, introduza um código de cor hex válido",
           "pleaseFixErrors": "Por favor, corrija os erros abaixo antes de submeter"
         }
       }
     },
     "devices": {
       "title": "Gestão de Dispositivos",
-      "subtitle": "Gerir e monitorizar todos os seus dispositivos IoT em todos os sites",
+      "subtitle": "Gerir e monitorizar todos os seusdispositivos IoT em todos os sites",
       "searchPlaceholder": "Pesquisar dispositivos...",
       "filter": "Filtrar",
       "addDevice": "Adicionar Dispositivo",
@@ -1477,8 +1477,8 @@
         "editTitle": "Editar Dispositivo",
         "viewTitle": "Visualizar Dispositivo",
         "addTitle": "Adicionar Novo Dispositivo",
-        "createSuccess": "Dispositivo criado com sucesso!",
-        "updateSuccess": "Dispositivo atualizado com sucesso!",
+        "createSuccess": "Dispositivo criado com êxito!",
+        "updateSuccess": "Dispositivo atualizado com êxito!",
         "sections": {
           "basicInfo": "Informações Básicas",
           "connectivity": "Conectividade",
@@ -1547,23 +1547,23 @@
           "nameRequired": "Nome do dispositivo é obrigatório",
           "typeRequired": "Tipo de dispositivo é obrigatório",
           "siteRequired": "Site é obrigatório",
-          "ipInvalid": "Por favor, insira um endereço IP válido",
-          "macInvalid": "Por favor, insira um endereço MAC válido",
+          "ipInvalid": "Por favor, introduza um endereço IP válido",
+          "macInvalid": "Por favor, introduza um endereço MAC válido",
           "intervalInvalid": "O intervalo de dados deve ser um número positivo"
         },
         "messages": {
-          "deviceCreated": "Dispositivo criado com sucesso!",
-          "deviceUpdated": "Dispositivo atualizado com sucesso!",
-          "deviceDeleted": "Dispositivo eliminado com sucesso!"
+          "deviceCreated": "Dispositivo criado com êxito!",
+          "deviceUpdated": "Dispositivo atualizado com êxito!",
+          "deviceDeleted": "Dispositivo eliminado com êxito!"
         }
       },
       "buttons": {
         "filter": "Filtrar",
-        "download": "Baixar",
+        "download": "Descarregar",
         "upload": "Carregar",
         "addDevice": "Adicionar Dispositivo"
       },
-      "deleteError": "Falha ao deletar dispositivo",
+      "deleteError": "Falha ao eliminar dispositivo",
       "loading": {
         "loadingDevices": "Carregando dispositivos..."
       },
@@ -1592,8 +1592,8 @@
       "loadingMetrics": "A carregar catálogo de métricas...",
       "failedToLoadMetrics": "Erro ao carregar as métricas",
       "failedToSaveMetrics": "Erro ao guardar as métricas",
-      "metricsAddedSuccess": "{count} métricas adicionadas com sucesso",
-      "metricsRemovedSuccess": "{count} métricas removidas com sucesso",
+      "metricsAddedSuccess": "{count} métricas adicionadas com êxito",
+      "metricsRemovedSuccess": "{count} métricas removidas com êxito",
       "testDataError": "Para testar a funcionalidade do site, precisa de criar organizações e sites na sua base de dados Supabase. Por favor, verifique o esquema da sua base de dados e adicione dados de teste manualmente.",
       "scope": "Âmbito",
       "factor": "Fator:",
@@ -1609,23 +1609,23 @@
       "failedToUpdateMetric": "Erro ao actualizar a métrica",
       "dashboard": {
         "title": "Painel de Sustentabilidade",
-        "subtitle": "Monitorize e acompanhe o desempenho ambiental da sua organização",
+        "subtitle": "Monitorize e acompanhe o performance ambiental da sua organização",
         "header": {
           "title": "Resumo de Sustentabilidade",
-          "subtitle": "Métricas de desempenho ambiental em tempo real"
+          "subtitle": "Métricas de performance ambiental em tempo real"
         },
         "navigation": {
-          "overview": "Resumo",
+          "overview": "overview",
           "emissions": "Emissões",
           "energy": "Energia",
           "scopeAnalysis": "Análise de Âmbito",
           "siteComparison": "Comparação de Locais",
-          "trends": "Tendências",
-          "targets": "Objetivos",
+          "trends": "trends",
+          "targets": "targets",
           "dataEntry": "Entrada de Dados",
           "dataInvestigation": "Investigação de Dados",
           "dataMigration": "Migração de Dados",
-          "reports": "Relatórios"
+          "reports": "reports"
         },
         "metrics": {
           "totalEmissions": "Emissões Totais de CO₂",
@@ -1671,11 +1671,11 @@
       "sidebar": {
         "title": "Sustentabilidade",
         "navigation": {
-          "overview": "Resumo",
+          "overview": "overview",
           "metrics": "Métricas",
           "dataEntry": "Entrada de Dados",
-          "reports": "Relatórios",
-          "targets": "Objetivos",
+          "reports": "reports",
+          "targets": "targets",
           "settings": "Configurações"
         },
         "actions": {
@@ -1683,7 +1683,7 @@
           "manageMetrics": "Gerir Métricas",
           "generateReport": "Gerar Relatório"
         },
-        "defaultUser": "Usuário",
+        "defaultUser": "Utilizador",
         "userEmail": "usuario@exemplo.com",
         "buttons": {
           "chat": "Chat",
@@ -1928,10 +1928,10 @@
     },
     "users": {
       "title": "Gestão de Utilizadores",
-      "subtitle": "Gerir membros da equipa e suas permissões",
+      "subtitle": "Gerir membros da equipa e as suaspermissões",
       "searchPlaceholder": "Pesquisar utilizadores...",
       "filter": "Filtrar",
-      "download": "Baixar",
+      "download": "Descarregar",
       "upload": "Carregar",
       "addUser": "Adicionar Utilizador",
       "createFirstUser": "Adicionar o Primeiro Utilizador",
@@ -1940,11 +1940,11 @@
       "failedToLoad": "Falha ao carregar utilizadores",
       "retry": "Tentar novamente",
       "failedToDelete": "Falha ao eliminar utilizador",
-      "invitationResent": "E-mail de convite enviado com sucesso",
+      "invitationResent": "E-mail de convite enviado com êxito",
       "failedToResend": "Falha ao reenviar convite",
       "resendInvite": "Reenviar",
-      "userDeleted": "Utilizador eliminado com sucesso",
-      "bulkDeleteSuccess": "{count} utilizadores eliminados com sucesso",
+      "userDeleted": "Utilizador eliminado com êxito",
+      "bulkDeleteSuccess": "{count} utilizadores eliminados com êxito",
       "bulkDeletePartialError": "Falha ao eliminar {count} utilizadores",
       "bulkDeleteError": "Falha ao eliminar utilizadores",
       "bulkDeleteFailed": "Eliminação em lote falhou",
@@ -1969,8 +1969,8 @@
         "createTitle": "Adicionar Novo Utilizador",
         "editTitle": "Editar Utilizador",
         "viewTitle": "Ver Utilizador",
-        "createSuccess": "Utilizador criado com sucesso!",
-        "updateSuccess": "Utilizador atualizado com sucesso!",
+        "createSuccess": "Utilizador criado com êxito!",
+        "updateSuccess": "Utilizador atualizado com êxito!",
         "firstName": "Primeiro Nome",
         "lastName": "Apelido",
         "email": "E-mail",
@@ -2014,8 +2014,8 @@
           "sendInvite": "Enviar e-mail de convite ao utilizador"
         },
         "placeholders": {
-          "name": "Insira o nome completo",
-          "email": "Insira o endereço de e-mail"
+          "name": "Introduza o nome completo",
+          "email": "Introduza o endereço de e-mail"
         },
         "errors": {
           "userAlreadyExists": "Já existe um utilizador com este e-mail",
@@ -2023,8 +2023,8 @@
           "failedToUpdateUser": "Falha ao atualizar utilizador"
         },
         "messages": {
-          "userCreated": "O utilizador foi criado com sucesso!",
-          "userUpdated": "O utilizador foi atualizado com sucesso!"
+          "userCreated": "O utilizador foi criado com êxito!",
+          "userUpdated": "O utilizador foi atualizado com êxito!"
         },
         "buttons": {
           "cancel": "Cancelar",
@@ -2090,13 +2090,13 @@
         "dailyTimeLimitInvalid": "Limite de tempo diário deve ser um número positivo"
       },
       "messages": {
-        "userCreated": "Utilizador criado com sucesso",
-        "userUpdated": "Utilizador atualizado com sucesso",
-        "userDeleted": "Utilizador eliminado com sucesso",
+        "userCreated": "Utilizador criado com êxito",
+        "userUpdated": "Utilizador atualizado com êxito",
+        "userDeleted": "Utilizador eliminado com êxito",
         "error": "Ocorreu um erro. Tente novamente.",
         "noUsers": "Nenhum utilizador encontrado",
         "loadingUsers": "A carregar utilizadores...",
-        "invitationSent": "Convite enviado com sucesso"
+        "invitationSent": "Convite enviado com êxito"
       }
     },
     "sidebar": {
@@ -2128,13 +2128,13 @@
     },
     "sites": {
       "title": "Gestão de Sites",
-      "subtitle": "Gerencie seus sites e localizações",
+      "subtitle": "Gira os seus sites e localizações",
       "search": {
         "placeholder": "Pesquisar sites..."
       },
       "buttons": {
         "filter": "Filtrar",
-        "download": "Baixar",
+        "download": "Descarregar",
         "upload": "Carregar",
         "addSite": "Adicionar Site"
       },
@@ -2217,16 +2217,16 @@
           "viewOnly": "Apenas Visualização"
         },
         "messages": {
-          "createSuccess": "Site criado com sucesso!",
-          "updateSuccess": "Site atualizado com sucesso!",
-          "deleteConfirm": "Tem certeza de que deseja excluir",
-          "deleteFailed": "Falha ao excluir o site"
+          "createSuccess": "Site criado com êxito!",
+          "updateSuccess": "Site atualizado com êxito!",
+          "deleteConfirm": "Tem a certeza de que deseja eliminar",
+          "deleteFailed": "Falha ao eliminar o site"
         }
       },
       "actions": {
         "pin": "Fixar",
         "edit": "Editar",
-        "delete": "Excluir",
+        "delete": "Eliminar",
         "view": "Ver"
       }
     }
@@ -2291,59 +2291,59 @@
       "title": "Entrar",
       "subtitle": "Bem-vindo de volta! Por favor, entre para continuar",
       "email": "Endereço de Email",
-      "emailPlaceholder": "Digite seu email",
-      "password": "Senha",
-      "passwordPlaceholder": "Digite sua senha",
+      "emailPlaceholder": "Introduza o seuemail",
+      "password": "Palavra-passe",
+      "passwordPlaceholder": "Introduza sua palavra-passe",
       "rememberMe": "Lembrar-me",
-      "forgotPassword": "Esqueceu a senha?",
+      "forgotPassword": "Esqueceu-se da palavra-passe?",
       "signIn": "Entrar",
-      "signingIn": "Entrando...",
-      "showPassword": "Mostrar senha",
-      "hidePassword": "Ocultar senha",
+      "signingIn": "A entrar...",
+      "showPassword": "Mostrar palavra-passe",
+      "hidePassword": "Ocultar palavra-passe",
       "checkingSSO": "Verificando SSO...",
       "mfaRequired": "Autenticação de dois fatores necessária"
     },
     "forgotPassword": {
-      "title": "Esqueceu a Senha",
-      "subtitle": "Digite seu endereço de email e enviaremos um link de redefinição",
+      "title": "Esqueceu-se da Palavra-passe",
+      "subtitle": "Introduza o seuendereço de email e enviaremos um link de redefinição",
       "email": "Endereço de Email",
-      "emailPlaceholder": "Digite seu email",
+      "emailPlaceholder": "Introduza o seuemail",
       "sendResetLink": "Enviar Link de Redefinição",
-      "sendingResetLink": "Enviando...",
+      "sendingResetLink": "A enviar...",
       "backToSignIn": "Voltar para Entrar",
-      "successMessage": "Link enviado! Verifique seu email.",
+      "successMessage": "Link enviado! Verifique o seuemail.",
       "errorMessage": "Falha ao enviar o link. Por favor, tente novamente."
     },
     "setPassword": {
-      "title": "Defina Sua Senha",
-      "subtitle": "Crie uma senha segura para acessar sua conta",
+      "title": "Defina Sua Palavra-passe",
+      "subtitle": "Crie uma palavra-passe segura para aceder a suaconta",
       "welcome": "Bem-vindo",
       "accountCreatedFor": "Sua conta foi criada para",
-      "newPassword": "Nova Senha",
-      "confirmPassword": "Confirmar Senha",
-      "enterPassword": "Digite sua nova senha",
-      "confirmPasswordPlaceholder": "Digite novamente sua senha",
-      "passwordRequirements": "Requisitos da Senha:",
+      "newPassword": "Nova Palavra-passe",
+      "confirmPassword": "Confirmar Palavra-passe",
+      "enterPassword": "Introduza sua nova palavra-passe",
+      "confirmPasswordPlaceholder": "Introduza novamente a sua palavra-passe",
+      "passwordRequirements": "Requisitos da Palavra-passe:",
       "req1": "Pelo menos 8 caracteres",
       "req2": "Uma letra maiúscula",
       "req3": "Uma letra minúscula",
       "req4": "Um número",
-      "setPasswordButton": "Definir Senha e Continuar",
-      "settingPassword": "Definindo Senha...",
-      "passwordsDontMatch": "As senhas não coincidem",
-      "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
-      "passwordNeedsUppercase": "A senha deve conter pelo menos uma letra maiúscula",
-      "passwordNeedsLowercase": "A senha deve conter pelo menos uma letra minúscula",
-      "passwordNeedsNumber": "A senha deve conter pelo menos um número",
-      "failedToSetPassword": "Falha ao definir a senha",
-      "passwordSetSuccess": "Senha definida com sucesso!",
-      "redirectingToDashboard": "Redirecionando para o painel...",
-      "resetLinkSent": "Verifique seu email!",
+      "setPasswordButton": "Definir Palavra-passe e Continuar",
+      "settingPassword": "Definindo Palavra-passe...",
+      "passwordsDontMatch": "As palavra-passes não correspondem",
+      "passwordTooShort": "A palavra-passe deve ter pelo menos 8 caracteres",
+      "passwordNeedsUppercase": "A palavra-passe deve conter pelo menos uma letra maiúscula",
+      "passwordNeedsLowercase": "A palavra-passe deve conter pelo menos uma letra minúscula",
+      "passwordNeedsNumber": "A palavra-passe deve conter pelo menos um número",
+      "failedToSetPassword": "Falha ao definir a palavra-passe",
+      "passwordSetSuccess": "Palavra-passe definida com êxito!",
+      "redirectingToDashboard": "A redirecionar para o painel...",
+      "resetLinkSent": "Verifique o seuemail!",
       "emailSentMessage": "Enviamos um link de redefinição para",
       "didntReceiveEmail": "Não recebeu o email?",
       "tryAgain": "Tentar novamente",
       "backToSignIn": "Voltar para Entrar",
-      "sending": "Enviando..."
+      "sending": "A enviar..."
     }
   },
   "notFound": {
@@ -2356,13 +2356,13 @@
     "newConversation": "Nova conversa",
     "defaultResponse": "Eu vou ajudá-lo com isso.",
     "generatedCode": "Código Gerado",
-    "errorMessage": "Encontrei um erro. Por favor, tente novamente ou reformule sua pergunta.",
+    "errorMessage": "Encontrei um erro. Por favor, tente novamente ou reformule a suapergunta.",
     "welcomeMessage": "Como posso ajudá-lo hoje?",
     "welcomeSubtitle": "Inicie uma conversa sobre sustentabilidade, gestão energética ou operações de edifícios",
-    "defaultUser": "Usuário",
+    "defaultUser": "Utilizador",
     "input": {
       "placeholder": "Mensagem para blipee...",
-      "attachFiles": "Anexar arquivos",
+      "attachFiles": "Anexar ficheiros",
       "sendMessage": "Enviar mensagem",
       "helperText": "Pressione Enter para enviar, Shift + Enter para nova linha"
     },
@@ -2394,13 +2394,13 @@
       },
       "empty": {
         "noConversations": "Ainda não há conversas",
-        "startConversation": "Inicie sua primeira conversa",
+        "startConversation": "Inicie a suaprimeira conversa",
         "noConversationsFound": "Nenhuma conversa encontrada"
       },
       "actions": {
         "pin": "Fixar",
         "rename": "Renomear",
-        "delete": "Excluir",
+        "delete": "Eliminar",
         "share": "Partilhar",
         "archive": "Arquivar"
       },
@@ -2423,7 +2423,7 @@
       },
       "labels": {
         "untitled": "Conversa sem título",
-        "askBlipee": "Perguntar ao blipee",
+        "askBlipee": "Perguntar aa blipee",
         "openChat": "Abrir chat",
         "openChatWithUnread": "Abrir chat. {{count}} notificações não lidas",
         "openConversation": "Abrir conversa: {{title}}",
@@ -2431,19 +2431,68 @@
         "searchConversations": "Pesquisar conversas"
       },
       "delete": {
-        "title": "Excluir conversa?",
+        "title": "Eliminar conversa?",
         "message": "Esta ação não pode ser desfeita. A conversa será permanentemente excluída.",
         "cancel": "Cancelar",
-        "confirm": "Excluir"
+        "confirm": "Eliminar"
+      }
+    },
+    "promptLibrary": {
+      "title": "Biblioteca de Prompts",
+      "subtitle": "Mais de {{count}} exemplos de prompts para começar",
+      "search": {
+        "placeholder": "Pesquisar prompts..."
+      },
+      "empty": {
+        "noResults": "Nenhum prompt encontrado para \"{{query}}\""
+      },
+      "navigation": {
+        "backToCategories": "← Voltar às categorias"
+      },
+      "category": {
+        "promptsCount": "{{count}} prompts →"
+      },
+      "footer": {
+        "instruction": "Clique em qualquer prompt para preencher automaticamente a entrada do chat"
+      }
+    },
+    "welcome": {
+      "title": "Bem-vinda à blipee",
+      "description": "A sua assistente inteligente de sustentabilidade. Pergunte-me qualquer coisa sobre emissões, compliance ou relatórios ESG."
+    },
+    "contextualSuggestions": {
+      "settings": {
+        "addUsers": "Como adiciono utilizadores à minha organização?",
+        "apiKeys": "Onde posso encontrar as minhas chaves de API?",
+        "integrations": "Como configuro as integrações?",
+        "billing": "Onde estão as minhas configurações de faturação?"
+      },
+      "profile": {
+        "changePassword": "Como altero a minha palavra-passe?",
+        "notifications": "Onde posso atualizar as minhas preferências de notificações?",
+        "theme": "Como altero o tema da aplicação?",
+        "security": "Onde estão as minhas configurações de segurança de conta?"
+      },
+      "sustainability": {
+        "emissionsYear": "Quais são as minhas emissões este ano?",
+        "emissionsBreakdown": "Mostre-me a discriminação das minhas emissões por âmbito",
+        "businessTravel": "Como faço o tracking das viagens de negócios?",
+        "addData": "Quero adicionar dados de sustentabilidade"
+      },
+      "default": {
+        "emissionsYear": "Quais são as minhas emissões este ano?",
+        "getStarted": "Como começo com a blipee?",
+        "dashboard": "Mostre-me o meu painel de sustentabilidade",
+        "addData": "Quero adicionar dados de sustentabilidade"
       }
     },
     "message": {
-      "downloadFile": "Baixar arquivo"
+      "downloadFile": "Descarregar ficheiro"
     },
     "suggestions": {
       "energyTrends": "Mostrar tendências de uso energético",
       "generateCode": "Gerar código Python para análise de dados",
-      "performanceReport": "Relatório de desempenho do edifício",
+      "performanceReport": "Relatório de performance do edifício",
       "sustainabilityDashboard": "Criar um painel de sustentabilidade"
     },
     "artifacts": {
@@ -2485,7 +2534,7 @@
         "server_error": "O fornecedor de identidade encontrou um erro.",
         "temporarily_unavailable": "O fornecedor de identidade está temporariamente indisponível.",
         "configuration_error": "Existe um problema com a configuração SSO.",
-        "user_not_found": "A sua conta não foi encontrada ou não está autorizada."
+        "user_not_found": "A a suaconta não foi encontrada ou não está autorizada."
       }
     }
   },
@@ -2502,7 +2551,7 @@
   "sustainability": {
     "overview": {
       "title": "Visão Geral",
-      "subtitle": "Visão geral de conformidade e métricas",
+      "subtitle": "Visão geral de compliance e métricas",
       "loadingOverview": "A carregar visão geral...",
       "errorLoading": "Erro ao Carregar Visão Geral",
       "retry": "Tentar Novamente",
@@ -2526,15 +2575,15 @@
       "nov": "Nov",
       "dec": "Dez",
       "intensityExplanation": "A intensidade de emissões mede a eficiência carbónica da sua organização, mostrando quantas toneladas de CO2 são emitidas por colaborador equivalente a tempo completo (ETC).",
-      "targetProgressExplanation": "Este cartão mostra quantas das suas metas de sustentabilidade estão no bom caminho para serem alcançadas. As metas são consideradas no caminho certo quando as emissões atuais estão abaixo da trajetória linear necessária para atingir o objetivo definido.",
+      "targetProgressExplanation": "Este cartão mostra quantas das suasmetas de sustentabilidade estão no bom caminho para serem alcançadas. As metas são consideradas no caminho certo quando as emissões atuais estão abaixo da trajetória linear necessária para atingir o objetivo definido.",
       "dataQualityExplanation": "Este cartão mostra a qualidade dos seus dados de emissões. Dados primários são medições diretas e reais, enquanto dados verificados foram validados por terceiros. Maior percentagem de dados primários e verificados significa maior precisão no seu inventário de emissões.",
       "scopeBreakdownExplanation": "Este gráfico mostra a distribuição das suas emissões de gases de efeito estufa (GEE) por âmbito:",
       "scope1Explanation": "Âmbito 1: Emissões diretas de fontes que possui ou controla, como combustão em instalações, veículos da empresa e emissões fugitivas.",
       "scope2Explanation": "Âmbito 2: Emissões indiretas de eletricidade, aquecimento, arrefecimento ou vapor comprados e consumidos pela sua organização.",
       "scope3Explanation": "Âmbito 3: Todas as outras emissões indiretas que ocorrem na sua cadeia de valor, incluindo viagens de negócios, deslocações pendulares, bens adquiridos e resíduos.",
-      "emissionsTrendExplanation": "Este gráfico mostra a evolução das suas emissões ao longo do tempo, permitindo identificar tendências, picos sazonais e o impacto das suas iniciativas de redução. A linha tracejada representa a previsão futura baseada em dados históricos. Uma tendência descendente indica progresso na redução de emissões.",
+      "emissionsTrendExplanation": "Este gráfico mostra a evolução das suas emissões ao longo do tempo, permitindo identificar tendências, picos sazonais e o impacto das suasiniciativas de redução. A linha tracejada representa a previsão futura baseada em dados históricos. Uma tendência descendente indica progresso na redução de emissões.",
       "organizationalBoundariesExplanation": "Define o perímetro do seu inventário de emissões, incluindo a abordagem de consolidação (controlo operacional, financeiro ou participação acionária), instalações incluídas, ano base para comparação e número de colaboradores.",
-      "sbtiProgressExplanation": "Monitoriza o progresso em relação às suas metas de redução de emissões validadas pela Science Based Targets initiative (SBTi). Compara as emissões atuais com a trajetória linear necessária para atingir a meta definida até ao ano alvo.",
+      "sbtiProgressExplanation": "Monitoriza o progresso em relação às as suasmetas de redução de emissões validadas pela Science Based Targets initiative (SBTi). Compara as emissões atuais com a trajetória linear necessária para atingir a meta definida até ao ano alvo.",
       "topEmittersExplanation": "Identifica as principais categorias que mais contribuem para as suas emissões totais. Concentrar esforços de redução nestas áreas terá o maior impacto na redução da sua pegada carbónica.",
       "header": {
         "title": "Visão Geral de Sustentabilidade",
@@ -2604,7 +2653,7 @@
         "tooltip": "Evolução mensal das emissões por âmbito com previsão ML. Linhas sólidas: dados reais. Linhas tracejadas: previsão baseada em histórico. TCFD, ESRS E1.",
         "yAxisLabel": "tCO2e",
         "noData": "Sem dados disponíveis",
-        "forecast": "Previsão",
+        "forecast": "forecast",
         "scope1": "Âmbito 1",
         "scope2": "Âmbito 2",
         "scope3": "Âmbito 3",
@@ -2613,7 +2662,7 @@
         "buttons": {
           "absolute": "Absoluto",
           "intensity": "Intensidade",
-          "breakdown": "Desagregação"
+          "breakdown": "breakdown"
         },
         "recentTrend": {
           "title": "Tendência Recente",
@@ -2626,12 +2675,12 @@
           "seasonalAdjusted": "(ajustado sazonalmente)",
           "vsMonthlyTarget": "vs meta mensal",
           "annualProgress": "Progresso Anual",
-          "rolling12Months": "Desempenho dos últimos 12 meses",
+          "rolling12Months": "Performance dos últimos 12 meses",
           "vsAnnualTarget": "vs meta anual"
         },
         "legend": {
           "historical": "Histórico",
-          "forecast": "Previsão",
+          "forecast": "forecast",
           "sbtiTarget": "Meta SBTi",
           "confidenceBand": "Banda de Confiança"
         },
@@ -2641,7 +2690,7 @@
           "scope2": "Âmbito 2:",
           "scope3": "Âmbito 3:",
           "total": "Total:",
-          "forecast": "Previsão:",
+          "forecast": "forecast:",
           "range": "Intervalo:",
           "intensity": "Intensidade:",
           "sbtiTarget": "Meta SBTi:"
@@ -2685,7 +2734,7 @@
       },
       "topEmitters": {
         "title": "Principais Fontes de Emissão",
-        "tooltip": "As cinco maiores fontes de emissão em Scope 1, 2 e 3. Concentre os seus esforços de redução nestas categorias para máximo impacto. Passe o cursor sobre cada categoria para ver recomendações personalizadas.",
+        "tooltip": "As cinco maiores fontes de emissão em Scope 1, 2 e 3. Concentre os seusesforços de redução nestas categorias para máximo impacto. Passe o cursor sobre cada categoria para ver recomendações personalizadas.",
         "recommendation": "Recomendação:",
         "recommendations": {
           "electricity": "💡 Aumentar aquisição de energia renovável para 50%",
@@ -2722,11 +2771,11 @@
       "sbtiTargetProgress": {
         "title": "Progresso das Metas SBTi",
         "reductionTarget": "Meta de Redução",
-        "baseline": "Linha de Base",
+        "baseline": "baseline",
         "current": "Atual",
         "actualMLForecast": "Real + Previsão ML",
         "required": "Necessário",
-        "target": "Meta",
+        "target": "target",
         "progress": "Progresso",
         "tco2eOnTrack": "tCO2e no bom caminho",
         "statusLabels": {
@@ -2736,12 +2785,12 @@
         },
         "waterfallChart": {
           "title": "Trajetória de Emissões",
-          "baseline": "Linha de Base",
+          "baseline": "baseline",
           "requiredReduction": "Redução\nNecessária",
           "required": "Necessário",
           "gap": "Lacuna face ao\nNecessário",
           "actual": "Real",
-          "target": "Meta",
+          "target": "target",
           "tooltipLabels": {
             "reduction": "Redução:",
             "increase": "Aumento:",
@@ -2864,7 +2913,7 @@
         },
         "columns": {
           "baseline": "Baseline",
-          "target": "Meta",
+          "target": "target",
           "projected": "Projetado"
         },
         "progress": "Progresso",
@@ -2880,7 +2929,7 @@
         "decrease": "Diminuição",
         "inConsumption": "no consumo",
         "baseline": "Baseline:",
-        "target": "Meta:",
+        "target": "target:",
         "metrics": "métricas",
         "withdrawal": "Captação:",
         "share": "Percentagem:",
@@ -2916,13 +2965,13 @@
       "yoy": "YoY",
       "pp": "pp",
       "waterSourcesExplanation": "A captação de água por fonte rastreia de onde a sua organização obtém água (municipal, subterrânea, superficial, etc.). Compreender as suas fontes de água ajuda a identificar dependências, níveis de stress e oportunidades de conservação ou fontes alternativas como captação de água da chuva.",
-      "waterBalanceExplanation": "O balanço hídrico mostra o fluxo completo de água através da sua organização: captação (entrada), descarga (saída) e consumo (água não devolvida). Isto ajuda a identificar oportunidades de eficiência hídrica e conformidade com as normas GRI 303-3 e ESRS E3.",
-      "yoyComparisonExplanation": "A comparação ano-a-ano do consumo de água mostra tendências e a eficácia das iniciativas de redução de água. A diminuição do consumo indica gestão hídrica bem-sucedida, enquanto aumentos podem sinalizar a necessidade de novas medidas de conservação.",
+      "waterBalanceExplanation": "O balanço hídrico mostra o fluxo completo de água através da sua organização: captação (entrada), descarga (saída) e consumo (água não devolvida). Isto ajuda a identificar oportunidades de eficiência hídrica e compliance com as normas GRI 303-3 e ESRS E3.",
+      "yoyComparisonExplanation": "A comparação YoY do consumo de água mostra tendências e a eficácia das iniciativas de redução de água. A diminuição do consumo indica gestão hídrica bem-sucedida, enquanto aumentos podem sinalizar a necessidade de novas medidas de conservação.",
       "waterBalanceSummaryExplanation": "O consumo de água é calculado como captação total menos descarga total (C - D). Isto representa água que não é devolvida aos ecossistemas ou comunidades locais, incluindo evaporação, incorporação em produtos ou consumo humano. Conforme GRI 303-5, reduzir o consumo é crítico em áreas com stress hídrico.",
       "waterReductionTargetExplanation": "As metas de redução de água ajudam a acompanhar o progresso em direção aos objetivos de conservação. O benchmark CDP Water Security recomenda uma redução anual de 2,5% no consumo de água. As metas consideram o crescimento do negócio e são medidas em relação a um ano de baseline para garantir melhoria contínua.",
       "waterInitiativesExplanation": "As iniciativas de gestão hídrica são ações específicas para reduzir o consumo, melhorar a eficiência ou garantir fontes alternativas de água. Podem incluir atualizações de equipamentos, mudanças de processos, sistemas de reciclagem ou programas comportamentais. Cada iniciativa acompanha poupanças estimadas, custos e estado de implementação.",
       "sitePerformance": {
-        "title": "Classificação de Desempenho por Local",
+        "title": "Classificação de Performance por Local",
         "subtitle": "Intensidade Hídrica por m²"
       },
       "explanations": {
@@ -2937,10 +2986,10 @@
         "title": "Progresso da Meta CDP Water Security",
         "subtitle": "{baselineYear} → {targetYear}",
         "reductionTarget": "Meta de Redução",
-        "baseline": "Linha Base",
+        "baseline": "baseline",
         "current": "Atual",
         "required": "Requerido",
-        "target": "Meta",
+        "target": "target",
         "progress": "Progresso",
         "onTrack": "no caminho",
         "aboveBaseline": "Acima da Linha Base",
@@ -2948,12 +2997,12 @@
         "atRisk": "Em Risco",
         "waterfallChart": {
           "title": "Trajetória de Consumo de Água",
-          "baseline": "Linha Base",
+          "baseline": "baseline",
           "required": "Requerido",
           "reduction": "Redução",
           "gap": "Lacuna",
           "actual": "Real",
-          "target": "Meta",
+          "target": "target",
           "tooltip": {
             "reduction": "Redução",
             "increase": "Aumento",
@@ -2963,17 +3012,17 @@
       }
     },
     "compliance": {
-      "title": "Painel de Conformidade",
+      "title": "Painel de Compliance",
       "subtitle": "GHG Protocol • GRI • ESRS E1 • TCFD",
       "tabs": {
-        "overview": "Visão Geral",
+        "overview": "overview",
         "ghgProtocol": "GHG Protocol",
         "gri": "GRI",
         "esrs": "ESRS E1",
         "tcfd": "TCFD"
       },
       "historicalNotice": {
-        "title": "Visualizando Dados Históricos de Conformidade",
+        "title": "Visualizando Dados Históricos de Compliance",
         "year": "({year})",
         "description": "Estes dados são somente leitura para manter as trilhas de auditoria e a integridade dos dados. Todas as capacidades de edição estão desativadas para anos anteriores."
       },
@@ -3019,9 +3068,9 @@
           }
         },
         "complianceStatement": {
-          "title": "Declaração de Conformidade com o GHG Protocol",
+          "title": "Declaração de Compliance com o GHG Protocol",
           "methodology": "Metodologia:",
-          "defaultStatement": "Este inventário foi preparado em conformidade com o GHG Protocol Corporate Accounting and Reporting Standard (Edição Revista). As emissões de Escopo 2 são reportadas usando os métodos baseado em localização e baseado em mercado, conforme o Guidance para Escopo 2.",
+          "defaultStatement": "Este inventário foi preparado em compliance com o GHG Protocol Corporate Accounting and Reporting Standard (Edição Revista). As emissões de Escopo 2 são reportadas usando os métodos baseado em localização e baseado em mercado, conforme o Guidance para Escopo 2.",
           "defaultMethodology": "Emissões calculadas usando abordagem baseada em atividade com fatores de emissão específicos por região e ano da DEFRA, EPA e IEA. Categorias de Escopo 3 avaliadas conforme o GHG Protocol Corporate Value Chain (Scope 3) Standard."
         },
         "emissionsSummary": {
@@ -3145,7 +3194,7 @@
           "annualReduction": "4.2% anual • Trajetória SBTi 1.5°C",
           "onTrack": "no caminho",
           "baseline": "Baseline:",
-          "target": "Meta:",
+          "target": "target:",
           "current": "Atual:"
         },
         "materialBreakdown": {
@@ -3186,25 +3235,25 @@
       },
       "tooltips": {
         "wasteHierarchy": "Hierarquia de Resíduos: Prevenção → Reutilização → Reciclagem → Recuperação → Eliminação. A taxa de desvio mede resíduos desviados da eliminação através de reciclagem e compostagem.",
-        "disposalDistribution": "A desagregação por método de eliminação mostra como os resíduos são geridos através de diferentes opções de tratamento. Conforme GRI 306-4/5, rastrear resíduos desviados (reciclagem, compostagem) vs. eliminados (aterro, incineração) é crítico para a transição para economia circular e conformidade com ESRS E5.",
+        "disposalDistribution": "A desagregação por método de eliminação mostra como os resíduos são geridos através de diferentes opções de tratamento. Conforme GRI 306-4/5, rastrear resíduos desviados (reciclagem, compostagem) vs. eliminados (aterro, incineração) é crítico para a transição para economia circular e compliance com ESRS E5.",
         "monthlyTrends": "Tendências mensais de geração, desvio e emissões de resíduos ajudam a identificar padrões sazonais, mudanças operacionais e eficácia das iniciativas de redução. Conforme GRI 306-3, rastrear estas métricas é essencial para gerir impactos de resíduos e melhorar eficiência de recursos.",
-        "yoyComparison": "A comparação ano-a-ano da geração de resíduos mostra progresso em direção às metas de redução. Diminuição da geração e aumento das taxas de desvio indicam programas de gestão de resíduos bem-sucedidos. Conforme ESRS E5, organizações devem demonstrar melhoria contínua no desempenho de resíduos.",
-        "circularEconomy": "Métricas de economia circular rastreiam quão eficazmente os resíduos são mantidos em uso produtivo. Taxa de desvio (% desviado da eliminação) e taxa de reciclagem (% reciclado) são indicadores-chave de desempenho. A hierarquia de resíduos prioriza prevenção, reutilização e reciclagem sobre eliminação.",
+        "yoyComparison": "A comparação YoY da geração de resíduos mostra progresso em direção às metas de redução. Diminuição da geração e aumento das taxas de desvio indicam programas de gestão de resíduos bem-sucedidos. Conforme ESRS E5, organizações devem demonstrar melhoria contínua no performance de resíduos.",
+        "circularEconomy": "Métricas de economia circular rastreiam quão eficazmente os resíduos são mantidos em uso produtivo. Taxa de desvio (% desviado da eliminação) e taxa de reciclagem (% reciclado) são indicadores-chave de performance. A hierarquia de resíduos prioriza prevenção, reutilização e reciclagem sobre eliminação.",
         "sbtiProgress": "Metas Science Based Targets (SBTi) para resíduos visam reduzir emissões Âmbito 3 da eliminação de resíduos em 4,2% anualmente, alinhadas com trajetória de aquecimento de 1,5°C. O progresso é rastreado em relação às emissões do ano baseline, com metas ajustadas para crescimento do negócio.",
-        "materialBreakdown": "Rastreamento específico por material mostra taxas de reciclagem e desvio por tipo de resíduo (papel, plástico, metal, etc.). Estes dados granulares ajudam a identificar oportunidades de melhoria e garantir conformidade com regulamentações de responsabilidade alargada do produtor.",
+        "materialBreakdown": "Tracking específico por material mostra taxas de reciclagem e desvio por tipo de resíduo (papel, plástico, metal, etc.). Estes dados granulares ajudam a identificar oportunidades de melhoria e garantir compliance com regulamentações de responsabilidade alargada do produtor.",
         "emissionsTooltip": "Emissões Âmbito 3 da eliminação de resíduos, incluindo metano de aterros, CO2 de incineração e transporte. Emissões mais baixas indicam melhor gestão de resíduos e taxas de desvio mais elevadas.",
         "intensityTooltip": "Intensidade de emissões por tonelada de resíduo gerado (tCO2e/t). Menor intensidade indica gestão de resíduos mais eficiente e maior desvio para métodos de baixa emissão como reciclagem e compostagem.",
         "disposalPieTooltip": "Desagregação de resíduos por método de eliminação, mostrando a proporção enviada para cada via de tratamento. Priorize a hierarquia de resíduos: reduzir, reutilizar, reciclar, recuperar, depois eliminar.",
         "monthlyTrendsTooltip": "Tendências mensais de geração, desvio e emissões de resíduos com previsão baseada em ML. Monitorize o progresso em direção a objetivos de economia circular e identifique padrões sazonais.",
-        "yoyComparisonTooltip": "Comparação ano-a-ano da geração de resíduos mostrando variações percentuais. Rastreie melhorias de desempenho e identifique tendências através dos períodos de reporte.",
+        "yoyComparisonTooltip": "Comparação YoY da geração de resíduos mostrando variações percentuais. Rastreie melhorias de performance e identifique tendências através dos períodos de reporte.",
         "circularEconomyTooltip": "Indicadores-chave de economia circular: taxa de desvio, taxa de reciclagem, percentagem de aterro e emissões Âmbito 3. Estas métricas rastreiam o progresso em direção a resíduos zero e modelos de negócio circulares.",
         "monthlyByMethodTooltip": "Desagregação mensal por método de eliminação seguindo a hierarquia de resíduos. Priorize a redução na fonte, depois reutilização, reciclagem, recuperação e finalmente eliminação.",
         "sbtiProgressTooltip": "Progresso de redução de resíduos da Science-Based Targets initiative (SBTi) alinhado com trajetória de 1,5°C. Rastreia redução anual de 4,2% nas emissões relacionadas com resíduos em direção às metas de 2030.",
-        "materialBreakdownTooltip": "Desempenho de resíduos por tipo de material mostrando taxas de reciclagem e desvio. Identifique oportunidades de melhoria específicas por material e rastreie o progresso da economia circular."
+        "materialBreakdownTooltip": "Performance de resíduos por tipo de material mostrando taxas de reciclagem e desvio. Identifique oportunidades de melhoria específicas por material e rastreie o progresso da economia circular."
       },
       "insights": {
         "title": "Insights de Materiais:",
-        "description": "Rastreie taxas de reciclagem e desvio por tipos específicos de material. Dados históricos (2022-2024) foram divididos usando rácios de composição padrão da indústria. Dados futuros podem ser inseridos ao nível do material para rastreamento preciso."
+        "description": "Rastreie taxas de reciclagem e desvio por tipos específicos de material. Dados históricos (2022-2024) foram divididos usando rácios de composição padrão da indústria. Dados futuros podem ser inseridos ao nível do material para tracking preciso."
       },
       "axisLabels": {
         "tons": "toneladas",
@@ -3216,7 +3265,7 @@
       "yoy": "YoY",
       "addInitiative": "Adicionar Iniciativa",
       "sitePerformance": {
-        "title": "Classificação de Desempenho por Local",
+        "title": "Classificação de Performance por Local",
         "subtitle": "Intensidade de Resíduos por m²"
       },
       "explanations": {
@@ -3230,22 +3279,22 @@
       "wasteProgress": {
         "title": "Progresso da Meta de Redução de Resíduos",
         "reductionTarget": "Meta de Redução",
-        "baseline": "Linha Base",
+        "baseline": "baseline",
         "current": "Atual",
         "required": "Requerido",
-        "target": "Meta",
+        "target": "target",
         "progress": "Progresso",
         "onTrackStatus": "No Caminho",
         "atRisk": "Em Risco",
         "aboveRequired": "acima do requerido",
         "waterfallChart": {
           "title": "Trajetória de Geração de Resíduos",
-          "baseline": "Linha Base",
+          "baseline": "baseline",
           "required": "Requerido",
           "reduction": "Redução",
           "gap": "Lacuna",
           "actual": "Real",
-          "target": "Meta",
+          "target": "target",
           "tooltip": {
             "reduction": "Redução",
             "increase": "Aumento",
@@ -3349,7 +3398,7 @@
         "scope3": "Âmbito 3",
         "total": "Total",
         "totalEmissions": "Emissões Totais",
-        "forecast": "Previsão",
+        "forecast": "forecast",
         "legends": {
           "totalEmissions": "Emissões Totais",
           "scope1": "Âmbito 1",
@@ -3360,7 +3409,7 @@
       },
       "intensityMetrics": {
         "title": "Métricas de Intensidade de Emissões",
-        "tooltip": "As métricas de intensidade normalizam as emissões por diferentes denominadores para permitir benchmarking e acompanhamento de melhorias de eficiência ao longo do tempo.",
+        "tooltip": "As métricas de intensidade normalizam as emissões por diferentes denominadores para permitir benchmarking e tracking de melhorias de eficiência ao longo do tempo.",
         "perEmployee": {
           "title": "Por Colaborador",
           "unit": "tCO2e/ETC",
@@ -3385,14 +3434,14 @@
           "unit": "kgCO2e/h",
           "subtitle": "Eficiência operacional",
           "noData": "Sem dados",
-          "tooltip": "Emissões por hora de operação ajudam a acompanhar a eficiência das suas operações e identificar oportunidades de otimização durante diferentes períodos operacionais."
+          "tooltip": "Emissões por hora de operação ajudam a acompanhar a eficiência das suasoperações e identificar oportunidades de otimização durante diferentes períodos operacionais."
         },
         "perCustomer": {
           "title": "Por Cliente",
           "unit": "kgCO2e/cliente",
           "subtitle": "Eficiência do serviço",
           "noData": "Sem dados",
-          "tooltip": "Emissões por cliente ajudam organizações baseadas em serviços a acompanhar sua pegada de carbono por unidade de serviço prestada."
+          "tooltip": "Emissões por cliente ajudam organizações baseadas em serviços a acompanhar a sua pegada de carbono por unidade de serviço prestada."
         },
         "sectorSpecific": {
           "title": "Baseado em Produção",
@@ -3405,7 +3454,7 @@
         "tooltip": {
           "thisYear": "Este Ano",
           "lastYear": "Ano Passado",
-          "yoy": "A/A",
+          "yoy": "YoY",
           "increase": "Aumento",
           "decrease": "Redução",
           "emissionsChange": "nas emissões"
@@ -3414,7 +3463,7 @@
       "sitePerformance": {
         "title": "Ranking de Emissões por Local",
         "subtitle": "Intensidade por m²",
-        "tooltip": "Os locais são classificados por intensidade de emissões (kgCO2e/m²). Menor intensidade indica melhor eficiência energética e desempenho de emissões por área unitária.",
+        "tooltip": "Os locais são classificados por intensidade de emissões (kgCO2e/m²). Menor intensidade indica melhor eficiência energética e performance de emissões por área unitária.",
         "badges": {
           "gri": "GRI 305-4",
           "intensityLabel": "Intensidade por m²"
@@ -3545,7 +3594,7 @@
             },
             "marketBased": {
               "title": "Método Baseado em Mercado",
-              "description": "Utiliza fatores de emissão de instrumentos contratuais (RECs, GOs, PPAs). Reflete as suas escolhas de compra de energia e compromissos renováveis."
+              "description": "Utiliza fatores de emissão de instrumentos contratuais (RECs, GOs, PPAs). Reflete as suasescolhas de compra de energia e compromissos renováveis."
             },
             "footer": "GRI 305-2 requer relatar ambos os métodos para transparência completa."
           },
@@ -3561,7 +3610,7 @@
         "categories": {
           "purchasedElectricity": "Eletricidade Adquirida"
         },
-        "explanation": "Desagregação detalhada das emissões indiretas de Âmbito 2 da energia adquirida. GRI 305-2 requer relato duplo para transparência completa:\n\n• Método Baseado em Localização: Utiliza fatores de emissão médios para a rede elétrica local. Reflete o mix energético regional e infraestrutura da rede.\n\n• Método Baseado em Mercado: Utiliza fatores de emissão de instrumentos contratuais (RECs, GOs, PPAs). Reflete as suas escolhas de compra de energia e compromissos renováveis.\n\nCompras de energia renovável reduzem as emissões baseadas em mercado enquanto as baseadas em localização permanecem vinculadas à média da rede."
+        "explanation": "Desagregação detalhada das emissões indiretas de Âmbito 2 da energia adquirida. GRI 305-2 requer relato duplo para transparência completa:\n\n• Método Baseado em Localização: Utiliza fatores de emissão médios para a rede elétrica local. Reflete o mix energético regional e infraestrutura da rede.\n\n• Método Baseado em Mercado: Utiliza fatores de emissão de instrumentos contratuais (RECs, GOs, PPAs). Reflete as suasescolhas de compra de energia e compromissos renováveis.\n\nCompras de energia renovável reduzem as emissões baseadas em mercado enquanto as baseadas em localização permanecem vinculadas à média da rede."
       },
       "scope3Breakdown": {
         "title": "Breakdown Âmbito 3",
@@ -3586,7 +3635,7 @@
           "tracked": "Rastreado",
           "missing": "Em Falta",
           "coverage": "Cobertura",
-          "lowCoverage": "⚠️ Cobertura baixa - expandir rastreamento para categorias-chave",
+          "lowCoverage": "⚠️ Cobertura baixa - expandir tracking para categorias-chave",
           "goodProgress": "💡 Bom progresso - objetivo de 80% de cobertura"
         },
         "categories": {
@@ -3598,12 +3647,12 @@
       },
       "waterfallChart": {
         "title": "Trajetória de Emissões",
-        "baseline": "Linha Base",
+        "baseline": "baseline",
         "required": "Requerido",
         "reduction": "Redução",
         "gap": "Desvio",
         "actual": "Real",
-        "target": "Meta",
+        "target": "target",
         "tooltip": {
           "reduction": "Redução",
           "increase": "Aumento",
@@ -3614,12 +3663,12 @@
         "title": "Progresso Metas SBTi",
         "subtitle": "{baselineYear} → {targetYear}",
         "reductionTarget": "Meta de Redução",
-        "baseline": "Linha Base",
+        "baseline": "baseline",
         "current": "Atual",
         "actualMLForecast": "Real + Previsão ML",
         "projected": "Projetado",
         "required": "Requerido",
-        "target": "Meta",
+        "target": "target",
         "progress": "Progresso",
         "onTrack": "no caminho",
         "aboveBaseline": "Acima da Linha Base",
@@ -3627,12 +3676,12 @@
         "atRisk": "Em Risco",
         "waterfallChart": {
           "title": "Trajetória de Emissões",
-          "baseline": "Linha Base",
+          "baseline": "baseline",
           "required": "Requerido",
           "reduction": "Redução",
           "gap": "Desvio",
           "actual": "Real",
-          "target": "Meta",
+          "target": "target",
           "tooltip": {
             "reduction": "Redução",
             "increase": "Aumento",
@@ -3650,11 +3699,11 @@
         "scope1": "Âmbito 1: Emissões diretas de fontes que possui ou controla, como combustão em instalações, veículos da empresa e emissões fugitivas.",
         "scope2": "Âmbito 2: Emissões indiretas de eletricidade, aquecimento, arrefecimento ou vapor comprados e consumidos pela sua organização.",
         "scope3": "Âmbito 3: Todas as outras emissões indiretas que ocorrem na sua cadeia de valor, incluindo viagens de negócios, deslocações pendulares, bens adquiridos e resíduos.",
-        "emissionsTrend": "Este gráfico mostra a evolução das suas emissões ao longo do tempo, permitindo identificar tendências, picos sazonais e o impacto das suas iniciativas de redução.\n\nA linha tracejada representa a previsão futura baseada em dados históricos.\n\nUma tendência descendente indica progresso na redução de emissões.",
+        "emissionsTrend": "Este gráfico mostra a evolução das suas emissões ao longo do tempo, permitindo identificar tendências, picos sazonais e o impacto das suasiniciativas de redução.\n\nA linha tracejada representa a previsão futura baseada em dados históricos.\n\nUma tendência descendente indica progresso na redução de emissões.",
         "topEmitters": "Identifica as principais categorias que mais contribuem para as suas emissões totais.\n\nConcentrar esforços de redução nestas áreas terá o maior impacto na redução da sua pegada carbónica.",
-        "sbtiProgress": "Monitoriza o progresso em relação às suas metas de redução de emissões validadas pela Science Based Targets initiative (SBTi).\n\nCompara as emissões atuais com a trajetória linear necessária para atingir a meta definida até ao ano alvo.",
-        "totalEmissions": "Total de emissões de gases de efeito estufa organizacionais em todos os três âmbitos.\n\nInclui comparação ano-a-ano e projeção anual baseada em ML.\n\nDiminuições indicam iniciativas de redução de emissões bem-sucedidas.",
-        "intensity": "Intensidade de emissões por equivalente a tempo completo (ETC).\n\nIndicador chave de desempenho para acompanhar a eficiência de emissões à medida que a sua organização cresce.\n\nValores mais baixos indicam melhor eficiência carbónica por colaborador.",
+        "sbtiProgress": "Monitoriza o progresso em relação às as suasmetas de redução de emissões validadas pela Science Based Targets initiative (SBTi).\n\nCompara as emissões atuais com a trajetória linear necessária para atingir a meta definida até ao ano alvo.",
+        "totalEmissions": "Total de emissões de gases de efeito estufa organizacionais em todos os três âmbitos.\n\nInclui comparação YoY e projeção anual baseada em ML.\n\nDiminuições indicam iniciativas de redução de emissões bem-sucedidas.",
+        "intensity": "Intensidade de emissões por equivalente a tempo completo (ETC).\n\nIndicador chave de performance para acompanhar a eficiência de emissões à medida que a sua organização cresce.\n\nValores mais baixos indicam melhor eficiência carbónica por colaborador.",
         "scope3Coverage": "Acompanha a cobertura das 15 categorias de emissões da cadeia de valor do Âmbito 3 definidas pelo Protocolo GEE.\n\nGRI 305-3 requer relatar todas as categorias significativas.\n\nMeta: 80%+ de cobertura para contabilização abrangente da pegada carbónica.",
         "dataQuality": "Mede a proporção de dados de emissões de fontes primárias (medições reais) versus fontes secundárias (estimativas e fatores).\n\nPercentagem mais alta de dados primários melhora precisão e credibilidade.\n\nVerificação por terceiros aumenta a confiança das partes interessadas.",
         "yoyComparison": "Comparação mês a mês com o mesmo período do ano passado.\n\nAjuda a identificar padrões sazonais e acompanhar progresso.\n\nMudanças positivas indicam aumentos, mudanças negativas indicam reduções.",
@@ -3702,22 +3751,22 @@
     },
     "performanceIndex": {
       "title": "blipee Performance Index™",
-      "subtitle": "Desempenho de sustentabilidade em todo o portfólio em todos os sites",
-      "siteSubtitle": "Pontuação de desempenho de sustentabilidade de {siteName}",
+      "subtitle": "Performance de sustentabilidade em todo o portfólio em todos os sites",
+      "siteSubtitle": "Pontuação de performance de sustentabilidade de {siteName}",
       "detailedMetrics": "Métricas Detalhadas",
-      "loading": "A carregar índice de desempenho...",
+      "loading": "A carregar índice de performance...",
       "tooltip": {
-        "title": "Sobre o Índice de Desempenho",
-        "description": "Uma pontuação abrangente de sustentabilidade (0-100) que mede o seu desempenho ambiental em múltiplas categorias. Combina métricas de energia, água, resíduos, transporte e conformidade num único indicador acionável.",
+        "title": "Sobre o Índice de Performance",
+        "description": "Uma pontuação abrangente de sustentabilidade (0-100) que mede o seuperformance ambiental em múltiplas categorias. Combina métricas de energia, água, resíduos, transporte e compliance num único indicador acionável.",
         "howCalculated": {
           "title": "Como é Calculado",
-          "description": "O índice agrega categorias ponderadas com base na materialidade da indústria, qualidade dos dados e benchmark de pares. Pontuações mais altas indicam melhor desempenho de sustentabilidade."
+          "description": "O índice agrega categorias ponderadas com base na materialidade da indústria, qualidade dos dados e benchmark de pares. Pontuações mais altas indicam melhor performance de sustentabilidade."
         },
         "whatScoresMean": {
           "title": "O que significam as pontuações",
-          "gradeA": "Desempenho excelente",
-          "gradeB": "Bom desempenho",
-          "gradeC": "Desempenho médio",
+          "gradeA": "Performance excelente",
+          "gradeB": "Bom performance",
+          "gradeC": "Performance médio",
           "gradeD": "Necessita melhorias"
         },
         "improvingScore": {
@@ -3726,7 +3775,7 @@
         },
         "whyMatters": {
           "title": "Porque Importa",
-          "description": "Permite acompanhamento de progresso ao longo do tempo, comparação entre sites e identificação de áreas de melhoria prioritárias. A tendência mostra se o desempenho está a melhorar ou a declinar."
+          "description": "Permite tracking de progresso ao longo do tempo, comparação entre sites e identificação de áreas de melhoria prioritárias. A tendência mostra se o performance está a melhorar ou a declinar."
         },
         "footer": "Alinhado com GRI, ESRS e frameworks de sustentabilidade líderes"
       },
@@ -3761,14 +3810,14 @@
           "description": "Cada categoria contribui para a sua pontuação geral com base no seu peso e relevância para a sua organização. As categorias são ordenadas por impacto, mostrando primeiro as mais importantes.",
           "columns": {
             "title": "O que significam as colunas:",
-            "score": "Pontuação de desempenho da categoria (0-100)",
+            "score": "Pontuação de performance da categoria (0-100)",
             "trend": "Direção da mudança ao longo do tempo (melhorar ↑ / estável → / a declinar ↓)",
             "percentile": "Classificação comparada com organizações semelhantes"
           },
           "percentileColors": {
             "title": "Cores do Percentil:",
-            "top": "Top 25% - Desempenho excelente",
-            "good": "Acima da média - Bom desempenho",
+            "top": "Top 25% - Performance excelente",
+            "good": "Acima da média - Bom performance",
             "average": "Abaixo da média - Espaço para melhorias",
             "needsWork": "Bottom 25% - Requer atenção"
           },
@@ -3785,15 +3834,15 @@
           "humanExperience": "Experiência Humana",
           "scopeThree": "Âmbito 3",
           "supplyChain": "Cadeia de Fornecimento",
-          "compliance": "Conformidade"
+          "compliance": "Compliance"
         }
       },
       "siteRankings": {
-        "title": "Ranking de Desempenho por Local",
+        "title": "Ranking de Performance por Local",
         "noData": "Sem dados de sites disponíveis",
         "tooltip": {
-          "title": "Ranking de Desempenho por Local",
-          "description": "Sites classificados pela pontuação blipee Performance Index™ (0-100), onde pontuações mais altas indicam melhor desempenho geral de sustentabilidade. Os 3 melhores desempenhos são destacados com medalhas. Use este ranking para identificar melhores práticas e compartilhar aprendizados entre sites."
+          "title": "Ranking de Performance por Local",
+          "description": "Sites classificados pela pontuação blipee Performance Index™ (0-100), onde pontuações mais altas indicam melhor performance geral de sustentabilidade. Os 3 melhores performances são destacados com medalhas. Use este ranking para identificar melhores práticas e compartilhar aprendizados entre sites."
         }
       },
       "trends": {
@@ -3802,7 +3851,7 @@
         "declining": "A declinar"
       },
       "emptyState": {
-        "title": "Pronto para Calcular a Sua Pontuação de Desempenho",
+        "title": "Pronto para Calcular a Sua Pontuação de Performance",
         "portfolioDescription": "Calcule o seu blipee Performance Index para todo o portfólio. O sistema irá analisar todos os dados disponíveis em todos os seus sites e fornecer uma pontuação de sustentabilidade abrangente.",
         "siteDescription": "Calcule o seu blipee Performance Index para ver a sua pontuação de sustentabilidade. O sistema irá trabalhar com os dados que tiver disponíveis.",
         "whatGetsScored": "O que é avaliado:",
@@ -3812,7 +3861,7 @@
           "waste": "Geração de resíduos e taxas de reciclagem",
           "transportation": "Transporte e emissões de frota",
           "scope3": "Impactos Âmbito 3 na cadeia de fornecimento",
-          "circularity": "Circularidade de materiais e conformidade"
+          "circularity": "Circularidade de materiais e compliance"
         },
         "adaptiveNote": "Não se preocupe se não tiver todos os dados - a pontuação adapta-se ao que está disponível",
         "calculateButton": "Calcular Pontuação Agora",
@@ -3841,7 +3890,7 @@
           "ytdTitle": "Energia YTD",
           "unit": "MWh",
           "projected": "Projetado",
-          "explanation": "Soma de toda a energia consumida em todas as fontes no período selecionado. Medida em megawatt-horas (MWh). A mudança ano a ano mostra a tendência de consumo comparada ao período anterior."
+          "explanation": "Soma de toda a energia consumida em todas as fontes no período selecionado. Medida em megawatt-horas (MWh). A mudança YoY mostra a tendência de consumo comparada ao período anterior."
         },
         "renewable": {
           "title": "Renovável",
@@ -3876,11 +3925,11 @@
           "title": "Variação Anual",
           "explanation": "Mudança percentual mensal no consumo de energia comparado ao mesmo mês do ano anterior. Valores positivos indicam aumento do consumo, valores negativos mostram redução.",
           "description": "Mudança mensal comparada ao ano anterior",
-          "noData": "Sem dados de comparação ano a ano disponíveis"
+          "noData": "Sem dados de comparação YoY disponíveis"
         },
         "gridMix": {
           "title": "Mix da Rede Elétrica",
-          "explanation": "Composição da rede elétrica que alimenta suas instalações, mostrando a divisão entre fontes renováveis e combustíveis fósseis. Estes dados ajudam a calcular emissões Scope 2 e Scope 3.3 com precisão.",
+          "explanation": "Composição da rede elétrica que alimenta as suasinstalações, mostrando a divisão entre fontes renováveis e combustíveis fósseis. Estes dados ajudam a calcular emissões Scope 2 e Scope 3.3 com precisão.",
           "provider": "Fornecedor",
           "year": "Ano",
           "renewablePercentage": "Renovável",
@@ -3925,8 +3974,8 @@
         "title": "Metas de Redução de Energia",
         "description": "Acompanhar o progresso em direção aos objetivos de redução de emissões alinhados com SBTi",
         "annualReduction": "redução anual",
-        "baseline": "Base de Referência",
-        "target": "Meta",
+        "baseline": "baseline",
+        "target": "target",
         "projected": "Projetado",
         "progress": "Progresso",
         "onTrack": "no caminho certo",
@@ -3945,7 +3994,7 @@
         "noChange": "sem mudança"
       },
       "units": {
-        "yoy": "AaA",
+        "yoy": "YoY",
         "pp": "pp"
       },
       "emissionFactors": {
@@ -3987,7 +4036,7 @@
         "description": "Acompanhamento de progresso da Science Based Targets initiative (SBTi) para emissões relacionadas com energia. Mostra metas anuais de redução alinhadas com o caminho de 1,5°C para limitar o aquecimento global.",
         "pathway": "caminho 1,5°C",
         "annualReduction": "redução anual",
-        "baseline": "Base de Referência",
+        "baseline": "baseline",
         "baseline2023": "Base de Referência 2023",
         "metrics": "métricas",
         "addInitiative": "Adicionar Iniciativa",
@@ -4054,7 +4103,7 @@
         "annual": "anual"
       },
       "sitePerformance": {
-        "title": "Classificação de Desempenho por Local",
+        "title": "Classificação de Performance por Local",
         "subtitle": "Intensidade Energética por m²"
       },
       "explanations": {
@@ -4068,22 +4117,22 @@
       "energyProgress": {
         "title": "Progresso da Meta de Eficiência Energética",
         "reductionTarget": "Meta de Redução",
-        "baseline": "Linha Base",
+        "baseline": "baseline",
         "current": "Atual",
         "required": "Requerido",
-        "target": "Meta",
+        "target": "target",
         "progress": "Progresso",
         "onTrackStatus": "No Caminho",
         "atRisk": "Em Risco",
         "aboveRequired": "acima do requerido",
         "waterfallChart": {
           "title": "Trajetória de Consumo Energético",
-          "baseline": "Linha Base",
+          "baseline": "baseline",
           "required": "Requerido",
           "reduction": "Redução",
           "gap": "Lacuna",
           "actual": "Real",
-          "target": "Meta",
+          "target": "target",
           "tooltip": {
             "reduction": "Redução",
             "increase": "Aumento",
@@ -4115,7 +4164,7 @@
           },
           "whyMeasure": {
             "heading": "Porquê medir em CO2e?",
-            "content": "Usar CO2e permite-nos somar todas as emissões de gases de efeito estufa num único número, facilitando o acompanhamento do progresso e a definição de metas."
+            "content": "Usar CO2e permite-nos somar todas as emissões de gases de efeito estufa num único número, facilitando o tracking do progresso e a definição de metas."
           }
         },
         "gases": {
@@ -4245,7 +4294,7 @@
           },
           "howToStart": {
             "heading": "Como começar",
-            "content": "Comece por medir as suas emissões de base (já está a fazê-lo!). Depois submeta as suas metas ao SBTi para validação."
+            "content": "Comece por medir as suas emissões de base (já está a fazê-lo!). Depois submeta as suasmetas ao SBTi para validação."
           }
         },
         "types": {
@@ -4276,7 +4325,7 @@
       "tcfd": "TCFD",
       "esrsE1": "ESRS E1"
     },
-    "compliantWith": "Em conformidade com:"
+    "compliantWith": "Em compliance com:"
   },
   "carbonEquivalents": {
     "verySmall": {
@@ -4288,7 +4337,7 @@
       "coffee": {
         "format": "{n} chávenas de café",
         "context": "Fazer café (grãos, aquecimento de água, leite) ≈ 1,25 kg CO2e por chávena",
-        "didYouKnow": "O leite no seu latte cria mais emissões do que os grãos de café!"
+        "didYouKnow": "O leite no seulatte cria mais emissões do que os grãos de café!"
       },
       "burger": {
         "format": "{n} hambúrgueres de carne",

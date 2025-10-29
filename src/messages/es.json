@@ -6,7 +6,7 @@
     "about": "Acerca de",
     "signIn": "Iniciar Sesión",
     "signOut": "Cerrar Sesión",
-    "dashboard": "Panel de Control",
+    "dashboard": "Dashboard",
     "menu": "Menú",
     "toggleTheme": "Cambiar tema",
     "toggleLanguage": "Cambiar idioma"
@@ -315,8 +315,8 @@
       }
     },
     "cta": {
-      "title": "¿Listo para Transformar tu Sostenibilidad?",
-      "description": "Accede a tu plataforma de sostenibilidad impulsada por IA y comienza a tomar decisiones basadas en datos hoy.",
+      "title": "¿Listo para Transformar su Sostenibilidad?",
+      "description": "Acceda a suplataforma de sostenibilidad impulsada por IA y comienza a tomar decisiones basadas en datos hoy.",
       "signInButton": "Iniciar Sesión en Dashboard",
       "requestButton": "Solicitar Acceso",
       "footer": "Tu equipo de sostenibilidad IA te está esperando"
@@ -327,7 +327,7 @@
       "namePlaceholder": "Tu Nombre",
       "emailPlaceholder": "Dirección de Correo",
       "companyPlaceholder": "Empresa",
-      "messagePlaceholder": "Cuéntanos sobre tus objetivos de sostenibilidad",
+      "messagePlaceholder": "Cuéntenos sobre susobjetivos de sostenibilidad",
       "submitButton": "Enviar Solicitud"
     },
     "supportModal": {
@@ -342,7 +342,7 @@
         "feature": "Solicitud de Característica",
         "other": "Otro"
       },
-      "descriptionPlaceholder": "Describe tu problema o pregunta",
+      "descriptionPlaceholder": "Describa su problema o pregunta",
       "submitButton": "Enviar Solicitud"
     }
   },
@@ -352,7 +352,7 @@
       "badge": "Tecnología IA de Próxima Generación",
       "title1": "La IA Detrás de la",
       "title2": "Magia de Sostenibilidad",
-      "description": "Descubre la arquitectura revolucionaria de IA multi-cerebro que hace que la gestión de sostenibilidad se sienta como magia. 12 modelos de IA especializados trabajando juntos para transformar cómo logras tus objetivos ambientales."
+      "description": "Descubre la arquitectura revolucionaria de IA multi-cerebro que hace que la gestión de sostenibilidad se sienta como magia. 12 modelos de IA especializados trabajando juntos para transformar cómo logras susobjetivos ambientales."
     },
     "architectureSection": {
       "badge": "Arquitectura IA Avanzada",
@@ -624,7 +624,7 @@
   },
   "profile": {
     "title": "Perfil",
-    "subtitle": "Gestiona tu información personal y preferencias",
+    "subtitle": "Gestione su información personal y preferencias",
     "sections": {
       "profilePicture": {
         "title": "Foto de Perfil",
@@ -659,14 +659,14 @@
           "jobTitle": "Ingeniero de Software",
           "department": "Ingeniería",
           "location": "Madrid, España",
-          "bio": "Cuéntanos sobre ti..."
+          "bio": "Cuéntenos sobre ti..."
         }
       },
       "quickSettings": {
         "title": "Configuración Rápida",
         "notifications": {
           "title": "Notificaciones",
-          "action": "Gestionar"
+          "action": "Gestioner"
         },
         "security": {
           "title": "Seguridad",
@@ -692,7 +692,7 @@
     },
     "notifications": {
       "title": "Notificaciones",
-      "subtitle": "Gestiona cómo recibes notificaciones y actualizaciones de blipee",
+      "subtitle": "Gestione cómo recibes notificaciones y actualizaciones de blipee",
       "loading": "Cargando...",
       "realtime": "Tiempo real",
       "daily": "Diario",
@@ -730,7 +730,7 @@
         },
         "teamActivity": {
           "title": "Actividad del Equipo",
-          "description": "Actualizaciones de tu equipo y colaboradores"
+          "description": "Actualizaciones de su equipo y colaboradores"
         },
         "sustainabilityReports": {
           "title": "Informes de Sostenibilidad",
@@ -742,7 +742,7 @@
         },
         "achievements": {
           "title": "Logros",
-          "description": "Celebra tus hitos de sostenibilidad"
+          "description": "Celebra sushitos de sostenibilidad"
         }
       },
       "frequency": {
@@ -782,7 +782,7 @@
     },
     "security": {
       "title": "Seguridad",
-      "subtitle": "Gestiona la configuración de seguridad de tu cuenta y monitorea la actividad de inicio de sesión",
+      "subtitle": "Gestione la configuración de seguridad de sucuenta y monitorea la actividad de inicio de sesión",
       "loading": "Cargando...",
       "loadingSettings": "Cargando configuración de seguridad...",
       "signInRequired": "Por favor, inicia sesión para ver la configuración de seguridad",
@@ -802,14 +802,14 @@
       "twoFactorEnabled": "La autenticación de dos factores está habilitada",
       "twoFactorDisabled": "La autenticación de dos factores está deshabilitada",
       "twoFactorEnabledDescription": "Tu cuenta está protegida con una capa adicional de seguridad",
-      "twoFactorDisabledDescription": "Añade una capa extra de seguridad para proteger tu cuenta",
+      "twoFactorDisabledDescription": "Añade una capa extra de seguridad para proteger sucuenta",
       "enableTwoFactor": "Habilitar Autenticación de Dos Factores",
       "disableTwoFactor": "Deshabilitar 2FA",
       "setupTwoFactor": "Configurar Autenticación de Dos Factores",
       "regenerateBackupCodes": "Regenerar Códigos de Respaldo",
       "backupCodes": "Códigos de Respaldo",
-      "qrCodePlaceholder": "Escanea este código QR con tu aplicación de autenticación",
-      "enterVerificationCode": "Ingresa el código de verificación",
+      "qrCodePlaceholder": "Escanea este código QR con suaplicación de autenticación",
+      "enterVerificationCode": "Introduzca el código de verificación",
       "enableTwoFactorButton": "Verificar y Habilitar",
       "invalidCode": "Código de verificación inválido",
       "enable2FAError": "Error al habilitar la autenticación de dos factores",
@@ -838,7 +838,7 @@
     },
     "language": {
       "title": "Idioma y Región",
-      "subtitle": "Configura tus preferencias de idioma, región y formato",
+      "subtitle": "Configura suspreferencias de idioma, región y formato",
       "displayLanguage": "Idioma de Visualización",
       "interfaceLanguage": "Idioma de Interfaz",
       "fallbackLanguage": "Idioma de Respaldo",
@@ -859,7 +859,7 @@
       "contentLanguagePreference": "Preferencia de Idioma del Contenido",
       "exportLanguage": "Idioma de Exportación",
       "autoTranslateContent": "Traducir contenido automáticamente",
-      "autoTranslateContentDescription": "Traducir automáticamente el contenido a tu idioma preferido",
+      "autoTranslateContentDescription": "Traducir automáticamente el contenido a suidioma preferido",
       "sustainabilityStandards": "Estándares de Sostenibilidad",
       "reportingStandardLanguage": "Idioma del Estándar de Reporte",
       "reportingStandardDescription": "Elige la versión del idioma de los estándares de reporte de sostenibilidad",
@@ -946,9 +946,9 @@
         "outline": "Contorno",
         "ghost": "Fantasma",
         "accentText": "Este texto usa el color de acento",
-        "borderText": "El borde y el texto cambiarán según tu color de acento seleccionado",
+        "borderText": "El borde y el texto cambiarán según sucolor de acento seleccionado",
         "gradientBackground": "Fondo Degradado",
-        "gradientText": "Esto usa tu degradado de acento seleccionado"
+        "gradientText": "Esto usa sudegradado de acento seleccionado"
       },
       "saving": "Guardando...",
       "saveChanges": "Guardar Cambios",
@@ -995,10 +995,10 @@
     },
     "coverage": {
       "title": "Tu Industria Está Cubierta",
-      "description": "Los desafíos de sostenibilidad son universales. Ya sea que estés rastreando emisiones, gestionando energía, reduciendo residuos, o reportando métricas ESG, blipee se adapta a tus requisitos y regulaciones específicas de la industria.",
+      "description": "Los desafíos de sostenibilidad son universales. Ya sea que estés rastreando emisiones, gestionando energía, reduciendo residuos, o reportando métricas ESG, blipee se adapta a susrequisitos y regulaciones específicas de la industria.",
       "anySector": {
         "title": "Cualquier Sector",
-        "description": "Desde industria pesada hasta servicios digitales, nuestra IA entiende tus desafíos únicos de sostenibilidad."
+        "description": "Desde industria pesada hasta servicios digitales, nuestra IA entiende susdesafíos únicos de sostenibilidad."
       },
       "anyStandard": {
         "title": "Cualquier Estándar",
@@ -1006,13 +1006,13 @@
       },
       "anySize": {
         "title": "Cualquier Tamaño",
-        "description": "Desde pequeñas empresas hasta corporaciones multinacionales, nuestra plataforma escala con tus necesidades."
+        "description": "Desde pequeñas empresas hasta corporaciones multinacionales, nuestra plataforma escala con susnecesidades."
       }
     },
     "intelligence": {
       "title": "Inteligencia Industrial",
       "subtitle": "Cómo Organizamos las Industrias",
-      "description": "Estos son solo ejemplos. Si tu industria no está listada, aun así trabajamos contigo. Nuestra IA se adapta a cualquier desafío de sostenibilidad.",
+      "description": "Estos son solo ejemplos. Si su industria no está listada, aun así trabajamos contigo. Nuestra IA se adapta a cualquier desafío de sostenibilidad.",
       "categories": {
         "manufacturing": {
           "title": "Manufactura y Producción",
@@ -1182,7 +1182,7 @@
     },
     "compliance": {
       "title": "Estándares de Cumplimiento",
-      "description": "Cumplimiento total con estándares específicos del sector de Global Reporting Initiative y CSRD (Directiva de Informes de Sostenibilidad Corporativa). Nuestra IA conoce los requisitos exactos para tu industria.",
+      "description": "Cumplimiento total con estándares específicos del sector de Global Reporting Initiative y CSRD (Directiva de Informes de Sostenibilidad Corporativa). Nuestra IA conoce los requisitos exactos para su industria.",
       "gri11": {
         "title": "GRI 11",
         "sector": "Sector de Petróleo y Gas",
@@ -1251,8 +1251,8 @@
       }
     },
     "cta": {
-      "title": "¿Listo para Transformar tu Sostenibilidad?",
-      "description": "Accede a tu plataforma de sostenibilidad impulsada por IA y comienza a tomar decisiones basadas en datos hoy.",
+      "title": "¿Listo para Transformar su Sostenibilidad?",
+      "description": "Acceda a suplataforma de sostenibilidad impulsada por IA y comienza a tomar decisiones basadas en datos hoy.",
       "signInButton": "Iniciar Sesión en Dashboard",
       "requestButton": "Solicitar Acceso",
       "footer": "Tu equipo de sostenibilidad IA te está esperando"
@@ -1263,7 +1263,7 @@
       "namePlaceholder": "Tu Nombre",
       "emailPlaceholder": "Dirección de Correo",
       "companyPlaceholder": "Empresa",
-      "messagePlaceholder": "Cuéntanos sobre tus objetivos de sostenibilidad",
+      "messagePlaceholder": "Cuéntenos sobre susobjetivos de sostenibilidad",
       "submitButton": "Enviar Solicitud"
     },
     "supportModal": {
@@ -1278,14 +1278,14 @@
         "feature": "Solicitud de Característica",
         "other": "Otro"
       },
-      "descriptionPlaceholder": "Describe tu problema o pregunta",
+      "descriptionPlaceholder": "Describa su problema o pregunta",
       "submitButton": "Enviar Solicitud"
     }
   },
   "settings": {
     "organizations": {
       "title": "Gestión de Organizaciones",
-      "subtitle": "Gestiona tus organizaciones y sus configuraciones",
+      "subtitle": "Gestione susorganizaciones y sus configuraciones",
       "searchPlaceholder": "Buscar organizaciones...",
       "filter": "Filtrar",
       "download": "Descargar",
@@ -1318,8 +1318,8 @@
         "createTitle": "Agregar Nueva Organización",
         "editTitle": "Editar Organización",
         "viewTitle": "Ver Organización",
-        "createSuccess": "¡Organización creada exitosamente!",
-        "updateSuccess": "¡Organización actualizada exitosamente!",
+        "createSuccess": "¡Organización creada con éxito!",
+        "updateSuccess": "¡Organización actualizada con éxito!",
         "aiLookupSuccess": "✨ ¡Detalles de organización completados por IA!",
         "aiLookupTooltip": "Búsqueda IA - Auto-completar detalles de organización",
         "sections": {
@@ -1407,20 +1407,20 @@
           "nameRequired": "El nombre de la organización es requerido",
           "slugRequired": "El slug de URL es requerido",
           "slugInvalid": "El slug de URL solo puede contener letras minúsculas, números y guiones",
-          "emailInvalid": "Por favor ingrese una dirección de email válida",
-          "urlInvalid": "Por favor ingrese una URL válida",
-          "phoneInvalid": "Por favor ingrese un número de teléfono válido",
+          "emailInvalid": "Por favor introduzca una dirección de email válida",
+          "urlInvalid": "Por favor introduzca una URL válida",
+          "phoneInvalid": "Por favor introduzca un número de teléfono válido",
           "seatsMin": "Mínimo 1 asiento requerido",
           "confidenceRange": "La confianza debe estar entre 0 y 100",
           "stockTickerInvalid": "El símbolo bursátil debe ser de 1-5 letras mayúsculas",
-          "colorInvalid": "Por favor ingrese un código de color hex válido",
+          "colorInvalid": "Por favor introduzca un código de color hex válido",
           "pleaseFixErrors": "Por favor corrija los errores a continuación antes de enviar"
         }
       }
     },
     "devices": {
       "title": "Gestión de Dispositivos",
-      "subtitle": "Gestiona y monitorea todos tus dispositivos IoT en todos los sitios",
+      "subtitle": "Gestione y monitorea todos susdispositivos IoT en todos los sitios",
       "searchPlaceholder": "Buscar dispositivos...",
       "filter": "Filtrar",
       "addDevice": "Agregar Dispositivo",
@@ -1477,8 +1477,8 @@
         "editTitle": "Editar Dispositivo",
         "viewTitle": "Ver Dispositivo",
         "addTitle": "Añadir Nuevo Dispositivo",
-        "createSuccess": "¡Dispositivo creado exitosamente!",
-        "updateSuccess": "¡Dispositivo actualizado exitosamente!",
+        "createSuccess": "¡Dispositivo creado con éxito!",
+        "updateSuccess": "¡Dispositivo actualizado con éxito!",
         "sections": {
           "basicInfo": "Información Básica",
           "connectivity": "Conectividad",
@@ -1547,14 +1547,14 @@
           "nameRequired": "El nombre del dispositivo es obligatorio",
           "typeRequired": "El tipo de dispositivo es obligatorio",
           "siteRequired": "El sitio es obligatorio",
-          "ipInvalid": "Por favor, ingrese una dirección IP válida",
-          "macInvalid": "Por favor, ingrese una dirección MAC válida",
+          "ipInvalid": "Por favor, introduzca una dirección IP válida",
+          "macInvalid": "Por favor, introduzca una dirección MAC válida",
           "intervalInvalid": "El intervalo de datos debe ser un número positivo"
         },
         "messages": {
-          "deviceCreated": "¡Dispositivo creado exitosamente!",
-          "deviceUpdated": "¡Dispositivo actualizado exitosamente!",
-          "deviceDeleted": "¡Dispositivo eliminado exitosamente!"
+          "deviceCreated": "¡Dispositivo creado con éxito!",
+          "deviceUpdated": "¡Dispositivo actualizado con éxito!",
+          "deviceDeleted": "¡Dispositivo eliminado con éxito!"
         }
       },
       "buttons": {
@@ -1680,7 +1680,7 @@
         },
         "actions": {
           "viewDashboard": "Ver Panel",
-          "manageMetrics": "Gestionar Métricas",
+          "manageMetrics": "Gestioner Métricas",
           "generateReport": "Generar Informe"
         },
         "defaultUser": "Usuario",
@@ -1790,7 +1790,7 @@
     },
     "users": {
       "title": "Gestión de Usuarios",
-      "subtitle": "Gestiona los miembros del equipo y sus permisos",
+      "subtitle": "Gestione los miembros del equipo y sus permisos",
       "searchPlaceholder": "Buscar usuarios...",
       "filter": "Filtrar",
       "download": "Descargar",
@@ -1802,11 +1802,11 @@
       "failedToLoad": "Error al cargar usuarios",
       "retry": "Reintentar",
       "failedToDelete": "Error al eliminar usuario",
-      "invitationResent": "Correo de invitación enviado exitosamente",
+      "invitationResent": "Correo de invitación enviado con éxito",
       "failedToResend": "Error al reenviar invitación",
       "resendInvite": "Reenviar",
-      "userDeleted": "Usuario eliminado exitosamente",
-      "bulkDeleteSuccess": "{count} usuarios eliminados exitosamente",
+      "userDeleted": "Usuario eliminado con éxito",
+      "bulkDeleteSuccess": "{count} usuarios eliminados con éxito",
       "bulkDeletePartialError": "Error al eliminar {count} usuarios",
       "bulkDeleteError": "Error al eliminar usuarios",
       "bulkDeleteFailed": "Eliminación masiva falló",
@@ -1831,8 +1831,8 @@
         "createTitle": "Agregar Nuevo Usuario",
         "editTitle": "Editar Usuario",
         "viewTitle": "Ver Usuario",
-        "createSuccess": "¡Usuario creado exitosamente!",
-        "updateSuccess": "¡Usuario actualizado exitosamente!",
+        "createSuccess": "¡Usuario creado con éxito!",
+        "updateSuccess": "¡Usuario actualizado con éxito!",
         "firstName": "Nombre",
         "lastName": "Apellido",
         "email": "Email",
@@ -1876,8 +1876,8 @@
           "sendInvite": "Enviar correo de invitación al usuario"
         },
         "placeholders": {
-          "name": "Ingrese el nombre completo",
-          "email": "Ingrese la dirección de correo electrónico"
+          "name": "Introduzca el nombre completo",
+          "email": "Introduzca la dirección de correo electrónico"
         },
         "errors": {
           "userAlreadyExists": "Ya existe un usuario con este correo electrónico",
@@ -1885,8 +1885,8 @@
           "failedToUpdateUser": "Error al actualizar usuario"
         },
         "messages": {
-          "userCreated": "¡El usuario ha sido creado exitosamente!",
-          "userUpdated": "¡El usuario ha sido actualizado exitosamente!"
+          "userCreated": "¡El usuario ha sido creado con éxito!",
+          "userUpdated": "¡El usuario ha sido actualizado con éxito!"
         },
         "buttons": {
           "cancel": "Cancelar",
@@ -1946,19 +1946,19 @@
         "firstNameRequired": "El nombre es requerido",
         "lastNameRequired": "El apellido es requerido",
         "emailRequired": "La dirección de email es requerida",
-        "emailInvalid": "Por favor ingrese una dirección de email válida",
+        "emailInvalid": "Por favor introduzca una dirección de email válida",
         "roleRequired": "El rol es requerido",
         "organizationRequired": "La organización es requerida",
         "dailyTimeLimitInvalid": "El límite de tiempo diario debe ser un número positivo"
       },
       "messages": {
-        "userCreated": "Usuario creado exitosamente",
-        "userUpdated": "Usuario actualizado exitosamente",
-        "userDeleted": "Usuario eliminado exitosamente",
+        "userCreated": "Usuario creado con éxito",
+        "userUpdated": "Usuario actualizado con éxito",
+        "userDeleted": "Usuario eliminado con éxito",
         "error": "Ocurrió un error. Inténtalo de nuevo.",
         "noUsers": "No se encontraron usuarios",
         "loadingUsers": "Cargando usuarios...",
-        "invitationSent": "Invitación enviada exitosamente"
+        "invitationSent": "Invitación enviada con éxito"
       }
     },
     "sidebar": {
@@ -1990,7 +1990,7 @@
     },
     "sites": {
       "title": "Gestión de Sitios",
-      "subtitle": "Gestiona tus sitios y ubicaciones",
+      "subtitle": "Gestione sussitios y ubicaciones",
       "search": {
         "placeholder": "Buscar sitios..."
       },
@@ -2079,8 +2079,8 @@
           "viewOnly": "Solo Vista"
         },
         "messages": {
-          "createSuccess": "¡Sitio creado exitosamente!",
-          "updateSuccess": "¡Sitio actualizado exitosamente!",
+          "createSuccess": "¡Sitio creado con éxito!",
+          "updateSuccess": "¡Sitio actualizado con éxito!",
           "deleteConfirm": "¿Estás seguro de que quieres eliminar",
           "deleteFailed": "Error al eliminar el sitio"
         }
@@ -2151,13 +2151,13 @@
   "auth": {
     "signin": {
       "title": "Iniciar Sesión",
-      "subtitle": "¡Bienvenido de vuelta! Por favor inicia sesión para continuar",
+      "subtitle": "¡Bienvenido de nuevo! Por favor inicia sesión para continuar",
       "email": "Correo Electrónico",
-      "emailPlaceholder": "Ingresa tu correo",
+      "emailPlaceholder": "Introduzca su correo",
       "password": "Contraseña",
-      "passwordPlaceholder": "Ingresa tu contraseña",
+      "passwordPlaceholder": "Introduzca su contraseña",
       "rememberMe": "Recordarme",
-      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "forgotPassword": "¿Olvidaste su contraseña?",
       "signIn": "Iniciar Sesión",
       "signingIn": "Iniciando sesión...",
       "showPassword": "Mostrar contraseña",
@@ -2167,24 +2167,24 @@
     },
     "forgotPassword": {
       "title": "Contraseña Olvidada",
-      "subtitle": "Ingresa tu correo electrónico y te enviaremos un enlace de restablecimiento",
+      "subtitle": "Introduzca su correo electrónico y te enviaremos un enlace de restablecimiento",
       "email": "Correo Electrónico",
-      "emailPlaceholder": "Ingresa tu correo",
+      "emailPlaceholder": "Introduzca su correo",
       "sendResetLink": "Enviar Enlace de Restablecimiento",
       "sendingResetLink": "Enviando...",
       "backToSignIn": "Volver a Iniciar Sesión",
-      "successMessage": "¡Enlace enviado! Revisa tu correo.",
+      "successMessage": "¡Enlace enviado! Revise su correo.",
       "errorMessage": "Error al enviar el enlace. Por favor intenta de nuevo."
     },
     "setPassword": {
       "title": "Establece Tu Contraseña",
-      "subtitle": "Crea una contraseña segura para acceder a tu cuenta",
+      "subtitle": "Cree una contraseña segura para acceder a sucuenta",
       "welcome": "Bienvenido",
       "accountCreatedFor": "Tu cuenta ha sido creada para",
       "newPassword": "Nueva Contraseña",
       "confirmPassword": "Confirmar Contraseña",
-      "enterPassword": "Ingresa tu nueva contraseña",
-      "confirmPasswordPlaceholder": "Vuelve a ingresar tu contraseña",
+      "enterPassword": "Introduzca sunueva contraseña",
+      "confirmPasswordPlaceholder": "Vuelva a introducir su contraseña",
       "passwordRequirements": "Requisitos de la Contraseña:",
       "req1": "Al menos 8 caracteres",
       "req2": "Una letra mayúscula",
@@ -2198,9 +2198,9 @@
       "passwordNeedsLowercase": "La contraseña debe contener al menos una letra minúscula",
       "passwordNeedsNumber": "La contraseña debe contener al menos un número",
       "failedToSetPassword": "Error al establecer la contraseña",
-      "passwordSetSuccess": "¡Contraseña establecida exitosamente!",
+      "passwordSetSuccess": "¡Contraseña establecida con éxito!",
       "redirectingToDashboard": "Redirigiendo al panel de control...",
-      "resetLinkSent": "¡Revisa tu correo!",
+      "resetLinkSent": "¡Revise su correo!",
       "emailSentMessage": "Hemos enviado un enlace de restablecimiento a",
       "didntReceiveEmail": "¿No recibiste el correo?",
       "tryAgain": "Intentar de nuevo",
@@ -2218,7 +2218,7 @@
     "newConversation": "Nueva conversación",
     "defaultResponse": "Te ayudaré con eso.",
     "generatedCode": "Código Generado",
-    "errorMessage": "Encontré un error. Por favor, inténtalo de nuevo o reformula tu pregunta.",
+    "errorMessage": "Encontré un error. Por favor, inténtelo de nuevo o reformula supregunta.",
     "welcomeMessage": "¿Cómo puedo ayudarte hoy?",
     "welcomeSubtitle": "Inicia una conversación sobre sostenibilidad, gestión energética u operaciones de edificios",
     "defaultUser": "Usuario",
@@ -2256,7 +2256,7 @@
       },
       "empty": {
         "noConversations": "Aún no hay conversaciones",
-        "startConversation": "Inicia tu primera conversación",
+        "startConversation": "Inicia suprimera conversación",
         "noConversationsFound": "No se encontraron conversaciones"
       },
       "actions": {
@@ -2297,6 +2297,55 @@
         "message": "Esta acción no se puede deshacer. La conversación se eliminará permanentemente.",
         "cancel": "Cancelar",
         "confirm": "Eliminar"
+      }
+    },
+    "promptLibrary": {
+      "title": "Biblioteca de Prompts",
+      "subtitle": "Más de {{count}} prompts de ejemplo para empezar",
+      "search": {
+        "placeholder": "Buscar prompts..."
+      },
+      "empty": {
+        "noResults": "No se encontraron prompts para \"{{query}}\""
+      },
+      "navigation": {
+        "backToCategories": "← Volver a categorías"
+      },
+      "category": {
+        "promptsCount": "{{count}} prompts →"
+      },
+      "footer": {
+        "instruction": "Haz clic en cualquier prompt para completar automáticamente la entrada del chat"
+      }
+    },
+    "welcome": {
+      "title": "Bienvenido a blipee",
+      "description": "Tu asistente inteligente de sostenibilidad. Pregúntame cualquier cosa sobre emisiones, cumplimiento normativo o informes ESG."
+    },
+    "contextualSuggestions": {
+      "settings": {
+        "addUsers": "¿Cómo agrego usuarios a mi organización?",
+        "apiKeys": "¿Dónde puedo encontrar mis claves de API?",
+        "integrations": "¿Cómo configuro las integraciones?",
+        "billing": "¿Dónde están mis ajustes de facturación?"
+      },
+      "profile": {
+        "changePassword": "¿Cómo cambio mi contraseña?",
+        "notifications": "¿Dónde puedo actualizar mis preferencias de notificaciones?",
+        "theme": "¿Cómo cambio el tema de la aplicación?",
+        "security": "¿Dónde están mis ajustes de seguridad de cuenta?"
+      },
+      "sustainability": {
+        "emissionsYear": "¿Cuáles son mis emisiones este año?",
+        "emissionsBreakdown": "Muéstrame mi desglose de emisiones por alcance",
+        "businessTravel": "¿Cómo hago seguimiento a los viajes de negocios?",
+        "addData": "Quiero agregar datos de sostenibilidad"
+      },
+      "default": {
+        "emissionsYear": "¿Cuáles son mis emisiones este año?",
+        "getStarted": "¿Cómo empiezo con blipee?",
+        "dashboard": "Muéstrame mi panel de sostenibilidad",
+        "addData": "Quiero agregar datos de sostenibilidad"
       }
     },
     "message": {
@@ -2559,7 +2608,7 @@
           "cooling": "❄️ Optimizar controles del sistema HVAC",
           "commuting": "🚲 Promover transporte público y bicicletas",
           "water": "💧 Instalar medidas de eficiencia hídrica",
-          "default": "📊 Revisar y optimizar esta categoría"
+          "default": "📊 Reviser y optimizar esta categoría"
         },
         "categories": {
           "Business Travel": "Viajes de Negocios",
@@ -2584,7 +2633,7 @@
       "sbtiTargetProgress": {
         "title": "Progreso de Objetivos SBTi",
         "reductionTarget": "Objetivo de Reducción",
-        "baseline": "Línea Base",
+        "baseline": "Baseline",
         "current": "Actual",
         "actualMLForecast": "Real + Previsión ML",
         "required": "Requerido",
@@ -2592,13 +2641,13 @@
         "progress": "Progreso",
         "tco2eOnTrack": "tCO2e en buen camino",
         "statusLabels": {
-          "aboveBaseline": "Por Encima de la Línea Base",
+          "aboveBaseline": "Por Encima de la Baseline",
           "onTrack": "En Buen Camino",
           "atRisk": "En Riesgo"
         },
         "waterfallChart": {
           "title": "Trayectoria de Emisiones",
-          "baseline": "Línea Base",
+          "baseline": "Baseline",
           "requiredReduction": "Reducción\nRequerida",
           "required": "Requerido",
           "gap": "Brecha respecto\nal Requerido",
@@ -2715,7 +2764,7 @@
         "cdpBenchmark": "Benchmark CDP",
         "custom": "Personalizado",
         "annualReduction": "reducción anual",
-        "baseline": "Línea Base",
+        "baseline": "Baseline",
         "cdpDescription": "Usando benchmark CDP Water Security (2,5% anual)",
         "customDescription": "Meta personalizada: {rate}% anual",
         "status": {
@@ -2725,14 +2774,14 @@
           "offTrack": "fuera de camino"
         },
         "columns": {
-          "baseline": "Línea Base",
+          "baseline": "Baseline",
           "target": "Meta",
           "projected": "Proyectado"
         },
         "progress": "Progreso",
         "exceedance": "Sobre el Objetivo",
         "offTrackWarning": "El consumo proyectado excede la trayectoria objetivo",
-        "initiativesSubtitle": "CDP Water Security • 2,5% de reducción anual • Línea Base 2023",
+        "initiativesSubtitle": "CDP Water Security • 2,5% de reducción anual • Baseline 2023",
         "annualReductionTarget": "Meta de reducción anual del 2,5%"
       },
       "tooltips": {
@@ -2741,7 +2790,7 @@
         "increase": "Aumento",
         "decrease": "Disminución",
         "inConsumption": "en consumo",
-        "baseline": "Línea Base:",
+        "baseline": "Baseline:",
         "target": "Meta:",
         "metrics": "métricas",
         "withdrawal": "Captación:",
@@ -2799,18 +2848,18 @@
         "title": "Progreso de Meta CDP Water Security",
         "subtitle": "{baselineYear} → {targetYear}",
         "reductionTarget": "Meta de Reducción",
-        "baseline": "Línea Base",
+        "baseline": "Baseline",
         "current": "Actual",
         "required": "Requerido",
         "target": "Meta",
         "progress": "Progreso",
         "onTrack": "en camino",
-        "aboveBaseline": "Por Encima de Línea Base",
+        "aboveBaseline": "Por Encima de Baseline",
         "onTrackStatus": "En Camino",
         "atRisk": "En Riesgo",
         "waterfallChart": {
           "title": "Trayectoria de Consumo de Agua",
-          "baseline": "Línea Base",
+          "baseline": "Baseline",
           "required": "Requerido",
           "reduction": "Reducción",
           "gap": "Brecha",
@@ -2883,7 +2932,7 @@
         "complianceStatement": {
           "title": "Declaración de Cumplimiento del GHG Protocol",
           "methodology": "Metodología:",
-          "defaultStatement": "Este inventario ha sido preparado en conformidad con el GHG Protocol Corporate Accounting and Reporting Standard (Edición Revisada). Las emisiones de Alcance 2 se reportan usando los métodos basado en ubicación y basado en mercado, según el Guidance para Alcance 2.",
+          "defaultStatement": "Este inventario ha sido preparado en conformidad con el GHG Protocol Corporate Accounting and Reporting Standard (Edición Reviseda). Las emisiones de Alcance 2 se reportan usando los métodos basado en ubicación y basado en mercado, según el Guidance para Alcance 2.",
           "defaultMethodology": "Emisiones calculadas usando enfoque basado en actividad con factores de emisión específicos por región y año de DEFRA, EPA e IEA. Categorías de Alcance 3 evaluadas según el GHG Protocol Corporate Value Chain (Scope 3) Standard."
         },
         "emissionsSummary": {
@@ -3066,7 +3115,7 @@
       },
       "insights": {
         "title": "Perspectivas de Materiales:",
-        "description": "Rastree las tasas de reciclaje y desvío por tipos específicos de material. Los datos históricos (2022-2024) se han dividido usando ratios de composición estándar de la industria. Los datos futuros se pueden ingresar a nivel de material para un seguimiento preciso."
+        "description": "Rastree las tasas de reciclaje y desvío por tipos específicos de material. Los datos históricos (2022-2024) se han dividido usando ratios de composición estándar de la industria. Los datos futuros se pueden introducir a nivel de material para un seguimiento preciso."
       },
       "axisLabels": {
         "tons": "toneladas",
@@ -3092,7 +3141,7 @@
       "wasteProgress": {
         "title": "Progreso de Meta de Reducción de Residuos",
         "reductionTarget": "Meta de Reducción",
-        "baseline": "Línea Base",
+        "baseline": "Baseline",
         "current": "Actual",
         "required": "Requerido",
         "target": "Meta",
@@ -3102,7 +3151,7 @@
         "aboveRequired": "por encima del requerido",
         "waterfallChart": {
           "title": "Trayectoria de Generación de Residuos",
-          "baseline": "Línea Base",
+          "baseline": "Baseline",
           "required": "Requerido",
           "reduction": "Reducción",
           "gap": "Brecha",
@@ -3382,7 +3431,7 @@
           "fugitive": "🔧 Mejorar detección de fugas de refrigerante",
           "waste": "♻️ Aumentar reciclaje y compostaje",
           "purchasedGoods": "🏭 Involucrar a proveedores en la reducción de emisiones",
-          "default": "📊 Revisar y optimizar esta fuente"
+          "default": "📊 Reviser y optimizar esta fuente"
         }
       },
       "scope1Breakdown": {
@@ -3460,7 +3509,7 @@
       },
       "waterfallChart": {
         "title": "Trayectoria de Emisiones",
-        "baseline": "Línea Base",
+        "baseline": "Baseline",
         "required": "Requerido",
         "reduction": "Reducción",
         "gap": "Desviación",
@@ -3476,7 +3525,7 @@
         "title": "Progreso Metas SBTi",
         "subtitle": "{baselineYear} → {targetYear}",
         "reductionTarget": "Meta de Reducción",
-        "baseline": "Línea Base",
+        "baseline": "Baseline",
         "current": "Actual",
         "actualMLForecast": "Real + Previsión ML",
         "projected": "Proyectado",
@@ -3484,12 +3533,12 @@
         "target": "Meta",
         "progress": "Progreso",
         "onTrack": "en camino",
-        "aboveBaseline": "Por Encima de la Línea Base",
+        "aboveBaseline": "Por Encima de la Baseline",
         "onTrackStatus": "On Track",
         "atRisk": "En Riesgo",
         "waterfallChart": {
           "title": "Trayectoria de Emisiones",
-          "baseline": "Línea Base",
+          "baseline": "Baseline",
           "required": "Requerido",
           "reduction": "Reducción",
           "gap": "Desviación",
@@ -3774,7 +3823,7 @@
         "title": "Objetivos de Reducción de Energía",
         "description": "Seguir el progreso hacia los objetivos de reducción de emisiones alineados con SBTi",
         "annualReduction": "reducción anual",
-        "baseline": "Línea de Base",
+        "baseline": "Baseline",
         "target": "Objetivo",
         "projected": "Proyectado",
         "progress": "Progreso",
@@ -3836,8 +3885,8 @@
         "description": "Seguimiento de progreso de la Science Based Targets initiative (SBTi) para emisiones relacionadas con energía. Muestra objetivos anuales de reducción alineados con la trayectoria de 1.5°C para limitar el calentamiento global.",
         "pathway": "trayectoria 1.5°C",
         "annualReduction": "reducción anual",
-        "baseline": "Línea de Base",
-        "baseline2023": "Línea de Base 2023",
+        "baseline": "Baseline",
+        "baseline2023": "Baseline 2023",
         "metrics": "métricas",
         "addInitiative": "Agregar Iniciativa",
         "offTrackWarning": "Fuera de camino: {gap} tCO2e por encima del objetivo"
@@ -3895,7 +3944,7 @@
       },
       "targetSection": {
         "energyReductionTargets": "Objetivos de Reducción de Energía",
-        "baseline": "Línea de Base:",
+        "baseline": "Baseline:",
         "target2025": "Objetivo 2025:",
         "projected": "Proyectado:",
         "current": "Actual:",
@@ -3917,7 +3966,7 @@
       "energyProgress": {
         "title": "Progreso de Meta de Eficiencia Energética",
         "reductionTarget": "Meta de Reducción",
-        "baseline": "Línea Base",
+        "baseline": "Baseline",
         "current": "Actual",
         "required": "Requerido",
         "target": "Meta",
@@ -3927,7 +3976,7 @@
         "aboveRequired": "por encima del requerido",
         "waterfallChart": {
           "title": "Trayectoria de Consumo Energético",
-          "baseline": "Línea Base",
+          "baseline": "Baseline",
           "required": "Requerido",
           "reduction": "Reducción",
           "gap": "Brecha",
@@ -4131,13 +4180,13 @@
     "verySmall": {
       "smartphone": {
         "format": "{n} cargas de smartphone",
-        "context": "Cargar completamente tu teléfono usa aproximadamente 0,008 kg CO2e por carga",
-        "didYouKnow": "¡Una carga completa = ver 2 horas de Netflix en tu teléfono!"
+        "context": "Cargar completamente suteléfono usa aproximadamente 0,008 kg CO2e por carga",
+        "didYouKnow": "¡Una carga completa = ver 2 horas de Netflix en suteléfono!"
       },
       "coffee": {
         "format": "{n} tazas de café",
         "context": "Hacer café (granos, calentar agua, leche) ≈ 1,25 kg CO2e por taza",
-        "didYouKnow": "¡La leche en tu latte crea más emisiones que los granos de café!"
+        "didYouKnow": "¡La leche en sulatte crea más emisiones que los granos de café!"
       },
       "burger": {
         "format": "{n} hamburguesas de carne",

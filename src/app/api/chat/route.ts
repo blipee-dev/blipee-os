@@ -58,13 +58,15 @@ export async function POST(req: NextRequest) {
       conversationId,
       organizationId,
       buildingId,
-      model = 'gpt-4o' // Default to GPT-4o if not specified
+      model = 'gpt-4o', // Default to GPT-4o if not specified
+      language = 'en' // Default to English if not specified
     }: {
       message: UIMessage;
       conversationId: string;
       organizationId: string;
       buildingId?: string;
       model?: string;
+      language?: string;
     } = await req.json();
 
     if (!message) {
@@ -239,8 +241,8 @@ export async function POST(req: NextRequest) {
       return openai(modelId);
     };
 
-    // Create contextualized system prompt with org and building context
-    const systemPrompt = createSystemPrompt(organizationId, buildingId);
+    // Create contextualized system prompt with org, building context, and language preference
+    const systemPrompt = createSystemPrompt(organizationId, buildingId, language);
 
     // Track prompt version for feedback and A/B testing
     const promptVersionId = await getOrCreatePromptVersion(

@@ -513,7 +513,7 @@ Remember: You're a helpful assistant for the entire Blipee platform. For sustain
 /**
  * Create contextualized system prompt with organization and building info
  */
-export function createSystemPrompt(organizationId: string, buildingId?: string): string {
+export function createSystemPrompt(organizationId: string, buildingId?: string, language: string = 'en'): string {
   let contextPrompt = BASE_SYSTEM_PROMPT;
 
   contextPrompt += `\n\n**Current Session Context:**\n`;
@@ -528,6 +528,15 @@ export function createSystemPrompt(organizationId: string, buildingId?: string):
   }
 
   contextPrompt += `\n**IMPORTANT**: When calling tools that need organizationId or buildingId, ALWAYS use the values provided above. Do not ask the user for these IDs as they are already authenticated and in context.`;
+
+  // Add language instruction
+  const languageNames: Record<string, string> = {
+    'en': 'English',
+    'es': 'Spanish',
+    'pt': 'Portuguese'
+  };
+  const languageName = languageNames[language] || 'English';
+  contextPrompt += `\n\n**LANGUAGE PREFERENCE**: The user has selected ${languageName} as their preferred language. You MUST respond to ALL user messages in ${languageName}. This includes explanations, summaries, error messages, and any conversational text. Tool calls and technical data can remain in their original format, but ALL natural language responses to the user must be in ${languageName}.`;
 
   contextPrompt += `\n\n**CRITICAL - Always Respond with Text**: After calling any tool, you MUST generate a conversational text response that explains the results to the user. NEVER stop after just executing a tool - always provide a clear, human-readable summary of what the tool returned and what it means for the user.`;
 

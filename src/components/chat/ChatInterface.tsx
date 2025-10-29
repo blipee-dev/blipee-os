@@ -65,6 +65,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context';
 import { MetricsChart, type ChartData } from '@/components/chat/MetricsChart';
 import { ToolCallStatus } from '@/components/chat/ToolCallStatus';
+import { useLanguage } from '@/providers/LanguageProvider';
 
 // Available AI models for selection
 const AVAILABLE_MODELS = [
@@ -78,43 +79,43 @@ const AVAILABLE_MODELS = [
 /**
  * Generate context-aware suggestions based on current page
  */
-function getContextualSuggestions(pathname: string): string[] {
+function getContextualSuggestions(pathname: string, t: (key: string) => string): string[] {
   // Settings pages - focus on configuration and help
   if (pathname.startsWith('/settings')) {
     return [
-      'How do I add users to my organization?',
-      'Where can I find my API keys?',
-      'How do I set up integrations?',
-      'Where are my billing settings?',
+      t('conversation.contextualSuggestions.settings.addUsers'),
+      t('conversation.contextualSuggestions.settings.apiKeys'),
+      t('conversation.contextualSuggestions.settings.integrations'),
+      t('conversation.contextualSuggestions.settings.billing'),
     ];
   }
 
   // Profile pages - focus on account and preferences
   if (pathname.startsWith('/profile')) {
     return [
-      'How do I change my password?',
-      'Where can I update my notification preferences?',
-      'How do I change the app theme?',
-      'Where are my account security settings?',
+      t('conversation.contextualSuggestions.profile.changePassword'),
+      t('conversation.contextualSuggestions.profile.notifications'),
+      t('conversation.contextualSuggestions.profile.theme'),
+      t('conversation.contextualSuggestions.profile.security'),
     ];
   }
 
   // Sustainability pages - focus on emissions and data
   if (pathname.startsWith('/sustainability')) {
     return [
-      'What are my emissions this year?',
-      'Show me my emissions breakdown by scope',
-      'How do I track business travel?',
-      'I want to add sustainability data',
+      t('conversation.contextualSuggestions.sustainability.emissionsYear'),
+      t('conversation.contextualSuggestions.sustainability.emissionsBreakdown'),
+      t('conversation.contextualSuggestions.sustainability.businessTravel'),
+      t('conversation.contextualSuggestions.sustainability.addData'),
     ];
   }
 
   // Default suggestions for other pages
   return [
-    'What are my emissions this year?',
-    'How do I get started with blipee?',
-    'Show me my sustainability dashboard',
-    'I want to add sustainability data',
+    t('conversation.contextualSuggestions.default.emissionsYear'),
+    t('conversation.contextualSuggestions.default.getStarted'),
+    t('conversation.contextualSuggestions.default.dashboard'),
+    t('conversation.contextualSuggestions.default.addData'),
   ];
 }
 
@@ -150,6 +151,7 @@ export function ChatInterface({
   const highlightedMessageRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
 
   // Update input when initialInput changes (from prompt library)
   useEffect(() => {
@@ -190,7 +192,7 @@ export function ChatInterface({
   }, [highlightMessageId]);
 
   // Generate context-aware suggestions based on current page
-  const suggestions = useMemo(() => getContextualSuggestions(pathname), [pathname]);
+  const suggestions = useMemo(() => getContextualSuggestions(pathname, t), [pathname, t]);
 
   // Get user initials from name or email
   const getUserInitials = useCallback(() => {
@@ -228,11 +230,12 @@ export function ChatInterface({
           conversationId,
           organizationId,
           buildingId,
-          model
+          model,
+          language // Pass the user's selected language to the AI
         }
       };
     }
-  }), [conversationId, organizationId, buildingId, model]);
+  }), [conversationId, organizationId, buildingId, model, language]);
 
   // Memoize the onFinish callback
   const handleFinish = useCallback(() => {
@@ -334,8 +337,8 @@ export function ChatInterface({
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full space-y-6">
               <ConversationEmptyState
-                title="Welcome to blipee"
-                description="Your intelligent sustainability assistant. Ask me anything about emissions, compliance, or ESG reporting."
+                title={t('conversation.welcome.title')}
+                description={t('conversation.welcome.description')}
                 icon={
                   <div className="p-[2px] rounded-lg bg-gradient-to-r from-green-500 to-emerald-500">
                     <div className="p-3 rounded-md bg-white/90 dark:bg-gray-950/90">

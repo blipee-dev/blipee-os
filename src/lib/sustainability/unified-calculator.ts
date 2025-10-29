@@ -20,7 +20,7 @@ import {
   getWaterTotal,
   getWasteTotal
 } from './baseline-calculator';
-import { getCachedBaseline, getCachedForecast } from './metrics-cache';
+import { getCachedBaseline, getCachedForecast, setCachedBaseline } from './metrics-cache';
 
 export type Domain = 'energy' | 'water' | 'waste' | 'emissions';
 
@@ -59,6 +59,12 @@ export interface ProjectedResult {
   method: 'ml_forecast' | 'replanning' | 'linear_fallback';
   ytd: number;
   forecast: number;
+  breakdown?: Array<{
+    month: string;
+    value: number;
+    renewable?: number;
+    fossil?: number;
+  }>;
 }
 
 export interface ProgressResult {
@@ -76,15 +82,26 @@ export class UnifiedSustainabilityCalculator {
   private organizationId: string;
   private currentYear: number;
 
+  // Request-scoped cache to avoid duplicate calculations within the same request
+  private baselineCache: Map<string, BaselineResult> = new Map();
+  private targetCache: Map<string, TargetResult> = new Map();
+  private projectedCache: Map<string, ProjectedResult> = new Map();
+  private sustainabilityTargetCache: SustainabilityTarget | null | undefined = undefined;
+
   constructor(organizationId: string) {
     this.organizationId = organizationId;
     this.currentYear = new Date().getFullYear();
   }
 
   /**
-   * Get sustainability target for organization
+   * Get sustainability target for organization (with instance caching)
    */
   async getSustainabilityTarget(): Promise<SustainabilityTarget | null> {
+    // Return cached target if already fetched
+    if (this.sustainabilityTargetCache !== undefined) {
+      return this.sustainabilityTargetCache;
+    }
+
     const { data, error } = await supabaseAdmin
       .from('sustainability_targets')
       .select('*')
@@ -96,10 +113,12 @@ export class UnifiedSustainabilityCalculator {
 
     if (error) {
       console.error('Error fetching sustainability target:', error);
+      this.sustainabilityTargetCache = null;
       return null;
     }
 
-    return data as SustainabilityTarget;
+    this.sustainabilityTargetCache = data as SustainabilityTarget;
+    return this.sustainabilityTargetCache;
   }
 
   /**
@@ -114,13 +133,27 @@ export class UnifiedSustainabilityCalculator {
    * to ensure proper handling of >1000 records and consistent calculations.
    */
   async getBaseline(domain: Domain, year?: number): Promise<BaselineResult | null> {
+    // If year is provided, check instance cache immediately (fastest path)
+    if (year !== undefined) {
+      const cacheKey = `${domain}-${year}`;
+      if (this.baselineCache.has(cacheKey)) {
+        return this.baselineCache.get(cacheKey)!;
+      }
+    }
+
     const target = await this.getSustainabilityTarget();
     const baselineYear = year || target?.baseline_year || 2023;
+
+    // Check instance cache with resolved year
+    const cacheKey = `${domain}-${baselineYear}`;
+    if (this.baselineCache.has(cacheKey)) {
+      return this.baselineCache.get(cacheKey)!;
+    }
 
     const startDate = `${baselineYear}-01-01`;
     const endDate = `${baselineYear}-12-31`;
 
-    // ⚡ CACHE-FIRST RETRIEVAL: Check cache before computing
+    // ⚡ CACHE-FIRST RETRIEVAL: Check database cache before computing
     const cachedBaseline = await getCachedBaseline(
       this.organizationId,
       domain,
@@ -129,59 +162,87 @@ export class UnifiedSustainabilityCalculator {
     );
 
     if (cachedBaseline) {
-      console.log(`✅ [unified-calc] Cache hit for ${domain} baseline ${baselineYear}`);
       // Return cached data in the expected format
-      return {
+      const result = {
         value: cachedBaseline.value || cachedBaseline.total || 0,
         unit: cachedBaseline.unit || this.getUnit(domain),
         year: baselineYear,
       };
+      // Store in instance cache
+      this.baselineCache.set(cacheKey, result);
+      return result;
     }
 
-    console.log(`⚠️ [unified-calc] Cache miss for ${domain} baseline ${baselineYear} - computing...`);
-
     // Use baseline-calculator paginated functions for all domains (cache miss)
+    const computeStart = Date.now();
+    let result: BaselineResult | null = null;
+
     switch (domain) {
       case 'emissions': {
         const emissions = await getPeriodEmissions(this.organizationId, startDate, endDate);
-        return {
+        result = {
           value: emissions.total,
           unit: 'tCO2e',
           year: baselineYear,
         };
+        break;
       }
 
       case 'energy': {
         const energy = await getEnergyTotal(this.organizationId, startDate, endDate);
-        return {
-          value: energy.value,
-          unit: energy.unit,
+        // getEnergyTotal returns MWh, convert to kWh for consistency
+        result = {
+          value: energy.value * 1000, // MWh to kWh
+          unit: 'kWh',
           year: baselineYear,
         };
+        break;
       }
 
       case 'water': {
         const water = await getWaterTotal(this.organizationId, startDate, endDate);
-        return {
+        result = {
           value: water.value,
           unit: water.unit,
           year: baselineYear,
         };
+        break;
       }
 
       case 'waste': {
         const waste = await getWasteTotal(this.organizationId, startDate, endDate);
         // Convert kg to tonnes for consistency
-        return {
+        result = {
           value: Math.round(waste.value / 1000 * 10) / 10,
           unit: 'tonnes',
           year: baselineYear,
         };
+        break;
       }
 
       default:
         return null;
     }
+
+    // Cache the computed baseline for future requests
+    if (result) {
+      const computeTime = Date.now() - computeStart;
+
+      // Store in database cache
+      await setCachedBaseline(
+        this.organizationId,
+        domain,
+        baselineYear,
+        result,
+        computeTime,
+        supabaseAdmin
+      );
+
+      // Store in instance cache for this request
+      this.baselineCache.set(cacheKey, result);
+    }
+
+    return result;
   }
 
   /**
@@ -213,6 +274,12 @@ export class UnifiedSustainabilityCalculator {
    * and more conservative than compound reduction.
    */
   async getTarget(domain: Domain): Promise<TargetResult | null> {
+    // Check instance cache first
+    const cacheKey = `${domain}-${this.currentYear}`;
+    if (this.targetCache.has(cacheKey)) {
+      return this.targetCache.get(cacheKey)!;
+    }
+
     const target = await this.getSustainabilityTarget();
     if (!target) return null;
 
@@ -230,13 +297,17 @@ export class UnifiedSustainabilityCalculator {
     // Linear reduction: baseline × (1 - annualizedRate × yearsSinceBaseline)
     const targetValue = baseline.value * (1 - (annualizedRate / 100) * yearsSinceBaseline);
 
-    return {
+    const result = {
       value: Math.round(targetValue * 10) / 10,
       unit: baseline.unit,
       year: this.currentYear,
       reductionPercent: annualizedRate, // Return the annualized rate
       formula: 'linear',
     };
+
+    // Store in instance cache
+    this.targetCache.set(cacheKey, result);
+    return result;
   }
 
   /**
@@ -246,9 +317,18 @@ export class UnifiedSustainabilityCalculator {
    * to ensure proper handling of >1000 records and consistent calculations.
    */
   async getYTDActual(domain: Domain): Promise<number> {
-    const currentMonth = new Date().getMonth() + 1;
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
     const startDate = `${this.currentYear}-01-01`;
     const endDate = `${this.currentYear}-${currentMonth.toString().padStart(2, '0')}-31`;
+
+    console.log('📅 [unified-calculator] getYTDActual:', {
+      domain,
+      currentDate: now.toISOString().substring(0, 10),
+      currentMonth,
+      startDate,
+      endDate
+    });
 
     // Use baseline-calculator paginated functions for all domains
     switch (domain) {
@@ -259,7 +339,16 @@ export class UnifiedSustainabilityCalculator {
 
       case 'energy': {
         const energy = await getEnergyTotal(this.organizationId, startDate, endDate);
-        return energy.value;
+        // getEnergyTotal returns MWh, convert to kWh
+        const ytdKwh = energy.value * 1000;
+        console.log('📊 [getYTDActual] Energy YTD:', {
+          startDate,
+          endDate,
+          mwh: energy.value,
+          kwh: ytdKwh,
+          recordCount: energy.recordCount
+        });
+        return ytdKwh;
       }
 
       case 'water': {
@@ -292,12 +381,28 @@ export class UnifiedSustainabilityCalculator {
    * - Cache populated daily by metrics-precompute-service
    */
   async getProjected(domain: Domain): Promise<ProjectedResult | null> {
+    // Check instance cache first
+    const cacheKey = `${domain}-${this.currentYear}`;
+    if (this.projectedCache.has(cacheKey)) {
+      return this.projectedCache.get(cacheKey)!;
+    }
+
     const ytd = await this.getYTDActual(domain);
-    const currentMonth = new Date().getMonth() + 1;
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
     const remainingMonths = 12 - currentMonth;
     const forecastStartDate = `${this.currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-01`;
 
-    // ⚡ CACHE-FIRST RETRIEVAL: Check cache for pre-computed forecast
+    console.log('📅 [unified-calculator] getProjected debug:', {
+      domain,
+      currentDate: now.toISOString().substring(0, 10),
+      currentMonth,
+      remainingMonths,
+      forecastStartDate,
+      ytd
+    });
+
+    // ⚡ CACHE-FIRST RETRIEVAL: Check database cache for pre-computed forecast
     const cachedForecast = await getCachedForecast(
       this.organizationId,
       domain,
@@ -306,18 +411,18 @@ export class UnifiedSustainabilityCalculator {
     );
 
     if (cachedForecast && cachedForecast.total > 0) {
-      console.log(`✅ [unified-calc] Cache hit for ${domain} forecast`);
-      return {
+      const result = {
         value: Math.round((ytd + cachedForecast.total) * 10) / 10,
         unit: this.getUnit(domain),
         year: this.currentYear,
-        method: 'ml_forecast_cached',
+        method: 'ml_forecast_cached' as const,
         ytd,
         forecast: cachedForecast.total,
       };
+      // Store in instance cache
+      this.projectedCache.set(cacheKey, result);
+      return result;
     }
-
-    console.log(`⚠️ [unified-calc] Cache miss for ${domain} forecast - computing...`);
 
     // Method 1: Try ML forecast (implemented in unified-forecast.ts) - cache miss
     try {
@@ -330,14 +435,28 @@ export class UnifiedSustainabilityCalculator {
       });
 
       if (forecast && forecast.total > 0) {
-        return {
-          value: Math.round((ytd + forecast.total) * 10) / 10,
+        const fullYearProjection = ytd + forecast.total;
+        console.log('📊 [getProjected] Full year calculation:', {
+          domain,
+          ytd,
+          forecastTotal: forecast.total,
+          fullYearProjection,
+          unit: this.getUnit(domain),
+          method: 'ml_forecast'
+        });
+
+        const result = {
+          value: Math.round(fullYearProjection * 10) / 10,
           unit: this.getUnit(domain),
           year: this.currentYear,
-          method: 'ml_forecast',
+          method: 'ml_forecast' as const,
           ytd,
           forecast: forecast.total,
+          breakdown: forecast.breakdown || [],
         };
+        // Store in instance cache
+        this.projectedCache.set(cacheKey, result);
+        return result;
       }
     } catch (error) {
       console.log('ML forecast not available, using linear fallback');
@@ -347,14 +466,30 @@ export class UnifiedSustainabilityCalculator {
     const monthlyAverage = ytd / currentMonth;
     const projectedAnnual = monthlyAverage * 12;
 
-    return {
+    // Create monthly breakdown for remaining months
+    const breakdown: Array<{ month: string; value: number }> = [];
+    for (let i = 0; i < remainingMonths; i++) {
+      const month = currentMonth + i + 1;
+      const monthKey = `${this.currentYear}-${month.toString().padStart(2, '0')}`;
+      breakdown.push({
+        month: monthKey,
+        value: monthlyAverage,
+      });
+    }
+
+    const result = {
       value: Math.round(projectedAnnual * 10) / 10,
       unit: this.getUnit(domain),
       year: this.currentYear,
-      method: 'linear_fallback',
+      method: 'linear_fallback' as const,
       ytd,
       forecast: monthlyAverage * remainingMonths,
+      breakdown,
     };
+
+    // Store in instance cache
+    this.projectedCache.set(cacheKey, result);
+    return result;
   }
 
   /**
@@ -393,7 +528,7 @@ export class UnifiedSustainabilityCalculator {
   private getUnit(domain: Domain): string {
     switch (domain) {
       case 'energy':
-        return 'tCO2e';
+        return 'kWh';
       case 'water':
         return 'ML';
       case 'waste':

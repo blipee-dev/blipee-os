@@ -2271,6 +2271,55 @@
         "confirm": "Delete"
       }
     },
+    "promptLibrary": {
+      "title": "Prompt Library",
+      "subtitle": "{{count}}+ example prompts to get you started",
+      "search": {
+        "placeholder": "Search prompts..."
+      },
+      "empty": {
+        "noResults": "No prompts found for \"{{query}}\""
+      },
+      "navigation": {
+        "backToCategories": "← Back to categories"
+      },
+      "category": {
+        "promptsCount": "{{count}} prompts →"
+      },
+      "footer": {
+        "instruction": "Click any prompt to auto-fill the chat input"
+      }
+    },
+    "welcome": {
+      "title": "Welcome to blipee",
+      "description": "Your intelligent sustainability assistant. Ask me anything about emissions, compliance, or ESG reporting."
+    },
+    "contextualSuggestions": {
+      "settings": {
+        "addUsers": "How do I add users to my organization?",
+        "apiKeys": "Where can I find my API keys?",
+        "integrations": "How do I set up integrations?",
+        "billing": "Where are my billing settings?"
+      },
+      "profile": {
+        "changePassword": "How do I change my password?",
+        "notifications": "Where can I update my notification preferences?",
+        "theme": "How do I change the app theme?",
+        "security": "Where are my account security settings?"
+      },
+      "sustainability": {
+        "emissionsYear": "What are my emissions this year?",
+        "emissionsBreakdown": "Show me my emissions breakdown by scope",
+        "businessTravel": "How do I track business travel?",
+        "addData": "I want to add sustainability data"
+      },
+      "default": {
+        "emissionsYear": "What are my emissions this year?",
+        "getStarted": "How do I get started with blipee?",
+        "dashboard": "Show me my sustainability dashboard",
+        "addData": "I want to add sustainability data"
+      }
+    },
     "message": {
       "downloadFile": "Download file"
     },

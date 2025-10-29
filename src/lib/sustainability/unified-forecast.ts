@@ -56,7 +56,7 @@ async function getHistoricalData(params: ForecastParams): Promise<Array<{ date: 
       metricQuery = supabaseAdmin
         .from('metrics_catalog')
         .select('id')
-        .in('category', ['Purchased Energy', 'Electricity']);
+        .in('category', ['Purchased Energy', 'Electricity', 'Natural Gas', 'Heating', 'Cooling']);
       break;
     case 'water':
       metricQuery = supabaseAdmin
@@ -98,7 +98,15 @@ async function getHistoricalData(params: ForecastParams): Promise<Array<{ date: 
   while (hasMore) {
     let query = supabaseAdmin
       .from('metrics_data')
-      .select('metric_id, site_id, period_start, value, co2e_emissions')
+      .select(`
+        metric_id,
+        site_id,
+        period_start,
+        value,
+        co2e_emissions,
+        metadata,
+        metrics_catalog!inner(is_renewable, code)
+      `)
       .eq('organization_id', organizationId)
       .in('metric_id', metricIds)
       .gte('period_start', startDate.toISOString().split('T')[0])
@@ -144,20 +152,40 @@ async function getHistoricalData(params: ForecastParams): Promise<Array<{ date: 
     return true;
   });
 
-  console.log(`📊 Unified forecast data for ${domain}: ${allData.length} total, ${historicalData.length} historical (filtered future months and duplicates)`);
-
   // Aggregate by month and domain
-  const monthlyData = new Map<string, number>();
+  const monthlyData = new Map<string, { total: number; renewable?: number; fossil?: number }>();
 
   historicalData.forEach((row: any) => {
     const month = row.period_start.substring(0, 7); // YYYY-MM
     let value = 0;
+    let renewable = 0;
+    let fossil = 0;
 
     switch (domain) {
-      case 'energy':
-        // For energy, use emissions
-        value = parseFloat(row.co2e_emissions || '0') / 1000; // kg to tCO2e
+      case 'energy': {
+        // For energy, use consumption value (kWh) - keep in kWh
+        value = parseFloat(row.value || '0');
+
+        // Calculate renewable/fossil split
+        const isRenewable = row.metrics_catalog?.is_renewable || false;
+        const metricCode = row.metrics_catalog?.code || '';
+        const gridMix = row.metadata?.grid_mix;
+
+        if (isRenewable) {
+          // Pure renewable (solar, wind owned)
+          renewable = value;
+          fossil = 0;
+        } else if ((metricCode.includes('electricity') || metricCode.includes('ev')) && gridMix) {
+          // Grid electricity - split by grid mix
+          renewable = gridMix.renewable_kwh || 0;
+          fossil = gridMix.non_renewable_kwh || 0;
+        } else {
+          // Non-renewable (gas, heating, etc.)
+          renewable = 0;
+          fossil = value;
+        }
         break;
+      }
 
       case 'water':
         // For water, use value (consumption/withdrawal in liters)
@@ -176,26 +204,62 @@ async function getHistoricalData(params: ForecastParams): Promise<Array<{ date: 
     }
 
     if (value > 0) {
-      monthlyData.set(month, (monthlyData.get(month) || 0) + value);
+      const existing = monthlyData.get(month) || { total: 0, renewable: 0, fossil: 0 };
+      monthlyData.set(month, {
+        total: existing.total + value,
+        renewable: existing.renewable + renewable,
+        fossil: existing.fossil + fossil,
+      });
     }
   });
 
   // Convert to array format for forecaster
   return Array.from(monthlyData.entries())
     .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([month, value]) => ({
+    .map(([month, data]) => ({
       date: new Date(month + '-01'),
-      value,
+      value: data.total,
+      renewable: data.renewable,
+      fossil: data.fossil,
     }));
 }
 
 /**
  * Calculate remaining months to forecast
+ * Returns number of complete months from next month to end of year
  */
 function calculateRemainingMonths(endDate: string): number {
+  const now = new Date();
   const end = new Date(endDate);
-  const start = new Date();
-  return Math.max(0, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth(); // 0-11
+  const endYear = end.getFullYear();
+  const endMonth = end.getMonth(); // 0-11
+
+  // If end date is before current month, return 0
+  if (endYear < currentYear || (endYear === currentYear && endMonth <= currentMonth)) {
+    return 0;
+  }
+
+  // If end date is in a future year, only forecast until end of current year
+  const targetYear = Math.min(endYear, currentYear);
+  const targetMonth = targetYear === currentYear ? 11 : endMonth; // December = 11
+
+  // Calculate remaining months: from next month to target month (inclusive)
+  const remainingMonths = targetMonth - currentMonth;
+
+  console.log('📅 [calculateRemainingMonths]:', {
+    endDate,
+    today: now.toISOString().split('T')[0],
+    currentMonth: currentMonth + 1, // Display as 1-12
+    endMonth: endMonth + 1,
+    targetMonth: targetMonth + 1,
+    remainingMonths,
+    explanation: `From month ${currentMonth + 2} to ${targetMonth + 1} = ${remainingMonths} months`
+  });
+
+  return Math.max(0, remainingMonths);
 }
 
 /**
@@ -224,6 +288,14 @@ export async function getUnifiedForecast(params: ForecastParams): Promise<Foreca
   try {
     const periods = calculateRemainingMonths(params.endDate);
 
+    console.log('📊 [unified-forecast] Calculating periods:', {
+      domain,
+      endDate: params.endDate,
+      startDate: params.startDate,
+      now: new Date().toISOString().split('T')[0],
+      periodsToForecast: periods
+    });
+
     if (periods === 0) {
       return {
         total: 0,
@@ -242,6 +314,26 @@ export async function getUnifiedForecast(params: ForecastParams): Promise<Foreca
     // Call EnterpriseForecast.forecast (it's a static method, not async)
     const forecast = EnterpriseForecast.forecast(monthlyData, periods, false);
 
+    // For energy domain, also forecast renewable and fossil separately
+    let renewableForecast: any = null;
+    let fossilForecast: any = null;
+
+    if (domain === 'energy') {
+      // Forecast renewable energy
+      const renewableData = historical.map(h => ({
+        month: h.date.toISOString().substring(0, 7),
+        emissions: h.renewable || 0,
+      }));
+      renewableForecast = EnterpriseForecast.forecast(renewableData, periods, false);
+
+      // Forecast fossil energy
+      const fossilData = historical.map(h => ({
+        month: h.date.toISOString().substring(0, 7),
+        emissions: h.fossil || 0,
+      }));
+      fossilForecast = EnterpriseForecast.forecast(fossilData, periods, false);
+    }
+
     // Step 4: Build breakdown and calculate total
     let totalForecast = 0;
     const breakdown: Array<{ month: string; value: number; renewable?: number; fossil?: number }> = [];
@@ -255,13 +347,39 @@ export async function getUnifiedForecast(params: ForecastParams): Promise<Foreca
       const month = forecastDate.toISOString().substring(0, 7);
       const value = forecast.forecasted[i];
 
-      breakdown.push({
+      const monthData: any = {
         month,
         value,
-      });
+      };
 
+      // Add renewable/fossil if available
+      if (renewableForecast && fossilForecast) {
+        monthData.renewable = renewableForecast.forecasted[i] || 0;
+        monthData.fossil = fossilForecast.forecasted[i] || 0;
+      }
+
+      breakdown.push(monthData);
       totalForecast += value;
     }
+
+    console.log('📊 [unified-forecast] Energy forecast debug:', {
+      domain,
+      historicalMonthsCount: historical.length,
+      lastHistoricalMonth: historical[historical.length - 1]?.date?.toISOString().substring(0, 7),
+      lastHistoricalValue: historical[historical.length - 1]?.value,
+      lastHistoricalRenewable: historical[historical.length - 1]?.renewable,
+      lastHistoricalFossil: historical[historical.length - 1]?.fossil,
+      forecastPeriodsCount: periods,
+      forecastArrayLength: forecast.forecasted.length,
+      allForecastMonths: breakdown.map(b => ({
+        month: b.month,
+        total: b.value,
+        renewable: b.renewable,
+        fossil: b.fossil
+      })),
+      totalForecast,
+      unit: getUnit(domain),
+    });
 
     return {
       total: Math.round(totalForecast * 10) / 10,
@@ -312,7 +430,7 @@ async function getReplanningTrajectory(organizationId: string): Promise<Forecast
 function getUnit(domain: Domain): string {
   switch (domain) {
     case 'energy':
-      return 'tCO2e';
+      return 'kWh';
     case 'water':
       return 'ML';
     case 'waste':

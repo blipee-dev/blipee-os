@@ -1,20 +1,5 @@
 {
   "mcpServers": {
-    "supabase": {
-      "type": "http",
-      "url": "https://mcp.supabase.com/mcp",
-      "metadata": {
-        "description": "Supabase remote MCP server for database development, RLS debugging, and documentation search",
-        "features": [
-          "Database schema exploration",
-          "RLS policy testing and debugging",
-          "Migration validation",
-          "Performance and security advisors",
-          "Real-time documentation search",
-          "Storage management"
-        ]
-      }
-    },
     "exa": {
       "command": "npx",
       "args": ["-y", "exa-mcp-server"],
@@ -47,74 +32,13 @@
     },
     "docling": {
       "command": "uvx",
-      "args": ["mcp-server-docling"],
+      "args": ["--from=docling-mcp", "docling-mcp-server"],
       "metadata": {
         "description": "Docling MCP to parse sustainability PDFs with high table accuracy",
         "features": [
           "PDF to structured document conversion",
           "Markdown export",
           "Table-aware parsing"
-        ]
-      }
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@executeautomation/playwright-mcp-server"],
-      "metadata": {
-        "description": "Headless browser MCP for utility portal automation and regulatory site navigation",
-        "features": [
-          "Scriptable browsing",
-          "Screenshot capture",
-          "Form interactions"
-        ]
-      }
-    },
-    "vercel": {
-      "command": "npx",
-      "args": ["-y", "vercel-mcp", "VERCEL_API_KEY=${VERCEL_API_KEY}"],
-      "metadata": {
-        "description": "Vercel MCP for deployment management",
-        "features": [
-          "List and inspect deployments",
-          "Fetch build logs",
-          "Manage domains"
-        ]
-      }
-    },
-    "puppeteer": {
-      "command": "npx",
-      "args": ["-y", "puppeteer-mcp-server"],
-      "metadata": {
-        "description": "Puppeteer MCP for browser automation workflows",
-        "features": [
-          "Chromium automation",
-          "Screenshot capture",
-          "DOM interaction"
-        ]
-      }
-    },
-    "boikot": {
-      "type": "http",
-      "url": "https://mcp.boikot.xyz/mcp",
-      "metadata": {
-        "description": "Boikot MCP for ESG and sustainability news intelligence",
-        "features": [
-          "Company ESG event lookup",
-          "Sustainability incident tracking"
-        ]
-      }
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
-      },
-      "metadata": {
-        "description": "GitHub MCP for repository operations",
-        "features": [
-          "Issue and PR management",
-          "Branch and commit inspection"
         ]
       }
     },

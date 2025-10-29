@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { X, Search, Sparkles } from 'lucide-react';
 import { PROMPT_LIBRARY, searchPrompts, getTotalPromptCount, type PromptCategory } from '@/data/prompt-library';
+import { useLanguage } from '@/providers/LanguageProvider';
 
 interface PromptLibraryProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface PromptLibraryProps {
 }
 
 export function PromptLibrary({ isOpen, onClose, onSelectPrompt }: PromptLibraryProps) {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -45,10 +47,10 @@ export function PromptLibrary({ isOpen, onClose, onSelectPrompt }: PromptLibrary
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Prompt Library
+                  {t('conversation.promptLibrary.title')}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {getTotalPromptCount()}+ example prompts to get you started
+                  {t('conversation.promptLibrary.subtitle', { count: getTotalPromptCount() })}
                 </p>
               </div>
             </div>
@@ -65,7 +67,7 @@ export function PromptLibrary({ isOpen, onClose, onSelectPrompt }: PromptLibrary
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search prompts..."
+              placeholder={t('conversation.promptLibrary.search.placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
@@ -81,7 +83,7 @@ export function PromptLibrary({ isOpen, onClose, onSelectPrompt }: PromptLibrary
               {searchResults.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-gray-500 dark:text-gray-400">
-                    No prompts found for "{searchQuery}"
+                    {t('conversation.promptLibrary.empty.noResults', { query: searchQuery })}
                   </p>
                 </div>
               ) : (
@@ -120,7 +122,7 @@ export function PromptLibrary({ isOpen, onClose, onSelectPrompt }: PromptLibrary
                 onClick={() => setSelectedCategory(null)}
                 className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 mb-4 flex items-center gap-1"
               >
-                ← Back to categories
+                {t('conversation.promptLibrary.navigation.backToCategories')}
               </button>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-2">
@@ -172,7 +174,7 @@ export function PromptLibrary({ isOpen, onClose, onSelectPrompt }: PromptLibrary
                           {category.description}
                         </p>
                         <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                          {category.prompts.length} prompts →
+                          {t('conversation.promptLibrary.category.promptsCount', { count: category.prompts.length })}
                         </p>
                       </div>
                     </div>
@@ -186,7 +188,7 @@ export function PromptLibrary({ isOpen, onClose, onSelectPrompt }: PromptLibrary
         {/* Footer */}
         <div className="flex-shrink-0 px-6 py-3 border-t border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800/50">
           <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            Click any prompt to auto-fill the chat input
+            {t('conversation.promptLibrary.footer.instruction')}
           </p>
         </div>
       </div>

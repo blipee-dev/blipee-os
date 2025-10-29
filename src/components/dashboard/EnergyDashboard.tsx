@@ -2,7 +2,10 @@
 
 import { RecommendationsModal } from '@/components/sustainability/RecommendationsModal';
 import type { TimePeriod } from '@/components/zero-typing/TimePeriodSelector';
-import { useEnergyDashboard, useEnergySiteComparison } from '@/hooks/useDashboardData';
+import {
+  useEnergyDashboardAdapter as useEnergyDashboard,
+  useEnergySiteComparisonAdapter as useEnergySiteComparison,
+} from '@/hooks/useConsolidatedDashboard';
 import { useLanguage, useTranslations } from '@/providers/LanguageProvider';
 import type { Building } from '@/types/auth';
 import {
@@ -184,6 +187,7 @@ interface SiteComparisonEntry extends GenericRecord {
 
 interface EnergyDashboardMetrics {
   totalEnergy: number;
+  ytdEnergy: number; // Year-to-Date actual consumption
   renewablePercentage: number;
   totalEmissions: number;
   energyIntensity: number;
@@ -210,6 +214,7 @@ interface EnergyDashboardMetrics {
 
 const createEmptyEnergyDashboardMetrics = (): EnergyDashboardMetrics => ({
   totalEnergy: 0,
+  ytdEnergy: 0,
   renewablePercentage: 0,
   totalEmissions: 0,
   energyIntensity: 0,
@@ -476,6 +481,15 @@ export function EnergyDashboard({
     ? (siteComparisonQuery.data as SiteComparisonEntry[])
     : [];
 
+  // TEMP: Debug logging
+  console.log('🎨 [COMPONENT] Site comparison final:', {
+    hasSiteComparisonData: Array.isArray(siteComparisonQuery.data),
+    siteCount: siteComparison.length,
+    willShowComparison: siteComparison.length > 1,
+    isLoading: siteComparisonQuery.isLoading,
+    selectedSite: selectedSite?.name || 'All sites',
+  });
+
   // UI-only state (keep as useState)
   const [selectedTab, setSelectedTab] = useState<'overview' | 'source' | 'type' | 'trends'>(
     'overview'
@@ -636,7 +650,24 @@ export function EnergyDashboard({
         (sum, entry) => sum + (Number(entry.total) || 0),
         0
       );
-      const projectedAnnualEnergyResult = totalEnergyResult + forecastedEnergyResult;
+
+      // YTD (Year-to-Date) - actual consumption up to current date
+      const ytdEnergyResult = (forecastDataRes as any)?.ytd || totalEnergyResult;
+
+      // Projected Annual Energy - use fullYearProjection from forecast if available (already complete annual forecast)
+      // Otherwise fall back to old calculation (ytd + forecasted remainder)
+      const projectedAnnualEnergyResult = (forecastDataRes as any)?.fullYearProjection
+        || (ytdEnergyResult + ((forecastDataRes as any)?.projected || 0));
+
+      // TEMP: Debug projected values
+      console.log('📊 [PROJECTED CALCULATION]', {
+        totalEnergyResult,
+        ytdEnergyResult,
+        fullYearProjection: (forecastDataRes as any)?.fullYearProjection,
+        projected: (forecastDataRes as any)?.projected,
+        projectedAnnualEnergyResult,
+        inMWh: (projectedAnnualEnergyResult / 1000).toFixed(1),
+      });
 
       const previousYearTotalEnergyResult =
         Number(
@@ -735,6 +766,7 @@ export function EnergyDashboard({
 
       return {
         totalEnergy: totalEnergyResult,
+        ytdEnergy: ytdEnergyResult, // Year-to-Date actual consumption
         renewablePercentage: renewablePercentageResult,
         totalEmissions: totalEmissionsResult,
         energyIntensity: energyIntensityResult,
@@ -780,6 +812,7 @@ export function EnergyDashboard({
   // Destructure all computed metrics
   const {
     totalEnergy,
+    ytdEnergy,
     renewablePercentage,
     totalEmissions,
     energyIntensity,
@@ -896,10 +929,10 @@ export function EnergyDashboard({
           <div className="flex items-end justify-between">
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {formatEnergyConsumption(totalEnergy).value}
+                {formatEnergyConsumption(isCurrentYear ? ytdEnergy : totalEnergy).value}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                {formatEnergyConsumption(totalEnergy).unit}
+                {formatEnergyConsumption(isCurrentYear ? ytdEnergy : totalEnergy).unit}
               </div>
             </div>
             {yoyEnergyChange !== null && (
@@ -1449,7 +1482,8 @@ export function EnergyDashboard({
                       combinedData.push({
                         month: translateMonth(forecastPoint.month, t),
                         monthKey: forecastPoint.monthKey ?? forecastPoint.month,
-                        total: forecastPoint.total ?? 0,
+                        // Don't set total/renewable/fossil keys for forecast points
+                        // Only set the forecast-specific keys to show dashed lines
                         renewableForecast: forecastPoint.renewable ?? 0,
                         fossilForecast: forecastPoint.fossil ?? 0,
                         totalForecast: forecastPoint.total ?? 0,

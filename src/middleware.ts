@@ -288,7 +288,6 @@ async function executeMiddleware(
 
         // Set CSRF token for authenticated sessions
         await setCSRFCookie(authResponse);
-        console.log('🔐 [Middleware] CSRF cookie set for path:', path);
       }
     }
   }

@@ -84,7 +84,11 @@ export function FloatingChat({
 
     setIsLoadingConversations(true);
     try {
-      const url = `/api/conversations?userId=${user.id}&organizationId=${organizationId}`;
+      const params = new URLSearchParams({ userId: user.id });
+      if (organizationId && organizationId !== 'undefined') {
+        params.append('organizationId', organizationId);
+      }
+      const url = `/api/conversations?${params.toString()}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();

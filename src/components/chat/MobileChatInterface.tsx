@@ -128,7 +128,11 @@ export function MobileChatInterface({
 
     setIsLoadingConversations(true);
     try {
-      const url = `/api/conversations?userId=${user.id}&organizationId=${organizationId}`;
+      const params = new URLSearchParams({ userId: user.id });
+      if (organizationId && organizationId !== 'undefined') {
+        params.append('organizationId', organizationId);
+      }
+      const url = `/api/conversations?${params.toString()}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
@@ -665,7 +669,7 @@ export function MobileChatInterface({
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.2}
-              onDragEnd={(e, { offset, velocity }) => {
+              onDragEnd={(_e, { offset, velocity }) => {
                 // Close menu if dragged far enough or fast enough to the right
                 if (offset.x > 100 || velocity.x > 500) {
                   hapticMedium();
@@ -692,6 +696,32 @@ export function MobileChatInterface({
 
               {/* Menu Content */}
               <div className="p-4 space-y-6">
+                {/* Profile Section */}
+                <div className="px-2">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold text-lg shrink-0">
+                      {(() => {
+                        if (user?.full_name) {
+                          const names = user.full_name.trim().split(' ');
+                          if (names.length >= 2) {
+                            return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+                          }
+                          return names[0][0].toUpperCase();
+                        }
+                        return user?.email?.[0].toUpperCase() || 'U';
+                      })()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 truncate text-sm">
+                        {user?.full_name || user?.email}
+                      </p>
+                      {user?.email && user?.full_name && (
+                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 {/* Actions Section */}
                 <div className="space-y-1">
                   <button
