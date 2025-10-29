@@ -1,11 +1,15 @@
 /**
  * Seed ML Models Configuration
- * 
+ *
  * Creates initial ML model configurations in the database
  * These will be trained automatically on the 15th, or manually with npm run ml:train
  */
 
+import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
+
+// Load environment variables
+config({ path: '.env.local' });
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,58 +39,55 @@ async function seedMLModels() {
     // Model configurations for this organization
     const models = [
       {
-        id: `${org.id}-emissions-forecast`,
         organization_id: org.id,
-        model_id: `${org.id}-emissions-forecast`,
-        model_type: 'emissions_forecast',
-        name: 'Emissions Forecast Model',
-        description: 'LSTM model for predicting CO2 emissions',
-        is_active: true,
-        training_enabled: true,
+        model_type: 'emissions_prediction',
+        model_name: 'Emissions Forecast Model (LSTM)',
+        version: '1.0.0',
+        status: 'training',
+        framework: 'tensorflow.js',
+        architecture: {
+          type: 'lstm',
+          layers: [
+            { type: 'lstm', units: 50, returnSequences: true, inputShape: [30, 1] },
+            { type: 'dropout', rate: 0.2 },
+            { type: 'lstm', units: 25, returnSequences: false },
+            { type: 'dropout', rate: 0.2 },
+            { type: 'dense', units: 1, activation: 'linear' }
+          ]
+        },
         hyperparameters: {
           epochs: 50,
-          batch_size: 32,
-          learning_rate: 0.001,
-          window_size: 30
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+          batchSize: 32,
+          learningRate: 0.001,
+          windowSize: 30,
+          validationSplit: 0.2
+        }
       },
       {
-        id: `${org.id}-energy-forecast`,
         organization_id: org.id,
-        model_id: `${org.id}-energy-forecast`,
-        model_type: 'energy_forecast',
-        name: 'Energy Forecast Model',
-        description: 'LSTM model for predicting energy consumption',
-        is_active: true,
-        training_enabled: true,
-        hyperparameters: {
-          epochs: 50,
-          batch_size: 32,
-          learning_rate: 0.001,
-          window_size: 30
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: `${org.id}-anomaly-detection`,
-        organization_id: org.id,
-        model_id: `${org.id}-anomaly-detection`,
         model_type: 'anomaly_detection',
-        name: 'Anomaly Detection Model',
-        description: 'Autoencoder for detecting unusual patterns',
-        is_active: true,
-        training_enabled: true,
+        model_name: 'Anomaly Detection Model (Autoencoder)',
+        version: '1.0.0',
+        status: 'training',
+        framework: 'tensorflow.js',
+        architecture: {
+          type: 'autoencoder',
+          encoderDim: 2,
+          layers: [
+            { type: 'dense', units: 16, activation: 'relu' },
+            { type: 'dense', units: 8, activation: 'relu' },
+            { type: 'dense', units: 2, activation: 'relu', name: 'encoder' },
+            { type: 'dense', units: 8, activation: 'relu' },
+            { type: 'dense', units: 16, activation: 'relu' },
+            { type: 'dense', units: 1, activation: 'linear' }
+          ]
+        },
         hyperparameters: {
           epochs: 30,
-          batch_size: 16,
-          learning_rate: 0.001,
-          encoder_dim: 2
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+          batchSize: 16,
+          learningRate: 0.001,
+          validationSplit: 0.2
+        }
       }
     ];
 
@@ -94,7 +95,7 @@ async function seedMLModels() {
     for (const model of models) {
       const { error } = await supabase
         .from('ml_models')
-        .upsert(model, { onConflict: 'id' });
+        .upsert(model, { onConflict: 'organization_id,model_type,version' });
 
       if (error) {
         console.log(`   ❌ Failed to create ${model.model_type}: ${error.message}`);

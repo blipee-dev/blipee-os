@@ -14,8 +14,12 @@
  * Benefits: Continuously improving prediction accuracy, automated model lifecycle
  */
 
+import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import * as tf from '@tensorflow/tfjs-node'; // Real TensorFlow.js with Node backend
+
+// Load environment variables
+config({ path: '.env.local' });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -32,10 +36,21 @@ export interface MLTrainingStats {
 }
 
 interface ModelConfig {
-  model_id: string;
-  model_type: 'emissions_forecast' | 'energy_forecast' | 'anomaly_detection' | 'optimization';
+  id: string;
   organization_id: string;
+  model_type: 'emissions_prediction' | 'anomaly_detection' | 'optimization' | 'recommendation' | 'custom';
+  model_name: string;
+  version: string;
+  status: string;
+  framework: string;
+  architecture: any;
   hyperparameters: any;
+  performance_metrics?: any;
+  training_data_info?: any;
+  training_duration_ms?: number;
+  model_size_bytes?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface TrainingResult {
@@ -83,7 +98,7 @@ export class MLTrainingService {
         try {
           await this.trainAndEvaluateModel(modelConfig);
         } catch (error) {
-          console.error(`   ❌ Training failed for ${modelConfig.model_id}:`, error);
+          console.error(`   ❌ Training failed for ${modelConfig.id}:`, error);
           this.stats.trainingErrors++;
         }
       }
@@ -105,14 +120,19 @@ export class MLTrainingService {
 
   private async getModelConfigurations(): Promise<ModelConfig[]> {
     try {
-      // Get all active model configurations
+      // Get all model configurations that are ready for training
+      // Status can be: 'training', 'validating', 'active', 'deprecated', 'failed'
       const { data, error } = await supabase
         .from('ml_models')
         .select('*')
-        .eq('is_active', true)
-        .eq('training_enabled', true);
+        .in('status', ['training', 'active']);
 
-      if (error || !data) {
+      if (error) {
+        console.error('   ⚠️  Database error fetching model configs:', error);
+        return [];
+      }
+
+      if (!data) {
         return [];
       }
 
@@ -144,10 +164,10 @@ export class MLTrainingService {
     const evaluation = await this.evaluateModel(trainedModel, trainingData);
 
     // 4. Compare with current production model
-    const shouldPromote = await this.shouldPromoteModel(modelConfig.model_id, evaluation);
+    const shouldPromote = await this.shouldPromoteModel(modelConfig.id, evaluation);
 
     if (shouldPromote) {
-      await this.promoteModel(modelConfig.model_id, trainedModel, evaluation);
+      await this.promoteModel(modelConfig.id, trainedModel, evaluation);
       this.stats.modelsPromoted++;
       console.log(`     🎯 Model promoted to production`);
     }
@@ -195,7 +215,9 @@ export class MLTrainingService {
       let normalizedData: any;
 
       // Train based on model type
-      if (modelConfig.model_type === 'emissions_forecast' || modelConfig.model_type === 'energy_forecast') {
+      if (modelConfig.model_type === 'emissions_forecast' ||
+          modelConfig.model_type === 'emissions_prediction' ||
+          modelConfig.model_type === 'energy_forecast') {
         // LSTM for time series forecasting
         const result = await this.trainLSTMModel(trainingData);
         tfModel = result.model;
@@ -210,11 +232,11 @@ export class MLTrainingService {
       }
 
       // Save model to file system
-      const modelPath = `file://./ml-models/${modelConfig.model_id}`;
+      const modelPath = `file://./ml-models/${modelConfig.id}`;
       await tfModel.save(modelPath);
 
       const model = {
-        model_id: modelConfig.model_id,
+        model_id: modelConfig.id,
         version: `v${new Date().getTime()}`,
         type: modelConfig.model_type,
         trained_at: new Date().toISOString(),
@@ -229,6 +251,10 @@ export class MLTrainingService {
       return model;
 
     } catch (error) {
+      console.error('     ⚠️  Training error details:', error);
+      if (error instanceof Error) {
+        throw new Error(`Training failed: ${error.message}\nStack: ${error.stack}`);
+      }
       throw new Error(`Training failed: ${error}`);
     }
   }
@@ -238,7 +264,7 @@ export class MLTrainingService {
    */
   private async trainLSTMModel(data: any[]): Promise<{ model: tf.LayersModel; metadata: any }> {
     // Extract emissions/energy values
-    const values = data.map(d => d.co2e_kg || d.value || 0);
+    const values = data.map(d => d.co2e_emissions || d.value || 0);
     const { normalized, min, max } = this.normalizeArray(values);
 
     // Create sequences (30-day window)
@@ -298,9 +324,9 @@ export class MLTrainingService {
   private async trainAutoencoderModel(data: any[]): Promise<{ model: tf.LayersModel; metadata: any }> {
     // Extract feature matrix (multiple metrics)
     const features = data.map(d => [
-      d.co2e_kg || 0,
+      d.co2e_emissions || 0,
       d.value || 0,
-      d.grid_factor || 0,
+      d.grid_region || 0,
     ]);
 
     const flatValues = features.flat();
@@ -539,7 +565,7 @@ export class MLTrainingService {
   ): Promise<void> {
     try {
       await supabase.from('ml_training_logs').insert({
-        model_id: modelConfig.model_id,
+        model_id: modelConfig.id,
         model_type: modelConfig.model_type,
         organization_id: modelConfig.organization_id,
         version: evaluation.version,
