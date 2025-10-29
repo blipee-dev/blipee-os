@@ -30,7 +30,22 @@ fi
 
 echo "✅ Environment validated"
 
-# 4. Check if Prophet dependencies are installed
+# 4. Check if required files exist
+echo "📂 Checking required files..."
+if [ ! -f "/app/services/ai-agent-orchestrator.ts" ]; then
+    echo "❌ ERROR: /app/services/ai-agent-orchestrator.ts not found"
+    ls -la /app/services/ || echo "services directory not found"
+    exit 1
+fi
+
+if [ ! -f "/app/services/forecast-service/main.py" ]; then
+    echo "❌ ERROR: Prophet service main.py not found"
+    exit 1
+fi
+
+echo "✅ Required files present"
+
+# 5. Check if Prophet dependencies are installed
 echo "🐍 Checking Python dependencies..."
 python3 -c "import prophet; import fastapi; import uvicorn" 2>/dev/null
 if [ $? -eq 0 ]; then
@@ -40,7 +55,7 @@ else
     pip install -r services/forecast-service/requirements.txt
 fi
 
-# 5. Validate supervisor configuration
+# 6. Validate supervisor configuration
 echo "🔧 Validating supervisor configuration..."
 if supervisord -c supervisord.conf -h &>/dev/null; then
     echo "✅ Supervisor configuration valid"
@@ -49,7 +64,7 @@ else
     exit 1
 fi
 
-# 6. Start supervisor
+# 7. Start supervisor
 echo ""
 echo "🎬 Starting Supervisor..."
 echo "   Process 1: Node.js Agent Worker (8 autonomous agents)"
