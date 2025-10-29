@@ -37,6 +37,7 @@ import { DatabaseOptimizationService } from './services/database-optimization-se
 import { WeatherDataService } from './services/weather-data-service';
 import { ReportGenerationService } from './services/report-generation-service';
 import { MLTrainingService } from './services/ml-training-service';
+import { ForecastPrecomputeService } from './services/forecast-precompute-service';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -79,6 +80,7 @@ class AgentWorker {
   // Phase 3 Services
   private reportService: ReportGenerationService;
   private mlTrainingService: MLTrainingService;
+  private forecastService: ForecastPrecomputeService;
 
   // Cron job references
   private cronJobs: cron.ScheduledTask[] = [];
@@ -99,6 +101,7 @@ class AgentWorker {
     // Initialize Phase 3 Services
     this.reportService = new ReportGenerationService();
     this.mlTrainingService = new MLTrainingService();
+    this.forecastService = new ForecastPrecomputeService();
   }
 
   async start() {
@@ -176,7 +179,7 @@ class AgentWorker {
     console.log('🎯 Prompt optimization running in background');
     console.log('💚 Phase 1: Metrics, cleanup, and notifications running');
     console.log('🔍 Phase 2: Optimization, database monitoring, weather tracking');
-    console.log('📊 Phase 3: Report generation and ML model training');
+    console.log('📊 Phase 3: Report generation, ML training, and Prophet forecasting (6x/day)');
   }
 
   /**
@@ -315,6 +318,7 @@ class AgentWorker {
           phase3Services: {
             reports: this.reportService.getHealth(),
             mlTraining: this.mlTrainingService.getHealth(),
+            forecasting: this.forecastService.getHealth(),
           },
           timestamp: new Date().toISOString()
         }));
@@ -418,15 +422,19 @@ class AgentWorker {
       await this.mlTrainingService.run();
       console.log('   ✅ ML training complete\n');
 
+      console.log('9️⃣  Generating Prophet forecasts...');
+      await this.forecastService.run();
+      console.log('   ✅ Forecasts generated\n');
+
       // Prompt Optimization
       console.log('\n🎯 Prompt Optimization');
       console.log('────────────────────\n');
 
-      console.log('9️⃣  Analyzing conversation patterns...');
+      console.log('🔟 Analyzing conversation patterns...');
       await this.runPatternAnalysis();
       console.log('   ✅ Pattern analysis complete\n');
 
-      console.log('🔟 Checking A/B experiments...');
+      console.log('1️⃣1️⃣  Checking A/B experiments...');
       await this.runExperimentMonitoring();
       console.log('   ✅ Experiments checked\n');
 
@@ -690,6 +698,19 @@ class AgentWorker {
     });
     this.cronJobs.push(mlTrainingJob);
 
+    // 6. Prophet Forecasting - Every 4 hours (6x/day)
+    const forecastJob = cron.schedule('0 */4 * * *', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.forecastService.run();
+      } catch (error) {
+        console.error('❌ Prophet forecasting failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(forecastJob);
+
     console.log('✅ Phase 2 & 3 Services started');
     console.log('\n   Phase 2 - Intelligence & Optimization:');
     console.log('   • Optimization opportunities: Daily at 4:00 AM UTC');
@@ -698,6 +719,7 @@ class AgentWorker {
     console.log('\n   Phase 3 - Advanced Analytics:');
     console.log('   • Report generation: Monthly (1st) at 6:00 AM UTC');
     console.log('   • ML model training: Monthly (15th) at 2:00 AM UTC');
+    console.log('   • Prophet forecasting: Every 4 hours (6x/day)');
   }
 
   /**
@@ -809,6 +831,7 @@ console.log('╠═════════════════════�
 console.log('║  PHASE 3 - Advanced Analytics:                           ║');
 console.log('║  • Monthly Sustainability Reports (Auto-generated)       ║');
 console.log('║  • ML Model Training Pipeline (Auto-improvement)         ║');
+console.log('║  • Prophet Forecasting (Every 4 hours - 6x/day)          ║');
 console.log('╠══════════════════════════════════════════════════════════╣');
 console.log('║  BOOTSTRAP: Set RUN_INITIAL_ANALYSIS=true to process    ║');
 console.log('║             all historical data on first deployment      ║');

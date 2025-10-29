@@ -1,17 +1,33 @@
-# Railway Dockerfile for Blipee AI Agent Worker
-# Optimized for long-running background service
-# Runs 8 autonomous AI agents 24/7
+# Railway Dockerfile for Blipee AI Agent Worker + Prophet Forecasting
+# Multi-process container running:
+# - Node.js Agent Worker (Port 8080)
+# - Python Prophet Service (Port 8001)
+# Uses Debian for TensorFlow.js Node backend (requires glibc)
 
-FROM node:20-alpine AS base
+FROM node:20-slim AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+
+# Install Python, build tools, and supervisor
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    make \
+    g++ \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Copy package files
+# Copy Node.js package files
 COPY package.json package-lock.json* ./
 RUN npm ci && npm cache clean --force
+
+# Copy Python requirements and install
+COPY services/forecast-service/requirements.txt /tmp/
+RUN pip3 install --no-cache-dir --break-system-packages -r /tmp/requirements.txt
 
 # Production image
 FROM base AS runner
@@ -19,30 +35,48 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=8080
+ENV FORECAST_SERVICE_URL=http://localhost:8001
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    libgomp1 \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python packages from deps stage
+COPY --from=deps /usr/local/lib/python3.11/dist-packages /usr/local/lib/python3.11/dist-packages
 
 # Create a non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 worker
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 worker
 
 # Copy dependencies
 COPY --from=deps --chown=worker:nodejs /app/node_modules ./node_modules
 
-# Copy application code (only what's needed for worker)
+# Copy application code
 COPY --chown=worker:nodejs package.json ./
 COPY --chown=worker:nodejs tsconfig.json ./
 COPY --chown=worker:nodejs next.config.mjs ./
 COPY --chown=worker:nodejs src/ ./src/
 COPY --chown=worker:nodejs supabase/ ./supabase/
+COPY --chown=worker:nodejs scripts/ ./scripts/
 
-# Switch to non-root user
-USER worker
+# Copy Prophet service
+COPY --chown=worker:nodejs services/forecast-service/ ./services/forecast-service/
 
-# Expose health check port
-EXPOSE 8080
+# Create directories
+RUN mkdir -p ./ml-models ./logs && chown -R worker:nodejs ./ml-models ./logs
 
-# Health check
+# Copy supervisor configuration
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Expose both ports (8080 for Node.js, 8001 for Prophet)
+EXPOSE 8080 8001
+
+# Health check (checks Node.js service)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD node -e "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start the agent worker
-CMD ["npm", "run", "agents:start"]
+# Start both services with supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
