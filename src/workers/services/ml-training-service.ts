@@ -86,37 +86,184 @@ export class MLTrainingService {
     console.log('\n🤖 [ML Training] Starting model training cycle...');
 
     try {
-      // Get all model configurations
-      const models = await this.getModelConfigurations();
+      // Get all metrics from metrics_catalog (same approach as Prophet forecasting)
+      const { data: metrics, error: metricsError } = await supabase
+        .from('metrics_catalog')
+        .select('id, category, subcategory, name, code')
+        .eq('is_active', true)
+        .order('category', { ascending: true })
+        .order('subcategory', { ascending: true });
 
-      if (models.length === 0) {
-        console.log('   ⚠️  No models configured for training');
+      if (metricsError || !metrics || metrics.length === 0) {
+        console.log('   ⚠️  No metrics found in catalog');
         return;
       }
 
-      console.log(`   📚 Training ${models.length} models`);
+      console.log(`   📚 Training models for ${metrics.length} metrics from catalog`);
+      console.log(`   🔄 Using same metric-specific approach as Prophet forecasting\n`);
 
-      for (const modelConfig of models) {
-        try {
-          await this.trainAndEvaluateModel(modelConfig);
-        } catch (error) {
-          console.error(`   ❌ Training failed for ${modelConfig.id}:`, error);
-          this.stats.trainingErrors++;
+      // Get all organizations that need ML models
+      const { data: orgs } = await supabase
+        .from('organizations')
+        .select('id, name')
+        .limit(10);
+
+      if (!orgs || orgs.length === 0) {
+        console.log('   ⚠️  No organizations found');
+        return;
+      }
+
+      // Train models for each organization and metric combination
+      for (const org of orgs) {
+        console.log(`\n   🏢 Organization: ${org.name} (${org.id})`);
+
+        for (const metric of metrics) {
+          try {
+            // Train LSTM model for this specific metric
+            await this.trainMetricSpecificModel(org.id, metric, 'emissions_prediction');
+
+            // Train Autoencoder for anomaly detection on this metric
+            await this.trainMetricSpecificModel(org.id, metric, 'anomaly_detection');
+          } catch (error) {
+            console.error(`   ❌ Training failed for ${metric.name}:`, error);
+            this.stats.trainingErrors++;
+          }
         }
       }
 
       this.stats.lastRunAt = new Date();
       this.stats.lastRunDuration = Date.now() - startTime;
 
-      console.log(`✅ [ML Training] Completed in ${(this.stats.lastRunDuration / 1000 / 60).toFixed(2)} minutes`);
+      console.log(`\n✅ [ML Training] Completed in ${(this.stats.lastRunDuration / 1000 / 60).toFixed(2)} minutes`);
       console.log(`   • Models trained: ${this.stats.modelsTrainedCount}`);
       console.log(`   • Models promoted: ${this.stats.modelsPromoted}`);
-      console.log(`   • Avg accuracy improvement: ${this.stats.avgAccuracyImprovement.toFixed(2)}%`);
+      console.log(`   • Training errors: ${this.stats.trainingErrors}`);
 
     } catch (error) {
       console.error('❌ [ML Training] Training cycle failed:', error);
       this.stats.trainingErrors++;
       throw error;
+    }
+  }
+
+  private async trainMetricSpecificModel(
+    organizationId: string,
+    metric: { id: string; category: string; subcategory: string; name: string; code: string },
+    modelType: 'emissions_prediction' | 'anomaly_detection'
+  ): Promise<void> {
+    try {
+      console.log(`     📊 ${metric.category} > ${metric.subcategory} > ${metric.name} (${modelType})`);
+
+      // 1. Prepare training data for this specific metric
+      const trainingData = await this.prepareTrainingData(organizationId, metric.id);
+
+      if (!trainingData || trainingData.length < 10) {
+        console.log(`        ⚠️  Insufficient data: ${trainingData?.length || 0} samples`);
+        return;
+      }
+
+      console.log(`        ✅ Training data: ${trainingData.length} samples`);
+
+      // 2. Check if model already exists
+      const { data: existingModel } = await supabase
+        .from('ml_models')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .eq('metric_id', metric.id)
+        .eq('model_type', modelType)
+        .eq('status', 'active')
+        .single();
+
+      const version = existingModel
+        ? `v${parseInt(existingModel.version.replace('v', '')) + 1}`
+        : 'v1';
+
+      // 3. Create model config
+      const modelConfig: ModelConfig = {
+        id: crypto.randomUUID(),
+        organization_id: organizationId,
+        model_type: modelType,
+        model_name: `${modelType}_${metric.code}_${version}`,
+        version,
+        status: 'training',
+        framework: 'tensorflow.js',
+        architecture: {
+          type: modelType === 'emissions_prediction' ? 'LSTM' : 'Autoencoder',
+          layers: modelType === 'emissions_prediction' ? [64, 32, 16] : [32, 16, 8, 16, 32],
+        },
+        hyperparameters: {
+          epochs: 50,
+          batchSize: 32,
+          learningRate: 0.001,
+        },
+      };
+
+      // 4. Train model
+      const trainedModel = await this.trainModel(modelConfig, trainingData);
+
+      // 5. Evaluate model
+      const evaluation = await this.evaluateModel(trainedModel, trainingData);
+
+      // 6. Save model to storage
+      await this.saveModel(modelConfig, trainedModel, evaluation, metric.id);
+
+      this.stats.modelsTrainedCount++;
+      console.log(`        ✅ Model trained successfully`);
+
+    } catch (error) {
+      console.error(`        ❌ Training failed:`, error);
+      this.stats.trainingErrors++;
+    }
+  }
+
+  private async saveModel(
+    modelConfig: ModelConfig,
+    trainedModel: any,
+    evaluation: any,
+    metricId: string
+  ): Promise<void> {
+    try {
+      // Save model to ml_model_storage with metric_id
+      const { error: storageError } = await supabase
+        .from('ml_model_storage')
+        .upsert({
+          organization_id: modelConfig.organization_id,
+          model_type: modelConfig.model_type,
+          metric_id: metricId, // ✅ Include metric_id (like Prophet)
+          model_data: trainedModel,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'organization_id,model_type,metric_id',
+        });
+
+      if (storageError) {
+        console.error('        ⚠️  Failed to save model to storage:', storageError);
+      }
+
+      // Also save model configuration to ml_models table
+      const { error: modelError } = await supabase
+        .from('ml_models')
+        .insert({
+          id: modelConfig.id,
+          organization_id: modelConfig.organization_id,
+          model_type: modelConfig.model_type,
+          model_name: modelConfig.model_name,
+          version: modelConfig.version,
+          status: 'active',
+          framework: modelConfig.framework,
+          architecture: modelConfig.architecture,
+          hyperparameters: modelConfig.hyperparameters,
+          performance_metrics: evaluation,
+          metric_id: metricId, // ✅ Include metric_id
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+
+      if (modelError && modelError.code !== '23505') { // Ignore duplicate key errors
+        console.error('        ⚠️  Failed to save model config:', modelError);
+      }
+    } catch (error) {
+      console.error('        ⚠️  Model save error:', error);
     }
   }
 
@@ -181,14 +328,19 @@ export class MLTrainingService {
     this.stats.modelEvaluationsCount++;
   }
 
-  private async prepareTrainingData(modelConfig: ModelConfig): Promise<any[] | null> {
+  private async prepareTrainingData(
+    organizationId: string,
+    metricId: string
+  ): Promise<any[] | null> {
     try {
-      // Get ALL historical data for training (no time limitation)
+      // Get ALL historical data for this specific metric (no time limitation)
       // Deep learning models benefit from more data - use all 46+ months available
+      // Same approach as Prophet forecasting - filter by metric_id
       const { data, error } = await supabase
         .from('metrics_data')
         .select('*')
-        .eq('organization_id', modelConfig.organization_id)
+        .eq('organization_id', organizationId)
+        .eq('metric_id', metricId) // ✅ Filter by specific metric (like Prophet)
         .order('period_start', { ascending: true })
         .limit(5000); // Increased from 1000 to handle more historical data
 
