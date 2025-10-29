@@ -16,6 +16,10 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     make \
     g++ \
+    gcc \
+    gfortran \
+    build-essential \
+    wget \
     supervisor \
     && rm -rf /var/lib/apt/lists/*
 
@@ -39,6 +43,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
 ENV FORECAST_SERVICE_URL=http://localhost:8001
+ENV CMDSTAN=/root/.cmdstan
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
