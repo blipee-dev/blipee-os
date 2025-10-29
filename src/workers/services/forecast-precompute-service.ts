@@ -70,7 +70,7 @@ export class ForecastPrecomputeService {
       const { data: organizations, error: orgError } = await this.supabase
         .from('organizations')
         .select('id, name')
-        .eq('deleted_at', null);
+        .is('deleted_at', null);
 
       if (orgError || !organizations) {
         console.error('❌ Failed to fetch organizations:', orgError);
