@@ -29,6 +29,9 @@ RUN npm ci && npm cache clean --force
 COPY services/forecast-service/requirements.txt /tmp/
 RUN pip3 install --no-cache-dir --break-system-packages -r /tmp/requirements.txt
 
+# Install cmdstan for Prophet (requires this for stan_backend)
+RUN python3 -c "import cmdstanpy; cmdstanpy.install_cmdstan()"
+
 # Production image
 FROM base AS runner
 WORKDIR /app
@@ -46,6 +49,9 @@ RUN apt-get update && apt-get install -y \
 
 # Copy Python packages from deps stage
 COPY --from=deps /usr/local/lib/python3.11/dist-packages /usr/local/lib/python3.11/dist-packages
+
+# Copy cmdstan installation from deps stage
+COPY --from=deps /root/.cmdstan /root/.cmdstan
 
 # Create a non-root user
 RUN groupadd --system --gid 1001 nodejs
