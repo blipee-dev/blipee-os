@@ -43,7 +43,7 @@ docs
 AGENTS_IMPLEMENTATION_COMPLETE.md
 
 # Scripts and test files
-scripts
+# scripts  # COMMENTED OUT - we need scripts/ for ML training and Prophet
 test-*.mjs
 *.test.js
 *.test.mjs
