@@ -215,21 +215,19 @@ export class ForecastPrecomputeService {
 
   /**
    * Fetch historical data for a specific metric (dynamic, no hardcoding)
+   * Uses ALL available data for maximum Prophet accuracy
    */
   private async fetchMetricHistoricalData(
     organizationId: string,
     metricId: string
   ): Promise<Array<{ date: string; value: number }>> {
-    const twentyFourMonthsAgo = new Date();
-    twentyFourMonthsAgo.setMonth(twentyFourMonthsAgo.getMonth() - 24);
-
-    // Fetch data dynamically by metric_id - no hardcoded mappings
+    // Fetch ALL available data - no time limitation
+    // Prophet benefits from longer historical periods (3+ years ideal)
     const { data, error } = await this.supabase
       .from('metrics_data')
       .select('period_start, value')
       .eq('organization_id', organizationId)
       .eq('metric_id', metricId)
-      .gte('period_start', twentyFourMonthsAgo.toISOString())
       .order('period_start', { ascending: true });
 
     if (error || !data) {
