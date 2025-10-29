@@ -19,8 +19,8 @@ nixPkgs = [
 
 [phases.install]
 cmds = [
-  # Install Node.js dependencies
-  "npm ci --only=production --ignore-scripts",
+  # Install Node.js dependencies (including devDependencies for tsx)
+  "npm ci --ignore-scripts",
   # Install Python dependencies for Prophet service
   "pip install --no-cache-dir -r services/forecast-service/requirements.txt",
   # Make startup script executable
