@@ -62,8 +62,8 @@ COPY --chown=worker:nodejs src/ ./src/
 COPY --chown=worker:nodejs supabase/ ./supabase/
 COPY --chown=worker:nodejs scripts/ ./scripts/
 
-# Copy Prophet service
-COPY --chown=worker:nodejs services/forecast-service/ ./services/forecast-service/
+# Copy services directory (includes ai-agent-orchestrator.ts and forecast-service)
+COPY --chown=worker:nodejs services/ ./services/
 
 # Create directories
 RUN mkdir -p ./ml-models ./logs && chown -R worker:nodejs ./ml-models ./logs
