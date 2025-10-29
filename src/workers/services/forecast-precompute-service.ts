@@ -81,15 +81,31 @@ export class ForecastPrecomputeService {
 
       console.log(`📊 Processing ${organizations.length} organizations`);
 
-      // 3. Generate forecasts for each organization and domain
-      const domains = ['energy', 'water', 'waste', 'emissions'] as const;
+      // 3. Get all metrics from catalog
+      const { data: metrics, error: metricsError } = await this.supabase
+        .from('metrics_catalog')
+        .select('id, category, subcategory, name, code')
+        .order('category', { ascending: true })
+        .order('subcategory', { ascending: true });
 
+      if (metricsError || !metrics) {
+        console.error('❌ Failed to fetch metrics catalog:', metricsError);
+        stats.errors++;
+        stats.duration = Date.now() - startTime;
+        return stats;
+      }
+
+      console.log(`📋 Found ${metrics.length} metrics in catalog`);
+
+      // 4. Generate forecasts for each organization and metric
       for (const org of organizations) {
-        for (const domain of domains) {
+        console.log(`\n🏢 Processing organization: ${org.name}`);
+
+        for (const metric of metrics) {
           try {
-            await this.generateForecast(org.id, org.name, domain, stats);
+            await this.generateMetricForecast(org.id, org.name, metric, stats);
           } catch (error) {
-            console.error(`❌ Failed to generate ${domain} forecast for ${org.name}:`, error);
+            console.error(`❌ Failed to generate forecast for ${metric.category}/${metric.subcategory} - ${org.name}:`, error);
             stats.errors++;
           }
         }
@@ -112,12 +128,12 @@ export class ForecastPrecomputeService {
   }
 
   /**
-   * Generate forecast for a specific organization and domain
+   * Generate forecast for a specific organization and metric
    */
-  private async generateForecast(
+  private async generateMetricForecast(
     organizationId: string,
     organizationName: string,
-    domain: 'energy' | 'water' | 'waste' | 'emissions',
+    metric: { id: string; category: string; subcategory: string; name: string; code: string },
     stats: ForecastStats
   ): Promise<void> {
     // 1. Check if recent forecast exists (< 4 hours old)
@@ -127,7 +143,7 @@ export class ForecastPrecomputeService {
       .from('ml_predictions')
       .select('id, created_at')
       .eq('organization_id', organizationId)
-      .eq('metadata->>domain', domain)
+      .eq('metadata->>metric_id', metric.id)
       .eq('prediction_type', 'forecast')
       .gte('created_at', fourHoursAgo)
       .order('created_at', { ascending: false })
@@ -135,25 +151,23 @@ export class ForecastPrecomputeService {
       .single();
 
     if (existingForecast) {
-      console.log(`⏭️  Skipping ${domain} for ${organizationName} (recent forecast exists)`);
       stats.skipped++;
       return;
     }
 
-    // 2. Fetch historical data (last 24 months)
-    const historicalData = await this.fetchHistoricalData(organizationId, domain);
+    // 2. Fetch historical data (last 24 months) for this specific metric
+    const historicalData = await this.fetchMetricHistoricalData(organizationId, metric.id);
 
     if (historicalData.length < 12) {
-      console.log(`⏭️  Skipping ${domain} for ${organizationName} (insufficient data: ${historicalData.length} months)`);
       stats.skipped++;
       return;
     }
 
     // 3. Call Prophet service
-    console.log(`🔮 Generating ${domain} forecast for ${organizationName} (${historicalData.length} months of data)`);
+    console.log(`🔮 ${metric.category}/${metric.subcategory} - ${metric.name} (${historicalData.length} months)`);
 
     const prophetResponse = await prophetClient.forecast({
-      domain,
+      domain: metric.category, // Use category as domain
       organizationId,
       historicalData: historicalData.map(d => ({
         date: d.date,
@@ -173,7 +187,11 @@ export class ForecastPrecomputeService {
         confidence_lower: prophetResponse.confidence.lower,
         confidence_upper: prophetResponse.confidence.upper,
         metadata: {
-          domain,
+          metric_id: metric.id,
+          metric_code: metric.code,
+          category: metric.category,
+          subcategory: metric.subcategory,
+          metric_name: metric.name,
           method: prophetResponse.method,
           trend: prophetResponse.metadata.trend,
           yearly: prophetResponse.metadata.yearly,
@@ -186,45 +204,35 @@ export class ForecastPrecomputeService {
       });
 
     if (insertError) {
-      console.error(`❌ Failed to store ${domain} forecast for ${organizationName}:`, insertError);
+      console.error(`❌ Failed to store ${metric.category}/${metric.subcategory} forecast for ${organizationName}:`, insertError);
       stats.errors++;
       return;
     }
 
-    console.log(`✅ ${domain} forecast generated for ${organizationName}`);
+    console.log(`✅ ${metric.category}/${metric.subcategory} - ${metric.name} forecast generated for ${organizationName}`);
     stats.generated++;
   }
 
   /**
-   * Fetch historical data for forecasting
+   * Fetch historical data for a specific metric (dynamic, no hardcoding)
    */
-  private async fetchHistoricalData(
+  private async fetchMetricHistoricalData(
     organizationId: string,
-    domain: string
+    metricId: string
   ): Promise<Array<{ date: string; value: number }>> {
     const twentyFourMonthsAgo = new Date();
     twentyFourMonthsAgo.setMonth(twentyFourMonthsAgo.getMonth() - 24);
 
-    // Map domain to metric types
-    const metricTypeMap: Record<string, string[]> = {
-      energy: ['electricity_consumption', 'natural_gas_consumption'],
-      water: ['water_consumption'],
-      waste: ['waste_generated'],
-      emissions: ['scope_1_emissions', 'scope_2_emissions'],
-    };
-
-    const metricTypes = metricTypeMap[domain] || [];
-
+    // Fetch data dynamically by metric_id - no hardcoded mappings
     const { data, error } = await this.supabase
       .from('metrics_data')
       .select('period_start, value')
       .eq('organization_id', organizationId)
-      .in('metric_type', metricTypes)
+      .eq('metric_id', metricId)
       .gte('period_start', twentyFourMonthsAgo.toISOString())
       .order('period_start', { ascending: true });
 
     if (error || !data) {
-      console.error(`Failed to fetch historical data for ${domain}:`, error);
       return [];
     }
 
@@ -247,11 +255,11 @@ export class ForecastPrecomputeService {
   }
 
   /**
-   * Get stats about stored forecasts
+   * Get stats about stored forecasts (dynamic by category)
    */
   async getStats(): Promise<{
     totalForecasts: number;
-    forecastsByDomain: Record<string, number>;
+    forecastsByCategory: Record<string, number>;
     oldestForecast: string | null;
     newestForecast: string | null;
   }> {
@@ -264,21 +272,22 @@ export class ForecastPrecomputeService {
     if (!forecasts || forecasts.length === 0) {
       return {
         totalForecasts: 0,
-        forecastsByDomain: {},
+        forecastsByCategory: {},
         oldestForecast: null,
         newestForecast: null,
       };
     }
 
-    const forecastsByDomain: Record<string, number> = {};
+    // Group dynamically by category from metadata
+    const forecastsByCategory: Record<string, number> = {};
     for (const forecast of forecasts) {
-      const domain = forecast.metadata?.domain || 'unknown';
-      forecastsByDomain[domain] = (forecastsByDomain[domain] || 0) + 1;
+      const category = forecast.metadata?.category || 'unknown';
+      forecastsByCategory[category] = (forecastsByCategory[category] || 0) + 1;
     }
 
     return {
       totalForecasts: forecasts.length,
-      forecastsByDomain,
+      forecastsByCategory,
       oldestForecast: forecasts[forecasts.length - 1]?.created_at || null,
       newestForecast: forecasts[0]?.created_at || null,
     };
