@@ -55,12 +55,28 @@ interface EnergyDashboardProps {
 
 type GenericRecord = Record<string, unknown>;
 
+interface EnergyMetric extends GenericRecord {
+  name: string;
+  consumption: number;
+  value: number;
+  emissions: number;
+}
+
+interface EnergySubcategory extends GenericRecord {
+  name: string;
+  consumption: number;
+  value: number;
+  emissions: number;
+  metrics: EnergyMetric[];
+}
+
 interface RawEnergySource extends GenericRecord {
   name?: string;
   consumption?: number;
   value?: number;
   renewable?: boolean | null;
   emissions?: number;
+  subcategories?: EnergySubcategory[];
 }
 
 interface EnergySourceBreakdownEntry extends GenericRecord {
@@ -68,6 +84,7 @@ interface EnergySourceBreakdownEntry extends GenericRecord {
   value: number;
   renewable?: boolean | null;
   emissions: number;
+  subcategories?: EnergySubcategory[];
 }
 
 interface EnergyMonthlyTrend extends GenericRecord {
@@ -533,6 +550,7 @@ export function EnergyDashboard({
                 ? source.renewable
                 : undefined,
             emissions: typeof source.emissions === 'number' ? source.emissions : 0,
+            subcategories: Array.isArray(source.subcategories) ? source.subcategories : undefined,
           }))
         : [];
 
