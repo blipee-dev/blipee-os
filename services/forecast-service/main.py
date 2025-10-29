@@ -16,10 +16,16 @@ import pandas as pd
 from prophet import Prophet
 from datetime import datetime
 import logging
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Configure cmdstan backend for Prophet
+# This fixes the 'stan_backend' attribute error in Prophet 1.1.6
+os.environ['STAN_BACKEND'] = 'CMDSTANPY'
+logger.info("Prophet backend configured: CMDSTANPY")
 
 app = FastAPI(
     title="Blipee Prophet Forecasting Service",
@@ -74,7 +80,8 @@ async def health():
     return {
         "status": "healthy",
         "model": "prophet",
-        "version": "1.1.5"
+        "version": "1.1.6",
+        "backend": "cmdstan"
     }
 
 

@@ -1,6 +1,7 @@
 fastapi==0.110.0
 uvicorn[standard]==0.27.0
-prophet==1.1.5
+prophet==1.1.6
+cmdstanpy==1.2.4
 pandas==2.2.0
 numpy==1.26.0
 pydantic==2.6.0
