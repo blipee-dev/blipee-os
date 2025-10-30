@@ -3914,6 +3914,10 @@
           "explanation": "Decomposição do consumo de energia por tipo de fonte. Mostra a proporção de cada fonte de energia no seu mix energético total, ajudando a identificar oportunidades para adoção de energia renovável.",
           "noData": "Sem dados de fontes de energia disponíveis"
         },
+        "sourcesBreakdown": {
+          "title": "Desagregação de Fontes de Energia",
+          "subtitle": "Breakdown detalhado por categoria, subcategoria e métrica"
+        },
         "monthlyEvolution": {
           "title": "Evolução Mensal",
           "explanation": "Tendências mensais de consumo de energia ao longo do tempo, incluindo previsão ML para os meses restantes. A linha tracejada representa o consumo previsto com base em padrões históricos e sazonalidade.",

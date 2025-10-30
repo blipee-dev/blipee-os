@@ -265,47 +265,78 @@ const COLORS = {
   steam: '#8B5CF6',
 };
 
-// Color palette for energy sources
+// Extended color palette for individual metrics (visually distinct colors)
+const METRIC_COLOR_PALETTE = [
+  '#F59E0B', // Amber - Electricity
+  '#8B5CF6', // Purple - EV Charging
+  '#06B6D4', // Cyan - Cooling
+  '#F97316', // Orange - Heating
+  '#10B981', // Green - Renewable
+  '#EC4899', // Pink
+  '#14B8A6', // Teal
+  '#F43F5E', // Rose
+  '#8B5CF6', // Violet
+  '#EAB308', // Yellow
+  '#3B82F6', // Blue
+  '#A855F7', // Purple
+  '#22D3EE', // Cyan
+  '#FB923C', // Orange
+  '#34D399', // Emerald
+  '#F472B6', // Pink
+  '#2DD4BF', // Teal
+  '#FB7185', // Rose
+  '#A78BFA', // Violet
+  '#FCD34D', // Yellow
+];
+
+// Simple hash function for consistent color assignment
+const hashString = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash);
+};
+
+// Color palette for energy sources - now supports individual metric colors
 const getSourceColor = (name: string): string => {
   const nameLower = name.toLowerCase();
 
-  // EV Charging - Purple
+  // For specific known metrics, use semantic colors
+  if (nameLower.includes('electricity') && !nameLower.includes('ev')) {
+    return '#F59E0B'; // Amber - Electricity
+  }
+
   if (nameLower.includes('ev') || nameLower.includes('charging')) {
-    return '#8B5CF6'; // Purple
+    return '#8B5CF6'; // Purple - EV Charging
   }
 
-  // Grid/Purchased Electricity - Amber
-  if (nameLower.includes('grid') || nameLower.includes('electricity')) {
-    return '#F59E0B'; // Amber
-  }
-
-  // Heating - Orange
-  if (nameLower.includes('heating')) {
-    return '#F97316'; // Orange
-  }
-
-  // Cooling - Cyan
   if (nameLower.includes('cooling')) {
-    return '#06B6D4'; // Cyan
+    return '#06B6D4'; // Cyan - Cooling
   }
 
-  // Solar - Amber
+  if (nameLower.includes('heating')) {
+    return '#F97316'; // Orange - Heating
+  }
+
   if (nameLower.includes('solar')) {
-    return '#F59E0B'; // Amber
+    return '#EAB308'; // Yellow - Solar
   }
 
-  // Wind - Green
   if (nameLower.includes('wind')) {
-    return '#10B981'; // Green
+    return '#10B981'; // Green - Wind
   }
 
-  // Natural Gas/Fossil - Gray
-  if (nameLower.includes('gas') || nameLower.includes('fossil')) {
-    return '#6B7280'; // Gray
+  if (nameLower.includes('gas')) {
+    return '#6B7280'; // Gray - Natural Gas
   }
 
-  // Default fallback
-  return '#94A3B8'; // Slate
+  // For other metrics, use hash-based color from palette for consistency
+  const hash = hashString(name);
+  const colorIndex = hash % METRIC_COLOR_PALETTE.length;
+  return METRIC_COLOR_PALETTE[colorIndex];
 };
 
 // Color palette for grid mix sources
@@ -463,6 +494,52 @@ const translateMonth = (monthAbbr: string, t: (key: string) => string): string =
   }
 
   return monthAbbr;
+};
+
+// Standardized Tooltip Component
+interface StandardTooltipProps {
+  children: React.ReactNode;
+  title?: string;
+  subtitle?: string;
+}
+
+const StandardTooltipContent = ({ children, title, subtitle }: StandardTooltipProps) => {
+  return (
+    <div className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#1A1A1A] rounded-lg p-3 shadow-xl min-w-[200px]">
+      {title && (
+        <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2 pb-2 border-b border-gray-200 dark:border-[#2A2A2A]">
+          {title}
+          {subtitle && (
+            <span className="ml-2 text-xs text-gray-600 dark:text-gray-400 font-normal">
+              {subtitle}
+            </span>
+          )}
+        </p>
+      )}
+      <div className="space-y-1.5 text-sm">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// Standard Recharts Tooltip contentStyle - transparent to let component handle styling
+const STANDARD_TOOLTIP_STYLE = {
+  backgroundColor: 'transparent',
+  border: 'none',
+  borderRadius: '8px',
+  padding: 0,
+};
+
+// Standardized Info Tooltip for title explanations (hover tooltips)
+const StandardInfoTooltip = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#1A1A1A] rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+      <div className="text-xs space-y-2 text-gray-700 dark:text-gray-300">
+        {children}
+      </div>
+    </div>
+  );
 };
 
 export function EnergyDashboard({
@@ -855,6 +932,65 @@ export function EnergyDashboard({
     previousYearTotalEnergy,
   } = dashboardMetrics;
 
+  // Flatten sourceBreakdown to show individual metrics as pie slices
+  const flattenedSourceBreakdown = useMemo(() => {
+    const flattened: Array<{
+      name: string;
+      displayName: string;
+      subcategoryName: string;
+      categoryName: string;
+      value: number;
+      emissions: number;
+      renewable?: boolean | null;
+    }> = [];
+
+    sourceBreakdown.forEach((source) => {
+      if (source.subcategories && source.subcategories.length > 0) {
+        // If source has subcategories, go deeper to individual metrics
+        source.subcategories.forEach((sub) => {
+          if (sub.metrics && sub.metrics.length > 0) {
+            // Create a slice for each individual metric
+            sub.metrics.forEach((metric) => {
+              flattened.push({
+                name: `${source.name} - ${sub.name} - ${metric.name}`,
+                displayName: metric.name,
+                subcategoryName: sub.name,
+                categoryName: source.name,
+                value: metric.value,
+                emissions: metric.emissions,
+                renewable: source.renewable,
+              });
+            });
+          } else {
+            // If no metrics, use subcategory itself
+            flattened.push({
+              name: `${source.name} - ${sub.name}`,
+              displayName: sub.name,
+              subcategoryName: sub.name,
+              categoryName: source.name,
+              value: sub.value,
+              emissions: sub.emissions,
+              renewable: source.renewable,
+            });
+          }
+        });
+      } else {
+        // If no subcategories, use the source itself
+        flattened.push({
+          name: source.name,
+          displayName: source.name,
+          subcategoryName: source.name,
+          categoryName: source.name,
+          value: source.value,
+          emissions: source.emissions,
+          renewable: source.renewable,
+        });
+      }
+    });
+
+    return flattened;
+  }, [sourceBreakdown]);
+
   // Smart kWh/MWh unit selection based on total energy consumption magnitude
   const threshold = 10000; // 10,000 kWh = 10 MWh
   const useMWh = totalEnergy >= threshold;
@@ -915,34 +1051,29 @@ export function EnergyDashboard({
             </h3>
 
             {/* Hover Tooltip */}
-            <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-              <div className="mb-2">
-                <p className="text-gray-200 text-[11px] leading-relaxed">
-                  {t('cards.totalEnergy.explanation')}
-                </p>
-              </div>
+            <StandardInfoTooltip>
+              <p className="leading-relaxed">
+                {t('cards.totalEnergy.explanation')}
+              </p>
 
               {/* Compliance Badges */}
-              <div className="mt-3 pt-2 border-t border-purple-500/30">
-                <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                   {tGlobal('carbonEquivalentTooltip.compliantWith')}
                 </p>
                 <div className="flex gap-1 flex-wrap">
-                  <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                  <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[9px] rounded border border-green-300 dark:border-green-700">
                     GRI 302-1
                   </span>
-                  <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                  <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] rounded border border-blue-300 dark:border-blue-700">
                     ESRS E1-5
                   </span>
-                  <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                  <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[9px] rounded border border-purple-300 dark:border-purple-700">
                     ISO 50001
                   </span>
                 </div>
               </div>
-
-              {/* Arrow indicator */}
-              <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
-            </div>
+            </StandardInfoTooltip>
           </div>
           <div className="flex items-end justify-between">
             <div>
@@ -1024,34 +1155,30 @@ export function EnergyDashboard({
             </h3>
 
             {/* Hover Tooltip */}
-            <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-              <div className="mb-2">
-                <p className="text-gray-200 text-[11px] leading-relaxed">
+            <StandardInfoTooltip>
+              <p className="leading-relaxed">
                   {t('cards.renewable.explanation')}
-                </p>
-              </div>
+              </p>
 
               {/* Compliance Badges */}
-              <div className="mt-3 pt-2 border-t border-purple-500/30">
-                <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                   {tGlobal('carbonEquivalentTooltip.compliantWith')}
                 </p>
                 <div className="flex gap-1 flex-wrap">
-                  <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                  <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[9px] rounded border border-green-300 dark:border-green-700">
                     GRI 302-1
                   </span>
-                  <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                  <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] rounded border border-blue-300 dark:border-blue-700">
                     ESRS E1-5
                   </span>
-                  <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                  <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[9px] rounded border border-purple-300 dark:border-purple-700">
                     RE100
                   </span>
                 </div>
               </div>
 
-              {/* Arrow indicator */}
-              <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
-            </div>
+            </StandardInfoTooltip>
           </div>
           <div className="flex items-end justify-between">
             <div>
@@ -1096,23 +1223,21 @@ export function EnergyDashboard({
             </h3>
 
             {/* Hover Tooltip */}
-            <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-              <div className="mb-2">
-                <p className="text-gray-200 text-[11px] leading-relaxed">
+            <StandardInfoTooltip>
+              <p className="leading-relaxed">
                   {t('cards.emissions.explanation')}
-                </p>
-              </div>
+              </p>
 
               {/* Compliance Badges */}
-              <div className="mt-3 pt-2 border-t border-purple-500/30">
-                <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                   {tGlobal('carbonEquivalentTooltip.compliantWith')}
                 </p>
                 <div className="flex gap-1 flex-wrap">
                   <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
                     GHG Protocol
                   </span>
-                  <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                  <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[9px] rounded border border-purple-300 dark:border-purple-700">
                     SBTi
                   </span>
                   <span className="px-1.5 py-0.5 bg-orange-100/20 text-orange-300 text-[9px] rounded border border-orange-500/30">
@@ -1121,9 +1246,7 @@ export function EnergyDashboard({
                 </div>
               </div>
 
-              {/* Arrow indicator */}
-              <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
-            </div>
+            </StandardInfoTooltip>
           </div>
           <div className="flex items-end justify-between">
             <div>
@@ -1169,34 +1292,29 @@ export function EnergyDashboard({
             </h3>
 
             {/* Hover Tooltip */}
-            <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-              <div className="mb-2">
-                <p className="text-gray-200 text-[11px] leading-relaxed">
+            <StandardInfoTooltip>
+              <p className="leading-relaxed">
                   {t('cards.intensity.explanation')}
-                </p>
-              </div>
+              </p>
 
               {/* Compliance Badges */}
-              <div className="mt-3 pt-2 border-t border-purple-500/30">
-                <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                   {tGlobal('carbonEquivalentTooltip.compliantWith')}
                 </p>
                 <div className="flex gap-1 flex-wrap">
-                  <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                  <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[9px] rounded border border-green-300 dark:border-green-700">
                     GRI 302-3
                   </span>
-                  <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                  <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] rounded border border-blue-300 dark:border-blue-700">
                     ESRS E1-5
                   </span>
-                  <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                  <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[9px] rounded border border-purple-300 dark:border-purple-700">
                     ISO 50001
                   </span>
                 </div>
               </div>
-
-              {/* Arrow indicator */}
-              <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
-            </div>
+            </StandardInfoTooltip>
           </div>
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
             {energyIntensity.toFixed(1)}
@@ -1220,42 +1338,38 @@ export function EnergyDashboard({
                 </h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                  <div className="mb-2">
-                    <p className="text-gray-200 text-[11px] leading-relaxed">
+                <StandardInfoTooltip>
+                  <p className="leading-relaxed">
                       {t('charts.sourcesDistribution.explanation')}
-                    </p>
-                  </div>
+                  </p>
 
                   {/* Compliance Badges */}
-                  <div className="mt-3 pt-2 border-t border-purple-500/30">
-                    <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                       {tGlobal('carbonEquivalentTooltip.compliantWith')}
                     </p>
                     <div className="flex gap-1 flex-wrap">
-                      <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                      <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[9px] rounded border border-green-300 dark:border-green-700">
                         GRI 302-1
                       </span>
-                      <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                      <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] rounded border border-blue-300 dark:border-blue-700">
                         ESRS E1-5
                       </span>
                     </div>
                   </div>
 
-                  {/* Arrow indicator */}
-                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
-                </div>
+                </StandardInfoTooltip>
               </div>
             </div>
 
-            <div className="flex items-center justify-center" style={{ height: '400px' }}>
+            <div className="flex items-center justify-center" style={{ height: '450px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={sourceBreakdown}
+                    data={flattenedSourceBreakdown}
                     dataKey="value"
                     nameKey="name"
-                    cx="45%"
+                    cx="50%"
                     cy="50%"
                     outerRadius={130}
                     innerRadius={80}
@@ -1279,16 +1393,63 @@ export function EnergyDashboard({
                         percent,
                         value,
                         index,
+                        payload,
                       }: any) => {
                         const RADIAN = Math.PI / 180;
-                        const radius = outerRadius + 30;
+                        const radius = outerRadius + 15; // Reduced from 30 to 15 to keep labels closer
                         let x = cx + radius * Math.cos(-midAngle * RADIAN);
                         let y = cy + radius * Math.sin(-midAngle * RADIAN);
-                        const translatedName = translateEnergySource(name, t);
+
+                        // Adjust x position for labels to prevent overlap with pie
+                        const isLeftSide = x < cx;
+                        if (isLeftSide) {
+                          x = x - 100; // Move labels on left side further left
+                        } else {
+                          x = x + 20; // Move labels on right side further right
+                        }
+
+                        // Use displayName for individual metrics
+                        const displayName = payload?.displayName || name;
+                        const categoryName = payload?.categoryName || name;
+                        const translatedName = translateEnergySource(displayName, t);
+
+                        // Smart word wrapping for labels (max 3 lines)
+                        const MAX_CHARS_PER_LINE = 12;
+                        const MAX_LINES = 3;
+                        const wrapText = (text: string): string[] => {
+                          const words = text.split(' ');
+                          const lines: string[] = [];
+                          let currentLine = '';
+
+                          words.forEach((word) => {
+                            const testLine = currentLine ? `${currentLine} ${word}` : word;
+                            if (testLine.length <= MAX_CHARS_PER_LINE) {
+                              currentLine = testLine;
+                            } else {
+                              if (currentLine) {
+                                lines.push(currentLine);
+                                currentLine = word;
+                              } else {
+                                // Word is longer than max chars, break it
+                                lines.push(word);
+                                currentLine = '';
+                              }
+                            }
+                          });
+
+                          if (currentLine) {
+                            lines.push(currentLine);
+                          }
+
+                          // Limit to MAX_LINES
+                          return lines.slice(0, MAX_LINES);
+                        };
+
+                        const nameLines = wrapText(translatedName);
                         const mwhValue = (value / 1000).toFixed(1);
                         const percentage = (percent * 100).toFixed(0);
-                        const textAnchor = x > cx ? 'start' : 'end';
-                        const color = getSourceColor(name);
+                        const textAnchor = 'start'; // Always align left
+                        const color = getSourceColor(displayName); // Use displayName for unique colors
                         const isSmallSegment = percent < SMALL_SEGMENT_THRESHOLD / 100;
 
                         // Check for overlap with existing labels on the same side
@@ -1341,7 +1502,12 @@ export function EnergyDashboard({
                         }
 
                         // Store this label's position
-                        labelPositions.push({ x, y, angle: midAngle, name, value });
+                        labelPositions.push({ x, y, angle: midAngle, name: displayName, value });
+
+                        // Calculate starting Y position to center multi-line labels
+                        const totalLines = nameLines.length + 1; // +1 for value line
+                        const lineHeight = 13;
+                        const startOffset = -(totalLines - 1) * lineHeight / 2;
 
                         return (
                           <text
@@ -1352,10 +1518,16 @@ export function EnergyDashboard({
                             dominantBaseline="central"
                             style={{ fontSize: '12px' }}
                           >
-                            <tspan x={x} dy="-8">
-                              {translatedName}
-                            </tspan>
-                            <tspan x={x} dy="14">
+                            {nameLines.map((line, idx) => (
+                              <tspan
+                                key={idx}
+                                x={x}
+                                dy={idx === 0 ? startOffset : lineHeight}
+                              >
+                                {line}
+                              </tspan>
+                            ))}
+                            <tspan x={x} dy={lineHeight}>
                               {mwhValue} MWh ({percentage}%)
                             </tspan>
                           </text>
@@ -1365,20 +1537,16 @@ export function EnergyDashboard({
                     })()}
                     labelLine={true}
                   >
-                    {sourceBreakdown.map((entry: EnergySourceBreakdownEntry, index: number) => (
-                      <Cell key={`cell-${index}`} fill={getSourceColor(entry.name)} stroke="none" />
+                    {flattenedSourceBreakdown.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={getSourceColor(entry.displayName)} stroke="none" />
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '8px',
-                    }}
+                    contentStyle={STANDARD_TOOLTIP_STYLE}
                     content={({ active, payload }: any) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
-                        const color = getSourceColor(data.name);
+                        const color = getSourceColor(data.displayName);
 
                         // Find matching previous year source by name
                         const prevSource = prevYearSourceBreakdown.find(
@@ -1390,33 +1558,39 @@ export function EnergyDashboard({
                         }
 
                         return (
-                          <div className="bg-[#111111] border border-[#1A1A1A] rounded-lg p-3">
-                            <p className="text-white font-semibold mb-2">{data.name}</p>
-                            <p className="text-sm" style={{ color }}>
-                              {t('tooltips.consumption')}{' '}
-                              {formatEnergyConsumption(data.value).value}{' '}
-                              {formatEnergyConsumption(data.value).unit}
+                          <StandardTooltipContent
+                            title={translateEnergySource(data.displayName, t)}
+                            subtitle={data.renewable ? '🌿 ' + t('tooltips.renewable') : undefined}
+                          >
+                            <p className="text-gray-600 dark:text-gray-400 text-xs">
+                              {translateEnergySource(data.categoryName, t)} → {translateEnergySource(data.subcategoryName, t)}
                             </p>
-                            <p className="text-sm" style={{ color }}>
-                              {t('tooltips.share')} {((data.value / totalEnergy) * 100).toFixed(1)}%
+                            <p className="text-gray-900 dark:text-white">
+                              <span className="text-gray-600 dark:text-gray-400">{t('tooltips.consumption')}</span>{' '}
+                              <span className="font-medium" style={{ color }}>
+                                {formatEnergyConsumption(data.value).value}{' '}
+                                {formatEnergyConsumption(data.value).unit}
+                              </span>
                             </p>
-                            <p className="text-sm text-[#A1A1AA] mt-1">
-                              {t('tooltips.emissions')} {data.emissions.toFixed(2)} tCO2e
+                            <p className="text-gray-900 dark:text-white">
+                              <span className="text-gray-600 dark:text-gray-400">{t('tooltips.share')}</span>{' '}
+                              <span className="font-medium" style={{ color }}>
+                                {((data.value / totalEnergy) * 100).toFixed(1)}%
+                              </span>
+                            </p>
+                            <p className="text-gray-900 dark:text-white">
+                              <span className="text-gray-600 dark:text-gray-400">{t('tooltips.emissions')}</span>{' '}
+                              <span className="font-medium">{data.emissions.toFixed(1)} tCO2e</span>
                             </p>
                             {yoyChange !== null && (
-                              <p
-                                className={`text-sm font-semibold mt-1 ${yoyChange >= 0 ? 'text-red-400' : 'text-green-400'}`}
-                              >
-                                {t('units.yoy')}: {yoyChange > 0 ? '+' : ''}
-                                {yoyChange.toFixed(1)}%
+                              <p className="text-gray-900 dark:text-white pt-1 border-t border-gray-200 dark:border-[#2A2A2A]">
+                                <span className="text-gray-600 dark:text-gray-400">{t('units.yoy')}</span>{' '}
+                                <span className={`font-semibold ${yoyChange >= 0 ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                                  {yoyChange > 0 ? '+' : ''}{yoyChange.toFixed(1)}%
+                                </span>
                               </p>
                             )}
-                            {data.renewable && (
-                              <span className="inline-block mt-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
-                                {t('tooltips.renewable')}
-                              </span>
-                            )}
-                          </div>
+                          </StandardTooltipContent>
                         );
                       }
                       return null;
@@ -1439,31 +1613,27 @@ export function EnergyDashboard({
                 </h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                  <div className="mb-2">
-                    <p className="text-gray-200 text-[11px] leading-relaxed">
+                <StandardInfoTooltip>
+                  <p className="leading-relaxed">
                       {t('charts.monthlyEvolution.explanation')}
-                    </p>
-                  </div>
+                  </p>
 
                   {/* Compliance Badges */}
-                  <div className="mt-3 pt-2 border-t border-purple-500/30">
-                    <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                       {tGlobal('carbonEquivalentTooltip.compliantWith')}
                     </p>
                     <div className="flex gap-1 flex-wrap">
-                      <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                      <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] rounded border border-blue-300 dark:border-blue-700">
                         ESRS E1-5
                       </span>
-                      <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                      <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[9px] rounded border border-purple-300 dark:border-purple-700">
                         TCFD
                       </span>
                     </div>
                   </div>
 
-                  {/* Arrow indicator */}
-                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
-                </div>
+                </StandardInfoTooltip>
               </div>
               <p className="text-sm text-gray-500 dark:text-[#A1A1AA]">
                 {t('forecast.includesMLForecast', { count: forecastData.length })}
@@ -1533,33 +1703,27 @@ export function EnergyDashboard({
                   }}
                 />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px',
-                  }}
+                  contentStyle={STANDARD_TOOLTIP_STYLE}
                   content={({ active, payload, label }: any) => {
                     if (active && payload && payload.length) {
                       const isForecast = payload[0]?.payload?.forecast;
                       return (
-                        <div className="bg-[#111111] border border-[#1A1A1A] rounded-lg p-3">
-                          <p className="text-white font-semibold mb-2">
-                            {label}
-                            {isForecast && (
-                              <span className="ml-2 text-xs text-blue-400">
-                                {t('tooltips.forecast')}
-                              </span>
-                            )}
-                          </p>
+                        <StandardTooltipContent
+                          title={label}
+                          subtitle={isForecast ? t('tooltips.forecast') : undefined}
+                        >
                           {payload.map(
                             (entry: any, index: number) =>
                               entry.value > 0 && (
-                                <p key={index} style={{ color: entry.color }} className="text-sm">
-                                  {entry.name}: {(entry.value / 1000).toFixed(1)} MWh
+                                <p key={index} className="text-gray-900 dark:text-white">
+                                  <span className="text-gray-600 dark:text-gray-400">{entry.name}:</span>{' '}
+                                  <span className="font-medium" style={{ color: entry.color }}>
+                                    {(entry.value / 1000).toFixed(1)} MWh
+                                  </span>
                                 </p>
                               )
                           )}
-                        </div>
+                        </StandardTooltipContent>
                       );
                     }
                     return null;
@@ -1652,31 +1816,27 @@ export function EnergyDashboard({
                   </h3>
 
                   {/* Hover Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                    <div className="mb-2">
-                      <p className="text-gray-200 text-[11px] leading-relaxed">
+                  <StandardInfoTooltip>
+                    <p className="leading-relaxed">
                         {t('charts.yoyComparison.explanation')}
-                      </p>
-                    </div>
+                    </p>
 
                     {/* Compliance Badges */}
-                    <div className="mt-3 pt-2 border-t border-purple-500/30">
-                      <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                    <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                      <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                         {tGlobal('carbonEquivalentTooltip.compliantWith')}
                       </p>
                       <div className="flex gap-1 flex-wrap">
-                        <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                        <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[9px] rounded border border-green-300 dark:border-green-700">
                           GRI 302-1
                         </span>
-                        <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                        <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] rounded border border-blue-300 dark:border-blue-700">
                           ESRS E1-5
                         </span>
                       </div>
                     </div>
 
-                    {/* Arrow indicator */}
-                    <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
-                  </div>
+                  </StandardInfoTooltip>
                 </div>
                 <p className="text-sm text-gray-500 dark:text-[#A1A1AA]">
                   {t('charts.yoyComparison.description')}
@@ -1745,11 +1905,7 @@ export function EnergyDashboard({
                       }}
                     />
                     <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '8px',
-                      }}
+                      contentStyle={STANDARD_TOOLTIP_STYLE}
                       content={({ active, payload }: any) => {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload;
@@ -1757,35 +1913,31 @@ export function EnergyDashboard({
                           const current = data.current;
                           const previous = data.previous;
                           return (
-                            <div className="bg-[#111111] border border-[#1A1A1A] rounded-lg p-3">
-                              <p className="text-white font-semibold mb-2">{data.month}</p>
-                              <div className="space-y-1 text-xs mb-2">
-                                <p className="text-[#A1A1AA]">
-                                  {t('tooltips.current')}{' '}
-                                  <span className="font-medium text-white">
-                                    {formatEnergyConsumption(current).value}{' '}
-                                    {formatEnergyConsumption(current).unit}
-                                  </span>
-                                </p>
-                                <p className="text-[#A1A1AA]">
-                                  {t('tooltips.lastYear')}{' '}
-                                  <span className="font-medium text-white">
-                                    {formatEnergyConsumption(previous).value}{' '}
-                                    {formatEnergyConsumption(previous).unit}
-                                  </span>
-                                </p>
-                              </div>
-                              <p
-                                className={`text-sm font-bold ${change >= 0 ? 'text-red-400' : 'text-green-400'}`}
-                              >
-                                {change > 0 ? '+' : ''}
-                                {change.toFixed(1)}% {t('units.yoy')}
+                            <StandardTooltipContent title={data.month}>
+                              <p className="text-gray-900 dark:text-white">
+                                <span className="text-gray-600 dark:text-gray-400">{t('tooltips.current')}</span>{' '}
+                                <span className="font-medium">
+                                  {formatEnergyConsumption(current).value}{' '}
+                                  {formatEnergyConsumption(current).unit}
+                                </span>
                               </p>
-                              <p className="text-xs text-[#A1A1AA] mt-1">
-                                {change >= 0 ? t('tooltips.increase') : t('tooltips.decrease')} in
-                                consumption
+                              <p className="text-gray-900 dark:text-white">
+                                <span className="text-gray-600 dark:text-gray-400">{t('tooltips.lastYear')}</span>{' '}
+                                <span className="font-medium">
+                                  {formatEnergyConsumption(previous).value}{' '}
+                                  {formatEnergyConsumption(previous).unit}
+                                </span>
                               </p>
-                            </div>
+                              <p className="text-gray-900 dark:text-white pt-1 border-t border-gray-200 dark:border-[#2A2A2A]">
+                                <span className="text-gray-600 dark:text-gray-400">{t('units.yoy')}</span>{' '}
+                                <span className={`font-semibold ${change >= 0 ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                                  {change > 0 ? '+' : ''}{change.toFixed(1)}%
+                                </span>
+                              </p>
+                              <p className="text-xs text-gray-600 dark:text-gray-500">
+                                {change >= 0 ? t('tooltips.increase') : t('tooltips.decrease')} in consumption
+                              </p>
+                            </StandardTooltipContent>
                           );
                         }
                         return null;
@@ -1894,7 +2046,7 @@ export function EnergyDashboard({
                     </h3>
 
                     {/* Hover Tooltip */}
-                    <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
+                    <StandardInfoTooltip>
                       <div className="mb-2">
                         <p className="text-gray-200 text-[11px] leading-relaxed">
                           {t('charts.gridMix.explanation')}
@@ -1902,8 +2054,8 @@ export function EnergyDashboard({
                       </div>
 
                       {/* Compliance Badges */}
-                      <div className="mt-3 pt-2 border-t border-purple-500/30">
-                        <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                           {tGlobal('carbonEquivalentTooltip.compliantWith')}
                         </p>
                         <div className="flex gap-1 flex-wrap">
@@ -1915,15 +2067,13 @@ export function EnergyDashboard({
                               GHG Scope 3.3
                             </span>
                           )}
-                          <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                          <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[9px] rounded border border-purple-300 dark:border-purple-700">
                             TCFD
                           </span>
                         </div>
                       </div>
 
-                      {/* Arrow indicator */}
-                      <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
-                    </div>
+                    </StandardInfoTooltip>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-[#A1A1AA]">
                     {t('tooltips.year')} {mix.year}
@@ -1966,46 +2116,46 @@ export function EnergyDashboard({
                       (mix.emission_factors.carbon_intensity_scope2 ||
                         mix.emission_factors.carbon_intensity_scope3_cat3 ||
                         mix.emission_factors.carbon_intensity_lifecycle) && (
-                        <div className="absolute top-full right-4 mt-2 p-3 bg-[#111111] border border-[#1A1A1A] rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 w-72">
-                          <div className="text-xs font-semibold text-gray-300 mb-2 text-center">
+                        <div className="absolute top-full right-4 mt-2 p-3 bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#1A1A1A] rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 w-72">
+                          <div className="text-xs font-semibold text-gray-900 dark:text-gray-300 mb-2 text-center">
                             {t('emissionFactors.title')}
                           </div>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                             {mix.emission_factors.carbon_intensity_scope2 && (
                               <div className="text-center">
-                                <div className="text-[#A1A1AA] mb-1">
+                                <div className="text-gray-600 dark:text-[#A1A1AA] mb-1">
                                   {t('emissionFactors.scope2')}
                                 </div>
-                                <div className="font-bold text-green-400">
-                                  {mix.emission_factors.carbon_intensity_scope2.toFixed(0)}
+                                <div className="font-bold text-green-600 dark:text-green-400">
+                                  {mix.emission_factors.carbon_intensity_scope2.toFixed(1)}
                                 </div>
-                                <div className="text-xs text-[#757575]">
+                                <div className="text-xs text-gray-500 dark:text-[#757575]">
                                   {t('emissionFactors.direct')}
                                 </div>
                               </div>
                             )}
                             {mix.emission_factors.carbon_intensity_scope3_cat3 && (
                               <div className="text-center">
-                                <div className="text-[#A1A1AA] mb-1">
+                                <div className="text-gray-600 dark:text-[#A1A1AA] mb-1">
                                   {t('emissionFactors.scope3')}
                                 </div>
-                                <div className="font-bold text-orange-400">
-                                  {mix.emission_factors.carbon_intensity_scope3_cat3.toFixed(0)}
+                                <div className="font-bold text-orange-600 dark:text-orange-400">
+                                  {mix.emission_factors.carbon_intensity_scope3_cat3.toFixed(1)}
                                 </div>
-                                <div className="text-xs text-[#757575]">
+                                <div className="text-xs text-gray-500 dark:text-[#757575]">
                                   {t('emissionFactors.upstream')}
                                 </div>
                               </div>
                             )}
                             {mix.emission_factors.carbon_intensity_lifecycle && (
                               <div className="text-center">
-                                <div className="text-[#A1A1AA] mb-1">
+                                <div className="text-gray-600 dark:text-[#A1A1AA] mb-1">
                                   {t('emissionFactors.total')}
                                 </div>
-                                <div className="font-bold text-blue-400">
-                                  {mix.emission_factors.carbon_intensity_lifecycle.toFixed(0)}
+                                <div className="font-bold text-blue-600 dark:text-blue-400">
+                                  {mix.emission_factors.carbon_intensity_lifecycle.toFixed(1)}
                                 </div>
-                                <div className="text-xs text-[#757575]">
+                                <div className="text-xs text-gray-500 dark:text-[#757575]">
                                   {t('emissionFactors.lifecycle')}
                                 </div>
                               </div>
@@ -2116,31 +2266,27 @@ export function EnergyDashboard({
                 </h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                  <div className="mb-2">
-                    <p className="text-gray-200 text-[11px] leading-relaxed">
+                <StandardInfoTooltip>
+                  <p className="leading-relaxed">
                       {t('charts2.stackedBreakdownDescription')}
-                    </p>
-                  </div>
+                  </p>
 
                   {/* Compliance Badges */}
-                  <div className="mt-3 pt-2 border-t border-purple-500/30">
-                    <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                       {tGlobal('carbonEquivalentTooltip.compliantWith')}
                     </p>
                     <div className="flex gap-1 flex-wrap">
-                      <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                      <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[9px] rounded border border-green-300 dark:border-green-700">
                         GRI 302-1
                       </span>
-                      <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                      <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] rounded border border-blue-300 dark:border-blue-700">
                         ESRS E1-5
                       </span>
                     </div>
                   </div>
 
-                  {/* Arrow indicator */}
-                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
-                </div>
+                </StandardInfoTooltip>
               </div>
             </div>
 
@@ -2183,37 +2329,34 @@ export function EnergyDashboard({
                   tickFormatter={(value) => (value / 1000).toFixed(0)}
                 />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px',
-                  }}
+                  contentStyle={STANDARD_TOOLTIP_STYLE}
                   content={({ active, payload }: any) => {
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       return (
-                        <div className="bg-[#111111] border border-[#1A1A1A] rounded-lg p-3">
-                          <p className="text-white font-semibold mb-2">{data.month}</p>
-                          <div className="space-y-1 text-sm">
-                            {payload.map((entry: any, idx: number) => {
-                              if (
-                                entry.dataKey !== 'month' &&
-                                entry.dataKey !== 'monthKey' &&
-                                entry.dataKey !== 'total'
-                              ) {
-                                return (
-                                  <p key={idx} style={{ color: entry.fill }}>
-                                    {entry.dataKey}: {(entry.value / 1000).toFixed(1)} MWh
-                                  </p>
-                                );
-                              }
-                              return null;
-                            })}
-                            <p className="text-white font-bold border-t border-[#757575] pt-1 mt-1">
-                              {t('legends.total')}: {(data.total / 1000).toFixed(1)} MWh
-                            </p>
-                          </div>
-                        </div>
+                        <StandardTooltipContent title={data.month}>
+                          {payload.map((entry: any, idx: number) => {
+                            if (
+                              entry.dataKey !== 'month' &&
+                              entry.dataKey !== 'monthKey' &&
+                              entry.dataKey !== 'total'
+                            ) {
+                              return (
+                                <p key={idx} className="text-gray-900 dark:text-white">
+                                  <span className="text-gray-600 dark:text-gray-400">{entry.dataKey}:</span>{' '}
+                                  <span className="font-medium" style={{ color: entry.fill }}>
+                                    {(entry.value / 1000).toFixed(1)} MWh
+                                  </span>
+                                </p>
+                              );
+                            }
+                            return null;
+                          })}
+                          <p className="text-gray-900 dark:text-white pt-1 border-t border-gray-200 dark:border-[#2A2A2A]">
+                            <span className="text-gray-600 dark:text-gray-400">{t('legends.total')}:</span>{' '}
+                            <span className="font-semibold">{(data.total / 1000).toFixed(1)} MWh</span>
+                          </p>
+                        </StandardTooltipContent>
                       );
                     }
                     return null;
@@ -2245,28 +2388,24 @@ export function EnergyDashboard({
                     {t('sitePerformance.title')}
                   </h3>
                   {/* Tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                    <div className="mb-2">
-                      <p className="text-white text-[11px] leading-relaxed whitespace-pre-line">
-                        {t('explanations.sitePerformance')}
-                      </p>
-                    </div>
+                  <StandardInfoTooltip>
+                    <p className="leading-relaxed whitespace-pre-line">
+                      {t('explanations.sitePerformance')}
+                    </p>
 
                     {/* Compliance Badges */}
-                    <div className="mt-3 pt-2 border-t border-purple-500/30">
-                      <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                    <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                      <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                         {tGlobal('carbonEquivalentTooltip.compliantWith')}
                       </p>
                       <div className="flex gap-1 flex-wrap">
-                        <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                        <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[9px] rounded border border-green-300 dark:border-green-700">
                           GRI 302-3
                         </span>
                       </div>
                     </div>
 
-                    {/* Arrow indicator */}
-                    <div className="absolute -bottom-1 left-4 w-2 h-2 bg-gradient-to-br from-purple-900 to-blue-900 border-r border-b border-purple-500/30 transform rotate-45"></div>
-                  </div>
+                  </StandardInfoTooltip>
                 </div>
               </div>
             </div>
@@ -2329,18 +2468,21 @@ export function EnergyDashboard({
                             width={0}
                           />
                           <Tooltip
+                            contentStyle={STANDARD_TOOLTIP_STYLE}
                             cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
                             content={({ active, payload }: any) => {
                               if (active && payload && payload.length) {
                                 const data = payload[0].payload;
                                 return (
-                                  <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
-                                    <p className="text-white font-semibold mb-1">{data.name}</p>
-                                    <p className="text-white text-sm">{data.intensity} kWh/m²</p>
-                                    <p className="text-gray-400 text-xs mt-1">
-                                      Rank #{data.rank} of {chartData.length}
+                                  <StandardTooltipContent title={data.name}>
+                                    <p className="text-gray-900 dark:text-white">
+                                      <span className="text-gray-600 dark:text-gray-400">Intensidade:</span>{' '}
+                                      <span className="font-medium">{data.intensity.toFixed(1)} kWh/m²</span>
                                     </p>
-                                  </div>
+                                    <p className="text-xs text-gray-600 dark:text-gray-500">
+                                      Rank #{data.rank} de {chartData.length}
+                                    </p>
+                                  </StandardTooltipContent>
                                 );
                               }
                               return null;
@@ -2353,7 +2495,7 @@ export function EnergyDashboard({
                               position: 'inside',
                               fill: 'white',
                               fontSize: 11,
-                              formatter: (value: number) => `${Math.round(value)} kWh/m²`,
+                              formatter: (value: number) => `${value.toFixed(1)} kWh/m²`,
                             }}
                           >
                             {chartData.map((entry, index) => (
@@ -2405,31 +2547,27 @@ export function EnergyDashboard({
                 </h3>
 
                 {/* Hover Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                  <div className="mb-2">
-                    <p className="text-gray-200 text-[11px] leading-relaxed">
+                <StandardInfoTooltip>
+                  <p className="leading-relaxed">
                       {t('sbti.description')}
-                    </p>
-                  </div>
+                  </p>
 
                   {/* Compliance Badges */}
-                  <div className="mt-3 pt-2 border-t border-purple-500/30">
-                    <p className="text-purple-200 text-[10px] font-medium mb-1.5">
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                       {tGlobal('carbonEquivalentTooltip.compliantWith')}
                     </p>
                     <div className="flex gap-1 flex-wrap">
                       <span className="px-1.5 py-0.5 bg-cyan-100/20 text-cyan-300 text-[9px] rounded border border-cyan-500/30">
                         GHG Protocol
                       </span>
-                      <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                      <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[9px] rounded border border-purple-300 dark:border-purple-700">
                         SBTi
                       </span>
                     </div>
                   </div>
 
-                  {/* Arrow indicator */}
-                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95"></div>
-                </div>
+                </StandardInfoTooltip>
               </div>
               <p className="text-sm text-gray-500 dark:text-[#A1A1AA]">
                 {t('sbti.pathway')} • {overallTargetPercent}% {t('sbti.annualReduction')} •{' '}
@@ -2718,35 +2856,30 @@ export function EnergyDashboard({
                     </h3>
 
                     {/* Hover Tooltip */}
-                    <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-blue-900/95 to-cyan-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-blue-500/30">
-                      <div className="mb-2">
-                        <p className="text-gray-200 text-[11px] leading-relaxed">
-                          Track progress toward energy efficiency targets and renewable energy
-                          adoption goals. Based on ISO 50001 Energy Management System standards.
-                        </p>
-                      </div>
+                    <StandardInfoTooltip>
+                      <p className="leading-relaxed">
+                        Track progress toward energy efficiency targets and renewable energy
+                        adoption goals. Based on ISO 50001 Energy Management System standards.
+                      </p>
 
                       {/* Compliance Badges */}
-                      <div className="mt-3 pt-2 border-t border-blue-500/30">
-                        <p className="text-blue-200 text-[10px] font-medium mb-1.5">
+                      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium mb-1.5">
                           {tGlobal('carbonEquivalentTooltip.compliantWith')}
                         </p>
                         <div className="flex gap-1 flex-wrap">
-                          <span className="px-1.5 py-0.5 bg-green-100/20 text-green-300 text-[9px] rounded border border-green-500/30">
+                          <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[9px] rounded border border-green-300 dark:border-green-700">
                             ISO 50001
                           </span>
-                          <span className="px-1.5 py-0.5 bg-blue-100/20 text-blue-300 text-[9px] rounded border border-blue-500/30">
+                          <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] rounded border border-blue-300 dark:border-blue-700">
                             GRI 302-1
                           </span>
-                          <span className="px-1.5 py-0.5 bg-purple-100/20 text-purple-300 text-[9px] rounded border border-purple-500/30">
+                          <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[9px] rounded border border-purple-300 dark:border-purple-700">
                             RE100
                           </span>
                         </div>
                       </div>
-
-                      {/* Arrow indicator */}
-                      <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-blue-900/95"></div>
-                    </div>
+                    </StandardInfoTooltip>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {'ISO 50001 Energy Efficiency Benchmark'} • {baselineYear} → {targetYear}
@@ -2973,11 +3106,7 @@ export function EnergyDashboard({
                               }}
                             />
                             <Tooltip
-                              contentStyle={{
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                borderRadius: '8px',
-                              }}
+                              contentStyle={STANDARD_TOOLTIP_STYLE}
                               content={({ active, payload }: any) => {
                                 if (active && payload && payload.length) {
                                   const data = payload[0].payload;
@@ -2985,35 +3114,36 @@ export function EnergyDashboard({
                                   const total = data.total || 0;
 
                                   return (
-                                    <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
-                                      <p className="text-white font-semibold mb-2">
-                                        {data.name.replace('\n', ' ')}
-                                      </p>
-                                      <div className="space-y-1 text-xs">
-                                        {data.label && data.label.includes('-') ? (
-                                          <p className="text-green-400">
-                                            {t('energyProgress.waterfallChart.tooltip.reduction')}:{' '}
-                                            <span className="font-medium">
-                                              {(value / 1000).toFixed(1)} MWh
-                                            </span>
-                                          </p>
-                                        ) : data.label && data.label.includes('+') ? (
-                                          <p className="text-red-400">
-                                            {t('energyProgress.waterfallChart.tooltip.increase')}:{' '}
-                                            <span className="font-medium">
-                                              {(value / 1000).toFixed(1)} MWh
-                                            </span>
-                                          </p>
-                                        ) : (
-                                          <p className="text-gray-300">
-                                            {t('energyProgress.waterfallChart.tooltip.total')}:{' '}
-                                            <span className="font-medium text-white">
-                                              {(total / 1000).toFixed(1)} MWh
-                                            </span>
-                                          </p>
-                                        )}
-                                      </div>
-                                    </div>
+                                    <StandardTooltipContent title={data.name.replace('\n', ' ')}>
+                                      {data.label && data.label.includes('-') ? (
+                                        <p className="text-gray-900 dark:text-white">
+                                          <span className="text-gray-600 dark:text-gray-400">
+                                            {t('energyProgress.waterfallChart.tooltip.reduction')}:
+                                          </span>{' '}
+                                          <span className="font-medium text-green-600 dark:text-green-400">
+                                            {(value / 1000).toFixed(1)} MWh
+                                          </span>
+                                        </p>
+                                      ) : data.label && data.label.includes('+') ? (
+                                        <p className="text-gray-900 dark:text-white">
+                                          <span className="text-gray-600 dark:text-gray-400">
+                                            {t('energyProgress.waterfallChart.tooltip.increase')}:
+                                          </span>{' '}
+                                          <span className="font-medium text-red-500 dark:text-red-400">
+                                            {(value / 1000).toFixed(1)} MWh
+                                          </span>
+                                        </p>
+                                      ) : (
+                                        <p className="text-gray-900 dark:text-white">
+                                          <span className="text-gray-600 dark:text-gray-400">
+                                            {t('energyProgress.waterfallChart.tooltip.total')}:
+                                          </span>{' '}
+                                          <span className="font-medium">
+                                            {(total / 1000).toFixed(1)} MWh
+                                          </span>
+                                        </p>
+                                      )}
+                                    </StandardTooltipContent>
                                   );
                                 }
                                 return null;

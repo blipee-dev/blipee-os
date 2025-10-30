@@ -44,7 +44,10 @@ import {
 import { MetricTargetsCard } from '@/components/sustainability/MetricTargetsCard';
 import { RecommendationsModal } from '@/components/sustainability/RecommendationsModal';
 import { useTranslations, useLanguage } from '@/providers/LanguageProvider';
-import { useWaterDashboard, useWaterSiteComparison } from '@/hooks/useDashboardData';
+import {
+  useWaterDashboardAdapter as useWaterDashboard,
+  useWaterSiteComparisonAdapter as useWaterSiteComparison,
+} from '@/hooks/useConsolidatedDashboard';
 
 interface WaterDashboardProps {
   organizationId: string;
@@ -164,7 +167,7 @@ export function WaterDashboard({
     const totalCost = data.total_cost || 0;
     const recyclingRate = data.recycling_rate || 0;
     const monthlyTrends = data.monthly_trends || [];
-    const waterIntensity = data.water_intensity || 0;
+    const waterIntensity = data.waterIntensity || 0; // ✅ FIXED: Use camelCase from API
     const endUseBreakdown = data.end_use_breakdown || [];
     const endUseYoY = data.end_use_yoy || [];
 
@@ -264,27 +267,18 @@ export function WaterDashboard({
   // Check if selected period is current year
   const isCurrentYear = new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear();
 
-  // Smart kL/ML unit selection based on total withdrawal magnitude
+  // Always use m³ as the standard unit (no kL/ML conversion)
   const threshold = 10000; // 10,000 m³
-  const useKL = totalWithdrawal < threshold;
+  const useKL = totalWithdrawal < threshold; // Keep for legacy intensity calculations
 
-  // Helper function to format water volume with smart unit selection
+  // Helper function to format water volume - ALWAYS use m³
   const formatWaterVolume = (m3: number) => {
-    if (useKL) {
-      return {
-        value: m3.toFixed(0),
-        unit: 'kL',
-        yAxisLabel: 'Water Volume (kL)',
-        fullLabel: `${m3.toFixed(0)} kL`
-      };
-    } else {
-      return {
-        value: (m3 / 1000).toFixed(1),
-        unit: 'ML',
-        yAxisLabel: 'Water Volume (ML)',
-        fullLabel: `${(m3 / 1000).toFixed(1)} ML`
-      };
-    }
+    return {
+      value: m3.toFixed(0),
+      unit: 'm³',
+      yAxisLabel: 'Water Volume (m³)',
+      fullLabel: `${m3.toFixed(0)} m³`
+    };
   };
 
   // Show loading spinner while fetching data
@@ -547,10 +541,10 @@ export function WaterDashboard({
             </span>
           </div>
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {useKL ? waterIntensity.toFixed(3) : (waterIntensity / 1000).toFixed(3)}
+            {waterIntensity.toFixed(3)}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {useKL ? t('cards.intensity.unit').replace('ML', 'kL') : t('cards.intensity.unit')}
+            m³/m²
           </div>
         </article>
       </section>

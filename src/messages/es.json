@@ -3763,6 +3763,10 @@
           "explanation": "Desglose del consumo de energía por tipo de fuente. Muestra la proporción de cada fuente de energía en su mezcla energética total, ayudando a identificar oportunidades para la adopción de energía renovable.",
           "noData": "No hay datos de fuentes de energía disponibles"
         },
+        "sourcesBreakdown": {
+          "title": "Desglose de Fuentes de Energía",
+          "subtitle": "Desglose detallado por categoría, subcategoría y métrica"
+        },
         "monthlyEvolution": {
           "title": "Evolución Mensual",
           "explanation": "Tendencias mensuales de consumo de energía a lo largo del tiempo, incluyendo pronóstico ML para los meses restantes. La línea discontinua representa el consumo pronosticado basado en patrones históricos y estacionalidad.",

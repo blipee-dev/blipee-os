@@ -249,17 +249,18 @@ export class UnifiedSustainabilityCalculator {
    * Get reduction rate for a specific domain
    */
   private getReductionRate(target: SustainabilityTarget, domain: Domain): number {
+    // ✅ NO HARDCODED! Use domain-specific rates, fallback to target_reduction_percent (NOT NULL in DB)
     switch (domain) {
       case 'energy':
-        return target.energy_reduction_percent || 4.2;
+        return target.energy_reduction_percent || target.target_reduction_percent;
       case 'water':
-        return target.water_reduction_percent || 2.5;
+        return target.water_reduction_percent || target.target_reduction_percent;
       case 'waste':
-        return target.waste_reduction_percent || 3.0;
+        return target.waste_reduction_percent || target.target_reduction_percent;
       case 'emissions':
-        return target.emissions_reduction_percent || target.target_reduction_percent || 4.2;
+        return target.emissions_reduction_percent || target.target_reduction_percent;
       default:
-        return 4.2;
+        return target.target_reduction_percent;
     }
   }
 
@@ -530,7 +531,7 @@ export class UnifiedSustainabilityCalculator {
       case 'energy':
         return 'kWh';
       case 'water':
-        return 'ML';
+        return 'm³'; // Standardized to m³ (not ML)
       case 'waste':
         return 'tonnes';
       case 'emissions':

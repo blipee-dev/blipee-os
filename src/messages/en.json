@@ -3747,6 +3747,10 @@
           "explanation": "Breakdown of energy consumption by source type. Shows the proportion of each energy source in your total energy mix, helping identify opportunities for renewable energy adoption.",
           "noData": "No energy sources data available"
         },
+        "sourcesBreakdown": {
+          "title": "Energy Sources Breakdown",
+          "subtitle": "Detailed breakdown by category, subcategory, and metric"
+        },
         "monthlyEvolution": {
           "title": "Monthly Evolution",
           "explanation": "Monthly energy consumption trends over time, including ML forecast for remaining months. The dashed line represents forecasted consumption based on historical patterns and seasonality.",

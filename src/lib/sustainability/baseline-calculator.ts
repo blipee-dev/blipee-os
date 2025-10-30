@@ -461,7 +461,7 @@ export async function getWaterTotal(
     organizationId,
     `
       value,
-      metrics_catalog!inner(name, category)
+      metrics_catalog!inner(name, category, subcategory, unit, water_type)
     `,
     startDate,
     endDate,
@@ -472,21 +472,49 @@ export async function getWaterTotal(
     return { value: 0, unit: 'm³', recordCount: 0 };
   }
 
-  // OPTIMIZED: Single-pass calculation with filter + sum
-  let total = 0;
+  // Helper: Convert to m³ (replicated from Water API)
+  const convertToM3 = (value: number, unit: string): number => {
+    const unitLower = unit.toLowerCase().trim();
+    if (unitLower === 'm³' || unitLower === 'm3') return value;
+    if (unitLower === 'ml' || unitLower === 'megaliters') return value * 1000;
+    if (unitLower === 'l' || unitLower === 'liters') return value / 1000;
+    return value;
+  };
+
+  // ✅ GRI 303-5 FORMULA: Consumption = Withdrawal - Discharge + Recycled
+  let withdrawal = 0;
+  let discharge = 0;
+  let recycled = 0;
   let recordCount = 0;
 
   metricsData.forEach(d => {
-    const name = (d.metrics_catalog as any)?.name;
-    const category = (d.metrics_catalog as any)?.category;
-    if (name === 'Water' || name === 'Wastewater' || category === 'Water') {
-      total += d.value || 0;
-      recordCount++;
+    const subcategory = (d.metrics_catalog as any)?.subcategory;
+    const waterType = (d.metrics_catalog as any)?.water_type;
+    const unit = (d.metrics_catalog as any)?.unit || 'm³';
+    const rawValue = d.value || 0;
+
+    // Only process water metrics
+    if (subcategory === 'Water') {
+      const valueM3 = convertToM3(rawValue, unit);
+
+      if (waterType === 'withdrawal') {
+        withdrawal += valueM3;
+        recordCount++;
+      } else if (waterType === 'discharge') {
+        discharge += valueM3;
+        recordCount++;
+      } else if (waterType === 'recycled') {
+        recycled += valueM3;
+        recordCount++;
+      }
     }
   });
 
+  // Apply GRI 303-5 formula
+  const consumption = withdrawal - discharge + recycled;
+
   return {
-    value: Math.round(total),
+    value: Math.round(consumption),
     unit: 'm³',
     recordCount
   };

@@ -205,11 +205,12 @@ export class ForecastPrecomputeService {
     const { error: insertError } = await this.supabase
       .from('ml_predictions')
       .insert({
-        model_id: null, // Not using specific model ID for Prophet
+        model_id: null, // Prophet forecasts don't use ml_models table
         organization_id: organizationId,
         site_id: siteId, // ✅ Store site-specific forecast
         prediction_type: 'forecast',
-        predicted_values: prophetResponse.forecasted,
+        prediction: prophetResponse.forecasted, // ✅ Correct column name
+        input_data: {}, // Required field
         confidence_lower: prophetResponse.confidence.lower,
         confidence_upper: prophetResponse.confidence.upper,
         metadata: {
