@@ -97,16 +97,38 @@ export class ForecastPrecomputeService {
 
       console.log(`📋 Found ${metrics.length} metrics in catalog`);
 
-      // 4. Generate forecasts for each organization and metric
+      // 4. Generate forecasts for each organization, site, and metric
       for (const org of organizations) {
         console.log(`\n🏢 Processing organization: ${org.name}`);
 
-        for (const metric of metrics) {
-          try {
-            await this.generateMetricForecast(org.id, org.name, metric, stats);
-          } catch (error) {
-            console.error(`❌ Failed to generate forecast for ${metric.category}/${metric.subcategory} - ${org.name}:`, error);
-            stats.errors++;
+        // 4a. Get all sites for this organization
+        const { data: sites, error: sitesError } = await this.supabase
+          .from('sites')
+          .select('id, name')
+          .eq('organization_id', org.id)
+          .eq('status', 'active');
+
+        if (sitesError) {
+          console.error(`❌ Failed to fetch sites for ${org.name}:`, sitesError);
+          continue;
+        }
+
+        if (!sites || sites.length === 0) {
+          console.log(`   ⚠️  No active sites found for ${org.name}`);
+          continue;
+        }
+
+        console.log(`   📍 Processing ${sites.length} sites`);
+
+        // 4b. Generate forecasts for each site and metric
+        for (const site of sites) {
+          for (const metric of metrics) {
+            try {
+              await this.generateMetricForecast(org.id, org.name, site.id, site.name, metric, stats);
+            } catch (error) {
+              console.error(`❌ Failed to generate forecast for ${metric.category}/${metric.subcategory} - ${site.name}:`, error);
+              stats.errors++;
+            }
           }
         }
       }
@@ -128,21 +150,24 @@ export class ForecastPrecomputeService {
   }
 
   /**
-   * Generate forecast for a specific organization and metric
+   * Generate forecast for a specific organization, site, and metric
    */
   private async generateMetricForecast(
     organizationId: string,
     organizationName: string,
+    siteId: string,
+    siteName: string,
     metric: { id: string; category: string; subcategory: string; name: string; code: string },
     stats: ForecastStats
   ): Promise<void> {
-    // 1. Check if recent forecast exists (< 4 hours old)
+    // 1. Check if recent forecast exists (< 4 hours old) for this site
     const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
 
     const { data: existingForecast } = await this.supabase
       .from('ml_predictions')
       .select('id, created_at')
       .eq('organization_id', organizationId)
+      .eq('site_id', siteId) // ✅ Check per site
       .eq('metadata->>metric_id', metric.id)
       .eq('prediction_type', 'forecast')
       .gte('created_at', fourHoursAgo)
@@ -155,8 +180,8 @@ export class ForecastPrecomputeService {
       return;
     }
 
-    // 2. Fetch historical data (last 24 months) for this specific metric
-    const historicalData = await this.fetchMetricHistoricalData(organizationId, metric.id);
+    // 2. Fetch historical data for this specific site and metric
+    const historicalData = await this.fetchMetricHistoricalData(organizationId, siteId, metric.id);
 
     if (historicalData.length < 12) {
       stats.skipped++;
@@ -164,7 +189,7 @@ export class ForecastPrecomputeService {
     }
 
     // 3. Call Prophet service
-    console.log(`🔮 ${metric.category}/${metric.subcategory} - ${metric.name} (${historicalData.length} months)`);
+    console.log(`🔮 ${siteName} > ${metric.category}/${metric.subcategory} - ${metric.name} (${historicalData.length} months)`);
 
     const prophetResponse = await prophetClient.forecast({
       domain: metric.category, // Use category as domain
@@ -176,12 +201,13 @@ export class ForecastPrecomputeService {
       monthsToForecast: 12,
     });
 
-    // 4. Store forecast in ml_predictions table
+    // 4. Store forecast in ml_predictions table with site_id
     const { error: insertError } = await this.supabase
       .from('ml_predictions')
       .insert({
         model_id: null, // Not using specific model ID for Prophet
         organization_id: organizationId,
+        site_id: siteId, // ✅ Store site-specific forecast
         prediction_type: 'forecast',
         predicted_values: prophetResponse.forecasted,
         confidence_lower: prophetResponse.confidence.lower,
@@ -192,6 +218,8 @@ export class ForecastPrecomputeService {
           category: metric.category,
           subcategory: metric.subcategory,
           metric_name: metric.name,
+          site_id: siteId, // ✅ Also in metadata for easy querying
+          site_name: siteName,
           method: prophetResponse.method,
           trend: prophetResponse.metadata.trend,
           yearly: prophetResponse.metadata.yearly,
@@ -204,12 +232,12 @@ export class ForecastPrecomputeService {
       });
 
     if (insertError) {
-      console.error(`❌ Failed to store ${metric.category}/${metric.subcategory} forecast for ${organizationName}:`, insertError);
+      console.error(`❌ Failed to store ${metric.category}/${metric.subcategory} forecast for ${siteName}:`, insertError);
       stats.errors++;
       return;
     }
 
-    console.log(`✅ ${metric.category}/${metric.subcategory} - ${metric.name} forecast generated for ${organizationName}`);
+    console.log(`✅ ${siteName} > ${metric.category}/${metric.subcategory} - ${metric.name} forecast generated`);
     stats.generated++;
   }
 
@@ -219,6 +247,7 @@ export class ForecastPrecomputeService {
    */
   private async fetchMetricHistoricalData(
     organizationId: string,
+    siteId: string,
     metricId: string
   ): Promise<Array<{ date: string; value: number }>> {
     // Fetch ALL available data - no time limitation
@@ -227,6 +256,7 @@ export class ForecastPrecomputeService {
       .from('metrics_data')
       .select('period_start, value')
       .eq('organization_id', organizationId)
+      .eq('site_id', siteId)
       .eq('metric_id', metricId)
       .order('period_start', { ascending: true });
 

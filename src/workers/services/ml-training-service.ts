@@ -113,20 +113,42 @@ export class MLTrainingService {
         return;
       }
 
-      // Train models for each organization and metric combination
+      // Train models for each organization, site, and metric combination
       for (const org of orgs) {
         console.log(`\n   🏢 Organization: ${org.name} (${org.id})`);
 
-        for (const metric of metrics) {
-          try {
-            // Train LSTM model for this specific metric
-            await this.trainMetricSpecificModel(org.id, metric, 'emissions_prediction');
+        // Get all sites for this organization
+        const { data: sites, error: sitesError } = await supabase
+          .from('sites')
+          .select('id, name')
+          .eq('organization_id', org.id)
+          .eq('status', 'active');
 
-            // Train Autoencoder for anomaly detection on this metric
-            await this.trainMetricSpecificModel(org.id, metric, 'anomaly_detection');
-          } catch (error) {
-            console.error(`   ❌ Training failed for ${metric.name}:`, error);
-            this.stats.trainingErrors++;
+        if (sitesError) {
+          console.error(`   ❌ Failed to fetch sites for ${org.name}:`, sitesError);
+          continue;
+        }
+
+        if (!sites || sites.length === 0) {
+          console.log(`   ⚠️  No active sites found for ${org.name}`);
+          continue;
+        }
+
+        console.log(`   📍 Training models for ${sites.length} sites`);
+
+        // Train models for each site and metric
+        for (const site of sites) {
+          for (const metric of metrics) {
+            try {
+              // Train LSTM model for this specific site and metric
+              await this.trainMetricSpecificModel(org.id, site.id, site.name, metric, 'emissions_prediction');
+
+              // Train Autoencoder for anomaly detection on this site and metric
+              await this.trainMetricSpecificModel(org.id, site.id, site.name, metric, 'anomaly_detection');
+            } catch (error) {
+              console.error(`   ❌ Training failed for ${site.name} - ${metric.name}:`, error);
+              this.stats.trainingErrors++;
+            }
           }
         }
       }
@@ -148,14 +170,16 @@ export class MLTrainingService {
 
   private async trainMetricSpecificModel(
     organizationId: string,
+    siteId: string,
+    siteName: string,
     metric: { id: string; category: string; subcategory: string; name: string; code: string },
     modelType: 'emissions_prediction' | 'anomaly_detection'
   ): Promise<void> {
     try {
-      console.log(`     📊 ${metric.category} > ${metric.subcategory} > ${metric.name} (${modelType})`);
+      console.log(`     📊 ${siteName} > ${metric.category} > ${metric.subcategory} > ${metric.name} (${modelType})`);
 
-      // 1. Prepare training data for this specific metric
-      const trainingData = await this.prepareTrainingData(organizationId, metric.id);
+      // 1. Prepare training data for this specific site and metric
+      const trainingData = await this.prepareTrainingData(organizationId, siteId, metric.id);
 
       if (!trainingData || trainingData.length < 10) {
         console.log(`        ⚠️  Insufficient data: ${trainingData?.length || 0} samples`);
@@ -164,11 +188,12 @@ export class MLTrainingService {
 
       console.log(`        ✅ Training data: ${trainingData.length} samples`);
 
-      // 2. Check if model already exists
+      // 2. Check if model already exists for this site
       const { data: existingModel } = await supabase
         .from('ml_models')
         .select('*')
         .eq('organization_id', organizationId)
+        .eq('site_id', siteId)
         .eq('metric_id', metric.id)
         .eq('model_type', modelType)
         .eq('status', 'active')
@@ -204,8 +229,8 @@ export class MLTrainingService {
       // 5. Evaluate model
       const evaluation = await this.evaluateModel(trainedModel, trainingData);
 
-      // 6. Save model to storage
-      await this.saveModel(modelConfig, trainedModel, evaluation, metric.id);
+      // 6. Save model to storage with site_id
+      await this.saveModel(modelConfig, trainedModel, evaluation, metric.id, siteId, siteName);
 
       this.stats.modelsTrainedCount++;
       console.log(`        ✅ Model trained successfully`);
@@ -220,14 +245,17 @@ export class MLTrainingService {
     modelConfig: ModelConfig,
     trainedModel: any,
     evaluation: any,
-    metricId: string
+    metricId: string,
+    siteId: string,
+    siteName: string
   ): Promise<void> {
     try {
-      // Save model to ml_model_storage with metric_id
+      // Save model to ml_model_storage with site_id and metric_id
       const { error: storageError } = await supabase
         .from('ml_model_storage')
         .upsert({
           organization_id: modelConfig.organization_id,
+          site_id: siteId, // ✅ Store site-specific model
           model_type: modelConfig.model_type,
           metric_id: metricId, // ✅ Include metric_id (like Prophet)
           model_data: trainedModel,
@@ -246,6 +274,7 @@ export class MLTrainingService {
         .insert({
           id: modelConfig.id,
           organization_id: modelConfig.organization_id,
+          site_id: siteId, // ✅ Include site_id for site-specific model
           model_type: modelConfig.model_type,
           model_name: modelConfig.model_name,
           version: modelConfig.version,
@@ -330,16 +359,18 @@ export class MLTrainingService {
 
   private async prepareTrainingData(
     organizationId: string,
+    siteId: string,
     metricId: string
   ): Promise<any[] | null> {
     try {
-      // Get ALL historical data for this specific metric (no time limitation)
+      // Get ALL historical data for this specific site and metric (no time limitation)
       // Deep learning models benefit from more data - use all 46+ months available
-      // Same approach as Prophet forecasting - filter by metric_id
+      // Same approach as Prophet forecasting - filter by site_id and metric_id
       const { data, error } = await supabase
         .from('metrics_data')
         .select('*')
         .eq('organization_id', organizationId)
+        .eq('site_id', siteId) // ✅ Filter by specific site
         .eq('metric_id', metricId) // ✅ Filter by specific metric (like Prophet)
         .order('period_start', { ascending: true })
         .limit(5000); // Increased from 1000 to handle more historical data

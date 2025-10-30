@@ -30,6 +30,8 @@ export interface OptimizationServiceStats {
 
 interface OptimizationOpportunity {
   organization_id: string;
+  site_id?: string; // Optional: null for org-level or cross-site opportunities
+  site_name?: string;
   type: 'energy_waste' | 'emission_hotspot' | 'water_inefficiency' | 'cost_reduction';
   title: string;
   description: string;
@@ -99,38 +101,68 @@ export class OptimizationOpportunitiesService {
   private async analyzeOrganization(orgId: string, orgName: string): Promise<void> {
     console.log(`   Analyzing: ${orgName}`);
 
-    const opportunities: OptimizationOpportunity[] = [];
+    // Get all sites for this organization
+    const { data: sites, error: sitesError } = await supabase
+      .from('sites')
+      .select('id, name')
+      .eq('organization_id', orgId)
+      .eq('status', 'active');
 
-    // 1. Analyze energy waste
-    const energyOpportunities = await this.findEnergyWaste(orgId);
-    opportunities.push(...energyOpportunities);
+    if (sitesError) {
+      console.error(`     ❌ Failed to fetch sites:`, sitesError);
+      return;
+    }
 
-    // 2. Analyze emission hotspots
-    const emissionOpportunities = await this.findEmissionHotspots(orgId);
-    opportunities.push(...emissionOpportunities);
+    if (!sites || sites.length === 0) {
+      console.log(`     ⚠️  No active sites found`);
+      return;
+    }
 
-    // 3. Analyze water inefficiencies
-    const waterOpportunities = await this.findWaterInefficiencies(orgId);
-    opportunities.push(...waterOpportunities);
+    console.log(`     📍 Analyzing ${sites.length} sites`);
 
-    // 4. Find cost reduction opportunities
-    const costOpportunities = await this.findCostReductions(orgId);
-    opportunities.push(...costOpportunities);
+    const allOpportunities: OptimizationOpportunity[] = [];
 
-    // Save opportunities to database
-    if (opportunities.length > 0) {
-      await this.saveOpportunities(opportunities);
-      this.stats.opportunitiesFound += opportunities.length;
-      this.stats.potentialSavings += opportunities.reduce((sum, o) => sum + o.potential_savings, 0);
-      console.log(`     ✅ Found ${opportunities.length} opportunities`);
+    // Analyze each site individually
+    for (const site of sites) {
+      const opportunities: OptimizationOpportunity[] = [];
+
+      // 1. Analyze energy waste per site
+      const energyOpportunities = await this.findEnergyWaste(orgId, site.id, site.name);
+      opportunities.push(...energyOpportunities);
+
+      // 2. Analyze emission hotspots per site
+      const emissionOpportunities = await this.findEmissionHotspots(orgId, site.id, site.name);
+      opportunities.push(...emissionOpportunities);
+
+      // 3. Analyze water inefficiencies per site
+      const waterOpportunities = await this.findWaterInefficiencies(orgId, site.id, site.name);
+      opportunities.push(...waterOpportunities);
+
+      // 4. Find cost reduction opportunities per site
+      const costOpportunities = await this.findCostReductions(orgId, site.id, site.name);
+      opportunities.push(...costOpportunities);
+
+      allOpportunities.push(...opportunities);
+
+      if (opportunities.length > 0) {
+        console.log(`       ${site.name}: Found ${opportunities.length} opportunities`);
+      }
+    }
+
+    // Save all opportunities to database
+    if (allOpportunities.length > 0) {
+      await this.saveOpportunities(allOpportunities);
+      this.stats.opportunitiesFound += allOpportunities.length;
+      this.stats.potentialSavings += allOpportunities.reduce((sum, o) => sum + o.potential_savings, 0);
+      console.log(`     ✅ Total: ${allOpportunities.length} opportunities across all sites`);
     }
   }
 
-  private async findEnergyWaste(orgId: string): Promise<OptimizationOpportunity[]> {
+  private async findEnergyWaste(orgId: string, siteId: string, siteName: string): Promise<OptimizationOpportunity[]> {
     const opportunities: OptimizationOpportunity[] = [];
 
     try {
-      // Get energy consumption data for last 3 months
+      // Get energy consumption data for this specific site for last 3 months
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
@@ -138,6 +170,7 @@ export class OptimizationOpportunitiesService {
         .from('metrics_data')
         .select('*, metrics_catalog!inner(*)')
         .eq('organization_id', orgId)
+        .eq('site_id', siteId)
         .in('metrics_catalog.category', ['Purchased Energy', 'Electricity'])
         .gte('period_start', threeMonthsAgo.toISOString())
         .order('period_start', { ascending: false })
@@ -156,15 +189,17 @@ export class OptimizationOpportunitiesService {
 
           opportunities.push({
             organization_id: orgId,
+            site_id: siteId,
+            site_name: siteName,
             type: 'energy_waste',
-            title: 'Unusual Energy Consumption Spike Detected',
-            description: `Energy consumption increased by ${((increase / previous.value) * 100).toFixed(1)}% from last month. Investigate potential equipment malfunction or inefficient usage patterns.`,
+            title: `Unusual Energy Consumption Spike Detected at ${siteName}`,
+            description: `Energy consumption at ${siteName} increased by ${((increase / previous.value) * 100).toFixed(1)}% from last month. Investigate potential equipment malfunction or inefficient usage patterns.`,
             potential_savings: estimatedCost,
             potential_emission_reduction: increase * 0.4, // kg CO2e per kWh
             confidence_score: 0.75,
             priority: 'high',
             implementation_effort: 'low',
-            data_source: { latest_value: latest.value, previous_value: previous.value },
+            data_source: { latest_value: latest.value, previous_value: previous.value, site_id: siteId, site_name: siteName },
           });
         }
       }
@@ -176,15 +211,16 @@ export class OptimizationOpportunitiesService {
     return opportunities;
   }
 
-  private async findEmissionHotspots(orgId: string): Promise<OptimizationOpportunity[]> {
+  private async findEmissionHotspots(orgId: string, siteId: string, siteName: string): Promise<OptimizationOpportunity[]> {
     const opportunities: OptimizationOpportunity[] = [];
 
     try {
-      // Get emissions data grouped by scope
+      // Get emissions data for this specific site grouped by scope
       const { data: emissionsData } = await supabase
         .from('metrics_data')
         .select('*, metrics_catalog!inner(*)')
         .eq('organization_id', orgId)
+        .eq('site_id', siteId)
         .not('metrics_catalog.scope', 'is', null)
         .order('value', { ascending: false })
         .limit(50);
@@ -202,15 +238,17 @@ export class OptimizationOpportunitiesService {
           // If single source is >30% of Scope 3
           opportunities.push({
             organization_id: orgId,
+            site_id: siteId,
+            site_name: siteName,
             type: 'emission_hotspot',
-            title: 'High-Impact Emission Source Identified',
-            description: `${topSource.metrics_catalog?.name} accounts for ${((topSource.value / totalScope3) * 100).toFixed(1)}% of Scope 3 emissions. Consider supplier optimization or alternative materials.`,
+            title: `High-Impact Emission Source at ${siteName}`,
+            description: `${topSource.metrics_catalog?.name} at ${siteName} accounts for ${((topSource.value / totalScope3) * 100).toFixed(1)}% of Scope 3 emissions. Consider supplier optimization or alternative materials.`,
             potential_savings: topSource.value * 25, // Estimated carbon offset cost
             potential_emission_reduction: topSource.value * 0.2, // 20% reduction potential
             confidence_score: 0.8,
             priority: 'high',
             implementation_effort: 'medium',
-            data_source: { source: topSource.metrics_catalog?.name, value: topSource.value },
+            data_source: { source: topSource.metrics_catalog?.name, value: topSource.value, site_id: siteId, site_name: siteName },
           });
         }
       }
@@ -222,15 +260,16 @@ export class OptimizationOpportunitiesService {
     return opportunities;
   }
 
-  private async findWaterInefficiencies(orgId: string): Promise<OptimizationOpportunity[]> {
+  private async findWaterInefficiencies(orgId: string, siteId: string, siteName: string): Promise<OptimizationOpportunity[]> {
     const opportunities: OptimizationOpportunity[] = [];
 
     try {
-      // Get water usage data
+      // Get water usage data for this specific site
       const { data: waterData } = await supabase
         .from('metrics_data')
         .select('*, metrics_catalog!inner(*)')
         .eq('organization_id', orgId)
+        .eq('site_id', siteId)
         .or('metrics_catalog.name.ilike.%water%,metrics_catalog.name.ilike.%wastewater%')
         .order('period_start', { ascending: false })
         .limit(20);
@@ -244,15 +283,17 @@ export class OptimizationOpportunitiesService {
       if (latest.value > average * 1.15) {
         opportunities.push({
           organization_id: orgId,
+          site_id: siteId,
+          site_name: siteName,
           type: 'water_inefficiency',
-          title: 'Water Consumption Above Average',
-          description: `Current water usage is ${((latest.value / average - 1) * 100).toFixed(1)}% above 5-month average. Check for leaks or inefficient processes.`,
+          title: `Water Consumption Above Average at ${siteName}`,
+          description: `Current water usage at ${siteName} is ${((latest.value / average - 1) * 100).toFixed(1)}% above 5-month average. Check for leaks or inefficient processes.`,
           potential_savings: (latest.value - average) * 0.005, // $0.005 per gallon
           potential_emission_reduction: 0,
           confidence_score: 0.7,
           priority: 'medium',
           implementation_effort: 'low',
-          data_source: { current: latest.value, average },
+          data_source: { current: latest.value, average, site_id: siteId, site_name: siteName },
         });
       }
 
@@ -263,10 +304,10 @@ export class OptimizationOpportunitiesService {
     return opportunities;
   }
 
-  private async findCostReductions(orgId: string): Promise<OptimizationOpportunity[]> {
+  private async findCostReductions(orgId: string, siteId: string, siteName: string): Promise<OptimizationOpportunity[]> {
     const opportunities: OptimizationOpportunity[] = [];
 
-    // Future: Analyze procurement data, energy contracts, waste management costs
+    // Future: Analyze site-specific procurement data, energy contracts, waste management costs
     // For now, placeholder for cost optimization logic
 
     return opportunities;
@@ -276,19 +317,26 @@ export class OptimizationOpportunitiesService {
     try {
       for (const opp of opportunities) {
         // Map to actual database schema
+        const opportunityData: any = {
+          organization_id: opp.organization_id,
+          area: opp.type, // type maps to area
+          description: `${opp.title}\n\n${opp.description}`,
+          improvement_potential: opp.potential_emission_reduction,
+          estimated_savings: opp.potential_savings,
+          complexity: opp.implementation_effort,
+          confidence: opp.confidence_score,
+          actions: opp.data_source,
+          status: 'pending',
+        };
+
+        // Include site_id if available (site-specific opportunity)
+        if (opp.site_id) {
+          opportunityData.site_id = opp.site_id;
+        }
+
         const { data: savedOpp } = await supabase
           .from('optimization_opportunities')
-          .insert({
-            organization_id: opp.organization_id,
-            area: opp.type, // type maps to area
-            description: `${opp.title}\n\n${opp.description}`,
-            improvement_potential: opp.potential_emission_reduction,
-            estimated_savings: opp.potential_savings,
-            complexity: opp.implementation_effort,
-            confidence: opp.confidence_score,
-            actions: opp.data_source,
-            status: 'pending',
-          })
+          .insert(opportunityData)
           .select()
           .single();
 
