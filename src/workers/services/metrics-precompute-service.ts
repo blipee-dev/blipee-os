@@ -114,6 +114,17 @@ export class MetricsPreComputeService {
         this.stats.baselinesComputed++;
       }
 
+      // Fetch all sites for this organization
+      const { data: sites, error: sitesError } = await supabase
+        .from('sites')
+        .select('id, name')
+        .eq('organization_id', orgId)
+        .eq('status', 'active');
+
+      if (sitesError) {
+        console.error(`     ⚠️  Failed to fetch sites:`, sitesError);
+      }
+
       // Generate forecasts for next 12 months
       const forecastStartDate = new Date();
       forecastStartDate.setMonth(forecastStartDate.getMonth() + 1); // Start next month
@@ -122,6 +133,34 @@ export class MetricsPreComputeService {
 
       const domains: Domain[] = ['emissions', 'energy', 'water', 'waste'];
 
+      // Generate site-level forecasts if we have sites
+      if (sites && sites.length > 0) {
+        console.log(`     📍 Generating forecasts for ${sites.length} sites`);
+
+        for (const site of sites) {
+          for (const domain of domains) {
+            try {
+              const forecast = await getUnifiedForecast({
+                organizationId: orgId,
+                domain,
+                startDate: forecastStartDate.toISOString().split('T')[0],
+                endDate: forecastEndDate.toISOString().split('T')[0],
+                siteId: site.id,
+              });
+
+              if (forecast) {
+                await this.cacheForecast(orgId, domain, forecast, site.id);
+                this.stats.forecastsGenerated++;
+              }
+            } catch (error) {
+              console.error(`     ⚠️  Site ${site.name} forecast failed for ${domain}:`, error);
+            }
+          }
+        }
+      }
+
+      // Also generate organization-level aggregate forecasts (sum of all sites)
+      console.log(`     🏢 Generating organization-level aggregate forecasts`);
       for (const domain of domains) {
         try {
           const forecast = await getUnifiedForecast({
@@ -129,14 +168,15 @@ export class MetricsPreComputeService {
             domain,
             startDate: forecastStartDate.toISOString().split('T')[0],
             endDate: forecastEndDate.toISOString().split('T')[0],
+            // No siteId = aggregate all sites
           });
 
           if (forecast) {
-            await this.cacheForecast(orgId, domain, forecast);
+            await this.cacheForecast(orgId, domain, forecast, null); // null siteId = org-level
             this.stats.forecastsGenerated++;
           }
         } catch (error) {
-          console.error(`     ⚠️  Forecast failed for ${domain}:`, error);
+          console.error(`     ⚠️  Org-level forecast failed for ${domain}:`, error);
         }
       }
 
@@ -194,7 +234,8 @@ export class MetricsPreComputeService {
   private async cacheForecast(
     orgId: string,
     domain: string,
-    forecast: any
+    forecast: any,
+    siteId: string | null = null
   ): Promise<void> {
     try {
       const startTime = Date.now();
@@ -207,7 +248,7 @@ export class MetricsPreComputeService {
       const periodStart = forecast.startDate || new Date().toISOString().split('T')[0];
       const periodEnd = forecast.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-      const { error } = await supabase.from('metrics_cache').upsert({
+      const cacheData: any = {
         organization_id: orgId,
         cache_type: 'forecast',
         domain,
@@ -217,10 +258,15 @@ export class MetricsPreComputeService {
         computed_at: new Date().toISOString(),
         expires_at: expiresAt.toISOString(),
         computation_time_ms: Date.now() - startTime,
-        data_version: 1,
-      }, {
-        onConflict: 'organization_id,cache_type,domain,period_start',
-      });
+        data_version: 2, // Updated to version 2 with site_id support
+      };
+
+      // Add site_id if provided (site-level forecast), otherwise NULL (org-level aggregate)
+      if (siteId) {
+        cacheData.site_id = siteId;
+      }
+
+      const { error } = await supabase.from('metrics_cache').upsert(cacheData);
 
       if (error) {
         console.error('     ⚠️  Cache forecast failed:', error);

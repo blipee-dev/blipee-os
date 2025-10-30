@@ -116,6 +116,7 @@ export async function setCachedBaseline(
 
 /**
  * Get cached forecast for a specific domain and time period
+ * Retrieves organization-level aggregate forecast (sum of all sites)
  * Falls back to computing if cache miss
  */
 export async function getCachedForecast(
@@ -127,6 +128,8 @@ export async function getCachedForecast(
   const client = supabase || createClient();
 
   try {
+    // Query for organization-level aggregate forecast (site_id IS NULL)
+    // Site-specific forecasts have site_id populated
     const { data, error } = await client
       .from('metrics_cache')
       .select('*')
@@ -134,6 +137,7 @@ export async function getCachedForecast(
       .eq('cache_type', 'forecast')
       .eq('domain', domain)
       .eq('period_start', startDate)
+      .is('site_id', null) // Only get org-level aggregate, not site-specific
       .maybeSingle();
 
     if (error) {
