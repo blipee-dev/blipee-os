@@ -17,6 +17,7 @@
 import { getAPIUser } from '@/lib/auth/server-auth';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { UnifiedSustainabilityCalculator } from '@/lib/sustainability/unified-calculator';
+import { ProphetForecastService } from '@/lib/forecasting/prophet-forecast-service';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Shared cache for targets (avoid duplicate fetches across domains)
@@ -100,9 +101,9 @@ export async function GET(request: NextRequest) {
         ? getEnergyData(organizationId, `${baselineYear}-01-01`, `${baselineYear}-12-31`, siteId)
         : Promise.resolve(null),
 
-      // Forecast (only for current year)
+      // Forecast (only for current year) - Prophet with fallback
       selectedYear === currentYear
-        ? calculator.getProjected('energy')
+        ? getEnergyForecastWithFallback(organizationId, siteId, calculator)
         : Promise.resolve(null),
 
       // Targets (using unified calculator - cached!)
@@ -645,4 +646,78 @@ async function getSiteComparison(
   });
 
   return result;
+}
+
+/**
+ * Get energy forecast with Prophet (preferred) and fallback to EnterpriseForecast
+ */
+async function getEnergyForecastWithFallback(
+  organizationId: string,
+  siteId: string | null,
+  calculator: UnifiedSustainabilityCalculator
+) {
+  try {
+    // If no site selected, use all sites - skip Prophet (Prophet is site-specific)
+    if (!siteId) {
+      console.log('🔮 [Forecast] No siteId - using EnterpriseForecast for organization-wide view');
+      return await calculator.getProjected('energy');
+    }
+
+    // 1. Try Prophet forecast first (higher quality, pre-computed)
+    console.log('🔮 [Forecast] Attempting Prophet forecast for site:', siteId);
+    const prophetForecast = await ProphetForecastService.getEnergyForecast(organizationId, siteId);
+
+    if (prophetForecast && prophetForecast.hasProphetData) {
+      console.log('✅ [Forecast] Using Prophet forecast!', {
+        model: prophetForecast.model,
+        confidence: prophetForecast.confidence,
+        dataPoints: prophetForecast.forecast.length,
+      });
+
+      // Transform Prophet format to unified calculator format
+      const ytd = await calculator.getYTDActual('energy');
+
+      // Calculate total forecasted value (sum of all forecast months)
+      const forecastedTotal = prophetForecast.forecast.reduce((sum, month) => sum + month.total, 0);
+      const projectedValue = (ytd?.value || 0) + forecastedTotal;
+
+      return {
+        value: projectedValue,
+        ytd: ytd?.value || 0,
+        forecast: prophetForecast.forecast.map(month => ({
+          monthKey: month.monthKey,
+          month: month.month,
+          total: month.total,
+          renewable: month.renewable || 0,
+          fossil: month.fossil || 0,
+          isForecast: true,
+          confidence: month.confidence,
+        })),
+        method: 'prophet',
+        breakdown: prophetForecast.forecast,
+        metadata: {
+          ...prophetForecast.metadata,
+          confidence: prophetForecast.confidence,
+          source: 'prophet-service',
+        },
+      };
+    }
+
+    // 2. Fallback to EnterpriseForecast (seasonal decomposition)
+    console.log('⚠️ [Forecast] No Prophet data available, falling back to EnterpriseForecast');
+    const enterpriseForecast = await calculator.getProjected('energy');
+
+    if (enterpriseForecast) {
+      console.log('✅ [Forecast] Using EnterpriseForecast (fallback)', {
+        method: enterpriseForecast.method,
+        value: enterpriseForecast.value,
+      });
+    }
+
+    return enterpriseForecast;
+  } catch (error) {
+    console.error('❌ [Forecast] Error in getEnergyForecastWithFallback:', error);
+    // Fallback to EnterpriseForecast on error
+    return await calculator.getProjected('energy');
+  }
 }
