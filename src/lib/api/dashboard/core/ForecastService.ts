@@ -136,16 +136,45 @@ export class ForecastService {
       }
 
       // Transform EnterpriseForecast format to unified ForecastResult format
+      // EnterpriseForecast returns: { month: string, total: number, renewable: number, fossil: number }
+      // We need: ForecastDataPoint with monthKey, month, total, isForecast, confidence
+      const transformedForecast: ForecastDataPoint[] = projected.forecast.map((item: any) => {
+        // Generate confidence intervals (±10% for Enterprise forecasts)
+        const totalLower = item.total * 0.9;
+        const totalUpper = item.total * 1.1;
+        const renewableLower = (item.renewable || 0) * 0.9;
+        const renewableUpper = (item.renewable || 0) * 1.1;
+        const fossilLower = (item.fossil || 0) * 0.9;
+        const fossilUpper = (item.fossil || 0) * 1.1;
+
+        return {
+          monthKey: item.month || item.monthKey, // Support both formats
+          month: this.formatMonthLabel(item.month || item.monthKey),
+          total: item.total,
+          renewable: item.renewable,
+          fossil: item.fossil,
+          isForecast: true,
+          confidence: {
+            totalLower,
+            totalUpper,
+            renewableLower,
+            renewableUpper,
+            fossilLower,
+            fossilUpper,
+          },
+        };
+      });
+
       return {
-        forecast: projected.forecast as ForecastDataPoint[],
+        forecast: transformedForecast,
         model: 'enterprise',
         confidence: 0.75, // Default confidence for EnterpriseForecast
         metadata: {
           totalTrend: 'stable',
-          dataPoints: projected.forecast.length,
+          dataPoints: transformedForecast.length,
           generatedAt: new Date().toISOString(),
           method: projected.method || 'seasonal_decomposition',
-          forecastHorizon: projected.forecast.length,
+          forecastHorizon: transformedForecast.length,
         },
         hasProphetData: false,
       };
@@ -153,6 +182,16 @@ export class ForecastService {
       console.error(`[ForecastService] Error with EnterpriseForecast for ${config.domain}:`, error);
       return null;
     }
+  }
+
+  /**
+   * Format month label from monthKey (e.g., "2025-11" -> "Nov")
+   */
+  private static formatMonthLabel(monthKey: string): string {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const [year, month] = monthKey.split('-');
+    const monthIndex = parseInt(month, 10) - 1;
+    return months[monthIndex] || monthKey;
   }
 
   /**
