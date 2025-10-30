@@ -17,7 +17,8 @@
 import { getAPIUser } from '@/lib/auth/server-auth';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { UnifiedSustainabilityCalculator } from '@/lib/sustainability/unified-calculator';
-import { ProphetForecastService } from '@/lib/forecasting/prophet-forecast-service';
+import { ForecastService } from '@/lib/api/dashboard/core/ForecastService';
+import { waterConfig } from '@/lib/api/dashboard/configs/water.config';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Shared cache for targets (avoid duplicate fetches across domains)
@@ -110,9 +111,9 @@ export async function GET(request: NextRequest) {
         ? getWaterData(organizationId, `${baselineYear}-01-01`, `${baselineYear}-12-31`, siteId)
         : Promise.resolve(null),
 
-      // Forecast (only for current year) - Prophet with fallback
+      // Forecast (only for current year) - Using unified ForecastService
       selectedYear === currentYear
-        ? getWaterForecastWithFallback(organizationId, siteId, calculator)
+        ? getForecastWithCalculations(organizationId, siteId, calculator)
         : Promise.resolve(null),
 
       // Targets (using unified calculator - cached!)
@@ -644,75 +645,56 @@ async function getWaterSiteComparison(
 }
 
 /**
- * Get water forecast with Prophet (preferred) and fallback to EnterpriseForecast
+ * Get water forecast using unified ForecastService with calculations
+ * Uses ForecastService (Prophet + EnterpriseForecast fallback)
  */
-async function getWaterForecastWithFallback(
+async function getForecastWithCalculations(
   organizationId: string,
   siteId: string | null,
   calculator: UnifiedSustainabilityCalculator
 ) {
   try {
-    // If no site selected, use all sites - skip Prophet (Prophet is site-specific)
-    if (!siteId) {
-      console.log('🔮 [Water Forecast] No siteId - using EnterpriseForecast for organization-wide view');
-      return await calculator.getProjected('water');
+    // Use unified ForecastService (handles Prophet + fallback automatically)
+    const forecastResult = await ForecastService.getForecast(
+      organizationId,
+      siteId,
+      waterConfig,
+      calculator
+    );
+
+    if (!forecastResult) {
+      console.log('⚠️ [Water Forecast] No forecast available');
+      return null;
     }
 
-    // 1. Try Prophet forecast first (higher quality, pre-computed)
-    console.log('🔮 [Water Forecast] Attempting Prophet forecast for site:', siteId);
-    const prophetForecast = await ProphetForecastService.getWaterForecast(organizationId, siteId);
+    // Get YTD actual value
+    const ytd = await calculator.getYTDActual('water');
 
-    if (prophetForecast && prophetForecast.hasProphetData) {
-      console.log('✅ [Water Forecast] Using Prophet forecast!', {
-        model: prophetForecast.model,
-        confidence: prophetForecast.confidence,
-        dataPoints: prophetForecast.forecast.length,
-      });
+    // Calculate total forecasted value (sum of all forecast months)
+    const forecastedTotal = forecastResult.forecast.reduce((sum, month) => sum + month.total, 0);
+    const projectedValue = (ytd?.value || 0) + forecastedTotal;
 
-      // Transform Prophet format to unified calculator format
-      const ytd = await calculator.getYTDActual('water');
+    console.log(`✅ [Water Forecast] Using ${forecastResult.model} forecast`, {
+      model: forecastResult.model,
+      confidence: forecastResult.confidence,
+      dataPoints: forecastResult.forecast.length,
+      projectedValue,
+    });
 
-      // Calculate total forecasted value (sum of all forecast months)
-      const forecastedTotal = prophetForecast.forecast.reduce((sum, month) => sum + month.total, 0);
-      const projectedValue = (ytd?.value || 0) + forecastedTotal;
-
-      return {
-        value: projectedValue,
-        ytd: ytd?.value || 0,
-        forecast: prophetForecast.forecast.map(month => ({
-          monthKey: month.monthKey,
-          month: month.month,
-          total: month.total,
-          renewable: month.renewable || 0,
-          fossil: month.fossil || 0,
-          isForecast: true,
-          confidence: month.confidence,
-        })),
-        method: 'prophet',
-        breakdown: prophetForecast.forecast,
-        metadata: {
-          ...prophetForecast.metadata,
-          confidence: prophetForecast.confidence,
-          source: 'prophet-service',
-        },
-      };
-    }
-
-    // 2. Fallback to EnterpriseForecast (seasonal decomposition)
-    console.log('⚠️ [Water Forecast] No Prophet data available, falling back to EnterpriseForecast');
-    const enterpriseForecast = await calculator.getProjected('water');
-
-    if (enterpriseForecast) {
-      console.log('✅ [Water Forecast] Using EnterpriseForecast (fallback)', {
-        method: enterpriseForecast.method,
-        value: enterpriseForecast.value,
-      });
-    }
-
-    return enterpriseForecast;
+    return {
+      value: projectedValue,
+      ytd: ytd?.value || 0,
+      forecast: forecastResult.forecast,
+      method: forecastResult.model,
+      breakdown: forecastResult.forecast,
+      metadata: {
+        ...forecastResult.metadata,
+        confidence: forecastResult.confidence,
+        source: forecastResult.model === 'prophet' ? 'prophet-service' : 'enterprise-forecast',
+      },
+    };
   } catch (error) {
-    console.error('❌ [Water Forecast] Error in getWaterForecastWithFallback:', error);
-    // Fallback to EnterpriseForecast on error
-    return await calculator.getProjected('water');
+    console.error('❌ [Water Forecast] Error in getForecastWithCalculations:', error);
+    return null;
   }
 }
