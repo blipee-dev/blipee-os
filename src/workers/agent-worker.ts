@@ -38,6 +38,7 @@ import { WeatherDataService } from './services/weather-data-service';
 import { ReportGenerationService } from './services/report-generation-service';
 import { MLTrainingService } from './services/ml-training-service';
 import { ForecastPrecomputeService } from './services/forecast-precompute-service';
+import { startProactiveScheduler, stopProactiveScheduler } from './jobs/proactive-agent-scheduler';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -169,6 +170,9 @@ class AgentWorker {
     // Start Phase 2 & 3 Services
     this.startPhase2And3Services();
 
+    // Start Proactive Agent Scheduler (hourly checks)
+    startProactiveScheduler();
+
     // Watch for new organizations
     this.watchForNewOrganizations();
 
@@ -176,6 +180,7 @@ class AgentWorker {
     console.log('🌍 8 autonomous agents working globally across all organizations');
     console.log('📊 Cross-organizational benchmarking enabled');
     console.log('📨 Proactive messages will appear in user chats');
+    console.log('🤖 Proactive Agent Scheduler: Hourly trigger checks for all 8 agents');
     console.log('🎯 Prompt optimization running in background');
     console.log('💚 Phase 1: Metrics, cleanup, and notifications running');
     console.log('🔍 Phase 2: Optimization, database monitoring, weather tracking');
@@ -750,6 +755,10 @@ class AgentWorker {
       console.log('   • Stopping experiment monitoring');
       clearInterval(this.experimentCheckInterval);
     }
+
+    // Stop Proactive Agent Scheduler
+    console.log('   • Stopping Proactive Agent Scheduler');
+    stopProactiveScheduler();
 
     // Stop all Phase 1 cron jobs
     console.log('   • Stopping Phase 1 Services');
