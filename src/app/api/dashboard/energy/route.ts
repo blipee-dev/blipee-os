@@ -659,7 +659,13 @@ async function getForecastWithCalculations(
   calculator: UnifiedSustainabilityCalculator
 ) {
   try {
-    // Use unified ForecastService (handles Prophet + fallback automatically)
+    // If no site selected, use EnterpriseForecast directly (ForecastService doesn't work for org-wide)
+    if (!siteId) {
+      console.log('⚠️ [Energy Forecast] No site selected - using calculator.getProjected()');
+      return await calculator.getProjected('energy');
+    }
+
+    // For site-specific: Use unified ForecastService (Prophet + fallback)
     const forecastResult = await ForecastService.getForecast(
       organizationId,
       siteId,
@@ -668,8 +674,8 @@ async function getForecastWithCalculations(
     );
 
     if (!forecastResult) {
-      console.log('⚠️ [Energy Forecast] No forecast available');
-      return null;
+      console.log('⚠️ [Energy Forecast] No Prophet data - falling back to calculator');
+      return await calculator.getProjected('energy');
     }
 
     // Get YTD actual value
@@ -700,6 +706,6 @@ async function getForecastWithCalculations(
     };
   } catch (error) {
     console.error('❌ [Energy Forecast] Error in getForecastWithCalculations:', error);
-    return null;
+    return await calculator.getProjected('energy');
   }
 }

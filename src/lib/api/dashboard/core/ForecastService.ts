@@ -132,6 +132,13 @@ export class ForecastService {
       const projected = await calculator.getProjected(config.calculatorConfig.domain);
 
       if (!projected || !projected.forecast) {
+        console.log(`[ForecastService] No projected data for ${config.domain}`);
+        return null;
+      }
+
+      // Check if forecast is an array
+      if (!Array.isArray(projected.forecast)) {
+        console.error(`[ForecastService] projected.forecast is not an array for ${config.domain}:`, typeof projected.forecast);
         return null;
       }
 
