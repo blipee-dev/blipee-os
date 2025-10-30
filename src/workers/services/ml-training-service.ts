@@ -181,8 +181,11 @@ export class MLTrainingService {
       // 1. Prepare training data for this specific site and metric
       const trainingData = await this.prepareTrainingData(organizationId, siteId, metric.id);
 
-      if (!trainingData || trainingData.length < 10) {
-        console.log(`        ⚠️  Insufficient data: ${trainingData?.length || 0} samples`);
+      // LSTM needs windowSize (30) + 1 minimum samples for sequence creation
+      const minSamples = modelType === 'emissions_prediction' ? 31 : 10;
+
+      if (!trainingData || trainingData.length < minSamples) {
+        console.log(`        ⚠️  Insufficient data: ${trainingData?.length || 0} samples (need ${minSamples})`);
         return;
       }
 
@@ -586,6 +589,11 @@ export class MLTrainingService {
     for (let i = 0; i < data.length - windowSize; i++) {
       xs.push(data.slice(i, i + windowSize).map(val => [val]));
       ys.push([data[i + windowSize]]);
+    }
+
+    // Check if we have any sequences (need at least windowSize + 1 data points)
+    if (xs.length === 0) {
+      throw new Error(`Insufficient data for sequence creation: need at least ${windowSize + 1} samples, got ${data.length}`);
     }
 
     return {
