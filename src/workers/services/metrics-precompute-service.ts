@@ -266,7 +266,27 @@ export class MetricsPreComputeService {
         cacheData.site_id = siteId;
       }
 
-      const { error } = await supabase.from('metrics_cache').upsert(cacheData);
+      // Delete existing cache entry first (the unique constraint uses COALESCE expression)
+      // This ensures we always update the cache without conflict errors
+      const deleteQuery = supabase
+        .from('metrics_cache')
+        .delete()
+        .eq('organization_id', orgId)
+        .eq('cache_type', 'forecast')
+        .eq('domain', domain)
+        .eq('period_start', periodStart);
+
+      // Add site_id filter: either match site_id or both must be NULL
+      if (siteId) {
+        deleteQuery.eq('site_id', siteId);
+      } else {
+        deleteQuery.is('site_id', null);
+      }
+
+      await deleteQuery;
+
+      // Now insert the new cache entry
+      const { error } = await supabase.from('metrics_cache').insert(cacheData);
 
       if (error) {
         console.error('     ⚠️  Cache forecast failed:', error);
