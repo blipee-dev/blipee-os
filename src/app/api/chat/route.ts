@@ -32,6 +32,7 @@ import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { sustainabilityTools } from '@/lib/ai/chat-tools';
 import { getOrCreatePromptVersion } from '@/lib/ai/prompt-version-tracker';
+import { contextManager } from '@/lib/conversations/context-manager';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -241,8 +242,37 @@ export async function POST(req: NextRequest) {
       return openai(modelId);
     };
 
+    // FASE 2: Load and update conversation context
+    let conversationContext = await contextManager.getContext(conversationId);
+
+    // Extract context from user message
+    if (message.role === 'user' && message.parts) {
+      const userText = message.parts
+        .filter((part: any) => part.type === 'text')
+        .map((part: any) => part.text)
+        .join('\n');
+
+      const extractedContext = contextManager.extractContextFromMessage(userText);
+
+      // Update context with extracted information
+      conversationContext = await contextManager.updateContext(
+        conversationId,
+        user.id,
+        organizationId,
+        extractedContext
+      );
+    }
+
+    // Get context summary for system prompt
+    const contextSummary = contextManager.getContextSummary(conversationContext);
+
     // Create contextualized system prompt with org, building context, and language preference
-    const systemPrompt = createSystemPrompt(organizationId, buildingId, language);
+    let systemPrompt = createSystemPrompt(organizationId, buildingId, language);
+
+    // Append conversation context if available
+    if (contextSummary) {
+      systemPrompt += `\n\n## Conversation Context\n${contextSummary}`;
+    }
 
     // Track prompt version for feedback and A/B testing
     const promptVersionId = await getOrCreatePromptVersion(
