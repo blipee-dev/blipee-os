@@ -39,6 +39,7 @@ import { ReportGenerationService } from './services/report-generation-service';
 import { MLTrainingService } from './services/ml-training-service';
 import { ForecastPrecomputeService } from './services/forecast-precompute-service';
 import { MemoryExtractionService } from './services/memory-extraction-service';
+import { ConversationAnalyticsService } from './services/conversation-analytics-service';
 import { contextManager } from '@/lib/conversations/context-manager';
 import { stateManager } from '@/lib/conversations/state-manager';
 import { startProactiveScheduler, stopProactiveScheduler } from './jobs/proactive-agent-scheduler';
@@ -88,6 +89,7 @@ class AgentWorker {
 
   // FASE 2 Services (Conversation Intelligence)
   private memoryExtractionService: MemoryExtractionService;
+  private conversationAnalyticsService: ConversationAnalyticsService;
 
   // Cron job references
   private cronJobs: cron.ScheduledTask[] = [];
@@ -112,6 +114,7 @@ class AgentWorker {
 
     // Initialize FASE 2 Services
     this.memoryExtractionService = new MemoryExtractionService();
+    this.conversationAnalyticsService = new ConversationAnalyticsService();
   }
 
   async start() {
@@ -195,6 +198,7 @@ class AgentWorker {
     console.log('🔍 Phase 2: Optimization, database monitoring, weather tracking');
     console.log('📊 Phase 3: Report generation, ML training, and Prophet forecasting (6x/day)');
     console.log('💬 FASE 2: Conversation memories extraction (daily at 5:00 AM UTC)');
+    console.log('📊 FASE 2: Conversation analytics aggregation (daily at 6:00 AM UTC)');
   }
 
   /**
@@ -761,6 +765,19 @@ class AgentWorker {
       timezone: 'UTC'
     });
     this.cronJobs.push(memoryExtractionJob);
+
+    // 8. Conversation Analytics - Daily at 6:00 AM UTC (after memory extraction)
+    const conversationAnalyticsJob = cron.schedule('0 6 * * *', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.conversationAnalyticsService.run();
+      } catch (error) {
+        console.error('❌ Conversation analytics failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(conversationAnalyticsJob);
 
     console.log('✅ Phase 2 & 3 Services started');
     console.log('\n   Phase 2 - Intelligence & Optimization:');
