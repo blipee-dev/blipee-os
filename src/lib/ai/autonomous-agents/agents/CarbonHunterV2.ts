@@ -15,6 +15,7 @@ import { generateText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createOpenAI } from '@ai-sdk/openai';
 import { getSustainabilityTools } from '../tools';
+import { getMLAnalysisTools } from '../tools/ml-analysis-tools';
 
 export class CarbonHunterV2 extends AutonomousAgent {
   private huntingMetrics = {
@@ -90,15 +91,18 @@ export class CarbonHunterV2 extends AutonomousAgent {
 
       console.log(`🔍 [CarbonHunter V2] Executing ${task.type} for org ${organizationId}`);
 
-      // ✅ Use Vercel AI SDK with shared sustainability tools!
+      // ✅ Use Vercel AI SDK with sustainability + ML tools!
       const result = await generateText({
         model: this.model,
         system: systemPrompt,
         prompt: taskDescription,
-        tools: getSustainabilityTools(), // ✅ All 5 shared tools available!
-        maxToolRoundtrips: 5, // Allow multi-step analysis
+        tools: {
+          ...getSustainabilityTools(),  // 5 core sustainability tools
+          ...getMLAnalysisTools(),       // 5 advanced ML analysis tools
+        }, // ✅ Total: 10 powerful tools available!
+        maxToolRoundtrips: 8, // Allow multi-step analysis with ML tools
         temperature: 0.3, // More focused for carbon hunting
-        maxTokens: 2000
+        maxTokens: 3000 // Increased for richer ML-powered insights
       });
 
       // Update hunting metrics
@@ -144,25 +148,37 @@ export class CarbonHunterV2 extends AutonomousAgent {
    * Get system prompt based on task type
    */
   private getSystemPromptForTask(task: Task): string {
-    const basePrompt = `You are the Carbon Hunter, a relentless carbon emissions detective with access to powerful sustainability analysis tools.
+    const basePrompt = `You are the Carbon Hunter, a relentless carbon emissions detective with access to 10 powerful analysis tools combining sustainability data and advanced ML models.
 
-Your mission: Track, verify, and hunt down carbon emissions across all scopes with precision.
+Your mission: Track, verify, and hunt down carbon emissions across all scopes with ML-powered precision.
 
-Available Tools:
+🔧 CORE SUSTAINABILITY TOOLS:
 - calculateEmissions: Get total emissions by scope (1, 2, 3) for any time period
 - detectAnomalies: Find unusual emission patterns using statistical analysis (2-sigma)
 - benchmarkEfficiency: Compare site performance (emissions per sqm)
 - investigateSources: Drill down into specific emission sources
 - generateCarbonReport: Create comprehensive carbon reports
 
+🤖 ADVANCED ML ANALYSIS TOOLS:
+- getProphetForecast: Get 12-month forecast with confidence intervals (Facebook Prophet)
+- getAnomalyScore: ML-powered anomaly detection (Autoencoder model, 0-1 score)
+- getPatternAnalysis: Identify seasonal patterns and trends (CNN model)
+- getFastForecast: Real-time predictions for next 7 days (GRU model, <100ms)
+- getRiskClassification: Classify risk level: LOW/MEDIUM/HIGH (Classification model)
+
 Organization ID: ${task.context.organizationId}
 
-HUNTING STRATEGIES:
-1. Always query real data using the tools
-2. Look for patterns, anomalies, and inefficiencies
-3. Calculate precise numbers, not estimates
-4. Identify specific reduction opportunities
-5. Provide actionable recommendations
+🎯 HUNTING STRATEGIES (ML-ENHANCED):
+1. ALWAYS start with calculateEmissions to get baseline
+2. Use detectAnomalies + getAnomalyScore for DUAL validation (statistical + ML)
+3. Use getProphetForecast to predict future trends (critical for planning)
+4. Use getPatternAnalysis to understand seasonal variations
+5. Use getRiskClassification to prioritize sites/actions
+6. Cross-validate findings across multiple tools
+7. Provide ML confidence scores in your analysis
+8. Generate actionable recommendations with ROI estimates
+
+CRITICAL: Use both statistical tools AND ML tools together for maximum accuracy!
 
 `;
 

@@ -15,6 +15,7 @@ import { generateText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createOpenAI } from '@ai-sdk/openai';
 import { getSustainabilityTools } from '../tools';
+import { getMLAnalysisTools } from '../tools/ml-analysis-tools';
 
 export class PredictiveMaintenanceV2 extends AutonomousAgent {
   private maintenanceMetrics = {
@@ -88,15 +89,18 @@ export class PredictiveMaintenanceV2 extends AutonomousAgent {
 
       console.log(`🔧 [Maintenance V2] Executing ${task.type} for org ${organizationId}`);
 
-      // ✅ Use Vercel AI SDK with shared sustainability tools!
+      // ✅ Use Vercel AI SDK with shared sustainability tools + ML analysis tools!
       const result = await generateText({
         model: this.model,
         system: systemPrompt,
         prompt: taskDescription,
-        tools: getSustainabilityTools(), // ✅ Energy efficiency monitoring
-        maxToolRoundtrips: 5,
+        tools: {
+          ...getSustainabilityTools(), // ✅ Energy efficiency monitoring
+          ...getMLAnalysisTools()       // ✅ Predict equipment failures, detect degradation patterns
+        },
+        maxToolRoundtrips: 8,
         temperature: 0.3, // Focused for predictive analysis
-        maxTokens: 2000
+        maxTokens: 3000
       });
 
       // Update maintenance metrics
@@ -142,25 +146,34 @@ export class PredictiveMaintenanceV2 extends AutonomousAgent {
    * Get system prompt based on task type
    */
   private getSystemPromptForTask(task: Task): string {
-    const basePrompt = `You are Predictive Maintenance, a proactive equipment health monitor with access to sustainability analysis tools.
+    const basePrompt = `You are Predictive Maintenance, a proactive equipment health monitor with access to 10 powerful analysis tools.
 
 Your mission: Monitor equipment, predict failures, schedule maintenance, optimize performance, and prevent downtime.
 
-Available Tools:
+🔧 CORE SUSTAINABILITY TOOLS:
 - calculateEmissions: Track equipment energy consumption
 - detectAnomalies: Find unusual equipment performance patterns (failure indicators)
 - benchmarkEfficiency: Compare equipment efficiency
 - investigateSources: Drill into specific equipment data
 - generateCarbonReport: Create equipment performance reports
 
+🤖 ADVANCED ML ANALYSIS TOOLS:
+- getProphetForecast: Predict equipment degradation trends (12-month forecasts)
+- getAnomalyScore: ML-powered failure detection (0-1 score with severity)
+- getPatternAnalysis: Identify degradation patterns using CNN models
+- getFastForecast: Real-time equipment health predictions (<100ms)
+- getRiskClassification: Classify equipment failure risk (low/medium/high)
+
 Organization ID: ${task.context.organizationId}
 
-PREDICTIVE MAINTENANCE STRATEGIES:
-1. Use anomaly detection to identify equipment degradation
-2. Monitor energy efficiency as health indicator
-3. Compare equipment performance to benchmarks
-4. Identify patterns that precede failures
-5. Provide proactive maintenance recommendations
+PREDICTIVE MAINTENANCE STRATEGIES (ML-ENHANCED):
+1. Start with current equipment data (calculateEmissions, investigateSources)
+2. Use detectAnomalies + getAnomalyScore for DUAL failure detection
+3. Use getProphetForecast to predict when equipment will fail
+4. Use getPatternAnalysis to identify degradation patterns (vibration, temperature, efficiency)
+5. Use getRiskClassification to prioritize maintenance by failure risk
+6. Use getFastForecast for real-time health monitoring
+7. Provide proactive maintenance schedules with cost-benefit analysis
 
 `;
 

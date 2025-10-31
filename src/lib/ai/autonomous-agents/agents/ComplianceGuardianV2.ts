@@ -15,6 +15,7 @@ import { generateText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createOpenAI } from '@ai-sdk/openai';
 import { getSustainabilityTools } from '../tools';
+import { getMLAnalysisTools } from '../tools/ml-analysis-tools';
 
 export class ComplianceGuardianV2 extends AutonomousAgent {
   private complianceMetrics = {
@@ -105,15 +106,18 @@ export class ComplianceGuardianV2 extends AutonomousAgent {
 
       console.log(`⚖️ [ComplianceGuardian V2] Executing ${task.type} for org ${organizationId}`);
 
-      // ✅ Use Vercel AI SDK with shared sustainability tools!
+      // ✅ Use Vercel AI SDK with shared sustainability tools + ML analysis tools!
       const result = await generateText({
         model: this.model,
         system: systemPrompt,
         prompt: taskDescription,
-        tools: getSustainabilityTools(), // ✅ Use for carbon compliance checks
-        maxToolRoundtrips: 5, // Allow multi-step analysis
+        tools: {
+          ...getSustainabilityTools(), // ✅ Carbon compliance checks
+          ...getMLAnalysisTools()       // ✅ ML-powered analysis (Prophet, anomaly detection, pattern recognition)
+        },
+        maxToolRoundtrips: 8, // Increased for ML analysis
         temperature: 0.2, // Very focused for compliance
-        maxTokens: 2000
+        maxTokens: 3000 // Increased for detailed analysis
       });
 
       // Update compliance metrics
@@ -159,28 +163,37 @@ export class ComplianceGuardianV2 extends AutonomousAgent {
    * Get system prompt based on task type
    */
   private getSystemPromptForTask(task: Task): string {
-    const basePrompt = `You are the Compliance Guardian, a vigilant regulatory watchdog with access to powerful sustainability analysis tools.
+    const basePrompt = `You are the Compliance Guardian, a vigilant regulatory watchdog with access to 10 powerful analysis tools.
 
 Your mission: Monitor regulatory compliance, identify gaps, track deadlines, and ensure adherence to ESG standards.
 
 Supported Frameworks:
 ${this.supportedFrameworks.map(f => `- ${f}`).join('\n')}
 
-Available Tools:
+🔧 CORE SUSTAINABILITY TOOLS:
 - calculateEmissions: Get total emissions by scope (for carbon reporting compliance)
 - detectAnomalies: Find unusual emission patterns (compliance risk detection)
 - benchmarkEfficiency: Compare site performance (regulatory benchmarking)
 - investigateSources: Drill down into specific sources (compliance verification)
 - generateCarbonReport: Create comprehensive reports (regulatory submissions)
 
+🤖 ADVANCED ML ANALYSIS TOOLS:
+- getProphetForecast: Predict future emissions trends (12-month forecasts with confidence intervals)
+- getAnomalyScore: ML-powered anomaly detection (0-1 score with severity classification)
+- getPatternAnalysis: Identify seasonal patterns using CNN models
+- getFastForecast: Real-time predictions for next 1-30 days (<100ms)
+- getRiskClassification: Classify compliance risk levels (low/medium/high)
+
 Organization ID: ${task.context.organizationId}
 
-COMPLIANCE STRATEGIES:
-1. Always verify data using the tools
-2. Check for regulatory violations and gaps
-3. Identify upcoming deadlines
-4. Assess compliance risks
-5. Provide actionable remediation plans
+COMPLIANCE STRATEGIES (ML-ENHANCED):
+1. Start with calculateEmissions to get baseline data
+2. Use detectAnomalies + getAnomalyScore for DUAL validation of compliance risks
+3. Use getProphetForecast to predict if targets will be met
+4. Use getRiskClassification to prioritize compliance actions
+5. Use getPatternAnalysis to understand seasonal compliance patterns
+6. Combine tools for comprehensive compliance assessment
+7. Provide actionable remediation plans with timelines
 
 `;
 

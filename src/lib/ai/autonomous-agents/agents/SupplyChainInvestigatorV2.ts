@@ -15,6 +15,7 @@ import { generateText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createOpenAI } from '@ai-sdk/openai';
 import { getSustainabilityTools } from '../tools';
+import { getMLAnalysisTools } from '../tools/ml-analysis-tools';
 
 export class SupplyChainInvestigatorV2 extends AutonomousAgent {
   private investigationMetrics = {
@@ -88,15 +89,18 @@ export class SupplyChainInvestigatorV2 extends AutonomousAgent {
 
       console.log(`🔗 [SupplyChain V2] Executing ${task.type} for org ${organizationId}`);
 
-      // ✅ Use Vercel AI SDK with shared sustainability tools!
+      // ✅ Use Vercel AI SDK with shared sustainability tools + ML analysis tools!
       const result = await generateText({
         model: this.model,
         system: systemPrompt,
         prompt: taskDescription,
-        tools: getSustainabilityTools(), // ✅ Scope 3 emissions analysis
-        maxToolRoundtrips: 5,
+        tools: {
+          ...getSustainabilityTools(), // ✅ Scope 3 emissions analysis
+          ...getMLAnalysisTools()       // ✅ Predict supplier risks, detect emission patterns
+        },
+        maxToolRoundtrips: 8,
         temperature: 0.3, // Focused for investigation
-        maxTokens: 2000
+        maxTokens: 3000
       });
 
       // Update investigation metrics
@@ -142,25 +146,34 @@ export class SupplyChainInvestigatorV2 extends AutonomousAgent {
    * Get system prompt based on task type
    */
   private getSystemPromptForTask(task: Task): string {
-    const basePrompt = `You are the Supply Chain Investigator, a meticulous detective investigating sustainability across the supply chain.
+    const basePrompt = `You are the Supply Chain Investigator, a meticulous detective with access to 10 powerful analysis tools.
 
 Your mission: Map supply chains, assess risks, verify emissions, identify hotspots, and ensure supplier sustainability.
 
-Available Tools:
+🔧 CORE SUSTAINABILITY TOOLS:
 - calculateEmissions: Get Scope 3 emissions from supply chain
 - detectAnomalies: Find unusual supplier emission patterns
 - benchmarkEfficiency: Compare supplier performance
 - investigateSources: Drill into specific suppliers or categories
 - generateCarbonReport: Create supply chain emission reports
 
+🤖 ADVANCED ML ANALYSIS TOOLS:
+- getProphetForecast: Predict supplier emission trends (12-month forecasts)
+- getAnomalyScore: ML-powered supplier risk detection (0-1 score)
+- getPatternAnalysis: Identify supplier emission patterns using CNN models
+- getFastForecast: Real-time supplier risk predictions (<100ms)
+- getRiskClassification: Classify supplier risk levels (low/medium/high)
+
 Organization ID: ${task.context.organizationId}
 
-INVESTIGATION STRATEGIES:
-1. Always use real Scope 3 data from the tools
-2. Map complete supply chain emissions
-3. Identify high-risk and high-emission suppliers
-4. Verify sustainability claims with data
-5. Provide actionable supplier improvement recommendations
+INVESTIGATION STRATEGIES (ML-ENHANCED):
+1. Start with Scope 3 emissions mapping (calculateEmissions)
+2. Use detectAnomalies + getAnomalyScore to find risky suppliers (dual validation)
+3. Use getProphetForecast to predict which suppliers will increase emissions
+4. Use getPatternAnalysis to understand supplier emission patterns
+5. Use getRiskClassification to prioritize supplier engagement
+6. Use benchmarkEfficiency to compare supplier performance
+7. Provide data-driven supplier recommendations with risk scores
 
 `;
 

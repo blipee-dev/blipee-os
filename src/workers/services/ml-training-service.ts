@@ -140,11 +140,20 @@ export class MLTrainingService {
         for (const site of sites) {
           for (const metric of metrics) {
             try {
-              // Train LSTM model for this specific site and metric
+              // Train LSTM model for time series prediction
               await this.trainMetricSpecificModel(org.id, site.id, site.name, metric, 'emissions_prediction');
 
-              // Train Autoencoder for anomaly detection on this site and metric
+              // Train Autoencoder for anomaly detection
               await this.trainMetricSpecificModel(org.id, site.id, site.name, metric, 'anomaly_detection');
+
+              // Train CNN for pattern recognition (seasonal patterns)
+              await this.trainMetricSpecificModel(org.id, site.id, site.name, metric, 'pattern_recognition');
+
+              // Train GRU for fast forecasting (real-time)
+              await this.trainMetricSpecificModel(org.id, site.id, site.name, metric, 'fast_forecast');
+
+              // Train Classification model for risk assessment
+              await this.trainMetricSpecificModel(org.id, site.id, site.name, metric, 'risk_classification');
             } catch (error) {
               console.error(`   ❌ Training failed for ${site.name} - ${metric.name}:`, error);
               this.stats.trainingErrors++;
@@ -412,6 +421,21 @@ export class MLTrainingService {
         const result = await this.trainAutoencoderModel(trainingData);
         tfModel = result.model;
         normalizedData = result.metadata;
+      } else if (modelConfig.model_type === 'pattern_recognition') {
+        // CNN for pattern recognition (seasonal patterns, trends)
+        const result = await this.trainCNNModel(trainingData);
+        tfModel = result.model;
+        normalizedData = result.metadata;
+      } else if (modelConfig.model_type === 'fast_forecast') {
+        // GRU for fast time series forecasting (real-time predictions)
+        const result = await this.trainGRUModel(trainingData);
+        tfModel = result.model;
+        normalizedData = result.metadata;
+      } else if (modelConfig.model_type === 'risk_classification') {
+        // Classification model for risk categorization (low/medium/high)
+        const result = await this.trainClassificationModel(trainingData);
+        tfModel = result.model;
+        normalizedData = result.metadata;
       } else {
         throw new Error(`Unsupported model type: ${modelConfig.model_type}`);
       }
@@ -510,6 +534,231 @@ export class MLTrainingService {
       model,
       metadata: { min, max, windowSize },
     };
+  }
+
+  /**
+   * Train CNN model for pattern recognition in time series
+   * Best for: Seasonal patterns, recurring trends, visual pattern analysis
+   */
+  private async trainCNNModel(data: any[]): Promise<{ model: tf.LayersModel; metadata: any }> {
+    console.log(`     🧠 Building CNN for pattern recognition...`);
+
+    // Extract values and normalize
+    const values = data.map(d => d.co2e_emissions || d.value || 0);
+    const { normalized, min, max } = this.normalizeArray(values);
+
+    // Create sliding windows (60-day window for seasonal patterns)
+    const windowSize = 60;
+    const { xs, ys } = this.createSequences(normalized, windowSize);
+
+    if (xs.length === 0) {
+      throw new Error('Insufficient data for CNN sequence creation');
+    }
+
+    // Build CNN model
+    const model = tf.sequential({
+      layers: [
+        // 1D Convolution layers
+        tf.layers.conv1d({
+          filters: 32,
+          kernelSize: 3,
+          activation: 'relu',
+          inputShape: [windowSize, 1],
+        }),
+        tf.layers.maxPooling1d({ poolSize: 2 }),
+
+        tf.layers.conv1d({
+          filters: 64,
+          kernelSize: 3,
+          activation: 'relu',
+        }),
+        tf.layers.maxPooling1d({ poolSize: 2 }),
+
+        // Flatten and dense layers
+        tf.layers.flatten(),
+        tf.layers.dense({ units: 50, activation: 'relu' }),
+        tf.layers.dropout({ rate: 0.3 }),
+        tf.layers.dense({ units: 1, activation: 'linear' }),
+      ],
+    });
+
+    model.compile({
+      optimizer: tf.train.adam(0.001),
+      loss: 'meanSquaredError',
+      metrics: ['mae'],
+    });
+
+    // Train model
+    console.log(`     🔧 Training CNN with ${xs.shape[0]} sequences...`);
+    await model.fit(xs, ys, {
+      epochs: 30,
+      batchSize: 16,
+      validationSplit: 0.2,
+      shuffle: true,
+      verbose: 0,
+    });
+
+    // Cleanup tensors
+    xs.dispose();
+    ys.dispose();
+
+    return {
+      model,
+      metadata: {
+        min,
+        max,
+        windowSize,
+        modelType: 'cnn',
+        filters: [32, 64],
+        kernelSize: 3
+      },
+    };
+  }
+
+  /**
+   * Train GRU model for fast time series forecasting
+   * Best for: Real-time predictions, faster training than LSTM
+   */
+  private async trainGRUModel(data: any[]): Promise<{ model: tf.LayersModel; metadata: any }> {
+    console.log(`     🧠 Building GRU for fast forecasting...`);
+
+    const values = data.map(d => d.co2e_emissions || d.value || 0);
+    const { normalized, min, max } = this.normalizeArray(values);
+
+    const windowSize = 30;
+    const { xs, ys } = this.createSequences(normalized, windowSize);
+
+    if (xs.length === 0) {
+      throw new Error('Insufficient data for GRU sequence creation');
+    }
+
+    // Build GRU model (similar to LSTM but faster)
+    const model = tf.sequential({
+      layers: [
+        tf.layers.gru({
+          units: 64,
+          returnSequences: true,
+          inputShape: [windowSize, 1],
+        }),
+        tf.layers.dropout({ rate: 0.2 }),
+
+        tf.layers.gru({
+          units: 32,
+          returnSequences: false,
+        }),
+        tf.layers.dropout({ rate: 0.2 }),
+
+        tf.layers.dense({ units: 16, activation: 'relu' }),
+        tf.layers.dense({ units: 1, activation: 'linear' }),
+      ],
+    });
+
+    model.compile({
+      optimizer: tf.train.adam(0.002), // Slightly higher learning rate
+      loss: 'meanSquaredError',
+      metrics: ['mae'],
+    });
+
+    await model.fit(xs, ys, {
+      epochs: 40,
+      batchSize: 32,
+      validationSplit: 0.2,
+      shuffle: true,
+      verbose: 0,
+    });
+
+    xs.dispose();
+    ys.dispose();
+
+    return {
+      model,
+      metadata: { min, max, windowSize, modelType: 'gru' },
+    };
+  }
+
+  /**
+   * Train Decision Tree model for classification
+   * Best for: Categorizing emissions (low/medium/high), risk classification
+   */
+  private async trainClassificationModel(data: any[]): Promise<{ model: tf.LayersModel; metadata: any }> {
+    console.log(`     🧠 Building Classification model for risk categorization...`);
+
+    // Feature extraction: [emissions, trend, variance, seasonality]
+    const features = this.extractClassificationFeatures(data);
+
+    // Create labels: 0=low, 1=medium, 2=high
+    const labels = this.createEmissionLabels(data);
+
+    const xs = tf.tensor2d(features);
+    const ys = tf.oneHot(tf.tensor1d(labels, 'int32'), 3);
+
+    // Build classification neural network
+    const model = tf.sequential({
+      layers: [
+        tf.layers.dense({
+          units: 16,
+          activation: 'relu',
+          inputShape: [features[0].length]
+        }),
+        tf.layers.dropout({ rate: 0.3 }),
+        tf.layers.dense({ units: 8, activation: 'relu' }),
+        tf.layers.dense({ units: 3, activation: 'softmax' }), // 3 classes
+      ],
+    });
+
+    model.compile({
+      optimizer: tf.train.adam(0.001),
+      loss: 'categoricalCrossentropy',
+      metrics: ['accuracy'],
+    });
+
+    await model.fit(xs, ys, {
+      epochs: 50,
+      batchSize: 16,
+      validationSplit: 0.2,
+      shuffle: true,
+      verbose: 0,
+    });
+
+    xs.dispose();
+    ys.dispose();
+
+    return {
+      model,
+      metadata: {
+        classes: ['low', 'medium', 'high'],
+        modelType: 'classification',
+        features: ['emissions', 'trend', 'variance', 'seasonality']
+      },
+    };
+  }
+
+  private extractClassificationFeatures(data: any[]): number[][] {
+    return data.map((d, i) => {
+      const value = d.co2e_emissions || d.value || 0;
+      const prevValue = i > 0 ? (data[i-1].co2e_emissions || data[i-1].value || 0) : value;
+
+      return [
+        value,                           // Current emissions
+        value - prevValue,               // Trend (change from previous)
+        Math.abs(value - prevValue),     // Volatility
+        Math.sin(i * 2 * Math.PI / 12),  // Seasonality (monthly)
+      ];
+    });
+  }
+
+  private createEmissionLabels(data: any[]): number[] {
+    const values = data.map(d => d.co2e_emissions || d.value || 0);
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const stdDev = Math.sqrt(
+      values.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / values.length
+    );
+
+    return values.map(val => {
+      if (val < mean - 0.5 * stdDev) return 0; // low
+      if (val > mean + 0.5 * stdDev) return 2; // high
+      return 1; // medium
+    });
   }
 
   /**

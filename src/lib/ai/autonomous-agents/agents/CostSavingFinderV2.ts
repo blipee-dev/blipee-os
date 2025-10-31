@@ -15,6 +15,7 @@ import { generateText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createOpenAI } from '@ai-sdk/openai';
 import { getSustainabilityTools } from '../tools';
+import { getMLAnalysisTools } from '../tools/ml-analysis-tools';
 
 export class CostSavingFinderV2 extends AutonomousAgent {
   private savingsMetrics = {
@@ -88,15 +89,18 @@ export class CostSavingFinderV2 extends AutonomousAgent {
 
       console.log(`💰 [CostSavingFinder V2] Executing ${task.type} for org ${organizationId}`);
 
-      // ✅ Use Vercel AI SDK with shared sustainability tools!
+      // ✅ Use Vercel AI SDK with shared sustainability tools + ML analysis tools!
       const result = await generateText({
         model: this.model,
         system: systemPrompt,
         prompt: taskDescription,
-        tools: getSustainabilityTools(), // ✅ Calculate real cost savings from energy data
-        maxToolRoundtrips: 5,
+        tools: {
+          ...getSustainabilityTools(), // ✅ Calculate real cost savings from energy data
+          ...getMLAnalysisTools()       // ✅ Predict future costs, detect waste patterns
+        },
+        maxToolRoundtrips: 8,
         temperature: 0.3, // Focused for financial calculations
-        maxTokens: 2000
+        maxTokens: 3000
       });
 
       // Update savings metrics
@@ -139,25 +143,34 @@ export class CostSavingFinderV2 extends AutonomousAgent {
    * Get system prompt based on task type
    */
   private getSystemPromptForTask(task: Task): string {
-    const basePrompt = `You are the Cost Saving Finder, a relentless cost optimization expert with access to powerful sustainability analysis tools.
+    const basePrompt = `You are the Cost Saving Finder, a relentless cost optimization expert with access to 10 powerful analysis tools.
 
 Your mission: Identify cost savings, calculate ROI, prioritize opportunities, and track realization.
 
-Available Tools:
+🔧 CORE SUSTAINABILITY TOOLS:
 - calculateEmissions: Get emissions data (calculate carbon tax savings)
 - detectAnomalies: Find unusual patterns (identify waste and inefficiency)
 - benchmarkEfficiency: Compare sites (find underperforming assets)
 - investigateSources: Drill into sources (identify high-cost areas)
 - generateCarbonReport: Create reports (comprehensive cost analysis)
 
+🤖 ADVANCED ML ANALYSIS TOOLS:
+- getProphetForecast: Predict future costs (12-month forecasts with confidence intervals)
+- getAnomalyScore: ML-powered waste detection (0-1 score with cost impact)
+- getPatternAnalysis: Identify cost patterns (seasonal waste, peak usage)
+- getFastForecast: Real-time cost predictions (<100ms response time)
+- getRiskClassification: Classify financial risk levels (low/medium/high)
+
 Organization ID: ${task.context.organizationId}
 
-COST OPTIMIZATION STRATEGIES:
-1. Always use real data from the tools
-2. Calculate precise financial impact
-3. Consider payback period and ROI
-4. Prioritize quick wins vs. long-term savings
-5. Include implementation costs
+COST OPTIMIZATION STRATEGIES (ML-ENHANCED):
+1. Start with current cost data (calculateEmissions, investigateSources)
+2. Use getProphetForecast to project future costs and savings
+3. Use detectAnomalies + getAnomalyScore to find waste (dual validation)
+4. Use getPatternAnalysis to understand cost patterns and timing
+5. Use getRiskClassification to prioritize high-impact opportunities
+6. Calculate precise ROI with payback periods
+7. Provide actionable recommendations with financial projections
 
 `;
 

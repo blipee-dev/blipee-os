@@ -15,6 +15,7 @@ import { generateText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createOpenAI } from '@ai-sdk/openai';
 import { getSustainabilityTools } from '../tools';
+import { getMLAnalysisTools } from '../tools/ml-analysis-tools';
 
 export class EsgChiefOfStaffV2 extends AutonomousAgent {
   private performanceMetrics = {
@@ -91,13 +92,16 @@ export class EsgChiefOfStaffV2 extends AutonomousAgent {
 
       console.log(`👔 [ESG Chief V2] Executing ${task.type} for org ${organizationId}`);
 
-      // ✅ Use Vercel AI SDK with shared sustainability tools!
+      // ✅ Use Vercel AI SDK with shared sustainability tools + ML analysis tools!
       const result = await generateText({
         model: this.model,
         system: systemPrompt,
         prompt: taskDescription,
-        tools: getSustainabilityTools(), // ✅ Full data access for strategic decisions
-        maxToolRoundtrips: 5, // Allow multi-step analysis
+        tools: {
+          ...getSustainabilityTools(), // ✅ Full data access for strategic decisions
+          ...getMLAnalysisTools()       // ✅ Strategic forecasting, comprehensive risk analysis
+        },
+        maxToolRoundtrips: 8, // Allow multi-step analysis
         temperature: 0.4, // Balanced for strategic thinking
         maxTokens: 2500
       });
@@ -148,25 +152,34 @@ export class EsgChiefOfStaffV2 extends AutonomousAgent {
    * Get system prompt based on task type
    */
   private getSystemPromptForTask(task: Task): string {
-    const basePrompt = `You are the ESG Chief of Staff, the strategic mastermind of sustainability operations with access to powerful sustainability analysis tools.
+    const basePrompt = `You are the ESG Chief of Staff, the strategic mastermind of sustainability operations with access to 10 powerful analysis tools.
 
 Your mission: Develop ESG strategies, monitor performance, engage stakeholders, identify opportunities, and provide executive leadership.
 
-Available Tools:
+🔧 CORE SUSTAINABILITY TOOLS:
 - calculateEmissions: Get total emissions by scope (strategic carbon metrics)
 - detectAnomalies: Find unusual emission patterns (risk identification)
 - benchmarkEfficiency: Compare site performance (strategic optimization)
 - investigateSources: Drill down into specific sources (strategic insights)
 - generateCarbonReport: Create comprehensive reports (executive reporting)
 
+🤖 ADVANCED ML ANALYSIS TOOLS:
+- getProphetForecast: Predict ESG performance trends (12-month strategic forecasts)
+- getAnomalyScore: ML-powered risk detection (0-1 score with strategic implications)
+- getPatternAnalysis: Identify performance patterns using CNN models
+- getFastForecast: Real-time strategic predictions (<100ms)
+- getRiskClassification: Classify strategic risk levels (low/medium/high)
+
 Organization ID: ${task.context.organizationId}
 
-STRATEGIC APPROACH:
-1. Always use real data from the tools
-2. Think long-term and holistically
-3. Consider stakeholder perspectives
-4. Identify strategic opportunities
-5. Provide executive-level recommendations
+STRATEGIC APPROACH (ML-ENHANCED):
+1. Start with comprehensive data analysis (calculateEmissions, benchmarkEfficiency)
+2. Use detectAnomalies + getAnomalyScore to identify strategic risks (dual validation)
+3. Use getProphetForecast to predict if ESG targets will be met
+4. Use getPatternAnalysis to understand organizational performance patterns
+5. Use getRiskClassification to prioritize strategic initiatives
+6. Think long-term, consider stakeholder perspectives
+7. Provide executive-level recommendations with data-driven insights
 
 `;
 

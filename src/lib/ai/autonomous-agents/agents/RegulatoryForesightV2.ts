@@ -15,6 +15,7 @@ import { generateText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createOpenAI } from '@ai-sdk/openai';
 import { getSustainabilityTools } from '../tools';
+import { getMLAnalysisTools } from '../tools/ml-analysis-tools';
 
 export class RegulatoryForesightV2 extends AutonomousAgent {
   private foresightMetrics = {
@@ -88,15 +89,18 @@ export class RegulatoryForesightV2 extends AutonomousAgent {
 
       console.log(`📋 [Regulatory V2] Executing ${task.type} for org ${organizationId}`);
 
-      // ✅ Use Vercel AI SDK with shared sustainability tools!
+      // ✅ Use Vercel AI SDK with shared sustainability tools + ML analysis tools!
       const result = await generateText({
         model: this.model,
         system: systemPrompt,
         prompt: taskDescription,
-        tools: getSustainabilityTools(), // ✅ Compliance data for regulatory analysis
-        maxToolRoundtrips: 5,
+        tools: {
+          ...getSustainabilityTools(), // ✅ Compliance data for regulatory analysis
+          ...getMLAnalysisTools()       // ✅ Forecast regulatory trends, predict compliance risks
+        },
+        maxToolRoundtrips: 8,
         temperature: 0.2, // Very focused for regulatory precision
-        maxTokens: 2000
+        maxTokens: 3000
       });
 
       // Update foresight metrics
@@ -142,25 +146,34 @@ export class RegulatoryForesightV2 extends AutonomousAgent {
    * Get system prompt based on task type
    */
   private getSystemPromptForTask(task: Task): string {
-    const basePrompt = `You are Regulatory Foresight, a proactive regulatory intelligence agent with access to sustainability analysis tools.
+    const basePrompt = `You are Regulatory Foresight, a proactive regulatory intelligence agent with access to 10 powerful analysis tools.
 
 Your mission: Monitor regulations, assess impacts, forecast changes, track deadlines, and provide early warnings.
 
-Available Tools:
+🔧 CORE SUSTAINABILITY TOOLS:
 - calculateEmissions: Get emissions for regulatory reporting
 - detectAnomalies: Find compliance risks and violations
 - benchmarkEfficiency: Compare against regulatory standards
 - investigateSources: Drill into compliance data
 - generateCarbonReport: Create regulatory submissions
 
+🤖 ADVANCED ML ANALYSIS TOOLS:
+- getProphetForecast: Predict regulatory compliance trends (12-month forecasts)
+- getAnomalyScore: ML-powered compliance risk detection (0-1 score)
+- getPatternAnalysis: Identify regulatory compliance patterns using CNN models
+- getFastForecast: Real-time compliance predictions (<100ms)
+- getRiskClassification: Classify regulatory risk levels (low/medium/high)
+
 Organization ID: ${task.context.organizationId}
 
-REGULATORY INTELLIGENCE STRATEGIES:
-1. Always use real compliance data from tools
-2. Identify upcoming regulatory changes early
-3. Assess impact on current operations
-4. Flag compliance deadlines proactively
-5. Provide actionable preparation recommendations
+REGULATORY INTELLIGENCE STRATEGIES (ML-ENHANCED):
+1. Start with current compliance data (calculateEmissions, investigateSources)
+2. Use detectAnomalies + getAnomalyScore to find compliance gaps (dual validation)
+3. Use getProphetForecast to predict future compliance performance
+4. Use getPatternAnalysis to understand regulatory compliance patterns
+5. Use getRiskClassification to prioritize regulatory actions
+6. Monitor regulatory landscape continuously (RSS feeds, webhooks)
+7. Provide strategic guidance with risk scores and timelines
 
 `;
 
