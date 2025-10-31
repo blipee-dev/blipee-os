@@ -3,7 +3,7 @@
 
 **Início:** 30 de Outubro de 2025
 **Status Atual:** 🟢 Em Progresso
-**Progresso Global:** 2/11 tabelas ativadas (18%)
+**Progresso Global:** 4/11 tabelas ativadas (36%)
 
 ---
 
@@ -13,8 +13,8 @@
 |---|--------|--------|-----------|------|
 | 1 | `conversation_feedback` | ✅ **ATIVA** | 100% | 2025-10-30 |
 | 2 | `conversation_memories` | ✅ **ATIVA** | 100% | 2025-10-31 |
-| 3 | `conversation_contexts` | ⏸️ Inativa | 0% | - |
-| 4 | `conversation_state` | ⏸️ Inativa | 0% | - |
+| 3 | `conversation_contexts` | ✅ **ATIVA** | 100% | 2025-10-31 |
+| 4 | `conversation_state` | ✅ **ATIVA** | 100% | 2025-10-31 |
 | 5 | `conversation_analytics` | ⏸️ Inativa | 0% | - |
 | 6 | `ai_conversation_analytics` | ⏸️ Inativa | 0% | - |
 | 7 | `chat_attachments` | ⏸️ Inativa | 0% | - |
@@ -23,7 +23,7 @@
 | 10 | `conversation_preferences` | ⏸️ Inativa | 0% | - |
 | 11 | `conversation_memory` | ⏸️ Inativa | 0% | - |
 
-**Progresso**: 2/11 = **18%**
+**Progresso**: 4/11 = **36%**
 
 ---
 
@@ -319,23 +319,95 @@ interface ExtractedMemory {
 
 ---
 
-## 🔄 Status Geral
+## 📊 2.1 Conversation Contexts - COMPLETO
 
-**FASE 2 - Week 1 - Day 2**:
-- ✅ Conversation Feedback: **100% COMPLETO**
-- ✅ Conversation Memories: **100% COMPLETO** (Backend + Frontend)
+**Data:** 31 de Outubro de 2025
+**Tempo:** 2 horas
+**Status:** ✅ Implementado e commitado
 
-**Timeline**:
-- Começado: 30 Out 2025, 23:00 UTC
-- Completado: 30 Out 2025, 01:00 UTC (31 Out)
-- Duração: 2 horas
+#### O Que Foi Feito
 
-**Bloqueadores**: Nenhum
+**1. Conversation Context Manager** ✅
+- Arquivo criado: `src/lib/conversations/context-manager.ts` (386 lines)
+- Serviço completo com:
+  - Load/save context to `conversation_contexts` table
+  - Extract entities, topics, intents from messages
+  - Calculate relevance scores (0.0-1.0)
+  - Token estimation (~4 chars per token)
+  - 24-hour automatic expiration
+  - Entity tracking with mention counts
+  - Conversation stage detection (greeting, information_gathering, problem_solving, conclusion)
+  - User intent classification (seeking_help, requesting_data, configuration, asking_question)
 
-**Próxima Tarefa**: Memory Extraction (1.2) - 3 dias estimados
+**2. Integração no Chat API** ✅
+- Modificado: `src/app/api/chat/route.ts`
+- Mudanças:
+  - Linha 35: Import do contextManager
+  - Linhas 245-275: Context loading and updating
+  - Context is loaded before each message
+  - Context is extracted from user message
+  - Context summary is appended to system prompt
+
+**3. Daily Cleanup Job** ✅
+- Modificado: `src/workers/agent-worker.ts`
+- Added context cleanup to existing cleanup job (3:00 AM UTC)
+- Removes expired contexts automatically
+
+**4. Commit** ✅
+- Commit: `a405f873`
+- Message: "feat: FASE 2 - Conversation Context Manager with persistence"
 
 ---
 
-**Atualizado:** 31 de Outubro de 2025, 01:00 UTC
+## 📊 2.2 Conversation State - COMPLETO
+
+**Data:** 31 de Outubro de 2025
+**Tempo:** 1 hora
+**Status:** ✅ Implementado e commitado
+
+#### O Que Foi Feito
+
+**1. Conversation State Manager** ✅
+- Arquivo criado: `src/lib/conversations/state-manager.ts` (387 lines)
+- Serviço completo com:
+  - Save/load conversation state
+  - Support for 5 state types:
+    - `wizard_step`: Multi-step wizards (24h validity)
+    - `form_progress`: Form completion tracking (48h validity)
+    - `filter_state`: Search/filter persistence (24h validity)
+    - `multi_step_task`: Complex task tracking (72h validity)
+    - `custom`: Custom state types
+  - Confidence scoring for state validity
+  - Automatic expiration based on state type
+  - Helper methods for each state type
+
+**2. Daily Cleanup Job** ✅
+- Modificado: `src/workers/agent-worker.ts`
+- Added state cleanup to existing cleanup job (3:00 AM UTC)
+- Removes expired states automatically
+
+**3. Commit** ✅
+- Commit: `b76272e6`
+- Message: "feat: FASE 2 - Conversation State Manager with cleanup"
+
+---
+
+## 🔄 Status Geral
+
+**FASE 2 - Week 2 - Day 1**:
+- ✅ Conversation Feedback: **100% COMPLETO**
+- ✅ Conversation Memories: **100% COMPLETO** (Backend + Frontend)
+- ✅ Conversation Contexts: **100% COMPLETO** (Backend)
+- ✅ Conversation State: **100% COMPLETO** (Backend)
+
+**Progresso**: 4/11 tabelas ativadas = **36%**
+
+**Bloqueadores**: Nenhum
+
+**Próxima Tarefa**: Conversation Preferences (2.3)
+
+---
+
+**Atualizado:** 31 de Outubro de 2025
 **Por:** Pedro @ Blipee
 **Status**: 🟢 On Track
