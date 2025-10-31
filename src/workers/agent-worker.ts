@@ -40,6 +40,7 @@ import { MLTrainingService } from './services/ml-training-service';
 import { ForecastPrecomputeService } from './services/forecast-precompute-service';
 import { MemoryExtractionService } from './services/memory-extraction-service';
 import { contextManager } from '@/lib/conversations/context-manager';
+import { stateManager } from '@/lib/conversations/state-manager';
 import { startProactiveScheduler, stopProactiveScheduler } from './jobs/proactive-agent-scheduler';
 
 const supabaseAdmin = createClient(
@@ -625,6 +626,11 @@ class AgentWorker {
         console.log('🧹 Cleaning expired conversation contexts...');
         const removedContexts = await contextManager.clearExpiredContexts();
         console.log(`✅ Removed ${removedContexts} expired conversation contexts`);
+
+        // FASE 2: Clean up expired conversation states
+        console.log('🧹 Cleaning expired conversation states...');
+        const removedStates = await stateManager.clearExpiredStates();
+        console.log(`✅ Removed ${removedStates} expired conversation states`);
       } catch (error) {
         console.error('❌ Data cleanup failed:', error);
       }
