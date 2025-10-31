@@ -40,6 +40,7 @@ import { MLTrainingService } from './services/ml-training-service';
 import { ForecastPrecomputeService } from './services/forecast-precompute-service';
 import { MemoryExtractionService } from './services/memory-extraction-service';
 import { ConversationAnalyticsService } from './services/conversation-analytics-service';
+import { AIConversationAnalyticsService } from './services/ai-conversation-analytics-service';
 import { contextManager } from '@/lib/conversations/context-manager';
 import { stateManager } from '@/lib/conversations/state-manager';
 import { startProactiveScheduler, stopProactiveScheduler } from './jobs/proactive-agent-scheduler';
@@ -90,6 +91,7 @@ class AgentWorker {
   // FASE 2 Services (Conversation Intelligence)
   private memoryExtractionService: MemoryExtractionService;
   private conversationAnalyticsService: ConversationAnalyticsService;
+  private aiConversationAnalyticsService: AIConversationAnalyticsService;
 
   // Cron job references
   private cronJobs: cron.ScheduledTask[] = [];
@@ -115,6 +117,7 @@ class AgentWorker {
     // Initialize FASE 2 Services
     this.memoryExtractionService = new MemoryExtractionService();
     this.conversationAnalyticsService = new ConversationAnalyticsService();
+    this.aiConversationAnalyticsService = new AIConversationAnalyticsService();
   }
 
   async start() {
@@ -199,6 +202,7 @@ class AgentWorker {
     console.log('📊 Phase 3: Report generation, ML training, and Prophet forecasting (6x/day)');
     console.log('💬 FASE 2: Conversation memories extraction (daily at 5:00 AM UTC)');
     console.log('📊 FASE 2: Conversation analytics aggregation (daily at 6:00 AM UTC)');
+    console.log('🤖 FASE 2: AI conversation analytics (daily at 7:00 AM UTC)');
   }
 
   /**
@@ -778,6 +782,19 @@ class AgentWorker {
       timezone: 'UTC'
     });
     this.cronJobs.push(conversationAnalyticsJob);
+
+    // 9. AI Conversation Analytics - Daily at 7:00 AM UTC (after conversation analytics)
+    const aiAnalyticsJob = cron.schedule('0 7 * * *', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.aiConversationAnalyticsService.run();
+      } catch (error) {
+        console.error('❌ AI conversation analytics failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(aiAnalyticsJob);
 
     console.log('✅ Phase 2 & 3 Services started');
     console.log('\n   Phase 2 - Intelligence & Optimization:');
