@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (existingFeedback) {
-      // Update existing feedback
+      // Update existing feedback in ai_feedback
       const { error: updateError } = await supabase
         .from('ai_feedback')
         .update({
@@ -99,6 +99,29 @@ export async function POST(req: NextRequest) {
           { error: 'Failed to update feedback' },
           { status: 500 }
         );
+      }
+
+      // Also update conversation_feedback if it exists
+      const { data: existingConvFeedback } = await supabase
+        .from('conversation_feedback')
+        .select('id')
+        .eq('conversation_id', message.conversation_id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existingConvFeedback) {
+        await supabase
+          .from('conversation_feedback')
+          .update({
+            feedback_type: feedbackType === 'positive' ? 'thumbs_up' : 'thumbs_down',
+            feedback_value: {
+              rating: feedbackType === 'positive' ? 5 : 1,
+              comment: comment || null,
+              source: 'chat_interface',
+              updated_at: new Date().toISOString()
+            }
+          })
+          .eq('id', existingConvFeedback.id);
       }
 
       // Recalculate metrics for this prompt version
@@ -137,6 +160,50 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Also save to conversation_feedback table (FASE 2)
+    // Get message index in conversation
+    const { data: messageIndex } = await supabase
+      .rpc('get_message_index', {
+        p_conversation_id: message.conversation_id,
+        p_message_id: messageId
+      })
+      .maybeSingle();
+
+    // If we can't get index, count messages before this one
+    let msgIndex = 0;
+    if (!messageIndex) {
+      const { count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('conversation_id', message.conversation_id)
+        .lt('created_at', (await supabase
+          .from('messages')
+          .select('created_at')
+          .eq('id', messageId)
+          .single()).data?.created_at || new Date());
+
+      msgIndex = count || 0;
+    } else {
+      msgIndex = messageIndex.index || 0;
+    }
+
+    // Insert into conversation_feedback
+    await supabase
+      .from('conversation_feedback')
+      .insert({
+        conversation_id: message.conversation_id,
+        message_index: msgIndex,
+        user_id: user.id,
+        organization_id: conversation.organization_id,
+        feedback_type: type === 'up' ? 'thumbs_up' : 'thumbs_down',
+        feedback_value: {
+          rating: type === 'up' ? 5 : 1,
+          comment: comment || null,
+          source: 'chat_interface'
+        },
+        applied_to_model: false
+      });
 
     // Update feedback metrics for this prompt version
     if (message.metadata?.prompt_version_id) {
