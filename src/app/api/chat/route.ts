@@ -33,6 +33,7 @@ import { anthropic } from '@ai-sdk/anthropic';
 import { sustainabilityTools } from '@/lib/ai/chat-tools';
 import { getOrCreatePromptVersion } from '@/lib/ai/prompt-version-tracker';
 import { contextManager } from '@/lib/conversations/context-manager';
+import { preferencesManager } from '@/lib/conversations/preferences-manager';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -266,12 +267,29 @@ export async function POST(req: NextRequest) {
     // Get context summary for system prompt
     const contextSummary = contextManager.getContextSummary(conversationContext);
 
+    // FASE 2: Load user preferences
+    const languagePreference = await preferencesManager.getLanguagePreference(user.id);
+    const responseTone = await preferencesManager.getResponseTone(user.id, conversationId);
+
+    // Apply language preference (override if set)
+    const effectiveLanguage = languagePreference || language;
+
     // Create contextualized system prompt with org, building context, and language preference
-    let systemPrompt = createSystemPrompt(organizationId, buildingId, language);
+    let systemPrompt = createSystemPrompt(organizationId, buildingId, effectiveLanguage);
 
     // Append conversation context if available
     if (contextSummary) {
       systemPrompt += `\n\n## Conversation Context\n${contextSummary}`;
+    }
+
+    // Apply response tone preference if set
+    if (responseTone) {
+      const toneInstructions = {
+        formal: 'Maintain a professional and formal tone in your responses.',
+        casual: 'Use a friendly, conversational tone. Be approachable and relaxed.',
+        technical: 'Focus on technical accuracy and use precise terminology. Assume technical knowledge.',
+      };
+      systemPrompt += `\n\n## Response Style\n${toneInstructions[responseTone]}`;
     }
 
     // Track prompt version for feedback and A/B testing
