@@ -181,10 +181,11 @@ GROUP BY feedback_type;
 - [ ] Testar em desenvolvimento
 - [ ] Verificar dados aparecem na tabela
 
-**Amanhã (31 Out)**:
-- [ ] Começar Memory Extraction (1.2)
-- [ ] Criar job de extração de memórias
+**Hoje (31 Out)**:
+- [x] ~~Começar Memory Extraction (1.2)~~ ✅ INICIADO
+- [x] ~~Criar job de extração de memórias~~ ✅ FEITO
 - [ ] Implementar UI para visualizar memórias
+- [ ] Testar memory extraction em conversas reais
 
 ---
 
@@ -219,11 +220,92 @@ GROUP BY feedback_type;
 
 ---
 
+### 📊 1.2 Conversation Memories - EM PROGRESSO
+
+**Data:** 31 de Outubro de 2025
+**Tempo:** 1 hora (em progresso)
+**Status:** 🔄 Backend completo, UI pendente
+
+#### O Que Foi Feito
+
+**1. Memory Extraction Service** ✅
+- Arquivo criado: `src/workers/services/memory-extraction-service.ts`
+- Serviço completo com:
+  - Busca conversas elegíveis (5+ mensagens, sem memórias existentes)
+  - Extração de memórias usando GPT-4o-mini
+  - Salvamento estruturado em `conversation_memories`
+  - Estatísticas de execução
+
+**2. Integração no Agent Worker** ✅
+- Modificado: `src/workers/agent-worker.ts`
+- Mudanças:
+  - Linha 41: Import do MemoryExtractionService
+  - Linha 87-88: Propriedade de classe
+  - Linha 111-112: Inicialização no constructor
+  - Linha 441-447: Adicionado ao bootstrap (análise inicial)
+  - Linha 335-337: Adicionado ao health endpoint
+  - Linha 737-750: Cron job diário (5:00 AM UTC)
+  - Linha 195: Log de startup
+
+**3. Esquema de Extração** ✅
+```typescript
+interface ExtractedMemory {
+  title: string;              // Título conciso (max 60 chars)
+  summary: string;            // Resumo 2-3 frases
+  key_topics: string[];       // 3-5 tópicos principais
+  entities: {                 // Pessoas, empresas, lugares (max 5)
+    type: string;
+    name: string;
+    context?: string;
+  }[];
+  sentiment: {                // Sentimento geral
+    overall: 'positive' | 'neutral' | 'negative';
+    score: number;           // 0-1 confiança
+  };
+  preferences: {              // Preferências aprendidas
+    [key: string]: any;
+  };
+}
+```
+
+**4. Lógica Implementada** ✅
+- **Eligibilidade**: Conversas com 5+ mensagens, criadas nos últimos 30 dias, sem memórias existentes
+- **AI Extraction**: GPT-4o-mini (custo-eficiente) com prompt estruturado
+- **Error Handling**: Continua processando mesmo se uma conversa falhar
+- **Statistics**: Tracking de conversas processadas, memórias extraídas, erros
+
+**5. Schedule** ✅
+- **Frequência**: Diário às 5:00 AM UTC
+- **Trigger**: Cron job no agent-worker
+- **Bootstrap**: Executa na primeira deployment (RUN_INITIAL_ANALYSIS=true)
+
+#### Próximos Passos
+
+**Backend (Completo)** ✅:
+- [x] Criar MemoryExtractionService
+- [x] Integrar no agent-worker
+- [x] Schedule cron job
+- [x] Adicionar ao health endpoint
+- [x] Fix TypeScript compilation issues
+
+**Frontend (Pendente)** ⏳:
+- [ ] Criar componente ConversationMemories.tsx
+- [ ] Adicionar ao ChatInterface
+- [ ] UI para visualizar memórias extraídas
+- [ ] Opções de delete/edit
+
+**Testing (Pendente)** ⏳:
+- [ ] Testar extração em conversas reais
+- [ ] Verificar memórias aparecem na DB
+- [ ] Validar qualidade da extração AI
+
+---
+
 ## 🔄 Status Geral
 
-**FASE 2 - Week 1 - Day 1**:
+**FASE 2 - Week 1 - Day 2**:
 - ✅ Conversation Feedback: **100% COMPLETO**
-- ⏸️ Conversation Memories: **0% (próximo)**
+- 🔄 Conversation Memories: **70% (Backend completo, UI pendente)**
 
 **Timeline**:
 - Começado: 30 Out 2025, 23:00 UTC

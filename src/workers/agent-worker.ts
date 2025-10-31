@@ -38,6 +38,7 @@ import { WeatherDataService } from './services/weather-data-service';
 import { ReportGenerationService } from './services/report-generation-service';
 import { MLTrainingService } from './services/ml-training-service';
 import { ForecastPrecomputeService } from './services/forecast-precompute-service';
+import { MemoryExtractionService } from './services/memory-extraction-service';
 import { startProactiveScheduler, stopProactiveScheduler } from './jobs/proactive-agent-scheduler';
 
 const supabaseAdmin = createClient(
@@ -83,6 +84,9 @@ class AgentWorker {
   private mlTrainingService: MLTrainingService;
   private forecastService: ForecastPrecomputeService;
 
+  // FASE 2 Services (Conversation Intelligence)
+  private memoryExtractionService: MemoryExtractionService;
+
   // Cron job references
   private cronJobs: cron.ScheduledTask[] = [];
 
@@ -103,6 +107,9 @@ class AgentWorker {
     this.reportService = new ReportGenerationService();
     this.mlTrainingService = new MLTrainingService();
     this.forecastService = new ForecastPrecomputeService();
+
+    // Initialize FASE 2 Services
+    this.memoryExtractionService = new MemoryExtractionService();
   }
 
   async start() {
@@ -185,6 +192,7 @@ class AgentWorker {
     console.log('💚 Phase 1: Metrics, cleanup, and notifications running');
     console.log('🔍 Phase 2: Optimization, database monitoring, weather tracking');
     console.log('📊 Phase 3: Report generation, ML training, and Prophet forecasting (6x/day)');
+    console.log('💬 FASE 2: Conversation memories extraction (daily at 5:00 AM UTC)');
   }
 
   /**
@@ -325,6 +333,9 @@ class AgentWorker {
             mlTraining: this.mlTrainingService.getHealth(),
             forecasting: this.forecastService.getHealth(),
           },
+          fase2Services: {
+            memoryExtraction: this.memoryExtractionService.getStats(),
+          },
           timestamp: new Date().toISOString()
         }));
       } else {
@@ -431,15 +442,23 @@ class AgentWorker {
       await this.forecastService.run();
       console.log('   ✅ Forecasts generated\n');
 
+      // FASE 2: Conversation Intelligence
+      console.log('\n💬 FASE 2: Conversation Intelligence');
+      console.log('───────────────────────────────────\n');
+
+      console.log('🔟 Extracting conversation memories...');
+      await this.memoryExtractionService.run();
+      console.log('   ✅ Memories extracted\n');
+
       // Prompt Optimization
       console.log('\n🎯 Prompt Optimization');
       console.log('────────────────────\n');
 
-      console.log('🔟 Analyzing conversation patterns...');
+      console.log('1️⃣1️⃣  Analyzing conversation patterns...');
       await this.runPatternAnalysis();
       console.log('   ✅ Pattern analysis complete\n');
 
-      console.log('1️⃣1️⃣  Checking A/B experiments...');
+      console.log('1️⃣2️⃣  Checking A/B experiments...');
       await this.runExperimentMonitoring();
       console.log('   ✅ Experiments checked\n');
 
@@ -716,6 +735,21 @@ class AgentWorker {
     });
     this.cronJobs.push(forecastJob);
 
+    // FASE 2: Conversation Intelligence
+
+    // 7. Memory Extraction - Daily at 5:00 AM UTC (after optimization)
+    const memoryExtractionJob = cron.schedule('0 5 * * *', async () => {
+      if (!this.isRunning) return;
+      try {
+        await this.memoryExtractionService.run();
+      } catch (error) {
+        console.error('❌ Memory extraction failed:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.cronJobs.push(memoryExtractionJob);
+
     console.log('✅ Phase 2 & 3 Services started');
     console.log('\n   Phase 2 - Intelligence & Optimization:');
     console.log('   • Optimization opportunities: Daily at 4:00 AM UTC');
@@ -725,6 +759,8 @@ class AgentWorker {
     console.log('   • Report generation: Monthly (1st) at 6:00 AM UTC');
     console.log('   • ML model training: Monthly (15th) at 2:00 AM UTC');
     console.log('   • Prophet forecasting: Every 4 hours (6x/day)');
+    console.log('\n   FASE 2 - Conversation Intelligence:');
+    console.log('   • Memory extraction: Daily at 5:00 AM UTC');
   }
 
   /**
@@ -841,6 +877,10 @@ console.log('║  PHASE 3 - Advanced Analytics:                           ║');
 console.log('║  • Monthly Sustainability Reports (Auto-generated)       ║');
 console.log('║  • ML Model Training Pipeline (Auto-improvement)         ║');
 console.log('║  • Prophet Forecasting (Every 4 hours - 6x/day)          ║');
+console.log('╠══════════════════════════════════════════════════════════╣');
+console.log('║  FASE 2 - Conversation Intelligence:                     ║');
+console.log('║  • Memory Extraction (Daily at 5:00 AM UTC)              ║');
+console.log('║  • Conversation Context & State Management               ║');
 console.log('╠══════════════════════════════════════════════════════════╣');
 console.log('║  BOOTSTRAP: Set RUN_INITIAL_ANALYSIS=true to process    ║');
 console.log('║             all historical data on first deployment      ║');
