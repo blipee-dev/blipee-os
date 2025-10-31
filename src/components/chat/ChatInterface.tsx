@@ -55,8 +55,9 @@ import {
   SourcesTrigger
 } from '@/components/ai-elements/sources';
 import { Suggestion, Suggestions } from '@/components/ai-elements/suggestion';
-import { Bot, CopyIcon, RefreshCcwIcon, PaperclipIcon, ThumbsUpIcon, ThumbsDownIcon } from 'lucide-react';
+import { Bot, CopyIcon, RefreshCcwIcon, PaperclipIcon, ThumbsUpIcon, ThumbsDownIcon, Brain, X } from 'lucide-react';
 import { Fragment, useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { ConversationMemories } from '@/components/chat/ConversationMemories';
 import type { SustainabilityAgentUIMessage } from '@/lib/ai/agents/sustainability-agent';
 import { ToolConfirmation } from '@/components/ai-elements/tool-confirmation';
 import { requiresApproval } from '@/lib/ai/hitl/tool-config';
@@ -147,6 +148,7 @@ export function ChatInterface({
   const [input, setInput] = useState(initialInput);
   const [model, setModel] = useState(AVAILABLE_MODELS[0].id);
   const [feedback, setFeedback] = useState<Record<string, 'up' | 'down' | null>>({});
+  const [showMemories, setShowMemories] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightedMessageRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -316,9 +318,24 @@ export function ChatInterface({
   };
 
   return (
-    <div className={cn("flex flex-col w-full h-full bg-white dark:bg-gray-950 relative", className)}>
-      {/* Messages Container - ChatGPT Mobile Style */}
-      <Conversation className="flex-1 min-h-0 overflow-y-auto pb-32">
+    <div className={cn("flex w-full h-full bg-white dark:bg-gray-950 relative", className)}>
+      {/* Main Chat Area */}
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* Memories Toggle Button (Mobile) */}
+        {messages.length > 0 && (
+          <div className="lg:hidden absolute top-4 right-4 z-10">
+            <button
+              onClick={() => setShowMemories(!showMemories)}
+              className="p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Toggle memories"
+            >
+              <Brain className={cn("w-5 h-5", showMemories ? "text-blue-600 dark:text-blue-400" : "text-gray-600 dark:text-gray-400")} />
+            </button>
+          </div>
+        )}
+
+        {/* Messages Container - ChatGPT Mobile Style */}
+        <Conversation className="flex-1 min-h-0 overflow-y-auto pb-32">
         <ConversationContent className="max-w-3xl mx-auto px-4 py-6">
           {/* Load Older Messages Button (WhatsApp-like) */}
           {showingOnlyUnread && onLoadAllMessages && (
@@ -801,6 +818,62 @@ export function ChatInterface({
           </PromptInput>
         </div>
       </div>
+      </div>
+
+      {/* Memories Sidebar - Desktop & Mobile */}
+      {messages.length > 0 && (
+        <>
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:flex lg:w-80 xl:w-96 border-l border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 overflow-hidden">
+            <div className="flex flex-col w-full">
+              {/* Sidebar Header */}
+              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100">Memories</h3>
+                </div>
+              </div>
+
+              {/* Sidebar Content */}
+              <div className="flex-1 overflow-y-auto p-4">
+                <ConversationMemories conversationId={conversationId} />
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Overlay */}
+          {showMemories && (
+            <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setShowMemories(false)}>
+              <div
+                className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white dark:bg-gray-900 shadow-xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex flex-col h-full">
+                  {/* Mobile Header */}
+                  <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-2">
+                      <Brain className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100">Memories</h3>
+                    </div>
+                    <button
+                      onClick={() => setShowMemories(false)}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      aria-label="Close memories"
+                    >
+                      <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    </button>
+                  </div>
+
+                  {/* Mobile Content */}
+                  <div className="flex-1 overflow-y-auto p-4">
+                    <ConversationMemories conversationId={conversationId} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
