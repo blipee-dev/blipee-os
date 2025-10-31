@@ -3,7 +3,7 @@
 
 **Início:** 30 de Outubro de 2025
 **Status Atual:** 🟢 Em Progresso
-**Progresso Global:** 5/11 tabelas ativadas (45%)
+**Progresso Global:** 6/11 tabelas ativadas (55%)
 
 ---
 
@@ -16,14 +16,14 @@
 | 3 | `conversation_contexts` | ✅ **ATIVA** | 100% | 2025-10-31 |
 | 4 | `conversation_state` | ✅ **ATIVA** | 100% | 2025-10-31 |
 | 5 | `conversation_preferences` | ✅ **ATIVA** | 100% | 2025-10-31 |
-| 6 | `conversation_analytics` | ⏸️ Inativa | 0% | - |
+| 6 | `conversation_analytics` | ✅ **ATIVA** | 100% | 2025-10-31 |
 | 7 | `ai_conversation_analytics` | ⏸️ Inativa | 0% | - |
 | 8 | `chat_attachments` | ⏸️ Inativa | 0% | - |
 | 9 | `chat_shares` | ⏸️ Inativa | 0% | - |
 | 10 | `message_votes` | ⏸️ Inativa | 0% | - |
 | 11 | `conversation_memory` | ⏸️ Inativa | 0% | - |
 
-**Progresso**: 5/11 = **45%**
+**Progresso**: 6/11 = **55%**
 
 ---
 
@@ -442,28 +442,77 @@ interface ExtractedMemory {
 
 ---
 
+## 📊 3.1 Conversation Analytics - COMPLETO
+
+**Data:** 31 de Outubro de 2025
+**Tempo:** 2 horas
+**Status:** ✅ Implementado e commitado
+
+#### O Que Foi Feito
+
+**1. Conversation Analytics Service** ✅
+- Arquivo criado: `src/workers/services/conversation-analytics-service.ts` (465 lines)
+- Serviço completo com:
+  - Daily aggregation of metrics (one row per user per day)
+  - Total conversations and messages tracking
+  - Average conversation length calculation
+  - Topic extraction from conversation contexts
+  - Sentiment distribution from feedback data
+  - AI provider usage tracking (OpenAI, Anthropic, Google)
+  - Response time metrics (avg, min, max, p50, p95)
+  - User satisfaction scoring from feedback
+  - GET methods for user and organization analytics
+
+**2. Agent Worker Integration** ✅
+- Modificado: `src/workers/agent-worker.ts`
+- Mudanças:
+  - Linha 42: Import do ConversationAnalyticsService
+  - Linha 92: Service property declaration
+  - Linha 117: Service initialization
+  - Linhas 768-779: Daily cron job at 6:00 AM UTC
+  - Linha 201: Startup logging
+
+**3. Dashboard Component** ✅
+- Arquivo criado: `src/components/chat/ConversationAnalyticsDashboard.tsx` (367 lines)
+- Features:
+  - User-specific and organization-wide analytics views
+  - Date range selector (7d, 30d, 90d)
+  - Key metrics cards: total conversations, total messages, avg response time, satisfaction score
+  - Top topics display with pill badges
+  - Sentiment distribution visualization (positive/neutral/negative) with progress bars
+  - Empty state handling
+  - Dark mode support
+  - Responsive grid layout
+
+**4. Commit** ✅
+- Commit: `532899b1`
+- Message: "feat: FASE 2 - Conversation Analytics with Dashboard"
+
+---
+
 ## 🔄 Status Geral
 
-**FASE 2 - Week 2 - Day 1 (Completo!)**:
+**FASE 2 - Week 3 - Day 1 (Em Progresso)**:
 - ✅ Conversation Feedback: **100% COMPLETO**
 - ✅ Conversation Memories: **100% COMPLETO** (Backend + Frontend)
 - ✅ Conversation Contexts: **100% COMPLETO** (Backend)
 - ✅ Conversation State: **100% COMPLETO** (Backend)
 - ✅ Conversation Preferences: **100% COMPLETO** (Backend + Frontend + UI)
+- ✅ Conversation Analytics: **100% COMPLETO** (Backend + Dashboard)
 
-**Progresso**: 5/11 tabelas ativadas = **45%**
+**Progresso**: 6/11 tabelas ativadas = **55%**
 
 **Week 2 Completo**: Context & State Management ✅
-- Todas as funcionalidades de Week 2 implementadas
-- Backend + Frontend integrados
-- Preferências aplicadas automaticamente no chat
+**Week 3 Em Progresso**: Analytics & Social Features
+- Conversation Analytics ✅
+- Próximo: AI Conversation Analytics
 
 **Bloqueadores**: Nenhum
 
-**Próxima Tarefa**: Week 3 - Analytics & Social Features
+**Próxima Tarefa**: AI Conversation Analytics (3.2)
 
 ---
 
 **Atualizado:** 31 de Outubro de 2025
 **Por:** Pedro @ Blipee
-**Status**: 🟢 On Track - Week 2 Complete!
+**Status**: 🟢 On Track - 55% Complete!
