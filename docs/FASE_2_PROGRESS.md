@@ -3,7 +3,7 @@
 
 **Início:** 30 de Outubro de 2025
 **Status Atual:** 🟢 Em Progresso
-**Progresso Global:** 4/11 tabelas ativadas (36%)
+**Progresso Global:** 5/11 tabelas ativadas (45%)
 
 ---
 
@@ -15,15 +15,15 @@
 | 2 | `conversation_memories` | ✅ **ATIVA** | 100% | 2025-10-31 |
 | 3 | `conversation_contexts` | ✅ **ATIVA** | 100% | 2025-10-31 |
 | 4 | `conversation_state` | ✅ **ATIVA** | 100% | 2025-10-31 |
-| 5 | `conversation_analytics` | ⏸️ Inativa | 0% | - |
-| 6 | `ai_conversation_analytics` | ⏸️ Inativa | 0% | - |
-| 7 | `chat_attachments` | ⏸️ Inativa | 0% | - |
-| 8 | `chat_shares` | ⏸️ Inativa | 0% | - |
-| 9 | `message_votes` | ⏸️ Inativa | 0% | - |
-| 10 | `conversation_preferences` | ⏸️ Inativa | 0% | - |
+| 5 | `conversation_preferences` | ✅ **ATIVA** | 100% | 2025-10-31 |
+| 6 | `conversation_analytics` | ⏸️ Inativa | 0% | - |
+| 7 | `ai_conversation_analytics` | ⏸️ Inativa | 0% | - |
+| 8 | `chat_attachments` | ⏸️ Inativa | 0% | - |
+| 9 | `chat_shares` | ⏸️ Inativa | 0% | - |
+| 10 | `message_votes` | ⏸️ Inativa | 0% | - |
 | 11 | `conversation_memory` | ⏸️ Inativa | 0% | - |
 
-**Progresso**: 4/11 = **36%**
+**Progresso**: 5/11 = **45%**
 
 ---
 
@@ -392,22 +392,78 @@ interface ExtractedMemory {
 
 ---
 
+## 📊 2.3 Conversation Preferences - COMPLETO
+
+**Data:** 31 de Outubro de 2025
+**Tempo:** 2 horas
+**Status:** ✅ Implementado e commitado
+
+#### O Que Foi Feito
+
+**1. Conversation Preferences Manager** ✅
+- Arquivo criado: `src/lib/conversations/preferences-manager.ts` (487 lines)
+- Serviço completo com:
+  - Save/load preferences (global or per-conversation)
+  - Support for preference types:
+    - `notification_settings`: Enable/disable notifications
+    - `language`: User's preferred language
+    - `response_tone`: formal, casual, or technical
+    - `auto_archive`: Auto-archive after N days of inactivity
+    - `custom`: Custom preference types
+  - Confidence scoring for learned preferences
+  - Usage tracking (usage_count, last_used)
+  - Helper methods for common preferences
+  - Learning from user behavior with confidence adjustment
+
+**2. Chat API Integration** ✅
+- Modificado: `src/app/api/chat/route.ts`
+- Mudanças:
+  - Linha 36: Import do preferencesManager
+  - Linhas 270-293: Preferences loading and application
+  - Language preference override
+  - Response tone applied to system prompt
+  - Automatic preference application on every message
+
+**3. UI Component** ✅
+- Arquivo criado: `src/components/chat/ConversationPreferences.tsx` (368 lines)
+- Features:
+  - Language selector (EN, PT, ES, FR, DE)
+  - Response tone buttons (Formal, Casual, Technical)
+  - Notification toggle
+  - Auto-archive settings with days input
+  - Save button with loading/success states
+  - Dark mode support
+  - Loads existing preferences on mount
+  - Supports both global and conversation-specific preferences
+
+**4. Commit** ✅
+- Commit: `15331a6e`
+- Message: "feat: FASE 2 - Conversation Preferences with UI"
+
+---
+
 ## 🔄 Status Geral
 
-**FASE 2 - Week 2 - Day 1**:
+**FASE 2 - Week 2 - Day 1 (Completo!)**:
 - ✅ Conversation Feedback: **100% COMPLETO**
 - ✅ Conversation Memories: **100% COMPLETO** (Backend + Frontend)
 - ✅ Conversation Contexts: **100% COMPLETO** (Backend)
 - ✅ Conversation State: **100% COMPLETO** (Backend)
+- ✅ Conversation Preferences: **100% COMPLETO** (Backend + Frontend + UI)
 
-**Progresso**: 4/11 tabelas ativadas = **36%**
+**Progresso**: 5/11 tabelas ativadas = **45%**
+
+**Week 2 Completo**: Context & State Management ✅
+- Todas as funcionalidades de Week 2 implementadas
+- Backend + Frontend integrados
+- Preferências aplicadas automaticamente no chat
 
 **Bloqueadores**: Nenhum
 
-**Próxima Tarefa**: Conversation Preferences (2.3)
+**Próxima Tarefa**: Week 3 - Analytics & Social Features
 
 ---
 
 **Atualizado:** 31 de Outubro de 2025
 **Por:** Pedro @ Blipee
-**Status**: 🟢 On Track
+**Status**: 🟢 On Track - Week 2 Complete!
