@@ -341,11 +341,28 @@ export async function getUnifiedForecast(params: ForecastParams): Promise<Foreca
     // Get last month from historical data
     const lastMonth = new Date(historical[historical.length - 1].date);
 
+    console.log('📅 [unified-forecast] Date calculation:', {
+      lastHistoricalDate: historical[historical.length - 1].date,
+      lastMonthObject: lastMonth.toISOString(),
+      lastMonthYear: lastMonth.getFullYear(),
+      lastMonthMonth: lastMonth.getMonth(),
+    });
+
     for (let i = 0; i < forecast.forecasted.length; i++) {
       const forecastDate = new Date(lastMonth);
       forecastDate.setMonth(forecastDate.getMonth() + i + 1);
       const month = forecastDate.toISOString().substring(0, 7);
       const value = forecast.forecasted[i];
+
+      if (i === 0) {
+        console.log('📅 [unified-forecast] First forecast month:', {
+          i,
+          lastMonthValue: forecastDate.getMonth(),
+          forecastDateISO: forecastDate.toISOString(),
+          monthString: month,
+          forecastYear: forecastDate.getFullYear(),
+        });
+      }
 
       const monthData: any = {
         month,

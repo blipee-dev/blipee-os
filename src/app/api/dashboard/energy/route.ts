@@ -18,6 +18,7 @@ import { getAPIUser } from '@/lib/auth/server-auth';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { UnifiedSustainabilityCalculator } from '@/lib/sustainability/unified-calculator';
 import { ForecastService } from '@/lib/api/dashboard/core/ForecastService';
+import { calculateProgress } from '@/lib/utils/progress-calculation';
 import { energyConfig } from '@/lib/api/dashboard/configs/energy.config';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -63,6 +64,14 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('start_date');
     const endDate = searchParams.get('end_date');
 
+    console.log('🔍 [Energy API] Request params:', {
+      organizationId,
+      siteId: siteId || 'ALL SITES',
+      startDate,
+      endDate,
+      hasSiteFilter: !!siteId,
+    });
+
     if (!organizationId || !startDate || !endDate) {
       return NextResponse.json(
         { error: 'Missing required parameters: organizationId, start_date, end_date' },
@@ -88,7 +97,6 @@ export async function GET(request: NextRequest) {
       forecast,
       baseline,
       target,
-      projected,
       siteComparison
     ] = await Promise.all([
       // Current period data
@@ -103,22 +111,40 @@ export async function GET(request: NextRequest) {
         : Promise.resolve(null),
 
       // Forecast (only for current year) - Using unified ForecastService
+      // This returns the projected value (YTD + forecast) using Prophet or fallback
       selectedYear === currentYear
         ? getForecastWithCalculations(organizationId, siteId, calculator)
         : Promise.resolve(null),
 
       // Targets (using unified calculator - cached!)
+      // NOTE: Baseline and target are always org-wide
       calculator.getBaseline('energy', baselineYear),
       calculator.getTarget('energy'),
-      calculator.getProjected('energy'),
 
       // Site comparison (single query for all sites!)
       getSiteComparison(organizationId, startDate, endDate)
     ]);
 
-    // Calculate progress
+    // Use forecast.value as projected (already includes YTD + Prophet/fallback forecast)
+    // If forecast is not available (historical years), calculate projected from scratch
+    const projected = forecast?.value || (await calculator.getProjected('energy', siteId))?.value || 0;
+
+    console.log('📊 [Energy API] Projected calculation:', {
+      forecastValue: forecast?.value,
+      forecastMethod: forecast?.method,
+      finalProjected: projected,
+      source: forecast?.value ? 'prophet-forecast' : 'calculator-fallback',
+    });
+
+    // Calculate progress manually using Prophet projected value
+    // Don't call calculateProgressToTarget() as it calls getProjected() again
     const progress = baseline && target && projected
-      ? await calculator.calculateProgressToTarget('energy')
+      ? {
+          baseline: baseline.value,
+          target: target.value,
+          projected: projected,
+          ...calculateProgress(baseline.value, target.value, projected),
+        }
       : null;
 
     return NextResponse.json({
@@ -137,7 +163,7 @@ export async function GET(request: NextRequest) {
         targets: {
           baseline: baseline?.value || 0,
           target: target?.value || 0,
-          projected: projected?.value || 0,
+          projected: projected || 0,
           baselineYear,
           targetYear: currentYear,
           progress: progress ? {
@@ -222,7 +248,10 @@ async function getEnergyData(
     .lte('period_start', effectiveEndDate);
 
   if (siteId) {
+    console.log(`🎯 [getEnergyData] Applying site filter: ${siteId}`);
     query = query.eq('site_id', siteId);
+  } else {
+    console.log('🌍 [getEnergyData] No site filter - fetching ALL sites');
   }
 
   const { data, error } = await query;
@@ -521,6 +550,8 @@ async function getEnergyData(
 
   console.log('⚡ [ENERGY DATA] Complete breakdown:', {
     totalRows: data.length,
+    totalConsumption: totalConsumption.toFixed(1),
+    totalEmissions: totalEmissions.toFixed(2),
     sources: Object.keys(sources),
     monthlyTrendsCount: monthlyTrends.length,
     energyTypes: Object.keys(energyTypes),
@@ -529,13 +560,13 @@ async function getEnergyData(
   });
 
   return {
-    totalConsumption,
-    totalEmissions,
-    renewablePercentage,
+    total_consumption: totalConsumption,
+    total_emissions: totalEmissions,
+    renewable_percentage: renewablePercentage,
     sources: Object.values(sources), // Convert to array
-    monthlyTrends,
-    energyTypes: Object.values(energyTypes), // Convert to array
-    energyMixes,
+    monthly_trends: monthlyTrends,
+    energy_types: Object.values(energyTypes), // Convert to array
+    energy_mixes: energyMixes,
     unit: 'kWh',
   };
 }
@@ -659,10 +690,10 @@ async function getForecastWithCalculations(
   calculator: UnifiedSustainabilityCalculator
 ) {
   try {
-    // If no site selected, use EnterpriseForecast directly (ForecastService doesn't work for org-wide)
+    // If no site selected, aggregate Prophet forecasts from ALL sites
     if (!siteId) {
-      console.log('⚠️ [Energy Forecast] No site selected - using calculator.getProjected()');
-      return await calculator.getProjected('energy');
+      console.log('🌍 [Energy Forecast] No site selected - aggregating Prophet forecasts from all sites');
+      return await getAggregatedProphetForecast(organizationId, calculator);
     }
 
     // For site-specific: Use unified ForecastService (Prophet + fallback)
@@ -675,11 +706,11 @@ async function getForecastWithCalculations(
 
     if (!forecastResult) {
       console.log('⚠️ [Energy Forecast] No Prophet data - falling back to calculator');
-      return await calculator.getProjected('energy');
+      return await calculator.getProjected('energy', siteId);
     }
 
-    // Get YTD actual value
-    const ytd = await calculator.getYTDActual('energy');
+    // Get YTD actual value (for this specific site)
+    const ytd = await calculator.getYTDActual('energy', siteId);
 
     // Calculate total forecasted value (sum of all forecast months)
     const forecastedTotal = forecastResult.forecast.reduce((sum, month) => sum + month.total, 0);
@@ -708,4 +739,123 @@ async function getForecastWithCalculations(
     console.error('❌ [Energy Forecast] Error in getForecastWithCalculations:', error);
     return await calculator.getProjected('energy');
   }
+}
+
+/**
+ * Aggregate Prophet forecasts from all sites in the organization
+ * Falls back to EnterpriseForecast if no Prophet data available
+ */
+async function getAggregatedProphetForecast(
+  organizationId: string,
+  calculator: UnifiedSustainabilityCalculator
+) {
+  try {
+    // Get all sites for this organization
+    const { data: sites, error: sitesError } = await supabaseAdmin
+      .from('sites')
+      .select('id, name')
+      .eq('organization_id', organizationId);
+
+    if (sitesError || !sites || sites.length === 0) {
+      console.log('⚠️ [Aggregated Forecast] No sites found - using EnterpriseForecast');
+      return await calculator.getProjected('energy');
+    }
+
+    console.log(`📊 [Aggregated Forecast] Found ${sites.length} sites - fetching Prophet forecasts`);
+
+    // Fetch Prophet forecasts for all sites in parallel
+    const forecastPromises = sites.map(site =>
+      ForecastService.getForecast(organizationId, site.id, energyConfig, calculator)
+    );
+    const forecasts = await Promise.all(forecastPromises);
+
+    // Filter out null forecasts and keep only Prophet forecasts
+    const prophetForecasts = forecasts.filter(f => f && f.hasProphetData);
+
+    if (prophetForecasts.length === 0) {
+      console.log('⚠️ [Aggregated Forecast] No Prophet forecasts available - using EnterpriseForecast');
+      return await calculator.getProjected('energy');
+    }
+
+    console.log(`✅ [Aggregated Forecast] Found ${prophetForecasts.length}/${sites.length} sites with Prophet forecasts`);
+
+    // Aggregate forecasts month by month
+    const aggregatedForecast = aggregateForecasts(prophetForecasts);
+
+    // Get organization-wide YTD
+    const ytd = await calculator.getYTDActual('energy');
+
+    // Calculate total forecasted value
+    const forecastedTotal = aggregatedForecast.reduce((sum, month) => sum + month.total, 0);
+    const projectedValue = (ytd || 0) + forecastedTotal;
+
+    console.log('✅ [Aggregated Forecast] Successfully aggregated Prophet forecasts:', {
+      sitesWithProphet: prophetForecasts.length,
+      totalSites: sites.length,
+      forecastMonths: aggregatedForecast.length,
+      projectedValue,
+    });
+
+    return {
+      value: projectedValue,
+      ytd: ytd || 0,
+      forecast: aggregatedForecast,
+      method: 'prophet',
+      breakdown: aggregatedForecast,
+      metadata: {
+        totalTrend: 'aggregated',
+        dataPoints: prophetForecasts.reduce((sum, f) => sum + f.metadata.dataPoints, 0),
+        generatedAt: new Date().toISOString(),
+        method: 'prophet-aggregated',
+        forecastHorizon: aggregatedForecast.length,
+        confidence: prophetForecasts.reduce((sum, f) => sum + f.confidence, 0) / prophetForecasts.length,
+        source: 'prophet-service',
+        sitesAggregated: prophetForecasts.length,
+      },
+    };
+  } catch (error) {
+    console.error('❌ [Aggregated Forecast] Error:', error);
+    return await calculator.getProjected('energy');
+  }
+}
+
+/**
+ * Aggregate multiple Prophet forecasts by summing month by month
+ */
+function aggregateForecasts(forecasts: any[]) {
+  if (forecasts.length === 0) return [];
+
+  // Use the first forecast as template for monthKeys and months
+  const template = forecasts[0].forecast;
+
+  return template.map((monthTemplate: any, i: number) => {
+    // Sum values from all forecasts for this month
+    const total = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.total || 0), 0);
+    const renewable = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.renewable || 0), 0);
+    const fossil = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.fossil || 0), 0);
+
+    const totalLower = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.confidence?.totalLower || 0), 0);
+    const totalUpper = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.confidence?.totalUpper || 0), 0);
+    const renewableLower = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.confidence?.renewableLower || 0), 0);
+    const renewableUpper = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.confidence?.renewableUpper || 0), 0);
+    const fossilLower = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.confidence?.fossilLower || 0), 0);
+    const fossilUpper = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.confidence?.fossilUpper || 0), 0);
+
+    return {
+      monthKey: monthTemplate.monthKey,
+      month: monthTemplate.month,
+      total,
+      renewable,
+      fossil,
+      isForecast: true,
+      confidence: {
+        totalLower,
+        totalUpper,
+        renewableLower,
+        renewableUpper,
+        fossilLower,
+        fossilUpper,
+      },
+    };
+  });
 }

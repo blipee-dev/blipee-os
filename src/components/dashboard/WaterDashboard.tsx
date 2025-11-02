@@ -1598,7 +1598,7 @@ export function WaterDashboard({
                     let projectedFullYear = 0;
                     if (forecast.data?.forecast?.length > 0) {
                       const forecastRemaining = forecast.data.forecast.reduce((sum: number, f: any) => {
-                        return sum + (f.withdrawal || 0);
+                        return sum + (f.total || 0); // ✅ Use f.total from Prophet forecast
                       }, 0);
                       projectedFullYear = currentYTD + forecastRemaining;
                     } else {
@@ -1615,7 +1615,7 @@ export function WaterDashboard({
                     let projectedFullYear = 0;
                     if (forecast.data?.forecast?.length > 0) {
                       const forecastRemaining = forecast.data.forecast.reduce((sum: number, f: any) => {
-                        return sum + (f.withdrawal || 0);
+                        return sum + (f.total || 0); // ✅ Use f.total from Prophet forecast
                       }, 0);
                       projectedFullYear = currentYTD + forecastRemaining;
                     } else {
@@ -1739,7 +1739,7 @@ export function WaterDashboard({
                       let projectedFullYear = 0;
                       if (forecast.data?.forecast?.length > 0) {
                         const forecastRemaining = forecast.data.forecast.reduce((sum: number, f: any) => {
-                          return sum + (f.withdrawal || 0);
+                          return sum + (f.total || 0); // ✅ Use f.total from Prophet forecast
                         }, 0);
                         projectedFullYear = currentYTD + forecastRemaining;
                       } else {

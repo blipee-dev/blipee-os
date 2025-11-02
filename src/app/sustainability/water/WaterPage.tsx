@@ -25,11 +25,13 @@ export default function WaterPage() {
 
   // Global filters
   const [selectedSite, setSelectedSite] = useState<Building | null>(null);
+  // ✅ Default to current year (2025) - now with complete data (Jan-Oct actuals + Nov-Dec forecasts)
+  const currentYear = new Date().getFullYear();
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>({
     id: 'current-year',
-    label: new Date().getFullYear().toString(),
-    start: `${new Date().getFullYear()}-01-01`,
-    end: `${new Date().getFullYear()}-12-31`,
+    label: currentYear.toString(),
+    start: `${currentYear}-01-01`,
+    end: `${currentYear}-12-31`,
     type: 'year'
   });
 

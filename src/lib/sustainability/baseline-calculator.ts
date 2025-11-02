@@ -461,7 +461,7 @@ export async function getWaterTotal(
     organizationId,
     `
       value,
-      metrics_catalog!inner(name, category, subcategory, unit, water_type)
+      metrics_catalog!inner(name, code, category, subcategory, unit, water_type)
     `,
     startDate,
     endDate,
@@ -488,33 +488,44 @@ export async function getWaterTotal(
   let recordCount = 0;
 
   metricsData.forEach(d => {
-    const subcategory = (d.metrics_catalog as any)?.subcategory;
+    const category = (d.metrics_catalog as any)?.category;
+    const code = (d.metrics_catalog as any)?.code || '';
     const waterType = (d.metrics_catalog as any)?.water_type;
     const unit = (d.metrics_catalog as any)?.unit || 'm³';
     const rawValue = d.value || 0;
 
-    // Only process water metrics
-    if (subcategory === 'Water') {
+    // ✅ FIXED: Use category (Water Withdrawal, Water Discharge, etc.) not subcategory
+    // AND only count _total metrics to avoid double counting
+    const isWaterCategory = category === 'Water Withdrawal' ||
+                          category === 'Water Discharge' ||
+                          category === 'Water Consumption' ||
+                          category === 'Water Efficiency';
+
+    if (isWaterCategory) {
       const valueM3 = convertToM3(rawValue, unit);
 
-      if (waterType === 'withdrawal') {
+      // ✅ Only use _total metrics to match API behavior
+      if (code === 'gri_303_3_withdrawal_total') {
         withdrawal += valueM3;
         recordCount++;
-      } else if (waterType === 'discharge') {
+      } else if (code === 'gri_303_4_discharge_total') {
         discharge += valueM3;
         recordCount++;
-      } else if (waterType === 'recycled') {
+      } else if (code === 'water_recycled_grey_water') {
         recycled += valueM3;
         recordCount++;
       }
     }
   });
 
-  // Apply GRI 303-5 formula
+  // Apply GRI 303-5 formula for consumption
   const consumption = withdrawal - discharge + recycled;
 
+  // ✅ CRITICAL: For baseline/target calculations, use WITHDRAWAL not consumption
+  // Reasoning: Most organizations target withdrawal reduction for CDP Water Security
+  // because consumption ≈ 0 when discharge ≈ withdrawal (e.g., toilets, cooling systems)
   return {
-    value: Math.round(consumption),
+    value: Math.round(withdrawal), // Use withdrawal, not consumption
     unit: 'm³',
     recordCount
   };
@@ -559,8 +570,24 @@ export async function getWasteTotal(
     }
   });
 
+  // Convert from tonnes to kg (database stores in tonnes)
+  const totalInKg = total * 1000;
+
+  console.log('🐛 [DEBUG getWasteTotal]:', {
+    organizationId,
+    startDate,
+    endDate,
+    siteId: siteId || 'ALL',
+    totalMetricsData: metricsData.length,
+    wasteRecords: recordCount,
+    rawTotal: total,
+    rawTotalInTonnes: total,
+    convertedToKg: totalInKg,
+    roundedKg: Math.round(totalInKg),
+  });
+
   return {
-    value: Math.round(total),
+    value: Math.round(totalInKg),
     unit: 'kg',
     recordCount
   };

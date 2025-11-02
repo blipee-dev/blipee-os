@@ -211,10 +211,10 @@ export class UnifiedSustainabilityCalculator {
 
       case 'waste': {
         const waste = await getWasteTotal(this.organizationId, startDate, endDate);
-        // Convert kg to tonnes for consistency
+        // FIXED: Return kg directly (no conversion to tonnes)
         result = {
-          value: Math.round(waste.value / 1000 * 10) / 10,
-          unit: 'tonnes',
+          value: waste.value,
+          unit: waste.unit,
           year: baselineYear,
         };
         break;
@@ -317,7 +317,7 @@ export class UnifiedSustainabilityCalculator {
    * ✅ FIXED: Now uses baseline-calculator paginated functions for ALL domains
    * to ensure proper handling of >1000 records and consistent calculations.
    */
-  async getYTDActual(domain: Domain): Promise<number> {
+  async getYTDActual(domain: Domain, siteId?: string | null): Promise<number> {
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const startDate = `${this.currentYear}-01-01`;
@@ -325,6 +325,7 @@ export class UnifiedSustainabilityCalculator {
 
     console.log('📅 [unified-calculator] getYTDActual:', {
       domain,
+      siteId: siteId || 'ALL',
       currentDate: now.toISOString().substring(0, 10),
       currentMonth,
       startDate,
@@ -334,15 +335,16 @@ export class UnifiedSustainabilityCalculator {
     // Use baseline-calculator paginated functions for all domains
     switch (domain) {
       case 'emissions': {
-        const emissions = await getPeriodEmissions(this.organizationId, startDate, endDate);
+        const emissions = await getPeriodEmissions(this.organizationId, startDate, endDate, siteId || undefined);
         return emissions.total;
       }
 
       case 'energy': {
-        const energy = await getEnergyTotal(this.organizationId, startDate, endDate);
+        const energy = await getEnergyTotal(this.organizationId, startDate, endDate, siteId || undefined);
         // getEnergyTotal returns MWh, convert to kWh
         const ytdKwh = energy.value * 1000;
         console.log('📊 [getYTDActual] Energy YTD:', {
+          siteId: siteId || 'ALL',
           startDate,
           endDate,
           mwh: energy.value,
@@ -353,14 +355,27 @@ export class UnifiedSustainabilityCalculator {
       }
 
       case 'water': {
-        const water = await getWaterTotal(this.organizationId, startDate, endDate);
+        const water = await getWaterTotal(this.organizationId, startDate, endDate, siteId || undefined);
+        console.log('📊 [getYTDActual] Water YTD:', {
+          siteId: siteId || 'ALL',
+          startDate,
+          endDate,
+          value: water.value,
+          unit: water.unit,
+          recordCount: water.recordCount
+        });
         return water.value;
       }
 
       case 'waste': {
-        const waste = await getWasteTotal(this.organizationId, startDate, endDate);
-        // Convert kg to tonnes for consistency
-        return Math.round(waste.value / 1000 * 10) / 10;
+        const waste = await getWasteTotal(this.organizationId, startDate, endDate, siteId || undefined);
+        console.log('🐛 [DEBUG getYTDActual] waste case:', {
+          rawValue: waste.value,
+          unit: waste.unit,
+          returning: waste.value,
+        });
+        // FIXED: Return kg directly (no conversion to tonnes)
+        return waste.value;
       }
 
       default:
@@ -381,14 +396,14 @@ export class UnifiedSustainabilityCalculator {
    * - Falls back to ML computation if cache miss
    * - Cache populated daily by metrics-precompute-service
    */
-  async getProjected(domain: Domain): Promise<ProjectedResult | null> {
-    // Check instance cache first
-    const cacheKey = `${domain}-${this.currentYear}`;
+  async getProjected(domain: Domain, siteId?: string | null): Promise<ProjectedResult | null> {
+    // Check instance cache first (include siteId in cache key)
+    const cacheKey = `${domain}-${this.currentYear}-${siteId || 'all'}`;
     if (this.projectedCache.has(cacheKey)) {
       return this.projectedCache.get(cacheKey)!;
     }
 
-    const ytd = await this.getYTDActual(domain);
+    const ytd = await this.getYTDActual(domain, siteId);
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const remainingMonths = 12 - currentMonth;
@@ -396,6 +411,7 @@ export class UnifiedSustainabilityCalculator {
 
     console.log('📅 [unified-calculator] getProjected debug:', {
       domain,
+      siteId: siteId || 'ALL',
       currentDate: now.toISOString().substring(0, 10),
       currentMonth,
       remainingMonths,

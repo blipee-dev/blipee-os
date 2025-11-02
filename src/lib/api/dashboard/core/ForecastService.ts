@@ -32,13 +32,13 @@ export class ForecastService {
       // If no site selected, use EnterpriseForecast
       if (!siteId) {
         console.log(`[ForecastService] No site selected for ${config.domain} - using EnterpriseForecast`);
-        return this.getEnterpriseForecast(calculator, config);
+        return this.getEnterpriseForecast(calculator, config, null);
       }
 
       // If Prophet is not enabled for this domain, use EnterpriseForecast
       if (!config.prophetConfig.enabled) {
         console.log(`[ForecastService] Prophet disabled for ${config.domain} - using EnterpriseForecast`);
-        return this.getEnterpriseForecast(calculator, config);
+        return this.getEnterpriseForecast(calculator, config, siteId);
       }
 
       // 1. Try Prophet forecast first (higher quality, pre-computed)
@@ -53,14 +53,14 @@ export class ForecastService {
         return prophetForecast;
       }
 
-      console.log(`⚠️ [ForecastService] No Prophet data for ${config.domain} - falling back to EnterpriseForecast`);
+      console.log(`⚠️ [ForecastService] No Prophet data for ${config.domain} - falling back to EnterpriseForecast (site: ${siteId})`);
 
-      // 2. Fallback to EnterpriseForecast
-      return this.getEnterpriseForecast(calculator, config);
+      // 2. Fallback to EnterpriseForecast (with siteId)
+      return this.getEnterpriseForecast(calculator, config, siteId);
     } catch (error) {
       console.error(`❌ [ForecastService] Error getting ${config.domain} forecast:`, error);
       // Final fallback to EnterpriseForecast on any error
-      return this.getEnterpriseForecast(calculator, config);
+      return this.getEnterpriseForecast(calculator, config, siteId);
     }
   }
 
@@ -73,6 +73,16 @@ export class ForecastService {
     config: DomainConfig
   ): Promise<ForecastResult | null> {
     try {
+      // Calculate months remaining until end of current year
+      const today = new Date();
+      const currentMonthIndex = today.getMonth(); // 0-11 (0=Jan, 9=Oct)
+      const monthsRemainingThisYear = 12 - currentMonthIndex - 1; // Months after current (Nov-Dec = 2)
+
+      console.log('[ForecastService] Forecast period:', {
+        currentMonth: currentMonthIndex + 1,
+        monthsRemaining: monthsRemainingThisYear,
+      });
+
       let prophetResult = null;
 
       // Route to appropriate Prophet method based on domain
@@ -80,21 +90,24 @@ export class ForecastService {
         case 'energy':
           prophetResult = await ProphetForecastService.getEnergyForecast(
             organizationId,
-            siteId
+            siteId,
+            monthsRemainingThisYear
           );
           break;
 
         case 'water':
           prophetResult = await ProphetForecastService.getWaterForecast(
             organizationId,
-            siteId
+            siteId,
+            monthsRemainingThisYear
           );
           break;
 
         case 'waste':
           prophetResult = await ProphetForecastService.getWasteForecast(
             organizationId,
-            siteId
+            siteId,
+            monthsRemainingThisYear
           );
           break;
 
@@ -126,10 +139,11 @@ export class ForecastService {
    */
   private static async getEnterpriseForecast(
     calculator: UnifiedSustainabilityCalculator,
-    config: DomainConfig
+    config: DomainConfig,
+    siteId: string | null
   ): Promise<ForecastResult | null> {
     try {
-      const projected = await calculator.getProjected(config.calculatorConfig.domain);
+      const projected = await calculator.getProjected(config.calculatorConfig.domain, siteId);
 
       if (!projected || !projected.forecast) {
         console.log(`[ForecastService] No projected data for ${config.domain}`);

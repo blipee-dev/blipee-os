@@ -31,19 +31,28 @@ export async function getCachedBaseline(
   organizationId: string,
   domain: Domain,
   year: number,
-  supabase?: SupabaseClient
+  supabase?: SupabaseClient,
+  siteId?: string | null
 ): Promise<any | null> {
   const client = supabase || createClient();
 
   try {
-    const { data, error } = await client
+    let query = client
       .from('metrics_cache')
       .select('*')
       .eq('organization_id', organizationId)
       .eq('cache_type', 'baseline')
       .eq('domain', domain)
-      .eq('period_year', year)
-      .maybeSingle();
+      .eq('period_year', year);
+
+    // Filter by site_id or organization-wide
+    if (siteId) {
+      query = query.eq('site_id', siteId);
+    } else {
+      query = query.is('site_id', null);
+    }
+
+    const { data, error } = await query.maybeSingle();
 
     if (error) {
       console.error('Cache lookup failed:', error);
@@ -77,7 +86,8 @@ export async function setCachedBaseline(
   year: number,
   data: any,
   computationTimeMs?: number,
-  supabase?: SupabaseClient
+  supabase?: SupabaseClient,
+  siteId?: string | null
 ): Promise<boolean> {
   const client = supabase || createClient();
 
@@ -85,7 +95,7 @@ export async function setCachedBaseline(
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24); // 24 hour TTL
 
-    const cacheEntry = {
+    const cacheEntry: any = {
       organization_id: organizationId,
       cache_type: 'baseline' as const,
       domain,
@@ -96,11 +106,33 @@ export async function setCachedBaseline(
       computation_time_ms: computationTimeMs || 0,
     };
 
+    // Include site_id if provided (for site-specific baselines)
+    if (siteId) {
+      cacheEntry.site_id = siteId;
+    }
+
+    // Delete existing entry first (constraint uses COALESCE which makes upsert tricky)
+    const deleteQuery = client
+      .from('metrics_cache')
+      .delete()
+      .eq('organization_id', organizationId)
+      .eq('cache_type', 'baseline')
+      .eq('domain', domain)
+      .eq('period_year', year);
+
+    // Add site_id filter
+    if (siteId) {
+      deleteQuery.eq('site_id', siteId);
+    } else {
+      deleteQuery.is('site_id', null);
+    }
+
+    await deleteQuery;
+
+    // Insert new entry
     const { error } = await client
       .from('metrics_cache')
-      .upsert(cacheEntry, {
-        onConflict: 'organization_id,cache_type,domain,period_year',
-      });
+      .insert(cacheEntry);
 
     if (error) {
       console.error('Failed to cache baseline:', error);

@@ -28,7 +28,10 @@ import {
 import { SBTiWasteTarget } from '@/components/sustainability/waste/SBTiWasteTarget';
 import { RecommendationsModal } from '@/components/sustainability/RecommendationsModal';
 import { useTranslations, useLanguage } from '@/providers/LanguageProvider';
-import { useWasteDashboard, useWasteSiteComparison } from '@/hooks/useDashboardData';
+import {
+  useWasteDashboardAdapter as useWasteDashboard,
+  useWasteSiteComparisonAdapter as useWasteSiteComparison,
+} from '@/hooks/useConsolidatedDashboard';
 import {
   BarChart,
   Bar,
@@ -128,6 +131,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
     if (!streams.data) {
       return {
         wasteStreams: [],
+        wasteStreamsFromAggregated: [],
         totalGenerated: 0,
         totalDiverted: 0,
         totalDisposal: 0,
@@ -155,13 +159,47 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
     // Process current period data
     const wasteStreams = data.streams || [];
-    const totalGenerated = data.total_generated || 0;
+    const totalGenerated = data.total_waste || 0;
     const totalDiverted = data.total_diverted || 0;
     const totalDisposal = data.total_disposal || 0;
     const totalLandfill = data.total_landfill || 0;
     const diversionRate = data.diversion_rate || 0;
     const recyclingRate = data.recycling_rate || 0;
     const totalEmissions = data.total_emissions || 0;
+
+    // Build waste streams from aggregated data for piechart
+    const wasteStreamsFromAggregated = [
+      {
+        disposal_method: 'recycling',
+        quantity: data.recycling || 0,
+        emissions: 0, // Recycling has minimal emissions
+        diverted: true
+      },
+      {
+        disposal_method: 'composting',
+        quantity: data.composting || 0,
+        emissions: 0, // Composting has minimal emissions
+        diverted: true
+      },
+      {
+        disposal_method: 'disposal',
+        quantity: data.disposal || 0,
+        emissions: ((data.disposal || 0) / 1000) * 0.7, // Landfill emission factor
+        diverted: false
+      },
+      {
+        disposal_method: 'incineration',
+        quantity: data.incineration || 0,
+        emissions: ((data.incineration || 0) / 1000) * 0.4, // Incineration emission factor
+        diverted: false
+      },
+      {
+        disposal_method: 'e-waste',
+        quantity: data.e_waste || 0,
+        emissions: ((data.e_waste || 0) / 1000) * 0.5, // E-waste emission factor
+        diverted: false
+      }
+    ].filter(stream => stream.quantity > 0); // Only include methods with actual waste
 
     // Filter monthly trends to only show selected period
     const filteredTrends = (data.monthly_trends || []).filter((trend: any) => {
@@ -186,8 +224,8 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
       }
 
       // Calculate YoY changes
-      if (prevData.total_generated && prevData.total_generated > 0) {
-        yoyGeneratedChange = ((totalGenerated - prevData.total_generated) / prevData.total_generated) * 100;
+      if (prevData.total_waste && prevData.total_waste > 0) {
+        yoyGeneratedChange = ((totalGenerated - prevData.total_waste) / prevData.total_waste) * 100;
         yoyDiversionChange = diversionRate - prevData.diversion_rate;
         yoyRecyclingChange = recyclingRate - prevData.recycling_rate;
         yoyEmissionsChange = ((totalEmissions - prevData.total_emissions) / prevData.total_emissions) * 100;
@@ -205,13 +243,14 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
     let projectedAnnualWaste = 0;
     // For YTD YoY: use same period last year
     // For Projected YoY: use FULL previous year (Jan-Dec)
-    let previousYearTotalWaste = fullPrevYearStreams?.data?.total_generated || prevData?.total_generated || 0;
+    let previousYearTotalWaste = fullPrevYearStreams?.data?.total_waste || prevData?.total_waste || 0;
 
     if (forecastData && forecastData.forecast && forecastData.forecast.length > 0) {
       // Calculate forecasted waste from remaining months
-      forecastedWaste = forecastData.forecast.reduce((sum: number, f: any) => sum + (f.generated || 0), 0);
+      // Prophet returns 'total' in TONNES, convert to kg to match totalGenerated
+      forecastedWaste = forecastData.forecast.reduce((sum: number, f: any) => sum + ((f.total || 0) * 1000), 0);
 
-      // Projected annual = YTD + forecasted remaining months
+      // Projected annual = YTD + forecasted remaining months (both in kg)
       projectedAnnualWaste = totalGenerated + forecastedWaste;
     }
 
@@ -236,6 +275,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
 
     return {
       wasteStreams,
+      wasteStreamsFromAggregated,
       totalGenerated,
       totalDiverted,
       totalDisposal,
@@ -262,6 +302,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   // Destructure computed metrics for cleaner code
   const {
     wasteStreams,
+    wasteStreamsFromAggregated,
     totalGenerated,
     totalDiverted,
     totalDisposal,
@@ -288,14 +329,15 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   const isCurrentYear = new Date(selectedPeriod.start).getFullYear() === new Date().getFullYear();
 
   // Smart kg/tonnes unit selection based on total generated waste magnitude
-  // Note: totalGenerated is in tonnes from the API
-  const threshold = 10; // 10 tonnes
+  // Note: totalGenerated is in kg from the API
+  const threshold = 10000; // 10,000 kg (10 tonnes)
   const useTonnes = totalGenerated >= threshold;
 
   // Helper function to format waste quantity with smart unit selection
-  // Parameter is in tonnes (from API)
-  const formatWasteQuantity = (tonnes: number) => {
+  // Parameter is in kg (from API)
+  const formatWasteQuantity = (kg: number) => {
     if (useTonnes) {
+      const tonnes = kg / 1000;
       return {
         value: tonnes.toFixed(1),
         unit: t('cards.generated.unit'), // 'tonnes' or 'tons'
@@ -304,46 +346,64 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
       };
     } else {
       return {
-        value: (tonnes * 1000).toFixed(0),
+        value: kg.toFixed(0),
         unit: 'kg',
         yAxisLabel: `${t('axisLabels.wasteGeneration')} (kg)`,
-        fullLabel: `${(tonnes * 1000).toFixed(0)} kg`
+        fullLabel: `${kg.toFixed(0)} kg`
       };
     }
   };
 
   // Helper functions
   const getDisposalColor = (method: string) => {
-    const colors: { [key: string]: string } = {
-      'recycling': '#10b981',      // Green - positive/circular
-      'composting': '#22c55e',     // Light green - positive/circular
-      'incineration': '#f97316',   // Orange - energy recovery
-      'incineration_no_recovery': '#f97316', // Orange
-      'incineration_recovery': '#fb923c',    // Light orange
-      'landfill': '#ef4444',       // Red - worst option
-      'hazardous_treatment': '#dc2626', // Dark red - dangerous
-      'other': '#92400E'           // Brown - waste category color (design system)
-    };
-    return colors[method] || colors['other'];
+    const methodLower = method.toLowerCase();
+
+    // Recycling - Green (most circular)
+    if (methodLower.includes('recycl')) return '#10b981';
+
+    // Composting - Light green (organic recovery)
+    if (methodLower.includes('compost')) return '#22c55e';
+
+    // Incineration - Orange (energy recovery)
+    if (methodLower.includes('incinerat')) return '#f97316';
+
+    // Disposal/Landfill - Red (worst option)
+    if (methodLower.includes('disposal') || methodLower.includes('landfill')) return '#ef4444';
+
+    // E-Waste - Purple (special handling)
+    if (methodLower.includes('e-waste') || methodLower.includes('ewaste') || methodLower.includes('e_waste')) return '#8B5CF6';
+
+    // Hazardous - Dark red (dangerous)
+    if (methodLower.includes('hazard')) return '#dc2626';
+
+    // Other - Brown (fallback)
+    return '#92400E';
   };
 
   const formatDisposalMethod = (method: string) => {
-    const methodKey = method.replace('incineration_no_recovery', 'incineration')
-                            .replace('incineration_recovery', 'wasteToEnergy')
-                            .replace('hazardous_treatment', 'hazardousTreatment');
+    const methodLower = method.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/_/g, '');
 
-    // Try to get translation, fallback to formatted method name
-    try {
-      const translationKey = `disposalMethods.${methodKey}`;
-      const translated = t(translationKey);
-      // If translation returns the key itself (not found), format the method name
-      if (translated === translationKey) {
-        return method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      }
-      return translated;
-    } catch {
-      return method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    // Direct mapping for common disposal methods
+    const methodMap: { [key: string]: string } = {
+      'recycling': 'Recycling',
+      'composting': 'Composting',
+      'disposal': 'Disposal',
+      'landfill': 'Landfill',
+      'incineration': 'Incineration',
+      'ewaste': 'E-Waste',
+      'hazardous': 'Hazardous',
+      'hazardoustreatment': 'Hazardous Treatment',
+      'incinerationnorecovery': 'Incineration',
+      'incinerationrecovery': 'Waste to Energy',
+    };
+
+    // Check direct mapping
+    if (methodMap[methodLower]) {
+      return methodMap[methodLower];
     }
+
+    // Fallback: capitalize first letter of each word
+    return method.split(/[_\-\s]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   };
 
   if (isLoading) {
@@ -355,21 +415,12 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
   }
 
   // Prepare disposal method breakdown (exclude entries with 0 or negligible quantity)
-  const disposalBreakdown = wasteStreams.reduce((acc: any[], stream) => {
-    const existing = acc.find(s => s.method === stream.disposal_method);
-    if (existing) {
-      existing.quantity += stream.quantity;
-      existing.emissions += stream.emissions;
-    } else {
-      acc.push({
-        method: stream.disposal_method,
-        quantity: stream.quantity,
-        emissions: stream.emissions,
-        diverted: stream.diverted
-      });
-    }
-    return acc;
-  }, []).filter(d => d.quantity > 0.01); // Only show disposal methods with meaningful waste (>0.01 tons)
+  const disposalBreakdown = wasteStreamsFromAggregated.map(stream => ({
+    method: stream.disposal_method,
+    quantity: stream.quantity,
+    emissions: stream.emissions,
+    diverted: stream.diverted
+  })).filter(d => d.quantity > 0.01); // Only show disposal methods with meaningful waste (>0.01 kg)
 
   const totalQuantity = disposalBreakdown.reduce((sum, d) => sum + d.quantity, 0);
 
@@ -378,7 +429,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
       {/* Summary Cards */}
       <section
         aria-labelledby="executive-summary-heading"
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
       >
         <h2 id="executive-summary-heading" className="sr-only">Executive Summary</h2>
 
@@ -462,96 +513,6 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               })()}
             </div>
           )}
-        </article>
-
-        <article
-          className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 shadow-sm"
-          aria-labelledby="waste-diverted-title"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <Recycle className="w-5 h-5 text-green-600" aria-hidden="true" />
-            <span
-              id="waste-diverted-title"
-              className="text-sm text-gray-600 dark:text-gray-300 font-medium"
-            >{t('cards.diverted.title')}</span>
-          </div>
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="relative group inline-block">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400 cursor-help">
-                  {diversionRate.toFixed(1)}
-                </div>
-                {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
-                    {t('tooltips.circularEconomy')}
-                  </p>
-                  <div className="flex gap-1 mt-3 flex-wrap">
-                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
-                      GRI 306-4/5
-                    </span>
-                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
-                      ESRS E5
-                    </span>
-                  </div>
-                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
-                </div>
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">{t('cards.diverted.unit')}</div>
-            </div>
-            {yoyDiversionChange !== null && (
-              <div className="flex items-center gap-1">
-                {yoyDiversionChange >= 0 ? (
-                  <TrendingUp className={`w-3 h-3 ${yoyDiversionChange > 0 ? 'text-green-500' : 'text-gray-400'}`} />
-                ) : (
-                  <TrendingDown className="w-3 h-3 text-red-500" />
-                )}
-                <span className={`text-xs ${yoyDiversionChange > 0 ? 'text-green-500' : yoyDiversionChange < 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                  {yoyDiversionChange > 0 ? '+' : ''}{yoyDiversionChange.toFixed(1)}pp {t('yoy')}
-                </span>
-              </div>
-            )}
-          </div>
-        </article>
-
-        <article
-          className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 shadow-sm"
-          aria-labelledby="waste-disposal-title"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-5 h-5 text-orange-600" aria-hidden="true" />
-            <span
-              id="waste-disposal-title"
-              className="text-sm text-gray-600 dark:text-gray-300 font-medium"
-            >{t('cards.toDisposal.title')}</span>
-          </div>
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="relative group inline-block">
-                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400 cursor-help">
-                  {formatWasteQuantity(totalDisposal).value}
-                </div>
-                {/* Tooltip */}
-                <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
-                  <p className="text-gray-200 text-[11px] leading-relaxed whitespace-pre-line">
-                    {t('tooltips.disposalDistribution')}
-                  </p>
-                  <div className="flex gap-1 mt-3 flex-wrap">
-                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded border border-green-400/30">
-                      GRI 306-5
-                    </span>
-                    <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-400/30">
-                      ESRS E5
-                    </span>
-                  </div>
-                  <div className="absolute bottom-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-purple-900/95" />
-                </div>
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {formatWasteQuantity(totalDisposal).unit}
-              </div>
-            </div>
-          </div>
         </article>
 
         <article
@@ -669,7 +630,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
             <div>
               <div className="relative group inline-block">
                 <div className="text-2xl font-bold text-gray-900 dark:text-white cursor-help">
-                  {totalGenerated > 0 ? (totalEmissions / totalGenerated).toFixed(2) : '0.00'}
+                  {totalGenerated > 0 ? (totalEmissions / (totalGenerated / 1000)).toFixed(2) : '0.00'}
                 </div>
                 {/* Tooltip */}
                 <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 max-w-[90vw] p-3 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm text-white text-xs rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-purple-500/30">
@@ -893,22 +854,42 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               <LineChart data={(() => {
                 // Prepare chart data with separate keys for actual and forecast, translating months
                 const actualData = monthlyTrends.map((trend: any) => ({
-                  ...trend,
-                  month: translateMonth(trend.month, t)
+                  month: translateMonth(trend.month, t),
+                  monthKey: trend.monthKey,
+                  // Convert kg to tonnes for display
+                  generated: (trend.total || 0) / 1000, // API returns 'total' in kg
+                  diverted: ((trend.recycling || 0) + (trend.composting || 0)) / 1000, // Calculate diverted (recycling + composting)
+                  forecast: false
                 }));
 
+                console.log('🔮 [WASTE FORECAST] Debug:', {
+                  hasForecastData: !!forecastData,
+                  forecastArray: forecastData?.forecast,
+                  forecastLength: forecastData?.forecast?.length || 0,
+                  forecastMethod: forecastData?.model,
+                  actualDataCount: actualData.length
+                });
+
                 if (!forecastData || !forecastData.forecast || forecastData.forecast.length === 0) {
+                  console.log('⚠️ [WASTE FORECAST] No forecast data available');
                   return actualData;
                 }
 
                 // Create forecast months with separate keys
                 const forecastMonths = forecastData.forecast.map((f: any) => ({
                   month: translateMonth(f.month, t),
-                  generatedForecast: f.generated || 0,
-                  divertedForecast: f.diverted || 0,
-                  emissionsForecast: f.emissions || 0,
+                  monthKey: f.monthKey,
+                  // Prophet forecast already returns values in TONNES (not kg!)
+                  generatedForecast: f.total || 0, // Already in tonnes
+                  divertedForecast: (f.total || 0) * 0.65, // Estimate diverted as 65% of total
                   forecast: true
                 }));
+
+                console.log('✅ [WASTE FORECAST] Created forecast months:', {
+                  forecastMonthsCount: forecastMonths.length,
+                  firstForecast: forecastMonths[0],
+                  lastForecast: forecastMonths[forecastMonths.length - 1]
+                });
 
                 // Add forecast keys to the last actual data point to create smooth transition
                 const modifiedActualData = [...actualData];
@@ -918,10 +899,16 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   // Add forecast data keys with same values to create transition point
                   generatedForecast: lastActual.generated,
                   divertedForecast: lastActual.diverted,
-                  emissionsForecast: lastActual.emissions
                 };
 
-                return [...modifiedActualData, ...forecastMonths];
+                const combinedData = [...modifiedActualData, ...forecastMonths];
+                console.log('📊 [WASTE FORECAST] Final combined data:', {
+                  totalPoints: combinedData.length,
+                  actualPoints: actualData.length,
+                  forecastPoints: forecastMonths.length
+                });
+
+                return combinedData;
               })()}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-white/10" vertical={true} horizontal={true} />
                 <XAxis
@@ -930,8 +917,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 />
                 <YAxis
                   tick={{ fill: '#888', fontSize: 12 }}
-                  label={{ value: formatWasteQuantity(totalGenerated).yAxisLabel, angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
-                  tickFormatter={(value) => useTonnes ? value.toFixed(0) : (value * 1000).toFixed(0)}
+                  label={{ value: 'Waste (tonnes)', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
                 />
                 <Tooltip
                   contentStyle={{
@@ -944,13 +930,12 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       const data = payload[0].payload;
                       const isForecast = data.forecast;
 
-                      // Get values from either actual or forecast keys
+                      // Get values from either actual or forecast keys (already in tonnes)
                       const generated = data.generated ?? data.generatedForecast;
                       const diverted = data.diverted ?? data.divertedForecast;
-                      const emissions = data.emissions ?? data.emissionsForecast;
 
                       // Skip if all values are null
-                      if (!generated && !diverted && !emissions) {
+                      if (!generated && !diverted) {
                         return null;
                       }
 
@@ -958,14 +943,14 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                         <div className="bg-gray-900/95 border border-gray-700 rounded-lg p-3">
                           <p className="text-white font-semibold mb-2">
                             {data.month}
-                            {isForecast && <span className="ml-2 text-xs text-blue-400">({t('forecast.label')})</span>}
+                            {isForecast && <span className="ml-2 text-xs text-blue-400">(Forecast)</span>}
                           </p>
                           <div className="space-y-1">
                             <p className="text-sm" style={{ color: "#92400E" }}>
-                              {t('charts.monthlyTrends.tooltip.generated')} {formatWasteQuantity(generated || 0).value} {formatWasteQuantity(generated || 0).unit}
+                              Generated: {(generated || 0).toFixed(2)} tonnes
                             </p>
                             <p className="text-sm" style={{ color: "#10b981" }}>
-                              {t('charts.monthlyTrends.tooltip.diverted')} {formatWasteQuantity(diverted || 0).value} {formatWasteQuantity(diverted || 0).unit}
+                              Diverted: {(diverted || 0).toFixed(2)} tonnes
                             </p>
                           </div>
                         </div>
@@ -982,7 +967,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   stroke="#92400E"
                   strokeWidth={2}
                   dot={{ r: 3, fill: "#92400E" }}
-                  name={t('charts.monthlyTrends.legends.generated')}
+                  name="Generated"
                   connectNulls
                 />
                 <Line
@@ -991,7 +976,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   stroke="#10b981"
                   strokeWidth={2}
                   dot={{ r: 3, fill: "#10b981" }}
-                  name={t('charts.monthlyTrends.legends.diverted')}
+                  name="Diverted"
                   connectNulls
                 />
                 {/* Forecast data - dashed lines (hidden from legend) */}
@@ -1004,7 +989,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: "#92400E", strokeWidth: 2, r: 3 }}
-                      name={t('charts.monthlyTrends.legends.generated')}
+                      name="Generated (Forecast)"
                       connectNulls
                       legendType="none"
                     />
@@ -1015,7 +1000,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: 'transparent', stroke: "#10b981", strokeWidth: 2, r: 3 }}
-                      name={t('charts.monthlyTrends.legends.diverted')}
+                      name="Diverted (Forecast)"
                       connectNulls
                       legendType="none"
                     />
@@ -1059,24 +1044,27 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={monthlyTrends.map((trend: any) => {
-                    // Find matching previous year data by month name
-                    const prevTrend = prevYearMonthlyTrends.find((prev: any) =>
-                      prev.month === trend.month
-                    );
+                    // Find matching previous year data by monthKey (more reliable than month name)
+                    const currentMonthNum = trend.monthKey.split('-')[1];
+                    const prevTrend = prevYearMonthlyTrends.find((prev: any) => {
+                      const prevMonthNum = prev.monthKey.split('-')[1];
+                      return prevMonthNum === currentMonthNum;
+                    });
 
                     let change = 0;
                     let previous = 0;
+                    const current = trend.total || 0; // API returns 'total', not 'generated'
 
-                    if (prevTrend && prevTrend.generated > 0) {
-                      previous = prevTrend.generated;
-                      change = ((trend.generated - prevTrend.generated) / prevTrend.generated) * 100;
+                    if (prevTrend && prevTrend.total > 0) {
+                      previous = prevTrend.total;
+                      change = ((current - prevTrend.total) / prevTrend.total) * 100;
                     }
 
                     return {
                       month: translateMonth(trend.month, t),
                       monthKey: trend.monthKey,
                       change: change,
-                      current: trend.generated,
+                      current: current,
                       previous: previous
                     };
                   })}
@@ -1133,17 +1121,19 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                   />
                   <Bar
                     dataKey="change"
-                    fill="#92400E"
                     shape={(props: any) => {
                       const { x, y, width, height, value } = props;
                       const absHeight = Math.abs(height);
+
+                      // Choose color based on value: red for increase (bad), green for decrease (good)
+                      const fillColor = value > 0 ? '#ef4444' : value < 0 ? '#10b981' : '#6b7280';
 
                       if (value > 0) {
                         // Positive bar - round top corners only
                         return (
                           <g>
-                            <rect x={x} y={y} width={width} height={absHeight} fill="#92400E" rx={4} ry={4} />
-                            <rect x={x} y={y + absHeight - 4} width={width} height={4} fill="#92400E" />
+                            <rect x={x} y={y} width={width} height={absHeight} fill={fillColor} rx={4} ry={4} />
+                            <rect x={x} y={y + absHeight - 4} width={width} height={4} fill={fillColor} />
                           </g>
                         );
                       } else if (value < 0) {
@@ -1151,12 +1141,12 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                         const adjustedY = y + height; // height is negative, so this moves up to zero line
                         return (
                           <g>
-                            <rect x={x} y={adjustedY} width={width} height={absHeight} fill="#92400E" rx={4} ry={4} />
-                            <rect x={x} y={adjustedY} width={width} height={4} fill="#92400E" />
+                            <rect x={x} y={adjustedY} width={width} height={absHeight} fill={fillColor} rx={4} ry={4} />
+                            <rect x={x} y={adjustedY} width={width} height={4} fill={fillColor} />
                           </g>
                         );
                       } else {
-                        return <rect x={x} y={y} width={width} height={absHeight} fill="#92400E" />;
+                        return <rect x={x} y={y} width={width} height={absHeight} fill={fillColor} />;
                       }
                     }}
                   />
@@ -1295,7 +1285,16 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
             </div>
 
             <ResponsiveContainer width="100%" height={420}>
-              <BarChart data={monthlyTrends.map((trend: any) => ({ ...trend, month: translateMonth(trend.month, t) }))}>
+              <BarChart data={monthlyTrends.map((trend: any) => ({
+                month: translateMonth(trend.month, t),
+                // Convert kg to tonnes for display (API returns kg)
+                recycling: (trend.recycling || 0) / 1000,
+                composting: (trend.composting || 0) / 1000,
+                incineration: (trend.incineration || 0) / 1000,
+                disposal: (trend.disposal || 0) / 1000,
+                eWaste: (trend.eWaste || 0) / 1000,
+                total: (trend.total || 0) / 1000,
+              }))}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-white/10" vertical={true} horizontal={true} />
                 <XAxis
                   dataKey="month"
@@ -1303,8 +1302,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 />
                 <YAxis
                   tick={{ fill: '#888', fontSize: 12 }}
-                  label={{ value: formatWasteQuantity(totalGenerated).yAxisLabel, angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
-                  tickFormatter={(value) => useTonnes ? value.toFixed(0) : (value * 1000).toFixed(0)}
+                  label={{ value: 'Waste Generated (tonnes)', angle: -90, position: 'insideLeft', style: { fill: '#888', fontSize: 12 } }}
                 />
                 <Tooltip
                   contentStyle={{
@@ -1312,13 +1310,14 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '8px'
                   }}
-                  formatter={(value: any) => [value.toFixed(2) + ' ' + t('axisLabels.tons'), '']}
+                  formatter={(value: any) => [value.toFixed(2) + ' tonnes', '']}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="recycled" stackId="waste" fill="#10b981" name={t('charts.monthlyByMethod.legends.recycled')} />
-                <Bar dataKey="composted" stackId="waste" fill="#22c55e" name={t('charts.monthlyByMethod.legends.composted')} />
-                <Bar dataKey="incinerated" stackId="waste" fill="#f97316" name={t('charts.monthlyByMethod.legends.incinerated')} />
-                <Bar dataKey="landfill" stackId="waste" fill="#ef4444" name={t('charts.monthlyByMethod.legends.landfill')} />
+                <Bar dataKey="recycling" stackId="waste" fill={getDisposalColor('recycling')} name="Recycling" />
+                <Bar dataKey="composting" stackId="waste" fill={getDisposalColor('composting')} name="Composting" />
+                <Bar dataKey="incineration" stackId="waste" fill={getDisposalColor('incineration')} name="Incineration" />
+                <Bar dataKey="disposal" stackId="waste" fill={getDisposalColor('disposal')} name="Disposal" />
+                <Bar dataKey="eWaste" stackId="waste" fill={getDisposalColor('e-waste')} name="E-Waste" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -1863,8 +1862,12 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
             </div>
 
             {(() => {
-              const baseline = baselineData.data?.total_generated || 0; // tonnes (from API)
-              const currentYTD = streams.data?.total_generated || 0; // tonnes (from API)
+              const baselineKg = baselineData.data?.total_waste || 0; // kg (from API)
+              const currentYTDKg = streams.data?.total_waste || 0; // kg (from API)
+
+              // Convert to tonnes for calculations (waterfall chart uses tonnes)
+              const baseline = baselineKg / 1000;
+              const currentYTD = currentYTDKg / 1000;
 
               // Calculate projected full year waste generation
               let projectedFullYear = 0;
@@ -1872,7 +1875,7 @@ export function WasteDashboard({ organizationId, selectedSite, selectedPeriod }:
                 const forecastRemaining = forecast.data.forecast.reduce((sum: number, f: any) => {
                   return sum + (f.generated || 0);
                 }, 0);
-                projectedFullYear = currentYTD + forecastRemaining;
+                projectedFullYear = currentYTD + (forecastRemaining / 1000); // Convert forecast to tonnes
               } else {
                 const monthsOfData = streams.data?.monthly_trends?.length || 0;
                 projectedFullYear = monthsOfData > 0 ? (currentYTD / monthsOfData) * 12 : 0;

@@ -19,6 +19,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { UnifiedSustainabilityCalculator } from '@/lib/sustainability/unified-calculator';
 import { ForecastService } from '@/lib/api/dashboard/core/ForecastService';
 import { waterConfig } from '@/lib/api/dashboard/configs/water.config';
+import { calculateProgress } from '@/lib/utils/progress-calculation';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Shared cache for targets (avoid duplicate fetches across domains)
@@ -63,6 +64,14 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('start_date');
     const endDate = searchParams.get('end_date');
 
+    console.log('🔍 [Water API] Request params:', {
+      organizationId,
+      siteId: siteId || 'ALL SITES',
+      startDate,
+      endDate,
+      hasSiteFilter: !!siteId,
+    });
+
     if (!organizationId || !startDate || !endDate) {
       return NextResponse.json(
         { error: 'Missing required parameters: organizationId, start_date, end_date' },
@@ -97,7 +106,6 @@ export async function GET(request: NextRequest) {
       forecast,
       baseline,
       target,
-      projected,
       siteComparison
     ] = await Promise.all([
       // Current period data
@@ -117,26 +125,46 @@ export async function GET(request: NextRequest) {
         : Promise.resolve(null),
 
       // Targets (using unified calculator - cached!)
+      // NOTE: Baseline and target are always org-wide
       calculator.getBaseline('water', baselineYear),
       calculator.getTarget('water'),
-      calculator.getProjected('water'),
 
       // Site comparison (single query for all sites!)
       getWaterSiteComparison(organizationId, startDate, endDate)
     ]);
 
-    // Calculate progress
+    // ✅ Use forecast.value as projected (avoid duplicate calculation)
+    const projected = forecast?.value || (await calculator.getProjected('water', siteId))?.value || 0;
+
+    console.log('📊 [Water API] Projected calculation:', {
+      forecastValue: forecast?.value,
+      forecastMethod: forecast?.method,
+      finalProjected: projected,
+      source: forecast?.value ? 'prophet-forecast' : 'calculator-fallback',
+    });
+
+    // ✅ Manual progress calculation (avoid calling getProjected() again via calculateProgressToTarget)
     const progress = baseline && target && projected
-      ? await calculator.calculateProgressToTarget('water')
+      ? {
+          baseline: baseline.value,
+          target: target.value,
+          projected: projected,
+          ...calculateProgress(baseline.value, target.value, projected),
+        }
       : null;
 
     console.log('🎯 [dashboard/water] Final response summary:', {
-      hasCurrent: !!currentData && currentData.totalWithdrawal > 0,
-      hasPrevious: !!previousYearData && previousYearData.totalWithdrawal > 0,
-      hasBaseline: !!baselineData && baselineData.totalWithdrawal > 0,
+      hasCurrent: !!currentData && currentData.total_withdrawal > 0,
+      hasPrevious: !!previousYearData && previousYearData.total_withdrawal > 0,
+      hasBaseline: !!baselineData && baselineData.total_withdrawal > 0,
       hasForecast: !!forecast,
       sitesCount: siteComparison.length,
-      currentWithdrawal: currentData?.totalWithdrawal || 0,
+      currentWithdrawal: currentData?.total_withdrawal || 0,
+      previousWithdrawal: previousYearData?.total_withdrawal || 0,
+      baselineWithdrawal: baselineData?.total_withdrawal || 0,
+      calculatorBaseline: baseline?.value || 0,
+      calculatorTarget: target?.value || 0,
+      projected,
     });
 
     return NextResponse.json({
@@ -155,7 +183,7 @@ export async function GET(request: NextRequest) {
         targets: {
           baseline: baseline?.value || 0,
           target: target?.value || 0,
-          projected: projected?.value || 0,
+          projected: projected || 0,
           baselineYear,
           targetYear: currentYear,
           progress: progress ? {
@@ -188,6 +216,62 @@ export async function GET(request: NextRequest) {
 }
 
 /**
+ * Extract source type from metric code for proper piechart coloring
+ *
+ * Examples:
+ * - gri_303_3_municipal_freshwater → "municipal"
+ * - gri_303_3_groundwater_freshwater → "groundwater"
+ * - gri_303_3_surface_freshwater → "surface_water"
+ * - water_recycled_grey_water → "recycled"
+ * - gri_303_4_discharge_sewer → "wastewater"
+ */
+function extractSourceType(code: string, waterType: string): string {
+  const codeLower = code.toLowerCase();
+
+  // Municipal water
+  if (codeLower.includes('municipal')) {
+    return 'municipal';
+  }
+
+  // Groundwater
+  if (codeLower.includes('groundwater')) {
+    return 'groundwater';
+  }
+
+  // Surface water (rivers, lakes)
+  if (codeLower.includes('surface')) {
+    return 'surface_water';
+  }
+
+  // Rainwater
+  if (codeLower.includes('rainwater') || codeLower.includes('rain_water')) {
+    return 'rainwater';
+  }
+
+  // Seawater (desalinated)
+  if (codeLower.includes('seawater') || codeLower.includes('sea_water')) {
+    return 'seawater';
+  }
+
+  // Recycled/grey water
+  if (codeLower.includes('recycled') || codeLower.includes('grey_water') || codeLower.includes('gray_water')) {
+    return 'recycled';
+  }
+
+  // Wastewater (discharge)
+  if (codeLower.includes('discharge') || codeLower.includes('wastewater') || codeLower.includes('sewer')) {
+    return 'wastewater';
+  }
+
+  // Default based on water_type
+  if (waterType === 'recycled') return 'recycled';
+  if (waterType === 'discharge') return 'wastewater';
+
+  // Default to "other" for unknown sources
+  return 'other';
+}
+
+/**
  * Get water data for a specific period
  */
 async function getWaterData(
@@ -217,6 +301,7 @@ async function getWaterData(
   });
 
   // Dynamic query using database-driven filters (NO HARDCODED!)
+  // ✅ UPDATED: Filter by GRI 303 water categories instead of old subcategory='Water'
   let query = supabaseAdmin
     .from('metrics_data')
     .select(`
@@ -234,12 +319,15 @@ async function getWaterData(
       )
     `)
     .eq('organization_id', organizationId)
-    .eq('metrics_catalog.subcategory', 'Water')
+    .in('metrics_catalog.category', ['Water Withdrawal', 'Water Discharge', 'Water Consumption', 'Water Efficiency'])
     .gte('period_start', startDate)
     .lte('period_start', effectiveEndDate);
 
   if (siteId) {
+    console.log(`🎯 [getWaterData] Applying site filter: ${siteId}`);
     query = query.eq('site_id', siteId);
+  } else {
+    console.log('🌍 [getWaterData] No site filter - fetching ALL sites');
   }
 
   console.log('🔍 [getWaterData] Query parameters:', {
@@ -266,16 +354,16 @@ async function getWaterData(
   if (!data || data.length === 0) {
     console.log('⚠️ [getWaterData] No water data found - returning zeros');
     return {
-      totalWithdrawal: 0,
-      totalConsumption: 0,
-      totalDischarge: 0,
-      totalRecycled: 0,
-      totalCost: 0,
-      recyclingRate: 0,
-      waterIntensity: 0,
+      total_withdrawal: 0,
+      total_consumption: 0,
+      total_discharge: 0,
+      total_recycled: 0,
+      total_cost: 0,
+      recycling_rate: 0,
+      water_intensity: 0,
       sources: [],
-      monthlyTrends: [],
-      endUseBreakdown: [],
+      monthly_trends: [],
+      end_use_breakdown: [],
       unit: 'm³', // Standardized to m³
     };
   }
@@ -341,39 +429,48 @@ async function getWaterData(
     const isWastewater = waterType === 'discharge';
     const isRecycled = waterType === 'recycled';
 
-    // Source type based on database water_type (NO string matching!)
-    const sourceType = waterType;
+    // Extract source type from metric code for proper piechart colors
+    const code = row.metrics_catalog?.code || '';
+    const sourceType = extractSourceType(code, waterType);
 
-    // Aggregate totals by water_type (each metric counted only once)
-    // ✅ GRI 303-5: Separate withdrawal, discharge, and recycled
-    if (waterType === 'withdrawal') {
+    // Aggregate totals - USE ONLY THE TOTAL METRICS to avoid double counting
+    // ✅ GRI 303: Use only _total metrics for aggregation
+    // Breakdowns (scope3_water_kitchen, etc.) are used for visualization only
+    if (code === 'gri_303_3_withdrawal_total') {
       totalWithdrawal += value;
-    } else if (waterType === 'discharge') {
+    } else if (code === 'gri_303_4_discharge_total') {
       totalDischarge += value;
-    } else if (waterType === 'recycled') {
+    } else if (code === 'gri_303_5_consumption_total') {
+      totalConsumption += value; // Override formula calculation
+    } else if (code === 'water_recycled_grey_water') {
       totalRecycled += value;
     }
     totalCost += cost;
 
     // Group by source type
-    const sourceKey = `${sourceType}-${name}`;
-    if (!sourcesByType.has(sourceKey)) {
-      sourcesByType.set(sourceKey, {
-        name,
-        type: sourceType,
-        withdrawal: 0,
-        discharge: 0,
-        cost: 0,
-        isRecycled,
-      });
+    // ✅ EXCLUDE _total metrics from sources breakdown (they're for totals only)
+    // Only include specific sources (municipal, groundwater, surface, etc.)
+    const isTotal = code.includes('_total');
+    if (!isTotal) {
+      const sourceKey = `${sourceType}-${name}`;
+      if (!sourcesByType.has(sourceKey)) {
+        sourcesByType.set(sourceKey, {
+          name,
+          type: sourceType,
+          withdrawal: 0,
+          discharge: 0,
+          cost: 0,
+          isRecycled,
+        });
+      }
+      const source = sourcesByType.get(sourceKey)!;
+      if (waterType === 'withdrawal') source.withdrawal += value;
+      if (waterType === 'discharge') source.discharge += value;
+      if (waterType === 'recycled') source.withdrawal += value; // Recycled shown as withdrawal in source breakdown
+      source.cost += cost;
     }
-    const source = sourcesByType.get(sourceKey)!;
-    if (waterType === 'withdrawal') source.withdrawal += value;
-    if (waterType === 'discharge') source.discharge += value;
-    if (waterType === 'recycled') source.withdrawal += value; // Recycled shown as withdrawal in source breakdown
-    source.cost += cost;
 
-    // Group by month
+    // Group by month - USE ONLY TOTAL METRICS to avoid double counting
     const periodStart = new Date(row.period_start);
     const monthKey = `${periodStart.getFullYear()}-${String(periodStart.getMonth() + 1).padStart(2, '0')}`;
     const monthLabel = periodStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
@@ -389,14 +486,17 @@ async function getWaterData(
       });
     }
     const monthEntry = monthlyData.get(monthKey)!;
-    if (waterType === 'withdrawal') {
+
+    // ✅ Only aggregate from _total metrics to avoid double counting
+    if (code === 'gri_303_3_withdrawal_total') {
       monthEntry.withdrawal += value;
-    } else if (waterType === 'discharge') {
+    } else if (code === 'gri_303_4_discharge_total') {
       monthEntry.discharge += value;
-    } else if (waterType === 'recycled') {
+    } else if (code === 'gri_303_5_consumption_total') {
+      monthEntry.consumption += value;
+    } else if (code === 'water_recycled_grey_water') {
       monthEntry.recycled += value;
     }
-    // Note: monthEntry.consumption will be calculated after loop using GRI formula
 
     // Group by end-use (use metric name for end-use categories)
     // Clean up the name to create end-use category
@@ -421,21 +521,24 @@ async function getWaterData(
     }
   });
 
-  // ✅ GRI 303-5 FORMULA: Calculate actual consumption
-  // Consumption = Withdrawal - Discharge + Recycled
-  totalConsumption = totalWithdrawal - totalDischarge + totalRecycled;
+  // ✅ NOTE: totalConsumption is now set directly from gri_303_5_consumption_total metric
+  // No need to calculate: Consumption = Withdrawal - Discharge (already in database)
 
-  // Apply GRI formula to monthly data
+  // Apply same for monthly data: use consumption from metrics if available
+  // Otherwise fall back to formula for months without consumption metric
   monthlyData.forEach((monthEntry) => {
-    monthEntry.consumption = monthEntry.withdrawal - monthEntry.discharge + monthEntry.recycled;
+    if (monthEntry.consumption === 0) {
+      // Fallback: calculate if no consumption metric for this month
+      monthEntry.consumption = monthEntry.withdrawal - monthEntry.discharge + monthEntry.recycled;
+    }
   });
 
-  console.log('📊 [Water GRI 303-5 Calculation]:', {
+  console.log('📊 [Water Metrics Aggregation]:', {
     withdrawal: totalWithdrawal.toFixed(2),
     discharge: totalDischarge.toFixed(2),
     recycled: totalRecycled.toFixed(2),
     consumption: totalConsumption.toFixed(2),
-    formula: 'Withdrawal - Discharge + Recycled'
+    source: 'gri_303_x_total metrics'
   });
 
   // Calculate recycling rate
@@ -484,17 +587,52 @@ async function getWaterData(
     }
   }
 
+  // ✅ FALLBACK: If no breakdown sources exist, calculate from totals
+  // This handles cases where only gri_303_x_total metrics exist
+  const sourcesArray = Array.from(sourcesByType.values());
+  if (sourcesArray.length === 0 && totalWithdrawal > 0) {
+    console.log('⚠️ [getWaterData] No breakdown sources found - calculating from totals');
+
+    // If we have any recycled water metric, assume ALL water is recycled
+    // (totalRecycled often represents production, not the full withdrawal)
+    if (totalRecycled > 0) {
+      sourcesArray.push({
+        name: 'Recycled Water',
+        type: 'recycled',
+        withdrawal: totalWithdrawal, // All withdrawal is recycled
+        discharge: totalDischarge,
+        cost: totalCost,
+        isRecycled: true,
+      });
+
+      console.log('📊 [getWaterData] 100% Recycled water detected:', {
+        totalWithdrawal,
+        greyWaterRecycled: totalRecycled
+      });
+    } else {
+      // No recycled water - assume all is municipal
+      sourcesArray.push({
+        name: 'Municipal Water Supply',
+        type: 'municipal',
+        withdrawal: totalWithdrawal,
+        discharge: totalDischarge,
+        cost: totalCost,
+        isRecycled: false,
+      });
+    }
+  }
+
   const result = {
-    totalWithdrawal,
-    totalConsumption,
-    totalDischarge,
-    totalRecycled,
-    totalCost,
-    recyclingRate,
-    waterIntensity,
-    sources: Array.from(sourcesByType.values()),
-    monthlyTrends: Array.from(monthlyData.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey)),
-    endUseBreakdown: Array.from(endUseData.values()),
+    total_withdrawal: totalWithdrawal,
+    total_consumption: totalConsumption,
+    total_discharge: totalDischarge,
+    total_recycled: totalRecycled,
+    total_cost: totalCost,
+    recycling_rate: recyclingRate,
+    water_intensity: waterIntensity,
+    sources: sourcesArray,
+    monthly_trends: Array.from(monthlyData.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey)),
+    end_use_breakdown: Array.from(endUseData.values()),
     unit: 'm³',
   };
 
@@ -506,8 +644,8 @@ async function getWaterData(
     waterIntensity: waterIntensity.toFixed(6),
     totalAreaSqm,
     sourcesCount: result.sources.length,
-    monthlyTrendsCount: result.monthlyTrends.length,
-    endUseCount: result.endUseBreakdown.length,
+    monthlyTrendsCount: result.monthly_trends.length,
+    endUseCount: result.end_use_breakdown.length,
   });
 
   return result;
@@ -556,6 +694,7 @@ async function getWaterSiteComparison(
 
   // Single query for ALL sites water data
   // Dynamic query using database-driven filters (NO HARDCODED!)
+  // ✅ UPDATED: Filter by GRI 303 water categories instead of old subcategory='Water'
   const { data: metricsData, error: metricsError} = await supabaseAdmin
     .from('metrics_data')
     .select(`
@@ -565,12 +704,13 @@ async function getWaterSiteComparison(
         category,
         subcategory,
         name,
+        code,
         unit,
         water_type
       )
     `)
     .eq('organization_id', organizationId)
-    .eq('metrics_catalog.subcategory', 'Water')
+    .in('metrics_catalog.category', ['Water Withdrawal', 'Water Discharge', 'Water Consumption', 'Water Efficiency'])
     .gte('period_start', startDate)
     .lte('period_start', endDate)
     .in('site_id', sites.map(s => s.id));
@@ -600,19 +740,18 @@ async function getWaterSiteComparison(
     const rawValue = parseFloat(row.value?.toString() || '0');
     const unit = row.metrics_catalog?.unit || 'm³';
     const value = convertToM3(rawValue, unit); // Convert to m³
-
-    // ✅ NO HARDCODED! Use water_type from database
-    const waterType = row.metrics_catalog?.water_type || 'withdrawal';
-    const isWastewater = waterType === 'discharge';
+    const code = row.metrics_catalog?.code || '';
 
     if (!siteDataMap.has(siteId)) {
       siteDataMap.set(siteId, { withdrawal: 0, consumption: 0 });
     }
 
     const siteData = siteDataMap.get(siteId)!;
-    // For non-wastewater: count as both withdrawal and consumption
-    if (!isWastewater) {
+
+    // ✅ Only use _total metrics to avoid double counting
+    if (code === 'gri_303_3_withdrawal_total') {
       siteData.withdrawal += value;
+    } else if (code === 'gri_303_5_consumption_total') {
       siteData.consumption += value;
     }
   });
@@ -654,10 +793,10 @@ async function getForecastWithCalculations(
   calculator: UnifiedSustainabilityCalculator
 ) {
   try {
-    // If no site selected, use EnterpriseForecast directly (ForecastService doesn't work for org-wide)
+    // If no site selected, aggregate Prophet forecasts from ALL sites
     if (!siteId) {
-      console.log('⚠️ [Water Forecast] No site selected - using calculator.getProjected()');
-      return await calculator.getProjected('water');
+      console.log('🌍 [Water Forecast] No site selected - aggregating Prophet forecasts from all sites');
+      return await getAggregatedProphetForecast(organizationId, calculator);
     }
 
     // For site-specific: Use unified ForecastService (Prophet + fallback)
@@ -670,26 +809,29 @@ async function getForecastWithCalculations(
 
     if (!forecastResult) {
       console.log('⚠️ [Water Forecast] No Prophet data - falling back to calculator');
-      return await calculator.getProjected('water');
+      return await calculator.getProjected('water', siteId);
     }
 
-    // Get YTD actual value
-    const ytd = await calculator.getYTDActual('water');
+    // Get YTD actual value (for this specific site)
+    const ytd = await calculator.getYTDActual('water', siteId);
 
     // Calculate total forecasted value (sum of all forecast months)
     const forecastedTotal = forecastResult.forecast.reduce((sum, month) => sum + month.total, 0);
-    const projectedValue = (ytd?.value || 0) + forecastedTotal;
+    const projectedValue = (ytd || 0) + forecastedTotal;  // ✅ FIXED: ytd is a number, not an object
 
     console.log(`✅ [Water Forecast] Using ${forecastResult.model} forecast`, {
       model: forecastResult.model,
       confidence: forecastResult.confidence,
       dataPoints: forecastResult.forecast.length,
+      ytdValue: ytd,
+      forecastedTotal,
       projectedValue,
+      calculation: `${ytd} + ${forecastedTotal} = ${projectedValue}`,
     });
 
     return {
       value: projectedValue,
-      ytd: ytd?.value || 0,
+      ytd: ytd || 0,  // ✅ FIXED: ytd is a number, not an object
       forecast: forecastResult.forecast,
       method: forecastResult.model,
       breakdown: forecastResult.forecast,
@@ -703,4 +845,114 @@ async function getForecastWithCalculations(
     console.error('❌ [Water Forecast] Error in getForecastWithCalculations:', error);
     return await calculator.getProjected('water');
   }
+}
+
+/**
+ * Aggregate Prophet forecasts from all sites in the organization
+ * Falls back to EnterpriseForecast if no Prophet data available
+ */
+async function getAggregatedProphetForecast(
+  organizationId: string,
+  calculator: UnifiedSustainabilityCalculator
+) {
+  try {
+    // Get all sites for this organization
+    const { data: sites, error: sitesError } = await supabaseAdmin
+      .from('sites')
+      .select('id, name')
+      .eq('organization_id', organizationId);
+
+    if (sitesError || !sites || sites.length === 0) {
+      console.log('⚠️ [Aggregated Forecast] No sites found - using EnterpriseForecast');
+      return await calculator.getProjected('water');
+    }
+
+    console.log(`📊 [Aggregated Forecast] Found ${sites.length} sites - fetching Prophet forecasts`);
+
+    // Fetch Prophet forecasts for all sites in parallel
+    const forecastPromises = sites.map(site =>
+      ForecastService.getForecast(organizationId, site.id, waterConfig, calculator)
+    );
+    const forecasts = await Promise.all(forecastPromises);
+
+    // Filter out null forecasts and keep only Prophet forecasts
+    const prophetForecasts = forecasts.filter(f => f && f.hasProphetData);
+
+    if (prophetForecasts.length === 0) {
+      console.log('⚠️ [Aggregated Forecast] No Prophet forecasts available - using EnterpriseForecast');
+      return await calculator.getProjected('water');
+    }
+
+    console.log(`✅ [Aggregated Forecast] Found ${prophetForecasts.length}/${sites.length} sites with Prophet forecasts`);
+
+    // Aggregate forecasts month by month
+    const aggregatedForecast = aggregateForecasts(prophetForecasts);
+
+    // Get organization-wide YTD
+    const ytd = await calculator.getYTDActual('water');
+
+    // Calculate total forecasted value
+    const forecastedTotal = aggregatedForecast.reduce((sum, month) => sum + month.total, 0);
+    const projectedValue = (ytd || 0) + forecastedTotal;
+
+    console.log('✅ [Aggregated Forecast] Successfully aggregated Prophet forecasts:', {
+      sitesWithProphet: prophetForecasts.length,
+      totalSites: sites.length,
+      forecastMonths: aggregatedForecast.length,
+      ytdValue: ytd,
+      forecastedTotal,
+      projectedValue,
+      calculation: `${ytd || 0} + ${forecastedTotal} = ${projectedValue}`,
+    });
+
+    return {
+      value: projectedValue,
+      ytd: ytd || 0,
+      forecast: aggregatedForecast,
+      method: 'prophet',
+      breakdown: aggregatedForecast,
+      metadata: {
+        totalTrend: 'aggregated',
+        dataPoints: prophetForecasts.reduce((sum, f) => sum + f.metadata.dataPoints, 0),
+        generatedAt: new Date().toISOString(),
+        method: 'prophet-aggregated',
+        forecastHorizon: aggregatedForecast.length,
+        confidence: prophetForecasts.reduce((sum, f) => sum + f.confidence, 0) / prophetForecasts.length,
+        source: 'prophet-service',
+        sitesAggregated: prophetForecasts.length,
+      },
+    };
+  } catch (error) {
+    console.error('❌ [Aggregated Forecast] Error:', error);
+    return await calculator.getProjected('water');
+  }
+}
+
+/**
+ * Aggregate multiple Prophet forecasts by summing month by month
+ */
+function aggregateForecasts(forecasts: any[]) {
+  if (forecasts.length === 0) return [];
+
+  // Use the first forecast as template for monthKeys and months
+  const template = forecasts[0].forecast;
+
+  return template.map((monthTemplate: any, i: number) => {
+    // Sum values from all forecasts for this month
+    const total = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.total || 0), 0);
+
+    const totalLower = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.confidence?.totalLower || 0), 0);
+    const totalUpper = forecasts.reduce((sum, f) => sum + (f.forecast[i]?.confidence?.totalUpper || 0), 0);
+
+    return {
+      monthKey: monthTemplate.monthKey,
+      month: monthTemplate.month,
+      total,
+      isForecast: true,
+      confidence: {
+        totalLower,
+        totalUpper,
+      },
+    };
+  });
 }

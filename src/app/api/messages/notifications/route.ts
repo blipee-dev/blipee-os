@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       .from('organization_members')
       .select('organization_id')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (memberError || !memberData?.organization_id) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });

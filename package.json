@@ -20,6 +20,7 @@
     "optimize-prompts": "tsx scripts/optimize-ai-prompts.ts",
     "ml:train": "tsx scripts/run-ml-training.ts",
     "ml:test": "tsx -e \"import * as tf from '@tensorflow/tfjs-node'; console.log('TensorFlow.js version:', tf.version.tfjs); console.log('Backend:', tf.getBackend());\"",
+    "agents:check": "tsx scripts/run-proactive-check.ts",
     "optimize": "node scripts/optimize-bundle.js",
     "analyze": "cross-env ANALYZE=true next build",
     "postbuild": "npm run analyze",
