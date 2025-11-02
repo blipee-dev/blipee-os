@@ -16,7 +16,10 @@
       "Bash(git rev-parse:*)",
       "Bash(tree:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git branch:*)",
+      "Bash(git rm:*)",
+      "Bash(git restore:*)"
     ]
   },
   "enabledMcpjsonServers": [
