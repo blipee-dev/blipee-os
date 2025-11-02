@@ -180,12 +180,6 @@ const nextConfig = {
     },
   },
 
-  // Optimize fonts
-  optimizeFonts: true,
-
-  // Enable SWC minification
-  swcMinify: true,
-
   // Strict mode for React
   reactStrictMode: true,
 
