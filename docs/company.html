@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Privacy Policy - blipee</title>
+    <title>Company - blipee</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
     <style>
-                  :root {
+      :root {
         /* Gradient System (shared between modes) */
         --gradient-primary: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
         --gradient-mesh:
@@ -26,34 +26,8 @@
         --bg-primary: #020617;
         --bg-secondary: #0f172a;
         --text-primary: #ffffff;
-        --text-secondary: var(--text-secondary);
-        --text-tertiary: var(--text-tertiary);
-        --glass-bg: rgba(255, 255, 255, 0.05);
-        --glass-border: rgba(255, 255, 255, 0.1);
-        --nav-bg: rgba(2, 6, 23, 0.8);
-        --footer-bg: rgba(2, 6, 23, 0.9);
-      }
-
-      /* Light Mode */
-      body[data-theme="light"] {
-        --bg-primary: #ffffff;
-        --bg-secondary: #f8fafc;
-        --text-primary: #0f172a;
-        --text-secondary: #334155;
-        --text-tertiary: #64748b;
-        --glass-bg: rgba(255, 255, 255, 0.9);
-        --glass-border: rgba(15, 23, 42, 0.1);
-        --nav-bg: rgba(255, 255, 255, 0.9);
-        --footer-bg: #f8fafc;
-      }
-
-      /* Dark Mode (default) */
-      body[data-theme="dark"] {
-        --bg-primary: #020617;
-        --bg-secondary: #0f172a;
-        --text-primary: #ffffff;
-        --text-secondary: var(--text-secondary);
-        --text-tertiary: var(--text-tertiary);
+        --text-secondary: rgba(255, 255, 255, 0.8);
+        --text-tertiary: rgba(255, 255, 255, 0.7);
         --glass-bg: rgba(255, 255, 255, 0.05);
         --glass-border: rgba(255, 255, 255, 0.1);
         --nav-bg: rgba(2, 6, 23, 0.8);
@@ -85,6 +59,7 @@
         color: var(--text-primary);
         overflow-x: hidden;
         min-height: 100vh;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       .bg-container {
@@ -129,6 +104,7 @@
         background: var(--nav-bg);
         backdrop-filter: blur(20px);
         border-bottom: 1px solid var(--glass-border);
+        transition: background-color 0.3s ease;
       }
 
       .nav-container {
@@ -190,7 +166,7 @@
       .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
-              color: #ffffff !important;
+        color: #ffffff !important;
       }
 
       .content {
@@ -198,22 +174,22 @@
         z-index: 1;
         padding-top: 120px;
         padding-bottom: 4rem;
-        max-width: 900px;
+        max-width: 1280px;
         margin: 0 auto;
         padding-left: 2rem;
         padding-right: 2rem;
       }
 
-      .page-header {
+      .hero-section {
         text-align: center;
-        margin-bottom: 4rem;
+        margin-bottom: 6rem;
       }
 
-      .page-title {
+      .hero-title {
         font-size: 3.5rem;
         font-weight: 800;
         line-height: 1.1;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
       }
 
       .gradient-text {
@@ -223,62 +199,81 @@
         background-clip: text;
       }
 
-      .page-meta {
-        font-size: 0.95rem;
-        color: var(--text-tertiary);
-      }
-
-      .legal-content {
-        color: var(--text-secondary);
-        line-height: 1.8;
-      }
-
-      .legal-content h2 {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin-top: 3rem;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-      }
-
-      .legal-content h3 {
+      .hero-subtitle {
         font-size: 1.25rem;
-        font-weight: 600;
-        margin-top: 2rem;
-        margin-bottom: 0.75rem;
-        color: var(--text-primary);
+        color: var(--text-tertiary);
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.6;
       }
 
-      .legal-content p {
-        margin-bottom: 1.25rem;
+      .section {
+        margin-bottom: 5rem;
       }
 
-      .legal-content ul, .legal-content ol {
-        margin-left: 1.5rem;
-        margin-bottom: 1.25rem;
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-align: center;
       }
 
-      .legal-content li {
-        margin-bottom: 0.5rem;
+      .section-content {
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: var(--text-secondary);
+        max-width: 800px;
+        margin: 0 auto;
       }
 
-      .legal-content a {
-        color: var(--green);
-        text-decoration: none;
-        transition: color 0.3s ease;
+      .section-content p {
+        margin-bottom: 1.5rem;
       }
 
-      .legal-content a:hover {
-        color: var(--blue);
+      .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
       }
 
-      
+      .value-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 1rem;
+        padding: 2rem;
+        backdrop-filter: blur(20px);
+      }
+
+      .value-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--gradient-primary);
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .value-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+
+      .value-description {
+        color: var(--text-tertiary);
+        line-height: 1.6;
+      }
+
       /* Footer */
       .footer {
         padding: 4rem 2rem 2rem;
         background: var(--footer-bg);
         border-top: 1px solid var(--glass-border);
         color: var(--text-tertiary);
+        transition: background-color 0.3s ease;
       }
 
       .footer-content {
@@ -344,7 +339,7 @@
       .social-link:hover {
         background: var(--gradient-primary);
         border-color: transparent;
-        color: #ffffff !important;
+        color: #ffffff;
         transform: translateY(-2px);
       }
 
@@ -384,7 +379,7 @@
       .newsletter-input:focus {
         outline: none;
         border-color: var(--green);
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--glass-bg);
       }
 
       .newsletter-input::placeholder {
@@ -434,6 +429,7 @@
       .footer-bottom-links a:hover {
         color: var(--text-primary);
       }
+
       /* Theme Toggle */
       .theme-toggle-container {
         display: flex;
@@ -497,12 +493,13 @@
         display: block;
       }
 
-
-
-
       @media (max-width: 768px) {
-        .page-title {
+        .hero-title {
           font-size: 2.5rem;
+        }
+
+        .section-title {
+          font-size: 2rem;
         }
 
         .content {
@@ -537,7 +534,6 @@
           flex-wrap: wrap;
           justify-content: center;
         }
-
       }
 
       @media (max-width: 480px) {
@@ -565,156 +561,104 @@
     </nav>
 
     <div class="content">
-      <div class="page-header">
-        <h1 class="page-title">Privacy <span class="gradient-text">Policy</span></h1>
-        <p class="page-meta">Last updated: January 30, 2025</p>
+      <div class="hero-section">
+        <h1 class="hero-title">
+          Transforming Sustainability <br />with <span class="gradient-text">AI</span>
+        </h1>
+        <p class="hero-subtitle">
+          We're on a mission to make sustainability actionable, automated, and accessible through
+          autonomous AI agents that work 24/7.
+        </p>
       </div>
 
-      <div class="legal-content">
-        <p>
-          At blipee, we take your privacy seriously. This Privacy Policy explains how we collect,
-          use, disclose, and safeguard your information when you use our AI-powered sustainability
-          platform.
-        </p>
+      <div class="section">
+        <h2 class="section-title">Our <span class="gradient-text">Mission</span></h2>
+        <div class="section-content">
+          <p>
+            At blipee, we believe sustainability shouldn't be a burden—it should be built into the
+            fabric of how organizations operate. That's why we've created an AI-powered platform
+            that automates sustainability operations, making it possible for companies to achieve
+            their environmental goals without the traditional overhead.
+          </p>
+          <p>
+            Our 8 autonomous AI agents work around the clock to optimize your sustainability
+            efforts, from carbon tracking to compliance monitoring, cost savings identification, and
+            predictive maintenance—all while you focus on running your business.
+          </p>
+        </div>
+      </div>
 
-        <h2>1. Information We Collect</h2>
+      <div class="section">
+        <h2 class="section-title">Our <span class="gradient-text">Values</span></h2>
+        <div class="values-grid">
+          <div class="value-card">
+            <div class="value-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                <path d="M13 2L3 14L12 14L11 22L21 10L12 10L13 2Z" />
+              </svg>
+            </div>
+            <h3 class="value-title">Innovation</h3>
+            <p class="value-description">
+              We push the boundaries of what's possible with AI, constantly innovating to deliver
+              breakthrough solutions for sustainability challenges.
+            </p>
+          </div>
 
-        <h3>Information You Provide</h3>
-        <ul>
-          <li><strong>Account Information:</strong> Name, email address, company name, and password when you create an account.</li>
-          <li><strong>Profile Information:</strong> Job title, department, and other professional details you choose to add.</li>
-          <li><strong>Sustainability Data:</strong> Carbon emissions data, energy consumption, supply chain information, and other sustainability metrics you upload or connect to our platform.</li>
-          <li><strong>Communications:</strong> Messages, feedback, and support requests you send to us.</li>
-        </ul>
+          <div class="value-card">
+            <div class="value-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+              </svg>
+            </div>
+            <h3 class="value-title">24/7 Commitment</h3>
+            <p class="value-description">
+              Our AI agents never sleep, ensuring continuous optimization and monitoring of your
+              sustainability operations at all times.
+            </p>
+          </div>
 
-        <h3>Information We Collect Automatically</h3>
-        <ul>
-          <li><strong>Usage Data:</strong> Information about how you interact with our platform, including pages visited, features used, and time spent.</li>
-          <li><strong>Device Information:</strong> IP address, browser type, operating system, and device identifiers.</li>
-          <li><strong>Analytics Data:</strong> Performance metrics, error logs, and aggregated usage statistics.</li>
-        </ul>
+          <div class="value-card">
+            <div class="value-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <h3 class="value-title">Trust & Transparency</h3>
+            <p class="value-description">
+              We build trust through transparency, providing clear insights into how our AI makes
+              decisions and delivers results.
+            </p>
+          </div>
 
-        <h2>2. How We Use Your Information</h2>
+          <div class="value-card">
+            <div class="value-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <h3 class="value-title">Impact</h3>
+            <p class="value-description">
+              We measure success by the real-world impact we create—reducing carbon footprints,
+              cutting costs, and improving compliance.
+            </p>
+          </div>
+        </div>
+      </div>
 
-        <p>We use the information we collect to:</p>
-        <ul>
-          <li>Provide, maintain, and improve our AI-powered sustainability services</li>
-          <li>Train and optimize our 8 autonomous AI agents for better performance</li>
-          <li>Generate forecasts, insights, and recommendations for your organization</li>
-          <li>Enable cross-org benchmarking with anonymized, aggregated data</li>
-          <li>Communicate with you about your account, updates, and support</li>
-          <li>Detect, prevent, and address technical issues and security threats</li>
-          <li>Comply with legal obligations and enforce our Terms of Service</li>
-          <li>Conduct research and development to improve our AI models</li>
-        </ul>
-
-        <h2>3. How We Share Your Information</h2>
-
-        <p>We do not sell your personal information. We may share your information in the following circumstances:</p>
-
-        <h3>With Your Consent</h3>
-        <p>We will share your information when you explicitly authorize us to do so.</p>
-
-        <h3>Service Providers</h3>
-        <p>
-          We work with third-party service providers who help us operate our platform, including
-          cloud hosting, analytics, and customer support services. These providers are bound by
-          confidentiality agreements.
-        </p>
-
-        <h3>Anonymized Benchmarking Data</h3>
-        <p>
-          We may share aggregated, anonymized sustainability data for cross-org benchmarking
-          purposes. This data cannot be used to identify individual organizations or users.
-        </p>
-
-        <h3>Legal Requirements</h3>
-        <p>
-          We may disclose your information if required by law, court order, or governmental request,
-          or to protect our rights, property, or safety.
-        </p>
-
-        <h2>4. Data Security</h2>
-
-        <p>
-          We implement industry-standard security measures to protect your information, including:
-        </p>
-        <ul>
-          <li>Encryption of data in transit and at rest</li>
-          <li>Regular security audits and penetration testing</li>
-          <li>Access controls and authentication mechanisms</li>
-          <li>Continuous monitoring for security threats</li>
-          <li>Employee training on data protection and security</li>
-        </ul>
-        <p>
-          However, no method of transmission over the internet is 100% secure, and we cannot
-          guarantee absolute security.
-        </p>
-
-        <h2>5. Data Retention</h2>
-
-        <p>
-          We retain your information for as long as your account is active or as needed to provide
-          you services. You may request deletion of your account and associated data at any time by
-          contacting us at <a href="mailto:privacy@blipee.com">privacy@blipee.com</a>.
-        </p>
-
-        <h2>6. Your Rights</h2>
-
-        <p>Depending on your location, you may have the following rights:</p>
-        <ul>
-          <li><strong>Access:</strong> Request a copy of the personal information we hold about you</li>
-          <li><strong>Correction:</strong> Request correction of inaccurate or incomplete data</li>
-          <li><strong>Deletion:</strong> Request deletion of your personal information</li>
-          <li><strong>Portability:</strong> Request a copy of your data in a structured, machine-readable format</li>
-          <li><strong>Objection:</strong> Object to certain processing of your personal information</li>
-          <li><strong>Restriction:</strong> Request restriction of processing in certain circumstances</li>
-        </ul>
-        <p>
-          To exercise these rights, please contact us at
-          <a href="mailto:privacy@blipee.com">privacy@blipee.com</a>.
-        </p>
-
-        <h2>7. Cookies and Tracking Technologies</h2>
-
-        <p>
-          We use cookies and similar tracking technologies to enhance your experience, analyze usage
-          patterns, and improve our services. You can control cookies through your browser settings.
-        </p>
-
-        <h2>8. International Data Transfers</h2>
-
-        <p>
-          Your information may be transferred to and processed in countries other than your country
-          of residence. We ensure appropriate safeguards are in place to protect your information in
-          accordance with applicable data protection laws.
-        </p>
-
-        <h2>9. Children's Privacy</h2>
-
-        <p>
-          Our services are not directed to individuals under the age of 16. We do not knowingly
-          collect personal information from children.
-        </p>
-
-        <h2>10. Changes to This Privacy Policy</h2>
-
-        <p>
-          We may update this Privacy Policy from time to time. We will notify you of any material
-          changes by posting the new Privacy Policy on this page and updating the "Last updated"
-          date.
-        </p>
-
-        <h2>11. Contact Us</h2>
-
-        <p>
-          If you have any questions about this Privacy Policy or our privacy practices, please
-          contact us:
-        </p>
-        <ul>
-          <li>Email: <a href="mailto:privacy@blipee.com">privacy@blipee.com</a></li>
-          <li>Website: <a href="blipee-landing.html">blipee.com</a></li>
-        </ul>
+      <div class="section">
+        <h2 class="section-title">Join Our <span class="gradient-text">Journey</span></h2>
+        <div class="section-content" style="text-align: center;">
+          <p>
+            We're building the future of sustainable operations. Whether you're looking to transform
+            your organization's sustainability efforts or join our team, we'd love to hear from you.
+          </p>
+          <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="signup.html" class="btn btn-primary">Start Free Trial</a>
+            <a href="careers.html" class="btn" style="background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--white);">View Careers</a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -744,6 +688,27 @@
                   <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </a>
+            </div>
+
+            <div class="theme-toggle-container">
+              <div class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                <div class="theme-toggle-slider">
+                  <svg class="theme-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path class="moon-icon" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    <g class="sun-icon">
+                      <circle cx="12" cy="12" r="5"/>
+                      <line x1="12" y1="1" x2="12" y2="3"/>
+                      <line x1="12" y1="21" x2="12" y2="23"/>
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                      <line x1="1" y1="12" x2="3" y2="12"/>
+                      <line x1="21" y1="12" x2="23" y2="12"/>
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </g>
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -796,6 +761,7 @@
         </div>
       </div>
     </footer>
+
     <script>
       // Theme Toggle System
       function initTheme() {

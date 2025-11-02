@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Privacy Policy - blipee</title>
+    <title>404 - Page Not Found | blipee</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -26,34 +26,8 @@
         --bg-primary: #020617;
         --bg-secondary: #0f172a;
         --text-primary: #ffffff;
-        --text-secondary: var(--text-secondary);
-        --text-tertiary: var(--text-tertiary);
-        --glass-bg: rgba(255, 255, 255, 0.05);
-        --glass-border: rgba(255, 255, 255, 0.1);
-        --nav-bg: rgba(2, 6, 23, 0.8);
-        --footer-bg: rgba(2, 6, 23, 0.9);
-      }
-
-      /* Light Mode */
-      body[data-theme="light"] {
-        --bg-primary: #ffffff;
-        --bg-secondary: #f8fafc;
-        --text-primary: #0f172a;
-        --text-secondary: #334155;
-        --text-tertiary: #64748b;
-        --glass-bg: rgba(255, 255, 255, 0.9);
-        --glass-border: rgba(15, 23, 42, 0.1);
-        --nav-bg: rgba(255, 255, 255, 0.9);
-        --footer-bg: #f8fafc;
-      }
-
-      /* Dark Mode (default) */
-      body[data-theme="dark"] {
-        --bg-primary: #020617;
-        --bg-secondary: #0f172a;
-        --text-primary: #ffffff;
-        --text-secondary: var(--text-secondary);
-        --text-tertiary: var(--text-tertiary);
+        --text-secondary: rgba(255, 255, 255, 0.8);
+        --text-tertiary: rgba(255, 255, 255, 0.7);
         --glass-bg: rgba(255, 255, 255, 0.05);
         --glass-border: rgba(255, 255, 255, 0.1);
         --nav-bg: rgba(2, 6, 23, 0.8);
@@ -84,42 +58,11 @@
         background: var(--bg-primary);
         color: var(--text-primary);
         overflow-x: hidden;
-        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
-      .bg-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-        overflow: hidden;
-        pointer-events: none;
-      }
-
-      .bg-gradient-mesh {
-        position: absolute;
-        width: 200%;
-        height: 200%;
-        top: -50%;
-        left: -50%;
-        background: var(--gradient-mesh);
-        animation: meshAnimation 20s ease infinite;
-      }
-
-      @keyframes meshAnimation {
-        0%, 100% {
-          transform: translate(0, 0) rotate(0deg);
-        }
-        33% {
-          transform: translate(-20px, -20px) rotate(120deg);
-        }
-        66% {
-          transform: translate(20px, -10px) rotate(240deg);
-        }
-      }
-
+      /* Navigation */
       nav {
         position: fixed;
         top: 0;
@@ -173,47 +116,90 @@
       }
 
       .btn {
-        padding: 0.625rem 1.25rem;
+        padding: 0.75rem 1.25rem;
         border-radius: 0.5rem;
         font-weight: 600;
-        font-size: 0.9375rem;
         text-decoration: none;
         transition: all 0.3s ease;
-        display: inline-block;
+        cursor: pointer;
+        border: none;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
       }
 
       .btn-primary {
         background: var(--gradient-primary);
         color: #ffffff !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 15px 0 rgba(16, 185, 129, 0.3);
       }
 
       .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
+        box-shadow: 0 6px 20px 0 rgba(16, 185, 129, 0.4);
               color: #ffffff !important;
       }
 
-      .content {
-        position: relative;
-        z-index: 1;
-        padding-top: 120px;
-        padding-bottom: 4rem;
-        max-width: 900px;
-        margin: 0 auto;
-        padding-left: 2rem;
-        padding-right: 2rem;
+      /* Main Content */
+      .main-content {
+        min-height: 100vh;
+        padding: 120px 2rem 4rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
 
-      .page-header {
+      .error-container {
         text-align: center;
-        margin-bottom: 4rem;
+        max-width: 600px;
       }
 
-      .page-title {
-        font-size: 3.5rem;
-        font-weight: 800;
-        line-height: 1.1;
+      .visual-icon {
+        width: 280px;
+        height: 280px;
+        background: var(--gradient-primary);
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 3rem;
+        box-shadow: 0 20px 60px -15px rgba(16, 185, 129, 0.6);
+        animation: blob-morph 8s ease-in-out infinite;
+      }
+
+      @keyframes blob-morph {
+        0%, 100% {
+          border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+          transform: translateY(0px);
+        }
+        25% {
+          border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+          transform: translateY(-15px);
+        }
+        50% {
+          border-radius: 50% 50% 30% 70% / 30% 30% 70% 70%;
+          transform: translateY(0px);
+        }
+        75% {
+          border-radius: 40% 60% 60% 40% / 70% 50% 60% 50%;
+          transform: translateY(-10px);
+        }
+      }
+
+      .visual-icon svg {
+        width: 65%;
+        height: 65%;
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+      }
+
+      .error-code {
+        font-size: 1rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.5);
         margin-bottom: 1rem;
+        letter-spacing: 0.1em;
       }
 
       .gradient-text {
@@ -223,56 +209,65 @@
         background-clip: text;
       }
 
-      .page-meta {
-        font-size: 0.95rem;
-        color: var(--text-tertiary);
-      }
-
-      .legal-content {
-        color: var(--text-secondary);
-        line-height: 1.8;
-      }
-
-      .legal-content h2 {
+      h1 {
         font-size: 1.75rem;
-        font-weight: 700;
-        margin-top: 3rem;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-      }
-
-      .legal-content h3 {
-        font-size: 1.25rem;
         font-weight: 600;
-        margin-top: 2rem;
-        margin-bottom: 0.75rem;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+      }
+
+      p {
+        font-size: 1rem;
+        color: var(--text-tertiary);
+        line-height: 1.7;
+        margin-bottom: 2rem;
+      }
+
+      .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 0.5rem;
         color: var(--text-primary);
-      }
-
-      .legal-content p {
-        margin-bottom: 1.25rem;
-      }
-
-      .legal-content ul, .legal-content ol {
-        margin-left: 1.5rem;
-        margin-bottom: 1.25rem;
-      }
-
-      .legal-content li {
-        margin-bottom: 0.5rem;
-      }
-
-      .legal-content a {
-        color: var(--green);
         text-decoration: none;
-        transition: color 0.3s ease;
+        font-weight: 600;
+        transition: all 0.3s ease;
       }
 
-      .legal-content a:hover {
-        color: var(--blue);
+      .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
       }
 
-      
+      .contact-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .contact-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
       /* Footer */
       .footer {
         padding: 4rem 2rem 2rem;
@@ -434,13 +429,8 @@
       .footer-bottom-links a:hover {
         color: var(--text-primary);
       }
-      /* Theme Toggle */
-      .theme-toggle-container {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-      }
+
+      /* Responsive */
 
       .theme-toggle {
         position: relative;
@@ -496,26 +486,28 @@
       body[data-theme="light"] .sun-icon {
         display: block;
       }
-
-
-
-
       @media (max-width: 768px) {
-        .page-title {
-          font-size: 2.5rem;
-        }
-
-        .content {
-          padding-left: 1.5rem;
-          padding-right: 1.5rem;
-        }
-
         .nav-links {
           display: none;
         }
 
-        .footer {
-          padding: 3rem 1.5rem 2rem;
+        .visual-icon {
+          width: 200px;
+          height: 200px;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .error-actions {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .back-btn, .contact-btn {
+          width: 100%;
+          justify-content: center;
         }
 
         .footer-grid {
@@ -532,12 +524,6 @@
           flex-direction: column;
           text-align: center;
         }
-
-        .footer-bottom-links {
-          flex-wrap: wrap;
-          justify-content: center;
-        }
-
       }
 
       @media (max-width: 480px) {
@@ -548,10 +534,7 @@
     </style>
   </head>
   <body>
-    <div class="bg-container">
-      <div class="bg-gradient-mesh"></div>
-    </div>
-
+    <!-- Navigation -->
     <nav>
       <div class="nav-container">
         <a href="blipee-landing.html" class="logo">blipee</a>
@@ -564,159 +547,46 @@
       </div>
     </nav>
 
-    <div class="content">
-      <div class="page-header">
-        <h1 class="page-title">Privacy <span class="gradient-text">Policy</span></h1>
-        <p class="page-meta">Last updated: January 30, 2025</p>
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="error-container">
+        <div class="visual-icon">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="15" y="30" width="70" height="55" rx="10" fill="#10b981"/>
+            <circle cx="35" cy="50" r="8" fill="#fff"/>
+            <circle cx="65" cy="50" r="8" fill="#fff"/>
+            <circle cx="35" cy="50" r="3" fill="#059669"/>
+            <circle cx="65" cy="50" r="3" fill="#059669"/>
+            <path d="M38 68 C42 73, 58 73, 62 68" stroke="#fff" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+            <circle cx="50" cy="18" r="8" fill="#34d399"/>
+            <path d="M50 26 L50 30" stroke="#047857" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="50" cy="12" r="4" fill="#6ee7b7"/>
+            <path d="M45 66 L48 63" stroke="#d1fae5" stroke-width="2" stroke-linecap="round"/>
+            <path d="M55 66 L52 63" stroke="#d1fae5" stroke-width="2" stroke-linecap="round"/>
+            <rect x="20" y="40" width="3" height="8" rx="1.5" fill="#6ee7b7"/>
+            <rect x="77" y="40" width="3" height="8" rx="1.5" fill="#6ee7b7"/>
+          </svg>
+        </div>
+
+        <div class="error-code">ERROR 404</div>
+        <h1>Page <span class="gradient-text">Not Found</span></h1>
+        <p>
+          The page you're looking for doesn't exist or has been moved. Let's get you back on track.
+        </p>
+
+        <div class="error-actions">
+          <a href="blipee-landing.html" class="back-btn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+            </svg>
+            Back to Home
+          </a>
+          <a href="contact.html" class="contact-btn">
+            Contact Support
+          </a>
+        </div>
       </div>
-
-      <div class="legal-content">
-        <p>
-          At blipee, we take your privacy seriously. This Privacy Policy explains how we collect,
-          use, disclose, and safeguard your information when you use our AI-powered sustainability
-          platform.
-        </p>
-
-        <h2>1. Information We Collect</h2>
-
-        <h3>Information You Provide</h3>
-        <ul>
-          <li><strong>Account Information:</strong> Name, email address, company name, and password when you create an account.</li>
-          <li><strong>Profile Information:</strong> Job title, department, and other professional details you choose to add.</li>
-          <li><strong>Sustainability Data:</strong> Carbon emissions data, energy consumption, supply chain information, and other sustainability metrics you upload or connect to our platform.</li>
-          <li><strong>Communications:</strong> Messages, feedback, and support requests you send to us.</li>
-        </ul>
-
-        <h3>Information We Collect Automatically</h3>
-        <ul>
-          <li><strong>Usage Data:</strong> Information about how you interact with our platform, including pages visited, features used, and time spent.</li>
-          <li><strong>Device Information:</strong> IP address, browser type, operating system, and device identifiers.</li>
-          <li><strong>Analytics Data:</strong> Performance metrics, error logs, and aggregated usage statistics.</li>
-        </ul>
-
-        <h2>2. How We Use Your Information</h2>
-
-        <p>We use the information we collect to:</p>
-        <ul>
-          <li>Provide, maintain, and improve our AI-powered sustainability services</li>
-          <li>Train and optimize our 8 autonomous AI agents for better performance</li>
-          <li>Generate forecasts, insights, and recommendations for your organization</li>
-          <li>Enable cross-org benchmarking with anonymized, aggregated data</li>
-          <li>Communicate with you about your account, updates, and support</li>
-          <li>Detect, prevent, and address technical issues and security threats</li>
-          <li>Comply with legal obligations and enforce our Terms of Service</li>
-          <li>Conduct research and development to improve our AI models</li>
-        </ul>
-
-        <h2>3. How We Share Your Information</h2>
-
-        <p>We do not sell your personal information. We may share your information in the following circumstances:</p>
-
-        <h3>With Your Consent</h3>
-        <p>We will share your information when you explicitly authorize us to do so.</p>
-
-        <h3>Service Providers</h3>
-        <p>
-          We work with third-party service providers who help us operate our platform, including
-          cloud hosting, analytics, and customer support services. These providers are bound by
-          confidentiality agreements.
-        </p>
-
-        <h3>Anonymized Benchmarking Data</h3>
-        <p>
-          We may share aggregated, anonymized sustainability data for cross-org benchmarking
-          purposes. This data cannot be used to identify individual organizations or users.
-        </p>
-
-        <h3>Legal Requirements</h3>
-        <p>
-          We may disclose your information if required by law, court order, or governmental request,
-          or to protect our rights, property, or safety.
-        </p>
-
-        <h2>4. Data Security</h2>
-
-        <p>
-          We implement industry-standard security measures to protect your information, including:
-        </p>
-        <ul>
-          <li>Encryption of data in transit and at rest</li>
-          <li>Regular security audits and penetration testing</li>
-          <li>Access controls and authentication mechanisms</li>
-          <li>Continuous monitoring for security threats</li>
-          <li>Employee training on data protection and security</li>
-        </ul>
-        <p>
-          However, no method of transmission over the internet is 100% secure, and we cannot
-          guarantee absolute security.
-        </p>
-
-        <h2>5. Data Retention</h2>
-
-        <p>
-          We retain your information for as long as your account is active or as needed to provide
-          you services. You may request deletion of your account and associated data at any time by
-          contacting us at <a href="mailto:privacy@blipee.com">privacy@blipee.com</a>.
-        </p>
-
-        <h2>6. Your Rights</h2>
-
-        <p>Depending on your location, you may have the following rights:</p>
-        <ul>
-          <li><strong>Access:</strong> Request a copy of the personal information we hold about you</li>
-          <li><strong>Correction:</strong> Request correction of inaccurate or incomplete data</li>
-          <li><strong>Deletion:</strong> Request deletion of your personal information</li>
-          <li><strong>Portability:</strong> Request a copy of your data in a structured, machine-readable format</li>
-          <li><strong>Objection:</strong> Object to certain processing of your personal information</li>
-          <li><strong>Restriction:</strong> Request restriction of processing in certain circumstances</li>
-        </ul>
-        <p>
-          To exercise these rights, please contact us at
-          <a href="mailto:privacy@blipee.com">privacy@blipee.com</a>.
-        </p>
-
-        <h2>7. Cookies and Tracking Technologies</h2>
-
-        <p>
-          We use cookies and similar tracking technologies to enhance your experience, analyze usage
-          patterns, and improve our services. You can control cookies through your browser settings.
-        </p>
-
-        <h2>8. International Data Transfers</h2>
-
-        <p>
-          Your information may be transferred to and processed in countries other than your country
-          of residence. We ensure appropriate safeguards are in place to protect your information in
-          accordance with applicable data protection laws.
-        </p>
-
-        <h2>9. Children's Privacy</h2>
-
-        <p>
-          Our services are not directed to individuals under the age of 16. We do not knowingly
-          collect personal information from children.
-        </p>
-
-        <h2>10. Changes to This Privacy Policy</h2>
-
-        <p>
-          We may update this Privacy Policy from time to time. We will notify you of any material
-          changes by posting the new Privacy Policy on this page and updating the "Last updated"
-          date.
-        </p>
-
-        <h2>11. Contact Us</h2>
-
-        <p>
-          If you have any questions about this Privacy Policy or our privacy practices, please
-          contact us:
-        </p>
-        <ul>
-          <li>Email: <a href="mailto:privacy@blipee.com">privacy@blipee.com</a></li>
-          <li>Website: <a href="blipee-landing.html">blipee.com</a></li>
-        </ul>
-      </div>
-    </div>
+    </main>
 
     <!-- Footer -->
     <footer class="footer">

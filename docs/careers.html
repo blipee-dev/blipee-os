@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About - blipee</title>
+    <title>Careers - blipee</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
@@ -218,27 +218,14 @@
         text-align: center;
       }
 
-      .section-content {
-        font-size: 1.125rem;
-        line-height: 1.8;
-        color: var(--text-secondary);
-        max-width: 800px;
-        margin: 0 auto;
-      }
-
-      .section-content p {
-        margin-bottom: 1.5rem;
-      }
-
-      .stats-grid {
+      .benefits-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 2rem;
         margin-top: 3rem;
-        text-align: center;
       }
 
-      .stat-item {
+      .benefit-card {
         background: var(--glass-bg);
         border: 1px solid var(--glass-border);
         border-radius: 1rem;
@@ -246,68 +233,116 @@
         backdrop-filter: blur(20px);
       }
 
-      .stat-number {
-        font-size: 3rem;
-        font-weight: 800;
+      .benefit-icon {
+        width: 48px;
+        height: 48px;
         background: var(--gradient-primary);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 0.5rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
       }
 
-      .stat-label {
-        font-size: 1rem;
+      .benefit-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+      }
+
+      .benefit-description {
         color: var(--text-tertiary);
+        line-height: 1.6;
+        font-size: 0.95rem;
       }
 
-      .timeline {
+      .jobs-list {
         max-width: 900px;
         margin: 3rem auto 0;
       }
 
-      .timeline-item {
-        display: flex;
-        gap: 2rem;
-        margin-bottom: 3rem;
-        position: relative;
+      .job-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 1rem;
+        padding: 2rem;
+        backdrop-filter: blur(20px);
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
       }
 
-      .timeline-year {
+      .job-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--green);
+      }
+
+      .job-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+        gap: 1rem;
+      }
+
+      .job-title {
         font-size: 1.5rem;
         font-weight: 700;
-        color: var(--green);
-        min-width: 100px;
-      }
-
-      .timeline-content {
-        flex: 1;
-        padding-bottom: 2rem;
-        border-left: 2px solid var(--glass-border);
-        padding-left: 2rem;
-        position: relative;
-      }
-
-      .timeline-content::before {
-        content: '';
-        position: absolute;
-        left: -6px;
-        top: 6px;
-        width: 10px;
-        height: 10px;
-        background: var(--green);
-        border-radius: 50%;
-      }
-
-      .timeline-title {
-        font-size: 1.25rem;
-        font-weight: 600;
         margin-bottom: 0.5rem;
       }
 
-      .timeline-description {
+      .job-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        font-size: 0.875rem;
         color: var(--text-tertiary);
+        margin-bottom: 1rem;
+      }
+
+      .job-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .job-description {
+        color: var(--text-secondary);
         line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      .job-tags {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .job-tag {
+        padding: 0.375rem 0.875rem;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 0.5rem;
+        font-size: 0.8125rem;
+        color: var(--green);
+      }
+
+      .apply-btn {
+        padding: 0.75rem 1.5rem;
+        background: var(--gradient-primary);
+        color: #ffffff;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .apply-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
       }
 
 
@@ -579,26 +614,16 @@
 
         .footer-bottom-links {
           flex-wrap: wrap;
-          justify-content: center;
+          justify-center: center;
         }
 
 
-        .timeline-item {
+        .job-header {
           flex-direction: column;
-          gap: 0.5rem;
         }
 
-        .timeline-year {
-          min-width: auto;
-        }
-
-        .timeline-content {
-          border-left: none;
-          padding-left: 0;
-        }
-
-        .timeline-content::before {
-          display: none;
+        .job-meta {
+          gap: 1rem;
         }
       }
 
@@ -629,108 +654,254 @@
     <div class="content">
       <div class="hero-section">
         <h1 class="hero-title">
-          Built by Experts, <br />Powered by <span class="gradient-text">AI</span>
+          Build the Future of <br /><span class="gradient-text">Sustainable AI</span>
         </h1>
         <p class="hero-subtitle">
-          We're a team of sustainability experts, AI researchers, and engineers on a mission to
-          make sustainability accessible to every organization.
+          Join a team of innovators creating autonomous AI agents that are transforming how
+          organizations approach sustainability.
         </p>
       </div>
 
       <div class="section">
-        <h2 class="section-title">Our <span class="gradient-text">Story</span></h2>
-        <div class="section-content">
-          <p>
-            blipee was born from a simple observation: while companies wanted to be more
-            sustainable, they struggled with the complexity, cost, and overhead of traditional
-            sustainability operations. Teams spent countless hours on manual tracking, compliance
-            monitoring, and data analysis—time that could be better spent on strategic initiatives.
-          </p>
-          <p>
-            We asked ourselves: what if AI could handle all of that? What if sustainability
-            operations could be automated, optimized, and running 24/7 without human intervention?
-            That's when we created blipee—an autonomous AI workforce specifically designed for
-            sustainability.
-          </p>
-          <p>
-            Today, our 8 specialized AI agents work around the clock for organizations worldwide,
-            delivering an average of 18% cost savings, 98.5% forecast accuracy, and 85% time
-            reduction in sustainability operations.
-          </p>
+        <h2 class="section-title">Why <span class="gradient-text">blipee</span></h2>
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                <path d="M13 2L3 14L12 14L11 22L21 10L12 10L13 2Z" />
+              </svg>
+            </div>
+            <h3 class="benefit-title">Cutting-Edge AI</h3>
+            <p class="benefit-description">
+              Work with the latest AI technologies and contribute to breakthrough innovations in
+              autonomous agents and machine learning.
+            </p>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <path d="M2 17l10 5 10-5"></path>
+                <path d="M2 12l10 5 10-5"></path>
+              </svg>
+            </div>
+            <h3 class="benefit-title">Real Impact</h3>
+            <p class="benefit-description">
+              Your work directly contributes to making sustainability accessible and helping
+              organizations reduce their environmental footprint.
+            </p>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </div>
+            <h3 class="benefit-title">Remote-First</h3>
+            <p class="benefit-description">
+              Work from anywhere with flexible hours. We believe in outcomes, not office hours.
+            </p>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <h3 class="benefit-title">Growth & Learning</h3>
+            <p class="benefit-description">
+              Continuous learning budget, conference attendance, and mentorship from industry experts.
+            </p>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+            <h3 class="benefit-title">Competitive Package</h3>
+            <p class="benefit-description">
+              Competitive salary, equity options, comprehensive health benefits, and generous PTO.
+            </p>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </div>
+            <h3 class="benefit-title">Wellness Support</h3>
+            <p class="benefit-description">
+              Mental health support, wellness stipend, and a culture that values work-life balance.
+            </p>
+          </div>
         </div>
       </div>
 
       <div class="section">
-        <h2 class="section-title">By the <span class="gradient-text">Numbers</span></h2>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-number">8</div>
-            <div class="stat-label">AI Agents</div>
+        <h2 class="section-title">Open <span class="gradient-text">Positions</span></h2>
+        <div class="jobs-list">
+          <div class="job-card">
+            <div class="job-header">
+              <div>
+                <h3 class="job-title">Senior AI Engineer</h3>
+                <div class="job-meta">
+                  <span class="job-meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    Remote
+                  </span>
+                  <span class="job-meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    Full-time
+                  </span>
+                </div>
+              </div>
+              <button class="apply-btn" onclick="alert('Demo: Application form would open here')">Apply Now</button>
+            </div>
+            <p class="job-description">
+              Lead the development of our autonomous AI agents. Build and optimize ML models for
+              forecasting, anomaly detection, and predictive maintenance.
+            </p>
+            <div class="job-tags">
+              <span class="job-tag">Python</span>
+              <span class="job-tag">TensorFlow</span>
+              <span class="job-tag">Prophet</span>
+              <span class="job-tag">Machine Learning</span>
+            </div>
           </div>
-          <div class="stat-item">
-            <div class="stat-number">24/7</div>
-            <div class="stat-label">Always Working</div>
+
+          <div class="job-card">
+            <div class="job-header">
+              <div>
+                <h3 class="job-title">Full-Stack Engineer</h3>
+                <div class="job-meta">
+                  <span class="job-meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    Remote
+                  </span>
+                  <span class="job-meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    Full-time
+                  </span>
+                </div>
+              </div>
+              <button class="apply-btn" onclick="alert('Demo: Application form would open here')">Apply Now</button>
+            </div>
+            <p class="job-description">
+              Build and maintain our platform infrastructure. Create intuitive interfaces for
+              interacting with AI agents and visualizing sustainability metrics.
+            </p>
+            <div class="job-tags">
+              <span class="job-tag">TypeScript</span>
+              <span class="job-tag">React</span>
+              <span class="job-tag">Node.js</span>
+              <span class="job-tag">PostgreSQL</span>
+            </div>
           </div>
-          <div class="stat-item">
-            <div class="stat-number">98.5%</div>
-            <div class="stat-label">Forecast Accuracy</div>
+
+          <div class="job-card">
+            <div class="job-header">
+              <div>
+                <h3 class="job-title">Product Designer</h3>
+                <div class="job-meta">
+                  <span class="job-meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    Remote
+                  </span>
+                  <span class="job-meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    Full-time
+                  </span>
+                </div>
+              </div>
+              <button class="apply-btn" onclick="alert('Demo: Application form would open here')">Apply Now</button>
+            </div>
+            <p class="job-description">
+              Design beautiful, intuitive experiences for sustainability professionals. Make complex
+              AI insights accessible through thoughtful UX/UI design.
+            </p>
+            <div class="job-tags">
+              <span class="job-tag">Figma</span>
+              <span class="job-tag">UI/UX</span>
+              <span class="job-tag">Design Systems</span>
+              <span class="job-tag">User Research</span>
+            </div>
           </div>
-          <div class="stat-item">
-            <div class="stat-number">18%</div>
-            <div class="stat-label">Avg. Cost Savings</div>
+
+          <div class="job-card">
+            <div class="job-header">
+              <div>
+                <h3 class="job-title">Sustainability Specialist</h3>
+                <div class="job-meta">
+                  <span class="job-meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    Remote
+                  </span>
+                  <span class="job-meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    Full-time
+                  </span>
+                </div>
+              </div>
+              <button class="apply-btn" onclick="alert('Demo: Application form would open here')">Apply Now</button>
+            </div>
+            <p class="job-description">
+              Guide product development with deep sustainability expertise. Help organizations
+              understand and optimize their environmental impact.
+            </p>
+            <div class="job-tags">
+              <span class="job-tag">ESG</span>
+              <span class="job-tag">Carbon Accounting</span>
+              <span class="job-tag">Compliance</span>
+              <span class="job-tag">Reporting</span>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="section">
-        <h2 class="section-title">Our <span class="gradient-text">Journey</span></h2>
-        <div class="timeline">
-          <div class="timeline-item">
-            <div class="timeline-year">2023</div>
-            <div class="timeline-content">
-              <div class="timeline-title">Foundation</div>
-              <div class="timeline-description">
-                blipee founded with a vision to automate sustainability operations through AI. First
-                three agents developed: ESG Chief of Staff, Carbon Hunter, and Compliance Guardian.
-              </div>
-            </div>
-          </div>
-
-          <div class="timeline-item">
-            <div class="timeline-year">2024</div>
-            <div class="timeline-content">
-              <div class="timeline-title">Platform Launch</div>
-              <div class="timeline-description">
-                Full platform launched with 8 autonomous AI agents. Introduced Prophet-style
-                forecasting models with 98.5% accuracy and cross-org benchmarking capabilities.
-              </div>
-            </div>
-          </div>
-
-          <div class="timeline-item">
-            <div class="timeline-year">2025</div>
-            <div class="timeline-content">
-              <div class="timeline-title">Scale & Innovation</div>
-              <div class="timeline-description">
-                Expanded globally, serving organizations across multiple industries. Introduced
-                blipee Assistant for natural language querying and enhanced predictive capabilities.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2 class="section-title">Join Our <span class="gradient-text">Mission</span></h2>
         <div class="section-content" style="text-align: center;">
-          <p>
-            We're always looking for talented individuals who are passionate about sustainability
-            and AI. If you want to be part of the team building the future of sustainable
-            operations, we'd love to hear from you.
+          <h2 class="section-title">Don't See Your <span class="gradient-text">Role?</span></h2>
+          <p style="color: rgba(255, 255, 255, 0.7); font-size: 1.125rem; line-height: 1.6; margin-bottom: 2rem;">
+            We're always looking for talented people. Send us your resume and tell us why you'd be
+            a great fit for blipee.
           </p>
-          <div style="margin-top: 2rem;">
-            <a href="careers.html" class="btn btn-primary">View Open Positions</a>
-          </div>
+          <a href="mailto:careers@blipee.com" class="btn btn-primary">Get in Touch</a>
         </div>
       </div>
     </div>

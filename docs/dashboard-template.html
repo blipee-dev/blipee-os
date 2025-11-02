@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Template - Blipee</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="./css/shared-styles.css">
+
+    <!-- Dashboard-specific styles -->
+    <style>
+      /* Dashboard Header */
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .dashboard-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .dashboard-title h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .dashboard-icon {
+        width: 32px;
+        height: 32px;
+        color: var(--green);
+      }
+
+      .subtitle {
+        color: var(--text-tertiary);
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+      }
+
+      /* KPI Cards */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+      }
+
+      .kpi-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .kpi-card:hover {
+        border-color: var(--green);
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.1);
+        transform: translateY(-4px);
+      }
+
+      .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .kpi-label {
+        color: var(--text-tertiary);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .kpi-icon {
+        width: 24px;
+        height: 24px;
+        padding: 4px;
+        border-radius: 8px;
+      }
+
+      .icon-green {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--green);
+      }
+
+      .icon-blue {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--blue);
+      }
+
+      .icon-purple {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--purple);
+      }
+
+      .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .kpi-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .trend-positive {
+        color: var(--green);
+      }
+
+      .trend-negative {
+        color: #ef4444;
+      }
+
+      /* Content Card */
+      .content-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+      }
+
+      .card-description {
+        color: var(--text-tertiary);
+        font-size: 0.875rem;
+        line-height: 1.6;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .dashboard-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Animated Background -->
+    <div class="bg-container">
+      <div class="bg-gradient-mesh"></div>
+    </div>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper" id="app">
+      <!-- Components (navbar and sidebar) will be loaded here by JavaScript -->
+    </div>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <div>
+          <div class="dashboard-title">
+            <svg class="dashboard-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <h1>Dashboard Template</h1>
+          </div>
+          <p class="subtitle">This is a template for creating new dashboards with components</p>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Total Metric</span>
+            <svg class="kpi-icon icon-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <div class="kpi-value">1,247</div>
+          <div class="kpi-trend trend-positive">
+            <span>↑ 8.2%</span>
+            <span style="color: var(--text-tertiary)">vs last period</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Growth Rate</span>
+            <svg class="kpi-icon icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3v18h18"/>
+              <path d="M18 17V9"/>
+              <path d="M13 17V5"/>
+              <path d="M8 17v-3"/>
+            </svg>
+          </div>
+          <div class="kpi-value">24.5%</div>
+          <div class="kpi-trend trend-positive">
+            <span>↑ 12.4%</span>
+            <span style="color: var(--text-tertiary)">vs last period</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Performance</span>
+            <svg class="kpi-icon icon-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="kpi-value">87.3%</div>
+          <div class="kpi-trend trend-positive">
+            <span>↑ 3.1%</span>
+            <span style="color: var(--text-tertiary)">vs last period</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Card -->
+      <div class="content-card">
+        <h2 class="card-title">Welcome to the Dashboard Template</h2>
+        <p class="card-description">
+          This template demonstrates how to use the Blipee component system. The navbar and sidebar are
+          automatically loaded from separate component files, making it easy to maintain consistency across
+          all your dashboards.
+        </p>
+        <br>
+        <p class="card-description">
+          <strong>Key Features:</strong>
+        </p>
+        <ul style="color: var(--text-tertiary); font-size: 0.875rem; line-height: 1.8; margin-left: 1.5rem; margin-top: 0.5rem;">
+          <li>Reusable navbar and sidebar components</li>
+          <li>Automatic theme toggle (light/dark mode)</li>
+          <li>Responsive sidebar with collapse/expand</li>
+          <li>Shared CSS variables for consistent styling</li>
+          <li>localStorage persistence for user preferences</li>
+          <li>Animated gradient background</li>
+        </ul>
+      </div>
+
+      <!-- Another Content Card -->
+      <div class="content-card">
+        <h2 class="card-title">Getting Started</h2>
+        <p class="card-description">
+          To create a new dashboard based on this template:
+        </p>
+        <ol style="color: var(--text-tertiary); font-size: 0.875rem; line-height: 1.8; margin-left: 1.5rem; margin-top: 0.5rem;">
+          <li>Copy this file and rename it (e.g., <code>my-dashboard.html</code>)</li>
+          <li>Update the title in the <code>&lt;head&gt;</code></li>
+          <li>Add your dashboard-specific styles in the <code>&lt;style&gt;</code> block</li>
+          <li>Replace the content inside <code>&lt;main id="mainContent"&gt;</code></li>
+          <li>Add a navigation link in <code>components/navbar.html</code> if needed</li>
+        </ol>
+        <br>
+        <p class="card-description">
+          Check the <strong>COMPONENTS_GUIDE.md</strong> file for detailed documentation.
+        </p>
+      </div>
+    </main>
+
+    <!-- Component Loader -->
+    <script src="./js/components.js"></script>
+    <script>
+      // Initialize dashboard components when DOM is ready
+      document.addEventListener('DOMContentLoaded', () => {
+        initDashboardComponents();
+      });
+    </script>
+  </body>
+</html>

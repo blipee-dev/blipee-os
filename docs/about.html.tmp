@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About - blipee</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --gradient-primary: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+        --gradient-mesh:
+          radial-gradient(at 40% 20%, hsla(160, 100%, 50%, 0.3) 0px, transparent 50%),
+          radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.2) 0px, transparent 50%),
+          radial-gradient(at 0% 50%, hsla(125, 100%, 70%, 0.2) 0px, transparent 50%);
+        --green: #10b981;
+        --blue: #0ea5e9;
+        --cyan: #06b6d4;
+        --dark: #0f172a;
+        --darker: #020617;
+        --white: #ffffff;
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, sans-serif;
+        background: var(--darker);
+        color: var(--white);
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      .bg-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .bg-gradient-mesh {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: -50%;
+        left: -50%;
+        background: var(--gradient-mesh);
+        animation: meshAnimation 20s ease infinite;
+      }
+
+      @keyframes meshAnimation {
+        0%, 100% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+        33% {
+          transform: translate(-20px, -20px) rotate(120deg);
+        }
+        66% {
+          transform: translate(20px, -10px) rotate(240deg);
+        }
+      }
+
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: rgba(2, 6, 23, 0.8);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--glass-border);
+      }
+
+      .nav-container {
+        max-width: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 1rem;
+        height: 70px;
+      }
+
+      .logo {
+        font-size: 1.75rem;
+        font-weight: 400;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-decoration: none;
+        letter-spacing: -0.02em;
+        display: inline-block;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+        align-items: center;
+      }
+
+      .nav-links a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        color: var(--white);
+      }
+
+      .btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+      }
+
+      .btn-primary {
+        background: var(--gradient-primary);
+        color: var(--white);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
+      }
+
+      .content {
+        position: relative;
+        z-index: 1;
+        padding-top: 120px;
+        padding-bottom: 4rem;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+
+      .hero-section {
+        text-align: center;
+        margin-bottom: 6rem;
+      }
+
+      .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+      }
+
+      .gradient-text {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-subtitle {
+        font-size: 1.25rem;
+        color: rgba(255, 255, 255, 0.7);
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+
+      .section {
+        margin-bottom: 5rem;
+      }
+
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .section-content {
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.8);
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .section-content p {
+        margin-bottom: 1.5rem;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+        text-align: center;
+      }
+
+      .stat-item {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 1rem;
+        padding: 2rem;
+        backdrop-filter: blur(20px);
+      }
+
+      .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .timeline {
+        max-width: 900px;
+        margin: 3rem auto 0;
+      }
+
+      .timeline-item {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        position: relative;
+      }
+
+      .timeline-year {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--green);
+        min-width: 100px;
+      }
+
+      .timeline-content {
+        flex: 1;
+        padding-bottom: 2rem;
+        border-left: 2px solid var(--glass-border);
+        padding-left: 2rem;
+        position: relative;
+      }
+
+      .timeline-content::before {
+        content: '';
+        position: absolute;
+        left: -6px;
+        top: 6px;
+        width: 10px;
+        height: 10px;
+        background: var(--green);
+        border-radius: 50%;
+      }
+
+      .timeline-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .timeline-description {
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+      }
+
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .section-title {
+          font-size: 2rem;
+        }
+
+        .content {
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .timeline-item {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .timeline-year {
+          min-width: auto;
+        }
+
+        .timeline-content {
+          border-left: none;
+          padding-left: 0;
+        }
+
+        .timeline-content::before {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-container">
+      <div class="bg-gradient-mesh"></div>
+    </div>
+
+    <nav>
+      <div class="nav-container">
+        <a href="blipee-landing.html" class="logo">blipee</a>
+        <ul class="nav-links">
+          <li><a href="company.html">Company</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="careers.html">Careers</a></li>
+          <li><a href="signin.html" class="btn btn-primary">Sign In</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="content">
+      <div class="hero-section">
+        <h1 class="hero-title">
+          Built by Experts, <br />Powered by <span class="gradient-text">AI</span>
+        </h1>
+        <p class="hero-subtitle">
+          We're a team of sustainability experts, AI researchers, and engineers on a mission to
+          make sustainability accessible to every organization.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Our <span class="gradient-text">Story</span></h2>
+        <div class="section-content">
+          <p>
+            blipee was born from a simple observation: while companies wanted to be more
+            sustainable, they struggled with the complexity, cost, and overhead of traditional
+            sustainability operations. Teams spent countless hours on manual tracking, compliance
+            monitoring, and data analysis—time that could be better spent on strategic initiatives.
+          </p>
+          <p>
+            We asked ourselves: what if AI could handle all of that? What if sustainability
+            operations could be automated, optimized, and running 24/7 without human intervention?
+            That's when we created blipee—an autonomous AI workforce specifically designed for
+            sustainability.
+          </p>
+          <p>
+            Today, our 8 specialized AI agents work around the clock for organizations worldwide,
+            delivering an average of 18% cost savings, 98.5% forecast accuracy, and 85% time
+            reduction in sustainability operations.
+          </p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">By the <span class="gradient-text">Numbers</span></h2>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number">8</div>
+            <div class="stat-label">AI Agents</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Always Working</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">98.5%</div>
+            <div class="stat-label">Forecast Accuracy</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">18%</div>
+            <div class="stat-label">Avg. Cost Savings</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Our <span class="gradient-text">Journey</span></h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-year">2023</div>
+            <div class="timeline-content">
+              <div class="timeline-title">Foundation</div>
+              <div class="timeline-description">
+                blipee founded with a vision to automate sustainability operations through AI. First
+                three agents developed: ESG Chief of Staff, Carbon Hunter, and Compliance Guardian.
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-year">2024</div>
+            <div class="timeline-content">
+              <div class="timeline-title">Platform Launch</div>
+              <div class="timeline-description">
+                Full platform launched with 8 autonomous AI agents. Introduced Prophet-style
+                forecasting models with 98.5% accuracy and cross-org benchmarking capabilities.
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-year">2025</div>
+            <div class="timeline-content">
+              <div class="timeline-title">Scale & Innovation</div>
+              <div class="timeline-description">
+                Expanded globally, serving organizations across multiple industries. Introduced
+                blipee Assistant for natural language querying and enhanced predictive capabilities.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Join Our <span class="gradient-text">Mission</span></h2>
+        <div class="section-content" style="text-align: center;">
+          <p>
+            We're always looking for talented individuals who are passionate about sustainability
+            and AI. If you want to be part of the team building the future of sustainable
+            operations, we'd love to hear from you.
+          </p>
+          <div style="margin-top: 2rem;">
+            <a href="careers.html" class="btn btn-primary">View Open Positions</a>
+          </div>
+        </div>
+      </div>
+    </div>
+FOOTER_PLACEHOLDER  </body>
+</html>

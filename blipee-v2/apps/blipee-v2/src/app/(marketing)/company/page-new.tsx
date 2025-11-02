@@ -98,7 +98,7 @@ export default function CompanyPage() {
           </Section>
 
         </main>
-        <Footer />
+        <Footer themeMode={themeMode} onThemeChange={setTheme} />
       </div>
     </div>
   )

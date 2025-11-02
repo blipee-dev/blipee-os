@@ -1,0 +1,475 @@
+/* Shared Chart Styles for Blipee Dashboards */
+
+/* Charts Section Layout */
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+main.expanded .charts-section {
+  grid-template-columns: repeat(auto-fit, minmax(650px, 1fr));
+}
+
+/* Chart Card Container */
+.chart-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.chart-header {
+  margin-bottom: 1.5rem;
+}
+
+.chart-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.chart-description {
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+.chart-placeholder {
+  height: 300px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+/* Line Chart Styles */
+.line-chart {
+  height: 300px;
+  padding: 20px;
+  position: relative;
+}
+
+.line-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.chart-line {
+  fill: none;
+  stroke: url(#lineGradient);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-area {
+  fill: url(#areaGradient);
+  opacity: 0.3;
+}
+
+.chart-grid {
+  stroke: var(--glass-border);
+  stroke-width: 1;
+}
+
+.chart-label {
+  fill: var(--text-tertiary);
+  font-size: 12px;
+}
+
+/* Donut Chart Styles */
+.donut-chart {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.donut-chart svg {
+  width: 280px;
+  height: 280px;
+}
+
+.donut-segment {
+  transition: opacity 0.3s ease;
+}
+
+.donut-segment:hover {
+  opacity: 0.8;
+}
+
+.donut-legend {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.875rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* Bar Chart Styles */
+.bar-chart {
+  height: 300px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  position: relative;
+}
+
+.bar {
+  flex: 1;
+  background: var(--gradient-primary);
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.bar:hover {
+  opacity: 0.8;
+  transform: translateY(-4px);
+}
+
+.stacked-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column-reverse;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.stacked-bar:hover {
+  opacity: 0.8;
+  transform: translateY(-4px);
+}
+
+.bar-segment {
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.bar-label {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.bar-value {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Heatmap Styles */
+.heatmap {
+  height: 300px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.heatmap-cell {
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: white;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+/* Area Chart Styles */
+.area-chart {
+  height: 300px;
+  padding: 20px;
+  position: relative;
+}
+
+.area-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Gauge Chart Styles */
+.gauge-chart {
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.gauge-chart svg {
+  width: 250px;
+  height: 200px;
+}
+
+.gauge-value {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.gauge-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.gauge-label {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  margin-top: 0.5rem;
+}
+
+/* Progress Ring Styles */
+.progress-rings {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 20px;
+}
+
+.progress-ring {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.progress-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+  fill: none;
+  stroke-width: 8;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.progress-ring-bg {
+  stroke: var(--glass-border);
+}
+
+.progress-ring-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.progress-percentage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.progress-label {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 0.25rem;
+}
+
+/* Radar Chart Styles */
+.radar-chart {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.radar-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Scatter Plot Styles */
+.scatter-plot {
+  height: 300px;
+  padding: 20px;
+  position: relative;
+}
+
+.scatter-plot svg {
+  width: 100%;
+  height: 100%;
+}
+
+.scatter-point {
+  transition: all 0.2s ease;
+}
+
+.scatter-point:hover {
+  transform: scale(1.3);
+}
+
+/* Treemap Styles */
+.treemap {
+  height: 300px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 8px;
+  padding: 20px;
+}
+
+.treemap-cell {
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.treemap-cell:hover {
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.treemap-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  z-index: 2;
+}
+
+.treemap-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  z-index: 2;
+}
+
+/* Waterfall Chart Styles */
+.waterfall-chart {
+  height: 300px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  position: relative;
+}
+
+.waterfall-bar {
+  flex: 1;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.waterfall-bar:hover {
+  opacity: 0.8;
+}
+
+.waterfall-positive {
+  background: var(--gradient-green);
+}
+
+.waterfall-negative {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.waterfall-total {
+  background: var(--gradient-blue);
+}
+
+/* Stacked Bar Chart Styles */
+.stacked-bar-chart {
+  height: 300px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  position: relative;
+}
+
+.stacked-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.stack-segment {
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.stack-segment:hover {
+  opacity: 0.8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
+
+  .donut-legend {
+    position: static;
+    transform: none;
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .progress-rings {
+    flex-wrap: wrap;
+  }
+
+  .treemap {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
