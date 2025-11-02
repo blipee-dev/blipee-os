@@ -1,0 +1,369 @@
+/* Navigation Styles - Marketing Inspired */
+
+/* Blob Morphing Animation */
+@keyframes blobMorph {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  50% {
+    border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%;
+  }
+  75% {
+    border-radius: 60% 40% 60% 50% / 60% 30% 50% 60%;
+  }
+}
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 100;
+}
+
+.navContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 2.5rem;
+  max-width: 100%;
+}
+
+/* Logo with Assistant - Exact copy from marketing */
+.navLogoContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  margin-left: 6rem;
+}
+
+.navAssistantContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.2);
+  width: 68px;
+  height: 68px;
+  margin: -100px;
+  order: -1;
+}
+
+.navAssistantBlob {
+  position: relative;
+  width: 340px;
+  height: 340px;
+  background: var(--gradient-primary);
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 30px 60px -20px rgba(16, 185, 129, 0.45);
+  animation: blobMorph 8s ease-in-out infinite;
+  transform: rotate(90deg);
+}
+
+.navAssistantRobot {
+  width: 220px;
+  height: 220px;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 20px 40px rgba(15, 23, 42, 0.4));
+  transform: rotate(-90deg);
+}
+
+.navLogoText {
+  font-size: 1.75rem;
+  font-weight: 400;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  margin-left: 6rem;
+}
+
+.navLinks {
+  display: flex;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navLink {
+  padding: 0.5rem 1rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.navLink:hover {
+  color: var(--text-primary);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.navLink.active {
+  color: var(--green);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.iconBtn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.iconBtn:hover {
+  background: var(--glass-bg);
+  border-color: var(--green);
+  color: var(--text-primary);
+}
+
+.iconBtn svg {
+  width: 100%;
+  height: 100%;
+}
+
+.notificationBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Backdrop */
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 99;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* User Menu */
+.userMenu {
+  position: relative;
+  z-index: 101;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 2px solid var(--glass-border);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userAvatar:hover {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.userAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.userDropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 240px;
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  padding: 0.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 102;
+}
+
+.userDropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.userInfo {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 0.5rem;
+}
+
+.userName {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.userEmail {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdownItem:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--text-primary);
+}
+
+.dropdownItem.logout {
+  color: #ef4444;
+}
+
+.dropdownItem.logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.dropdownItem svg {
+  width: 18px;
+  height: 18px;
+}
+
+.dropdownDivider {
+  height: 1px;
+  background: var(--glass-border);
+  margin: 0.5rem 0;
+}
+
+/* Theme Toggle */
+.themeToggleItem {
+  justify-content: space-between;
+}
+
+.themeLabel {
+  flex: 1;
+}
+
+.themeSwitch {
+  width: 44px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.themeSwitch:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.themeSwitchSlider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: var(--green);
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+/* Theme-specific icons */
+.moonIcon {
+  display: none;
+}
+
+.sunIcon {
+  display: block;
+}
+
+[data-theme='light'] .moonIcon {
+  display: block;
+}
+
+[data-theme='light'] .sunIcon {
+  display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navContainer {
+    padding: 1rem;
+  }
+
+  .navLinks {
+    display: none;
+  }
+
+  .logo {
+    font-size: 1.25rem;
+  }
+
+  .navActions {
+    gap: 0.5rem;
+  }
+}

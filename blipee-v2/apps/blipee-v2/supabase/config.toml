@@ -1,0 +1,79 @@
+# Supabase Configuration
+# This file configures the Supabase CLI for local development and migrations
+# Docs: https://supabase.com/docs/guides/cli/config
+
+[project]
+# Project ID from your Supabase dashboard
+# Get this from: https://app.supabase.com/project/{PROJECT_ID}/settings/general
+project_id = "quovvwrwyfkzhgqdeham"
+
+[api]
+enabled = true
+port = 54321
+# Schemas to expose in your API. Tables, views and stored procedures in this schema will get API endpoints.
+schemas = ["public", "storage"]
+# Extra schemas to add to the search_path of every request. public is always included.
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+# The database major version to use. This has to be the same as your remote database's. Run `SHOW server_version;` on the remote database to check.
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+enabled = true
+port = 54327
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+# The base URL of your website. Used as an allow-list for redirects and for constructing URLs used in emails.
+site_url = "http://localhost:3005"
+# A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
+additional_redirect_urls = ["https://v2.blipee.com", "https://blipee.com"]
+# Time (in seconds) after which a session token will expire
+jwt_expiry = 3600
+# Allow/disallow new user signups to your project.
+enable_signup = true
+
+[auth.email]
+# Allow/disallow new user signups via email to your project.
+enable_signup = true
+# If enabled, a user will be required to confirm any email change on both the old, and new email addresses.
+double_confirm_changes = true
+# If enabled, users need to confirm their email address before signing in.
+enable_confirmations = true
+
+# Configure one of the supported SMS providers: `twilio`, `messagebird`, `textlocal`, `vonage`
+# [auth.sms]
+# enabled = false
+# provider = "twilio"
+
+# Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
+# `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin`, `notion`, `twitch`,
+# `twitter`, `slack`, `spotify`, `workos`, `zoom`.
+# [auth.external.github]
+# enabled = true
+# client_id = "env(SUPABASE_AUTH_GITHUB_CLIENT_ID)"
+# secret = "env(SUPABASE_AUTH_GITHUB_SECRET)"
+# redirect_uri = "http://localhost:54321/auth/v1/callback"
+
+[edge_runtime]
+enabled = true
+port = 54328
+
+# Seed your database with test data
+# [db.seed]
+# enabled = false
+# sql_paths = ["./supabase/seed.sql"]

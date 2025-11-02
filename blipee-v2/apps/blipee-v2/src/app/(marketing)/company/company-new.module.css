@@ -1,0 +1,54 @@
+.main {
+  min-height: 100vh;
+}
+
+.sectionContent {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 auto;
+}
+
+.sectionContent p {
+  margin-bottom: 1.5rem;
+}
+
+.ctaContent {
+  text-align: center;
+}
+
+.ctaText {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 600px;
+  margin: 0 auto 2rem;
+}
+
+.ctaButton {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  color: white;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 2rem;
+  }
+}

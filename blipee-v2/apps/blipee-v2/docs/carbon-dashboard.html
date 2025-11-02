@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Dashboard - Blipee</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="./css/shared-styles.css">
+
+    <!-- Chart Styles -->
+    <link rel="stylesheet" href="./css/chart-styles.css">
+
+    <!-- Dashboard-specific styles -->
+    <style>
+      /* Dashboard Header */
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .dashboard-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .dashboard-title h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .carbon-icon {
+        width: 32px;
+        height: 32px;
+        color: var(--green);
+      }
+
+      .subtitle {
+        color: var(--text-tertiary);
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+      }
+
+      /* Filters */
+      .filters {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-select {
+        padding: 0.75rem 1rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .filter-select:hover {
+        border-color: var(--green);
+      }
+
+      .filter-select:focus {
+        outline: none;
+        border-color: var(--green);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+      }
+
+      /* KPI Cards */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+      }
+
+      .kpi-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .kpi-card:hover {
+        border-color: var(--green);
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.1);
+        transform: translateY(-4px);
+      }
+
+      .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .kpi-label {
+        color: var(--text-tertiary);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .kpi-icon {
+        width: 24px;
+        height: 24px;
+        padding: 4px;
+        border-radius: 8px;
+      }
+
+      .icon-green {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--green);
+      }
+
+      .icon-blue {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--blue);
+      }
+
+      .icon-purple {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--purple);
+      }
+
+      .icon-amber {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--amber);
+      }
+
+      .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .kpi-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .trend-positive {
+        color: var(--green);
+      }
+
+      .trend-negative {
+        color: #ef4444;
+      }
+
+      /* Data Table */
+      .table-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        overflow-x: auto;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        text-align: left;
+        padding: 1rem;
+        color: var(--text-tertiary);
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-bottom: 1px solid var(--glass-border);
+      }
+
+      td {
+        padding: 1rem;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--glass-border);
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr:hover {
+        background: rgba(16, 185, 129, 0.05);
+      }
+
+      /* Status Badge */
+      .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .status-on-track {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--green);
+      }
+
+      .status-at-risk {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--amber);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .dashboard-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Animated Background -->
+    <div class="bg-container">
+      <div class="bg-gradient-mesh"></div>
+    </div>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+    <!-- Navigation -->
+    <nav>
+      <div class="nav-container">
+        <a href="index.html" class="logo">blipee</a>
+
+        <!-- Dashboard Navigation Links -->
+        <ul class="nav-links">
+          <li><a href="energy-dashboard.html" class="nav-link">Energy</a></li>
+          <li><a href="#" class="nav-link">Water</a></li>
+          <li><a href="carbon-dashboard.html" class="nav-link active">Carbon</a></li>
+          <li><a href="#" class="nav-link">Waste</a></li>
+        </ul>
+
+        <!-- Right Side Actions -->
+        <div class="nav-actions">
+          <!-- Notifications -->
+          <button class="icon-btn" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="notification-badge">3</span>
+          </button>
+
+          <!-- Settings -->
+          <button class="icon-btn" aria-label="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 1v6m0 6v6m5.196-15.804L13.464 6.93m-2.93 2.928l-3.732-3.734M23 12h-6m-6 0H1m15.804-5.196L13.072 10.54m-2.928 2.93l-3.734 3.732M23 12h-6m-6 0H1m15.804 5.196L13.072 13.46m-2.928-2.93l-3.734 3.732"/>
+            </svg>
+          </button>
+
+          <!-- User Profile -->
+          <div class="user-menu">
+            <button class="user-avatar" aria-label="User menu">
+              <img src="https://ui-avatars.com/api/?name=John+Doe&background=10b981&color=fff&size=40" alt="User avatar" />
+            </button>
+            <div class="user-dropdown">
+              <div class="user-info">
+                <div class="user-name">John Doe</div>
+                <div class="user-email">john.doe@company.com</div>
+              </div>
+              <div class="dropdown-divider"></div>
+
+              <!-- Theme Toggle in Dropdown -->
+              <div class="dropdown-item theme-toggle-item" onclick="toggleTheme()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path class="moon-icon" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                  <g class="sun-icon">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                  </g>
+                </svg>
+                <span class="theme-label"></span>
+                <div class="theme-switch">
+                  <div class="theme-switch-slider"></div>
+                </div>
+              </div>
+
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                My Profile
+              </a>
+              <a href="#" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                  <polyline points="17 21 17 13 7 13 7 21"/>
+                  <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Organization
+              </a>
+              <a href="#" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                Settings
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="signin.html" class="dropdown-item logout">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Logout
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Overview</div>
+        <a href="#" class="sidebar-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 3v18h18"/>
+            <path d="M18 17V9"/>
+            <path d="M13 17V5"/>
+            <path d="M8 17v-3"/>
+          </svg>
+          <span>Analytics</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20V10"/>
+            <path d="M18 20V4"/>
+            <path d="M6 20v-4"/>
+          </svg>
+          <span>Reports</span>
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Energy</div>
+        <a href="#" class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span>Consumption</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          <span>Cost Analysis</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+          </svg>
+          <span>Efficiency</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span>Goals</span>
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Settings</div>
+        <a href="#" class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          <span>Billing</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 7h-9"/>
+            <path d="M14 17H5"/>
+            <circle cx="17" cy="17" r="3"/>
+            <circle cx="7" cy="7" r="3"/>
+          </svg>
+          <span>Integrations</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span>Preferences</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+
+    <!-- Main Content -->
+    <main id="mainContent">
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <div>
+          <div class="dashboard-title">
+            <svg class="carbon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              <path d="M12 6v12M6 12h12"/>
+            </svg>
+            <h1>Carbon Dashboard</h1>
+          </div>
+          <p class="subtitle">Track and reduce carbon emissions across your organization</p>
+        </div>
+        <div class="filters">
+          <select class="filter-select">
+            <option>All Sites</option>
+            <option>Headquarters</option>
+            <option>Manufacturing Plant A</option>
+            <option>Warehouse B</option>
+          </select>
+          <select class="filter-select">
+            <option>Current Year</option>
+            <option>Last 12 Months</option>
+            <option>Last Quarter</option>
+            <option>Last Month</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Total Emissions</span>
+            <svg class="kpi-icon icon-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              <path d="M12 6v12M6 12h12"/>
+            </svg>
+          </div>
+          <div class="kpi-value">1,247 tCO₂</div>
+          <div class="kpi-trend trend-negative">
+            <span>↓ 8.2%</span>
+            <span style="color: var(--text-tertiary)">vs last year</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Scope 1 Emissions</span>
+            <svg class="kpi-icon icon-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <div class="kpi-value">342 tCO₂</div>
+          <div class="kpi-trend trend-positive">
+            <span>↓ 12.4%</span>
+            <span style="color: var(--text-tertiary)">vs last year</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Scope 2 Emissions</span>
+            <svg class="kpi-icon icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3v18h18"/>
+              <path d="M18 17V9"/>
+              <path d="M13 17V5"/>
+              <path d="M8 17v-3"/>
+            </svg>
+          </div>
+          <div class="kpi-value">621 tCO₂</div>
+          <div class="kpi-trend trend-positive">
+            <span>↓ 5.8%</span>
+            <span style="color: var(--text-tertiary)">vs last year</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Target Achievement</span>
+            <svg class="kpi-icon icon-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="kpi-value">73%</div>
+          <div class="kpi-trend trend-positive">
+            <span>↑ 8.1%</span>
+            <span style="color: var(--text-tertiary)">vs target</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-section" id="chartsContainer">
+        <!-- Charts will be inserted here by JavaScript -->
+      </div>
+
+      <!-- Data Table -->
+      <div class="table-card">
+        <div class="chart-header">
+          <h2 class="chart-title">Emissions by Category</h2>
+          <p class="chart-description">Detailed breakdown of carbon emissions</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Emissions (tCO₂)</th>
+              <th>% of Total</th>
+              <th>Trend</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Transportation</strong></td>
+              <td>342</td>
+              <td>27.4%</td>
+              <td style="color: var(--green);">↓ 12.3%</td>
+              <td><span class="status-badge status-on-track">On Track</span></td>
+            </tr>
+            <tr>
+              <td><strong>Electricity</strong></td>
+              <td>287</td>
+              <td>23.0%</td>
+              <td style="color: var(--green);">↓ 8.1%</td>
+              <td><span class="status-badge status-on-track">On Track</span></td>
+            </tr>
+            <tr>
+              <td><strong>Heating</strong></td>
+              <td>156</td>
+              <td>12.5%</td>
+              <td style="color: var(--green);">↓ 5.2%</td>
+              <td><span class="status-badge status-on-track">On Track</span></td>
+            </tr>
+            <tr>
+              <td><strong>Cooling</strong></td>
+              <td>98</td>
+              <td>7.9%</td>
+              <td style="color: #ef4444;">↑ 2.1%</td>
+              <td><span class="status-badge status-at-risk">At Risk</span></td>
+            </tr>
+            <tr>
+              <td><strong>Manufacturing</strong></td>
+              <td>234</td>
+              <td>18.8%</td>
+              <td style="color: var(--green);">↓ 6.4%</td>
+              <td><span class="status-badge status-on-track">On Track</span></td>
+            </tr>
+            <tr>
+              <td><strong>Supply Chain</strong></td>
+              <td>130</td>
+              <td>10.4%</td>
+              <td style="color: var(--green);">↓ 3.7%</td>
+              <td><span class="status-badge status-on-track">On Track</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main><!-- Chart Utilities -->
+    <script src="./js/charts.js"></script>
+
+    <script>
+      // Initialize dashboard components when DOM is ready
+      document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
+        initSidebar();
+
+        // Generate charts after a brief delay to ensure DOM is ready
+        setTimeout(() => {
+          generateCharts();
+        }, 100);
+      });
+      // Theme Toggle System
+      function initTheme() {
+        const savedTheme = localStorage.getItem('blipee-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+        document.body.setAttribute('data-theme', theme);
+      }
+
+      function toggleTheme() {
+        const currentTheme = document.body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('blipee-theme', newTheme);
+      }
+
+      // Sidebar Toggle System
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const isCollapsed = sidebar.classList.contains('collapsed');
+
+        if (isCollapsed) {
+          sidebar.classList.remove('collapsed');
+          mainContent.classList.remove('expanded');
+          localStorage.setItem('blipee-sidebar', 'expanded');
+        } else {
+          sidebar.classList.add('collapsed');
+          mainContent.classList.add('expanded');
+          localStorage.setItem('blipee-sidebar', 'collapsed');
+        }
+      }
+
+      function initSidebar() {
+        const savedState = localStorage.getItem('blipee-sidebar');
+        if (savedState === 'collapsed') {
+          document.getElementById('sidebar').classList.add('collapsed');
+          document.getElementById('mainContent').classList.add('expanded');
+        }
+      }
+
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('blipee-theme')) {
+          document.body.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+        }
+      });
+
+
+
+      function generateCharts() {
+        const container = document.querySelector('#chartsContainer');
+
+        // 1. Donut Chart - Emissions by Scope
+        const donutHTML = ChartBuilder.donutChart({
+          title: 'Emissions by Scope',
+          description: 'Distribution across emission categories',
+          segments: [
+            { label: 'Scope 1', value: 342, color: ChartColors.green },
+            { label: 'Scope 2', value: 621, color: ChartColors.blue },
+            { label: 'Scope 3', value: 284, color: ChartColors.purple }
+          ]
+        });
+        insertChart('#chartsContainer', donutHTML);
+
+        // 2. Progress Rings - Reduction Targets by Category
+        const ringsHTML = ChartBuilder.progressRings({
+          title: 'Reduction Progress',
+          description: 'Target achievement by emission category',
+          rings: [
+            { label: 'Transport', value: 85, color: ChartColors.green },
+            { label: 'Energy', value: 62, color: ChartColors.blue },
+            { label: 'Supply', value: 45, color: ChartColors.purple }
+          ]
+        });
+        insertChart('#chartsContainer', ringsHTML);
+
+        // 3. Gauge Chart - Annual Target Achievement
+        const gaugeHTML = ChartBuilder.gaugeChart({
+          title: 'Annual Target Achievement',
+          description: 'Progress towards 2024 reduction goals',
+          value: 73,
+          label: 'of annual target'
+        });
+        insertChart('#chartsContainer', gaugeHTML);
+
+        // 4. Treemap - Emissions Distribution by Source
+        const treemapHTML = ChartBuilder.treemap({
+          title: 'Emissions Distribution',
+          description: 'By source and category',
+          cells: [
+            { label: 'Transportation', value: '342 tCO₂', color: ChartColors.gradients.blue, size: '1 / span 2' },
+            { label: 'Electricity', value: '287 tCO₂', color: ChartColors.gradients.green, size: '3 / span 2' },
+            { label: 'Heating', value: '156 tCO₂', color: ChartColors.gradients.amber, size: 'auto' },
+            { label: 'Cooling', value: '98 tCO₂', color: ChartColors.gradients.purple, size: 'auto' },
+            { label: 'Manufacturing', value: '234 tCO₂', color: ChartColors.gradients.red, size: '1 / span 2' },
+            { label: 'Supply Chain', value: '130 tCO₂', color: ChartColors.gradients.primary, size: 'auto' }
+          ]
+        });
+        insertChart('#chartsContainer', treemapHTML);
+
+        // 5. Bar Chart - Monthly Emissions Comparison
+        const barHTML = ChartBuilder.barChart({
+          title: 'Monthly Emissions',
+          description: 'Carbon emissions by month (tCO₂)',
+          bars: [
+            { label: 'Jan', value: 120, gradient: ChartColors.gradients.primary },
+            { label: 'Feb', value: 105, gradient: ChartColors.gradients.green },
+            { label: 'Mar', value: 98, gradient: ChartColors.gradients.blue },
+            { label: 'Apr', value: 92, gradient: ChartColors.gradients.purple },
+            { label: 'May', value: 87, gradient: ChartColors.gradients.amber }
+          ]
+        });
+        insertChart('#chartsContainer', barHTML);
+
+        // 6. Heatmap - Emission Intensity by Hour/Day
+        const heatmapCells = [
+          // Week 1
+          { value: 22, color: 'rgba(16, 185, 129, 0.3)' },
+          { value: 28, color: 'rgba(16, 185, 129, 0.4)' },
+          { value: 35, color: 'rgba(16, 185, 129, 0.5)' },
+          { value: 42, color: 'rgba(245, 158, 11, 0.5)' },
+          { value: 51, color: 'rgba(245, 158, 11, 0.6)' },
+          { value: 58, color: 'rgba(245, 158, 11, 0.7)' },
+          { value: 65, color: 'rgba(245, 158, 11, 0.8)' },
+          // Week 2
+          { value: 72, color: 'rgba(245, 158, 11, 0.9)' },
+          { value: 78, color: 'rgba(239, 68, 68, 0.7)' },
+          { value: 85, color: 'rgba(239, 68, 68, 0.8)' },
+          { value: 92, color: 'rgba(239, 68, 68, 0.9)' },
+          { value: 95, color: 'rgba(239, 68, 68, 1)' },
+          { value: 98, color: 'rgba(239, 68, 68, 1)' },
+          { value: 100, color: 'rgba(239, 68, 68, 1)' },
+          // Week 3
+          { value: 96, color: 'rgba(239, 68, 68, 0.9)' },
+          { value: 88, color: 'rgba(239, 68, 68, 0.8)' },
+          { value: 75, color: 'rgba(245, 158, 11, 0.9)' },
+          { value: 68, color: 'rgba(245, 158, 11, 0.8)' },
+          { value: 62, color: 'rgba(245, 158, 11, 0.7)' },
+          { value: 55, color: 'rgba(245, 158, 11, 0.6)' },
+          { value: 48, color: 'rgba(245, 158, 11, 0.5)' },
+          // Week 4
+          { value: 42, color: 'rgba(16, 185, 129, 0.6)' },
+          { value: 38, color: 'rgba(16, 185, 129, 0.5)' },
+          { value: 32, color: 'rgba(16, 185, 129, 0.4)' },
+          { value: 28, color: 'rgba(16, 185, 129, 0.3)' },
+          { value: 25, color: 'rgba(16, 185, 129, 0.3)' },
+          { value: 20, color: 'rgba(16, 185, 129, 0.2)' },
+          { value: 18, color: 'rgba(16, 185, 129, 0.2)' },
+          // Week 5
+          { value: 16, color: 'rgba(16, 185, 129, 0.2)' },
+          { value: 15, color: 'rgba(16, 185, 129, 0.2)' },
+          { value: 18, color: 'rgba(16, 185, 129, 0.2)' },
+          { value: 22, color: 'rgba(16, 185, 129, 0.3)' },
+          { value: 28, color: 'rgba(16, 185, 129, 0.4)' },
+          { value: 35, color: 'rgba(16, 185, 129, 0.5)' },
+          { value: 42, color: 'rgba(245, 158, 11, 0.5)' }
+        ];
+
+        const heatmapHTML = ChartBuilder.heatmap({
+          title: 'Emission Intensity',
+          description: 'Hourly patterns throughout the week',
+          cells: heatmapCells
+        });
+        insertChart('#chartsContainer', heatmapHTML);
+      }
+    </script>    </div>
+
+  </body>
+</html>

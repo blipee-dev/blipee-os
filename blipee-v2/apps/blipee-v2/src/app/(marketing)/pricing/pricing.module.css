@@ -1,0 +1,74 @@
+/* Main Layout */
+.main {
+  flex: 1;
+  padding-top: 6rem;
+}
+
+/* Hero Section */
+.hero {
+  padding: 4rem 2rem 4rem;
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.heroContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Value Section */
+.valueSection {
+  padding: 4rem 2rem;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* Included Section */
+.includedSection {
+  padding: 4rem 2rem;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: var(--color-text);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero {
+    padding: 3rem 1.5rem 3rem;
+  }
+
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1.125rem;
+  }
+
+  .sectionTitle {
+    font-size: 2rem;
+  }
+}

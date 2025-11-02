@@ -1,0 +1,348 @@
+/* Chart Components Styles */
+
+/* Donut Chart */
+.donutChart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.donutSvg {
+  width: 200px;
+  height: 200px;
+  transform: rotate(-90deg);
+}
+
+.donutSegment {
+  transition: opacity 0.3s ease;
+}
+
+.donutSegment:hover {
+  opacity: 0.8;
+}
+
+.donutLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.legendItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.legendItem:hover {
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.legendLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legendValue {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Progress Rings */
+.progressRings {
+  display: flex;
+  justify-content: space-around;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.progressRing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ringSvg {
+  width: 100px;
+  height: 100px;
+  transform: rotate(-90deg);
+}
+
+.ringBackground {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 8;
+}
+
+.ringProgress {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease;
+}
+
+.ringLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.ringValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Gauge Chart */
+.gaugeChart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.gaugeSvg {
+  width: 250px;
+  height: 150px;
+}
+
+.gaugeBackground {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 20;
+  stroke-linecap: round;
+}
+
+.gaugeProgress {
+  fill: none;
+  stroke: url(#gaugeGradient);
+  stroke-width: 20;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease;
+}
+
+.gaugeValue {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.gaugeLabel {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+/* Treemap */
+.treemap {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 100px;
+  gap: 0.5rem;
+}
+
+.treemapCell {
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+}
+
+.treemapCell:hover {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.cellLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.cellValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+}
+
+/* Bar Chart */
+.barChart {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.barItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.barLabel {
+  min-width: 50px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.barTrack {
+  flex: 1;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.75rem;
+}
+
+.barValue {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+}
+
+/* Heatmap */
+.heatmap {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  padding: 1rem 0;
+}
+
+.heatmapCell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.heatmapCell:hover {
+  transform: scale(1.2);
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.heatmapCell::after {
+  content: attr(data-value);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.heatmapCell:hover::after {
+  opacity: 1;
+}
+
+.heatmapLegend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.heatmapGradient {
+  display: flex;
+  height: 12px;
+  width: 200px;
+  border-radius: 6px;
+  background: linear-gradient(
+    to right,
+    rgba(16, 185, 129, 0.3),
+    rgba(245, 158, 11, 0.5),
+    rgba(239, 68, 68, 1)
+  );
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .treemap {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .progressRings {
+    flex-direction: column;
+  }
+
+  .gaugeSvg {
+    width: 200px;
+    height: 120px;
+  }
+
+  .heatmap {
+    gap: 2px;
+  }
+}
+
+/* Line Chart */
+.lineChart {
+  padding: 1rem;
+}
+
+.lineChartSvg {
+  width: 100%;
+  height: auto;
+}
+
+/* Donut Chart Simple (for Energy Dashboard) */
+.donutChartSimple {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  position: relative;
+}
+
+.donutChartSimple svg {
+  width: 280px;
+  height: 280px;
+}
+
+.donutLegendSimple {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.legendItemSimple {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}

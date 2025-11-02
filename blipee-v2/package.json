@@ -1,0 +1,17 @@
+{
+  "name": "blipee-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:v1": "npm run dev --workspace blipee-v1",
+    "dev:v2": "npm run dev --workspace blipee-v2",
+    "build:v1": "npm run build --workspace blipee-v1",
+    "build:v2": "npm run build --workspace blipee-v2",
+    "lint": "npm run lint --workspace blipee-v2",
+    "type-check": "npm run type-check --workspace blipee-v2"
+  }
+}

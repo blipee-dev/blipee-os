@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms of Service - blipee</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+                  :root {
+        /* Gradient System (shared between modes) */
+        --gradient-primary: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+        --gradient-mesh:
+          radial-gradient(at 40% 20%, hsla(160, 100%, 50%, 0.3) 0px, transparent 50%),
+          radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.2) 0px, transparent 50%),
+          radial-gradient(at 0% 50%, hsla(125, 100%, 70%, 0.2) 0px, transparent 50%);
+        --green: #10b981;
+        --blue: #0ea5e9;
+        --cyan: #06b6d4;
+      }
+
+      /* Dark Mode (default) */
+      body[data-theme="dark"] {
+        --bg-primary: #020617;
+        --bg-secondary: #0f172a;
+        --text-primary: #ffffff;
+        --text-secondary: var(--text-secondary);
+        --text-tertiary: var(--text-tertiary);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --nav-bg: rgba(2, 6, 23, 0.8);
+        --footer-bg: rgba(2, 6, 23, 0.9);
+      }
+
+      /* Light Mode */
+      body[data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --text-primary: #0f172a;
+        --text-secondary: #334155;
+        --text-tertiary: #64748b;
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(15, 23, 42, 0.1);
+        --nav-bg: rgba(255, 255, 255, 0.9);
+        --footer-bg: #f8fafc;
+      }
+
+      /* Dark Mode (default) */
+      body[data-theme="dark"] {
+        --bg-primary: #020617;
+        --bg-secondary: #0f172a;
+        --text-primary: #ffffff;
+        --text-secondary: var(--text-secondary);
+        --text-tertiary: var(--text-tertiary);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --nav-bg: rgba(2, 6, 23, 0.8);
+        --footer-bg: rgba(2, 6, 23, 0.9);
+      }
+
+      /* Light Mode */
+      body[data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --text-primary: #0f172a;
+        --text-secondary: #334155;
+        --text-tertiary: #64748b;
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(15, 23, 42, 0.1);
+        --nav-bg: rgba(255, 255, 255, 0.9);
+        --footer-bg: #f8fafc;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      .bg-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .bg-gradient-mesh {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: -50%;
+        left: -50%;
+        background: var(--gradient-mesh);
+        animation: meshAnimation 20s ease infinite;
+      }
+
+      @keyframes meshAnimation {
+        0%, 100% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+        33% {
+          transform: translate(-20px, -20px) rotate(120deg);
+        }
+        66% {
+          transform: translate(20px, -10px) rotate(240deg);
+        }
+      }
+
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: var(--nav-bg);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--glass-border);
+      }
+
+      .nav-container {
+        max-width: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 1rem;
+        height: 70px;
+      }
+
+      .logo {
+        font-size: 1.75rem;
+        font-weight: 400;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-decoration: none;
+        letter-spacing: -0.02em;
+        display: inline-block;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+        align-items: center;
+      }
+
+      .nav-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        color: var(--text-primary);
+      }
+
+      .btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+      }
+
+      .btn-primary {
+        background: var(--gradient-primary);
+        color: #ffffff !important;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
+              color: #ffffff !important;
+      }
+
+      .content {
+        position: relative;
+        z-index: 1;
+        padding-top: 120px;
+        padding-bottom: 4rem;
+        max-width: 900px;
+        margin: 0 auto;
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+
+      .page-header {
+        text-align: center;
+        margin-bottom: 4rem;
+      }
+
+      .page-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+      }
+
+      .gradient-text {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .page-meta {
+        font-size: 0.95rem;
+        color: var(--text-tertiary);
+      }
+
+      .legal-content {
+        color: var(--text-secondary);
+        line-height: 1.8;
+      }
+
+      .legal-content h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-top: 3rem;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+      }
+
+      .legal-content h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+      }
+
+      .legal-content p {
+        margin-bottom: 1.25rem;
+      }
+
+      .legal-content ul, .legal-content ol {
+        margin-left: 1.5rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .legal-content li {
+        margin-bottom: 0.5rem;
+      }
+
+      .legal-content a {
+        color: var(--green);
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .legal-content a:hover {
+        color: var(--blue);
+      }
+
+      
+      /* Footer */
+      .footer {
+        padding: 4rem 2rem 2rem;
+        background: var(--footer-bg);
+        border-top: 1px solid var(--glass-border);
+        color: var(--text-tertiary);
+      }
+
+      .footer-content {
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+
+      .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+        align-items: start;
+      }
+
+      .footer-section h4 {
+        color: var(--text-primary);
+        margin-bottom: 1.25rem;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .footer-brand {
+        max-width: 300px;
+      }
+
+      .footer-logo {
+        font-size: 2rem;
+        font-weight: 400;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        display: inline-block;
+      }
+
+      .footer-description {
+        color: var(--text-tertiary);
+        line-height: 1.6;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .footer-social {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .social-link {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.5rem;
+        color: var(--text-tertiary);
+        transition: all 0.3s ease;
+      }
+
+      .social-link:hover {
+        background: var(--gradient-primary);
+        border-color: transparent;
+        color: #ffffff !important;
+        transform: translateY(-2px);
+      }
+
+      .footer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .footer-link {
+        color: var(--text-tertiary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+      }
+
+      .footer-link:hover {
+        color: var(--text-primary);
+      }
+
+      .newsletter-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .newsletter-input {
+        padding: 0.75rem 1rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+
+      .newsletter-input:focus {
+        outline: none;
+        border-color: var(--green);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .newsletter-input::placeholder {
+        color: var(--text-tertiary);
+        opacity: 0.5;
+      }
+
+      .newsletter-btn {
+        padding: 0.75rem 1.5rem;
+        background: var(--gradient-primary);
+        color: #ffffff;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .newsletter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
+      }
+
+      .footer-bottom {
+        border-top: 1px solid var(--glass-border);
+        padding-top: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .footer-bottom-links {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .footer-bottom-links a {
+        color: var(--text-tertiary);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.3s ease;
+      }
+
+      .footer-bottom-links a:hover {
+        color: var(--text-primary);
+      }
+      /* Theme Toggle */
+      .theme-toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+
+      .theme-toggle {
+        position: relative;
+        width: 48px;
+        height: 26px;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        padding: 0 2px;
+      }
+
+      .theme-toggle:hover {
+        border-color: var(--green);
+      }
+
+      .theme-toggle-slider {
+        width: 22px;
+        height: 22px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      body[data-theme="light"] .theme-toggle-slider {
+        transform: translateX(22px);
+      }
+
+      .theme-toggle-icon {
+        width: 14px;
+        height: 14px;
+        color: #ffffff;
+      }
+
+      .moon-icon {
+        display: block;
+      }
+
+      .sun-icon {
+        display: none;
+      }
+
+      body[data-theme="light"] .moon-icon {
+        display: none;
+      }
+
+      body[data-theme="light"] .sun-icon {
+        display: block;
+      }
+
+
+
+
+      @media (max-width: 768px) {
+        .page-title {
+          font-size: 2.5rem;
+        }
+
+        .content {
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .footer {
+          padding: 3rem 1.5rem 2rem;
+        }
+
+        .footer-grid {
+          grid-template-columns: 1fr 1fr;
+          gap: 2rem;
+        }
+
+        .footer-brand {
+          grid-column: 1 / -1;
+          max-width: 100%;
+        }
+
+        .footer-bottom {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .footer-bottom-links {
+          flex-wrap: wrap;
+          justify-center: center;
+        }
+
+      }
+
+      @media (max-width: 480px) {
+        .footer-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-container">
+      <div class="bg-gradient-mesh"></div>
+    </div>
+
+    <nav>
+      <div class="nav-container">
+        <a href="blipee-landing.html" class="logo">blipee</a>
+        <ul class="nav-links">
+          <li><a href="company.html">Company</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="careers.html">Careers</a></li>
+          <li><a href="signin.html" class="btn btn-primary">Sign In</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="content">
+      <div class="page-header">
+        <h1 class="page-title">Terms of <span class="gradient-text">Service</span></h1>
+        <p class="page-meta">Last updated: January 30, 2025</p>
+      </div>
+
+      <div class="legal-content">
+        <p>
+          Welcome to blipee. By accessing or using our AI-powered sustainability platform, you agree
+          to be bound by these Terms of Service. Please read them carefully.
+        </p>
+
+        <h2>1. Acceptance of Terms</h2>
+        <p>
+          By creating an account, accessing, or using the blipee platform, you agree to comply with
+          and be bound by these Terms of Service and our Privacy Policy. If you do not agree to
+          these terms, you may not use our services.
+        </p>
+
+        <h2>2. Description of Service</h2>
+        <p>
+          blipee provides an AI-powered sustainability platform featuring 8 autonomous agents that
+          work 24/7 to optimize sustainability operations, including:
+        </p>
+        <ul>
+          <li>ESG data analysis and reporting</li>
+          <li>Carbon tracking and reduction recommendations</li>
+          <li>Compliance monitoring and alerts</li>
+          <li>Supply chain optimization</li>
+          <li>Cost savings identification</li>
+          <li>Predictive maintenance forecasting</li>
+          <li>Autonomous operational optimization</li>
+          <li>Regulatory foresight and updates</li>
+          <li>Cross-org benchmarking with anonymized data</li>
+          <li>Natural language querying through blipee Assistant</li>
+        </ul>
+
+        <h2>3. Account Registration</h2>
+        <p>
+          To use our services, you must create an account by providing accurate, current, and
+          complete information. You are responsible for:
+        </p>
+        <ul>
+          <li>Maintaining the confidentiality of your account credentials</li>
+          <li>All activities that occur under your account</li>
+          <li>Notifying us immediately of any unauthorized access or security breach</li>
+          <li>Ensuring your account information remains accurate and up-to-date</li>
+        </ul>
+
+        <h2>4. Acceptable Use</h2>
+
+        <h3>You agree to use blipee only for lawful purposes and in accordance with these Terms. You agree NOT to:</h3>
+        <ul>
+          <li>Upload false, misleading, or inaccurate sustainability data</li>
+          <li>Attempt to gain unauthorized access to any part of the platform</li>
+          <li>Interfere with or disrupt the platform's operation or servers</li>
+          <li>Use the platform to transmit malware, viruses, or harmful code</li>
+          <li>Reverse engineer, decompile, or attempt to extract source code</li>
+          <li>Resell, redistribute, or make the platform available to third parties without authorization</li>
+          <li>Violate any applicable laws, regulations, or third-party rights</li>
+          <li>Attempt to manipulate or game benchmarking data</li>
+        </ul>
+
+        <h2>5. Data and Privacy</h2>
+        <p>
+          Your use of the platform is also governed by our
+          <a href="privacy.html">Privacy Policy</a>. By using blipee, you consent to:
+        </p>
+        <ul>
+          <li>The collection and processing of your sustainability data</li>
+          <li>The use of your data to train and optimize our AI models</li>
+          <li>The inclusion of anonymized, aggregated data in cross-org benchmarking</li>
+          <li>The storage and processing of data in accordance with industry standards</li>
+        </ul>
+
+        <h2>6. Intellectual Property</h2>
+        <p>
+          The blipee platform, including all AI models, algorithms, software, designs, text,
+          graphics, and other content, is owned by blipee and is protected by intellectual property
+          laws. You retain ownership of your sustainability data, but grant us a license to use it
+          to provide and improve our services.
+        </p>
+
+        <h2>7. Subscription and Payment</h2>
+
+        <h3>Free Trial</h3>
+        <p>
+          We offer a 14-day free trial. No credit card is required to start your trial. You may
+          cancel at any time during the trial period without being charged.
+        </p>
+
+        <h3>Paid Subscriptions</h3>
+        <ul>
+          <li>Subscription fees are billed in advance on a monthly or annual basis</li>
+          <li>All fees are non-refundable except as required by law</li>
+          <li>We may change pricing with 30 days' notice to existing customers</li>
+          <li>Failure to pay may result in suspension or termination of your account</li>
+        </ul>
+
+        <h2>8. AI Agent Performance</h2>
+        <p>
+          While our 8 AI agents work autonomously 24/7 to optimize your sustainability operations,
+          we make no guarantees about specific outcomes or results. The accuracy of forecasts,
+          recommendations, and insights depends on the quality and completeness of your input data.
+        </p>
+        <p>
+          Our forecasting models achieve an average accuracy of 98.5%, but individual results may
+          vary based on data quality, industry, and other factors.
+        </p>
+
+        <h2>9. Limitation of Liability</h2>
+        <p>
+          To the maximum extent permitted by law, blipee shall not be liable for any indirect,
+          incidental, special, consequential, or punitive damages, including but not limited to loss
+          of profits, data, or goodwill, arising out of or related to your use of the platform.
+        </p>
+        <p>
+          Our total liability to you for all claims arising from your use of the platform shall not
+          exceed the amount you paid us in the 12 months preceding the claim.
+        </p>
+
+        <h2>10. Disclaimer of Warranties</h2>
+        <p>
+          The platform is provided "as is" and "as available" without warranties of any kind,
+          whether express or implied, including but not limited to implied warranties of
+          merchantability, fitness for a particular purpose, and non-infringement.
+        </p>
+
+        <h2>11. Termination</h2>
+        <p>
+          You may terminate your account at any time by contacting us at
+          <a href="mailto:support@blipee.com">support@blipee.com</a>. We may suspend or terminate
+          your access to the platform at any time for violation of these Terms or for any other
+          reason at our sole discretion.
+        </p>
+        <p>Upon termination:</p>
+        <ul>
+          <li>Your right to access and use the platform will immediately cease</li>
+          <li>We will delete your account data in accordance with our Privacy Policy</li>
+          <li>Sections of these Terms that should survive termination will continue to apply</li>
+        </ul>
+
+        <h2>12. Changes to Terms</h2>
+        <p>
+          We may modify these Terms at any time. We will notify you of material changes by email or
+          through the platform. Your continued use of the platform after such notice constitutes
+          acceptance of the modified Terms.
+        </p>
+
+        <h2>13. Governing Law</h2>
+        <p>
+          These Terms shall be governed by and construed in accordance with the laws of the
+          jurisdiction in which blipee is registered, without regard to its conflict of law
+          provisions.
+        </p>
+
+        <h2>14. Dispute Resolution</h2>
+        <p>
+          Any disputes arising from these Terms or your use of the platform shall first be addressed
+          through good-faith negotiation. If negotiation fails, disputes may be resolved through
+          binding arbitration in accordance with the applicable arbitration rules.
+        </p>
+
+        <h2>15. Severability</h2>
+        <p>
+          If any provision of these Terms is found to be invalid or unenforceable, the remaining
+          provisions will continue in full force and effect.
+        </p>
+
+        <h2>16. Entire Agreement</h2>
+        <p>
+          These Terms, together with our Privacy Policy, constitute the entire agreement between you
+          and blipee regarding your use of the platform and supersede all prior agreements and
+          understandings.
+        </p>
+
+        <h2>17. Contact Information</h2>
+        <p>
+          If you have any questions about these Terms of Service, please contact us:
+        </p>
+        <ul>
+          <li>Email: <a href="mailto:legal@blipee.com">legal@blipee.com</a></li>
+          <li>Support: <a href="mailto:support@blipee.com">support@blipee.com</a></li>
+          <li>Website: <a href="blipee-landing.html">blipee.com</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-grid">
+          <div class="footer-section footer-brand">
+            <div class="footer-logo">blipee</div>
+            <p class="footer-description">
+              AI-powered sustainability platform with 8 autonomous agents working 24/7 to optimize your operations.
+            </p>
+            <div class="footer-social">
+              <a href="#" class="social-link" aria-label="Twitter">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+                </svg>
+              </a>
+              <a href="#" class="social-link" aria-label="LinkedIn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+                  <circle cx="4" cy="4" r="2"/>
+                </svg>
+              </a>
+              <a href="#" class="social-link" aria-label="GitHub">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="footer-section">
+            <h4>Product</h4>
+            <div class="footer-links">
+              <a href="blipee-landing.html#agents" class="footer-link">AI Workforce</a>
+              <a href="blipee-landing.html#features" class="footer-link">Capabilities</a>
+              <a href="contact.html" class="footer-link">Pricing</a>
+              <a href="updates.html" class="footer-link">Updates</a>
+            </div>
+          </div>
+
+          <div class="footer-section">
+            <h4>Company</h4>
+            <div class="footer-links">
+              <a href="company.html" class="footer-link">About Us</a>
+              <a href="about.html" class="footer-link">Our Story</a>
+              <a href="careers.html" class="footer-link">Careers</a>
+              <a href="contact.html" class="footer-link">Contact</a>
+            </div>
+          </div>
+
+          <div class="footer-section">
+            <h4>Resources</h4>
+            <div class="footer-links">
+              <a href="documentation.html" class="footer-link">Documentation</a>
+              <a href="api.html" class="footer-link">API</a>
+              <a href="support.html" class="footer-link">Support</a>
+              <a href="status.html" class="footer-link">Status</a>
+            </div>
+          </div>
+
+          <div class="footer-section">
+            <h4>Stay Updated</h4>
+            <p class="footer-description" style="margin-bottom: 1rem;">Get the latest sustainability insights and product updates.</p>
+            <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Demo: Newsletter subscription would be processed here.');">
+              <input type="email" class="newsletter-input" placeholder="Enter your email" required />
+              <button type="submit" class="newsletter-btn">Subscribe</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; 2025 blipee. All rights reserved.</p>
+          <div class="footer-bottom-links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      // Theme Toggle System
+      function initTheme() {
+        const savedTheme = localStorage.getItem('blipee-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+        document.body.setAttribute('data-theme', theme);
+      }
+
+      function toggleTheme() {
+        const currentTheme = document.body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('blipee-theme', newTheme);
+      }
+
+      // Initialize theme on page load
+      initTheme();
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('blipee-theme')) {
+          const newTheme = e.matches ? 'dark' : 'light';
+          document.body.setAttribute('data-theme', newTheme);
+        }
+      });
+    </script>
+  </body>
+</html>

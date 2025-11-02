@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cloc:*)",
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(supabase --version:*)",
+      "Bash(brew upgrade:*)",
+      "Bash(supabase status:*)",
+      "Bash(head:*)",
+      "Bash(supabase projects:*)",
+      "Bash(supabase migration:*)",
+      "Bash(supabase db pull:*)",
+      "Bash(git add:*)",
+      "Bash(readlink:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(tree:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "exa",
+    "firecrawl",
+    "docling",
+    "filesystem",
+    "memory"
+  ]
+}

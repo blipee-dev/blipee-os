@@ -1,0 +1,17 @@
+{
+  "name": "blipee - AI-Powered Sustainability Platform",
+  "short_name": "blipee",
+  "description": "8 autonomous AI agents working 24/7 to optimize your sustainability operations",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ],
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/"
+}

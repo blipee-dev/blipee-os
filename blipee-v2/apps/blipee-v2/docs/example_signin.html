@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In - blipee</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #0ea5e9 100%);
+        --gradient-mesh:
+          radial-gradient(at 40% 20%, hsla(280, 100%, 74%, 0.3) 0px, transparent 50%),
+          radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.2) 0px, transparent 50%),
+          radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.2) 0px, transparent 50%);
+        --purple: #8b5cf6;
+        --blue: #0ea5e9;
+        --pink: #ec4899;
+        --dark: #0f172a;
+        --darker: #020617;
+        --white: #ffffff;
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Dark Mode (default) */
+      body[data-theme="dark"] {
+        --bg-primary: #020617;
+        --bg-secondary: #0f172a;
+        --text-primary: #ffffff;
+        --text-secondary: rgba(255, 255, 255, 0.8);
+        --text-tertiary: rgba(255, 255, 255, 0.7);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --nav-bg: rgba(2, 6, 23, 0.8);
+        --footer-bg: rgba(2, 6, 23, 0.9);
+      }
+
+      /* Light Mode */
+      body[data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --text-primary: #0f172a;
+        --text-secondary: #334155;
+        --text-tertiary: #64748b;
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(15, 23, 42, 0.1);
+        --nav-bg: rgba(255, 255, 255, 0.9);
+        --footer-bg: #f8fafc;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          sans-serif;
+        background: var(--darker);
+        color: var(--white);
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      .bg-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .bg-gradient-mesh {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: -50%;
+        left: -50%;
+        background: var(--gradient-mesh);
+        animation: meshAnimation 20s ease infinite;
+      }
+
+      .bg-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.4;
+        animation: float 20s ease-in-out infinite;
+      }
+
+      .bg-orb-1 {
+        width: 400px;
+        height: 400px;
+        background: var(--purple);
+        top: -100px;
+        left: -100px;
+      }
+
+      .bg-orb-2 {
+        width: 300px;
+        height: 300px;
+        background: var(--blue);
+        bottom: -100px;
+        right: -100px;
+        animation-delay: -5s;
+      }
+
+      .bg-orb-3 {
+        width: 350px;
+        height: 350px;
+        background: var(--pink);
+        top: 40%;
+        right: 40%;
+        animation-delay: -10s;
+      }
+
+      @keyframes meshAnimation {
+        0%,
+        100% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+        33% {
+          transform: translate(-20px, -20px) rotate(120deg);
+        }
+        66% {
+          transform: translate(20px, -10px) rotate(240deg);
+        }
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(20px, -20px) scale(1.1);
+        }
+      }
+
+      .back-link {
+        position: absolute;
+        top: 2rem;
+        left: 2rem;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        z-index: 10;
+      }
+
+      .back-link:hover {
+        color: var(--white);
+        transform: translateX(-5px);
+      }
+
+      .signin-layout {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .signin-left {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+      }
+
+      .signin-container {
+        width: 100%;
+        max-width: 450px;
+      }
+
+      .logo-section {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .logo {
+        font-size: 2.5rem;
+        font-weight: 400;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+      }
+
+      .logo-subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.875rem;
+      }
+
+      .welcome-section {
+        text-align: center;
+        margin-bottom: 2.5rem;
+      }
+
+      .welcome-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+        line-height: 1.2;
+      }
+
+      .gradient-text {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .welcome-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+      }
+
+      .signin-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .form-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.5rem;
+        color: var(--white);
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--purple);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+      }
+
+      .form-input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .password-group {
+        position: relative;
+      }
+
+      .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        padding: 0.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .password-toggle:hover {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+
+      .remember-label {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .forgot-link {
+        color: var(--purple);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .forgot-link:hover {
+        color: var(--blue);
+      }
+
+      .signin-btn {
+        width: 100%;
+        padding: 1rem;
+        background: var(--gradient-primary);
+        color: var(--white);
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .signin-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px -15px rgba(139, 92, 246, 0.5);
+      }
+
+      .signin-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
+      .signup-section {
+        text-align: center;
+        margin-top: 2rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.875rem;
+      }
+
+      .signup-link {
+        color: var(--purple);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .signup-link:hover {
+        color: var(--blue);
+      }
+
+      .signin-right {
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(20px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 3rem;
+        border-left: 1px solid var(--glass-border);
+      }
+
+      .visual-content {
+        max-width: 500px;
+        text-align: center;
+      }
+
+      .visual-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--gradient-primary);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+      }
+
+      .visual-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+      }
+
+      .visual-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.125rem;
+        line-height: 1.6;
+        margin-bottom: 3rem;
+      }
+
+      .feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-align: left;
+      }
+
+      .feature-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(139, 92, 246, 0.2);
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .feature-text {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+      }
+
+      .error-message {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        color: #fca5a5;
+        font-size: 0.875rem;
+      }
+
+      @media (max-width: 1024px) {
+        .signin-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .signin-right {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-container">
+      <div class="bg-gradient-mesh"></div>
+      <div class="bg-orb bg-orb-1"></div>
+      <div class="bg-orb bg-orb-2"></div>
+      <div class="bg-orb bg-orb-3"></div>
+    </div>
+
+    <a href="landing-page-standalone.html" class="back-link">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+        <path
+          fill-rule="evenodd"
+          d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span>Back to Home</span>
+    </a>
+
+    <div class="signin-layout">
+      <div class="signin-left">
+        <div class="signin-container">
+          <div class="logo-section">
+            <div class="logo">blipee</div>
+            <div class="logo-subtitle">Retail Intelligence Platform</div>
+          </div>
+
+          <div class="welcome-section">
+            <h1 class="welcome-title">Welcome <span class="gradient-text">Back</span></h1>
+            <p class="welcome-subtitle">Sign in to access your intelligent retail dashboard</p>
+          </div>
+
+          <form class="signin-form" id="signinForm">
+            <div id="errorMessage" class="error-message" style="display: none"></div>
+
+            <div class="form-group">
+              <label for="email" class="form-label">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                class="form-input"
+                placeholder="you@company.com"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password" class="form-label">Password</label>
+              <div class="password-group">
+                <input
+                  type="password"
+                  id="password"
+                  class="form-input"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button type="button" class="password-toggle" id="togglePassword">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-options">
+              <label class="remember-me">
+                <input type="checkbox" class="checkbox" id="rememberMe" />
+                <span class="remember-label">Remember me</span>
+              </label>
+              <a href="forgot-password-standalone.html" class="forgot-link">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="signin-btn">Sign In</button>
+          </form>
+
+          <div class="signup-section">
+            Don't have an account?
+            <a href="signup-standalone.html" class="signup-link">Sign up for free</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="signin-right">
+        <div class="visual-content">
+          <div class="visual-icon">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              stroke-width="2"
+            >
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" />
+              <path d="M2 17L12 22L22 17" />
+              <path d="M2 12L12 17L22 12" />
+            </svg>
+          </div>
+          <h2 class="visual-title">
+            Your Retail <span class="gradient-text">Intelligence Hub</span>
+          </h2>
+          <p class="visual-subtitle">
+            Access real-time analytics, AI-powered insights, and comprehensive reporting all in one
+            place.
+          </p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M13 2L3 14L12 14L11 22L21 10L12 10L13 2Z" />
+                </svg>
+              </div>
+              <span class="feature-text">Real-time Dashboard Updates</span>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path
+                    d="M12 1V6M12 18V23M4.22 4.22L7.76 7.76M16.24 16.24L19.78 19.78M1 12H6M18 12H23M4.22 19.78L7.76 16.24M16.24 7.76L19.78 4.22"
+                  />
+                </svg>
+              </div>
+              <span class="feature-text">AI-Powered Predictions</span>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" />
+                  <path d="M2 17L12 22L22 17" />
+                  <path d="M2 12L12 17L22 12" />
+                </svg>
+              </div>
+              <span class="feature-text">Enterprise-Grade Security</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Toggle password visibility
+      document.getElementById('togglePassword').addEventListener('click', function () {
+        const passwordInput = document.getElementById('password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+      });
+
+      // Handle form submission
+      document.getElementById('signinForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Simple validation (replace with actual authentication)
+        if (email && password) {
+          // Demo: Show success message
+          alert(
+            'Demo Mode: Sign in functionality would connect to your authentication system here.\n\nEmail: ' +
+              email
+          );
+          // In production, you would make an API call to your authentication endpoint
+        } else {
+          errorMessage.textContent = 'Please enter both email and password.';
+          errorMessage.style.display = 'block';
+        }
+      });
+    </script>
+    <script>
+      function initTheme() {
+        const savedTheme = localStorage.getItem('blipee-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+        document.body.setAttribute('data-theme', theme);
+      }
+      function toggleTheme() {
+        const currentTheme = document.body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('blipee-theme', newTheme);
+      }
+      initTheme();
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('blipee-theme')) {
+          document.body.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+        }
+      });
+    </script>
+  </body>
+</html>

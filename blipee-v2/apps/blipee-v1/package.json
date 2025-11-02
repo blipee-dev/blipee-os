@@ -1,0 +1,9 @@
+{
+  "name": "blipee-v1",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "echo \"TODO: adicionar aplicação V1\" && exit 1",
+    "build": "echo \"TODO: adicionar aplicação V1\" && exit 1"
+  }
+}

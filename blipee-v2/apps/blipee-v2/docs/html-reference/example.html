@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>blipee - The Future of Retail Intelligence</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* Gradient System */
+        --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #0ea5e9 100%);
+        --gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+        --gradient-blue: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+        --gradient-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        --gradient-mesh:
+          radial-gradient(at 40% 20%, hsla(280, 100%, 74%, 0.3) 0px, transparent 50%),
+          radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.2) 0px, transparent 50%),
+          radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.2) 0px, transparent 50%);
+
+        /* Colors */
+        --purple: #8b5cf6;
+        --blue: #0ea5e9;
+        --pink: #ec4899;
+        --dark: #0f172a;
+        --darker: #020617;
+        --light: #f8fafc;
+        --white: #ffffff;
+
+        /* Glassmorphism */
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      }
+
+      /* Dark Mode (default) */
+      body[data-theme="dark"] {
+        --bg-primary: #020617;
+        --bg-secondary: #0f172a;
+        --text-primary: #ffffff;
+        --text-secondary: rgba(255, 255, 255, 0.8);
+        --text-tertiary: rgba(255, 255, 255, 0.7);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --nav-bg: rgba(2, 6, 23, 0.8);
+        --footer-bg: rgba(2, 6, 23, 0.9);
+      }
+
+      /* Light Mode */
+      body[data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --text-primary: #0f172a;
+        --text-secondary: #334155;
+        --text-tertiary: #64748b;
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(15, 23, 42, 0.1);
+        --nav-bg: rgba(255, 255, 255, 0.9);
+        --footer-bg: #f8fafc;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 100px;
+      }
+
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          sans-serif;
+        background: var(--darker);
+        color: var(--white);
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Animated Background */
+      .bg-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        z-index: 0;
+        background: var(--darker);
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .bg-gradient-mesh {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: -50%;
+        left: -50%;
+        background: var(--gradient-mesh);
+        animation: meshAnimation 20s ease infinite;
+      }
+
+      @keyframes meshAnimation {
+        0%,
+        100% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+        33% {
+          transform: translate(-20px, -20px) rotate(120deg);
+        }
+        66% {
+          transform: translate(20px, -10px) rotate(240deg);
+        }
+      }
+
+      .content-wrapper {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Navigation */
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        padding: 1.5rem 2rem;
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--glass-border);
+        transition: all 0.3s ease;
+      }
+
+      .nav-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 1.75rem;
+        font-weight: 400;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-decoration: none;
+        letter-spacing: -0.02em;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2.5rem;
+        align-items: center;
+      }
+
+      .nav-link {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-link:hover {
+        color: var(--white);
+      }
+
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--gradient-primary);
+        transition: width 0.3s ease;
+      }
+
+      .nav-link:hover::after {
+        width: 100%;
+      }
+
+      .btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 40px;
+      }
+
+      @media (min-width: 640px) {
+        .btn {
+          padding: 0.875rem 1.5rem;
+          font-size: 0.95rem;
+          min-height: 44px;
+        }
+      }
+
+      .btn:active {
+        transform: scale(0.98);
+      }
+
+      .btn-primary {
+        background: var(--gradient-primary);
+        color: #ffffff !important;
+        box-shadow: 0 4px 15px 0 rgba(139, 92, 246, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px 0 rgba(139, 92, 246, 0.4);
+        color: #ffffff !important;
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--white);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(10px);
+      }
+
+      .btn-ghost:hover {
+        background: var(--glass-bg);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* Hero Section */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8rem 2rem 4rem;
+        position: relative;
+      }
+
+      .hero-content {
+        max-width: 1200px;
+        text-align: center;
+        z-index: 1;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        animation: fadeInUp 0.6s ease;
+      }
+
+      .hero-badge .pulse {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+      }
+
+      .hero-title {
+        font-size: clamp(3rem, 8vw, 5.5rem);
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 2rem;
+        animation: fadeInUp 0.8s ease 0.2s both;
+      }
+
+      .gradient-text {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-subtitle {
+        font-size: 1.25rem;
+        color: rgba(255, 255, 255, 0.7);
+        max-width: 700px;
+        margin: 0 auto 3rem;
+        line-height: 1.8;
+        animation: fadeInUp 1s ease 0.4s both;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        animation: fadeInUp 1.2s ease 0.6s both;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* AI Features Grid */
+      .ai-features {
+        position: relative;
+        padding-top: 2rem;
+        padding-bottom: 6rem;
+      }
+
+      .ai-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        padding: 0 2rem;
+      }
+
+      .ai-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 1rem;
+        padding: 2.5rem;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .ai-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gradient-primary);
+        transform: translateX(-100%);
+        transition: transform 0.5s ease;
+      }
+
+      .ai-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 40px -15px rgba(139, 92, 246, 0.3);
+      }
+
+      .ai-card:hover::before {
+        transform: translateX(0);
+      }
+
+      .ai-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--gradient-primary);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+      }
+
+      .ai-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+      }
+
+      .ai-card p {
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+      }
+
+      /* Intelligence Showcase */
+      .intelligence {
+        padding: 6rem 2rem;
+        background: rgba(139, 92, 246, 0.05);
+        position: relative;
+      }
+
+      .intelligence-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+      }
+
+      .intelligence-content h2 {
+        font-size: 3rem;
+        margin-bottom: 2rem;
+        font-weight: 800;
+      }
+
+      .intelligence-features {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .intelligence-item {
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+      }
+
+      .check-icon {
+        width: 24px;
+        height: 24px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+      }
+
+      .intelligence-visual {
+        position: relative;
+        height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .neural-network {
+        width: 400px;
+        height: 400px;
+        position: relative;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      .neural-node {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+      }
+
+      .neural-connection {
+        position: absolute;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+        transform-origin: left center;
+        animation: pulse-line 3s ease-in-out infinite;
+      }
+
+      @keyframes pulse-line {
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* Stats Section */
+      .stats {
+        padding: 6rem 2rem;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid var(--glass-border);
+        border-bottom: 1px solid var(--glass-border);
+      }
+
+      .stats-grid {
+        max-width: 1000px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 3rem;
+        text-align: center;
+      }
+
+      .stat-item h3 {
+        font-size: 3rem;
+        font-weight: 800;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-item p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.1rem;
+      }
+
+      /* CTA Section */
+      .cta {
+        padding: 8rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+        transform: translate(-50%, -50%);
+        animation: pulse-bg 4s ease-in-out infinite;
+      }
+
+      @keyframes pulse-bg {
+        0%,
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+      }
+
+      .cta-content {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .cta h2 {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: 800;
+      }
+
+      .cta p {
+        font-size: 1.25rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 3rem;
+      }
+
+      /* Footer */
+      .footer {
+        padding: 3rem 2rem;
+        background: rgba(2, 6, 23, 0.8);
+        border-top: 1px solid var(--glass-border);
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto 2rem;
+        text-align: left;
+      }
+
+      .footer-section h4 {
+        color: var(--white);
+        margin-bottom: 1rem;
+        font-size: 1rem;
+      }
+
+      .footer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .footer-link {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+      }
+
+      .footer-link:hover {
+        color: var(--white);
+      }
+
+      .footer-bottom {
+        border-top: 1px solid var(--glass-border);
+        padding-top: 2rem;
+        text-align: center;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .nav-links {
+          gap: 0.5rem;
+        }
+
+        .nav-links .nav-link {
+          display: none !important;
+        }
+
+        .nav-links .btn {
+          padding: 0.5rem 1rem;
+          font-size: 0.875rem;
+        }
+
+        .nav-container {
+          gap: 1rem;
+        }
+
+        .logo {
+          font-size: 1.5rem;
+        }
+
+        .hero-title {
+          font-size: 3rem;
+        }
+
+        .intelligence-container {
+          grid-template-columns: 1fr;
+        }
+
+        .intelligence-visual {
+          height: 300px;
+        }
+
+        .neural-network {
+          width: 250px;
+          height: 250px;
+        }
+
+        .ai-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .cta h2 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-container">
+      <div class="bg-gradient-mesh"></div>
+    </div>
+
+    <div class="content-wrapper">
+      <!-- Navigation -->
+      <nav class="nav">
+        <div class="nav-container">
+          <a href="#" class="logo">blipee</a>
+          <div class="nav-links">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#intelligence" class="nav-link">Intelligence</a>
+            <a href="#" class="nav-link">Pricing</a>
+            <a href="#" class="btn btn-ghost">Sign In</a>
+            <a href="#" class="btn btn-primary">Get Started</a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="pulse"></span>
+            <span>The Intelligence Platform Retailers Love</span>
+          </div>
+          <h1 class="hero-title">
+            The Future of Retail is
+            <span class="gradient-text">Intelligent</span>
+          </h1>
+          <p class="hero-subtitle">
+            Imagine knowing exactly what your customers want, when they want it, and where they'll
+            find it. blipee OS transforms mountains of data into moments of clarity — turning every
+            insight into opportunity, every pattern into profit.
+            <strong>This is intelligence designed for retail excellence.</strong>
+          </p>
+          <div class="hero-actions">
+            <a href="#" class="btn btn-primary">
+              <span>Start Your Free Trial Now</span>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                />
+              </svg>
+            </a>
+            <a href="#features" class="btn btn-ghost">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                />
+              </svg>
+              <span>Watch Demo</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI Features Grid -->
+      <section class="ai-features" id="features">
+        <div class="ai-grid">
+          <div class="ai-card">
+            <div class="ai-icon">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path
+                  d="M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0-1.32 4.24 3 3 0 0 0 .34 5.58 2.5 2.5 0 0 0 2.96 3.08A2.5 2.5 0 0 0 9.5 22a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 2.46-2.1 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 12 4.5Z"
+                />
+                <path
+                  d="m15.7 10.4-.9.4a2 2 0 0 0-1.1 1.7v1.3a2 2 0 0 0 1.1 1.8l.9.4c.2.1.4 0 .4-.2v-5.2c0-.2-.2-.3-.4-.2Z"
+                />
+                <path
+                  d="m8.3 10.4.9.4a2 2 0 0 1 1.1 1.7v1.3a2 2 0 0 1-1.1 1.8l-.9.4c-.2.1-.4 0-.4-.2v-5.2c0-.2.2-.3.4-.2Z"
+                />
+              </svg>
+            </div>
+            <h3>Predictive Intelligence That Learns</h3>
+            <p>
+              Our proprietary AI doesn't just analyze — it understands. Watch as blipee learns your
+              unique patterns, adapts to your customers, and delivers predictions that feel like
+              magic but are pure science.
+            </p>
+          </div>
+          <div class="ai-card">
+            <div class="ai-icon">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="m8 2 1.5 1.5M16 2l-1.5 1.5M3.5 8l1.5 1.5M20.5 8l-1.5 1.5M3.5 16l1.5-1.5M20.5 16l-1.5-1.5M8 22l1.5-1.5M16 22l-1.5-1.5"
+                />
+              </svg>
+            </div>
+            <h3>Vision Beyond Cameras</h3>
+            <p>
+              blipee sees what others can't — the story behind every movement, the meaning in every
+              pause. Our vision AI creates a living map of opportunity, showing you not just where
+              customers go, but why.
+            </p>
+          </div>
+          <div class="ai-card">
+            <div class="ai-icon">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                <circle cx="12" cy="12" r="1" fill="currentColor" />
+              </svg>
+            </div>
+            <h3>Real-Time Brilliance</h3>
+            <p>
+              In the time it takes to blink, blipee processes millions of signals into actionable
+              insights. Experience the thrill of knowing now, not later — because retail happens in
+              real-time.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Intelligence Showcase -->
+      <section class="intelligence" id="intelligence">
+        <div class="intelligence-container">
+          <div class="intelligence-content">
+            <h2>Intelligence That <span class="gradient-text">Learns & Adapts</span></h2>
+            <p style="font-size: 1.2rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem">
+              Our proprietary AI engine doesn't just analyze - it understands, learns, and evolves
+              with your business.
+            </p>
+            <div class="intelligence-features">
+              <div class="intelligence-item">
+                <div class="check-icon">
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h4>Anomaly Detection</h4>
+                  <p style="color: rgba(255, 255, 255, 0.7)">
+                    Instantly identifies unusual patterns and alerts you to opportunities or risks
+                  </p>
+                </div>
+              </div>
+              <div class="intelligence-item">
+                <div class="check-icon">
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h4>Sentiment Analysis</h4>
+                  <p style="color: rgba(255, 255, 255, 0.7)">
+                    Understand customer emotions and satisfaction in real-time
+                  </p>
+                </div>
+              </div>
+              <div class="intelligence-item">
+                <div class="check-icon">
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h4>Autonomous Optimization</h4>
+                  <p style="color: rgba(255, 255, 255, 0.7)">
+                    AI automatically adjusts strategies based on performance metrics
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="intelligence-visual">
+            <div class="neural-network">
+              <!-- Neural network visualization -->
+              <div
+                class="neural-node"
+                style="top: 50%; left: 50%; transform: translate(-50%, -50%)"
+              ></div>
+              <div class="neural-node" style="top: 20%; left: 30%"></div>
+              <div class="neural-node" style="top: 20%; left: 70%"></div>
+              <div class="neural-node" style="top: 80%; left: 30%"></div>
+              <div class="neural-node" style="top: 80%; left: 70%"></div>
+              <div class="neural-node" style="top: 50%; left: 10%"></div>
+              <div class="neural-node" style="top: 50%; left: 90%"></div>
+
+              <div
+                class="neural-connection"
+                style="width: 100px; top: 50%; left: 50%; transform: rotate(45deg)"
+              ></div>
+              <div
+                class="neural-connection"
+                style="width: 100px; top: 50%; left: 50%; transform: rotate(-45deg)"
+              ></div>
+              <div
+                class="neural-connection"
+                style="width: 100px; top: 50%; left: 50%; transform: rotate(135deg)"
+              ></div>
+              <div
+                class="neural-connection"
+                style="width: 100px; top: 50%; left: 50%; transform: rotate(-135deg)"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats Section -->
+      <section class="stats">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <h3>98.5%</h3>
+            <p>Prediction Accuracy</p>
+          </div>
+          <div class="stat-item">
+            <h3>150ms</h3>
+            <p>Real-time Response</p>
+          </div>
+          <div class="stat-item">
+            <h3>10M+</h3>
+            <p>Daily Predictions</p>
+          </div>
+          <div class="stat-item">
+            <h3>42%</h3>
+            <p>Average ROI Increase</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="cta">
+        <div class="cta-content">
+          <h2>Experience the <span class="gradient-text">blipee Difference</span></h2>
+          <p>
+            Join forward-thinking retailers who've discovered what happens when artificial
+            intelligence meets human ambition. Your data has stories to tell — let blipee help you
+            hear them.
+          </p>
+          <div class="hero-actions">
+            <a href="#" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem">
+              Start Your Journey Today
+            </a>
+            <a href="#features" class="btn btn-ghost"> See blipee in Action </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-grid">
+          <div class="footer-section">
+            <h4>Product</h4>
+            <div class="footer-links">
+              <a href="#features" class="footer-link">Features</a>
+              <a href="#" class="footer-link">Integrations</a>
+              <a href="#" class="footer-link">Pricing</a>
+              <a href="#" class="footer-link">Documentation</a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h4>Company</h4>
+            <div class="footer-links">
+              <a href="#" class="footer-link">About Us</a>
+              <a href="#" class="footer-link">Contact</a>
+              <a href="#" class="footer-link">Careers</a>
+              <a href="#" class="footer-link">Blog</a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h4>Support</h4>
+            <div class="footer-links">
+              <a href="#" class="footer-link">Help Center</a>
+              <a href="#" class="footer-link">Contact Support</a>
+              <a href="#" class="footer-link">Status Page</a>
+              <a href="#" class="footer-link">API Status</a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h4>Legal</h4>
+            <div class="footer-links">
+              <a href="#" class="footer-link">Terms of Service</a>
+              <a href="#" class="footer-link">Privacy Policy</a>
+              <a href="#" class="footer-link">Security</a>
+              <a href="#" class="footer-link">Compliance</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 blipee. All rights reserved. | SOC 2 Certified | GDPR Compliant</p>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Smooth scrolling with offset for fixed nav
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', function (e) {
+          const href = this.getAttribute('href');
+          if (href && href.startsWith('#') && href !== '#') {
+            e.preventDefault();
+            const element = document.querySelector(href);
+            if (element) {
+              const navHeight = document.querySelector('.nav').clientHeight || 0;
+              const targetPosition =
+                element.getBoundingClientRect().top + window.pageYOffset - navHeight - 20;
+              window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth',
+              });
+            }
+          }
+        });
+      });
+
+      // Parallax effect on scroll
+      window.addEventListener('scroll', function () {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelector('.bg-gradient-mesh');
+        if (parallax) {
+          parallax.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.5}px)`;
+        }
+      });
+
+      // Intersection Observer for animations
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.animationPlayState = 'running';
+          }
+        });
+      });
+
+      document.querySelectorAll('.ai-card').forEach((card) => {
+        card.style.animationPlayState = 'paused';
+        observer.observe(card);
+      });
+    </script>
+    <script>
+      // Theme Toggle System
+      function initTheme() {
+        const savedTheme = localStorage.getItem('blipee-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+        document.body.setAttribute('data-theme', theme);
+      }
+
+      function toggleTheme() {
+        const currentTheme = document.body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('blipee-theme', newTheme);
+      }
+
+      initTheme();
+
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('blipee-theme')) {
+          document.body.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+        }
+      });
+    </script>
+  </body>
+</html>
