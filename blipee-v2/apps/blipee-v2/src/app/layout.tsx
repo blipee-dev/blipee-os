@@ -13,9 +13,6 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3005"
-  ),
   title: {
     default: "blipee - Your AI Workforce for Sustainability",
     template: "%s | blipee",
