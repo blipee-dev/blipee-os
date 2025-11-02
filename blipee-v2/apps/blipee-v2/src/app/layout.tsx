@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import CookieConsent from "@/components/CookieConsent";
-import { ToastProvider } from "@/components/ToastProvider";
+// import { Analytics } from "@vercel/analytics/react";
+// import { SpeedInsights } from "@vercel/speed-insights/next";
+// import CookieConsent from "@/components/CookieConsent";
+// import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -89,10 +89,11 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body className="antialiased font-sans" data-theme="dark">
         {children}
-        <CookieConsent />
-        <ToastProvider />
-        <Analytics />
-        <SpeedInsights />
+        {/* Temporarily disabled for deployment debugging */}
+        {/* <CookieConsent /> */}
+        {/* <ToastProvider /> */}
+        {/* <Analytics /> */}
+        {/* <SpeedInsights /> */}
       </body>
     </html>
   );
