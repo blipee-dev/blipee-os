@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import LandingPage from "./(marketing)/landing/LandingPage"
+import LandingPage from "./landing/LandingPage"
 
 export const metadata: Metadata = {
   title: "blipee - Your AI Workforce for Sustainability",

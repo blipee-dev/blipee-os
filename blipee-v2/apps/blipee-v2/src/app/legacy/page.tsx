@@ -16,7 +16,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
           <Link
-            href="/(auth)/signin"
+            href="/signin"
             className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow border border-gray-200 dark:border-gray-700"
           >
             <h3 className="text-xl font-semibold mb-2 text-blue-600 dark:text-blue-400">
@@ -28,7 +28,7 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/(auth)/signup"
+            href="/signup"
             className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow border border-gray-200 dark:border-gray-700"
           >
             <h3 className="text-xl font-semibold mb-2 text-green-600 dark:text-green-400">
