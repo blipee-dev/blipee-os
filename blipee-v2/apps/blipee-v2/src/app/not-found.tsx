@@ -3,6 +3,9 @@
  * Ultra-simplified for deployment debugging
  */
 
+// Force dynamic rendering to avoid prerender error
+export const dynamic = 'force-dynamic'
+
 export default function NotFound() {
   return (
     <div style={{
