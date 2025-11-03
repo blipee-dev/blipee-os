@@ -1,210 +1,177 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/v2/client'
-import styles from '../settings.module.css'
+import { useUserPreferences } from '@/hooks/useUserPreferences'
+import { useToast } from '@/components/Toast'
+import styles from '@/styles/settings-layout.module.css'
+import FormActions from '@/components/FormActions'
+import CustomSelect from '@/components/CustomSelect'
+import CustomCheckbox from '@/components/CustomCheckbox'
 
 export default function PreferencesPage() {
-  const [saving, setSaving] = useState(false)
-  const [preferences, setPreferences] = useState({
+  const { preferences: userPreferences, loading, updating, updatePreferencesAsync } = useUserPreferences()
+  const toast = useToast()
+
+  const [formData, setFormData] = useState({
     language: 'pt',
     timezone: 'Europe/Lisbon (WEST)',
     emailNotifications: true,
     criticalAlerts: true,
     warningAlerts: true,
     infoAlerts: false,
-    defaultDateRange: 'last-7-days',
+    defaultDateRange: 'this-month',
   })
+
+  // Sync form data when preferences load
+  useEffect(() => {
+    if (userPreferences) {
+      setFormData(userPreferences)
+    }
+  }, [userPreferences])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    
+
     try {
-      setSaving(true)
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) return
-
-      const updateData: any = {
-        preferred_language: preferences.language,
-        timezone: preferences.timezone,
-        notification_settings: {
-          email: preferences.emailNotifications,
-          critical: preferences.criticalAlerts,
-          warning: preferences.warningAlerts,
-          info: preferences.infoAlerts,
-        },
-        preferences: {
-          defaultDateRange: preferences.defaultDateRange,
-        },
-        updated_at: new Date().toISOString(),
-      }
-
-      // @ts-ignore - Supabase type limitation
-      const { error } = await supabase
-        .from('user_profiles')
-        .update(updateData)
-        .eq('id', user.id)
-
-      if (error) throw error
-
-      alert('Preferências atualizadas com sucesso!')
+      await updatePreferencesAsync(formData)
+      toast.showSuccess('Preferences updated successfully!')
     } catch (error) {
       console.error('Error updating preferences:', error)
-      alert('Erro ao atualizar preferências.')
-    } finally {
-      setSaving(false)
+      toast.showError('Error updating preferences.')
     }
+  }
+
+  function handleCancel() {
+    if (userPreferences) {
+      setFormData(userPreferences)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.section}>
+        <p style={{ textAlign: 'center', color: 'var(--text-tertiary)' }}>
+          Loading preferences...
+        </p>
+      </div>
+    )
   }
 
   return (
     <>
-      {/* Language */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Idioma</h2>
+        <h2 className={styles.sectionTitle}>Language</h2>
         <p className={styles.sectionDescription}>
-          Escolha o seu idioma preferido para a interface
-        </p>
-
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Idioma</label>
-            <select
-              className={styles.select}
-              value={preferences.language}
-              onChange={(e) => setPreferences({ ...preferences, language: e.target.value })}
-            >
-              <option value="pt">Português</option>
-              <option value="en">English</option>
-              <option value="es">Español</option>
-              <option value="fr">Français</option>
-            </select>
-          </div>
-        </form>
-      </div>
-
-      {/* Timezone */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Fuso Horário</h2>
-        <p className={styles.sectionDescription}>
-          Defina o seu fuso horário para exibição precisa da hora
+          Choose your preferred interface language
         </p>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Fuso Horário</label>
-          <select
-            className={styles.select}
-            value={preferences.timezone}
-            onChange={(e) => setPreferences({ ...preferences, timezone: e.target.value })}
-          >
-            <option value="Europe/Lisbon (WEST)">Europe/Lisbon (WEST)</option>
-            <option value="Europe/London (GMT)">Europe/London (GMT)</option>
-            <option value="America/New_York (EST)">America/New_York (EST)</option>
-            <option value="America/Los_Angeles (PST)">America/Los_Angeles (PST)</option>
-          </select>
+          <label className={styles.label}>Language</label>
+          <CustomSelect
+            value={formData.language}
+            onChange={(value) => setFormData({ ...formData, language: value })}
+            options={[
+              { value: 'pt', label: 'Português' },
+              { value: 'en', label: 'English' },
+              { value: 'es', label: 'Español' },
+              { value: 'fr', label: 'Français' },
+            ]}
+          />
         </div>
       </div>
 
-      {/* Notifications */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Notificações</h2>
+        <h2 className={styles.sectionTitle}>Timezone</h2>
         <p className={styles.sectionDescription}>
-          Configure como recebe alertas e atualizações
+          Set your timezone for accurate time display
+        </p>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Timezone</label>
+          <CustomSelect
+            value={formData.timezone}
+            onChange={(value) => setFormData({ ...formData, timezone: value })}
+            options={[
+              { value: 'Europe/Lisbon (WEST)', label: 'Europe/Lisbon (WEST)' },
+              { value: 'Europe/London (GMT)', label: 'Europe/London (GMT)' },
+              { value: 'America/New_York (EST)', label: 'America/New_York (EST)' },
+              { value: 'America/Los_Angeles (PST)', label: 'America/Los_Angeles (PST)' },
+            ]}
+          />
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Notifications</h2>
+        <p className={styles.sectionDescription}>
+          Configure how you receive alerts and updates
         </p>
 
         <div className={styles.form}>
           <div className={styles.formGroup}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={preferences.emailNotifications}
-                onChange={(e) => setPreferences({ ...preferences, emailNotifications: e.target.checked })}
-                style={{ width: '20px', height: '20px', cursor: 'pointer' }}
-              />
-              <div>
-                <div className={styles.label} style={{ marginBottom: '0.25rem' }}>
-                  Notificações por email
-                </div>
-                <p className={styles.helpText}>Receber notificações por email</p>
-              </div>
-            </label>
+            <CustomCheckbox
+              checked={formData.emailNotifications}
+              onChange={(checked) => setFormData({ ...formData, emailNotifications: checked })}
+              label="Email notifications"
+              description="Receive notifications via email"
+            />
           </div>
 
           <div style={{ marginLeft: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <p className={styles.label}>Tipos de alerta a receber:</p>
-            
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={preferences.criticalAlerts}
-                onChange={(e) => setPreferences({ ...preferences, criticalAlerts: e.target.checked })}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                Alertas críticos (falhas do sistema, sensor offline)
-              </span>
-            </label>
+            <p className={styles.label}>Alert types to receive:</p>
 
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={preferences.warningAlerts}
-                onChange={(e) => setPreferences({ ...preferences, warningAlerts: e.target.checked })}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                Alertas de aviso (limites excedidos)
-              </span>
-            </label>
+            <CustomCheckbox
+              checked={formData.criticalAlerts}
+              onChange={(checked) => setFormData({ ...formData, criticalAlerts: checked })}
+              label="Critical alerts (system failures, sensor offline)"
+            />
 
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={preferences.infoAlerts}
-                onChange={(e) => setPreferences({ ...preferences, infoAlerts: e.target.checked })}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                Alertas informativos (resumos diários)
-              </span>
-            </label>
+            <CustomCheckbox
+              checked={formData.warningAlerts}
+              onChange={(checked) => setFormData({ ...formData, warningAlerts: checked })}
+              label="Warning alerts (thresholds exceeded)"
+            />
+
+            <CustomCheckbox
+              checked={formData.infoAlerts}
+              onChange={(checked) => setFormData({ ...formData, infoAlerts: checked })}
+              label="Info alerts (daily summaries)"
+            />
           </div>
         </div>
       </div>
 
-      {/* Dashboard Preferences */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Preferências do Dashboard</h2>
+        <h2 className={styles.sectionTitle}>Dashboard Preferences</h2>
         <p className={styles.sectionDescription}>
-          Personalize a sua experiência no dashboard
+          Customize your dashboard experience
         </p>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Intervalo de datas padrão</label>
-          <select
-            className={styles.select}
-            value={preferences.defaultDateRange}
-            onChange={(e) => setPreferences({ ...preferences, defaultDateRange: e.target.value })}
-          >
-            <option value="last-7-days">Last 7 days</option>
-            <option value="last-30-days">Last 30 days</option>
-            <option value="last-90-days">Last 90 days</option>
-            <option value="this-month">This month</option>
-            <option value="last-month">Last month</option>
-          </select>
+          <label className={styles.label}>Default date range</label>
+          <CustomSelect
+            value={formData.defaultDateRange}
+            onChange={(value) => setFormData({ ...formData, defaultDateRange: value })}
+            options={[
+              { value: 'this-month', label: 'This month' },
+              { value: 'last-month', label: 'Last month' },
+              { value: 'last-3-months', label: 'Last 3 months' },
+              { value: 'last-6-months', label: 'Last 6 months' },
+              { value: 'ytd', label: 'Year to date (YTD)' },
+              { value: 'last-12-months', label: 'Last 12 months' },
+            ]}
+          />
         </div>
 
-        <div className={styles.buttonGroup}>
-          <button
-            type="submit"
-            className={`${styles.button} ${styles.buttonPrimary}`}
-            onClick={handleSubmit}
-            disabled={saving}
-          >
-            {saving ? 'Guardando...' : 'Guardar Alterações'}
-          </button>
-        </div>
+        <FormActions
+          onCancel={handleCancel}
+          isSaving={updating}
+          onSave={(e) => {
+            e?.preventDefault()
+            handleSubmit(e as any)
+          }}
+          isSubmitButton={false}
+        />
       </div>
     </>
   )

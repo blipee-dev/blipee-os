@@ -2,9 +2,12 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/v2/client'
-import styles from '../settings.module.css'
+import { useToast } from '@/components/Toast'
+import styles from '@/styles/settings-layout.module.css'
+import FormActions from '@/components/FormActions'
 
 export default function SecurityPage() {
+  const toast = useToast()
   const [changingPassword, setChangingPassword] = useState(false)
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -14,32 +17,32 @@ export default function SecurityPage() {
 
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault()
-    
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      alert('As passwords não coincidem.')
+      toast.showError('Passwords do not match.')
       return
     }
 
     if (passwordForm.newPassword.length < 8) {
-      alert('A password deve ter pelo menos 8 caracteres.')
+      toast.showError('Password must be at least 8 characters.')
       return
     }
 
     try {
       setChangingPassword(true)
       const supabase = createClient()
-      
+
       const { error } = await supabase.auth.updateUser({
         password: passwordForm.newPassword
       })
 
       if (error) throw error
 
-      alert('Password alterada com sucesso!')
+      toast.showSuccess('Password changed successfully!')
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
     } catch (error) {
       console.error('Error changing password:', error)
-      alert('Erro ao alterar password.')
+      toast.showError('Error changing password.')
     } finally {
       setChangingPassword(false)
     }
@@ -49,14 +52,14 @@ export default function SecurityPage() {
     <>
       {/* Change Password */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Alterar Password</h2>
+        <h2 className={styles.sectionTitle}>Change Password</h2>
         <p className={styles.sectionDescription}>
-          Atualize a sua password regularmente para manter a conta segura
+          Update your password regularly to keep your account secure
         </p>
 
         <form onSubmit={handlePasswordChange} className={styles.form}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Password Atual</label>
+            <label className={styles.label}>Current Password</label>
             <input
               type="password"
               className={styles.input}
@@ -67,7 +70,7 @@ export default function SecurityPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Nova Password</label>
+            <label className={styles.label}>New Password</label>
             <input
               type="password"
               className={styles.input}
@@ -76,11 +79,11 @@ export default function SecurityPage() {
               required
               minLength={8}
             />
-            <p className={styles.helpText}>Mínimo de 8 caracteres</p>
+            <p className={styles.helpText}>Minimum 8 characters</p>
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Confirmar Nova Password</label>
+            <label className={styles.label}>Confirm New Password</label>
             <input
               type="password"
               className={styles.input}
@@ -90,37 +93,35 @@ export default function SecurityPage() {
             />
           </div>
 
-          <div className={styles.buttonGroup}>
-            <button
-              type="submit"
-              className={`${styles.button} ${styles.buttonPrimary}`}
-              disabled={changingPassword}
-            >
-              {changingPassword ? 'Alterando...' : 'Alterar Password'}
-            </button>
-          </div>
+          <FormActions
+            onCancel={() => setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })}
+            isSaving={changingPassword}
+            saveButtonText="Change Password"
+            confirmMessage="Are you sure you want to change your password?"
+            isSubmitButton={true}
+          />
         </form>
       </div>
 
       {/* Two-Factor Authentication */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Autenticação de Dois Fatores (2FA)</h2>
+        <h2 className={styles.sectionTitle}>Two-Factor Authentication (2FA)</h2>
         <p className={styles.sectionDescription}>
-          Adicione uma camada extra de segurança à sua conta
+          Add an extra layer of security to your account
         </p>
 
         <div style={{ padding: '1.5rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <h3 style={{ fontSize: '1rem', fontWeight: 500, marginBottom: '0.5rem' }}>
-                Estado: <span style={{ color: 'var(--color-warning)' }}>Desativado</span>
+                Status: <span style={{ color: 'var(--color-warning)' }}>Disabled</span>
               </h3>
               <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                Proteja a sua conta com autenticação de dois fatores através de uma aplicação autenticadora
+                Protect your account with two-factor authentication through an authenticator app
               </p>
             </div>
             <button className={`${styles.button} ${styles.buttonPrimary}`}>
-              Ativar 2FA
+              Enable 2FA
             </button>
           </div>
         </div>
@@ -128,9 +129,9 @@ export default function SecurityPage() {
 
       {/* Active Sessions */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Sessões Ativas</h2>
+        <h2 className={styles.sectionTitle}>Active Sessions</h2>
         <p className={styles.sectionDescription}>
-          Gerir dispositivos com acesso à sua conta
+          Manage devices with access to your account
         </p>
 
         <div className={styles.table}>
@@ -138,16 +139,16 @@ export default function SecurityPage() {
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
                 <th style={{ textAlign: 'left', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  Dispositivo
+                  Device
                 </th>
                 <th style={{ textAlign: 'left', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  Localização
+                  Location
                 </th>
                 <th style={{ textAlign: 'left', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  Último Acesso
+                  Last Access
                 </th>
                 <th style={{ textAlign: 'right', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  Ações
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -162,22 +163,22 @@ export default function SecurityPage() {
                     </svg>
                     <div>
                       <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>Chrome on macOS</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                        <span style={{ color: 'var(--color-success)', marginRight: '0.5rem' }}>●</span>
-                        Sessão atual
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'flex', alignItems: 'center' }}>
+                        <span className={`${styles.sessionIndicator} ${styles.sessionIndicatorActive}`}></span>
+                        Current session
                       </div>
                     </div>
                   </div>
                 </td>
                 <td style={{ padding: '1rem 0.75rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                  Lisboa, Portugal
+                  Lisbon, Portugal
                 </td>
                 <td style={{ padding: '1rem 0.75rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                  Agora
+                  Now
                 </td>
                 <td style={{ padding: '1rem 0.75rem', textAlign: 'right' }}>
                   <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
-                    Esta sessão
+                    This session
                   </span>
                 </td>
               </tr>
@@ -190,25 +191,25 @@ export default function SecurityPage() {
                     </svg>
                     <div>
                       <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>Safari on iPhone</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                        <span style={{ color: 'var(--text-secondary)', marginRight: '0.5rem' }}>●</span>
-                        Inativo
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'flex', alignItems: 'center' }}>
+                        <span className={`${styles.sessionIndicator} ${styles.sessionIndicatorInactive}`}></span>
+                        Inactive
                       </div>
                     </div>
                   </div>
                 </td>
                 <td style={{ padding: '1rem 0.75rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                  Lisboa, Portugal
+                  Lisbon, Portugal
                 </td>
                 <td style={{ padding: '1rem 0.75rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                  Há 2 dias
+                  2 days ago
                 </td>
                 <td style={{ padding: '1rem 0.75rem', textAlign: 'right' }}>
                   <button
                     className={`${styles.button} ${styles.buttonSecondary}`}
                     style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
                   >
-                    Revogar
+                    Revoke
                   </button>
                 </td>
               </tr>
@@ -218,7 +219,7 @@ export default function SecurityPage() {
 
         <div style={{ marginTop: '1rem' }}>
           <button className={`${styles.button} ${styles.buttonSecondary}`}>
-            Terminar Todas as Outras Sessões
+            End All Other Sessions
           </button>
         </div>
       </div>

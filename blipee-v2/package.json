@@ -13,5 +13,8 @@
     "build:v2": "npm run build --workspace blipee-v2",
     "lint": "npm run lint --workspace blipee-v2",
     "type-check": "npm run type-check --workspace blipee-v2"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.6"
   }
 }

@@ -1,0 +1,124 @@
+.customSelect {
+  position: relative;
+  width: 100%;
+  z-index: 100;
+}
+
+.selectButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: 12px;
+  color: var(--text-primary, #ffffff);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.selectButton:hover {
+  border-color: var(--green, #10b981);
+  background: rgba(16, 185, 129, 0.03);
+}
+
+.selectButton.open {
+  border-color: var(--green, #10b981);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.arrow {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.5));
+}
+
+.selectButton.open .arrow {
+  transform: rotate(180deg);
+  color: var(--green, #10b981);
+}
+
+.dropdown {
+  /* Position is set via inline styles */
+  background: var(--bg-primary, #1a1a1a);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 999999;
+  overflow-x: hidden;
+  overflow-y: auto;
+  animation: slideDown 0.2s ease;
+  max-height: 400px;
+}
+
+/* Scrollbar styling */
+.dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.dropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary, #ffffff);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.option:hover {
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--green, #10b981);
+}
+
+.option.selected {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--green, #10b981);
+  font-weight: 500;
+}
+
+.option svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--green, #10b981);
+}
+
+.option:not(:last-child) {
+  border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+}

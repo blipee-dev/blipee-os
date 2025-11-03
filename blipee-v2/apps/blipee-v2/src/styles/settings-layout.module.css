@@ -1,4 +1,5 @@
-/* Settings Layout Styles */
+/* Shared Settings Layout Styles */
+/* Used by both /dashboard/profile and /dashboard/settings */
 
 .settingsContainer {
   max-width: 1200px;
@@ -54,6 +55,11 @@
   height: 18px;
 }
 
+.tab svg.blipeeIcon {
+  width: 24px;
+  height: 24px;
+}
+
 .tab:hover {
   color: var(--text-primary);
   background: rgba(16, 185, 129, 0.05);
@@ -69,46 +75,48 @@
   padding: 2rem 0;
 }
 
-/* Profile Page Styles */
+/* Section Styles */
 .section {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  padding: 2rem;
+  padding: 2.5rem;
   backdrop-filter: blur(10px);
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .sectionTitle {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .sectionDescription {
   color: var(--text-tertiary);
   font-size: 0.875rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 /* Form Styles */
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .formRow {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
 .label {
@@ -160,67 +168,11 @@
 }
 
 /* Avatar Section */
-.avatarSection {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-}
-
-.avatarPreview {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid var(--glass-border);
-}
-
-.avatarPreview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.avatarPlaceholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--green) 0%, #34d399 100%);
-  font-size: 2rem;
-  font-weight: 700;
-  color: white;
-}
-
-.avatarActions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.avatarActions button {
-  padding: 0.5rem 1rem;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.avatarActions button:hover {
-  border-color: var(--green);
-  background: rgba(16, 185, 129, 0.1);
-}
-
-/* Avatar Customization */
 .avatarPreviewSection {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .avatarPreviewLabel {
@@ -245,7 +197,7 @@
 
 .avatarTypeButtons {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .avatarTypeButton {
@@ -285,14 +237,15 @@
 
 .gradientGrid {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(50px, 50px));
+  gap: 1.25rem;
   max-width: 100%;
+  justify-content: start;
 }
 
 .gradientOption {
-  width: 100%;
-  aspect-ratio: 1;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   border: 3px solid transparent;
   cursor: pointer;
@@ -304,7 +257,28 @@
   padding: 0;
   margin: 0;
   outline: none;
-  overflow: visible;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.gradientOption::before,
+.gradientOption::after {
+  display: none !important;
+}
+
+.gradientOption * {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.gradientOption svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: white;
+  stroke: white;
+  fill: none;
 }
 
 .gradientOption:hover {
@@ -316,12 +290,6 @@
   border-color: white;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
   transform: scale(1.05);
-}
-
-.gradientOption svg {
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  position: relative;
-  z-index: 1;
 }
 
 /* Buttons */
@@ -371,6 +339,36 @@
   background: rgba(16, 185, 129, 0.05);
 }
 
+/* Active Session Indicator */
+.sessionIndicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.sessionIndicatorActive {
+  background: var(--green);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.sessionIndicatorInactive {
+  background: var(--text-secondary);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .settingsTabs {
@@ -394,16 +392,15 @@
     grid-template-columns: 1fr;
   }
 
-  .avatarSection {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .buttonGroup {
     flex-direction: column;
   }
 
   .button {
     width: 100%;
+  }
+
+  .gradientGrid {
+    grid-template-columns: repeat(5, 1fr);
   }
 }

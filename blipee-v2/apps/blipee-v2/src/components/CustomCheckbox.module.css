@@ -1,0 +1,94 @@
+.checkboxContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxContainer.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.checkboxWrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.hiddenCheckbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.customCheckbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+  border-radius: 6px;
+  background: var(--bg-secondary, rgba(255, 255, 255, 0.05));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.customCheckbox svg {
+  width: 14px;
+  height: 14px;
+  color: white;
+  animation: checkmark 0.3s ease;
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.customCheckbox.checked {
+  background: var(--green, #10b981);
+  border-color: var(--green, #10b981);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.checkboxContainer:hover .customCheckbox:not(.checked) {
+  border-color: var(--green, #10b981);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.checkboxContainer.disabled:hover .customCheckbox {
+  border-color: var(--glass-border, rgba(255, 255, 255, 0.2));
+  background: var(--bg-secondary, rgba(255, 255, 255, 0.05));
+}
+
+.labelWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary, #ffffff);
+  line-height: 1.4;
+}
+
+.description {
+  font-size: 0.75rem;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.5));
+  line-height: 1.4;
+}
