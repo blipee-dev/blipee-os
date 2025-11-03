@@ -95,6 +95,17 @@ export async function checkRateLimit(
   remaining: number
   reset: number
 }> {
+  // DEVELOPMENT BYPASS: Set DISABLE_RATE_LIMIT=true to bypass rate limiting in development
+  if (process.env.NODE_ENV === 'development' && process.env.DISABLE_RATE_LIMIT === 'true') {
+    console.warn('⚠️  Rate limiting DISABLED in development (DISABLE_RATE_LIMIT=true)')
+    return {
+      success: true,
+      limit: 0,
+      remaining: 0,
+      reset: 0,
+    }
+  }
+
   if (!limiter) {
     // If rate limiting is not configured (e.g., in development without Upstash),
     // allow the request but log a warning

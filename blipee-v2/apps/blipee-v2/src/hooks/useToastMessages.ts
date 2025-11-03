@@ -22,11 +22,18 @@ import { toast as hotToast } from 'react-hot-toast'
  */
 export function useToastMessages() {
   useEffect(() => {
+    console.log('[TOAST HOOK] Checking for toast messages in cookies')
+    console.log('[TOAST HOOK] All cookies:', document.cookie)
+
     // Read cookies on client side
     const message = getCookie('toast-message')
     const type = getCookie('toast-type') as 'success' | 'error' | 'info' | null
 
+    console.log('[TOAST HOOK] Found message:', message)
+    console.log('[TOAST HOOK] Found type:', type)
+
     if (message && type) {
+      console.log('[TOAST HOOK] Displaying toast:', { type, message })
       // Display the toast
       switch (type) {
         case 'success':
@@ -43,6 +50,9 @@ export function useToastMessages() {
       // Clear the cookies
       deleteCookie('toast-message')
       deleteCookie('toast-type')
+      console.log('[TOAST HOOK] Cookies cleared')
+    } else {
+      console.log('[TOAST HOOK] No toast message found')
     }
   }, [])
 }
@@ -57,7 +67,9 @@ function getCookie(name: string): string | null {
   const parts = value.split(`; ${name}=`)
 
   if (parts.length === 2) {
-    return parts.pop()?.split(';').shift() || null
+    const cookieValue = parts.pop()?.split(';').shift() || null
+    // Decode URL-encoded cookie value
+    return cookieValue ? decodeURIComponent(cookieValue) : null
   }
 
   return null

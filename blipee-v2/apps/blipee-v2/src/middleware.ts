@@ -43,6 +43,7 @@ function isPublicPath(pathname: string): boolean {
     '/signup',
     '/forgot-password',
     '/reset-password',
+    '/auth/callback',
     '/documentation',
     '/api',
     '/faq',

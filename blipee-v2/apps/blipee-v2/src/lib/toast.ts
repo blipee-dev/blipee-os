@@ -47,6 +47,7 @@ interface ToastMessage {
  * Set a success toast message
  */
 export async function success(message: string): Promise<void> {
+  console.log('[TOAST] Setting success message:', message)
   const cookieStore = await cookies()
   cookieStore.set(TOAST_COOKIE_NAME, message, {
     httpOnly: false, // Allow client-side access
@@ -60,12 +61,14 @@ export async function success(message: string): Promise<void> {
     path: '/',
     sameSite: 'lax',
   })
+  console.log('[TOAST] Success message set in cookies')
 }
 
 /**
  * Set an error toast message
  */
 export async function error(message: string): Promise<void> {
+  console.log('[TOAST] Setting error message:', message)
   const cookieStore = await cookies()
   cookieStore.set(TOAST_COOKIE_NAME, message, {
     httpOnly: false,
@@ -79,6 +82,7 @@ export async function error(message: string): Promise<void> {
     path: '/',
     sameSite: 'lax',
   })
+  console.log('[TOAST] Error message set in cookies')
 }
 
 /**
@@ -98,13 +102,4 @@ export async function info(message: string): Promise<void> {
     path: '/',
     sameSite: 'lax',
   })
-}
-
-/**
- * Export toast object for convenience
- */
-export const toast = {
-  success,
-  error,
-  info,
 }

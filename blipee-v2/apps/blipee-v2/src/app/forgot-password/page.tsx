@@ -12,13 +12,32 @@
 'use client'
 
 import Link from 'next/link'
+import { useState, useTransition } from 'react'
 import { resetPassword } from '@/app/actions/v2/auth'
 import { useToastMessages } from '@/hooks/useToastMessages'
 import styles from '../auth.module.css'
 
 export default function ForgotPasswordPage() {
+  const [isPending, startTransition] = useTransition()
+  const [email, setEmail] = useState('')
+
   // Automatically display toast messages from Server Actions
   useToastMessages()
+
+  const handleSubmit = async (formData: FormData) => {
+    console.log('[FORGOT PASSWORD CLIENT] Form submitted')
+    console.log('[FORGOT PASSWORD CLIENT] Email:', formData.get('email'))
+
+    startTransition(async () => {
+      console.log('[FORGOT PASSWORD CLIENT] Starting transition')
+      try {
+        await resetPassword(formData)
+        console.log('[FORGOT PASSWORD CLIENT] Server action completed')
+      } catch (error) {
+        console.error('[FORGOT PASSWORD CLIENT] Error:', error)
+      }
+    })
+  }
 
   return (
     <>
@@ -56,7 +75,7 @@ export default function ForgotPasswordPage() {
               </p>
             </div>
 
-            <form action={resetPassword} className={styles.authForm}>
+            <form action={handleSubmit} className={styles.authForm}>
               <div className={styles.formGroup}>
                 <label htmlFor="email" className={styles.formLabel}>
                   Email Address
@@ -67,13 +86,16 @@ export default function ForgotPasswordPage() {
                   name="email"
                   autoComplete="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className={styles.formInput}
                   placeholder="you@company.com"
+                  disabled={isPending}
                 />
               </div>
 
-              <button type="submit" className={styles.submitBtn}>
-                Send Reset Link
+              <button type="submit" className={styles.submitBtn} disabled={isPending}>
+                {isPending ? 'Sending...' : 'Send Reset Link'}
               </button>
             </form>
 

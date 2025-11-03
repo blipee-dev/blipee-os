@@ -6,6 +6,7 @@
  * - Supabase password update
  * - Password confirmation validation
  * - Password visibility toggle
+ * - Automatic token verification from email link
  *
  * Pattern: Server Component → Server Action → Password updated
  */
@@ -13,17 +14,46 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { updatePassword } from '@/app/actions/v2/auth'
 import { useToastMessages } from '@/hooks/useToastMessages'
+import { createClient } from '@/lib/supabase/v2/client'
 import styles from '../auth.module.css'
 
 export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const router = useRouter()
 
   // Automatically display toast messages from Server Actions
   useToastMessages()
+
+  // Check if user is authenticated (after /auth/callback processed the recovery code)
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      console.log('[RESET PASSWORD CLIENT] Checking authentication status')
+      const supabase = createClient()
+
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('[RESET PASSWORD CLIENT] Session check:', {
+        hasSession: !!session,
+        userId: session?.user?.id
+      })
+
+      setIsVerifying(false)
+      setIsAuthenticated(!!session)
+
+      if (!session) {
+        console.log('[RESET PASSWORD CLIENT] No session found, redirecting to forgot-password')
+        router.push('/forgot-password?error=session_expired')
+      }
+    }
+
+    checkAuthentication()
+  }, [router])
 
   return (
     <>
@@ -61,22 +91,35 @@ export default function ResetPasswordPage() {
               </p>
             </div>
 
-            <form action={updatePassword} className={styles.authForm}>
-              <div className={styles.formGroup}>
-                <label htmlFor="password" className={styles.formLabel}>
-                  New Password
-                </label>
-                <div className={styles.passwordGroup}>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="password"
-                    name="password"
-                    autoComplete="new-password"
-                    minLength={8}
-                    required
-                    className={styles.formInput}
-                    placeholder="Enter new password (min. 8 characters)"
-                  />
+            {isVerifying ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <p style={{ color: 'var(--text-secondary)' }}>
+                  Verifying your reset link...
+                </p>
+              </div>
+            ) : !isAuthenticated ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <p style={{ color: 'var(--text-secondary)' }}>
+                  Invalid or expired reset link. Please request a new one.
+                </p>
+              </div>
+            ) : (
+              <form action={updatePassword} className={styles.authForm}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="password" className={styles.formLabel}>
+                    New Password
+                  </label>
+                  <div className={styles.passwordGroup}>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      id="password"
+                      name="password"
+                      autoComplete="new-password"
+                      minLength={8}
+                      required
+                      className={styles.formInput}
+                      placeholder="Enter new password (min. 8 characters)"
+                    />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -134,10 +177,11 @@ export default function ResetPasswordPage() {
                 </div>
               </div>
 
-              <button type="submit" className={styles.submitBtn}>
-                Update Password
-              </button>
-            </form>
+                <button type="submit" className={styles.submitBtn}>
+                  Update Password
+                </button>
+              </form>
+            )}
 
             <div className={styles.signupSection}>
               Return to{' '}
