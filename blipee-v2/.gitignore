@@ -49,6 +49,7 @@ next-env.d.ts
 *.swp
 *.swo
 *~
+.claude/settings.local.json
 
 # OS
 Thumbs.db
