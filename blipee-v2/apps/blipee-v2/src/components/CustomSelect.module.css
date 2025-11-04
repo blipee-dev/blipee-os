@@ -1,7 +1,7 @@
 .customSelect {
   position: relative;
   width: 100%;
-  z-index: 100;
+  z-index: auto;
 }
 
 .selectButton {
@@ -10,8 +10,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background: var(--bg-secondary, rgba(255, 255, 255, 0.05));
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   color: var(--text-primary, #ffffff);
   font-size: 0.9rem;
@@ -45,11 +45,11 @@
 
 .dropdown {
   /* Position is set via inline styles */
-  background: var(--bg-primary, #1a1a1a);
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   z-index: 999999;
   overflow-x: hidden;
   overflow-y: auto;

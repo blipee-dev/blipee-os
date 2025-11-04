@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import styles from './ConfirmDialog.module.css'
 
 interface ConfirmDialogProps {
@@ -12,6 +12,8 @@ interface ConfirmDialogProps {
   onConfirm: () => void
   onCancel: () => void
   variant?: 'default' | 'danger'
+  requireTextConfirmation?: boolean
+  confirmationText?: string
 }
 
 export default function ConfirmDialog({
@@ -23,7 +25,18 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
   variant = 'default',
+  requireTextConfirmation = false,
+  confirmationText = '',
 }: ConfirmDialogProps) {
+  const [inputValue, setInputValue] = useState('')
+
+  // Reset input when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setInputValue('')
+    }
+  }, [isOpen])
+
   // Close on ESC key
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
@@ -43,6 +56,8 @@ export default function ConfirmDialog({
       document.body.style.overflow = 'unset'
     }
   }, [isOpen, onCancel])
+
+  const isConfirmDisabled = requireTextConfirmation && inputValue !== confirmationText
 
   if (!isOpen) return null
 
@@ -65,6 +80,42 @@ export default function ConfirmDialog({
 
         <div className={styles.content}>
           <p className={styles.message}>{message}</p>
+
+          {requireTextConfirmation && (
+            <div style={{ marginTop: '1rem' }}>
+              <p style={{
+                fontSize: '0.875rem',
+                color: 'var(--text-secondary)',
+                marginBottom: '0.5rem'
+              }}>
+                Type <code style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '4px',
+                  fontFamily: 'monospace',
+                  color: 'var(--red)'
+                }}>{confirmationText}</code> to confirm:
+              </p>
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder={confirmationText}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                  borderRadius: '12px',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.9rem',
+                  fontFamily: 'monospace',
+                  outline: 'none',
+                }}
+                autoFocus
+              />
+            </div>
+          )}
         </div>
 
         <div className={styles.actions}>
@@ -77,6 +128,7 @@ export default function ConfirmDialog({
           <button
             className={`${styles.confirmButton} ${variant === 'danger' ? styles.danger : ''}`}
             onClick={onConfirm}
+            disabled={isConfirmDisabled}
           >
             {confirmText}
           </button>

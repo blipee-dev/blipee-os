@@ -1,4 +1,4 @@
-<svg viewBox="20 5 80 100" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <rect x="28" y="36" width="64" height="64" rx="20" fill="#10b981" />
   <circle cx="44" cy="60" r="10" fill="#fff" />
   <circle cx="76" cy="60" r="10" fill="#fff" />

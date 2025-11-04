@@ -1,3 +1,3 @@
+export { BlipeeRobot } from './BlipeeRobot'
+export type { BlipeeRobotProps } from './BlipeeRobot'
 export { BlipeeLogo } from './BlipeeLogo'
-export { BlipeeWordmark } from './BlipeeWordmark'
-export { BlipeeIcon } from './BlipeeIcon'

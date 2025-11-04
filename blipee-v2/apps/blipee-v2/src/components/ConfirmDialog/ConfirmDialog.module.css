@@ -140,6 +140,18 @@
   box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
 }
 
+.confirmButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.confirmButton:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .dialog {

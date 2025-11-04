@@ -64,7 +64,15 @@ export default function CustomSelect({ value, onChange, options, className = '' 
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+
+      // Check if click is outside both the select button and the dropdown
+      if (
+        selectRef.current &&
+        !selectRef.current.contains(target) &&
+        // Also check if the click is not on the dropdown itself
+        !(target as Element).closest('[class*="dropdown"]')
+      ) {
         setIsOpen(false)
       }
     }
@@ -86,14 +94,18 @@ export default function CustomSelect({ value, onChange, options, className = '' 
         top: `${dropdownPosition.top}px`,
         left: `${dropdownPosition.left}px`,
         width: `${dropdownPosition.width}px`,
+        zIndex: 999999,
       }}
+      onClick={(e) => e.stopPropagation()}
     >
       {options.map((option) => (
         <button
           key={option.value}
           type="button"
           className={`${styles.option} ${option.value === value ? styles.selected : ''}`}
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
             onChange(option.value)
             setIsOpen(false)
           }}
@@ -115,7 +127,11 @@ export default function CustomSelect({ value, onChange, options, className = '' 
         ref={buttonRef}
         type="button"
         className={`${styles.selectButton} ${isOpen ? styles.open : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
       >
         <span>{selectedOption?.label || 'Select...'}</span>
         <svg
@@ -129,7 +145,7 @@ export default function CustomSelect({ value, onChange, options, className = '' 
         </svg>
       </button>
 
-      {mounted && dropdownContent && createPortal(dropdownContent, document.body)}
+      {mounted && typeof document !== 'undefined' && dropdownContent && createPortal(dropdownContent, document.body)}
     </div>
   )
 }
