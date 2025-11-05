@@ -1,5 +1,5 @@
 /**
- * Reset Password Page
+ * Reset Password Page - i18n enabled
  *
  * Features:
  * - Server Actions for form submission
@@ -7,6 +7,7 @@
  * - Password confirmation validation
  * - Password visibility toggle
  * - Automatic token verification from email link
+ * - Multi-language support (en-US, es-ES, pt-PT)
  *
  * Pattern: Server Component → Server Action → Password updated
  */
@@ -16,6 +17,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { updatePassword } from '@/app/actions/v2/auth'
 import { useToastMessages } from '@/hooks/useToastMessages'
 import { createClient } from '@/lib/supabase/v2/client'
@@ -27,6 +29,7 @@ export default function ResetPasswordPage() {
   const [isVerifying, setIsVerifying] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
+  const t = useTranslations('auth.resetPassword')
 
   // Automatically display toast messages from Server Actions
   useToastMessages()
@@ -64,7 +67,7 @@ export default function ResetPasswordPage() {
         <div className={`${styles.bgOrb} ${styles.bgOrb3}`}></div>
       </div>
 
-      <Link href="/signin" className={styles.backLink} aria-label="Return to sign in page">
+      <Link href="/signin" className={styles.backLink} aria-label={t('backToSignIn')}>
         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
           <path
             fillRule="evenodd"
@@ -72,7 +75,7 @@ export default function ResetPasswordPage() {
             clipRule="evenodd"
           />
         </svg>
-        <span>Back to Sign In</span>
+        <span>{t('backToSignIn')}</span>
       </Link>
 
       <div className={styles.authLayout}>
@@ -84,30 +87,30 @@ export default function ResetPasswordPage() {
 
             <div className={styles.welcomeSection}>
               <h1 className={styles.welcomeTitle}>
-                Create New <span className={styles.gradientText}>Password</span>
+                {t('title')} <span className={styles.gradientText}>{t('titleHighlight')}</span>
               </h1>
               <p className={styles.welcomeSubtitle}>
-                Choose a strong password to secure your account
+                {t('subtitle')}
               </p>
             </div>
 
             {isVerifying ? (
               <div style={{ textAlign: 'center', padding: '2rem' }}>
                 <p style={{ color: 'var(--text-secondary)' }}>
-                  Verifying your reset link...
+                  {t('verifying')}
                 </p>
               </div>
             ) : !isAuthenticated ? (
               <div style={{ textAlign: 'center', padding: '2rem' }}>
                 <p style={{ color: 'var(--text-secondary)' }}>
-                  Invalid or expired reset link. Please request a new one.
+                  {t('invalidLink')}
                 </p>
               </div>
             ) : (
               <form action={updatePassword} className={styles.authForm}>
                 <div className={styles.formGroup}>
                   <label htmlFor="password" className={styles.formLabel}>
-                    New Password
+                    {t('passwordLabel')}
                   </label>
                   <div className={styles.passwordGroup}>
                     <input
@@ -118,13 +121,13 @@ export default function ResetPasswordPage() {
                       minLength={8}
                       required
                       className={styles.formInput}
-                      placeholder="Enter new password (min. 8 characters)"
+                      placeholder={t('passwordPlaceholder')}
                     />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className={styles.passwordToggle}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                   >
                     {showPassword ? (
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -143,7 +146,7 @@ export default function ResetPasswordPage() {
 
               <div className={styles.formGroup}>
                 <label htmlFor="confirmPassword" className={styles.formLabel}>
-                  Confirm Password
+                  {t('confirmPasswordLabel')}
                 </label>
                 <div className={styles.passwordGroup}>
                   <input
@@ -154,13 +157,13 @@ export default function ResetPasswordPage() {
                     minLength={8}
                     required
                     className={styles.formInput}
-                    placeholder="Confirm your new password"
+                    placeholder={t('confirmPasswordPlaceholder')}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className={styles.passwordToggle}
-                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
                   >
                     {showConfirmPassword ? (
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -178,15 +181,15 @@ export default function ResetPasswordPage() {
               </div>
 
                 <button type="submit" className={styles.submitBtn}>
-                  Update Password
+                  {t('submitButton')}
                 </button>
               </form>
             )}
 
             <div className={styles.signupSection}>
-              Return to{' '}
+              {t('returnTo')}{' '}
               <Link href="/signin" className={styles.signupLink}>
-                Sign in
+                {t('signIn')}
               </Link>
             </div>
           </div>
@@ -213,10 +216,10 @@ export default function ResetPasswordPage() {
               </svg>
             </div>
             <h2 className={styles.visualTitle}>
-              Secure Your <span className={styles.gradientText}>Account</span>
+              {t('rightTitle')} <span className={styles.gradientText}>{t('rightTitleHighlight')}</span>
             </h2>
             <p className={styles.visualSubtitle}>
-              Create a strong password to protect your sustainability data and AI agents.
+              {t('rightSubtitle')}
             </p>
 
             <div className={styles.featureList}>
@@ -226,7 +229,7 @@ export default function ResetPasswordPage() {
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   </svg>
                 </div>
-                <span className={styles.featureText}>Minimum 8 characters required</span>
+                <span className={styles.featureText}>{t('features.minimum')}</span>
               </div>
               <div className={styles.featureItem}>
                 <div className={styles.featureIcon}>
@@ -235,7 +238,7 @@ export default function ResetPasswordPage() {
                     <path d="M7 11V7a5 5 0 0110 0v4"></path>
                   </svg>
                 </div>
-                <span className={styles.featureText}>Encrypted and secure storage</span>
+                <span className={styles.featureText}>{t('features.encrypted')}</span>
               </div>
               <div className={styles.featureItem}>
                 <div className={styles.featureIcon}>
@@ -243,7 +246,7 @@ export default function ResetPasswordPage() {
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </div>
-                <span className={styles.featureText}>Instant account access after update</span>
+                <span className={styles.featureText}>{t('features.instant')}</span>
               </div>
             </div>
           </div>

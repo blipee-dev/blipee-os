@@ -1,10 +1,11 @@
 /**
- * Forgot Password Page
+ * Forgot Password Page - i18n enabled
  *
  * Features:
  * - Server Actions for form submission
  * - Supabase password reset
  * - Toast notifications for errors/success
+ * - Multi-language support (en-US, es-ES, pt-PT)
  *
  * Pattern: Client Component → Server Action → Email sent
  */
@@ -13,6 +14,7 @@
 
 import Link from 'next/link'
 import { useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import { resetPassword } from '@/app/actions/v2/auth'
 import { useToastMessages } from '@/hooks/useToastMessages'
 import styles from '../auth.module.css'
@@ -20,6 +22,7 @@ import styles from '../auth.module.css'
 export default function ForgotPasswordPage() {
   const [isPending, startTransition] = useTransition()
   const [email, setEmail] = useState('')
+  const t = useTranslations('auth.forgotPassword')
 
   // Automatically display toast messages from Server Actions
   useToastMessages()
@@ -48,7 +51,7 @@ export default function ForgotPasswordPage() {
         <div className={`${styles.bgOrb} ${styles.bgOrb3}`}></div>
       </div>
 
-      <Link href="/signin" className={styles.backLink} aria-label="Return to sign in page">
+      <Link href="/signin" className={styles.backLink} aria-label={t('backToSignIn')}>
         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
           <path
             fillRule="evenodd"
@@ -56,7 +59,7 @@ export default function ForgotPasswordPage() {
             clipRule="evenodd"
           />
         </svg>
-        <span>Back to Sign In</span>
+        <span>{t('backToSignIn')}</span>
       </Link>
 
       <div className={styles.authLayout}>
@@ -68,17 +71,17 @@ export default function ForgotPasswordPage() {
 
             <div className={styles.welcomeSection}>
               <h1 className={styles.welcomeTitle}>
-                Reset Your <span className={styles.gradientText}>Password</span>
+                {t('title')} <span className={styles.gradientText}>{t('titleHighlight')}</span>
               </h1>
               <p className={styles.welcomeSubtitle}>
-                Enter your email and we&apos;ll send you a reset link
+                {t('subtitle')}
               </p>
             </div>
 
             <form action={handleSubmit} className={styles.authForm}>
               <div className={styles.formGroup}>
                 <label htmlFor="email" className={styles.formLabel}>
-                  Email Address
+                  {t('emailLabel')}
                 </label>
                 <input
                   type="email"
@@ -89,20 +92,20 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={styles.formInput}
-                  placeholder="you@company.com"
+                  placeholder={t('emailPlaceholder')}
                   disabled={isPending}
                 />
               </div>
 
               <button type="submit" className={styles.submitBtn} disabled={isPending}>
-                {isPending ? 'Sending...' : 'Send Reset Link'}
+                {isPending ? t('submitButtonSending') : t('submitButton')}
               </button>
             </form>
 
             <div className={styles.signupSection}>
-              Remember your password?{' '}
+              {t('rememberPassword')}{' '}
               <Link href="/signin" className={styles.signupLink}>
-                Sign in
+                {t('signIn')}
               </Link>
             </div>
           </div>
@@ -129,10 +132,10 @@ export default function ForgotPasswordPage() {
               </svg>
             </div>
             <h2 className={styles.visualTitle}>
-              Secure <span className={styles.gradientText}>Password Reset</span>
+              {t('rightTitle')} <span className={styles.gradientText}>{t('rightTitleHighlight')}</span>
             </h2>
             <p className={styles.visualSubtitle}>
-              We&apos;ll send you a secure link to reset your password and get you back to managing your sustainability goals.
+              {t('rightSubtitle')}
             </p>
 
             <div className={styles.featureList}>
@@ -143,7 +146,7 @@ export default function ForgotPasswordPage() {
                     <path d="M7 11V7a5 5 0 0110 0v4"></path>
                   </svg>
                 </div>
-                <span className={styles.featureText}>Secure encrypted link</span>
+                <span className={styles.featureText}>{t('features.secure')}</span>
               </div>
               <div className={styles.featureItem}>
                 <div className={styles.featureIcon}>
@@ -152,7 +155,7 @@ export default function ForgotPasswordPage() {
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
                 </div>
-                <span className={styles.featureText}>Link expires in 1 hour</span>
+                <span className={styles.featureText}>{t('features.expires')}</span>
               </div>
               <div className={styles.featureItem}>
                 <div className={styles.featureIcon}>
@@ -161,7 +164,7 @@ export default function ForgotPasswordPage() {
                     <polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
                 </div>
-                <span className={styles.featureText}>Check your email inbox</span>
+                <span className={styles.featureText}>{t('features.checkEmail')}</span>
               </div>
             </div>
           </div>
