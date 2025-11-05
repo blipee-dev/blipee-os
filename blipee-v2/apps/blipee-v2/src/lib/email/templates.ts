@@ -7,7 +7,7 @@
 
 // Logo hosted on domain - PNG for universal email client support
 // blipee assistant robot (green) - 192x192px
-const LOGO_URL = "https://blipee.io/blipee-assistant-logo.png"
+const LOGO_URL = "https://v2.blipee.io/blipee-assistant-logo.png"
 
 /**
  * Email Confirmation Template
