@@ -1,11 +1,12 @@
 /**
- * Sign In Page (V2)
+ * Sign In Page (V2) - i18n enabled
  *
  * Features:
  * - Server Actions for form submission
  * - Works without JavaScript
  * - Automatic validation
  * - OAuth providers
+ * - Multi-language support (en-US, es-ES, pt-PT)
  *
  * Pattern: Server Component → Server Action → Redirect
  */
@@ -14,6 +15,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   signIn,
   signInWithGoogle,
@@ -24,6 +26,7 @@ import styles from '../auth.module.css'
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
+  const t = useTranslations('auth.signin')
 
   // Automatically display toast messages from Server Actions
   useToastMessages()
@@ -37,7 +40,7 @@ export default function SignInPage() {
         <div className={`${styles.bgOrb} ${styles.bgOrb3}`}></div>
       </div>
 
-      <Link href="/" className={styles.backLink} aria-label="Return to home page">
+      <Link href="/" className={styles.backLink} aria-label={t('backToHome')}>
         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
           <path
             fillRule="evenodd"
@@ -45,7 +48,7 @@ export default function SignInPage() {
             clipRule="evenodd"
           />
         </svg>
-        <span>Back to Home</span>
+        <span>{t('backToHome')}</span>
       </Link>
 
       <div className={styles.authLayout}>
@@ -57,17 +60,17 @@ export default function SignInPage() {
 
             <div className={styles.welcomeSection}>
               <h1 className={styles.welcomeTitle}>
-                Welcome <span className={styles.gradientText}>Back</span>
+                {t('title')} <span className={styles.gradientText}>{t('titleHighlight')}</span>
               </h1>
               <p className={styles.welcomeSubtitle}>
-                Sign in to access your dashboard
+                {t('subtitle')}
               </p>
             </div>
 
             <form action={signIn} className={styles.authForm}>
               <div className={styles.formGroup}>
                 <label htmlFor="email" className={styles.formLabel}>
-                  Email Address
+                  {t('emailLabel')}
                 </label>
                 <input
                   type="email"
@@ -75,13 +78,13 @@ export default function SignInPage() {
                   name="email"
                   autoComplete="email"
                   className={styles.formInput}
-                  placeholder="you@company.com"
+                  placeholder={t('emailPlaceholder')}
                 />
               </div>
 
               <div className={styles.formGroup}>
                 <label htmlFor="password" className={styles.formLabel}>
-                  Password
+                  {t('passwordLabel')}
                 </label>
                 <div className={styles.passwordGroup}>
                   <input
@@ -90,13 +93,13 @@ export default function SignInPage() {
                     name="password"
                     autoComplete="current-password"
                     className={styles.formInput}
-                    placeholder="Enter your password"
+                    placeholder={t('passwordPlaceholder')}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className={styles.passwordToggle}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                   >
                     {showPassword ? (
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -116,15 +119,15 @@ export default function SignInPage() {
               <div className={styles.formOptions}>
                 <label className={styles.rememberMe}>
                   <input type="checkbox" className={styles.checkbox} />
-                  <span className={styles.rememberLabel}>Remember me</span>
+                  <span className={styles.rememberLabel}>{t('rememberMe')}</span>
                 </label>
                 <Link href="/forgot-password" className={styles.forgotLink}>
-                  Forgot password?
+                  {t('forgotPassword')}
                 </Link>
               </div>
 
               <button type="submit" className={styles.submitBtn}>
-                Sign In
+                {t('submitButton')}
               </button>
             </form>
 
@@ -133,28 +136,28 @@ export default function SignInPage() {
                 <div className={styles.dividerBorder} />
               </div>
               <div className={styles.dividerText}>
-                <span className={styles.dividerLabel}>Or continue with</span>
+                <span className={styles.dividerLabel}>{t('divider')}</span>
               </div>
             </div>
 
-            <div className={styles.oauthButtons} role="group" aria-label="Sign in with social providers">
+            <div className={styles.oauthButtons} role="group" aria-label={t('divider')}>
               <form action={signInWithGoogle}>
-                <button type="submit" className={styles.oauthBtn} aria-label="Sign in with Google">
-                  Google
+                <button type="submit" className={styles.oauthBtn} aria-label={`Sign in with ${t('googleButton')}`}>
+                  {t('googleButton')}
                 </button>
               </form>
 
               <form action={signInWithGitHub}>
-                <button type="submit" className={styles.oauthBtn} aria-label="Sign in with GitHub">
-                  GitHub
+                <button type="submit" className={styles.oauthBtn} aria-label={`Sign in with ${t('githubButton')}`}>
+                  {t('githubButton')}
                 </button>
               </form>
             </div>
 
             <div className={styles.signupSection}>
-              Don&apos;t have an account?{' '}
+              {t('noAccount')}{' '}
               <Link href="/contact" className={styles.signupLink}>
-                Get yours here
+                {t('getAccount')}
               </Link>
             </div>
           </div>
@@ -181,10 +184,10 @@ export default function SignInPage() {
               </svg>
             </div>
             <h2 className={styles.visualTitle}>
-              Your AI <span className={styles.gradientText}>Workforce</span> Awaits
+              {t('rightTitle')} <span className={styles.gradientText}>{t('rightTitleHighlight')}</span> {t('rightTitleSuffix')}
             </h2>
             <p className={styles.visualSubtitle}>
-              Access your autonomous sustainability platform with 8 specialized agents working around the clock.
+              {t('rightSubtitle')}
             </p>
 
             <div className={styles.featureList}>
@@ -194,7 +197,7 @@ export default function SignInPage() {
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
                 </div>
-                <span className={styles.featureText}>Chat with BlipeeAssistant</span>
+                <span className={styles.featureText}>{t('features.chat')}</span>
               </div>
               <div className={styles.featureItem}>
                 <div className={styles.featureIcon}>
@@ -202,7 +205,7 @@ export default function SignInPage() {
                     <path d="M13 2L3 14L12 14L11 22L21 10L12 10L13 2Z" />
                   </svg>
                 </div>
-                <span className={styles.featureText}>Work with our Autonomous Agents</span>
+                <span className={styles.featureText}>{t('features.agents')}</span>
               </div>
               <div className={styles.featureItem}>
                 <div className={styles.featureIcon}>
@@ -211,7 +214,7 @@ export default function SignInPage() {
                     <path d="m19 9-5 5-4-4-3 3" />
                   </svg>
                 </div>
-                <span className={styles.featureText}>Track your Targets with ML-Powered Predictions</span>
+                <span className={styles.featureText}>{t('features.track')}</span>
               </div>
               <div className={styles.featureItem}>
                 <div className={styles.featureIcon}>
@@ -223,7 +226,7 @@ export default function SignInPage() {
                     <path d="M10 9H8" />
                   </svg>
                 </div>
-                <span className={styles.featureText}>Sustainability Reports in One Click</span>
+                <span className={styles.featureText}>{t('features.reports')}</span>
               </div>
             </div>
           </div>

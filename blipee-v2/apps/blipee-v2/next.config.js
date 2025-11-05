@@ -15,6 +15,7 @@
  */
 
 const { withSentryConfig } = require('@sentry/nextjs')
+const withNextIntl = require('next-intl/plugin')('./src/i18n/request.ts')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -217,7 +218,10 @@ const sentryWebpackPluginOptions = {
   disableLogger: true,
 }
 
-// Make sure adding Sentry options is the last code to run before exporting
+// Make sure adding Sentry and i18n options is the last code to run before exporting
+// Chain: withNextIntl -> withSentryConfig (if SENTRY_AUTH_TOKEN is set)
+const configWithI18n = withNextIntl(nextConfig)
+
 module.exports = process.env.SENTRY_AUTH_TOKEN
-  ? withSentryConfig(nextConfig, sentryWebpackPluginOptions)
-  : nextConfig
+  ? withSentryConfig(configWithI18n, sentryWebpackPluginOptions)
+  : configWithI18n
