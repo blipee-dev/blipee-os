@@ -29,6 +29,9 @@ import {
   formatResetTime
 } from '@/lib/rate-limit'
 import { storeToken, generateTokenUrl } from '@/lib/auth/tokens'
+import { detectBrowserLocale, getUserLocale } from '@/lib/email/utils'
+import { getEmailTemplate, getEmailSubject } from '@/lib/email/templates'
+import type { Locale } from '@/lib/email/templates'
 
 // Validation schemas
 const SignInSchema = z.object({
@@ -167,6 +170,10 @@ export async function signUp(formData: FormData): Promise<void> {
   const { email, password, name } = validation.data
 
   try {
+    // Detect user's preferred locale from browser
+    const locale = await detectBrowserLocale()
+    console.log('[SIGNUP] Detected locale:', locale)
+
     // Create user with admin client (email confirmation disabled initially)
     const adminClient = createAdminClient()
 
@@ -176,6 +183,7 @@ export async function signUp(formData: FormData): Promise<void> {
       email_confirm: false, // We'll confirm via our custom token
       user_metadata: {
         name,
+        preferred_locale: locale, // Store detected locale
       },
     })
 
@@ -211,14 +219,20 @@ export async function signUp(formData: FormData): Promise<void> {
 
     console.log('[SIGNUP] Confirmation URL:', confirmationUrl)
 
-    // Send confirmation email
+    // Send confirmation email with localized template
     const { sendEmail } = await import('@/lib/email/mailer')
-    const { emailConfirmationTemplate } = await import('@/lib/email/templates')
+
+    const emailHtml = getEmailTemplate('email_confirmation', locale, {
+      name: name || '',
+      confirmationUrl,
+    })
+
+    const emailSubject = getEmailSubject('email_confirmation', locale)
 
     const emailResult = await sendEmail({
       to: email,
-      subject: 'Confirm your email - blipee',
-      html: emailConfirmationTemplate(name || '', confirmationUrl),
+      subject: emailSubject,
+      html: emailHtml,
     })
 
     if (!emailResult.success) {
@@ -306,7 +320,7 @@ export async function resetPassword(formData: FormData): Promise<void> {
 
   try {
     // Generate password reset token
-    const { token, error: tokenError } = await storeToken(email, 'password_reset')
+    const { token, error: tokenError, userId } = await storeToken(email, 'password_reset')
 
     // Don't expose whether email exists - always show success
     if (tokenError || !token) {
@@ -314,6 +328,13 @@ export async function resetPassword(formData: FormData): Promise<void> {
       await toastSuccess('If that email is registered, you will receive a password reset link.')
       redirect('/forgot-password')
       return
+    }
+
+    // Get user's preferred locale (or default to en-US)
+    let locale: Locale = 'en-US'
+    if (userId) {
+      locale = await getUserLocale(userId, { email })
+      console.log('[RESET PASSWORD] User locale:', locale)
     }
 
     // Generate reset URL
@@ -326,14 +347,20 @@ export async function resetPassword(formData: FormData): Promise<void> {
 
     console.log('[RESET PASSWORD] Reset URL:', resetUrl)
 
-    // Send password reset email
+    // Send password reset email with localized template
     const { sendEmail } = await import('@/lib/email/mailer')
-    const { passwordResetTemplate } = await import('@/lib/email/templates')
+
+    const emailHtml = getEmailTemplate('password_reset', locale, {
+      email,
+      resetUrl,
+    })
+
+    const emailSubject = getEmailSubject('password_reset', locale)
 
     const emailResult = await sendEmail({
       to: email,
-      subject: 'Reset your password - blipee',
-      html: passwordResetTemplate(email, resetUrl),
+      subject: emailSubject,
+      html: emailHtml,
     })
 
     if (!emailResult.success) {

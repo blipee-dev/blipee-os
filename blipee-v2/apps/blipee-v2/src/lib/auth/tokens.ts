@@ -76,7 +76,7 @@ export async function storeToken(
   email: string,
   type: TokenType,
   metadata?: Record<string, any>
-): Promise<{ token: string; error?: string }> {
+): Promise<{ token: string; userId?: string; error?: string }> {
   try {
     const adminClient = createAdminClient()
 
@@ -119,7 +119,7 @@ export async function storeToken(
     }
 
     console.log(`[TOKEN] Stored ${type} token for ${email}, expires at ${expiresAt.toISOString()}`)
-    return { token }
+    return { token, userId: user.id }
 
   } catch (error) {
     console.error('[TOKEN] Exception storing token:', error)

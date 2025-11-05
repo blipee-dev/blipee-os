@@ -2,6 +2,8 @@
 
 import { createAdminClient, createClient } from '@/lib/supabase/v2/server'
 import { revalidatePath } from 'next/cache'
+import { detectInvitationLocale } from '@/lib/email/utils'
+import { getEmailTemplate, getEmailSubject } from '@/lib/email/templates'
 
 interface InviteUserData {
   email: string
@@ -98,9 +100,16 @@ export async function inviteUser(formData: InviteUserData) {
 
     console.log('[INVITE USER] Invitation URL:', invitationUrl)
 
-    // Send invitation email
+    // Detect invitation locale based on organization, inviter, and email
+    const locale = await detectInvitationLocale(
+      user.id,
+      formData.organization_id,
+      formData.email
+    )
+    console.log('[INVITE USER] Detected locale:', locale)
+
+    // Send invitation email with localized template
     const { sendEmail } = await import('@/lib/email/mailer')
-    const { userInvitationTemplate } = await import('@/lib/email/templates')
 
     // Get inviter's name
     const { data: inviterProfile } = await supabase
@@ -116,15 +125,19 @@ export async function inviteUser(formData: InviteUserData) {
       .eq('id', formData.organization_id)
       .single()
 
+    const emailHtml = getEmailTemplate('user_invitation', locale, {
+      inviterName: inviterProfile?.full_name || 'A team member',
+      organizationName: org?.name || 'the organization',
+      invitationUrl,
+      role: formData.role,
+    })
+
+    const emailSubject = getEmailSubject('user_invitation', locale)
+
     const emailResult = await sendEmail({
       to: formData.email,
-      subject: `You've been invited to ${org?.name || 'blipee'}`,
-      html: userInvitationTemplate(
-        inviterProfile?.full_name || 'A team member',
-        org?.name || 'the organization',
-        invitationUrl,
-        formData.role
-      ),
+      subject: emailSubject,
+      html: emailHtml,
     })
 
     if (!emailResult.success) {
@@ -322,6 +335,65 @@ export async function deleteUser(userId: string, organizationId: string) {
     return { success: true }
   } catch (error) {
     console.error('Delete user error:', error)
+    return { error: 'An unexpected error occurred' }
+  }
+}
+
+/**
+ * Update user's preferred locale
+ * This is the highest priority setting for language preferences
+ */
+export async function updateUserLocale(formData: FormData) {
+  try {
+    const locale = formData.get('locale') as string
+
+    // Validate locale
+    if (!['en-US', 'es-ES', 'pt-PT'].includes(locale)) {
+      return { error: 'Invalid locale' }
+    }
+
+    // Get current user
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return { error: 'Not authenticated' }
+    }
+
+    // Update in user_profiles (highest priority)
+    const { error: profileError } = await supabase
+      .from('user_profiles')
+      .update({ preferred_locale: locale })
+      .eq('id', user.id)
+
+    if (profileError) {
+      console.error('[UPDATE LOCALE] Profile update error:', profileError)
+      return { error: 'Failed to update locale preference' }
+    }
+
+    // Also update in user_metadata as backup
+    const adminClient = createAdminClient()
+    const { error: metadataError } = await adminClient.auth.admin.updateUserById(user.id, {
+      user_metadata: {
+        ...user.user_metadata,
+        preferred_locale: locale,
+      },
+    })
+
+    if (metadataError) {
+      console.error('[UPDATE LOCALE] Metadata update error:', metadataError)
+      // Don't fail if metadata update fails - profile update is enough
+    }
+
+    console.log(`[UPDATE LOCALE] Updated locale for user ${user.id} to ${locale}`)
+
+    revalidatePath('/dashboard/profile')
+    revalidatePath('/dashboard/settings')
+    return { success: true, locale }
+  } catch (error) {
+    console.error('[UPDATE LOCALE] Error:', error)
     return { error: 'An unexpected error occurred' }
   }
 }
