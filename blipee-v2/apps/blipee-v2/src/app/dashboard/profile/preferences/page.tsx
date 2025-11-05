@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
 import { useToast } from '@/components/Toast'
 import styles from '@/styles/settings-layout.module.css'
@@ -9,6 +10,7 @@ import CustomSelect from '@/components/CustomSelect'
 import CustomCheckbox from '@/components/CustomCheckbox'
 
 export default function PreferencesPage() {
+  const t = useTranslations('profile.profile.preferences')
   const { preferences: userPreferences, loading, updating, updatePreferencesAsync } = useUserPreferences()
   const toast = useToast()
 
@@ -34,10 +36,10 @@ export default function PreferencesPage() {
 
     try {
       await updatePreferencesAsync(formData)
-      toast.showSuccess('Preferences updated successfully!')
+      toast.showSuccess(t('updateSuccess'))
     } catch (error) {
       console.error('Error updating preferences:', error)
-      toast.showError('Error updating preferences.')
+      toast.showError(t('updateError'))
     }
   }
 
@@ -51,7 +53,7 @@ export default function PreferencesPage() {
     return (
       <div className={styles.section}>
         <p style={{ textAlign: 'center', color: 'var(--text-tertiary)' }}>
-          Loading preferences...
+          {t('loading')}
         </p>
       </div>
     )
@@ -60,13 +62,13 @@ export default function PreferencesPage() {
   return (
     <>
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Language</h2>
+        <h2 className={styles.sectionTitle}>{t('languageTitle')}</h2>
         <p className={styles.sectionDescription}>
-          Choose your preferred interface language
+          {t('languageDescription')}
         </p>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Language</label>
+          <label className={styles.label}>{t('languageLabel')}</label>
           <CustomSelect
             value={formData.language}
             onChange={(value) => setFormData({ ...formData, language: value })}
@@ -81,13 +83,13 @@ export default function PreferencesPage() {
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Timezone</h2>
+        <h2 className={styles.sectionTitle}>{t('timezoneTitle')}</h2>
         <p className={styles.sectionDescription}>
-          Set your timezone for accurate time display
+          {t('timezoneDescription')}
         </p>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Timezone</label>
+          <label className={styles.label}>{t('timezoneLabel')}</label>
           <CustomSelect
             value={formData.timezone}
             onChange={(value) => setFormData({ ...formData, timezone: value })}
@@ -102,9 +104,9 @@ export default function PreferencesPage() {
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Notifications</h2>
+        <h2 className={styles.sectionTitle}>{t('notificationsTitle')}</h2>
         <p className={styles.sectionDescription}>
-          Configure how you receive alerts and updates
+          {t('notificationsDescription')}
         </p>
 
         <div className={styles.form}>
@@ -112,53 +114,53 @@ export default function PreferencesPage() {
             <CustomCheckbox
               checked={formData.emailNotifications}
               onChange={(checked) => setFormData({ ...formData, emailNotifications: checked })}
-              label="Email notifications"
-              description="Receive notifications via email"
+              label={t('emailNotificationsLabel')}
+              description={t('emailNotificationsDescription')}
             />
           </div>
 
           <div style={{ marginLeft: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <p className={styles.label}>Alert types to receive:</p>
+            <p className={styles.label}>{t('alertTypesLabel')}</p>
 
             <CustomCheckbox
               checked={formData.criticalAlerts}
               onChange={(checked) => setFormData({ ...formData, criticalAlerts: checked })}
-              label="Critical alerts (system failures, sensor offline)"
+              label={t('criticalAlertsLabel')}
             />
 
             <CustomCheckbox
               checked={formData.warningAlerts}
               onChange={(checked) => setFormData({ ...formData, warningAlerts: checked })}
-              label="Warning alerts (thresholds exceeded)"
+              label={t('warningAlertsLabel')}
             />
 
             <CustomCheckbox
               checked={formData.infoAlerts}
               onChange={(checked) => setFormData({ ...formData, infoAlerts: checked })}
-              label="Info alerts (daily summaries)"
+              label={t('infoAlertsLabel')}
             />
           </div>
         </div>
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Dashboard Preferences</h2>
+        <h2 className={styles.sectionTitle}>{t('dashboardPreferencesTitle')}</h2>
         <p className={styles.sectionDescription}>
-          Customize your dashboard experience
+          {t('dashboardPreferencesDescription')}
         </p>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Default date range</label>
+          <label className={styles.label}>{t('defaultDateRangeLabel')}</label>
           <CustomSelect
             value={formData.defaultDateRange}
             onChange={(value) => setFormData({ ...formData, defaultDateRange: value })}
             options={[
-              { value: 'this-month', label: 'This month' },
-              { value: 'last-month', label: 'Last month' },
-              { value: 'last-3-months', label: 'Last 3 months' },
-              { value: 'last-6-months', label: 'Last 6 months' },
-              { value: 'ytd', label: 'Year to date (YTD)' },
-              { value: 'last-12-months', label: 'Last 12 months' },
+              { value: 'this-month', label: t('dateRangeThisMonth') },
+              { value: 'last-month', label: t('dateRangeLastMonth') },
+              { value: 'last-3-months', label: t('dateRangeLast3Months') },
+              { value: 'last-6-months', label: t('dateRangeLast6Months') },
+              { value: 'ytd', label: t('dateRangeYTD') },
+              { value: 'last-12-months', label: t('dateRangeLast12Months') },
             ]}
           />
         </div>

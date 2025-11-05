@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/v2/client'
 import { useToast } from '@/components/Toast'
 import styles from '@/styles/settings-layout.module.css'
 import FormActions from '@/components/FormActions'
 
 export default function SecurityPage() {
+  const t = useTranslations('profile.profile.security')
   const toast = useToast()
   const [changingPassword, setChangingPassword] = useState(false)
   const [passwordForm, setPasswordForm] = useState({
@@ -19,12 +21,12 @@ export default function SecurityPage() {
     e.preventDefault()
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.showError('Passwords do not match.')
+      toast.showError(t('passwordsDoNotMatch'))
       return
     }
 
     if (passwordForm.newPassword.length < 8) {
-      toast.showError('Password must be at least 8 characters.')
+      toast.showError(t('passwordTooShort'))
       return
     }
 
@@ -38,11 +40,11 @@ export default function SecurityPage() {
 
       if (error) throw error
 
-      toast.showSuccess('Password changed successfully!')
+      toast.showSuccess(t('passwordChangeSuccess'))
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
     } catch (error) {
       console.error('Error changing password:', error)
-      toast.showError('Error changing password.')
+      toast.showError(t('passwordChangeError'))
     } finally {
       setChangingPassword(false)
     }
@@ -52,14 +54,14 @@ export default function SecurityPage() {
     <>
       {/* Change Password */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Change Password</h2>
+        <h2 className={styles.sectionTitle}>{t('changePasswordTitle')}</h2>
         <p className={styles.sectionDescription}>
-          Update your password regularly to keep your account secure
+          {t('changePasswordDescription')}
         </p>
 
         <form onSubmit={handlePasswordChange} className={styles.form}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Current Password</label>
+            <label className={styles.label}>{t('currentPasswordLabel')}</label>
             <input
               type="password"
               className={styles.input}
@@ -70,7 +72,7 @@ export default function SecurityPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>New Password</label>
+            <label className={styles.label}>{t('newPasswordLabel')}</label>
             <input
               type="password"
               className={styles.input}
@@ -79,11 +81,11 @@ export default function SecurityPage() {
               required
               minLength={8}
             />
-            <p className={styles.helpText}>Minimum 8 characters</p>
+            <p className={styles.helpText}>{t('newPasswordHelpText')}</p>
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Confirm New Password</label>
+            <label className={styles.label}>{t('confirmPasswordLabel')}</label>
             <input
               type="password"
               className={styles.input}
@@ -96,8 +98,8 @@ export default function SecurityPage() {
           <FormActions
             onCancel={() => setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })}
             isSaving={changingPassword}
-            saveButtonText="Change Password"
-            confirmMessage="Are you sure you want to change your password?"
+            saveButtonText={t('changePasswordButton')}
+            confirmMessage={t('changePasswordConfirm')}
             isSubmitButton={true}
           />
         </form>
@@ -105,23 +107,23 @@ export default function SecurityPage() {
 
       {/* Two-Factor Authentication */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Two-Factor Authentication (2FA)</h2>
+        <h2 className={styles.sectionTitle}>{t('twoFactorTitle')}</h2>
         <p className={styles.sectionDescription}>
-          Add an extra layer of security to your account
+          {t('twoFactorDescription')}
         </p>
 
         <div style={{ padding: '1.5rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <h3 style={{ fontSize: '1rem', fontWeight: 500, marginBottom: '0.5rem' }}>
-                Status: <span style={{ color: 'var(--color-warning)' }}>Disabled</span>
+                {t('twoFactorStatusLabel')} <span style={{ color: 'var(--color-warning)' }}>{t('twoFactorStatusDisabled')}</span>
               </h3>
               <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                Protect your account with two-factor authentication through an authenticator app
+                {t('twoFactorProtectionText')}
               </p>
             </div>
             <button className={`${styles.button} ${styles.buttonPrimary}`}>
-              Enable 2FA
+              {t('enable2FAButton')}
             </button>
           </div>
         </div>
@@ -129,9 +131,9 @@ export default function SecurityPage() {
 
       {/* Active Sessions */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Active Sessions</h2>
+        <h2 className={styles.sectionTitle}>{t('activeSessionsTitle')}</h2>
         <p className={styles.sectionDescription}>
-          Manage devices with access to your account
+          {t('activeSessionsDescription')}
         </p>
 
         <div className={styles.table}>
@@ -139,16 +141,16 @@ export default function SecurityPage() {
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
                 <th style={{ textAlign: 'left', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  Device
+                  {t('deviceHeader')}
                 </th>
                 <th style={{ textAlign: 'left', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  Location
+                  {t('locationHeader')}
                 </th>
                 <th style={{ textAlign: 'left', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  Last Access
+                  {t('lastAccessHeader')}
                 </th>
                 <th style={{ textAlign: 'right', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  Actions
+                  {t('actionsHeader')}
                 </th>
               </tr>
             </thead>
@@ -165,7 +167,7 @@ export default function SecurityPage() {
                       <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>Chrome on macOS</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'flex', alignItems: 'center' }}>
                         <span className={`${styles.sessionIndicator} ${styles.sessionIndicatorActive}`}></span>
-                        Current session
+                        {t('currentSession')}
                       </div>
                     </div>
                   </div>
@@ -174,11 +176,11 @@ export default function SecurityPage() {
                   Lisbon, Portugal
                 </td>
                 <td style={{ padding: '1rem 0.75rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                  Now
+                  {t('now')}
                 </td>
                 <td style={{ padding: '1rem 0.75rem', textAlign: 'right' }}>
                   <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
-                    This session
+                    {t('thisSession')}
                   </span>
                 </td>
               </tr>
@@ -193,7 +195,7 @@ export default function SecurityPage() {
                       <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>Safari on iPhone</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'flex', alignItems: 'center' }}>
                         <span className={`${styles.sessionIndicator} ${styles.sessionIndicatorInactive}`}></span>
-                        Inactive
+                        {t('inactive')}
                       </div>
                     </div>
                   </div>
@@ -209,7 +211,7 @@ export default function SecurityPage() {
                     className={`${styles.button} ${styles.buttonSecondary}`}
                     style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
                   >
-                    Revoke
+                    {t('revokeButton')}
                   </button>
                 </td>
               </tr>
@@ -219,7 +221,7 @@ export default function SecurityPage() {
 
         <div style={{ marginTop: '1rem' }}>
           <button className={`${styles.button} ${styles.buttonSecondary}`}>
-            End All Other Sessions
+            {t('endAllSessionsButton')}
           </button>
         </div>
       </div>

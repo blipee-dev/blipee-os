@@ -58,6 +58,7 @@ export default getRequestConfig(async () => {
       auth: (await import(`./locales/${locale}/auth.json`)).default,
       common: (await import(`./locales/${locale}/common.json`)).default,
       dashboard: (await import(`./locales/${locale}/dashboard.json`)).default,
+      profile: (await import(`./locales/${locale}/profile.json`)).default,
     }
   }
 })

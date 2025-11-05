@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useUserOrganization } from '@/hooks/useUserOrganization'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/components/Toast'
@@ -52,6 +53,9 @@ const availableIcons: AvatarIcon[] = [
 
 export default function ProfilePage() {
   const router = useRouter()
+  const t = useTranslations('profile.profile')
+  const tAvatar = useTranslations('profile.profile.avatarCustomization')
+  const tPersonal = useTranslations('profile.profile.personalInformation')
   const { organization } = useUserOrganization()
   const { profile: userProfile, loading, updating, updateProfileAsync } = useUserProfile()
   const toast = useToast()
@@ -118,10 +122,10 @@ export default function ProfilePage() {
         },
       })
 
-      toast.showSuccess('Profile updated successfully!')
+      toast.showSuccess(tPersonal('updateSuccess'))
     } catch (error) {
       console.error('Error updating profile:', error)
-      toast.showError('Error updating profile. Please try again.')
+      toast.showError(tPersonal('updateError'))
     }
   }
 
@@ -144,7 +148,7 @@ export default function ProfilePage() {
     return (
       <div className={styles.section}>
         <p style={{ textAlign: 'center', color: 'var(--text-tertiary)' }}>
-          Loading...
+          {tPersonal('loading')}
         </p>
       </div>
     )
@@ -158,14 +162,14 @@ export default function ProfilePage() {
     <>
       {/* Avatar Customization */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Avatar Customization</h2>
+        <h2 className={styles.sectionTitle}>{tAvatar('title')}</h2>
         <p className={styles.sectionDescription}>
-          Choose how your avatar appears in the navigation bar
+          {tAvatar('description')}
         </p>
 
         {/* Avatar Preview */}
         <div className={styles.avatarPreviewSection}>
-          <div className={styles.avatarPreviewLabel}>Preview:</div>
+          <div className={styles.avatarPreviewLabel}>{tAvatar('previewLabel')}</div>
           <div
             className={styles.avatarPreviewLarge}
             style={{ background: gradients[avatarSettings.gradient] }}
@@ -183,7 +187,7 @@ export default function ProfilePage() {
 
         {/* Avatar Type Selection */}
         <div className={styles.formGroup}>
-          <label className={styles.label}>Display Type</label>
+          <label className={styles.label}>{tAvatar('displayTypeLabel')}</label>
           <div className={styles.avatarTypeButtons}>
             <button
               type="button"
@@ -194,7 +198,7 @@ export default function ProfilePage() {
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
-              Icon
+              {tAvatar('displayTypeIcon')}
             </button>
             <button
               type="button"
@@ -202,16 +206,16 @@ export default function ProfilePage() {
               onClick={() => setAvatarSettings({ ...avatarSettings, type: 'initials' })}
             >
               <span style={{ fontSize: '1.125rem', fontWeight: 600 }}>Aa</span>
-              Initials
+              {tAvatar('displayTypeInitials')}
             </button>
           </div>
-          <p className={styles.helpText}>Choose how your avatar appears in the navigation bar</p>
+          <p className={styles.helpText}>{tAvatar('displayTypeHelpText')}</p>
         </div>
 
         {/* Icon Selection (only when type is 'icon') */}
         {avatarSettings.type === 'icon' && (
           <div className={styles.formGroup}>
-            <label className={styles.label}>Choose Icon</label>
+            <label className={styles.label}>{tAvatar('chooseIconLabel')}</label>
             <div className={styles.gradientGrid}>
               {availableIcons.map((icon) => {
                 const IconComponent = iconComponents[icon]
@@ -234,13 +238,13 @@ export default function ProfilePage() {
                 )
               })}
             </div>
-            <p className={styles.helpText}>Select an icon for your avatar</p>
+            <p className={styles.helpText}>{tAvatar('chooseIconHelpText')}</p>
           </div>
         )}
 
         {/* Gradient Color Selection */}
         <div className={styles.formGroup}>
-          <label className={styles.label}>Gradient Color</label>
+          <label className={styles.label}>{tAvatar('gradientColorLabel')}</label>
           <div className={styles.gradientGrid}>
             {(Object.keys(gradients) as GradientColor[]).map((color) => (
               <div
@@ -264,15 +268,15 @@ export default function ProfilePage() {
               </div>
             ))}
           </div>
-          <p className={styles.helpText}>Select a color gradient for your avatar background</p>
+          <p className={styles.helpText}>{tAvatar('gradientColorHelpText')}</p>
         </div>
       </div>
 
       {/* Personal Information */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Personal Information</h2>
+        <h2 className={styles.sectionTitle}>{tPersonal('title')}</h2>
         <p className={styles.sectionDescription}>
-          Manage your personal details and contact information
+          {tPersonal('description')}
         </p>
 
         <FormWithConfirm onSubmit={handleSubmit} className={styles.form}>
@@ -280,7 +284,7 @@ export default function ProfilePage() {
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label className={styles.label}>
-                Full Name<span className={styles.required}>*</span>
+                {tPersonal('fullNameLabel')}<span className={styles.required}>{tPersonal('required')}</span>
               </label>
               <input
                 type="text"
@@ -293,7 +297,7 @@ export default function ProfilePage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Display Name</label>
+              <label className={styles.label}>{tPersonal('displayNameLabel')}</label>
               <input
                 type="text"
                 className={styles.input}
@@ -301,24 +305,24 @@ export default function ProfilePage() {
                 onChange={(e) => handleChange('display_name', e.target.value)}
                 placeholder="José"
               />
-              <p className={styles.helpText}>How you prefer to be addressed</p>
+              <p className={styles.helpText}>{tPersonal('displayNameHelpText')}</p>
             </div>
           </div>
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Email Address</label>
+              <label className={styles.label}>{tPersonal('emailLabel')}</label>
               <input
                 type="email"
                 className={styles.input}
                 value={userProfile.email}
                 disabled
               />
-              <p className={styles.helpText}>Email cannot be changed</p>
+              <p className={styles.helpText}>{tPersonal('emailHelpText')}</p>
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Employee ID</label>
+              <label className={styles.label}>{tPersonal('employeeIdLabel')}</label>
               <input
                 type="text"
                 className={styles.input}
@@ -332,7 +336,7 @@ export default function ProfilePage() {
           {/* Professional Information */}
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Job Title</label>
+              <label className={styles.label}>{tPersonal('jobTitleLabel')}</label>
               <input
                 type="text"
                 className={styles.input}
@@ -343,7 +347,7 @@ export default function ProfilePage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Department</label>
+              <label className={styles.label}>{tPersonal('departmentLabel')}</label>
               <input
                 type="text"
                 className={styles.input}
@@ -357,7 +361,7 @@ export default function ProfilePage() {
           {/* Contact Information */}
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Phone</label>
+              <label className={styles.label}>{tPersonal('phoneLabel')}</label>
               <input
                 type="tel"
                 className={styles.input}
@@ -368,7 +372,7 @@ export default function ProfilePage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Mobile Phone</label>
+              <label className={styles.label}>{tPersonal('mobilePhoneLabel')}</label>
               <input
                 type="tel"
                 className={styles.input}
@@ -382,21 +386,21 @@ export default function ProfilePage() {
           {/* Organization & Account Info (Read-only) */}
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Organization</label>
+              <label className={styles.label}>{tPersonal('organizationLabel')}</label>
               <input
                 type="text"
                 className={styles.input}
-                value={organization?.name || 'Loading...'}
+                value={organization?.name || tPersonal('loading')}
                 disabled
               />
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Access Level</label>
+              <label className={styles.label}>{tPersonal('accessLevelLabel')}</label>
               <input
                 type="text"
                 className={styles.input}
-                value={organization?.role ? `${organization.role}${organization.is_owner ? ' (Owner)' : ''}` : 'Loading...'}
+                value={organization?.role ? `${organization.role}${organization.is_owner ? ` (${tPersonal('accessLevelOwner')})` : ''}` : tPersonal('loading')}
                 disabled
               />
             </div>
@@ -404,7 +408,7 @@ export default function ProfilePage() {
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Member Since</label>
+              <label className={styles.label}>{tPersonal('memberSinceLabel')}</label>
               <input
                 type="text"
                 className={styles.input}
@@ -414,7 +418,7 @@ export default function ProfilePage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Last Access</label>
+              <label className={styles.label}>{tPersonal('lastAccessLabel')}</label>
               <input
                 type="text"
                 className={styles.input}
